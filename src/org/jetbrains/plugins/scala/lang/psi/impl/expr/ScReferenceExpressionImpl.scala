@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import api.ScalaFile
 import api.statements._
 import api.base.patterns.ScReferencePattern
+import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.util.IncorrectOperationException
 import resolve._
@@ -97,7 +98,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
       for (t <- e.allTypes) {
-        processor.processType(t, e)
+        processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, getImportsForImplicit(t)))
       }
     }
 

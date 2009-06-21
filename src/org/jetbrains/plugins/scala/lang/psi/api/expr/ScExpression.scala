@@ -31,7 +31,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     val settings: ScalaCodeStyleSettings =
       CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (settings.CHECK_IMPLICITS)
-      getType :: collectImplicitTypes
+      getType :: getImplicitTypes
     else
       Seq[ScType](getType)
   }

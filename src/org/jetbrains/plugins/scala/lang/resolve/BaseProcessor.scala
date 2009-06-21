@@ -19,6 +19,7 @@ import psi.ScalaPsiElement
 import psi.api.toplevel.packaging.ScPackaging
 import psi.api.statements.ScFun
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
+import toplevel.imports.usages.ImportUsed
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -61,27 +62,30 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
   import psi.impl.toplevel.synthetic.SyntheticClasses
-  def processType(t: ScType, place: ScalaPsiElement): Boolean = t match {
-    case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place)
+
+  def processType(t: ScType, place: ScalaPsiElement): Boolean = processType(t, place, ResolveState.initial)
+
+  def processType(t: ScType, place: ScalaPsiElement, state: ResolveState): Boolean = t match {
+    case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
     case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
 
     case p@ScParameterizedType(des, typeArgs) => {
       p.designator match {
         case ScPolymorphicType(_, _, _, upper) => processType(p.substitutor.subst(upper.v), place)
         case _ => p.designated match {
-          case Some(des) => processElement(des, p.substitutor, place)
+          case Some(des) => processElement(des, p.substitutor, place, state)
           case None => true
         }
       }
     }
     case proj : ScProjectionType => proj.resolveResult match {
-      case Some(res) => processElement(res.element, res.substitutor, place)
+      case Some(res) => processElement(res.element, res.substitutor, place, state)
       case None => true
     }
 
     case StdType(name, tSuper) => SyntheticClasses.get(place.getProject).byName(name) match {
       case Some(c) => {
-        c.processDeclarations(this, ResolveState.initial, null, place) &&
+        c.processDeclarations(this, state, null, place) &&
         (tSuper match {
           case Some (ts) => processType(ts, place)
           case _ => true
@@ -95,14 +99,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
         for (decl <- decls) {
           for (declared <- decl.declaredElements) {
-            if (!execute(declared, ResolveState.initial)) return false
+            if (!execute(declared, state)) return false
           }
         }
       }
 
       if (kinds.contains(CLASS)) {
         for (t <- types) {
-          if (!execute(t, ResolveState.initial)) return false
+          if (!execute(t, state)) return false
         }
       }
 
@@ -116,14 +120,25 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case _ => true
   }
 
-  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement) = e match {
+  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = e match {
     case ta: ScTypeAlias => processType(s.subst(ta.upperBound), place)
 
     //need to process scala way
     case clazz : PsiClass =>
-      TypeDefinitionMembers.processDeclarations(clazz, this, ResolveState.initial.put(ScSubstitutor.key, s),
+      TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, s),
         null, place)
 
-    case des => des.processDeclarations(this, ResolveState.initial.put(ScSubstitutor.key, s), null, place)
+    case des => des.processDeclarations(this, state.put(ScSubstitutor.key, s), null, place)
   }
+
+  protected def getSubst(state: ResolveState) = {
+    val subst = state.get(ScSubstitutor.key)
+    if (subst == null) ScSubstitutor.empty else subst
+  }
+
+  protected def getImports(state: ResolveState): collection.immutable.Set[ImportUsed] = {
+    val used = state.get(ImportUsed.key)
+    if (used == null) Set[ImportUsed]() else used
+  }
+ 
 }

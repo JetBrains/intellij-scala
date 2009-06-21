@@ -10,13 +10,15 @@ import java.lang.String
  *
  * @author ilyas
  */
-object ImportUsed {
-  val key: Key[Set[ImportUsed]] = Key.create("scala.used.imports.key")
-}
-// todo Bug!!! resolve to key doesn't work if swap class & object
 abstract sealed case class ImportUsed(private val e: PsiElement) {
   override def toString: String = e.getText
 }
+
+// todo Bug!!! resolve to key doesn't work if swap class & object
+object ImportUsed {
+  val key: Key[Set[ImportUsed]] = Key.create("scala.used.imports.key")
+}
+
 
 /**
  * Class to mark whole import expression as used (qualified or ending with reference id)

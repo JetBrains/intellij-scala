@@ -35,16 +35,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
     elName == name && kindMatches(named)
   }
 
-  protected def getSubst(state: ResolveState) = {
-    val subst = state.get(ScSubstitutor.key)
-    if (subst == null) ScSubstitutor.empty else subst
-  }
-
-  protected def getImports(state: ResolveState): collection.immutable.Set[ImportUsed] = {
-    val used = state.get(ImportUsed.key)
-    if (used == null) Set[ImportUsed]() else used
-  }
-
   override def getHint[T](hintKey: Key[T]): T = {
     if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
     else super.getHint(hintKey)
