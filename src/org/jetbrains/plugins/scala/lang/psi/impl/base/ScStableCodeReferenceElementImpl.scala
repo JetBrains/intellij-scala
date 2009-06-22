@@ -44,7 +44,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
     def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
       val kinds = ref.getKinds(false)
-      val proc = ref.getParent match {
+      val proc = ref.getContext match {
       //last ref may import many elements with the same name
         case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, refName)
         case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
@@ -58,7 +58,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getKinds(incomplete: Boolean) = {
     import StdKinds._
-    getParent match {
+    getContext match {
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed
@@ -74,9 +74,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   private def _qualifier() = {
-    if (getParent.isInstanceOf[ScImportSelector]) {
-      getParent.getParent /*ScImportSelectors*/ .getParent.asInstanceOf[ScImportExpr].reference
-    } else pathQualifier
+    getContext match {
+      case sel: ScImportSelector => {
+        sel.getContext /*ScImportSelectors*/.getContext.asInstanceOf[ScImportExpr].reference
+      }
+      case _ => pathQualifier
+    }
   }
 
   def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
@@ -155,5 +158,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getSameNameVariants: Array[Object] = _resolve(this, new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)  
+  def getSameNameVariants: Array[Object] = _resolve(this, new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)
 }

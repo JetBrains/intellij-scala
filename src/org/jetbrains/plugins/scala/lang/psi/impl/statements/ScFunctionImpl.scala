@@ -11,6 +11,7 @@ import api.toplevel.typedef.ScMember
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import parser.ScalaElementTypes
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
 import toplevel.synthetic.JavaIdentifier
@@ -141,5 +142,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     case f : ScFunction => f.name == name && f.parameters.length == parameters.length
     case _ => false
   }
-  
+
+
+  def paramClauses: ScParameters = {
+    getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
+  }
 }

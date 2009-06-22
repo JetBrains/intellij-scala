@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import _root_.com.intellij.extapi.psi.StubBasedPsiElementBase
-import api.base.{ScModifierList, ScStableCodeReferenceElement}
+import api.base.ScStableCodeReferenceElement
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -14,36 +14,26 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement, CompositeElement}
-import com.intellij.psi.impl.source.{DummyHolderFactory, CharTableImpl}
-import com.intellij.util.{ArrayFactory, IncorrectOperationException, CharTable}
+import com.intellij.psi.impl.source.DummyHolderFactory
+import com.intellij.util.ArrayFactory
 import formatting.settings.ScalaCodeStyleSettings
-import lexer.{ScalaLexer, ScalaTokenTypes, ScalaElementType}
+import lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.tree.IElementType
-
-import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.util.DebugPrint
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.openapi.util.TextRange
-
 import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.stubs._
-import elements.{ScObjectDefinitionElementType, ScClassDefinitionElementType, ScTraitDefinitionElementType, ScPackageStmtElementType}
+import elements.{ScObjectDefinitionElementType, ScPackageStmtElementType}
 import refactoring.util.ScalaNamesUtil
-import stubs.StubElement
-import toplevel.templates.ScExtendsBlockImpl
 import types._
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -479,6 +469,41 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   }
 
   def createTypeFromText(text: String, context: PsiElement): ScType = {
+    val te = createTypeElementFromText(text, context)
+    if (te == null) return null
+    else return te.calcType
+  }
+
+  def createReferenceFromText(text: String, context: PsiElement): ScStableCodeReferenceElement = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+    StableId.parse(builder, ScalaElementTypes.REFERENCE)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScStableCodeReferenceElement]) {
+      val referenceElement = psi.asInstanceOf[ScStableCodeReferenceElement]
+      referenceElement.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      return referenceElement
+    } else return null
+  }
+
+  def createExpressionTypeFromText(text: String, context: PsiElement): ScType = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+    Expr.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScExpression]) {
+      psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      return psi.asInstanceOf[ScExpression].getType
+    } else return null
+  }
+
+  def createTypeElementFromText(text: String, context: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
@@ -487,7 +512,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScTypeElement]) {
-      psi.asInstanceOf[ScTypeElement].calcType
+      psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      psi.asInstanceOf[ScTypeElement]
     } else null
   }
 }

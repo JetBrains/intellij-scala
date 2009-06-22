@@ -197,10 +197,7 @@ object ScalaPsiUtil {
                     (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
             for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
-              val typez: ScType = parameter.typeElement match {
-                case Some(te) => subst(meth).subst(te.calcType)
-                case None => types.Any
-              }
+              val typez: ScType = subst(meth).subst(parameter.calcType)
               if (!(args(i).getType: ScType).conforms(typez)) return false
             }
             return true

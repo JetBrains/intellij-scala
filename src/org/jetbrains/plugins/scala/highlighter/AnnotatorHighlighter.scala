@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.base.patterns._
 import lang.psi.api.statements._
@@ -14,6 +15,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.lexer.ScalaTokenTypes
+import stubs.StubElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,6 +23,20 @@ import lang.lexer.ScalaTokenTypes
  */
 
 object AnnotatorHighlighter {
+  private def getParentStub(el: StubBasedPsiElement[_ <: StubElement[_]]): PsiElement = {
+    val stub: StubElement[_] = el.getStub
+    if (stub != null) {
+      stub.getParentStub.getPsi
+    } else el.getParent
+  }
+
+  private def getParentByStub(x: PsiElement): PsiElement = {
+    x match {
+      case el: StubBasedPsiElement[_] => getParentStub(el)
+      case _ => x.getParent
+    }
+  }
+
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     val c = PsiTreeUtil.getParentOfType(refElement, classOf[ScConstructor])
     c match {
@@ -65,10 +81,10 @@ object AnnotatorHighlighter {
       case x: ScBindingPattern => {
         var parent: PsiElement = x
         while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable]
-                || parent.isInstanceOf[ScCaseClause])) parent = parent.getParent
+                || parent.isInstanceOf[ScCaseClause])) parent = getParentByStub(parent)
         parent match {
           case r@(_: ScValue | _: ScVariable) => {
-            parent.getParent match {
+            getParentByStub(parent) match {
               case _: ScTemplateBody | _: ScEarlyDefinitions => {
                 r match {
                   case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
@@ -104,9 +120,9 @@ object AnnotatorHighlighter {
       }
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration) => {
         if (x != null) {
-          x.getParent match {
+          getParentByStub(x) match {
             case _: ScTemplateBody | _: ScEarlyDefinitions => {
-              x.getParent.getParent.getParent match {
+              getParentByStub(getParentByStub(getParentByStub(x))) match {
                 case _: ScClass | _: ScTrait => {
                   annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
                 }
@@ -140,7 +156,7 @@ object AnnotatorHighlighter {
       case x: ScCaseClause => visitCaseClause(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER => {
-        element.getParent match {
+        getParentByStub(element) match {
           case _: ScNameValuePair => {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
@@ -168,10 +184,10 @@ object AnnotatorHighlighter {
           }
           case x: ScBindingPattern => {
             var parent: PsiElement = x
-            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = parent.getParent
+            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = getParentByStub(parent)
             parent match {
               case r@(_: ScValue | _: ScVariable) => {
-                parent.getParent match {
+                getParentByStub(parent) match {
                   case _: ScTemplateBody | _: ScEarlyDefinitions => {
                     val annotation = holder.createInfoAnnotation(element, null)
                     r match {

@@ -23,12 +23,7 @@ class ScTraitParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] wi
   def superTypes: Seq[ScType] = {
     val stub = getStub
     if (stub != null) {
-      stub match {
-        case tp: ScTemplateParentsStub => {
-          return tp.getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeFromText(_, this)).toSeq
-        }
-        case _ =>
-      }
+      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes.toSeq
     }
     typeElements.map(_.calcType)
   }

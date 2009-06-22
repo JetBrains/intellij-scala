@@ -1,25 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
+import com.intellij.util.ArrayFactory
+import parser.ScalaElementTypes
+import psi.stubs.ScAnnotationsStub
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
@@ -27,6 +11,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 * Date: 07.03.2008
 */
 
-class ScAnnotationsImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotations{
+class ScAnnotationsImpl extends ScalaStubBasedElementImpl[ScAnnotations] with ScAnnotations{
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScAnnotationsStub) = {this(); setStub(stub); setNode(null)}
   override def toString: String = "AnnotationsList"
+
+
+  def getAnnotations: Array[ScAnnotation] = {
+    getStubOrPsiChildren(ScalaElementTypes.ANNOTATION, new ArrayFactory[ScAnnotation] {
+      def create(count: Int): Array[ScAnnotation] = new Array[ScAnnotation](count)
+    })
+  }
 }

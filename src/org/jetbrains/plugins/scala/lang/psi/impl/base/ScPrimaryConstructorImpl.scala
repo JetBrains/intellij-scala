@@ -45,4 +45,9 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
   }
 
   override def toString: String = "PrimaryConstructor"
+
+
+  def parameterList: ScParameters = {
+    getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
+  }
 }

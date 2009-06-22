@@ -37,6 +37,7 @@ object ArgumentExprs {
             builder.getTokenType match {
               case ScalaTokenTypes.tLPARENTHESIS => {
                 builder.advanceLexer
+                rMarker.drop
               }
               case _ => {
                 rMarker.rollbackTo

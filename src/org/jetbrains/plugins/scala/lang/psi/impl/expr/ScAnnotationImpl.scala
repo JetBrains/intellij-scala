@@ -1,36 +1,24 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.lang.ASTNode
 import com.intellij.psi.meta.PsiMetaData
 import java.lang.String
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi._
 
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import psi.stubs.ScAnnotationStub
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-class ScAnnotationImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotation with PsiAnnotationParameterList{
+class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAnnotation with PsiAnnotationParameterList{
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScAnnotationStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "Annotation"
 
   def getMetaData: PsiMetaData = null

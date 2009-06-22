@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -27,5 +28,9 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
 
   override def toString: String = "ParametersClause"
 
-  def parameters: Seq[ScParameter] = findChildrenByClass(classOf[ScParameter])
+  def parameters: Seq[ScParameter] = {
+    getStubOrPsiChildren(TokenSets.PARAMETERS, new ArrayFactory[ScParameter]{
+      def create(count: Int): Array[ScParameter] = new Array[ScParameter](count)
+    })
+  }
 }

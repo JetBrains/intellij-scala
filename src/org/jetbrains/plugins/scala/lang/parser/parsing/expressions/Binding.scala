@@ -17,11 +17,13 @@ import types.ParamType
 object Binding {
   def parse(builder: PsiBuilder): Boolean = {
     val paramMarker = builder.mark
-    builder.mark.done(ScalaElementTypes.ANNOTATIONS)
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => builder.advanceLexer
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
+        builder.mark.done(ScalaElementTypes.ANNOTATIONS)
+        builder.advanceLexer
+      }
       case _ => {
-        paramMarker.rollbackTo
+        paramMarker.drop
         return false
       }
     }

@@ -28,6 +28,20 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     getParent.getNode.replaceChild(getNode, newElement.getNode)
     newElement
   }
+
+  private var context: PsiElement = null
+
+
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
+
+  def setContext(element: PsiElement) {
+    context = element
+  }
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement]

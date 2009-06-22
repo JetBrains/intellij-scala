@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -30,7 +31,11 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
 
   def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 
-  def clauses: Seq[ScParameterClause] = findChildrenByClass(classOf[ScParameterClause])
+  def clauses: Seq[ScParameterClause] = {
+    getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, new ArrayFactory[ScParameterClause]{
+      def create(count: Int): Array[ScParameterClause] = new Array[ScParameterClause](count)
+    }).toSeq
+  }
 
   def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
 

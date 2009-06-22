@@ -38,7 +38,7 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with 
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTyped with ScDeclaredElementsHolder with ScAnnotationsHolder {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  def paramClauses: ScParameters = findChildByClass(classOf[ScParameters])
+  def paramClauses: ScParameters
 
   def returnTypeElement = findChild(classOf[ScTypeElement])
 

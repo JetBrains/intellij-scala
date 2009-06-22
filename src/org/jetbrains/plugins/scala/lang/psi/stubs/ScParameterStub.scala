@@ -9,5 +9,5 @@ import com.intellij.psi.stubs.NamedStub
  */
 
 trait ScParameterStub extends NamedStub[ScParameter] {
-
+  def getTypeText: String
 }

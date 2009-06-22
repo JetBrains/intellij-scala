@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 
+import api.base.ScStableCodeReferenceElement
 import api.toplevel.imports.ScImportSelector
 import com.intellij.psi.stubs.StubElement
 
@@ -10,5 +11,7 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScImportSelectorStub extends StubElement[ScImportSelector] {
+  def reference: ScStableCodeReferenceElement
 
+  def importedName: String
 }

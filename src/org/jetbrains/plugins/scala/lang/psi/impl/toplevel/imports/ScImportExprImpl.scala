@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 import com.intellij.util.IncorrectOperationException
 import api.base.ScStableCodeReferenceElement
 import com.intellij.psi.PsiElement
-import stubs.{ScImportExprStub, ScImportSelectorStub}
+import stubs.{ScImportExprStub}
 
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
@@ -31,6 +31,10 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
   override def toString: String = "ImportExpression"
 
   def singleWildcard: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScImportExprStub].isSingleWildcard
+    }
     if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
       return true
     } else {
@@ -121,5 +125,12 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
     val psi: ScImportSelectors = getStubOrPsiChild(ScalaElementTypes.IMPORT_SELECTORS)
     if (psi == null) None
     else Some(psi)
+  }
+
+  def reference: Option[ScStableCodeReferenceElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScImportExprStub].reference
+    } else findChild(classOf[ScStableCodeReferenceElement])
   }
 }
