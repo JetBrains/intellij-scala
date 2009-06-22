@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 
 import api.toplevel.imports.ScImportSelectors
@@ -10,5 +10,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScImportSelectorsStub extends StubElement[ScImportSelectors] {
-
+  def hasWildcard: Boolean
 }

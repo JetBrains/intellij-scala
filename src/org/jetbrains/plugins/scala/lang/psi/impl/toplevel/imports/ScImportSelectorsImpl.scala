@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 import com.intellij.psi.PsiElement
 import com.intellij.util.ArrayFactory
 import parser.ScalaElementTypes
-import stubs.elements.ScImportSelectorsStub
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import stubs.ScImportSelectorsStub
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -20,7 +20,13 @@ class ScImportSelectorsImpl extends ScalaStubBasedElementImpl[ScImportSelectors]
 
   override def toString: String = "ImportSelectors"
 
-  def hasWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
+  def hasWildcard: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScImportSelectorsStub].hasWildcard
+    }
+    findChildByType(ScalaTokenTypes.tUNDER) != null
+  }
 
   def wildcardElement: Option[PsiElement] = {
     if (hasWildcard) Some(findChildByType(ScalaTokenTypes.tUNDER))

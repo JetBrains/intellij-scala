@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
+import psi.stubs._
 import psi.types.{ScType, ScFunctionType}
 import api.base._
 import api.expr.ScFunctionExpr
@@ -11,7 +12,6 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util._
-import psi.stubs.ScParameterStub
 import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
 
@@ -54,12 +54,23 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.EMPTY_SCOPE
   }
 
-  def calcType() = typeElement match {
-    case None => expectedParamType match {
-      case Some(t) => t
-      case None => lang.psi.types.Nothing
+  def calcType: ScType = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScParameterStub].getTypeText match {
+        case "" if stub.getParentStub != null && stub.getParentStub.getParentStub != null &&
+                   stub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] => return lang.psi.types.Nothing
+        case "" => //shouldn't be
+        case str: String => return ScalaPsiElementFactory.createTypeFromText(str, this)
+      }
     }
-    case Some(e) => e.getType
+    typeElement match {
+      case None => expectedParamType match {
+        case Some(t) => t
+        case None => lang.psi.types.Nothing
+      }
+      case Some(e) => e.getType
+    }
   }
 
   def isVarArgs = false
@@ -87,5 +98,4 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case _ => None
     }
   }
-
 }

@@ -6,7 +6,6 @@ import com.intellij.psi.stubs.StubElement
 import lexer.ScalaTokenTypes
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
-import types.{Unit, Nothing, ScFunctionType}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import typedef._
 import packaging.ScPackaging
 import com.intellij.psi.scope._
+import types.{ScType, Unit, Nothing, ScFunctionType}
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -36,15 +36,15 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
     import org.jetbrains.plugins.scala.lang.resolve._
-
-    body match {
-      case Some(x) if x == lastParent =>
-        for (p <- parameters) {
-          if (!processor.execute(p, state)) return false
-        }
-      case _ => 
+    if (getStub == null) {
+      body match {
+        case Some(x) if x == lastParent =>
+          for (p <- parameters) {
+            if (!processor.execute(p, state)) return false
+          }
+        case _ =>
+      }
     }
-    
     true
   }
 
@@ -52,11 +52,17 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   import com.intellij.openapi.util.Key
 
-  def returnType = returnTypeElement match {
-    case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
-      case Some(b) => b.getType
-      case _ => Nothing
-    }) else Unit
-    case Some(rte) => rte.getType
+  def returnType: ScType = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScFunctionStub].getReturnType
+    }
+    returnTypeElement match {
+      case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
+        case Some(b) => b.getType
+        case _ => Nothing
+      }) else Unit
+      case Some(rte) => rte.getType
+    }
   }
 }

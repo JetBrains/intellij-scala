@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 
 import api.toplevel.imports.{ScImportSelector, ScImportStmt}
-import impl.{ScImportSelectorStubImpl, ScImportStmtStubImpl}
 import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutputStream}
 
 import com.intellij.psi.PsiElement
+import com.intellij.util.io.StringRef
+import impl.{ScImportExprStubImpl, ScImportSelectorStubImpl, ScImportStmtStubImpl}
 import psi.impl.toplevel.imports.{ScImportSelectorImpl, ScImportStmtImpl}
 /**
  * User: Alexander Podkhalyuzin
@@ -15,14 +16,20 @@ import psi.impl.toplevel.imports.{ScImportSelectorImpl, ScImportStmtImpl}
 class ScImportSelectorElementType[Func <: ScImportSelector]
         extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
   def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeName(stub.asInstanceOf[ScImportSelectorStubImpl[_]].referenceText.toString)
+    dataStream.writeName(stub.importedName)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScImportSelector, parentStub: StubElement[ParentPsi]): ScImportSelectorStub = {
-    new ScImportSelectorStubImpl(parentStub, this)
+    val refText = psi.reference.getText
+    val importedName = psi.importedName
+    new ScImportSelectorStubImpl(parentStub, this, refText, importedName)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScImportSelectorStub = {
-    new ScImportSelectorStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val refText = StringRef.toString(dataStream.readName)
+    val importedName = StringRef.toString(dataStream.readName)
+    new ScImportSelectorStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, refText, importedName)
   }
 
   def indexStub(stub: ScImportSelectorStub, sink: IndexSink): Unit = {}

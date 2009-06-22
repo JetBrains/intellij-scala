@@ -14,17 +14,23 @@ import impl.ScParameterStubImpl
 abstract class ScParamElementType[Param <: ScParameter](debugName: String)
 extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScParameter, parentStub: StubElement[ParentPsi]): ScParameterStub = {
-    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName)
+    val typeText: String = psi.typeElement match {
+      case Some(t) => t.getText()
+      case None => ""
+    }
+    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText)
   }
 
   def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
+    dataStream.writeName(stub.getTypeText)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
     val name = StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScParameterStubImpl(parent, this, name)
+    val typeText = StringRef.toString(dataStream.readName)
+    new ScParameterStubImpl(parent, this, name, typeText)
   }
 
   def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {}

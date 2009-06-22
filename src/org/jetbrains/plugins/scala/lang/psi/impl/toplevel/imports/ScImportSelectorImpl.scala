@@ -21,12 +21,22 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
 
   override def toString: String = "ImportSelector"
 
-  def importedName () = {
+  def importedName: String = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScImportSelectorStub].importedName
+    }
     val id = findChildByType(TokenSets.ID_SET)
     if (id == null) reference.refName else id.getText
   }
 
-  def reference(): ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
+  def reference: ScStableCodeReferenceElement = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScImportSelectorStub].reference
+    }
+    findChildByClass(classOf[ScStableCodeReferenceElement])
+  }
 
   def deleteSelector: Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])

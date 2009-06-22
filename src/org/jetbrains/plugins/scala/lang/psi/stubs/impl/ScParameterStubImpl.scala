@@ -14,13 +14,17 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
                                                   elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: StringRef = _
+  private var typeText: StringRef = _
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String) = {
+          name: String, typeText: String) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
+    this.typeText = StringRef.fromString(typeText)
   }
 
   def getName: String = StringRef.toString(name)
+
+  def getTypeText: String = StringRef.toString(typeText)
 }

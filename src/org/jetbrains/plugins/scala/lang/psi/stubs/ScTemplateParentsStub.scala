@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import api.toplevel.templates.ScTemplateParents
 import com.intellij.psi.stubs.StubElement
+import types.ScType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -11,4 +12,6 @@ import com.intellij.psi.stubs.StubElement
 
 trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
   def getTemplateParentsTypesTexts: Array[String]
+
+  def getTemplateParentsTypes: Array[ScType]
 }

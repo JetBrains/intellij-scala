@@ -22,7 +22,7 @@ object Ids {
         m.done(ScalaElementTypes.FIELD_ID)
       }
       case _ => {
-        idListMarker.rollbackTo
+        idListMarker.drop
         return false
       }
     }

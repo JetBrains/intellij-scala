@@ -123,4 +123,6 @@ object TokenSets {
     ))
 
   val DECLARED_ELEMENTS_HOLDER = TokenSet.orSet(FUNCTIONS, TokenSet.orSet(VALUES, VARIABLES))
+
+  val PARAMETERS = TokenSet.create(PARAM, CLASS_PARAM)
 }

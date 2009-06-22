@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.psi.stubs.StubElement
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
-import types.{ScFunctionType, Nothing}
 import com.intellij.lang.ASTNode
 
 import psi.ScalaPsiElementImpl
 import api.statements._
+import types.{ScType, ScFunctionType, Nothing}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -21,9 +21,15 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
 
   override def toString: String = "ScFunctionDeclaration"
 
-  def returnType = typeElement match {
-    case Some(te) => te.getType
-    case None => Nothing //todo use base function in case one is present
+  def returnType: ScType = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScFunctionStub].getReturnType
+    }
+    typeElement match {
+      case Some(te) => te.getType
+      case None => Nothing //todo use base function in case one is present
+    }
   }
 
   override def calcType = super[ScFunctionImpl].calcType

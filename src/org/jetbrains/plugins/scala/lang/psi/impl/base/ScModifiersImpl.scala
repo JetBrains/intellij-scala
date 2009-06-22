@@ -2,20 +2,16 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 
 import api.expr.ScAnnotations
-import com.intellij.psi.util.PsiUtil
+import com.intellij.util.ArrayFactory
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
-import stubs.{ScModifiersStub, ScParameterStub}
+import stubs.ScModifiersStub
 
 import com.intellij.psi._
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /**
@@ -114,6 +110,16 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   }
 
   def getAnnotations: Array[PsiAnnotation] = {
+    val stub = getStub
+    if (stub != null) {
+      val annotations: Array[ScAnnotations] = stub.getParentStub.
+              getChildrenByType(ScalaElementTypes.ANNOTATIONS, new ArrayFactory[ScAnnotations]{
+        def create(count: Int): Array[ScAnnotations] = new Array[ScAnnotations](count)
+      })
+      if (annotations.length > 0) {
+        return annotations.apply(0).getAnnotations.map(_.asInstanceOf[PsiAnnotation])
+      } else return PsiAnnotation.EMPTY_ARRAY
+    }
     getParent.getNode.findChildByType(ScalaElementTypes.ANNOTATIONS) match {
       case null =>  PsiAnnotation.EMPTY_ARRAY
       case x => x.getPsi.asInstanceOf[ScAnnotations].getAnnotations.map(_.asInstanceOf[PsiAnnotation])
