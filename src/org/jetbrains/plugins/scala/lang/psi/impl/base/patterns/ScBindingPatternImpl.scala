@@ -21,7 +21,7 @@ abstract class ScBindingPatternImpl(node: ASTNode) extends ScPatternImpl(node) w
   def isWildcard = findChildByType(ScalaTokenTypes.tUNDER) != null
 
   override def getUseScope = {
-    val func = PsiTreeUtil.getParentOfType(this, classOf[ScFunctionDefinition], true)
+    val func = PsiTreeUtil.getContextOfType(this, classOf[ScFunctionDefinition], true)
     if (func != null) new LocalSearchScope(func) else super.getUseScope
   }
 }

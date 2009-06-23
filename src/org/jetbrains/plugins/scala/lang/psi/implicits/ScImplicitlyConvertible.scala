@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import api.expr.ScExpression
-import api.statements.ScFunctionDefinition
+import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import caches.CashesUtil
 import collection.mutable.{HashMap, HashSet}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.util.{CachedValue, PsiModificationTracker}
+import com.intellij.psi.util.{PsiTreeUtil, CachedValue, PsiModificationTracker}
 import com.intellij.psi.{ResolveResult, PsiNamedElement, ResolveState, PsiElement}
 import resolve.{ScalaResolveResult, ResolveTargets, BaseProcessor}
 
@@ -69,7 +69,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
 
-    for (signature <- sigsFound) {
+    //to prevent infinite recursion
+    val functionContext = PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false)
+
+    for (signature <- sigsFound if signature.isInstanceOf[PhysicalSignature] &&
+            signature.asInstanceOf[PhysicalSignature].method != functionContext) {
       val set = processor.sig2Method(signature)
       for ((imports, fun) <- set) {
         val rt = signature.substitutor.subst(fun.returnType)

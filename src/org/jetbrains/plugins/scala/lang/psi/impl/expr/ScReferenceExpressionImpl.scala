@@ -20,6 +20,9 @@ import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.openapi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
+import formatting.settings.ScalaCodeStyleSettings
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -73,7 +76,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
-      def proc(e : PsiElement) : ResolveProcessor = e.getParent match {
+      def proc(e : PsiElement) : ResolveProcessor = e.getContext match {
         case generic : ScGenericCall => proc(generic)
         case call: ScMethodCall =>
           new MethodResolveProcessor(ref, call.args.exprs.map{_.getType}, expectedType)
@@ -98,12 +101,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
       for (t <- e.allTypes) {
-        processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, getImportsForImplicit(t)))
+        val settings: ScalaCodeStyleSettings =
+           CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+        processor.processType(t, e, if (settings.CHECK_IMPLICITS)
+                                      ResolveState.initial.put(ImportUsed.key, getImportsForImplicit(t))
+                                    else ResolveState.initial)
       }
     }
 
       ref.qualifier match {
-      case None => ref.getParent match {
+      case None => ref.getContext match {
         case inf: ScInfixExpr if ref == inf.operation => {
           val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
           processTypes(thisOp)
@@ -137,7 +144,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getType(): ScType = {
     bind match {
     //prevent infinite recursion for recursive method invocation
-      case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getParentOfType(this, classOf[ScFunction]) == f) =>
+      case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
           s.subst _
         })
@@ -152,7 +159,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case None => Nothing
         }
 
-        refPatt.getParent.getParent match {
+        refPatt.getContext().getContext() match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
           case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
           case _ => s.subst(refPatt.calcType)

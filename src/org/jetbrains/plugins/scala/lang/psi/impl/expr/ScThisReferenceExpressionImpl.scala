@@ -32,7 +32,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       case _ => None
     }
     case None => {
-      val encl = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
+      val encl = PsiTreeUtil.getContextOfType(this, classOf[ScTypeDefinition], false)
       if (encl != null) Some(encl) else None
     }
   }
