@@ -41,7 +41,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   def getUpperText: String = upperText.toString
 
   def getLowerTypeElement: Option[ScTypeElement] = {
-    if (lowerElement != null) return lowerElement.get
+    if (lowerElement != null && lowerElement.get != null) return lowerElement.get
     val res: Option[ScTypeElement] = {
       if (getLowerText != "")
         Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi))
@@ -52,7 +52,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   }
 
   def getUpperTypeElement: Option[ScTypeElement] = {
-    if (upperElement != null) return upperElement.get
+    if (upperElement != null && upperElement.get != null) return upperElement.get
     val res: Option[ScTypeElement] = {
       if (getUpperText != "")
         Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi))
@@ -67,7 +67,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   def getViewText: String = viewText.toString
 
   def getViewTypeElement: Option[ScTypeElement] = {
-    if (viewElement != null) return viewElement.get
+    if (viewElement != null && viewElement.get != null) return viewElement.get
     val res: Option[ScTypeElement] = {
       if (getViewText != "")
         Some(ScalaPsiElementFactory.createTypeElementFromText(getViewText, getPsi))

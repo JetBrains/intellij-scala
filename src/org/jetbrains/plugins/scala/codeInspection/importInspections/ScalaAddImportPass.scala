@@ -39,6 +39,7 @@ import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.editor.Editor
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 /**
  * User: Alexander Podkhalyuzin
  * Date: 07.07.2008
@@ -192,9 +193,14 @@ class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
 
 object ScalaAddImportPass {
   private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
+    def parent(t: ScTypeDefinition): PsiElement = {
+      val stub = t.asInstanceOf[ScTypeDefinitionImpl].getStub
+      if (stub != null) stub.getParentStub.getPsi
+      else t.getParent
+    }
     clazz match {
       case t: ScTypeDefinition => {
-        t.getParent match {
+       parent(t) match {
           case _: ScalaFile => true
           case _: ScTemplateBody if t.getContainingClass.isInstanceOf[ScObject] => {
             val obj = t.getContainingClass.asInstanceOf[ScObject]

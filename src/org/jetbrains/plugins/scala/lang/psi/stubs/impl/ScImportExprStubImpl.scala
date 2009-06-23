@@ -29,18 +29,17 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {
-    if (myReference == null) {
-      val res = if (referenceText == "") {
-        None
-      } else {
-        val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi)
-        if (psi != null) {
-          Some(psi)
-        } else None
-      }
-      myReference = new PatchedSoftReference[Option[ScStableCodeReferenceElement]](res)
-      res
-    } else myReference.get
+    if (myReference != null && myReference.get != null) return myReference.get
+    val res = if (referenceText == "") {
+      None
+    } else {
+      val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi)
+      if (psi != null) {
+        Some(psi)
+      } else None
+    }
+    myReference = new PatchedSoftReference[Option[ScStableCodeReferenceElement]](res)
+    res
   }
 
 

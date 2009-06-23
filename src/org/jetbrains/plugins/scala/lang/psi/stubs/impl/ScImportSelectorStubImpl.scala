@@ -28,18 +28,14 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
   }
 
   def reference: ScStableCodeReferenceElement = {
-    if (myReference == null) {
-      val res = if (referenceText == "") {
-        null
-      } else {
-        val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi)
-        if (psi != null) {
-          psi
-        } else null
-      }
-      myReference = new PatchedSoftReference[ScStableCodeReferenceElement](res)
-      res
-    } else myReference.get
+    if (myReference != null && myReference.get != null) return myReference.get
+    val res = if (referenceText == "") {
+      null
+    } else {
+      ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi)
+    }
+    myReference = new PatchedSoftReference[ScStableCodeReferenceElement](res)
+    res
   }
 
   def importedName: String = StringRef.toString(name)
