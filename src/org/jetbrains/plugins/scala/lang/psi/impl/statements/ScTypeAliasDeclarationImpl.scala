@@ -3,29 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeAliasStub;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import com.intellij.psi.util.PsiTreeUtil
 
 /** 
@@ -53,23 +37,37 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   override def toString: String = "ScTypeAliasDeclaration"
 
   def lowerBound = {
-    val tLower = findChildByType(ScalaTokenTypes.tLOWER_BOUND)
-    if (tLower != null) {
-      PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
-        case null => Nothing
-        case te => te.getType
-      }
-    } else Nothing
+    lowerTypeElement match {
+      case Some(te) => te.getType
+      case None => Nothing
+    }
   }
 
   def upperBound = {
-    val tUpper = findChildByType(ScalaTokenTypes.tUPPER_BOUND)
+    upperTypeElement match {
+      case Some(te) => te.getType
+      case None => Any
+    }
+  }
+
+  override def upperTypeElement: Option[ScTypeElement] = {
+    val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
     if (tUpper != null) {
       PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
-        case null => Any
-        case te => te.getType
+        case null => None
+        case te => Some(te)
       }
-    } else Any
+    } else None
+  }
+
+  override def lowerTypeElement: Option[ScTypeElement] = {
+    val tLower = findLastChildByType(ScalaTokenTypes.tLOWER_BOUND)
+    if (tLower != null) {
+      PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
+        case null => None
+        case te => Some(te)
+      }
+    } else None
   }
 
 

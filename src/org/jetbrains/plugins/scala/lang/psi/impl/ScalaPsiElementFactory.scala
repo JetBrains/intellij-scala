@@ -489,7 +489,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     } else return null
   }
 
-  def createExpressionTypeFromText(text: String, context: PsiElement): ScType = {
+  def createExpressionWithContextFromText(text: String, context: PsiElement): ScExpression = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
       new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
@@ -499,7 +499,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScExpression]) {
       psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
-      return psi.asInstanceOf[ScExpression].getType
+      return psi.asInstanceOf[ScExpression]
     } else return null
   }
 

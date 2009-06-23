@@ -53,16 +53,20 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   import com.intellij.openapi.util.Key
 
   def returnType: ScType = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScFunctionStub].getReturnType
-    }
     returnTypeElement match {
-      case None => if (findChildByType(ScalaTokenTypes.tASSIGN) != null) (body match {
+      case None => body match {
         case Some(b) => b.getType
-        case _ => Nothing
-      }) else Unit
+        case _ => Unit
+      }
       case Some(rte) => rte.getType
     }
+  }
+
+  def body: Option[ScExpression] = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScFunctionStub].getBodyExpression
+    }
+    findChild(classOf[ScExpression])
   }
 }

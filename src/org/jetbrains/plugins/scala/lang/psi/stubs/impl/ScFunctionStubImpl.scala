@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
+import api.base.types.ScTypeElement
+import api.expr.ScExpression
 import api.statements.ScFunction
 import api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi.impl.cache.TypeInfo
@@ -22,7 +24,8 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var annotations: Seq[String] = Seq.empty
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
-  private var myReturnType: PatchedSoftReference[ScType] = null
+  private var myReturnTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
+  private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
@@ -41,23 +44,32 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
 
   def getAnnotations: Seq[String] = annotations
 
-  def getReturnType: ScType = {
-    if (myReturnType == null) {
-      val res: ScType = {
+  def getReturnTypeElement: Option[ScTypeElement] = {
+    if (myReturnTypeElement == null) {
+      val res: Option[ScTypeElement] = {
         if (getReturnTypeText != "") {
-          ScalaPsiElementFactory.createTypeFromText(getReturnTypeText, getPsi)
-        } else if (getBodyText != "") {
-          ScalaPsiElementFactory.createExpressionTypeFromText(getBodyText, getPsi)
-        } else {
-          types.Unit
+          Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi))
+        }
+        else None
+      }
+      myReturnTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+      res
+    } else myReturnTypeElement.get
+  }
+
+  def getBodyExpression: Option[ScExpression] = {
+    if (myBodyExpression == null) {
+      val res: Option[ScExpression] = {
+        if (getBodyText != "") {
+          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi))
+        }
+        else {
+          None
         }
       }
-      if (res != null)
-      myReturnType = new PatchedSoftReference[ScType](res)
-      else
-      myReturnType = new PatchedSoftReference[ScType](types.Nothing)
+      myBodyExpression = new PatchedSoftReference[Option[ScExpression]](res)
       res
-    } else myReturnType.get
+    } else myBodyExpression.get
   }
 
   def getBodyText: String = StringRef.toString(bodyText)

@@ -9,7 +9,7 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def upperBound: ScType
   def viewBound: Option[ScType] = None
 
-  def upperTypeElement: Option[ScTypeElement] = None //todo: override in other places
-  def lowerTypeElement: Option[ScTypeElement] = None //todo: override in other places
+  def upperTypeElement: Option[ScTypeElement] = None
+  def lowerTypeElement: Option[ScTypeElement] = None
   def viewTypeElement: Option[ScTypeElement] = None
 }
