@@ -45,31 +45,29 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   def getAnnotations: Seq[String] = annotations
 
   def getReturnTypeElement: Option[ScTypeElement] = {
-    if (myReturnTypeElement == null) {
-      val res: Option[ScTypeElement] = {
-        if (getReturnTypeText != "") {
-          Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi))
-        }
-        else None
+    if (myReturnTypeElement != null && myReturnTypeElement.get != null) myReturnTypeElement.get
+    val res: Option[ScTypeElement] = {
+      if (getReturnTypeText != "") {
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi))
       }
-      myReturnTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
-      res
-    } else myReturnTypeElement.get
+      else None
+    }
+    myReturnTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    res
   }
 
   def getBodyExpression: Option[ScExpression] = {
-    if (myBodyExpression == null) {
-      val res: Option[ScExpression] = {
-        if (getBodyText != "") {
-          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi))
-        }
-        else {
-          None
-        }
+    if (myBodyExpression != null && myBodyExpression.get != null) myBodyExpression.get
+    val res: Option[ScExpression] = {
+      if (getBodyText != "") {
+        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi))
       }
-      myBodyExpression = new PatchedSoftReference[Option[ScExpression]](res)
-      res
-    } else myBodyExpression.get
+      else {
+        None
+      }
+    }
+    myBodyExpression = new PatchedSoftReference[Option[ScExpression]](res)
+    res
   }
 
   def getBodyText: String = StringRef.toString(bodyText)

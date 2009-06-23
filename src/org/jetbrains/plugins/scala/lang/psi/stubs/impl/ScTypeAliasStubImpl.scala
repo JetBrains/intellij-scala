@@ -35,7 +35,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   def isDeclaration = declaration
 
   def getTypeElement: ScTypeElement = {
-    if (myTypeElement != null) return myTypeElement.get
+    if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     if (getTypeElementText == "") return null
     val res: ScTypeElement = {
       ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi)
