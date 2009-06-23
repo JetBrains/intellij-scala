@@ -28,10 +28,10 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       case _ => None
     }
     case None => {
-      val template = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+      val template = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition], true)
       template.extendsBlock.templateParents match {
         case Some(parents) if PsiTreeUtil.isAncestor(parents, this, true) => {
-          val ptemplate = PsiTreeUtil.getParentOfType(template, classOf[ScTemplateDefinition], true)
+          val ptemplate = PsiTreeUtil.getContextOfType(template, classOf[ScTemplateDefinition], true)
           if (ptemplate == null) None else Some(ptemplate)
         }
         case _ => Some(template)
@@ -111,7 +111,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       case _ => None
     }
     case None => {
-      PsiTreeUtil.getParentOfType(this, classOf[ScExtendsBlock]) match {
+      PsiTreeUtil.getContextOfType(this, classOf[ScExtendsBlock], false) match {
         case null => None
         case eb => Some(eb.superTypes)
       }

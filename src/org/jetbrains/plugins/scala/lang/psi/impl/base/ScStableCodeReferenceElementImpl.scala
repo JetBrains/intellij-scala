@@ -124,7 +124,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case c: PsiClass if c.getName == c.getQualifiedName => c.getContainingFile match {
         case s: ScalaFile => true // scala classes are available from default package
         // Other clases from default package are available only for top-level Scala statmenets
-        case _ => PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
+        case _ => PsiTreeUtil.getContextOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
           case s : ScalaFile => s.getPackageName.length == 0
           case _ => true
         })

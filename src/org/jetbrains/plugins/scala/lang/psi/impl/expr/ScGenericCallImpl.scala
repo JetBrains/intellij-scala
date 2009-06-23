@@ -44,7 +44,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         }
         subst.followed(ScalaPsiUtil.genericCallSubstitutor(tp, this))
       }
-      val parent: PsiElement = getParent
+      val parent: PsiElement = getContext
       var isPlaceholder = false
       val args: Seq[ScExpression] = parent match {
         case call: ScMethodCall => call.args.exprs

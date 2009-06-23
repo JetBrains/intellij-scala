@@ -30,9 +30,9 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         //todo: type erasure
         subst
       }
-      val isUpdate = getParent.isInstanceOf[ScAssignStmt] && getParent.asInstanceOf[ScAssignStmt].getLExpression == this
+      val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == this
       val args: Seq[ScExpression] = this.args.exprs ++ (
-              if (isUpdate) getParent.asInstanceOf[ScAssignStmt].getRExpression match {
+              if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
                 case Some(x) => Seq[ScExpression](x)
                 case None =>
                   Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
