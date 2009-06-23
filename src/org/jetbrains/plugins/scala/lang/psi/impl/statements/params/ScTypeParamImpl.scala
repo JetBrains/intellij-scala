@@ -1,30 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 
-import api.base.ScModifierList
+import api.base.types.ScTypeElement
 import api.toplevel.ScTypeParametersOwner
 import com.intellij.psi.search.LocalSearchScope
 import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import psi.ScalaPsiElementImpl
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 
-import icons.Icons
-
-import psi.stubs.{ScTypeParamStub, ScModifiersStub}
+import psi.stubs.ScTypeParamStub
 import toplevel.PsiClassFake
 import api.statements.params._
-import com.intellij.psi.util.PsiTreeUtil
-import api.base.types.ScTypeElement
-import api.toplevel.typedef.ScTypeDefinition
 import base.ScTypeBoundsOwnerImpl
 import toplevel.synthetic.JavaIdentifier
-import types._
-
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
@@ -60,4 +48,26 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   def nameId = findLastChildByType(TokenSets.ID_SET)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+
+
+  override def viewTypeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTypeParamStub].getViewTypeElement
+    } else super.viewTypeElement
+  }
+
+  override def lowerTypeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTypeParamStub].getLowerTypeElement
+    } else super.lowerTypeElement
+  }
+
+  override def upperTypeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTypeParamStub].getUpperTypeElement
+    } else super.upperTypeElement
+  }
 }

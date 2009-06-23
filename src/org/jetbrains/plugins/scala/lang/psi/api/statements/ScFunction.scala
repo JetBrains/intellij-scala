@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import com.intellij.psi._
 
+import psi.stubs.ScFunctionStub
 import toplevel.templates.ScTemplateBody
 import types._
 
@@ -40,7 +41,18 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with 
 
   def paramClauses: ScParameters
 
-  def returnTypeElement = findChild(classOf[ScTypeElement])
+  def returnTypeElement: Option[ScTypeElement] = {
+    this match {
+      case st: ScalaStubBasedElementImpl[_] => {
+        val stub = st.getStub
+        if (stub != null) {
+          return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
+        }
+      }
+      case _ =>
+    }
+    findChild(classOf[ScTypeElement])
+  }
 
   def returnType: ScType
 

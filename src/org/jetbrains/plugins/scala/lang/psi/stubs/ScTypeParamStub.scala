@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 
+import api.base.types.ScTypeElement
 import api.statements.params.ScTypeParam
 import com.intellij.psi.stubs.NamedStub
+import types.ScType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -10,5 +12,10 @@ import com.intellij.psi.stubs.NamedStub
  */
 
 trait ScTypeParamStub extends NamedStub[ScTypeParam]{
-
+  def getUpperText: String
+  def getLowerText: String
+  def getViewText: String
+  def getUpperTypeElement: Option[ScTypeElement]
+  def getLowerTypeElement: Option[ScTypeElement]
+  def getViewTypeElement: Option[ScTypeElement] 
 }

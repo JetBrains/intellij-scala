@@ -22,10 +22,6 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
   override def toString: String = "ScFunctionDeclaration"
 
   def returnType: ScType = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScFunctionStub].getReturnType
-    }
     typeElement match {
       case Some(te) => te.getType
       case None => Nothing //todo use base function in case one is present

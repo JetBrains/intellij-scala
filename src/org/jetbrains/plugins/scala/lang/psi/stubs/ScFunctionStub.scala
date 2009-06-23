@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
+import api.base.types.ScTypeElement
+import api.expr.ScExpression
 import api.statements.ScFunction
 import com.intellij.psi.impl.cache.TypeInfo
 import com.intellij.psi.PsiType
@@ -18,7 +20,9 @@ trait ScFunctionStub extends NamedStub[ScFunction] {
 
   def getReturnTypeText: String
 
-  def getReturnType: ScType
+  def getReturnTypeElement: Option[ScTypeElement]
+
+  def getBodyExpression: Option[ScExpression]
 
   def getBodyText: String
 }
