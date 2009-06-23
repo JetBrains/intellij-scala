@@ -72,11 +72,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     //to prevent infinite recursion
     val functionContext = PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false)
 
-    for (signature <- sigsFound if signature.isInstanceOf[PhysicalSignature] &&
-            signature.asInstanceOf[PhysicalSignature].method != functionContext) {
-      val set = processor.sig2Method(signature)
+    for (sig <- sigsFound if (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => true})) {
+      val set = processor.sig2Method(sig)
       for ((imports, fun) <- set) {
-        val rt = signature.substitutor.subst(fun.returnType)
+        val rt = sig.substitutor.subst(fun.returnType)
         if (!result.contains(rt)) {
           result += (rt -> Set((fun, imports)))
         } else {
