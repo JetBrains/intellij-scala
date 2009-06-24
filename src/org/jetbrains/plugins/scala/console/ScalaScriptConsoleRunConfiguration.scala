@@ -5,6 +5,7 @@ import _root_.scala.collection.mutable.HashSet
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.{Filter, TextConsoleBuilder, TextConsoleBuilderImpl, TextConsoleBuilderFactory}
 
+import com.intellij.execution.impl.{ConsoleInputListener, ConsoleViewImpl}
 import com.intellij.execution.runners.{ExecutionEnvironment}
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
@@ -118,11 +119,11 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     val consoleBuilder = new TextConsoleBuilderImpl(project) {
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
-        val consoleView = new ScalaConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
+        val consoleView = new ConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
         consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
         val builder = new StringBuilder()
-        consoleView.addConsoleUserInputListener(new ConsoleUserInputListener {
-          def userTextPerformed(userText: String): Unit = {
+        consoleView.addConsoleUserInputLestener(new ConsoleInputListener {
+          def textEntered(userText: String): Unit = {
             val hist = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
             if (userText != "") {
               hist.remove(userText)
@@ -192,7 +193,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         saveAction.getTemplatePresentation.setEnabled(true)
         saveAction.getTemplatePresentation.setText("Save content to Script")
 
-        consoleView.addAction(saveAction)
+        consoleView.addCustomConsoleAction(saveAction)
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }

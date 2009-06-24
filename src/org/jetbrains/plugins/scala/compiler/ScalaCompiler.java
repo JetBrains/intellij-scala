@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collection;
 
 /**
  * @author ven, ilyas
@@ -111,7 +112,8 @@ public class ScalaCompiler implements TranslatingCompiler {
             outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
         }
 
-        return new ExitStatusImpl(outputItems, wrapper.getFilesToRecompile());
+    Collection<VirtualFile> virtualFiles = wrapper.getFilesToRecompile();
+    return new ExitStatusImpl(outputItems, virtualFiles.toArray(new VirtualFile[virtualFiles.size()]));
     }
 
     public boolean validateConfiguration(CompileScope scope) {

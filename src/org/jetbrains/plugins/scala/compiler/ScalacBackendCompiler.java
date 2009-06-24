@@ -402,7 +402,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     printer.println();
 
     final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
-    filesToCompile.addAll(Arrays.asList(chunk.getFilesToCompile()));
+    filesToCompile.addAll(chunk.getFilesToCompile());
 
     //Print files to compile, both Java and Scala
     for (VirtualFile file : filesToCompile) {
@@ -472,4 +472,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return jdk;
   }
 
+  public OutputParser createErrorParser(@NotNull String outputDir, Process process) {
+    return new ScalacOutputParser();
+  }
 }
