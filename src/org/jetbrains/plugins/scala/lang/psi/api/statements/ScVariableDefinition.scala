@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 
+import base.ScPatternList
 import expr.ScExpression
 import base.patterns.ScBindingPattern
 
@@ -10,6 +11,7 @@ import base.patterns.ScBindingPattern
 */
 
 trait ScVariableDefinition extends ScVariable {
+  def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
   def declaredElements = bindings
   def expr = findChildByClass(classOf[ScExpression])

@@ -7,8 +7,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
+import psi.stubs.{ScValueStub, ScVariableStub}
+import api.base.types.ScTypeElement
 import stubs.elements.wrappers.DummyASTNode
-import stubs.ScVariableStub;
 import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -30,4 +31,22 @@ class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] wi
   override def toString: String = "ScVariableDeclaration"
 
   def declaredElements = getIdList.fieldIds
+
+  def typeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScVariableStub].getTypeElement
+    }
+    else findChild(classOf[ScTypeElement])
+  }
+
+  def getIdList: ScIdList = {
+    /*val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScVariableStub].getIdsContainer match {
+        case Some(x) => x
+        case None => null
+      }
+    } else */findChildByClass(classOf[ScIdList])
+  }
 }

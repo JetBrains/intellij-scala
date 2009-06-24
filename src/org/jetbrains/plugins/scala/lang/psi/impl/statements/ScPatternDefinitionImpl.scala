@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import types.ScTypeElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -42,7 +43,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   override def toString: String = "ScPatternDefinition"
 
   def bindings: Seq[ScBindingPattern] = {
-    val plist = findChildByClass(classOf[ScPatternList])
+    val plist = this.pList
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
@@ -51,5 +52,23 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   def getType = typeElement match {
     case Some(te) => te.getType
     case None => expr.getType
+  }
+
+  def typeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScValueStub].getTypeElement
+    }
+    else findChild(classOf[ScTypeElement])
+  }
+
+  def pList: ScPatternList = {
+    /*val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScValueStub].getPatternsContainer match {
+        case Some(x) => x
+        case None => null
+      }
+    } else */findChildByClass(classOf[ScPatternList])
   }
 }

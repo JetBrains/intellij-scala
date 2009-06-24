@@ -22,9 +22,8 @@ object PatDef {
     val pattern2sMarker = builder.mark
 
     if (!Pattern2.parse(builder, true)) {
-      builder error "pattern expected"
       pattern2sMarker.rollbackTo
-      someMarker.rollbackTo
+      someMarker.drop
       return false
     }
 
@@ -32,8 +31,7 @@ object PatDef {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
       if (!Pattern2.parse(builder, true))  {
-        builder error "pattern expected"
-        pattern2sMarker.rollbackTo()
+        pattern2sMarker.rollbackTo
         someMarker.drop
         return false
       }

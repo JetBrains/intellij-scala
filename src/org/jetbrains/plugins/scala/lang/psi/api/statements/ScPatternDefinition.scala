@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import base.patterns.ScBindingPattern
+import base.ScPatternList
 import expr.ScExpression
 
 /** 
@@ -9,7 +10,7 @@ import expr.ScExpression
 */
 
 trait ScPatternDefinition extends ScValue {
-
+  def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
-  def expr = findChildByClass(classOf[ScExpression]) //not null, otherwise it is a different syntactic category
+  def expr: ScExpression = findChildByClass(classOf[ScExpression]) //not null, otherwise it is a different syntactic category
 }
