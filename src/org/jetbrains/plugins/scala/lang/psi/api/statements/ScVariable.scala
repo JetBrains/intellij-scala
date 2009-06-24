@@ -18,7 +18,7 @@ import base.types.ScTypeElement
 
 trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
   def declaredElements : Seq[ScTyped]
-  def typeElement = findChild(classOf[ScTypeElement])
+  def typeElement: Option[ScTypeElement]
 
   def declaredType: Option[ScType] = typeElement match {
     case Some(te) => Some(te.getType)

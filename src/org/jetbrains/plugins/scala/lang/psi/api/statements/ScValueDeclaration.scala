@@ -12,6 +12,6 @@ import toplevel.ScTyped
 */
 
 trait ScValueDeclaration extends ScValue with ScTypedDeclaration {
-  def getIdList = findChildByClass(classOf[ScIdList])
+  def getIdList: ScIdList
   def declaredElements : Seq[ScTyped]
 }

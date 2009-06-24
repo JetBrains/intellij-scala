@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import _root_.com.intellij.extapi.psi.StubBasedPsiElementBase
-import api.base.ScStableCodeReferenceElement
+import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -31,6 +31,7 @@ import com.intellij.lexer.Lexer
 import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import parser.parsing.statements.{Dcl, Def}
 import psi.stubs._
 import elements.{ScObjectDefinitionElementType, ScPackageStmtElementType}
 import refactoring.util.ScalaNamesUtil
@@ -514,6 +515,36 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     if (psi.isInstanceOf[ScTypeElement]) {
       psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
       psi.asInstanceOf[ScTypeElement]
+    } else null
+  }
+
+  def createPatterListFromText(text: String, context: PsiElement): ScPatternList = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239")
+    Def.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScPatternDefinition]) {
+      val pList: ScPatternList = psi.asInstanceOf[ScPatternDefinition].pList
+      pList.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      pList
+    } else null
+  }
+
+  def createIdsListFromText(text: String, context: PsiElement): ScIdList = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int")
+    Dcl.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScPatternDefinition]) {
+      val idList: ScIdList = psi.asInstanceOf[ScValueDeclaration].getIdList
+      idList.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      idList
     } else null
   }
 }

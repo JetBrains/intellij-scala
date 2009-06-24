@@ -14,7 +14,8 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import stubs.elements.wrappers.DummyASTNode
-import stubs.ScValueStub;
+import stubs.ScValueStub
+import api.base.types.ScTypeElement
 import com.intellij.psi._
 
 import org.jetbrains.annotations._
@@ -45,5 +46,23 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
   def getType = typeElement match {
     case Some(te) => te.getType
     case None => Nothing
+  }
+
+  def typeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScValueStub].getTypeElement
+    }
+    else findChild(classOf[ScTypeElement])
+  }
+
+  def getIdList: ScIdList = {
+    /*val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScValueStub].getIdsContainer match {
+        case Some(x) => x
+        case None => null
+      }
+    } else */findChildByClass(classOf[ScIdList])
   }
 }

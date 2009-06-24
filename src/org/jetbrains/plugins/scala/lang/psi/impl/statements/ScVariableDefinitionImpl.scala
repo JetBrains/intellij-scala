@@ -1,24 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
-import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import stubs.elements.wrappers.DummyASTNode
-import stubs.ScVariableStub;
-import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
+import api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import com.intellij.psi.scope.PsiScopeProcessor
-
-/** 
+import stubs.{ScValueStub, ScVariableStub}
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 * Time: 9:56:07
@@ -31,12 +19,30 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   override def toString: String = "ScVariableDefinition"
 
   def bindings: Seq[ScBindingPattern] = {
-    val plist = findChildByClass(classOf[ScPatternList])
+    val plist = this.pList
     if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
   }
 
   def getType = typeElement match {
     case Some(te) => te.getType
     case None => expr.getType 
+  }
+
+  def typeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScVariableStub].getTypeElement
+    }
+    else findChild(classOf[ScTypeElement])
+  }
+
+  def pList: ScPatternList = {
+    /*val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScVariableStub].getPatternsContainer match {
+        case Some(x) => x
+        case None => null
+      }
+    } else */findChildByClass(classOf[ScPatternList])
   }
 }
