@@ -60,7 +60,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   def getTypeText: String = StringRef.toString(typeText)
 
   def getBodyExpr: Option[ScExpression] = {
-    if (myBodyExpression != null && myBodyExpression.get != null) myBodyExpression.get
+    if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
     val res: Option[ScExpression] = {
       if (getBodyText != "") {
         Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi))
@@ -74,7 +74,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   }
 
   def getTypeElement: Option[ScTypeElement] = {
-    if (myTypeElement != null && myTypeElement.get != null) myTypeElement.get
+    if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     val res: Option[ScTypeElement] = {
       if (getTypeText != "") {
         Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi))

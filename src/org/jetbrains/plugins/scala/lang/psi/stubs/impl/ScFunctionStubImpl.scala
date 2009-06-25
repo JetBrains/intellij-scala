@@ -45,7 +45,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   def getAnnotations: Seq[String] = annotations
 
   def getReturnTypeElement: Option[ScTypeElement] = {
-    if (myReturnTypeElement != null && myReturnTypeElement.get != null) myReturnTypeElement.get
+    if (myReturnTypeElement != null && myReturnTypeElement.get != null) return myReturnTypeElement.get
     val res: Option[ScTypeElement] = {
       if (getReturnTypeText != "") {
         Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi))
@@ -57,7 +57,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   }
 
   def getBodyExpression: Option[ScExpression] = {
-    if (myBodyExpression != null && myBodyExpression.get != null) myBodyExpression.get
+    if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
     val res: Option[ScExpression] = {
       if (getBodyText != "") {
         Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi))
