@@ -118,7 +118,6 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
-    //todo: possibly filter refElements from Import statements
     ImportTracker.getInstance(refElement.getProject).
             registerUsedImports(refElement.getContainingFile.asInstanceOf[ScalaFile], new ImmutableSetAdaptor(result.importsUsed))
   }
