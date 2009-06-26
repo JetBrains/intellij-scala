@@ -15,6 +15,9 @@ class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
   override def handleInsert(context: InsertionContext, item: LookupItem[_]) {
     val editor = context.getEditor
     val document = editor.getDocument
+    if (context.getCompletionChar == '(') {
+      context.setAddCompletionChar(false)
+    }
     val startOffset = context.getStartOffset
     item.getObject match {
       case method: PsiMethod => {
@@ -30,10 +33,10 @@ class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
               case _: ScInfixExpr | _: ScPostfixExpr => {
                 if (count > 1) {
                   document.insertString(endOffset, " ()")
-                  editor.getCaretModel.moveToOffset(endOffset + 2);
+                  editor.getCaretModel.moveToOffset(endOffset + 2)
                 } else {
                   document.insertString(endOffset, " ")
-                  editor.getCaretModel.moveToOffset(endOffset + 1);
+                  editor.getCaretModel.moveToOffset(endOffset + 1)
                 }
                 return
               }
@@ -44,10 +47,10 @@ class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
           var refInv = false
           // for reference invocations
           if (endOffset == document.getTextLength() || document.getCharsSequence().charAt(endOffset) != '(') {
-            document.insertString(endOffset, "()");
+            document.insertString(endOffset, "()")
             refInv = true
           }
-          editor.getCaretModel.moveToOffset(endOffset + 1);
+          editor.getCaretModel.moveToOffset(endOffset + 1)
           if (refInv) AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
         }
 
