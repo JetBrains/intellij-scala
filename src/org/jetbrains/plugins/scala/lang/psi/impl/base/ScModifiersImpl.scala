@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import api.expr.ScAnnotations
 import com.intellij.util.ArrayFactory
-import java.lang.String
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
