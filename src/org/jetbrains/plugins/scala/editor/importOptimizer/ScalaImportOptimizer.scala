@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 
-import annotator.importsTracker.ImportTracker
-import codeInspection.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import collection.mutable.{HashSet, ArrayBuffer}
+import codeInspection.ScalaRecursiveElementVisitor
+import collection.mutable.HashSet
 import com.intellij.lang.ImportOptimizer
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi.util.PsiTreeUtil
