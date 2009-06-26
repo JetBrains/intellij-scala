@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion.handlers
 
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
+import com.intellij.codeInsight.lookup.{LookupItem}
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
 import psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 
