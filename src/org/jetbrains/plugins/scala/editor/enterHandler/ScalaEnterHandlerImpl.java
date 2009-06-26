@@ -350,15 +350,17 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
 
         if (CodeInsightSettings.getInstance().SMART_INDENT_ON_ENTER || myForceIndent || docStart || docAsterisk ||
             slashSlash) {
-          myOffset = CodeStyleManager.getInstance(getProject()).adjustLineIndent(myFile, myOffset);
-          if (docStart) {
-            PsiComment comment = PsiTreeUtil.getNonStrictParentOfType(myFile.findElementAt(myOffset), PsiComment.class);
-            if (comment != null) {
-              TextRange myTextRange = comment.getTextRange();
-              CodeStyleManager.getInstance(getProject()).reformatText(myFile,
-              myTextRange.getStartOffset(), myTextRange.getEndOffset());
+          try {
+            myOffset = CodeStyleManager.getInstance(getProject()).adjustLineIndent(myFile, myOffset);
+            if (docStart) {
+              PsiComment comment = PsiTreeUtil.getNonStrictParentOfType(myFile.findElementAt(myOffset), PsiComment.class);
+              if (comment != null) {
+                TextRange myTextRange = comment.getTextRange();
+                CodeStyleManager.getInstance(getProject()).reformatText(myFile,
+                myTextRange.getStartOffset(), myTextRange.getEndOffset());
+              }
             }
-          }
+          } catch (Exception ignore) {}
         }
 
         if (docAsterisk || slashSlash) {
