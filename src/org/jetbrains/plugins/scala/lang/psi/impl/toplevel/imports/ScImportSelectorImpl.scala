@@ -55,27 +55,5 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
         t = node.getElementType
       }
     } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
-
-    //unnecessary braces removing
-    if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
-      expr.wildcardElement match {
-        case Some(elem: PsiElement) => {
-          expr.selectorSet match {
-            case Some(sel: ScImportSelectors) => {
-              sel.getParent.getNode.replaceChild(sel.getNode, ScalaPsiElementFactory.createWildcardNode(getManager))
-            }
-            case None => //can't be
-          }
-        }
-        case _ => {
-          val selector: ScImportSelector = expr.selectors.apply(0)
-          if (selector.importedName == selector.reference.getText) {
-            expr.getParent.getNode.replaceChild(expr.getNode, ScalaPsiElementFactory.createImportExprFromText(
-                expr.qualifier.getText + "." + selector.reference.getText, getManager
-              ).getNode)
-          }
-        }
-      }
-    }
   }
 }
