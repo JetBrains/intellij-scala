@@ -101,7 +101,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def isScriptFile: Boolean = isScriptFile(true)
-
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
     import CashesUtil._
@@ -162,9 +161,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,

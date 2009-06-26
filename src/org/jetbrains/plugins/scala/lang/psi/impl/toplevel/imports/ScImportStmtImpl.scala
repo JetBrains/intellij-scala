@@ -5,7 +5,6 @@ import com.intellij.lang.ASTNode
 
 import com.intellij.util.ArrayFactory
 import lang.resolve.{ScalaResolveResult, ResolverEnv, BaseProcessor}
-import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
@@ -31,9 +30,9 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
   })
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
+                                  state: ResolveState,
+                                  lastParent: PsiElement,
+                                  place: PsiElement): Boolean = {
     for (importExpr <- importExprs) {
       if (importExpr == lastParent) return true
       val elemsAndUsages = importExpr.reference match {

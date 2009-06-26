@@ -6,7 +6,6 @@ import api.statements.ScFunction
 import com.intellij.psi.impl.cache.TypeInfo
 import com.intellij.psi.PsiType
 import com.intellij.psi.stubs.NamedStub
-import types.ScType
 
 /**
  * User: Alexander Podkhalyuzin

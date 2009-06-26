@@ -196,7 +196,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     } else findChild(classOf[ScEarlyDefinitions])
   }
 
-
   def isUnderCaseClass: Boolean = getParentByStub match {
     case td: ScTypeDefinition if td.isCase => true
     case _ => false

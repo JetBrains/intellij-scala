@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
 import com.intellij.util.IncorrectOperationException
 import api.base.ScStableCodeReferenceElement
 import com.intellij.psi.PsiElement
-import stubs.{ScImportExprStub}
-
+import stubs.ScImportExprStub;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 

@@ -30,7 +30,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   }
 
   override def getContainingClass() = null
-  
+
   def isCovariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => false
     case x => x.getText == "+"

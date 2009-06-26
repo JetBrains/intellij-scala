@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.ASTNode
 import com.intellij.psi.meta.PsiMetaData
-import java.lang.String
 
 import com.intellij.psi._
 
