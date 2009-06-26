@@ -23,6 +23,8 @@ class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider 
 
   override def getIntroduceFieldHandler: RefactoringActionHandler = null
 
+  override def getIntroduceParameterHandler: RefactoringActionHandler = null
+
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 
   override def getExtractMethodHandler: RefactoringActionHandler = null
