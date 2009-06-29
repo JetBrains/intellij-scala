@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
 import lang.resolve.ScalaResolveResult
 /**
@@ -25,12 +26,14 @@ class ScalaImportOptimizer extends ImportOptimizer {
         val usedImports = new HashSet[ImportUsed]
         file.accept(new ScalaRecursiveElementVisitor {
           override def visitReference(ref: ScReferenceElement) = {
-            for {
-              resolveResult <- ref.multiResolve(false)
-              if resolveResult.isInstanceOf[ScalaResolveResult]
-              scalaResult: ScalaResolveResult = resolveResult.asInstanceOf[ScalaResolveResult]
-            } {
-              usedImports ++= scalaResult.importsUsed
+            if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
+              for{
+                resolveResult <- ref.multiResolve(false)
+                if resolveResult.isInstanceOf[ScalaResolveResult]
+                scalaResult: ScalaResolveResult = resolveResult.asInstanceOf[ScalaResolveResult]
+              } {
+                usedImports ++= scalaResult.importsUsed
+              }
             }
             super.visitReference(ref)
           }
@@ -44,54 +47,50 @@ class ScalaImportOptimizer extends ImportOptimizer {
         def run: Unit = {
           //remove unnecessary imports
           var unusedImports = getUnusedImports
-          while (unusedImports.size > 0) {
-            for (importUsed <- unusedImports) {
-              importUsed match {
-                case ImportExprUsed(expr) => {
-                  val toDelete = expr.reference match {
-                    case Some(ref: ScReferenceElement) => {
-                      ref.resolve != null
-                    }
-                    case _ => {
-                      !PsiTreeUtil.hasErrorElements(expr)
-                    }
+          for (importUsed <- unusedImports) {
+            importUsed match {
+              case ImportExprUsed(expr) => {
+                val toDelete = expr.reference match {
+                  case Some(ref: ScReferenceElement) => {
+                    ref.multiResolve(false).length > 0
                   }
-                  if (toDelete) {
-                    expr.deleteExpr
+                  case _ => {
+                    !PsiTreeUtil.hasErrorElements(expr)
                   }
                 }
-                case ImportWildcardSelectorUsed(expr) => {
-                  expr.wildcardElement match {
-                    case Some(element: PsiElement) => {
-                      if (expr.selectors.length == 0) {
-                        expr.deleteExpr
-                      } else {
-                        var node = element.getNode
-                        var prev = node.getTreePrev
-                        var t = node.getElementType
-                        do {
-                          t = node.getElementType
-                          node.getTreeParent.removeChild(node)
-                          node = prev
-                          if (node != null) prev = node.getTreePrev
-                        } while (node != null && t != ScalaTokenTypes.tCOMMA)
-                      }
-                    }
-                    case _ =>
-                  }
-                }
-                case ImportSelectorUsed(sel) => {
-                  if (sel.reference.getText == sel.importedName && sel.reference.resolve != null) {
-                    sel.deleteSelector
-                  }
+                if (toDelete) {
+                  expr.deleteExpr
                 }
               }
-
+              case ImportWildcardSelectorUsed(expr) => {
+                expr.wildcardElement match {
+                  case Some(element: PsiElement) => {
+                    if (expr.selectors.length == 0) {
+                      expr.deleteExpr
+                    } else {
+                      var node = element.getNode
+                      var prev = node.getTreePrev
+                      var t = node.getElementType
+                      do {
+                        t = node.getElementType
+                        node.getTreeParent.removeChild(node)
+                        node = prev
+                        if (node != null) prev = node.getTreePrev
+                      } while (node != null && t != ScalaTokenTypes.tCOMMA)
+                    }
+                  }
+                  case _ =>
+                }
+              }
+              case ImportSelectorUsed(sel) => {
+                if (sel.reference.getText == sel.importedName && sel.reference.resolve != null) {
+                  sel.deleteSelector
+                }
+              }
             }
-            val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
-            documentManager.commitDocument(documentManager.getDocument(scalaFile))
-            unusedImports = getUnusedImports
           }
+          val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
+          documentManager.commitDocument(documentManager.getDocument(scalaFile))
           //todo: add deleting unnecessary braces
           //todo: add removing blank lines (last)
           //todo: add other optimizing
