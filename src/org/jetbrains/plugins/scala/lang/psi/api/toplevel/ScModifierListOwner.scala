@@ -34,11 +34,10 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
       case st: StubBasedPsiElement[_] =>  {
         val stub: StubElement[_] = st.getStub
         if (stub != null) {
-          import collection.jcl.Conversions._
-          for (child <- stub.getChildrenStubs if child.isInstanceOf[ScModifiersStub]) {
-            val mStub: ScModifiersStub = child.asInstanceOf[ScModifiersStub]
-            return mStub.getModifiers.exists(name == _)
-          }
+          val mods: Array[ScModifierList] = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, new ArrayFactory[ScModifierList] {
+            def create(count: Int): Array[ScModifierList] = new Array[ScModifierList](count)
+          })
+          if (mods.length > 0) return mods(0).hasModifierProperty(name: String)
           return false
         }
       }
