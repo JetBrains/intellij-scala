@@ -37,6 +37,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
+//todo: remove it in Maya branch with changed API
 public class ScalaCopyClassesHandler implements CopyHandlerDelegate {
   public boolean canCopy(PsiElement[] elements) {
     elements = convertToTopLevelClass(elements);
