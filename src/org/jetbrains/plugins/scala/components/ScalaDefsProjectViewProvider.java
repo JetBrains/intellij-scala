@@ -107,7 +107,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     final List<AbstractTreeNode> fileSubElements = new ArrayList<AbstractTreeNode>();
     addTypes(fileSubElements, scalaFile, viewSettings);
     MyPsiFileNode myPsiFileNode = new MyPsiFileNode(scalaFile, viewSettings, ScalaDefsProjectViewProvider.this.myProject);
-    if (myPsiFileNode.onlyTypesWithSameNameAsFile()) {
+    if (myPsiFileNode.onlyOneTypeDefinition()) {
       result.addAll(fileSubElements);
     } else {
       result.add(myPsiFileNode);
@@ -150,6 +150,16 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       presentationData.setIcons(Icons.FILE_TYPE_LOGO);
     }
 
+    public boolean onlyOneTypeDefinition() {
+      return scalaFile.typeDefinitions().length == 1;
+    }
+
+    @Override
+     public boolean isAlwaysExpand() {
+      return false;
+    }
+
+    @Deprecated
     public boolean onlyTypesWithSameNameAsFile() {
       Collection<AbstractTreeNode> impl = getChildrenImpl();
       for (AbstractTreeNode abstractTreeNode : impl) {
@@ -165,6 +175,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       return true;
     }
 
+    @Deprecated
     private boolean typeBelongsInFile(ScTypeDefinition scTypeDefinition) {
       return scalaFile.getName().equals(scTypeDefinition.getName() + ".scala");
     }
