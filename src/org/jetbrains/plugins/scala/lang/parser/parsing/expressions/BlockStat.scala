@@ -57,7 +57,7 @@ object BlockStat {
           if (!Def.parse(builder, false, true)) {
             if (!TmplDef.parse(builder)) {
               if (Dcl.parse(builder)) {
-                builder error ErrMsg("wromg.declaration.in.block")
+                builder error ErrMsg("wrong.declaration.in.block")
                 return true
               }
               else return false

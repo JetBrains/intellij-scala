@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
-import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
-import parser.ScalaElementTypes
-import org.jetbrains.annotations._
 import psi.ScalaPsiElementImpl
 import psi.api.base._
 import psi.types._
@@ -16,21 +13,15 @@ import psi.impl.ScalaPsiElementFactory
 import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi._
 import com.intellij.psi.impl._
-import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.psi.PsiElement
-import com.intellij.openapi.util._
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.ScTyped
 import api.statements.ScTypeAlias
 import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
-import toplevel.typedef.TypeDefinitionMembers
-
 /**
  * @author AlexanderPodkhalyuzin
  * Date: 22.02.2008
