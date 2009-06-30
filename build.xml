@@ -134,7 +134,9 @@
             destdir="${runners.dest}"
             target="jvm-1.5"
             jvmargs="${scalacfork.jvmargs}">
-      <classpath refid="base.path"/>
+      <compilationpath>
+        <path refid="base.path"/>
+      </compilationpath>
       <include name="Runners/src/**/*.scala"/>
       <include name="Runners/src/**/*.java"/>
     </scalacfork>
