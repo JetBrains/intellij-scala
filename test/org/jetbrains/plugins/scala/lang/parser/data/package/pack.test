@@ -4,6 +4,6 @@ package
 -----
 ScalaFile
   PsiElement(package)('package')
-  PsiWhiteSpace('\n\n')
   PsiErrorElement:Package qualified identifier expected
     <empty list>
+  PsiWhiteSpace('\n\n')
