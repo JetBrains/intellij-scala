@@ -1,55 +1,52 @@
-package org.jetbrains.plugins.scala.refactoring.inline
+package org.jetbrains.plugins.scala.lang.optimize
 
 
 import base.ScalaPsiTestCase
 import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.psi.util.PsiTreeUtil
-import lang.lexer.ScalaTokenTypes
-import lang.psi.api.base.patterns.ScBindingPattern
-import util.ScalaUtils
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
 
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import com.intellij.refactoring.inline.GenericInlineHandler
-import lang.psi.api.ScalaFile
+import refactoring.inline.ScalaInlineHandler
+import psi.api.base.patterns.ScBindingPattern
+import lexer.ScalaTokenTypes
+import psi.types.ScType
+import psi.api.expr.ScExpression
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.PsiManager
+import psi.api.ScalaFile
 import java.io.File
 import com.intellij.openapi.vfs.LocalFileSystem
-import lang.refactoring.inline.ScalaInlineHandler
+import scala.editor.importOptimizer.ScalaImportOptimizer
+import util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 16.06.2009
+ * Date: 30.06.2009
  */
 
-abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
-  id : ScalaPsiTestCase =>
-  val caretMarker = "/*caret*/"
+abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
 
-  override protected def rootPath = super.rootPath + "inline/"
+  override def rootPath: String = super.rootPath + "optimize/"
 
-  protected def doTest: Unit = {
+  protected def doTest = {
     import _root_.junit.framework.Assert._
+
     val filePath = rootPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
-    val fileText = scalaFile.getText
-    val offset = fileText.indexOf(caretMarker) + caretMarker.length
-    assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
-    val element = scalaFile.findElementAt(offset)
+
     val fileEditorManager = FileEditorManager.getInstance(myProject)
-    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
+    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, 0), false)
 
     var res: String = null
+    var lastPsi = scalaFile.getLastChild
 
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    
-    //start to inline
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run {
-          GenericInlineHandler.invoke(PsiTreeUtil.getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
+          new ScalaImportOptimizer().processFile(scalaFile).run
         }
       }, myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
@@ -71,16 +68,13 @@ abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
 
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
-
+    lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
-        assertTrue("Test result must be in last comment statement.", false)
-        ""
-      }
+      case _ => assertTrue("Test result must be in last comment statement.", false)
     }
     assertEquals(output, res)
   }

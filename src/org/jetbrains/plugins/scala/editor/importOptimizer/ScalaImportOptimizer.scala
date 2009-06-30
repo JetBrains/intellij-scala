@@ -46,8 +46,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
       new Runnable {
         def run: Unit = {
           //remove unnecessary imports
-          var unusedImports = getUnusedImports
-          for (importUsed <- unusedImports) {
+          val _unusedImports = getUnusedImports
+          val unusedImports = new HashSet[ImportUsed]
+          for (importUsed <- _unusedImports) {
             importUsed match {
               case ImportExprUsed(expr) => {
                 val toDelete = expr.reference match {
@@ -59,8 +60,23 @@ class ScalaImportOptimizer extends ImportOptimizer {
                   }
                 }
                 if (toDelete) {
-                  expr.deleteExpr
+                  unusedImports += importUsed
                 }
+              }
+              case ImportWildcardSelectorUsed(expr) => {
+                unusedImports += importUsed
+              }
+              case ImportSelectorUsed(sel) => {
+                if (sel.reference.getText == sel.importedName && sel.reference.resolve != null) {
+                  unusedImports += importUsed
+                }
+              }
+            }
+          }
+          for (importUsed <- unusedImports) {
+            importUsed match {
+              case ImportExprUsed(expr) => {
+                expr.deleteExpr
               }
               case ImportWildcardSelectorUsed(expr) => {
                 expr.wildcardElement match {
@@ -83,9 +99,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 }
               }
               case ImportSelectorUsed(sel) => {
-                if (sel.reference.getText == sel.importedName && sel.reference.resolve != null) {
-                  sel.deleteSelector
-                }
+                sel.deleteSelector
               }
             }
           }
