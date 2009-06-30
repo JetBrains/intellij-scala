@@ -112,7 +112,7 @@ class ScalaAnnotator extends Annotator {
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     val settings: ScalaCodeStyleSettings =
-           CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+           CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (settings.CHECK_IMPLICITS) {
       for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
            scalaResult = result.asInstanceOf[ScalaResolveResult]) {
