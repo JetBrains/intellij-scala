@@ -19,9 +19,9 @@ ScalaFile
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
-        PsiWhiteSpace(' ')
         PsiErrorElement:'}' expected
           <empty list>
+  PsiWhiteSpace(' ')
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_WHITESPACE)('\n\n')
