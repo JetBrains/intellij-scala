@@ -43,10 +43,6 @@
   <property name="temp.jar.dir" value="${base.dir}/tempjar"/>
   <property name="dist.dir" value="${base.dir}/dist"/>
 
-  <property
-      name="scalacfork.jvmargs"
-      value="-Xms512M -Xmx768M -Xss1M -XX:MaxPermSize=128M"/>
-
 
   <target name="unzip.last.successful.IDEA.build">
     <unzip dest="${idea.home}">
@@ -83,18 +79,12 @@
   </path>
 
   <!--Scalac taskdef-->
-    <!--<taskdef resource="scala/tools/ant/antlib.xml">
+    <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
       </classpath>
-    </taskdef>-->
-  <taskdef  name="scalacfork" classname="scala.tools.ant.sabbus.ScalacFork">
-    <classpath>
-      <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
-      <pathelement location="${scala.home}/lib/scala-library.jar"/>
-    </classpath>
-  </taskdef>
+    </taskdef>
 
   <target name="clear.all" description="Clears results">
     <mkdir dir="${compiled.dest}"/>
@@ -130,16 +120,14 @@
     <!--logging="debug"-->
     <!--scalacdebugging="yes"-->
 
-    <scalacfork srcdir="${base.dir}"
+    <fsc srcdir="${base.dir}"
             destdir="${runners.dest}"
             target="jvm-1.5"
-            jvmargs="${scalacfork.jvmargs}">
-      <compilationpath>
-        <path refid="base.path"/>
-      </compilationpath>
+            force="changed">
+      <classpath refid="base.path"/>
       <include name="Runners/src/**/*.scala"/>
       <include name="Runners/src/**/*.java"/>
-    </scalacfork>
+    </fsc>
 
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
@@ -151,10 +139,10 @@
     </javac2>
 
 
-    <scalacfork srcdir="${base.dir}"
+    <fsc srcdir="${base.dir}"
             destdir="${main.dest}"
             target="jvm-1.5"
-            jvmargs="${scalacfork.jvmargs}">
+            force="changed">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
@@ -162,7 +150,7 @@
       </classpath>
       <include name="src/**/*.scala"/>
       <include name="src/**/*.java"/>
-    </scalacfork>
+    </fsc>
 
     <javac2 srcdir="${base.dir}"
             destdir="${main.dest}"
