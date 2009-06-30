@@ -83,10 +83,6 @@
       <classpath>
         <pathelement location="${scala.home}/lib/scala-compiler.jar"/>
         <pathelement location="${scala.home}/lib/scala-library.jar"/>
-        <pathelement location="${scala.home}/lib/scalap.jar"/>
-        <pathelement location="${scala.home}/lib/scalatest-0.9.5.jar"/>
-        <pathelement location="${scala.home}/lib/specs-1.4.4.jar"/>
-        <pathelement location="${scala.home}/lib/specs-1.4.4-tests.jar"/>
       </classpath>
     </taskdef>
 
