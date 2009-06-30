@@ -28,8 +28,10 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
+import scala.lang.formatting.settings.ScalaCodeStyleSettings
 import scala.lang.psi.api.ScalaFile
 import tree.TokenSet
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -109,6 +111,14 @@ class ScalaAnnotator extends Annotator {
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+    val settings: ScalaCodeStyleSettings =
+           CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    if (settings.CHECK_IMPLICITS) {
+      for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
+           scalaResult = result.asInstanceOf[ScalaResolveResult]) {
+        registerUsedImports(refElement, scalaResult)
+      }
+    }
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {

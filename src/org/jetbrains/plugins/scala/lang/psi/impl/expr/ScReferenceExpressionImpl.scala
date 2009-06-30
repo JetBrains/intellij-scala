@@ -104,7 +104,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val settings: ScalaCodeStyleSettings =
            CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
         processor.processType(t, e, if (settings.CHECK_IMPLICITS)
-                                      ResolveState.initial.put(ImportUsed.key, getImportsForImplicit(t))
+                                      ResolveState.initial.put(ImportUsed.key, e.getImportsForImplicit(t))
                                     else ResolveState.initial)
       }
     }

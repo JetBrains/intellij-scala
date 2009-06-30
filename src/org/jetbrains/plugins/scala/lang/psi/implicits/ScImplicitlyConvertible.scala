@@ -37,7 +37,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     case None => Set()
   }
 
-  private def implicitMap = CashesUtil.get(
+  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = CashesUtil.get(
       this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
       new CashesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
         (PsiModificationTracker.MODIFICATION_COUNT)
@@ -47,7 +47,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
     val processor = new CollectImplicitsProcessor(getType)
 
-    // Collect implicit conversions from botom to up
+    // Collect implicit conversions from bottom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
       place match {
         case null =>
@@ -62,9 +62,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
+    val typez: ScType = getType
     val sigsFound = processor.signatures.filter((sig: Signature) => {
       val types = sig.types
-      types.length == 1 && getType.conforms(types(0))
+      types.length == 1 && typez.conforms(types(0))
     })
 
     val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
