@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 import api.statements.params.ScTypeParam
 import api.toplevel.typedef.ScTemplateDefinition
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import com.intellij.openapi.project.DumbAwareRunnable
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
@@ -116,7 +117,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def disposeComponent {}
 
   def initComponent() {
-    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
+    StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable {
       def run = registerClasses
     })
   }
