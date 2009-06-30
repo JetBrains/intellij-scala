@@ -120,14 +120,14 @@
     <!--logging="debug"-->
     <!--scalacdebugging="yes"-->
 
-    <fsc srcdir="${base.dir}"
+    <scalac srcdir="${base.dir}"
             destdir="${runners.dest}"
             target="jvm-1.5"
             force="changed">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.scala"/>
       <include name="Runners/src/**/*.java"/>
-    </fsc>
+    </scalac>
 
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
@@ -139,7 +139,7 @@
     </javac2>
 
 
-    <fsc srcdir="${base.dir}"
+    <scalac srcdir="${base.dir}"
             destdir="${main.dest}"
             target="jvm-1.5"
             force="changed">
@@ -150,7 +150,7 @@
       </classpath>
       <include name="src/**/*.scala"/>
       <include name="src/**/*.java"/>
-    </fsc>
+    </scalac>
 
     <javac2 srcdir="${base.dir}"
             destdir="${main.dest}"
