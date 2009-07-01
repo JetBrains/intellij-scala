@@ -105,14 +105,16 @@ trait ScImportsHolder extends ScalaPsiElement {
     for (imp <- importStatementsInHeader) {
       for (expr: ScImportExpr <- imp.importExprs) {
         val qual = expr.qualifier
-        val qn = qual.resolve match {
-          case pack: PsiPackage => pack.getQualifiedName
-          case clazz: PsiClass => clazz.getQualifiedName
-          case _ => ""
-        }
-        if (qn == classPackageQual) {
-          selectors ++= expr.getNames
-          expr.deleteExpr
+        if (qual != null) { //in case "import scala" it can be null
+          val qn = qual.resolve match {
+            case pack: PsiPackage => pack.getQualifiedName
+            case clazz: PsiClass => clazz.getQualifiedName
+            case _ => ""
+          }
+          if (qn == classPackageQual) {
+            selectors ++= expr.getNames
+            expr.deleteExpr
+          }
         }
       }
     }

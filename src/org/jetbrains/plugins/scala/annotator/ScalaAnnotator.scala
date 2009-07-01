@@ -11,7 +11,6 @@ import lang.psi.api.expr._
 
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter}
-import lang.psi.api.toplevel.imports.ScImportSelector
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.util.TextRange
@@ -30,6 +29,7 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import scala.lang.formatting.settings.ScalaCodeStyleSettings
 import scala.lang.psi.api.ScalaFile
+import scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 /**
@@ -57,6 +57,9 @@ class ScalaAnnotator extends Annotator {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
         }
+      }
+      case impExpr: ScImportExpr => {
+        checkImportExpr(impExpr, holder)
       }
       case ret: ScReturnStmt => {
         checkExplicitTypeForReturnStatement(ret, holder)
@@ -229,6 +232,14 @@ class ScalaAnnotator extends Annotator {
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         }
       }
+    }
+  }
+
+  private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {
+    if (impExpr.qualifier == null) {
+      val annotation: Annotation = holder.createErrorAnnotation(impExpr.getTextRange,
+          ScalaBundle.message("import.expr.should.be.qualified"))
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }
 }
