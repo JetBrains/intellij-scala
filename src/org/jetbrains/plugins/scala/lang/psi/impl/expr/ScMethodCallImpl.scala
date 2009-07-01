@@ -64,6 +64,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case Some(synth: ScSyntheticClass) => synth.t
           case _ => return Nothing            
         }
+        case t: StdType => t //do not convert std type
         case t if convertType => ScType.extractClassType(t) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
           case _ => return Nothing
