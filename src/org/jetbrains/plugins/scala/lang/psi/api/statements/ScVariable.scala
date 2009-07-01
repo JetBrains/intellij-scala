@@ -21,7 +21,7 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
   def typeElement: Option[ScTypeElement]
 
   def declaredType: Option[ScType] = typeElement match {
-    case Some(te) => Some(te.getType)
+    case Some(te) => Some(te.cashedType)
     case None => None
   }
 

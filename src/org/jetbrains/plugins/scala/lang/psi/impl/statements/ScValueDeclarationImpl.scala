@@ -44,7 +44,7 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
   def declaredElements = getIdList.fieldIds
 
   def getType = typeElement match {
-    case Some(te) => te.getType
+    case Some(te) => te.cashedType
     case None => Nothing
   }
 

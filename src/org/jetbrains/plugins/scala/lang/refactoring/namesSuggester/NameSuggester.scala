@@ -23,7 +23,7 @@ object NameSuggester {
   def suggestNames(expr: ScExpression): Array[String] = suggestNames(expr, emptyValidator(expr.getProject))
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
     val names = new HashSet[String]
-    generateNamesByType(expr.getType, names, validator)
+    generateNamesByType(expr.cashedType, names, validator)
     generateNamesByExpr(expr, names, validator)
     if (names.size == 0) {
       names += validator.validateName("value", true)

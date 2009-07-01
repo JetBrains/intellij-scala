@@ -24,8 +24,8 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   }
 
   def getType = typeElement match {
-    case Some(te) => te.getType
-    case None => expr.getType 
+    case Some(te) => te.cashedType
+    case None => expr.cashedType 
   }
 
   def typeElement: Option[ScTypeElement] = {

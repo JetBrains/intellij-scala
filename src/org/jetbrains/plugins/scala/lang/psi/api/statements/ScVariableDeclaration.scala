@@ -15,7 +15,7 @@ trait ScVariableDeclaration extends ScVariable with ScTypedDeclaration {
   def getIdList: ScIdList
   def declaredElements : Seq[ScTyped]
   def getType = typeElement match {
-    case Some(te) => te.getType
+    case Some(te) => te.cashedType
     case None => Nothing
   }
 }

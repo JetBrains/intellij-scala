@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import base.patterns.ScCaseClause
 import base.ScLiteral
+import caches.CashesUtil
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import formatting.settings.ScalaCodeStyleSettings
 import impl.ScalaPsiElementFactory
@@ -22,7 +24,15 @@ import xml.ScXmlExpr
 
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
-  def getType(): ScType = Nothing //todo
+  def getType: ScType = Nothing //todo
+
+  def cashedType: ScType = {
+    CashesUtil.get(
+      this, CashesUtil.EXPR_TYPE_KEY,
+      new CashesUtil.MyProvider(this, {ic: ScExpression => ic.getType})
+        (PsiModificationTracker.MODIFICATION_COUNT)
+    )
+  }
 
   /**
    * Returns all types in respect of implicit conversions (defined and default)
@@ -31,9 +41,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     val settings: ScalaCodeStyleSettings =
       CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (settings.CHECK_IMPLICITS)
-      getType :: getImplicitTypes
+      cashedType :: getImplicitTypes
     else
-      Seq[ScType](getType)
+      Seq[ScType](cashedType)
   }
 
   /**
