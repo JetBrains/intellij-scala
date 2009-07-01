@@ -198,7 +198,8 @@ object ScalaPsiUtil {
             for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
               val typez: ScType = subst(meth).subst(parameter.calcType)
-              if (!(args(i).cashedType: ScType).conforms(typez)) return false
+              val argType = args(i).cashedType
+              if (!(argType: ScType).conforms(typez)) return false
             }
             return true
           }

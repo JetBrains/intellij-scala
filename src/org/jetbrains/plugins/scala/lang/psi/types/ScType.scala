@@ -310,6 +310,9 @@ object ScType {
         appendSeq(wilds, "; ");
         buffer.append("}")
       }
+      case ScSingletonType(path: ScStableCodeReferenceElement) => {
+        buffer.append(path.getText).append(".type")
+      }
       case _ => null //todo
     }
     inner(t)
