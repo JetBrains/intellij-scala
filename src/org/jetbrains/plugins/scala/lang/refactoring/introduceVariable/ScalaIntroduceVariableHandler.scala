@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 
-import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.lang.TokenWrapper
-import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
-import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
@@ -23,24 +19,15 @@ import psi.api.statements._
 import psi.api.toplevel.ScEarlyDefinitions
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
-import psi.types.{ScType, ScFunctionType}
+import psi.types.{ScType}
 import psi.api.expr._
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.api.toplevel.typedef.ScTrait
-import psi.api.toplevel.typedef.ScClass
-import psi.api.base.ScReferenceElement
-import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
 import scala.util.ScalaUtils
 import refactoring.util.ScalaRefactoringUtil
-import xml.ScXmlExpr
-
 /**
 * User: Alexander Podkhalyuzin
 * Date: 23.06.2008
