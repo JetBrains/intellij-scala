@@ -79,11 +79,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       def proc(e : PsiElement) : ResolveProcessor = e.getContext match {
         case generic : ScGenericCall => proc(generic)
         case call: ScMethodCall =>
-          new MethodResolveProcessor(ref, call.args.exprs.map{_.getType}, expectedType)
+          new MethodResolveProcessor(ref, call.args.exprs.map{_.cashedType}, expectedType)
         case inf: ScInfixExpr if ref == inf.operation => {
-          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.getType) else inf.rOp match {
-            case tuple: ScTuple => tuple.exprs.map{_.getType}
-            case rOp => Seq.singleton(rOp.getType)
+          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.cashedType) else inf.rOp match {
+            case tuple: ScTuple => tuple.exprs.map{_.cashedType}
+            case rOp => Seq.singleton(rOp.cashedType)
           }
           new MethodResolveProcessor(ref, args, expectedType)
         }
@@ -100,10 +100,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
-      processor.processType(getType, e, ResolveState.initial)
+      processor.processType(e.cashedType, e, ResolveState.initial)
 
       val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-      if (settings.CHECK_IMPLICITS && processor.candidates.length == 0 && !processor.isInstanceOf[CompletionProcessor]) {
+      if (settings.CHECK_IMPLICITS && (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor])) {
         for (t <- e.getImplicitTypes) {
           processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, e.getImportsForImplicit(t)))
         }

@@ -41,7 +41,7 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val typez = expr.getType
+    val typez = expr.cashedType
     val res = ScType.presentableText(typez)
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)

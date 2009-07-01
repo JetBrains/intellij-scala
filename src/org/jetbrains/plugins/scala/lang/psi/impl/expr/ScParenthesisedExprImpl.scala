@@ -15,7 +15,7 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def toString: String = "ExpressionInParenthesis"
 
   override def getType = expr match {
-    case Some(e) => e.getType
+    case Some(e) => e.cashedType
     case None => Nothing
   }
 }

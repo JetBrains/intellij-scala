@@ -261,7 +261,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       val tp = eb.templateParents
       tp match {
         case Some(tp1) => (for (te <- tp1.typeElements;
-                                t = te.getType;
+                                t = te.cashedType;
                                 asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY

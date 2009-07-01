@@ -55,10 +55,10 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def returnType: ScType = {
     returnTypeElement match {
       case None => body match {
-        case Some(b) => b.getType
+        case Some(b) => b.cashedType
         case _ => Unit
       }
-      case Some(rte) => rte.getType
+      case Some(rte) => rte.cashedType
     }
   }
 

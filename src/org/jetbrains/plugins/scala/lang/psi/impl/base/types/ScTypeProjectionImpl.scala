@@ -49,7 +49,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   private def _resolve(proc : BaseProcessor) = {
-    val projected = typeElement.getType
+    val projected = typeElement.cashedType
     proc.processType(projected, this)
     proc.candidates.map {r : ScalaResolveResult =>
       r.element match {

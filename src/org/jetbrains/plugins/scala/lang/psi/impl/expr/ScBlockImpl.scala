@@ -60,7 +60,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case singl : ScSingletonType => existize(singl.pathType)
           case _ => t
         }
-        val t = existize(e.getType)
+        val t = existize(e.cashedType)
         if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
       }
     }

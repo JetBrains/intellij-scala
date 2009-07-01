@@ -14,7 +14,7 @@ class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScPatternImpl(
   override def toString: String = "StableElementPattern"
 
   override def calcType: ScType = getReferenceExpression match {
-    case Some(e) => e.getType
+    case Some(e) => e.cashedType
     case None => org.jetbrains.plugins.scala.lang.psi.types.Nothing
   }
 }

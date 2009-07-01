@@ -38,14 +38,14 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
 
   def lowerBound = {
     lowerTypeElement match {
-      case Some(te) => te.getType
+      case Some(te) => te.cashedType
       case None => Nothing
     }
   }
 
   def upperBound = {
     upperTypeElement match {
-      case Some(te) => te.getType
+      case Some(te) => te.cashedType
       case None => Any
     }
   }

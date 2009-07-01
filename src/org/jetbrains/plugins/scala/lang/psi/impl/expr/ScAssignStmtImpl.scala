@@ -14,7 +14,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
   override def toString: String = "AssignStatement"
   override def getType = {
     getLExpression match {
-      case call: ScMethodCall => call.getType
+      case call: ScMethodCall => call.cashedType
       case _ => Unit
     }
   }
