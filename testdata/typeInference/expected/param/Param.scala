@@ -4,4 +4,5 @@ class Param[T] {
 
 val foo = new Param[String]
 foo.act(x => /*start*/x/*end*/.toString)
-//String
+//todo: wrong answer
+//Nothing
