@@ -50,23 +50,29 @@ object Conformance {
         case _ => false
       }
 
-      //todo here must be fuckTheSkalaCompiler inlined
+      //todo here must be fuckTheScalaCompiler inlined
       case ScSkolemizedType(_, _, lower, _) => conforms(lower, r)
       case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r) //todo implement me
 
-      case ScParameterizedType(ScDesignatorType(owner: PsiClass), args1) => r match {
-        case ScParameterizedType(ScDesignatorType(owner1: PsiClass), args2) if (owner == owner1) =>
-          owner.getTypeParameters.equalsWith(args1 zip args2) {
-            (tp, argsPair) => tp match {
-              case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
-              case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
-              case _ => argsPair._1 match {
-                case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
-                case _ => if (!argsPair._1.equiv(argsPair._2)) return false
+      case ScParameterizedType(owner: ScType, args1) => r match { //Parameterized type can have not only designators (projection)
+        case ScParameterizedType(owner1, args2) if (owner equiv owner1) => {
+          ScType.extractDesignated(owner) match {
+            case Some((owner: PsiClass, _)) => {
+              owner.getTypeParameters.equalsWith(args1 zip args2) {
+                (tp, argsPair) => tp match {
+                  case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
+                  case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
+                  case _ => argsPair._1 match {
+                    case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
+                    case _ => if (!argsPair._1.equiv(argsPair._2)) return false
+                  }
+                }
+                true
               }
             }
-            true
+            case _ => rightRec(l, r, visited)
           }
+        }
         case _ => rightRec(l, r, visited)
       }
 
@@ -172,6 +178,7 @@ object Conformance {
     }
     case ScSkolemizedType(_, _, _, upper) => conforms(l, upper)
 
+    //todo: may be join next parametrized cases in one, by using ScType.extractDesignated
     case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
       val s = p.substitutor
       if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else None
@@ -179,6 +186,19 @@ object Conformance {
     case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => {
       val s = p.substitutor
       clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
+    }
+    case p@ScParameterizedType(pr: ScProjectionType, _) => { //can have projection type instead designator
+      pr.resolveResult match {
+        case Some(ScalaResolveResult(td: ScTypeDefinition, _)) => {
+          val s = p.substitutor
+          if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else None
+        }
+        case Some(ScalaResolveResult(clazz: PsiClass, _)) => {
+          val s = p.substitutor
+          clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
+        }
+        case _ => false
+      }
     }
 
     case ScCompoundType(comps, _, _) => comps.find(l conforms _)

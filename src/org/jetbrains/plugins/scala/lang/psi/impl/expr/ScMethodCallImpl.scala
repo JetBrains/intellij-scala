@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import api.base.ScStableCodeReferenceElement
 import api.statements.{ScFunction, ScFun}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
@@ -65,7 +66,25 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case _ => return Nothing            
         }
         case t: StdType => t //do not convert std type
-        case t if convertType => ScType.extractClassType(t) match {
+        case t: ScSingletonType if convertType => {
+          t.pathType match {
+            case ScSingletonType(path: ScStableCodeReferenceElement) => {
+              /*todo: it may be useful to delete this case, and
+                todo: remove Singleton type return from t.pathType*/
+              path.bind match {
+                case Some(ScalaResolveResult(clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
+                case _ => return Nothing
+              }
+            }
+            case t => {
+              ScType.extractDesignated(t) match {
+                case Some((clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
+                case _ => return Nothing
+              }
+            }
+          }
+        }
+        case t if convertType => ScType.extractDesignated(t) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => return processClass(clazz, subst)
           case _ => return Nothing
         }
@@ -86,17 +105,17 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
 //            val signature = new PhysicalSignature(fun, subst)
 //            val types = signature.types
 //            val argList = args
-            //todo: type erasure to get type params implicitly
+            //todo: get type params implicitly
             return tail(true)
           }
           case Some(ScalaResolveResult(fun: ScFun, _)) if fun.typeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(fun: ScFun, subst: ScSubstitutor)) => {
-            //todo: type erasure to get type params implicitly
+            //todo: get type params implicitly
             return tail(true)
           }
           case Some(ScalaResolveResult(meth: PsiMethod, _)) if meth.getTypeParameters.length == 0 => return tail(true)
           case Some(ScalaResolveResult(meth: PsiMethod, subst: ScSubstitutor)) => {
-            //todo: type erasure to get type params implicitly
+            //todo: get type params implicitly
             return tail(true)
           }
           //if we resolve to object, so should try to check apply and update methods
@@ -107,8 +126,8 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase && clazz.typeParameters.length == 0 => {
             return getInvokedExpr.cashedType
           }
-          case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz. isCase => {
-            //todo: type erasure to get type params implicitly
+          case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
+            //todo: get type params implicitly
             return getInvokedExpr.cashedType
           }
           case Some(ScalaResolveResult(typed: ScTyped, _)) => return tail(true)
