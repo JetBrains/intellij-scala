@@ -7,4 +7,5 @@ package org.jetbrains.plugins.scala.codeInspection
 
 object InspectionsUtil {
   val ERROR_HANDLING = "Error Handling (Scala)"
+  val SCALA = "Scala"
 }
