@@ -1,10 +1,10 @@
-/*
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
@@ -21,15 +21,14 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaVaria
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import scala.Some;
+import scala.Tuple2;
 
 import java.io.IOException;
 
-*/
 /**
  * User: Alexander Podkhalyuzin
  * Date: 03.07.2008
  */
-/*
 
 
 public class IntroduceVariableValidatorTest extends ActionTestBase {
@@ -71,29 +70,12 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
     myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
 
     try {
-      myEditor.getSelectionModel().setSelection(startOffset, endOffset);
 
-      // gathering data for introduce variable
-      ScalaIntroduceVariableHandler introduceVariableHandler = new ScalaIntroduceVariableHandler();
-
-      Assert.assertTrue(myFile instanceof ScalaFile);
-      ScExpression selectedExpr = null;
-      if (ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset) instanceof Some) {
-        Some temp = (Some) ScalaRefactoringUtil.getExpression(myProject, myEditor, myFile, startOffset, endOffset);
-        selectedExpr = (ScExpression) temp.get();
-      }
-
-      Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
-
-      final PsiElement tempContainer = ScalaRefactoringUtil.getEnclosingContainer(selectedExpr);
-      Assert.assertTrue(tempContainer instanceof ScalaPsiElement);
-
-      ScExpression[] occurrences = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(selectedExpr), tempContainer);
       String varName = "value";
       final ScType varType = null;
 
-      ScalaVariableValidator validator = new ScalaVariableValidator(introduceVariableHandler, myProject,
-          selectedExpr, occurrences, (PsiElement)tempContainer);
+      ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(myProject, myEditor, 
+          (ScalaFile) myFile, startOffset, endOffset);
       String[] res = validator.isOKImpl(varName, replaceAllOccurences);
       for (String s: res) result += s + "\n";
     } finally {
@@ -127,4 +109,3 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
   }
 
 }
-*/

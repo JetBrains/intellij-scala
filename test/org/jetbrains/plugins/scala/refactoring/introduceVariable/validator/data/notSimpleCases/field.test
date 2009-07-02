@@ -5,4 +5,4 @@ class a {
   }
 }
 ------
-Introduced variable will conflict (or hide) with class field or method without parameters: value. All reference occurences in current block will be replaced to this.value
+Introduced variable will conflicts (or may be hidden by) with class field or method without parameters: value. All reference occurences in current block will be replaced to this.value

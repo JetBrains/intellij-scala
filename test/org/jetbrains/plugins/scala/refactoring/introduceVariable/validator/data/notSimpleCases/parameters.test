@@ -4,4 +4,4 @@ class a {
   }
 }
 ------
-Introduced variable will conflict (or hide) with parameter: value
+Introduced variable conflicts (or may be hidden by) parameter: value

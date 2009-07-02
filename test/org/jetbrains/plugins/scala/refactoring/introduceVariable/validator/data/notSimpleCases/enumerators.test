@@ -4,4 +4,4 @@ class a {
   }
 }
 -----
-Introduced variable will conflict (or hide) with local variable: value
+Introduced variable conflicts (or may be hidden by) local variable: value
