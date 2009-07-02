@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
-import caches.CashesUtil
+import caches.CachesUtil
 import collection.mutable.{HashMap, HashSet}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.PsiManagerEx
@@ -37,9 +37,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     case None => Set()
   }
 
-  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = CashesUtil.get(
+  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = CachesUtil.get(
       this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
-      new CashesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
+      new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
 

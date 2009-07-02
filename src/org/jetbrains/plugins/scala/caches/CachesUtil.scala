@@ -12,7 +12,7 @@ import lang.psi.types.ScType
  * Date: 08.06.2009
  */
 //todo: copy from TypeDefinitionMembers, rewrite or remove duplicates
-object CashesUtil {
+object CachesUtil {
   val ALIASED_KEY: Key[CachedValue[ScTypeInferenceResult]] = Key.create("alised.type.key")
   val SCRIPT_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("is.script.key")
   val EXPR_TYPE_KEY: Key[CachedValue[ScType]] = Key.create("expr.type.key")

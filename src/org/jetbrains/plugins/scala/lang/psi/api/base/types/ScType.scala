@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import _root_.scala.collection.immutable.HashSet
-import caches.CashesUtil
+import caches.CachesUtil
 import expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -16,9 +16,9 @@ import util.PsiModificationTracker
 
 trait ScTypeElement extends ScalaPsiElement {
   def cachedType: ScTypeInferenceResult = {
-    CashesUtil.get(
-      this, CashesUtil.TYPE_KEY,
-      new CashesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(HashSet[ScNamedElement]())})
+    CachesUtil.get(
+      this, CachesUtil.TYPE_KEY,
+      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(HashSet[ScNamedElement]())})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
   }

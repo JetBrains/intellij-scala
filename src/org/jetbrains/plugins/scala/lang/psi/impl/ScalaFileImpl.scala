@@ -6,7 +6,7 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 
 
-import caches.{ScalaCachesManager, CashesUtil}
+import caches.{ScalaCachesManager, CachesUtil}
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiPackageImpl
@@ -103,7 +103,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def isScriptFile: Boolean = isScriptFile(true)
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
-    import CashesUtil._
+    import CachesUtil._
     get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
       new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
   }
