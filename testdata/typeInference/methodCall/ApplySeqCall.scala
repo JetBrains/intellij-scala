@@ -1,3 +1,3 @@
 val seq: Seq[Int] = Seq(3)
-/*begin*/seq(0)/*end*/
+/*start*/seq(0)/*end*/
 //Int
