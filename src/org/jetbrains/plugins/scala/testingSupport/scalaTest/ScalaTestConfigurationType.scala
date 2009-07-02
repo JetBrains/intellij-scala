@@ -7,9 +7,9 @@ import com.intellij.openapi.module.Module
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
 import com.intellij.openapi.util.IconLoader
+import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiElement}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
@@ -35,8 +35,12 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
 
   def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
     val element = location.getPsiElement
-    if (element.isInstanceOf[PsiPackage]) {
-      val pack: PsiPackage = element.asInstanceOf[PsiPackage]
+    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
+      val pack: PsiPackage = element match {
+        case dir: PsiDirectory => JavaDirectoryService.getInstance.getPackage(dir)
+        case pack: PsiPackage => pack
+      }
+      if (pack == null) return null
       val settings = RunManager.getInstance(location.getProject).createRunConfiguration(pack.getQualifiedName, confFactory)
       settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setTestPackagePath(pack.getQualifiedName)
       return settings
@@ -65,7 +69,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
 
   def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
-    if (element.isInstanceOf[PsiPackage]) return true
+    if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) return true
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
     if (parent == null) return false
     val facade = JavaPsiFacade.getInstance(element.getProject)
