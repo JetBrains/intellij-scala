@@ -14,7 +14,7 @@ import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiManager, PsiClass}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
@@ -35,6 +35,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import scalaTest.ScalaTestRunConfigurationForm
 import script.ScalaScriptRunConfiguration
 
 /**
@@ -51,18 +52,28 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
   val SUITE_PATH = "org.specs.Specification"
   private var testClassPath = ""
+  private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
 
   def getTestClassPath = testClassPath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
+  def getTestPackagePath: String = testPackagePath
   def setTestClassPath(s: String): Unit = testClassPath = s
+  def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
 
   def apply(configuration: SpecsRunConfigurationForm) {
-    setTestClassPath(configuration.getTestClassPath)
+    if (configuration.isClassSelected) {
+      setTestClassPath(configuration.getTestClassPath)
+      setTestPackagePath("")
+    }
+    else {
+      setTestClassPath("")
+      setTestPackagePath(configuration.getTestPackagePath)
+    }
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
@@ -73,24 +84,41 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     facade.findClass(path, GlobalSearchScope.allScope(project))
   }
 
+  def getPackage(path: String): PsiPackage = {
+    val facade = JavaPsiFacade.getInstance(project)
+    facade.findPackage(path)
+  }
+
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     def classNotFoundError {
       throw new ExecutionException("Test class not found.")
     }
     var clazz: PsiClass = null
     var suiteClass: PsiClass = null
+    var pack: PsiPackage = null
     try {
-      clazz = getClazz(testClassPath)
+      if (testClassPath != "")
+        clazz = getClazz(testClassPath)
+      else
+        pack = getPackage(testPackagePath)
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
       case e => classNotFoundError
     }
-    if (clazz == null) classNotFoundError
-    //if (!clazz.isInstanceOf[ScClass]) classNotFoundError
+    if (clazz == null && pack == null) classNotFoundError
     if (suiteClass == null)
       throw new ExecutionException("Specs not specified.")
-    if (!clazz.isInheritor(suiteClass, true)) throw new ExecutionException("Not found suite class.")
+    val classes = new ArrayBuffer[PsiClass]
+    if (clazz != null) {
+      if (clazz.isInheritor(suiteClass, true)) classes += clazz
+    } else {
+      for (cl <- pack.getClasses) {
+        if (cl.isInheritor(suiteClass, true)) classes += cl
+      }
+    }
+
+    if (classes.isEmpty) throw new ExecutionException("Not found suite class.")
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
@@ -136,7 +164,9 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
         params.setMainClass(MAIN_CLASS)
 
-        params.getProgramParametersList.add(testClassPath)
+        params.getProgramParametersList.add("-s")
+        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+
         return params
       }
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs
 
 
-import collection.mutable.HashMap
+import collection.mutable.{ArrayBuffer, HashMap}
 import java.io.{PrintWriter, StringWriter}
 
 import org.specs.runner.{NotifierRunner, OutputReporter, Notifier}
@@ -13,23 +13,42 @@ import org.specs.util.{Classes, SimpleTimer}
  * Date: 03.05.2009
  */
 
-object
-SpecsRunner {
-  def main(args: Array[String]) { //todo: run more tests then one
+object SpecsRunner {
+  def main(args: Array[String]) {
     if (args.length == 0) {
       println("The first argument should be the specification class name")
       return
     }
-    var spec = Classes.createObject[Specification](args(0))
-    spec match {
-      case Some(s) => {
-        new NotifierRunner(s, new SpecsNotifier).reportSpecs
-      }
-      case None => {
-        spec = Classes.createObject[Specification](args(0) + "$")
-        spec match {
-          case Some(s) => new NotifierRunner(s, new SpecsNotifier).reportSpecs
-          case None => println("Scala Plugin internal error: no test class was found")
+    val argsStart = new ArrayBuffer[String] //don't need this
+    val argsEnd = new ArrayBuffer[String]
+    val classes = new ArrayBuffer[String]  // don't need this
+    var i = 0
+    while (i < args.length && args(i) != "-s") {
+      argsStart += args(i)
+      i = i + 1
+    }
+    argsStart += args(i)
+    i = i + 1
+    while (i < args.length && !args(i).startsWith("-")) {
+      classes += args(i)
+      i = i + 1
+    }
+    while (i < args.length) {
+      argsEnd += args(i)
+      i = i + 1
+    }
+    for (clazz <- classes) {
+      var spec = Classes.createObject[Specification](clazz)
+      spec match {
+        case Some(s) => {
+          new NotifierRunner(s, new SpecsNotifier).reportSpecs
+        }
+        case None => {
+          spec = Classes.createObject[Specification](clazz + "$")
+          spec match {
+            case Some(s) => new NotifierRunner(s, new SpecsNotifier).reportSpecs
+            case None => println("Scala Plugin internal error: no test class was found")
+          }
         }
       }
     }
