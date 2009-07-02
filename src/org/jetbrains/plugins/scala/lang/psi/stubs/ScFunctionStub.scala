@@ -24,4 +24,6 @@ trait ScFunctionStub extends NamedStub[ScFunction] {
   def getBodyExpression: Option[ScExpression]
 
   def getBodyText: String
+
+  def hasAssign: Boolean
 }

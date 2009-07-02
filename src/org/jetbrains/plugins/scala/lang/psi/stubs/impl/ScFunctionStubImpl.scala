@@ -26,16 +26,19 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var bodyText: StringRef = _
   private var myReturnTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var myBodyExpression: PatchedSoftReference[Option[ScExpression]] = null
+  private var assign: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String, isDeclaration: Boolean, annotations: Seq[String], typeText: String, bodyText: String) = {
+          name: String, isDeclaration: Boolean, annotations: Seq[String], typeText: String, bodyText: String,
+          assign: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
     this.annotations = annotations
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
+    this.assign = assign
   }
 
   def getName: String = StringRef.toString(name)
@@ -73,4 +76,6 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   def getBodyText: String = StringRef.toString(bodyText)
 
   def getReturnTypeText: String = StringRef.toString(typeText)
+
+  def hasAssign: Boolean = assign
 }

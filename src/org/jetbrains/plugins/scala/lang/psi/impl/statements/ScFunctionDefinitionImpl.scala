@@ -54,6 +54,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   def returnType: ScType = {
     returnTypeElement match {
+      case None if !hasAssign => Unit
       case None => body match {
         case Some(b) => b.cashedType
         case _ => Unit
@@ -68,5 +69,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       return stub.asInstanceOf[ScFunctionStub].getBodyExpression
     }
     findChild(classOf[ScExpression])
+  }
+
+  def hasAssign: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScFunctionStub].hasAssign
+    }
+    findChildByType(ScalaTokenTypes.tASSIGN) != null
   }
 }

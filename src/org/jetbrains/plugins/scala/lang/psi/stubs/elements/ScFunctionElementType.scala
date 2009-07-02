@@ -39,8 +39,14 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
         }
       }
     }
+    val assign = {
+      psi match {
+        case fDef: ScFunctionDefinition => fDef.hasAssign
+        case _ => false
+      }
+    }
     new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.getName, psi.isInstanceOf[ScFunctionDeclaration],
-      psi.annotationNames, returnTypeText, bodyText)
+      psi.annotationNames, returnTypeText, bodyText, assign)
   }
 
   def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
@@ -53,6 +59,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     }
     dataStream.writeName(stub.getReturnTypeText)
     dataStream.writeName(stub.getBodyText)
+    dataStream.writeBoolean(stub.hasAssign)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
@@ -66,7 +73,8 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val returnTypeText = StringRef.toString(dataStream.readName)
     val bodyText = StringRef.toString(dataStream.readName)
-    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText)
+    val assign = dataStream.readBoolean
+    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign)
   }
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {

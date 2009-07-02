@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import api.base.patterns.ScReferencePattern
 import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
+import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import caches.CashesUtil
+import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
@@ -29,8 +31,6 @@ import api.base._
 import api.base.types._
 import api.statements._
 import api.statements.params._
-import api.toplevel.ScTypeParametersOwner
-
 /**
  * @author ilyas
  */
@@ -53,7 +53,15 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  lazy val getReturnType = {
+  def getReturnType = {
+    CashesUtil.get(
+      this, CashesUtil.PSI_RETURN_TYPE_KEY,
+      new CashesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
+        (PsiModificationTracker.MODIFICATION_COUNT)
+    )
+  }
+
+  private def getReturnTypeImpl: PsiType = {
     calcType match {
       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case x => ScType.toPsi(x, getProject, getResolveScope)
