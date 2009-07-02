@@ -43,7 +43,6 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
           psi match {
             case null => Seq[Annotation]()
             case _ => {
-              //todo: add fix action
               val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
               annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
               annotation.registerFix(new ScalaOptimizeImportsFix)
