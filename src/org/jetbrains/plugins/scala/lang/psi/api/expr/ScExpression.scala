@@ -26,7 +26,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
   def getType: ScType = Nothing //todo
 
-  def cashedType: ScType = {
+  def cachedType: ScType = {
     CashesUtil.get(
       this, CashesUtil.EXPR_TYPE_KEY,
       new CashesUtil.MyProvider(this, {ic: ScExpression => ic.getType})
@@ -41,9 +41,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     val settings: ScalaCodeStyleSettings =
       CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (settings.CHECK_IMPLICITS)
-      cashedType :: getImplicitTypes
+      cachedType :: getImplicitTypes
     else
-      Seq[ScType](cashedType)
+      Seq[ScType](cachedType)
   }
 
   /**

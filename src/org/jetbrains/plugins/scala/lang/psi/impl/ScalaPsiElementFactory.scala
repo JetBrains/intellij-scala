@@ -334,7 +334,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
               var res: String = param.getName
               param.typeElement match {
                 case None =>
-                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cashedType))
+                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType))
               }
               return res
             }
@@ -345,7 +345,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         if (needsInferType) {
           method.returnTypeElement match {
             case None =>
-            case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cashedType))
+            case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType))
           }
         }
         res = res + " = "

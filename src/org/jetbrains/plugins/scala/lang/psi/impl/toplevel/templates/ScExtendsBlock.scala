@@ -53,7 +53,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def selfType = selfTypeElement match {
     case Some(ste) => ste.typeElement match {
-      case Some(te) => Some(te.cashedType)
+      case Some(te) => Some(te.cachedType)
       case None => None
     }
     case None => None
@@ -78,7 +78,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }
       }
       case Some(parents) => {
-        parents.superTypes foreach {t => addType(t)}//typeElements foreach {typeElement => addType(typeElement.cashedType)}
+        parents.superTypes foreach {t => addType(t)}//typeElements foreach {typeElement => addType(typeElement.cachedType)}
       }
     }
     buffer.toList

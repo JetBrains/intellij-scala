@@ -14,7 +14,7 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
   override def toString: String = "TypedStatement"
 
   override def getType = typeElement match {
-    case Some(te) => te.cashedType
-    case None => expr.cashedType
+    case Some(te) => te.cachedType
+    case None => expr.cachedType
   }
 }

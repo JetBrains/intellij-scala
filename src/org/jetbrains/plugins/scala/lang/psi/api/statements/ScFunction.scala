@@ -57,7 +57,7 @@ trait ScFunction extends ScalaPsiElement with ScNamedElement with ScMember with 
   def returnType: ScType
 
   def declaredType: ScType = returnTypeElement match {
-    case Some(rte) => rte.cashedType
+    case Some(rte) => rte.cachedType
     case None => Nothing
   }
 

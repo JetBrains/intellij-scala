@@ -198,7 +198,7 @@ object ScalaPsiUtil {
             for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
               val typez: ScType = subst(sign).subst(parameter.calcType)
-              val argType = args(i).cashedType
+              val argType = args(i).cachedType
               if (!(argType: ScType).conforms(typez)) return false
             }
             return true
@@ -219,7 +219,7 @@ object ScalaPsiUtil {
           for (i <- 0 to args.length - 1) {
             val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
             val typez: ScType = subst(sign).subst(ScType.create(parameter.getType, meth.getProject))
-            if (!(args(i).cashedType: ScType).conforms(typez)) return false
+            if (!(args(i).cachedType: ScType).conforms(typez)) return false
           }
           return true
         }

@@ -305,7 +305,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case method: PsiMethod => {
                       val getSign: PhysicalSignature = {
                         ref.qualifier match {
-                          case Some(x: ScExpression) => new PhysicalSignature(method, ScType.extractClassType(x.cashedType) match {
+                          case Some(x: ScExpression) => new PhysicalSignature(method, ScType.extractClassType(x.cachedType) match {
                             case Some((_, subst)) => subst
                             case _ => ScSubstitutor.empty
                           })
@@ -419,8 +419,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               } else {
                 var expr: ScExpression = call.getInvokedExpr
                 val typez = expr match {
-                  case gen: ScGenericCall => gen.referencedExpr.cashedType
-                  case _ => expr.cashedType
+                  case gen: ScGenericCall => gen.referencedExpr.cachedType
+                  case _ => expr.cachedType
                 }
                 typez match {
                   case fun: ScFunctionType => res += fun

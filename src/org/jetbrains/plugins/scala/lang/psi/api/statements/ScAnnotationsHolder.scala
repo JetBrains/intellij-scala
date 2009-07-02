@@ -20,7 +20,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement {
   })
 
   def hasAnnotation(clazz: PsiClass): Boolean = {
-    annotations.map((x: ScAnnotation) => x.annotationExpr.constr.typeElement.cashedType.resType match {
+    annotations.map((x: ScAnnotation) => x.annotationExpr.constr.typeElement.cachedType.resType match {
       case ScDesignatorType(clazz: PsiClass) => clazz
       case _ => null
     }).find(_.getQualifiedName == clazz.getQualifiedName) match {
