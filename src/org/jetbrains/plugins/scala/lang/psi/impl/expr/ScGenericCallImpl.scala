@@ -1,23 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import api.statements.{ScFunction, ScFun}
+import api.statements.{ScFunction}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
-import com.sun.swing.internal.plaf.synth.resources.synth
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import toplevel.synthetic.ScSyntheticFunction
-import toplevel.typedef.TypeDefinitionMembers
 import types._;
 import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -37,12 +28,12 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
      */
     def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
       //ugly method for appling it to methods chooser (to substitute types for every method)
-      def createSubst(method: PsiMethod): ScSubstitutor = {
-        val tp = method match {
+      def createSubst(method: PhysicalSignature): ScSubstitutor = {
+        val tp = method.method match {
           case fun: ScFunction => fun.typeParameters.map(_.name)
           case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
         }
-        subst.followed(ScalaPsiUtil.genericCallSubstitutor(tp, this))
+        ScalaPsiUtil.genericCallSubstitutor(tp, this).followed(method.substitutor).followed(subst)
       }
       val parent: PsiElement = getContext
       var isPlaceholder = false
@@ -69,7 +60,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
             meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)))
         }
-        return createSubst(method).subst(typez)
+        return createSubst(methods(0)).subst(typez)
       } else {
         return Nothing
         //todo: according to expected type choose appropriate method if it's possible, else => Nothing

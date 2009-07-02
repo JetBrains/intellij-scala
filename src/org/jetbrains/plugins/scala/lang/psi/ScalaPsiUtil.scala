@@ -174,7 +174,7 @@ object ScalaPsiUtil {
    * This method try to conform given expression to method's first parameter clause.
    * @return all methods which can by applied to given expressions
    */
-  def getMethodsConformingToMethodCall(methods: Seq[PhysicalSignature], args: Seq[ScExpression], subst: PsiMethod => ScSubstitutor): Seq[PhysicalSignature] = {
+  def getMethodsConformingToMethodCall(methods: Seq[PhysicalSignature], args: Seq[ScExpression], subst: PhysicalSignature => ScSubstitutor): Seq[PhysicalSignature] = {
     def check(sign: PhysicalSignature): Boolean = {
       val meth = sign.method
       meth match {
@@ -197,7 +197,7 @@ object ScalaPsiUtil {
                     (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
             for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
-              val typez: ScType = subst(meth).subst(parameter.calcType)
+              val typez: ScType = subst(sign).subst(parameter.calcType)
               val argType = args(i).cashedType
               if (!(argType: ScType).conforms(typez)) return false
             }
@@ -218,7 +218,7 @@ object ScalaPsiUtil {
                   ))) return false
           for (i <- 0 to args.length - 1) {
             val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
-            val typez: ScType = subst(meth).subst(ScType.create(parameter.getType, meth.getProject))
+            val typez: ScType = subst(sign).subst(ScType.create(parameter.getType, meth.getProject))
             if (!(args(i).cashedType: ScType).conforms(typez)) return false
           }
           return true
