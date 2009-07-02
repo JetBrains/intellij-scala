@@ -26,10 +26,10 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
      */
     def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
       //ugly method for appling it to methods chooser (to substitute types for every method)
-      def createSubst(method: PsiMethod): ScSubstitutor = {
+      def createSubst(method: PhysicalSignature): ScSubstitutor = {
         //here we don't care for generics because this case was filtered
         //todo: type erasure
-        subst
+        method.substitutor.followed(subst)
       }
       val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == this
       val args: Seq[ScExpression] = this.args.exprs ++ (
@@ -48,7 +48,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case fun: ScFunction => fun.returnType  
           case meth: PsiMethod => ScType.create(meth.getReturnType, meth.getProject)
         }
-        return createSubst(method).subst(typez)
+        return createSubst(methods(0)).subst(typez)
       } else {
         return Nothing
         //todo: according to expected type choose appropriate method if it's possible, else => Nothing

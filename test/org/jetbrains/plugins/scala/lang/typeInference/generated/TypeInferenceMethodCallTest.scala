@@ -6,6 +6,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testApplyCall = doTest
 
+  def testApplySeqCall = doTest
+
   def testCaseClassCall = doTest
 
   def testMapApply = doTest
