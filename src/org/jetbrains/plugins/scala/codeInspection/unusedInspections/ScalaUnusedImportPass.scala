@@ -14,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import java.util.ArrayList
 import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
 /**
  * User: Alexander Podkhalyuzin
@@ -26,29 +27,30 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
       val sFile = file.asInstanceOf[ScalaFile]
       val annotationHolder = new AnnotationHolderImpl()
       val unusedImports: Set[ImportUsed] = ImportTracker.getInstance(file.getProject).getUnusedImport(sFile)
-      //todo: rewrite this in more good style
-      val annotations: Seq[Annotation] = unusedImports.filter({
+      val annotations = unusedImports.flatMap({
         imp: ImportUsed => {
-          imp match {
-            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) => true
-            case ImportSelectorUsed(_) => true
-            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => true
-            case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => true
-            case _ => false
-          }
-        }
-      }).map({
-        imp: ImportUsed => {
-          //todo: add fix action
           val psi: PsiElement = imp match {
-            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) => expr.getParent
+            case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) => {
+              val impSt = expr.getParent.asInstanceOf[ScImportStmt]
+              if (impSt.importExprs.length == 1) impSt
+              else expr
+            }
             case ImportSelectorUsed(sel) => sel
             case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => e.wildcardElement match {case Some(p) => p}
             case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => e.getParent
+            case _ => null
           }
-          val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
-          annotation
+          psi match {
+            case null => Seq[Annotation]()
+            case _ => {
+              //todo: add fix action
+              val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
+              annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+              annotation.registerFix(new ScalaOptimizeImportsFix)
+              annotation
+              Seq[Annotation](annotation)
+            }
+          }
         }
       }).toSeq
 
