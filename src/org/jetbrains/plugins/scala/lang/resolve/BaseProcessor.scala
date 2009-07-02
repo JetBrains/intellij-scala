@@ -1,23 +1,14 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.openapi.util.Key
-import psi.api.toplevel.ScPolymorphicElement
-import psi.api.expr.{ScSuperReference, ScThisReference}
-import psi.api.base.{ScStableCodeReferenceElement, ScFieldId}
-import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import com.intellij.psi.scope._
 import com.intellij.psi._
-import com.intellij.lang.StdLanguages
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api._
-import statements.{ScVariable, ScTypeAlias}
-import statements.params.{ScTypeParam, ScParameter}
-import base.patterns.ScBindingPattern
+import statements.{ScTypeAlias}
 import psi.types._
 import psi.ScalaPsiElement
-import psi.api.toplevel.packaging.ScPackaging
-import psi.api.statements.ScFun
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
 

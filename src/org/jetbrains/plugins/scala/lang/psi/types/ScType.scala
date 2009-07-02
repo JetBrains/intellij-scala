@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import api.base.{ScStableCodeReferenceElement}
+import api.statements.{ScTypeAliasDefinition}
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
