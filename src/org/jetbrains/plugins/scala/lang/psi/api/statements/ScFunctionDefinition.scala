@@ -16,4 +16,6 @@ trait ScFunctionDefinition extends ScFunction {
   def body: Option[ScExpression]
 
   def parameters: Seq[ScParameter]
+
+  def hasAssign: Boolean
 }
