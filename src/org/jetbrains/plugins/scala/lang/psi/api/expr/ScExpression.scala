@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import base.patterns.ScCaseClause
 import base.ScLiteral
-import caches.CashesUtil
+import caches.CachesUtil
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
@@ -27,9 +27,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   def getType: ScType = Nothing //todo
 
   def cachedType: ScType = {
-    CashesUtil.get(
-      this, CashesUtil.EXPR_TYPE_KEY,
-      new CashesUtil.MyProvider(this, {ic: ScExpression => ic.getType})
+    CachesUtil.get(
+      this, CachesUtil.EXPR_TYPE_KEY,
+      new CachesUtil.MyProvider(this, {ic: ScExpression => ic.getType})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
   }

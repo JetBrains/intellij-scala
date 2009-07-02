@@ -8,7 +8,7 @@ import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
-import caches.CashesUtil
+import caches.CachesUtil
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -54,9 +54,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   override def getIcon(flags: Int) = Icons.FUNCTION
 
   def getReturnType = {
-    CashesUtil.get(
-      this, CashesUtil.PSI_RETURN_TYPE_KEY,
-      new CashesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
+    CachesUtil.get(
+      this, CachesUtil.PSI_RETURN_TYPE_KEY,
+      new CachesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
   }
