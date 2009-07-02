@@ -7,7 +7,7 @@ import toplevel.ScTyped
 trait ScTypedDeclaration extends ScDeclaration {
   def typeElement : Option[ScTypeElement]
   def calcType : ScType = typeElement match {
-    case Some(te) => te.cashedType
+    case Some(te) => te.cachedType
     case None => Nothing
   }
   def declaredElements : Seq[ScTyped]

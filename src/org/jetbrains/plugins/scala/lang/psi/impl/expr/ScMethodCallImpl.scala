@@ -57,7 +57,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
 
     //method used to convert expression to return type
     def tail(convertType: Boolean): ScType = {
-      getInvokedExpr.cashedType match {
+      getInvokedExpr.cachedType match {
         case ScFunctionType(r, _) => r        
         case pt: ScProjectionType if convertType => pt.element match {
           //todo Should this match be more general? For now, it is just enough to pass the test case:
@@ -124,11 +124,11 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           }
           //case classes
           case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase && clazz.typeParameters.length == 0 => {
-            return getInvokedExpr.cashedType
+            return getInvokedExpr.cachedType
           }
           case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
             //todo: get type params implicitly
-            return getInvokedExpr.cashedType
+            return getInvokedExpr.cachedType
           }
           case Some(ScalaResolveResult(typed: ScTyped, _)) => return tail(true)
           case Some(ScalaResolveResult(field: PsiField, _)) => return tail(true)

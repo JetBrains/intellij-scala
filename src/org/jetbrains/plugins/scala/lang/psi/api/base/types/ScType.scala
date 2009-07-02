@@ -15,7 +15,7 @@ import util.PsiModificationTracker
 */
 
 trait ScTypeElement extends ScalaPsiElement {
-  def cashedType: ScTypeInferenceResult = {
+  def cachedType: ScTypeInferenceResult = {
     CashesUtil.get(
       this, CashesUtil.TYPE_KEY,
       new CashesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(HashSet[ScNamedElement]())})

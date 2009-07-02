@@ -10,21 +10,21 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
   def lowerBound: ScType = {
     lowerTypeElement match {
-      case Some(te) => te.cashedType
+      case Some(te) => te.cachedType
       case None => Nothing
     }
   }
 
   def upperBound: ScType = {
     upperTypeElement match {
-      case Some(te) => te.cashedType
+      case Some(te) => te.cachedType
       case None => Any
     }
   }
 
   override def viewBound: Option[ScType] = {
     viewTypeElement match {
-      case Some(te) => Some(te.cashedType)
+      case Some(te) => Some(te.cachedType)
       case None => None
     }
   }

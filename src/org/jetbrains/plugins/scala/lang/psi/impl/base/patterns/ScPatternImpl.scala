@@ -60,7 +60,7 @@ class ScPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatt
     }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
       case matchStat : ScMatchStmt => matchStat.expr match {
-        case Some(e) => Some(e.cashedType)
+        case Some(e) => Some(e.cachedType)
         case _ => None
       }
       case _ : ScCatchBlock => {

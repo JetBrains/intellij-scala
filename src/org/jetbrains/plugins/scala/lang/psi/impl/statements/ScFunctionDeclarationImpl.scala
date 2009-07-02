@@ -23,7 +23,7 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
 
   def returnType: ScType = {
     typeElement match {
-      case Some(te) => te.cashedType
+      case Some(te) => te.cachedType
       case None => Nothing //todo use base function in case one is present
     }
   }

@@ -13,6 +13,6 @@ trait ScTypedPattern extends ScBindingPattern  {
 
   override def calcType = typePattern match {
     case None => Nothing
-    case Some(tp) => tp.typeElement.cashedType
+    case Some(tp) => tp.typeElement.cachedType
   }
 }

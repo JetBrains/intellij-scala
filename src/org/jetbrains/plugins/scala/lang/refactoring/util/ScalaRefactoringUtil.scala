@@ -120,7 +120,7 @@ object ScalaRefactoringUtil {
       }
       return None
     }
-    return Some((element, element.cashedType))
+    return Some((element, element.cachedType))
   }
 
   def getEnclosingContainer(file: PsiFile, startOffset: Int, endOffset: Int): PsiElement = {
