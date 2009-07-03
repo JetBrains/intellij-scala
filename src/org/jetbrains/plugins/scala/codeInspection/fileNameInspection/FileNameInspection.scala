@@ -40,7 +40,8 @@ class FileNameInspection extends LocalInspectionTool {
     if (hasProblems) {
       for (clazz <- scalaFile.getClasses; scalaClass: ScTypeDefinition = clazz.asInstanceOf[ScTypeDefinition]) {
         res +=  manager.createProblemDescriptor(scalaClass.nameId, "Class doesn't correspond to file name", 
-          Array[LocalQuickFix](), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          Array[LocalQuickFix](new ScalaRenameClassQuickFix(scalaClass, name),
+            new ScalaRenameFileQuickFix(scalaFile, clazz.getName + ".scala")), ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     }
     return res.toArray
