@@ -24,6 +24,7 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -31,8 +32,12 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.facet.FacetManager;
+import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessListener;
+import com.intellij.execution.process.ProcessEvent;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
@@ -69,6 +74,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   private static final String DEBUG_PROPERTY = "-Ydebug";
 
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
+
+  @Nullable
+  private ScalacOutputParser scalacOutputParser = null;
 
   public ScalacBackendCompiler(Project project) {
     myProject = project;
@@ -187,16 +195,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return null;
   }
 
-  public OutputParser createErrorParser(String outputDir) {
-    return new ScalacOutputParser();
-  }
-
-  public OutputParser createOutputParser(String outputDir) {
+  public OutputParser createOutputParser(@NotNull String outputDir) {
     return new OutputParser() {
       @Override
       public boolean processMessageLine(Callback callback) {
         if (super.processMessageLine(callback)) {
           return true;
+        }
+        if (callback.getCurrentLine().equals("") && scalacOutputParser != null) {
+          scalacOutputParser.flushWrittenList(callback);
         }
         return callback.getCurrentLine() != null;
       }
@@ -473,6 +480,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   }
 
   public OutputParser createErrorParser(@NotNull String outputDir, Process process) {
-    return new ScalacOutputParser();
+    //todo: better way to add process listener (wait for terminating)
+    if (scalacOutputParser == null)
+      scalacOutputParser = new ScalacOutputParser();
+    return scalacOutputParser;
   }
 }
