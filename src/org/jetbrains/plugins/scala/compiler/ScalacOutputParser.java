@@ -56,12 +56,7 @@ class ScalacOutputParser extends OutputParser {
     final String line = callback.getNextLine();
 
     if (line == null) {
-      //ensure that all "written" files are really written
-      for (String s : myWrittenList) {
-        File out = new File(s); //todo: Not sure what it means.
-        callback.fileGenerated(new FileObject(out));
-      }
-      myWrittenList.clear();
+      flushWrittenList(callback);
       return false;
     }
 
@@ -130,6 +125,15 @@ class ScalacOutputParser extends OutputParser {
       }
     }
     return true;
+  }
+
+  public void flushWrittenList(Callback callback) {
+    //ensure that all "written" files are really written
+    for (String s : myWrittenList) {
+      File out = new File(s);
+      callback.fileGenerated(new FileObject(out));
+    }
+    myWrittenList.clear();
   }
 
   private boolean stopMsgProcessing(String text) {
