@@ -68,14 +68,6 @@ public class ScalaLoader implements ApplicationComponent {
   }
 
   public static void loadScala() {
-    ApplicationManager.getApplication().runWriteAction(
-            new Runnable() {
-              public void run() {
-                FileTypeManager.getInstance().registerFileType(ScalaFileType.SCALA_FILE_TYPE, "scala");
-              }
-            }
-    );
-
     TypedHandler.registerQuoteHandler(ScalaFileType.SCALA_FILE_TYPE, new ScalaQuoteHandler());
 
     CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
