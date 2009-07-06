@@ -42,6 +42,7 @@ class ScalacOutputParser extends OutputParser {
   @NonNls
   private static final String PARSER_ON = "parser on ";
   private ArrayList<String> myWrittenList = new ArrayList<String>();
+  private final Object WRITTEN_LIST_LOCK = new Object();
 
   static enum MESSAGE_TYPE {
     ERROR, WARNING, PLAIN
@@ -120,7 +121,9 @@ class ScalacOutputParser extends OutputParser {
           String outputPath = info.substring(ourWroteMarker.length());
           final String path = outputPath.replace(File.separatorChar, '/');
 //          callback.fileGenerated(path);
-          myWrittenList.add(path);
+          synchronized (WRITTEN_LIST_LOCK) {
+            myWrittenList.add(path);
+          }
         }
       }
     }
@@ -128,12 +131,14 @@ class ScalacOutputParser extends OutputParser {
   }
 
   public void flushWrittenList(Callback callback) {
+    synchronized (WRITTEN_LIST_LOCK) {
     //ensure that all "written" files are really written
-    for (String s : myWrittenList) {
-      File out = new File(s);
-      callback.fileGenerated(new FileObject(out));
+      for (String s : myWrittenList) {
+        File out = new File(s);
+        callback.fileGenerated(new FileObject(out));
+      }
+      myWrittenList.clear();
     }
-    myWrittenList.clear();
   }
 
   private boolean stopMsgProcessing(String text) {
