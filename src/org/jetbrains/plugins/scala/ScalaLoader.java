@@ -86,7 +86,7 @@ public class ScalaLoader implements ApplicationComponent {
         ScalaAddImportPassFactory addImportPassFactory = project.getComponent(ScalaAddImportPassFactory.class);
         ScalaUnusedImportsPassFactory unusedImportPassFactory = project.getComponent(ScalaUnusedImportsPassFactory.class);
         registrar.registerTextEditorHighlightingPass(addImportPassFactory, new int[]{Pass.POPUP_HINTS}, null, true, -1);
-        registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.POPUP_HINTS}, null, true, -1);
+        registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
 
 
         CompilerManager compilerManager = CompilerManager.getInstance(project);
