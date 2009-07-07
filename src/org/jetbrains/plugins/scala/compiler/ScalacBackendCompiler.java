@@ -202,7 +202,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         if (super.processMessageLine(callback)) {
           return true;
         }
-        if (callback.getCurrentLine().equals("") && scalacOutputParser != null) {
+        if (callback.getCurrentLine() != null && callback.getCurrentLine().equals("") && scalacOutputParser != null) {
           scalacOutputParser.flushWrittenList(callback);
         }
         return callback.getCurrentLine() != null;
