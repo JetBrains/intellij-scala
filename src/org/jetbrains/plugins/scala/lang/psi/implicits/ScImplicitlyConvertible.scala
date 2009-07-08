@@ -43,7 +43,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
 
-
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
     val processor = new CollectImplicitsProcessor(cachedType)
 
@@ -84,7 +83,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         }
       }
     }
-    //todo cache value!
     result
   }
 

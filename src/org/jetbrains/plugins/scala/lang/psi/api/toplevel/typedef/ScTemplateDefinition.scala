@@ -4,6 +4,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState, PsiClass, PsiNamedElement}
 import com.intellij.util.ArrayFactory
+import resolve.BaseProcessor
 import statements.params.ScTypeParamClause
 import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
@@ -80,7 +81,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
           eb.earlyDefinitions match {
             case Some(ed) if PsiTreeUtil.isContextAncestor(ed, place, true) =>
             case _ => selfTypeElement match {
-              case Some(ste) if (PsiTreeUtil.isContextAncestor(ste, place, true)) =>
+              case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) => ste.typeElement match {
+                case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
+                  case (b : BaseProcessor, s: ScalaPsiElement) => b.processType(t.cachedType, s, state)
+                  case _ =>
+                }
+                case None =>
+              }
               case _ => extendsBlock match {
                 case e : ScExtendsBlock if e != null => {
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {

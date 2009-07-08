@@ -78,6 +78,13 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertTrue(ref.resolve() instanceof PsiMethod);
   }
 
+  public void testSelfType() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/self.scala");
+    final PsiElement t = ref.resolve();
+    assertTrue(t instanceof ScFunction);
+    assertEquals(((ScFunction) t).getName(), "ccc");
+  }
+
   public void testSubstAliasBound() throws Exception {
     PsiReference ref = configureByFile("nonlocal/substAliasBound.scala");
     assertTrue(ref.resolve() instanceof PsiMethod);
