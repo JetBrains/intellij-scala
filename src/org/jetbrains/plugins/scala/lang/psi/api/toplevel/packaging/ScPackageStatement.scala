@@ -12,5 +12,5 @@ trait ScPackageStatement extends ScalaPsiElement with ScPackageContainer {
 
   def getPackageName: String
 
-  def reference = findChildByClass(classOf[ScStableCodeReferenceElement])
+  def reference: ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
 }

@@ -5,6 +5,7 @@ import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.openapi.components.ApplicationComponent
 import fileNameInspection.FileNameInspection
 import java.lang.String
+import packageNameInspection.PackageNameInspection
 import referenceInspections.CyclicReferencesInspection
 
 /**
@@ -15,7 +16,8 @@ import referenceInspections.CyclicReferencesInspection
 class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationComponent {
   def getInspectionClasses: Array[java.lang.Class[_]] = Array[java.lang.Class[_]](
     classOf[CyclicReferencesInspection],
-    classOf[FileNameInspection]
+    classOf[FileNameInspection],
+    classOf[PackageNameInspection]
   )
 
   def initComponent: Unit = {}
