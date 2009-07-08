@@ -32,4 +32,12 @@
       <option name="SCALA" value="true"/>
     </context>
   </template>
+  <template name="priv" value="println(&quot;$EXPR_COPY$ = &quot; + $EXPR$)" description="Template for expressions output"
+            toReformat="true" toShortenFQNames="true">
+    <variable alwaysStopAt="true" defaultValue="false" name="EXPR" expression="scalaVariableOfType(&quot;&quot;)"/>
+    <variable alwaysStopAt="false" defaultValue="" name="EXPR_COPY" expression="EXPR"/>
+    <context>
+      <option name="SCALA" value="true"/>
+    </context>
+  </template>
 </templateSet>

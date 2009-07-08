@@ -42,19 +42,27 @@ class ScalaVariableOfTypeMacro extends Macro {
           variant.getElement match {
             case typed: ScTyped => {
               val t = typed.calcType
-              if (exprs.apply(0) != "foreach") {
-                for (expr <- exprs) {
-                  if ((ScType.extractClassType(t) match {
-                    case Some((x, _)) => x.getQualifiedName
-                    case None => ""
-                  }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
+              exprs.apply(0) match {
+                case "" => {
+                  val item = new LookupItem(variant.getElement, variant.getElement.getName)
+                  item.setTypeText(ScType.presentableText(t))
+                  array += item
                 }
-              } else {
-                ScType.extractClassType(t) match {
-                  case Some((x: ScTypeDefinition, _)) => {
-                    if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                case "foreach" => {
+                  ScType.extractClassType(t) match {
+                    case Some((x: ScTypeDefinition, _)) => {
+                      if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                    }
+                    case _ =>
                   }
-                  case _ =>
+                }
+                case  _ => {
+                  for (expr <- exprs) {
+                    if ((ScType.extractClassType(t) match {
+                      case Some((x, _)) => x.getQualifiedName
+                      case None => ""
+                    }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
+                  }
                 }
               }
             }
@@ -82,19 +90,25 @@ class ScalaVariableOfTypeMacro extends Macro {
           variant.getElement match {
             case typed: ScTyped => {
               val t = typed.calcType
-              if (exprs.apply(0).calculateResult(context).toString != "foreach") {
-                for (expr <- exprs) {
-                  if ((ScType.extractClassType(t) match {
-                    case Some((x, _)) => x.getQualifiedName
-                    case None => ""
-                  }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
+              exprs.apply(0).calculateResult(context).toString match {
+                case "" => {
+                  return new TextResult(variant.getElement.getName)
                 }
-              } else {
-                ScType.extractClassType(t) match {
-                  case Some((x: ScTypeDefinition, _)) => {
-                    if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.getName)
+                case "foreach" => {
+                  ScType.extractClassType(t) match {
+                    case Some((x: ScTypeDefinition, _)) => {
+                      if (!x.functionsByName("foreach").isEmpty) return new TextResult(variant.getElement.getName)
+                    }
+                    case _ =>
                   }
-                  case _ =>
+                }
+                case _ => {
+                  for (expr <- exprs) {
+                    if ((ScType.extractClassType(t) match {
+                      case Some((x, _)) => x.getQualifiedName
+                      case None => ""
+                    }) == expr.calculateResult(context).toString) return new TextResult(variant.getElement.getName)
+                  }
                 }
               }
             }
