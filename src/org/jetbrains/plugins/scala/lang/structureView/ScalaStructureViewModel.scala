@@ -25,30 +25,20 @@ import psi.api.ScalaFile
 */
 
 class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends TextEditorBasedStructureViewModel(myRootElement) {
-
-  protected def getPsiFile(): PsiFile = {
-    return myRootElement;
-  }
-
   @NotNull
   def getRoot(): StructureViewTreeElement = {
     return new ScalaFileStructureViewElement(myRootElement);
   }
 
   @NotNull
-  def getGroupers(): Array[Grouper] = {
-    return Grouper.EMPTY_ARRAY;
-  }
-
-  @NotNull
-  def getSorters(): Array[Sorter] = {
+  override def getSorters(): Array[Sorter] = {
     val res = new Array[Sorter](1)
     res(0) = Sorter.ALPHA_SORTER
     return res
   }
 
   @NotNull
-  def getFilters(): Array[Filter] = {
+  override def getFilters(): Array[Filter] = {
     return Array[Filter](new ScalaInheritedMembersFilter)
   }
 

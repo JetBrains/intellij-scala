@@ -41,7 +41,7 @@ public class LexerTest extends BaseScalaFileSetTestCase {
     String fileText = data[0];
 
     Lexer lexer = new ScalaLexer();
-    lexer.start(fileText.toCharArray());
+    lexer.start(fileText);
 
     StringBuffer buffer = new StringBuffer();
 

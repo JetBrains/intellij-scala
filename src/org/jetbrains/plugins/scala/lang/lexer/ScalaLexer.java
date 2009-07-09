@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.lexer.core._ScalaCoreLexer;
 /**
  * @author ilyas
  */
-public class ScalaLexer implements Lexer {
+public class ScalaLexer extends Lexer {
 
   protected final Lexer myScalaPlainLexer = new ScalaPlainLexer();
   private final Lexer myXmlLexer = new XmlLexer();
@@ -275,11 +275,6 @@ public class ScalaLexer implements Lexer {
     myLayeredTagStack = pos.state.tagStack;
     myCurrentLexer.start(myCurrentLexer.getBufferSequence(), myTokenStart, myBufferEnd,
         myCurrentLexer instanceof XmlLexer ? pos.state.xmlState : 0);
-  }
-
-  @Deprecated
-  public char[] getBuffer() {
-    return myCurrentLexer.getBuffer();
   }
 
   public CharSequence getBufferSequence() {

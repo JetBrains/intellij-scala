@@ -26,14 +26,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
-    def shouldProcess(c: Class[_]): Boolean = {
-      if (kinds == null) true
-      else if (classOf[PsiPackage].isAssignableFrom(c)) kinds contains ResolveTargets.PACKAGE
-      else if (classOf[PsiClass].isAssignableFrom(c)) (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
+    import ElementClassHint.DeclaractionKind
+    def shouldProcess(kind: DeclaractionKind): Boolean = {
+      kind match {
+        case null => true
+        case DeclaractionKind.PACKAGE => kinds contains ResolveTargets.PACKAGE
+        case DeclaractionKind.CLASS => (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
               (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
-      else if (classOf[PsiVariable].isAssignableFrom(c)) (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
-      else if (classOf[PsiMethod].isAssignableFrom(c)) kinds contains (ResolveTargets.METHOD)
-      else false
+        case DeclaractionKind.VARIABLE => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
+        case DeclaractionKind.METHOD => kinds contains (ResolveTargets.METHOD)
+        case _ => false
+      }
     }
   }
 

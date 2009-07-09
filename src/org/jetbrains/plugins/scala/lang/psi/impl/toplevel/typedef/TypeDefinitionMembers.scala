@@ -302,8 +302,8 @@ object TypeDefinitionMembers {
   def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
     case _ => {
-      val hint = processor.getHint(ElementClassHint.KEY)
-      hint == null || hint.shouldProcess(classOf[PsiVariable])
+      val hint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
+      hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.VARIABLE)
     }
   }
 
@@ -311,7 +311,7 @@ object TypeDefinitionMembers {
     case BaseProcessor(kinds) => kinds contains METHOD
     case _ => {
       val hint = processor.getHint(ElementClassHint.KEY)
-      hint == null || hint.shouldProcess(classOf[PsiMethod])
+      hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.METHOD)
     }
   }
 
