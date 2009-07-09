@@ -180,12 +180,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         val config = ScalaTestRunConfiguration.this
         val consoleProperties = new SMTRunnerConsoleProperties(config);
 
+        // console view
+        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler, consoleProperties, getRunnerSettings,
+          getConfigurationSettings, "Scala")
+        testRunnerConsole.initUI
+
         // Results viewer component
-        val resultsViewer = new SMTestRunnerResultsForm(config, consoleProperties,
+        val resultsViewer = new SMTestRunnerResultsForm(config, testRunnerConsole.getComponent, consoleProperties,
                                                         getRunnerSettings, getConfigurationSettings)
 
-        // console view
-        val testRunnerConsole = SMTestRunnerConnectionUtil.attachRunner(project, processHandler, consoleProperties, resultsViewer)
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
       }
     }

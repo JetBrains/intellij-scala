@@ -48,7 +48,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
     }
 
     public final void start(char[] buffer, int startOffset, int endOffset, int initialState) {
-      start(buffer, startOffset, endOffset);
+      start(new String(buffer), startOffset, endOffset);
     }
 
     public int getState() {
