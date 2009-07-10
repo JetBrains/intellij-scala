@@ -70,10 +70,6 @@ public class ScalaPlainLexer extends Lexer {
     public boolean newLineAllowed;
   }
 
-  public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
-    start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
-  }
-
   public void start(final CharSequence buffer, final int startOffset, final int endOffset, final int initialState) {
     mySplittingLexer.start(buffer, startOffset, endOffset, initialState & SPLIT_MASK);
     myLastScalaState = (initialState & SCALA_CORE_MASK) >> SCALA_CORE_SHIFT;
@@ -85,14 +81,6 @@ public class ScalaPlainLexer extends Lexer {
 
   public CharSequence getBufferSequence() {
     return mySplittingLexer.getBufferSequence();
-  }
-
-  public void start(char[] buffer, int startOffset, int endOffset) {
-    start(buffer, startOffset, endOffset, 0);
-  }
-
-  public void start(char[] buffer) {
-    start(buffer, 0, buffer.length);
   }
 
   public IElementType getTokenType() {

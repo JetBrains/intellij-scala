@@ -62,21 +62,6 @@ public class ScalaLexer extends Lexer {
     myCurrentLexer = myScalaPlainLexer;
   }
 
-  @Deprecated
-  public void start(char[] buffer) {
-    start(buffer, 0, buffer.length);
-  }
-
-  @Deprecated
-  public void start(char[] buffer, int startOffset, int endOffset) {
-    start(buffer, startOffset, endOffset, 0);
-  }
-
-  @Deprecated
-  public void start(char[] buffer, int startOffset, int endOffset, int initialState) {
-    start(new CharArrayCharSequence(buffer), startOffset, endOffset, initialState);
-  }
-
   public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
     myCurrentLexer = myScalaPlainLexer;
     myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);

@@ -46,14 +46,14 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val text = "import a._"
 
     val dummyFile: ScalaFile =
-      PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+      PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     dummyFile.getLastChild.getLastChild.getLastChild.getNode
   }
 
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
     val text = "class a {val b = (" + buffer + ")}"
 
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
     p.expr match {
@@ -68,7 +68,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   def createOptionExpressionFromText(text: String, manager: PsiManager): Option[ScExpression] = {
     val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text.trim).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text.trim + " ").asInstanceOf[ScalaFile]
     val child = dummyFile.getFirstChild
     child match {
       case expr: ScExpression => if (expr.getNextSibling == null && !PsiTreeUtil.hasErrorElements(dummyFile)) Some(expr) else None
@@ -79,34 +79,34 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
     val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
   }
 
   def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
     val text = name + " class a"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     return dummyFile.typeDefinitions.apply(0).getModifierList.getFirstChild.getNode
   }
 
   def createImportExprFromText(name: String, manager: PsiManager): ScImportExpr = {
     val text = "import " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     dummyFile.getLastChild.getLastChild.asInstanceOf[ScImportExpr]
   }
 
   def createImportFromText(text: String, manager: PsiManager): ScImportStmt = {
     val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     return dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
   }
 
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
     val text = "import " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
     val expr: ScImportExpr = imp.importExprs.apply(0)
     val ref = expr.reference match {case Some(x) => x case None => return null}
@@ -137,7 +137,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val name = getShortName(qualifiedName, packageName)
     val text = "import " + (if (isResolved(name, clazz, packageName, manager)) name else "_root_." + qualifiedName)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.firstOption match {
       case Some(x) => return x
       case None => {
@@ -167,7 +167,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
       text = text + "}"
     }
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.firstOption match {
       case Some(x) => return x
       case None => {
@@ -181,7 +181,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
 
   def createStableReferenceElement(name: String, manager: PsiManager) = {
-    val file = createScalaFile("class A extends B with " + name, manager)
+    val file = createScalaFile("class A extends B with " + name + " ", manager)
     val classDef = file.typeDefinitions()(0)
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
@@ -197,7 +197,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean, expr: ScExpression, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
               name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  + ScType.canonicalText(typez) else "") + " = " + expr.getText + "}"
-    val dummyFile = createScalaFile(text, manager)
+    val dummyFile = createScalaFile(text + " ", manager)
     val classDef = dummyFile.typeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScValue]
     else classDef.members()(0).asInstanceOf[ScVariable]
@@ -205,20 +205,20 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
     val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
-    val dummyFile = createScalaFile(text, manager)
+    val dummyFile = createScalaFile(text + " ", manager)
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
     forStmt.enumerators.getOrElse(null).enumerators.apply(0)
   }
 
   def createNewLineNode(manager: PsiManager): ASTNode = createNewLineNode(manager, "\n")
   def createNewLineNode(manager: PsiManager, text: String): ASTNode = {
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + "x").asInstanceOf[ScalaFile]
     return dummyFile.getNode.getFirstChildNode
   }
 
   def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression = {
     val text = "class a {\nval b = {\n" + expr.getText + "\n}\n}"
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
     p.expr
@@ -227,7 +227,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createBodyFromMember(element: PsiElement, manager: PsiManager): ScTemplateBody = {
     val text = "class a {\n" + element.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val classDef: ScTypeDefinition = dummyFile.typeDefinitions()(0)
     val body = classDef.extendsBlock.templateBody match {
       case Some(x) => x
@@ -240,7 +240,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
                                    needsInferType: Boolean): ScFunction = {
     val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     val function = classDef.functions()(0)
     return function
@@ -249,7 +249,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean): ScTypeAlias = {
     val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     val al = classDef.aliases()(0)
     return al
@@ -258,7 +258,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager, isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
     val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, text + " ").asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions()(0)
     classDef.members()(0) match {case member : ScMember => member}
   }
@@ -273,7 +273,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     if (packageName == null) return true
     val text = "package " + packageName + "\nimport " + name
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
     val imp: ScStableCodeReferenceElement = (dummyFile.getImportStatements.firstOption match {
       case Some(x) => x
       case None =>
@@ -478,7 +478,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createReferenceFromText(text: String, context: PsiElement): ScStableCodeReferenceElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text + " ")
     StableId.parse(builder, ScalaElementTypes.REFERENCE)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
@@ -493,7 +493,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createExpressionWithContextFromText(text: String, context: PsiElement): ScExpression = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text + " ")
     Expr.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
@@ -507,11 +507,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createTypeElementFromText(text: String, context: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text + " ")
     Type.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
+    //val psi = JavaPsiFacade.getElementFactory(context.getProject).createDummyHolder(text, ScalaElementTypes.SIMPLE_TYPE, context)
     if (psi.isInstanceOf[ScTypeElement]) {
       psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
       psi.asInstanceOf[ScTypeElement]
@@ -521,7 +522,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createPatterListFromText(text: String, context: PsiElement): ScPatternList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239")
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239 ")
     Def.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
@@ -536,7 +537,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createIdsListFromText(text: String, context: PsiElement): ScIdList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int")
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int ")
     Dcl.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
