@@ -27,7 +27,6 @@ object ScalaPsiCreator {
 
 
      case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
-     case ScalaDocElementTypes.SCALA_DOC_COMMENT => new ScDocCommentImpl(node)
     /*****************************************************/
     /********************** TOP **************************/
     /*****************************************************/
