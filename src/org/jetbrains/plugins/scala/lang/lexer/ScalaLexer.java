@@ -227,6 +227,7 @@ public class ScalaLexer extends Lexer {
 
   public int getTokenStart() {
     locateToken();
+    if (myTokenType == null) return myTokenEnd;
     return myTokenStart;
   }
 
