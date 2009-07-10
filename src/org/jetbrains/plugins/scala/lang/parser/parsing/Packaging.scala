@@ -91,7 +91,7 @@ object Packaging {
         }
       }
       case _ => {
-        //this code shouldn't be reachabled, if it is, this is unexpexted error
+        //this code shouldn't be reachable, if it is, this is unexpected error
         builder error ScalaBundle.message("unreachable.error")
         packMarker.drop
         return false

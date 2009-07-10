@@ -150,8 +150,8 @@ public class ScalaCopyClassesHandler implements CopyHandlerDelegate {
       for (PsiClass clazz : classes) {
         createdFile.deleteChildRange(clazz, clazz);
       }
+      if (!aClass.getName().equals(copyClassName)) ((ScalaFile) createdFile).addImportForClass(aClass);
       PsiClass newClass = (PsiClass)createdFile.add(classCopy);
-      ((ScalaFile) createdFile).addImportForClass(aClass);
       ChangeContextUtil.decodeContextInfo(newClass, newClass, null);
       replaceClassOccurrences(newClass, (PsiClass) elementToCopy);
       newElement = newClass;
