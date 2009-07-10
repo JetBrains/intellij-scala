@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.parser;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.PsiBuilder;
-import com.intellij.lang.PsiParser;
+import com.intellij.lang.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.peer.PeerFactory;
 import com.intellij.psi.JavaPsiFacade;
@@ -12,6 +10,8 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,15 +23,19 @@ public interface ScalaDocElementTypes extends ScalaDocTokenType{
    */
   ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaFileType.SCALA_FILE_TYPE.getLanguage()) {
 
-    public ASTNode parseContents(ASTNode chameleon) {
-      final PeerFactory factory = PeerFactory.getInstance();
-      final PsiElement parentElement = chameleon.getTreeParent().getPsi();
+    public ASTNode parseContents(ASTNode lazyNode) {
+      final PsiElement parentElement = lazyNode.getTreeParent().getPsi();
       final Project project = JavaPsiFacade.getInstance(parentElement.getProject()).getProject();
 
-      final PsiBuilder builder = factory.createBuilder(chameleon, new ScalaDocLexer(), getLanguage(), chameleon.getText(), project);
+      final PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, lazyNode, new ScalaDocLexer(), getLanguage(), lazyNode.getText());
       final PsiParser parser = new ScalaDocParser();
 
       return parser.parse(this, builder).getFirstChildNode();
+    }
+
+    @Override
+     public ASTNode createNode(CharSequence text) {
+      return new ScDocCommentImpl(text);
     }
   };
 
