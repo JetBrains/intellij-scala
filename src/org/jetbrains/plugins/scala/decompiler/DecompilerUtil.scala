@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
  */
 
 object DecompilerUtil {
-  protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.groovy.lang.psi.impl.statements.arguments.GrArgumentListImpl");
+  protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
   val DECOMPILER_VERSION = 62
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
