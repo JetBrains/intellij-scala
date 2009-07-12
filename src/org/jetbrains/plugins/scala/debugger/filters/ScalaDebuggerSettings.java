@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
     storages = {
     @Storage(
         id = "sacla_debugger",
-        file = "$APP_CONFIG$/groovy_debug.xml"
+        file = "$APP_CONFIG$/scala_debug.xml"
     )}
 )
 public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> {
