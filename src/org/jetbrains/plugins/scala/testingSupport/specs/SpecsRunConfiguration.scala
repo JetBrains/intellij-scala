@@ -121,7 +121,15 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     if (clazz != null) {
       if (clazz.isInheritor(suiteClass, true)) classes += clazz
     } else {
-      for (cl <- pack.getClasses) {
+      def getClasses(pack: PsiPackage): Seq[PsiClass] = {
+        val buffer = new ArrayBuffer[PsiClass]
+        buffer ++= pack.getClasses
+        for (p <- pack.getSubPackages) {
+          buffer ++= p.getClasses
+        }
+        buffer.toSeq
+      }
+      for (cl <- getClasses(pack)) {
         if (cl.isInheritor(suiteClass, true)) classes += cl
       }
     }
