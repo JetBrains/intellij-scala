@@ -183,11 +183,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         // console view
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler, consoleProperties, getRunnerSettings,
           getConfigurationSettings, "Scala")
-        testRunnerConsole.initUI
-
-        // Results viewer component
-        val resultsViewer = new SMTestRunnerResultsForm(config, testRunnerConsole.getComponent, consoleProperties,
-                                                        getRunnerSettings, getConfigurationSettings)
 
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
       }

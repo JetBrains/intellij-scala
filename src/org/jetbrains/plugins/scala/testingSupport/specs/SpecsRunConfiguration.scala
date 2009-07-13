@@ -51,19 +51,25 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
   val SUITE_PATH = "org.specs.Specification"
-  private var testClassPath = ""
+   private var testClassPath = ""
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
+  var sysFilter = ".*"
+  var exampleFilter = ".*"
 
   def getTestClassPath = testClassPath
+  def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
-  def getTestPackagePath: String = testPackagePath
+  def getSystemFilter = sysFilter
+  def getExampleFilter = exampleFilter
   def setTestClassPath(s: String): Unit = testClassPath = s
   def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
+  def setSystemFilter(s: String): Unit = sysFilter = s
+  def setExampleFilter(s: String): Unit = exampleFilter = s
 
   def apply(configuration: SpecsRunConfigurationForm) {
     if (configuration.isClassSelected) {
@@ -77,6 +83,8 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
     setModule(configuration.getModule)
+    setSystemFilter(configuration.getSystemFilter)
+    setExampleFilter(configuration.getExampleFilter)
   }
 
   def getClazz(path: String): PsiClass = {
@@ -166,7 +174,8 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
-
+        params.getProgramParametersList.add("-sus:" + getSystemFilter)
+        params.getProgramParametersList.add("-ex:" + getExampleFilter)
         return params
       }
 
@@ -179,11 +188,6 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         // console view
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler, consoleProperties, getRunnerSettings,
           getConfigurationSettings, "Scala")
-        testRunnerConsole.initUI
-
-        // Results viewer component
-        val resultsViewer = new SMTestRunnerResultsForm(config, testRunnerConsole.getComponent, consoleProperties,
-                                                        getRunnerSettings, getConfigurationSettings)
 
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
       }
