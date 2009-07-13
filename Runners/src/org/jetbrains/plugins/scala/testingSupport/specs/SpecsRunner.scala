@@ -19,34 +19,46 @@ object SpecsRunner {
       println("The first argument should be the specification class name")
       return
     }
-    val argsStart = new ArrayBuffer[String] //don't need this
-    val argsEnd = new ArrayBuffer[String]
-    val classes = new ArrayBuffer[String]  // don't need this
+    val classes = new ArrayBuffer[String]
+    var sysFilter = ".*"
+    var exFilter = ".*"
     var i = 0
-    while (i < args.length && args(i) != "-s") {
-      argsStart += args(i)
-      i = i + 1
-    }
-    argsStart += args(i)
-    i = i + 1
-    while (i < args.length && !args(i).startsWith("-")) {
-      classes += args(i)
-      i = i + 1
-    }
     while (i < args.length) {
-      argsEnd += args(i)
-      i = i + 1
+      if (args(i).startsWith("-sus")) {
+        sysFilter = args(i).substring(5)
+        i = i + 1
+      } else if (args(i).equals("-s")) {
+        i = i + 1
+        while (i < args.length && !args(i).startsWith("-")) {
+          classes += args(i)
+          i = i + 1
+        }
+      } else if (args(i).startsWith("-ex")) {
+        exFilter = args(i).substring(4)
+        i = i + 1
+      } else {
+        i = i + 1
+      }
     }
+
     for (clazz <- classes) {
       var spec = Classes.createObject[Specification](clazz)
       spec match {
         case Some(s) => {
-          new NotifierRunner(s, new SpecsNotifier).reportSpecs
+          (new NotifierRunner(s, new SpecsNotifier) {
+            override def exampleFilterPattern: String = exFilter
+
+            override def susFilterPattern: String = sysFilter
+          }).reportSpecs
         }
         case None => {
           spec = Classes.createObject[Specification](clazz + "$")
           spec match {
-            case Some(s) => new NotifierRunner(s, new SpecsNotifier).reportSpecs
+            case Some(s) => (new NotifierRunner(s, new SpecsNotifier) {
+              override def exampleFilterPattern: String = exFilter
+
+              override def susFilterPattern: String = sysFilter
+            }).reportSpecs
             case None => println("Scala Plugin internal error: no test class was found")
           }
         }

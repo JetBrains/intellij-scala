@@ -34,6 +34,8 @@ public class SpecsRunConfigurationForm {
   private JLabel testClassLabel;
   private JRadioButton testClassRadioButton;
   private JRadioButton testPackageRadioButton;
+  private JTextField sysFilterTextField;
+  private JTextField examplesFilterTextField;
 
   private ConfigurationModuleSelector myModuleSelector;
 
@@ -101,6 +103,8 @@ public class SpecsRunConfigurationForm {
       setClassEnabled();
     }
     myModuleSelector.applyTo(configuration);
+    setSystemFilter(configuration.getSystemFilter());
+    setExampleFilter(configuration.getExampleFilter());
   }
 
   public boolean isClassSelected() {
@@ -127,7 +131,15 @@ public class SpecsRunConfigurationForm {
     testOptionsTextField.setText(s);
   }
 
-public String getTestPackagePath() {
+  public String getSystemFilter() {
+    return sysFilterTextField.getText();
+  }
+
+  public String getExampleFilter() {
+    return examplesFilterTextField.getText();
+  }
+
+  public String getTestPackagePath() {
     return testPackageTextField.getText();
   }
 
@@ -138,6 +150,14 @@ public String getTestPackagePath() {
 
   public void setTestPackagePath(String s) {
     testPackageTextField.setText(s);
+  }
+
+  public void setSystemFilter(String s) {
+    sysFilterTextField.setText(s);
+  }
+
+  public void setExampleFilter(String s) {
+    examplesFilterTextField.setText(s);
   }
 
   public JPanel getPanel() {
