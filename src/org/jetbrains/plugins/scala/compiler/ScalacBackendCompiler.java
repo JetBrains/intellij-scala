@@ -363,7 +363,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       printer.println(tokenizer.nextToken());
     }
     printer.println(VERBOSE_PROPERTY);
-    printer.println(DEBUG_PROPERTY);
+//    printer.println(DEBUG_PROPERTY);
     //printer.println(WARNINGS_PROPERTY);
     printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
     printer.println(DESTINATION_COMPILER_PROPERTY);
