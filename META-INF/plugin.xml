@@ -43,7 +43,7 @@
     <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
     <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
-    <completion.contributor language="Scala" implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
+    <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
     <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
     <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
     <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
