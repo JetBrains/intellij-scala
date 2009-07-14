@@ -72,6 +72,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
+  public boolean DO_NOT_OFFER_IMPORT_HINT = false;
 
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean SHOW_FILES_IN_PROJECT_VIEW = false;
