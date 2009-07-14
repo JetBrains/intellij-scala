@@ -334,6 +334,9 @@ trait ScImportsHolder extends ScalaPsiElement {
     else if (next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
       remove(next)
       remove(node)
+    } else if (next.getPsi.isInstanceOf[PsiWhiteSpace]) {
+      remove(next)
+      remove(node)
     } else if (next.getElementType == ScalaTokenTypes.tSEMICOLON) {
       val nextnext = next.getTreeNext
       if (nextnext == null) {
