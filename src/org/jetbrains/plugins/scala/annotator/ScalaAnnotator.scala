@@ -116,11 +116,9 @@ class ScalaAnnotator extends Annotator {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     val settings: ScalaCodeStyleSettings =
            CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (settings.CHECK_IMPLICITS) {
-      for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
-           scalaResult = result.asInstanceOf[ScalaResolveResult]) {
-        registerUsedImports(refElement, scalaResult)
-      }
+    for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
+         scalaResult = result.asInstanceOf[ScalaResolveResult]) {
+      registerUsedImports(refElement, scalaResult)
     }
   }
 

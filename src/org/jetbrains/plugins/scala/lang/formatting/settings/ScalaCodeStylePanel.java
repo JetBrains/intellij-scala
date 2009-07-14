@@ -87,7 +87,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox packagingsCheckBox;
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
-  private JCheckBox implicitTypesCheckBox;
   private JCheckBox showFilesInProjectViewCheckBox;
 
   private final Object LOCK = new Object();
@@ -227,7 +226,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
-    scalaSettings.CHECK_IMPLICITS = implicitTypesCheckBox.isSelected();
     scalaSettings.SHOW_FILES_IN_PROJECT_VIEW = showFilesInProjectViewCheckBox.isSelected();
   }
 
@@ -353,7 +351,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
-    if (scalaSettings.CHECK_IMPLICITS != implicitTypesCheckBox.isSelected()) return true;
     if (scalaSettings.SHOW_FILES_IN_PROJECT_VIEW != showFilesInProjectViewCheckBox.isSelected()) return true;
 
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
@@ -435,7 +432,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
-    setValue(implicitTypesCheckBox, settings.CHECK_IMPLICITS);
     setValue(showFilesInProjectViewCheckBox, settings.SHOW_FILES_IN_PROJECT_VIEW);
 
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
