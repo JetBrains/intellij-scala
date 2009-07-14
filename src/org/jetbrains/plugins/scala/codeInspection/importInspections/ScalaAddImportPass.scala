@@ -48,11 +48,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefiniti
 class ScalaAddImportPass(file: PsiFile, editor: Editor) extends {
   val project = file.getProject
   val document = editor.getDocument
-  val scalaSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+  val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
 }  with TextEditorHighlightingPass(project, document) {
   def doCollectInformation(progress: ProgressIndicator) {
   }
   def doApplyInformationToEditor {
+    if (scalaSettings.DO_NOT_OFFER_IMPORT_HINT) return
     val added = new ArrayBuffer[PsiClass]
     ApplicationManager.getApplication.assertIsDispatchThread
     if (!editor.getContentComponent.hasFocus) return
