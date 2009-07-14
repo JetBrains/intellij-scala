@@ -18,6 +18,18 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     return TestUtils.getTestDataPath() + "/resolve/class/";
   }
 
+  public void testImportFromParam() throws Exception {
+    PsiReference ref = configureByFile("dependent/MainXMLExporter.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScClass);
+  }
+
+  public void testImportFromVal() throws Exception {
+    PsiReference ref = configureByFile("dependent2/a.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScClass);
+  }
+
   public void testSeqClass() throws Exception {
     PsiReference ref = configureByFile("sdk1/sdk1.scala");
     PsiElement resolved = ref.resolve();
