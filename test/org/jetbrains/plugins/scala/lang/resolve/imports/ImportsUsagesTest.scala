@@ -19,6 +19,28 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     println
   }
 
+  def testDependent(): Unit = {
+    val path = "dependent/aaa.scala"
+    configureByFile(path) match {
+      case r: PsiPolyVariantReference => {
+        val results = r.multiResolve(false)
+
+        assert(results.length == 1)
+        val res = results(0)
+        assert(res.isInstanceOf[ScalaResolveResult])
+        val srr = res.asInstanceOf[ScalaResolveResult]
+
+        assert(srr.getElement != null)
+        val imports = srr.importsUsed
+        assert(imports.size == 1)
+        printResults(imports)
+
+      }
+      case _ => throw new Exception("Wrong reference!")
+    }
+  }
+
+
   def testSimpleImport(): Unit = {
     val path = "simple/SimpleImport.scala"
     configureByFile(path) match {
