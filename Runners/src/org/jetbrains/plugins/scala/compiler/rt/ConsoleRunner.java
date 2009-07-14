@@ -24,7 +24,12 @@ public class ConsoleRunner {
         getSettings(args),
         getUnitFunction());
     Settings settings = command.settings();
-    ConsoleRunnerUtil.setParamParser(args, settings);
+    String mkString = "";
+    for (String arg : args) {
+      mkString += arg + "|";
+    }
+    if (mkString.length() > 0) mkString = mkString.substring(0, mkString.length() -  1);
+    settings.parseParams(mkString, getUnitFunction());
     (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))), new PrintWriter(System.out))).main(settings);
   }
 
