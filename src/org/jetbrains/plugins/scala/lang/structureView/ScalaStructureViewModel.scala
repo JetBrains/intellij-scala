@@ -45,6 +45,9 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends Text
   override def isSuitable(element: PsiElement) = element match {
     case t: ScTypeDefinition => t.getParent match {
       case _: ScalaFile | _: ScPackaging => true
+      case tb: ScTemplateBody if tb.getParent.isInstanceOf[ScExtendsBlock] => {
+        isSuitable(tb.getParent.getParent)
+      }
       case _ => false
     }
     case f: ScFunction => f.getParent match {
