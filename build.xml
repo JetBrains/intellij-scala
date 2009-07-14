@@ -120,15 +120,6 @@
     <!--logging="debug"-->
     <!--scalacdebugging="yes"-->
 
-    <scalac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            target="jvm-1.5"
-            force="changed">
-      <classpath refid="base.path"/>
-      <include name="Runners/src/**/*.scala"/>
-      <include name="Runners/src/**/*.java"/>
-    </scalac>
-
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
             target="1.5"
