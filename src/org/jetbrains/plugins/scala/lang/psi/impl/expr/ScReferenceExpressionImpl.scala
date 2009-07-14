@@ -58,7 +58,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
-  def getSameNameVariants: Array[Object] = _resolve(this, new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)
+  def getSameNameVariants: Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).
+          map(r => r.getElement.asInstanceOf[Object]).filter(elem => elem.isInstanceOf[PsiNamedElement] &&
+          elem.asInstanceOf[PsiNamedElement].getName == refName)
 
   import com.intellij.psi.impl.PsiManagerEx
 
@@ -103,8 +105,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       processor.processType(e.cachedType, e, ResolveState.initial)
 
       val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-      if (settings.CHECK_IMPLICITS && (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) ||
-        processor.isInstanceOf[SameNameCompletionProcessor]) {
+      if (settings.CHECK_IMPLICITS && (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor])) {
         for (t <- e.getImplicitTypes) {
           processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, e.getImportsForImplicit(t)))
         }
