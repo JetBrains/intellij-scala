@@ -6,7 +6,7 @@ import api.toplevel.ScNamedElement
 import com.intellij.psi.impl.PsiManagerEx
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import com.intellij.psi.{PsiMember, ResolveResult, PsiElement}
+import com.intellij.psi.{PsiNamedElement, PsiMember, ResolveResult, PsiElement}
 import com.intellij.util.IncorrectOperationException
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
@@ -60,5 +60,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getSameNameVariants: Array[Object] = _resolve(new SameNameCompletionProcessor(getKinds(true), refName)).map(r => r.getElement)  
+  def getSameNameVariants: Array[Object] = _resolve(new CompletionProcessor(getKinds(true))).
+          map(r => r.getElement.asInstanceOf[Object]).filter(elem => elem.isInstanceOf[PsiNamedElement] &&
+          elem.asInstanceOf[PsiNamedElement].getName == refName)
 }
