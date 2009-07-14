@@ -7,4 +7,9 @@ trait ScTyped extends ScNamedElement {
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
+  /**
+   * @return false for variable elements
+   */
+  def isStable = true
+
 }

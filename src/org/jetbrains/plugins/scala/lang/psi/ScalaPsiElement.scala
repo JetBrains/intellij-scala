@@ -23,6 +23,14 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
     if (node == null) null else node.getPsi
   }
 
+  def findFirstChildByType(t: IElementType) = {
+    var node = getNode.getFirstChildNode
+    while (node != null && node.getElementType != t) {
+      node = node.getTreeNext
+    }
+    if (node == null) null else node.getPsi
+  }
+
   def findLastChildByType(set: TokenSet) = {
     var node = getNode.getLastChildNode
     while (node != null && !set.contains(node.getElementType)) {

@@ -39,5 +39,7 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
     }
     null
   }
+  
+
 
 }

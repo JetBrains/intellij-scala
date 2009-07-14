@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
 
-import base.ScModifierList
 import impl.ScalaFileImpl
-import impl.toplevel.typedef.ScTypeDefinitionImpl
-import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import statements.ScFunction
 import stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
 import impl.source.PsiFileImpl
