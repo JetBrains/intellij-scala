@@ -48,6 +48,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author ilyas
@@ -74,9 +75,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   private static final String DEBUG_PROPERTY = "-Ydebug";
 
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
-
-  @Nullable
-  private ScalacOutputParser scalacOutputParser = null;
 
   public ScalacBackendCompiler(Project project) {
     myProject = project;
@@ -198,12 +196,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   public OutputParser createOutputParser(@NotNull String outputDir) {
     return new OutputParser() {
       @Override
-      public boolean processMessageLine(Callback callback) {
+      public boolean processMessageLine(final Callback callback) {
         if (super.processMessageLine(callback)) {
           return true;
-        }
-        if (callback.getCurrentLine() != null && callback.getCurrentLine().equals("") && scalacOutputParser != null) {
-          scalacOutputParser.flushWrittenList(callback);
         }
         return callback.getCurrentLine() != null;
       }
@@ -479,10 +474,25 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return jdk;
   }
 
-  public OutputParser createErrorParser(@NotNull String outputDir, Process process) {
-    //todo: better way to add process listener (wait for terminating)
-    if (scalacOutputParser == null)
-      scalacOutputParser = new ScalacOutputParser();
-    return scalacOutputParser;
+  public OutputParser createErrorParser(@NotNull String outputDir, final Process process) {
+    return new ScalacOutputParser() {
+      AtomicBoolean myDumperStarted = new AtomicBoolean(false);
+      @Override
+      public boolean processMessageLine(final Callback callback) {
+        if (!myDumperStarted.getAndSet(true)) {
+          ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+            public void run() {
+              try {
+                process.waitFor();
+              }
+              catch (InterruptedException ignored) {
+              }
+              flushWrittenList(callback);
+            }
+          });
+        }
+        return super.processMessageLine(callback);
+      }
+    };
   }
 }
