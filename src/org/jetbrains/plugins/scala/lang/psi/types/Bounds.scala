@@ -41,7 +41,7 @@ object Bounds {
           appendBaseTypes(t2, c1, s1, set, depth)
           set.toArray match {
             case Array() => Any
-            case Array(only) => only
+//            case Array(only) => only    // unreachable code
             case many => new ScCompoundType(many, Seq.empty, Seq.empty)
           }
         }
