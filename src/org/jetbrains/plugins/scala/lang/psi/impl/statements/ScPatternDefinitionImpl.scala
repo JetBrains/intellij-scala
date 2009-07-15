@@ -44,7 +44,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
 
   def bindings: Seq[ScBindingPattern] = {
     val plist = this.pList
-    if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
+    if (plist != null) plist.patterns.flatMap((p: ScPattern) => p.bindings) else Seq.empty
   }
 
   def declaredElements = bindings

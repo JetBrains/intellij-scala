@@ -12,6 +12,7 @@ import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import collection.Set
 
 /** 
 * @author Alexander Podkhalyuzin

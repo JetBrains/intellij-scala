@@ -4,7 +4,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import _root_.scala.collection.Set
-import _root_.scala.collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api._
 import statements.{ScTypeAlias}
 import psi.types._
@@ -17,6 +16,8 @@ object BaseProcessor {
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
+
+  import _root_.scala.collection.mutable.HashSet
 
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
@@ -130,7 +131,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     if (subst == null) ScSubstitutor.empty else subst
   }
 
-  protected def getImports(state: ResolveState): collection.immutable.Set[ImportUsed] = {
+  protected def getImports(state: ResolveState): Set[ImportUsed] = {
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
   }

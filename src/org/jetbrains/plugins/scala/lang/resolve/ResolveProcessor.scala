@@ -3,19 +3,17 @@ package org.jetbrains.plugins.scala.lang.resolve
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
-import psi.api.toplevel.imports.usages.ImportUsed
 import psi.api.toplevel.typedef.{ScClass, ScObject}
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import psi.api.statements.params.ScTypeParam
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.Key
+
 import psi.types._
 
-import _root_.scala.collection.Set
 import _root_.scala.collection.immutable.HashSet
+import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.ArrayBuffer
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)

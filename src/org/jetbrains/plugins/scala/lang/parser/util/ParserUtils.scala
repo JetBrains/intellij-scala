@@ -33,7 +33,7 @@ object ParserUtils extends ParserUtilsBase {
   /* rolls forward until token from elems encountered */
   def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
 
-    val stack = new Stack[IElementType]
+    val stack = new _root_.scala.collection.mutable.Stack[IElementType]()
     var flag = true
 
     while (flag && !builder.eof && !elems.contains(builder.getTokenType)) {
@@ -41,7 +41,7 @@ object ParserUtils extends ParserUtilsBase {
       if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
               ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
-        stack += builder.getTokenType
+        stack push builder.getTokenType
         builder.advanceLexer
         //eatElement(builder , builder.getTokenType)
       }

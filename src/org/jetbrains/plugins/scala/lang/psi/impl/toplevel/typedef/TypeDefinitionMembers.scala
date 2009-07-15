@@ -17,7 +17,7 @@ import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
 import util._
 import _root_.scala.collection.mutable.HashMap
-import Suspension._
+//import Suspension._
 
 object TypeDefinitionMembers {
 
@@ -198,18 +198,18 @@ object TypeDefinitionMembers {
           case _var: ScVariable =>
             for (dcl <- _var.declaredElements) {
               val t = dcl.calcType
-              addSignature(new Signature(dcl.name, Seq.empty, 0, Array(), subst), t, dcl)
-              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), 1, Array(), subst), Unit, dcl)
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), t, dcl)
+              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), 1, subst), Unit, dcl)
             }
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, Array(), subst), dcl.calcType, dcl)
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.calcType, dcl)
             }
           case constr: ScPrimaryConstructor =>
             for (param <- constr.parameters) {
               val t = param.calcType
-              addSignature(new Signature(param.name, Seq.empty, 0, Array(), subst), t, param)
-              if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, Array(), subst), Unit, param)
+              addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
+              if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
           case _ =>

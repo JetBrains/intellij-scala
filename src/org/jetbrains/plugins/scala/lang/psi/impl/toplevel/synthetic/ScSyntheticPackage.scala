@@ -80,14 +80,14 @@ object ScSyntheticPackage {
 
     import com.intellij.psi.stubs.StubIndex
 
-    val packages = StubIndex.getInstance().get(
+    val packages = List(StubIndex.getInstance().get(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
-      fqn.hashCode(), project, GlobalSearchScope.allScope(project))
+      fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[ScPackageContainer]()) : _*)
 
     if (packages.isEmpty) null else {
-      import _root_.scala.collection.jcl.Conversions.convertList
-
-      val pkgs = new ArrayList[ScPackageContainer](packages).filter(pc => pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix))
+      val pkgs = packages.filter(pc => {
+          pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix)
+      })
 
       if (pkgs.isEmpty) null else {
         val pname = if (i < 0) "" else fqn.substring(0, i)

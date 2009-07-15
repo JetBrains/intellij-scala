@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
+import caches.ScalaCachesManager
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
@@ -94,13 +96,27 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         q.bind match {
           case None =>
           case Some(ScalaResolveResult(typed: ScTyped, s)) => processor.processType(s.subst(typed.calcType), this)
-          case Some(ScalaResolveResult(pack: PsiPackage, _)) if pack.getQualifiedName == "scala" => {
-            import toplevel.synthetic.SyntheticClasses
+          case Some(r@ScalaResolveResult(pack: PsiPackage, _)) => {
 
-            for (synth <- SyntheticClasses.get(getProject).getAll) {
-              processor.execute(synth, ResolveState.initial)
+            // Process synthetic classes for scala._ package
+            if (pack.getQualifiedName == "scala") {
+              import toplevel.synthetic.SyntheticClasses
+              for (synth <- SyntheticClasses.get(getProject).getAll) {
+                processor.execute(synth, ResolveState.initial)
+              }
             }
-            pack.processDeclarations(processor, ResolveState.initial, null, ScStableCodeReferenceElementImpl.this)
+
+            // Process package object declarations first
+            // Treat package object first
+            val manager = ScalaCachesManager.getInstance(getProject)
+            val cache = manager.getNamesCache
+            val obj = cache.getPackageObjectByName(pack.getQualifiedName, GlobalSearchScope.allScope(getProject))
+            if (obj == null ||
+                    obj.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ScStableCodeReferenceElementImpl.this)) {
+              // Treat other declarations from package
+              pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ScStableCodeReferenceElementImpl.this)
+
+            }
           }
           case Some(other) => {
             other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),

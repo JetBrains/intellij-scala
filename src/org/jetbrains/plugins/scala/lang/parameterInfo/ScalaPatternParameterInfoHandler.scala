@@ -217,13 +217,13 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                     case obj: ScObject => {
                       //unapply method
                       for (n <- ScalaPsiUtil.getUnapplyMethods(obj)) {
-                        res += (n, 0)
+                        res += ((n, 0))
                       }
                     }
                     case clazz: ScClass if clazz.isCase => {
                       clazz.constructor match {
                         case Some(constr: ScPrimaryConstructor) => {
-                          res += (constr, ScSubstitutor.empty, 0)
+                          res += ((constr, ScSubstitutor.empty, 0))
                         }
                         case None => res += ""
                       }
@@ -231,7 +231,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                     case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
                       //unapply method
                       for (n <- ScalaPsiUtil.getUnapplyMethods(clazz)) {
-                        res += (n, 0)
+                        res += ((n, 0))
                       }
                     }
                     case _ =>

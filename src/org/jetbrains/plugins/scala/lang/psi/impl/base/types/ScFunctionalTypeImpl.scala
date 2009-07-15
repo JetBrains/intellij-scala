@@ -5,6 +5,7 @@ import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import lang.psi.types._
 import com.intellij.lang.ASTNode
+import collection.Set
 
 /** 
 * @author Alexander Podkhalyuzin

@@ -12,6 +12,7 @@ import com.intellij.psi.{ResolveResult, PsiNamedElement, ResolveState, PsiElemen
 import resolve.{ScalaResolveResult, ResolveTargets, BaseProcessor}
 
 import types._
+import _root_.scala.collection.Set
 
 /**
  * @author ilyas
@@ -115,9 +116,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             val sign = new PhysicalSignature(f, implicitSubstitutor)
             if (!signatures2ImplicitMethods.contains(sign)) {
               val newFSet = Set((getImports(state), f))
-              signatures2ImplicitMethods += (sign -> newFSet)
+              signatures2ImplicitMethods += ((sign -> newFSet))
             } else {
-              signatures2ImplicitMethods += (sign -> (signatures2ImplicitMethods(sign) + Pair(getImports(state), f)))
+              signatures2ImplicitMethods += ((sign -> (signatures2ImplicitMethods(sign) + Pair(getImports(state), f))))
             }
             candidatesSet += new ScalaResolveResult(f, getSubst(state), getImports(state))
           }

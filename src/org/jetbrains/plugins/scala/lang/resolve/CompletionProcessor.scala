@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature, ScSubstitutor}
-import com.intellij.psi.scope._
 import com.intellij.psi._
 
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
-import psi.api.base.patterns.{ScPattern, ScReferencePattern, ScBindingPattern}
+import psi.api.base.patterns.{ScPattern, ScBindingPattern}
+
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends BaseProcessor(kinds) {
@@ -40,8 +40,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
               }
             }
             case patt: ScBindingPattern => {
-              import Suspension._
-              val sign = new Signature(patt.getName, Seq.empty, 0, Seq.empty.toArray, substitutor)
+              val sign = new Signature(patt.getName, Seq.empty, 0, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
                 candidatesSet += new ScalaResolveResult(named)

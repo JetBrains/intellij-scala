@@ -44,7 +44,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
     }
 
     params match {
-      case Seq.empty => initial
+      case Seq() => initial
       case _ => {
         var res = initial
         for (p <- params.toArray zip typeArgs) {

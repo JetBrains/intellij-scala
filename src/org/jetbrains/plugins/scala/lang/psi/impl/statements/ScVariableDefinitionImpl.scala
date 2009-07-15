@@ -20,7 +20,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
 
   def bindings: Seq[ScBindingPattern] = {
     val plist = this.pList
-    if (plist != null) plist.patterns.flatMap[ScBindingPattern]((p: ScPattern) => p.bindings) else Seq.empty
+    if (plist != null) plist.patterns.flatMap((p: ScPattern) => p.bindings) else Seq.empty
   }
 
   def getType = typeElement match {

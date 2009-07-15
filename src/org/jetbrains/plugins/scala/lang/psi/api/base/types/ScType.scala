@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.psi._
 import toplevel.ScNamedElement
 import util.PsiModificationTracker
+import collection.Set
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,7 +24,7 @@ trait ScTypeElement extends ScalaPsiElement {
     )
   }
 
-  def getType(implicit visited: Set[ScNamedElement]) : ScTypeInferenceResult = ScTypeInferenceResult(Nothing, false, None)
+  def getType(implicit visited: collection.Set[ScNamedElement]) : ScTypeInferenceResult = ScTypeInferenceResult(Nothing, false, None)
 
   def calcType: ScType = getType(HashSet[ScNamedElement]()).resType
 }

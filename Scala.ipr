@@ -60,21 +60,12 @@
           </value>
         </option>
         <ScalaCodeStyleSettings>
-          <option name="ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY" value="true" />
+          <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="4" />
         </ScalaCodeStyleSettings>
         <ADDITIONAL_INDENT_OPTIONS fileType="">
           <option name="INDENT_SIZE" value="4" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="clj">
-          <option name="INDENT_SIZE" value="2" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="2" />
           <option name="USE_TAB_CHARACTER" value="false" />
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
@@ -98,15 +89,6 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="haml">
-          <option name="INDENT_SIZE" value="2" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="java">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="4" />
@@ -116,17 +98,8 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="js">
+        <ADDITIONAL_INDENT_OPTIONS fileType="jsp">
           <option name="INDENT_SIZE" value="4" />
-          <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="4" />
-          <option name="USE_TAB_CHARACTER" value="false" />
-          <option name="SMART_TABS" value="false" />
-          <option name="LABEL_INDENT_SIZE" value="0" />
-          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
-        </ADDITIONAL_INDENT_OPTIONS>
-        <ADDITIONAL_INDENT_OPTIONS fileType="rb">
-          <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
           <option name="TAB_SIZE" value="4" />
           <option name="USE_TAB_CHARACTER" value="false" />
@@ -164,6 +137,13 @@
       </value>
     </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+  </component>
+  <component name="CompilerAPISettings">
+    <option name="DEBUGGING_INFO" value="true" />
+    <option name="GENERATE_NO_WARNINGS" value="false" />
+    <option name="DEPRECATION" value="true" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="" />
+    <option name="MAXIMUM_HEAP_SIZE" value="128" />
   </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
@@ -935,6 +915,37 @@
               <file url="file://$PROJECT_DIR$/scala_core/src/org/jetbrains/plugins/scala/util/ScalaToolsFactoryImpl.scala" />
             </files>
           </module>
+          <module name="scalap">
+            <files>
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Arguments.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/ByteArrayReader.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Classfile.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Classfiles.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/CodeWriter.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/JavaWriter.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Main.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/MetaParser.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Names.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/Properties.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Arrows.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Functors.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Input.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Memoisable.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Monad.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Result.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Rule.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/Rules.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/SeqRule.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/ClassFileParser.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/Flags.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/ScalaSig.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/ScalaSigPrinter.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/SourceFileAttributeParser.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/Symbol.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/rules/scalasig/Type.scala" />
+              <file url="file:///Users/ilya/work/scala-lang/src/scalap/scala/tools/scalap/scalax/util/StringUtil.scala" />
+            </files>
+          </module>
         </modules>
       </facet-type>
     </autodetection-disabled>
@@ -942,15 +953,21 @@
   <component name="IdProvider" IDEtalkID="CA57306CD032AD7AF462C2DE24318A97" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
-    <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
-    <scopes />
+    <option name="USE_PROJECT_PROFILE" value="true" />
+    <version value="1.0" />
     <profiles>
       <profile version="1.0" is_locked="false">
         <option name="myName" value="Project Default" />
         <option name="myLocal" value="false" />
       </profile>
     </profiles>
-    <list size="0" />
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="WARNING" />
+      <item index="1" class="java.lang.String" itemvalue="SERVER PROBLEM" />
+      <item index="2" class="java.lang.String" itemvalue="INFO" />
+      <item index="3" class="java.lang.String" itemvalue="ERROR" />
+      <item index="4" class="java.lang.String" itemvalue="MISSPELLED" />
+    </list>
   </component>
   <component name="JavacSettings">
     <option name="DEBUGGING_INFO" value="true" />
@@ -1114,10 +1131,7 @@
   <component name="ProjectDetails">
     <option name="projectName" value="Scala" />
   </component>
-  <component name="ProjectFileVersion" converted="true">
-    <converter id="ror-modules" />
-    <converter id="SelenaRunConfToDiana" />
-  </component>
+  <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectKey">
     <option name="state" value="http://svn.jetbrains.org/idea/Trunk/scala/Scala.ipr" />
   </component>
@@ -1159,11 +1173,12 @@
               <option name="branchUrls">
                 <list>
                   <option value="http://svn.jetbrains.org/idea/BRANCHES" />
+                  <option value="http://svn.jetbrains.org/idea/BRANCHES/scala" />
                   <option value="http://svn.jetbrains.org/idea/Test" />
                   <option value="http://svn.jetbrains.org/idea/TestSSL" />
                 </list>
               </option>
-              <option name="trunkUrl" value="http://svn.jetbrains.org/idea/Trunk" />
+              <option name="trunkUrl" value="http://svn.jetbrains.org/idea/Trunk/scala" />
             </SvnBranchConfiguration>
           </value>
         </entry>
@@ -1366,13 +1381,7 @@
         <root url="jar://$PROJECT_DIR$/SDK/lib/scala-library.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-library-src.jar!/" />
-        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-dbc-src.jar!/" />
-        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-compiler-src.jar!/" />
-        <root url="jar://C:/Program Files/Scala2.7.3/src/scala-swing-src.jar!/" />
-        <root url="jar://C:/Program Files/Scala2.7.3/src/sbaz-src.jar!/" />
-      </SOURCES>
+      <SOURCES />
     </library>
     <library name="specs">
       <CLASSES>

@@ -8,6 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
-import scala.Seq;
+import scala.collection.Sequence;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
@@ -61,10 +62,12 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     for (NavigationItem value : values) {
       if (value instanceof ScValue && (!isLocal(value) || searchAll)) {
         final ScValue el = (ScValue) value;
-        final Seq seq = el.declaredElements();
-        for (int i = 0; i < seq.length(); ++i) {
-          final NavigationItem navigationItem = (NavigationItem) seq.apply(i);
-          if (name.equals(navigationItem.getName())) items.add(navigationItem);
+        final PsiNamedElement[] elems = el.declaredElementsArray();
+        for (PsiNamedElement elem : elems) {
+          if (elem instanceof NavigationItem) {
+            final NavigationItem navigationItem = (NavigationItem) elem;
+            if (name.equals(navigationItem.getName())) items.add(navigationItem);
+          }
         }
       }
     }
@@ -72,9 +75,9 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     for (NavigationItem var : vars) {
       if (var instanceof ScVariable && (!isLocal(var) || searchAll)) {
         final ScVariable el = (ScVariable) var;
-        final Seq seq = el.declaredElements();
-        for (int i = 0; i < seq.length(); ++i) {
-          final NavigationItem navigationItem = (NavigationItem) seq.apply(i);
+        final PsiNamedElement[] elems = el.declaredElementsArray();
+        for (PsiNamedElement elem : elems) {
+          final NavigationItem navigationItem = (NavigationItem) elem;
           if (name.equals(navigationItem.getName())) items.add(navigationItem);
         }
       }

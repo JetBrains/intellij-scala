@@ -44,7 +44,7 @@ object BaseTypes {
             case Some(ts) => ts.find(t1 => !Conformance.conforms(t1, t)) == None
           }
           if (isBest) res += ((c, t))
-          all.add(c, t)
+          all.addBinding(c, t)
         }
         case None => //not a class type
       }

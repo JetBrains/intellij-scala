@@ -80,7 +80,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       new ScExistentialArgument(name, args, subst(lower), subst(upper))
     case ex@ScExistentialType(q, wildcards) => {
       //remove bound names
-      val trunc = aliasesMap.excl(ex.boundNames)
+      val trunc = aliasesMap -- ex.boundNames
       new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap).subst(q), wildcards)
     }
     case _ => t

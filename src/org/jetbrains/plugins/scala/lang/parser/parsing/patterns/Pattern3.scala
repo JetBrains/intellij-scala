@@ -17,6 +17,7 @@ import nl.LineTerminator
 
 object Pattern3 {
   def parse(builder: PsiBuilder): Boolean = {
+    type Stack[X] = _root_.scala.collection.mutable.Stack[X]
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
     val infixMarker = builder.mark
@@ -34,9 +35,9 @@ object Pattern3 {
       var exit = false
       while (!exit) {
         if (opStack.isEmpty) {
-          opStack+=s
+          opStack push s
           val newMarker = backupMarker.precede
-          markerStack += newMarker
+          markerStack push newMarker
           exit = true
         }
         else if (!compar(s, opStack.top,builder)) {
@@ -46,9 +47,9 @@ object Pattern3 {
           markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
         }
         else {
-          opStack+=s
+          opStack push s
           val newMarker = backupMarker.precede
-          markerStack += newMarker
+          markerStack push newMarker
           exit = true
         }
       }
