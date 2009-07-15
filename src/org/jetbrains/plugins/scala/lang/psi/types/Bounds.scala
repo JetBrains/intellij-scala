@@ -51,14 +51,14 @@ object Bounds {
   }
 
   private def appendBaseTypes(t1 : ScType, clazz2 : PsiClass, s2 : ScSubstitutor, set : Set[ScType], depth : Int) {
-    BaseTypes.get(t1).map {
-      base => ScType.extractClassType(base) match {
+    for (base <- BaseTypes.get(t1)) {
+      ScType.extractClassType(base) match {
         case Some((cbase, sbase)) => {
           superSubstitutor(cbase, clazz2, s2, new HashSet[PsiClass]) match {
             case Some(superSubst) => {
               val typeParams = cbase.getTypeParameters
               if (typeParams.length > 0) {
-                val substRes = typeParams.toList.foldLeft(ScSubstitutor.empty){
+                val substRes = typeParams.toList.foldLeft(ScSubstitutor.empty) {
                   (curr, tp) => {
                     val tv = ScalaPsiManager.typeVariable(tp)
                     val substed1 = superSubst.subst(tv)
@@ -83,7 +83,7 @@ object Bounds {
             case None => appendBaseTypes(base, clazz2, s2, set, 0)
           }
         }
-        case None => 
+        case None =>
       }
     }
   }

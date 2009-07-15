@@ -19,8 +19,11 @@ import nl.LineTerminator
 object InfixExpr {
   import util.ParserUtils._
   def parse(builder: PsiBuilder): Boolean = {
-    val markerStack = new Stack[PsiBuilder.Marker]
-    val opStack = new Stack[String]
+
+    type MStack[X] = _root_.scala.collection.mutable.Stack[X]
+
+    val markerStack = new MStack[PsiBuilder.Marker]
+    val opStack = new MStack[String]
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
@@ -37,9 +40,9 @@ object InfixExpr {
       var exit = false
       while (!exit) {
         if (opStack.isEmpty) {
-          opStack += s
+          opStack push s
           val newMarker = backupMarker.precede
-          markerStack += newMarker
+          markerStack push newMarker
           exit = true
         }
         else if (!compar(s, opStack.top, builder)) {
@@ -49,9 +52,9 @@ object InfixExpr {
           markerStack.pop.done(ScalaElementTypes.INFIX_EXPR)
         }
         else {
-          opStack += s
+          opStack push s
           val newMarker = backupMarker.precede
-          markerStack += newMarker
+          markerStack push newMarker
           exit = true
         }
       }

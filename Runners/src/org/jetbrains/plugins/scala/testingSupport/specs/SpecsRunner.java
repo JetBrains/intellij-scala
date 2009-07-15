@@ -15,6 +15,7 @@ public class SpecsRunner {
       System.out.println("The first argument should be the specification class name");
       return;
     }
+/*
     ArrayList<String> classes = new ArrayList<String>();
     String sysFilter = ".*";
     String exFilter = ".*";
@@ -71,5 +72,6 @@ public class SpecsRunner {
         }
       }
     }
+*/
   }
 }

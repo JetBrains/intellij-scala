@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import collection.mutable.{ListBuffer, ImmutableSetAdaptor}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.{PsiTreeUtil}
@@ -30,6 +29,7 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import scala.lang.formatting.settings.ScalaCodeStyleSettings
 import scala.lang.psi.api.ScalaFile
+import scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -136,7 +136,7 @@ class ScalaAnnotator extends Annotator {
 
   private def registerUsedImports(refElement: ScReferenceElement, result: ScalaResolveResult) {
     ImportTracker.getInstance(refElement.getProject).
-            registerUsedImports(refElement.getContainingFile.asInstanceOf[ScalaFile], new ImmutableSetAdaptor(result.importsUsed))
+            registerUsedImports(refElement.getContainingFile.asInstanceOf[ScalaFile], result.importsUsed)
   }
 
   private def checkImplementedMethods(clazz: ScTemplateDefinition, holder: AnnotationHolder) {

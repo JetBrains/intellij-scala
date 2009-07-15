@@ -4,7 +4,7 @@ import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import psi.types._
-
+import collection.Set
 import com.intellij.lang.ASTNode
 
 /** 

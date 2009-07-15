@@ -12,6 +12,7 @@ import lexer.ScalaTokenTypes
 import scala.lang.resolve.ScalaResolveResult
 import psi.types._
 import psi.impl.toplevel.synthetic.ScSyntheticClass
+import collection.Set
 
 /**
  * @author Alexander Podkhalyuzin

@@ -30,8 +30,8 @@ import javax.swing.Icon
 import psi.stubs.ScTypeDefinitionStub
 import stubs.StubElement
 import synthetic.JavaIdentifier
-import types.{ScSubstitutor, ScType}
 import Misc._
+import types.{PhysicalSignature, ScSubstitutor, ScType}
 import util.{PsiUtil, PsiTreeUtil}
 import source.PsiFileImpl
 
@@ -197,7 +197,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def getAllMethods: Array[PsiMethod] = {
     val methods = TypeDefinitionMembers.getMethods(this)
-    return methods.toArray.map[PsiMethod](_._1.method)
+    return methods.toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

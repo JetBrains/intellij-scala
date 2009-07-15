@@ -16,7 +16,7 @@ import com.intellij.psi.search.GlobalSearchScope
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
 
-  sealed def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
+  def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
   override def toString = ScType.presentableText(this)
 

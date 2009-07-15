@@ -4,8 +4,6 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.BaseProcessor
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi._
 
-import _root_.scala.collection.Set
-import _root_.scala.collection.mutable.HashSet
 import lang.resolve.ResolveTargets
 
 /**

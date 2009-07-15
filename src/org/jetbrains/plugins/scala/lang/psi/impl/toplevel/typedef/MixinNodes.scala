@@ -41,7 +41,7 @@ abstract class MixinNodes {
     maps.foldRight(MultiMap.empty){
       (curr, res) => {
         for ((k, node) <- curr) {
-          res.add(k, node)
+          res.addBinding(k, node)
         }
         res
       }

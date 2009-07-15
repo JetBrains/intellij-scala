@@ -55,7 +55,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 
   object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
 
-  def addMethod(method: ScSyntheticFunction) = methods.add (method.name, method)
+  def addMethod(method: ScSyntheticFunction) = methods.addBinding (method.name, method)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,

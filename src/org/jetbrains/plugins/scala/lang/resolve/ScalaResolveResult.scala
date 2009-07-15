@@ -13,7 +13,7 @@ object ScalaResolveResult {
 
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor,
-                         val importsUsed: collection.immutable.Set[ImportUsed]) extends ResolveResult {
+                         val importsUsed: _root_.scala.collection.Set[ImportUsed]) extends ResolveResult {
   def this(element: PsiNamedElement) = this (element, ScSubstitutor.empty, Set[ImportUsed]())
 
   def getElement() = element

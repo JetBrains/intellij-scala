@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.{ResolveState, PsiElement}
 
 import _root_.scala.collection.mutable.ListBuffer
-
+import collection.Set
 
 /**
 * @author Alexander Podkhalyuzin

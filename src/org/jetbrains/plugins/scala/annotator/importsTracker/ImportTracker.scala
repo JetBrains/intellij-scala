@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.annotator.importsTracker
 
 
-import collection.mutable._
+import _root_.scala.collection.mutable.HashMap
+import _root_.scala.collection.Set
+import _root_.scala.collection.Map
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import lang.psi.api.ScalaFile
@@ -13,26 +15,32 @@ import lang.psi.api.toplevel.imports.usages.ImportUsed
 
 class ImportTracker {
   //todo: remove fields, use putUserData instead
-  private val usedImports: Map[ScalaFile, Set[ImportUsed]] = new HashMap[ScalaFile, Set[ImportUsed]]
-  private val unusedImports: Map[ScalaFile, Set[ImportUsed]] = new HashMap[ScalaFile, Set[ImportUsed]]
+  private val usedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
+  private val unusedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
 
   def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
     lock synchronized {
       usedImports.get(file) match {
-        case None => usedImports += Tuple(file, used)
-        case Some(set: Set[ImportUsed]) => set ++= used
+        case None => {
+          val res = new collection.mutable.HashSet[ImportUsed]()
+          res ++= used.iterator
+          usedImports += Tuple(file, res)  // todo BUG I_VAR!!!
+        }
+        case Some(set: collection.mutable.Set[ImportUsed]) => set ++= used
       }
     }
   }
 
   private val lock = new Object()
+
   def getUnusedImport(file: ScalaFile): Set[ImportUsed] = {
     lock synchronized {
       def foo = {
-        val res = file.getAllImportUsed
+        val res = new collection.mutable.HashSet[ImportUsed]()
+        res ++= file.getAllImportUsed.iterator
         usedImports.get(file) match {
           case Some(used: Set[ImportUsed]) => {
-            res --= used
+            res --= used.iterator
           }
           case _ =>
         }

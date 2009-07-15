@@ -76,7 +76,7 @@ object ScalaPsiUtil {
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
   }
 
-  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, Array[PsiTypeParameter](), ScSubstitutor.empty)
+  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, ScSubstitutor.empty)
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
     val empty = Seq.empty

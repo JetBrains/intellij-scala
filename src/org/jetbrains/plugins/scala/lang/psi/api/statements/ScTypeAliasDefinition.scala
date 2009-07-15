@@ -15,7 +15,7 @@ import toplevel.ScNamedElement
 trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedTypeElement = findChildByClass(classOf[ScTypeElement])
 
-  def aliasedType(visited: Set[ScNamedElement]): ScTypeInferenceResult = {
+  def aliasedType(visited: collection.Set[ScNamedElement]): ScTypeInferenceResult = {
     if (visited.contains(this)) {
       ScTypeInferenceResult(types.Nothing, true, Some(this))
     } else {

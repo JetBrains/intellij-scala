@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.decompiler
 
-import _root_.scala.runtime.RichBoolean
 import _root_.scala.tools.scalap.scalax.rules.scalasig.ByteCode
 import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileInfo
 import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileAttributeParser
@@ -15,10 +14,7 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
-import com.intellij.testFramework.LightVirtualFile
-import java.io.{PrintStream, IOException, ByteArrayOutputStream, FileNotFoundException}
-import java.nio.ByteBuffer
-
+import java.io._
 /**
  * @author ilyas
  */
@@ -26,7 +22,7 @@ import java.nio.ByteBuffer
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 62
+  val DECOMPILER_VERSION = 66
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
@@ -80,6 +76,8 @@ object DecompilerUtil {
   val SCALA_SIG = "ScalaSig"
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
+
+    val isPackageObject = file.getName == "package.class"
     val byteCode = ByteCode(bytes)
     val ba = decompiledTextAttribute.readAttributeBytes(file)
     val sf = sourceFileAttribute.readAttributeBytes(file)
@@ -90,11 +88,23 @@ object DecompilerUtil {
           val baos = new ByteArrayOutputStream
           val stream = new PrintStream(baos)
           val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+          // Print package with special treatment for package objects
           syms.first.parent match {
+          //Partial match
             case Some(p) if (p.name != "<empty>") => {
-              stream.print("package ");
-              stream.print(p.path);
-              stream.print("\n")
+              val path = p.path
+              if (!isPackageObject) {
+                stream.print("package ");
+                stream.print(path);
+                stream.print("\n")
+              } else {
+                val i = path.lastIndexOf(".")
+                if (i > 0) {
+                  stream.print("package ");
+                  stream.print(path.substring(0, i))
+                  stream.print("\n")
+                }
+              }
             }
             case _ =>
           }

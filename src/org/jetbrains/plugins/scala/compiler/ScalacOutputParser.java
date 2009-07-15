@@ -6,10 +6,14 @@ import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -20,27 +24,39 @@ class ScalacOutputParser extends OutputParser {
   private static final String ourErrorMarker = " error:";
   @NonNls
   private static final String ourWarningMarker = " warning:";
-
+  @NonNls
   private static final String ourInfoMarkerStart = "[";
+  @NonNls
   private static final String ourInfoMarkerEnd = "]";
   @NonNls
   private static final String ourWroteMarker = "wrote ";
+  @NonNls
   private static final String ourColumnMarker = "^";
   @NonNls
-  private static final String ourParsingMarker = "parsing";
+  private static final String ourParsingMarker = "parsing ";
   @NonNls
   private static final String ourScalaInternalErrorMsg = "Scalac internal error";
 
   // Phases
   @NonNls
   private static final String PHASE = "running phase ";
+  @NonNls
+  private static final String PARSER_ON = "parser on ";
+
+  @NonNls
+  private static Set<String> PHASES = new HashSet<String>();
+  static {
+    PHASES.addAll(Arrays.asList(
+        "parser", "namer", "typer", "superaccessors", "pickler", "refchecks", "liftcode",
+        "uncurry", "tailcalls", "explicitouter"
+    ));
+  }
+
   private boolean mustProcessMsg = false;
   private boolean fullCrash = false;
   private boolean stopProcessing = false;
   private int myMsgColumnMarker;
   private MESSAGE_TYPE myMsgType = PLAIN;
-  @NonNls
-  private static final String PARSER_ON = "parser on ";
   private ArrayList<String> myWrittenList = new ArrayList<String>();
   private final Object WRITTEN_LIST_LOCK = new Object();
 
@@ -111,12 +127,14 @@ class ScalacOutputParser extends OutputParser {
         String info = text.substring(ourInfoMarkerStart.length(), text.length() - ourInfoMarkerEnd.length());
         if (info.startsWith(ourParsingMarker)) { //parsing
           callback.setProgressText(info);
-        } else if (info.startsWith(PHASE)) { // typechecker phase
-          if (info.startsWith(PHASE + PARSER_ON)) {
-            callback.fileProcessed(info.substring(info.indexOf(PARSER_ON) + PARSER_ON.length()));
-          }
-          callback.setProgressText(info);
-        } else if (info.startsWith(ourWroteMarker)) {
+          // Set file processed
+          callback.fileProcessed(info.substring(info.indexOf(ourParsingMarker) + ourParsingMarker.length()));
+        }
+        //add phases and their times to output
+        else if (getPhaseName(info) != null) {
+          callback.setProgressText("Phase " + getPhaseName(info) + " passed" + info.substring(getPhaseName(info).length()));
+        }
+        else if (info.startsWith(ourWroteMarker)) {
           callback.setProgressText(info);
           String outputPath = info.substring(ourWroteMarker.length());
           final String path = outputPath.replace(File.separatorChar, '/');
@@ -128,6 +146,13 @@ class ScalacOutputParser extends OutputParser {
       }
     }
     return true;
+  }
+
+  private static String getPhaseName(@NotNull String st) {
+    for (String phase : PHASES) {
+      if (st.startsWith(phase + " ")) return phase;
+    }
+    return null;
   }
 
   public void flushWrittenList(Callback callback) {
