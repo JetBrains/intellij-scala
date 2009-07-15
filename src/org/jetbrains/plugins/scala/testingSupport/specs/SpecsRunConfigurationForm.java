@@ -36,6 +36,10 @@ public class SpecsRunConfigurationForm {
   private JRadioButton testPackageRadioButton;
   private JTextField sysFilterTextField;
   private JTextField examplesFilterTextField;
+  private JRadioButton inWholeProjectRadioButton;
+  private JRadioButton inSingleModuleRadioButton;
+  private JRadioButton accrossModuleDependenciesRadioButton;
+  private JPanel searchTestsPanel;
 
   private ConfigurationModuleSelector myModuleSelector;
 
@@ -80,6 +84,7 @@ public class SpecsRunConfigurationForm {
     testClassTextField.setVisible(false);
     testPackageRadioButton.setSelected(true);
     testClassRadioButton.setSelected(false);
+    searchTestsPanel.setVisible(true);
   }
 
   private void setClassEnabled() {
@@ -89,6 +94,7 @@ public class SpecsRunConfigurationForm {
     testClassTextField.setVisible(true);
     testPackageRadioButton.setSelected(false);
     testClassRadioButton.setSelected(true);
+    searchTestsPanel.setVisible(false);
   }
 
   public void apply(SpecsRunConfiguration configuration) {

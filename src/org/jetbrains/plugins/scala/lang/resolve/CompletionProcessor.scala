@@ -7,6 +7,8 @@ import com.intellij.psi._
 import _root_.scala.collection.Set
 import _root_.scala.collection.mutable.HashSet
 import psi.api.base.patterns.{ScPattern, ScReferencePattern, ScBindingPattern}
+import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.ScalaPsiUtil
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends BaseProcessor(kinds) {
   private val signatures = new HashSet[Signature]
   private val names = new HashSet[String]
@@ -20,6 +22,13 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
     }
 
     element match {
+      case td: ScTypeDefinition if !names.contains(td.getName) => {
+        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td)
+        ScalaPsiUtil.getCompanionModule(td) match {
+          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td)
+          case _ =>
+        }
+      }
       case named: PsiNamedElement => {
         if (kindMatches(element)) {
           element match {
