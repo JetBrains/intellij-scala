@@ -96,7 +96,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }
 
-      _resolve(ref, proc(ref))
+      val res = _resolve(ref, proc(ref))
+      res
     }
   }
 
