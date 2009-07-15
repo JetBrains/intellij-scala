@@ -167,10 +167,6 @@
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory
-      </implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory
       </implementation-class>
     </component>

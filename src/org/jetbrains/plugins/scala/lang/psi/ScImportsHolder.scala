@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.base.ScReferenceElement
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
 import collection.mutable.{HashSet, ArrayBuffer}
+import com.intellij.codeInsight.hint.HintManager
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import formatting.settings.ScalaCodeStyleSettings
 import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
@@ -94,6 +96,14 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportForClass(clazz: PsiClass): Unit = addImportForClass(clazz, null)
 
   def addImportForClass(clazz: PsiClass, ref: PsiElement) {
+    ref match {
+      case ref: ScReferenceElement => {
+        if (ref.resolve == clazz) {
+          return
+        }
+      }
+      case _ =>
+    }
     val selectors = new ArrayBuffer[String]
 
     val qualName = clazz.getQualifiedName
@@ -306,6 +316,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
     }
+    HintManager.getInstance.hideAllHints
   }
 
 

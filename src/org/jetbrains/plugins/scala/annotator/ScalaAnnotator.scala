@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.annotator
 
-import collection.mutable.{ImmutableSetAdaptor}
+import collection.mutable.{ListBuffer, ImmutableSetAdaptor}
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.project.Project
 import com.intellij.psi.util.{PsiTreeUtil}
 import highlighter.{AnnotatorHighlighter}
 import importsTracker._
@@ -76,7 +77,12 @@ class ScalaAnnotator extends Annotator {
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
-    def getFixes = OuterImportsActionCreator.getOuterImportFixes(refElement, refElement.getProject())
+    def getFix: Seq[IntentionAction] = {
+      val facade = JavaPsiFacade.getInstance(refElement.getProject)
+      val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
+      if (classes.length == 0) return Seq.empty
+      return Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
+    }
 
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
       //todo remove when resolve of unqualified expression will be fully implemented
@@ -96,10 +102,10 @@ class ScalaAnnotator extends Annotator {
                   e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
           case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                   e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-          case e: ScReferenceExpression => processError(false, getFixes)
+          case e: ScReferenceExpression => processError(false, getFix)
           case _ => refElement.getParent match {
             case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
-            case _ => processError(true, getFixes)
+            case _ => processError(true, getFix)
           }
         }
       case Some(result) => {

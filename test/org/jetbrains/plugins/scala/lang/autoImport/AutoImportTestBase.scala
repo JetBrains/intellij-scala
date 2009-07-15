@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
-import _root_.org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPass
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCache
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.impl.text.{TextEditorImpl, PsiAwareTextEditorImpl, TextEditorProvider}
@@ -51,7 +51,7 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
     //val cache = new ScalaShortNamesCache(myProject)
     //cache.runStartupActivity
 
-    val classes = ScalaAddImportPass.getClasses(ref, myProject)
+    val classes = ScalaImportClassFix.getClasses(ref, myProject)
     assert(classes.length > 0, "Haven't classes to import")
     val fileEditorManager = FileEditorManager.getInstance(myProject)
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)

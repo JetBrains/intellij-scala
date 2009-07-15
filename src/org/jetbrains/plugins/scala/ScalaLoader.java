@@ -33,7 +33,6 @@ import com.intellij.openapi.project.ProjectManagerAdapter;
 import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.codeInspection.importInspections.ScalaAddImportPassFactory;
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
@@ -83,9 +82,7 @@ public class ScalaLoader implements ApplicationComponent {
 
         TextEditorHighlightingPassRegistrar registrar = TextEditorHighlightingPassRegistrar.getInstance(project);
 
-        ScalaAddImportPassFactory addImportPassFactory = project.getComponent(ScalaAddImportPassFactory.class);
         ScalaUnusedImportsPassFactory unusedImportPassFactory = project.getComponent(ScalaUnusedImportsPassFactory.class);
-        registrar.registerTextEditorHighlightingPass(addImportPassFactory, new int[]{Pass.POPUP_HINTS}, null, true, -1);
         registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
 
 
