@@ -121,7 +121,9 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
         }
         false
       }
-      for (r <- applicable if !existsBetter(r)) buff += r
+      for (r <- applicable if !existsBetter(r)) {
+        buff += r
+      }
       buff.toArray
     }
   }
@@ -135,8 +137,14 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
       case _: PsiMethod | _: ScFun => {
         t1 match {
           case ScFunctionType(ret1, params1) => t2 match {
-            case ScFunctionType(ret2, params2) => Compatibility.compatible(ret1, ret2) &&
-                    params1.equalsWith(params2) {(p1, p2) => Compatibility.compatible(p2, p1)}
+            case ScFunctionType(ret2, params2) => {
+              val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
+              val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
+
+              /* todo possible bug in scala libraries */
+//              val ew = params1.equalsWith(params2) {(p1, p2) => {Compatibility.compatible(p2, p1)}}
+              Compatibility.compatible(ret1, ret2) && compt
+            }
           }
         }
       }
