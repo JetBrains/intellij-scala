@@ -4,10 +4,11 @@ import psi._
 import impl.expr.ScBlockImpl
 import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
-import com.intellij.formatting._;
+import com.intellij.formatting._
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
@@ -73,6 +74,7 @@ extends Object with ScalaTokenTypes with Block {
           return new ChildAttributes(Indent.getNoneIndent(), null)
         else return new ChildAttributes(Indent.getNormalIndent, null)
       }
+      case _: ScXmlElement => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>

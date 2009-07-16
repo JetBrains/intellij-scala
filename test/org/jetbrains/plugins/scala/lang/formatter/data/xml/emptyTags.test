@@ -1,0 +1,11 @@
+val x = <aaa><bbb1/><bbb2/>
+
+<bbb3/>
+</aaa>
+------
+val x = <aaa>
+    <bbb1/>
+    <bbb2/>
+
+    <bbb3/>
+</aaa>
