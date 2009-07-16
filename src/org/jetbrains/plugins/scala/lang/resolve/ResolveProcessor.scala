@@ -105,7 +105,7 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
               val s = c.substitutor
               t match {
                 case ScFunctionType(ret, params) => {
-                  args.equalsWith(params) {(a, p) => Compatibility.compatible(s.subst(p), a)} && (expected match {
+                  (args.zip(params) forall {case (a, p) => Compatibility.compatible(s.subst(p), a)}) && (expected match {
                     case None => true
                     case Some(t) => Compatibility.compatible(s.subst(t), ret)
                   })
@@ -140,9 +140,6 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
             case ScFunctionType(ret2, params2) => {
               val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
               val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-
-              /* todo possible bug in scala libraries */
-//              val ew = params1.equalsWith(params2) {(p1, p2) => {Compatibility.compatible(p2, p1)}}
               Compatibility.compatible(ret1, ret2) && compt
             }
           }

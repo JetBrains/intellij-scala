@@ -25,7 +25,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
   protected def paramTypesEquiv(other: Signature) = {
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-    types.equalsWith(other.types) {(t1, t2) => {unified1.subst(t1) equiv unified2.subst(t2)}}
+    types.zip(other.types) forall {case (t1, t2) => {unified1.subst(t1) equiv unified2.subst(t2)}}
   }
 
   protected def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
@@ -58,7 +58,7 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
       case phys1 : PhysicalSignature => {
         val unified1 = unify(substitutor, typeParams, typeParams)
         val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-        types.equalsWith(other.types) {(t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
+        types.zip(other.types) forall {case (t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
           case ((Any | AnyRef), ScDesignatorType(c: PsiClass)) if c.getQualifiedName == "java.lang.Object" => true
           case (ScDesignatorType(c: PsiClass), (Any | AnyRef)) if c.getQualifiedName == "java.lang.Object" => true
           case (t1, t2) => t1 equiv t2
