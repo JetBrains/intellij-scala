@@ -479,8 +479,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //case for covariant or contrvariant type params
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.TYPE_PARAM, ScalaElementTypes.TYPE_PARAM) => return NO_SPACING
       //xml
+      case (ScalaElementTypes.XML_START_TAG, ScalaElementTypes.XML_END_TAG, _, _) => return WITHOUT_SPACING
+      case (ScalaElementTypes.XML_START_TAG, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return WITHOUT_SPACING
+      case (XmlTokenType.XML_DATA_CHARACTERS, ScalaElementTypes.XML_END_TAG, _, _) => return WITHOUT_SPACING
+      case (ScalaElementTypes.XML_START_TAG, _, _, _) => return ON_NEW_LINE
+      case (_, ScalaElementTypes.XML_END_TAG, _, _) => return ON_NEW_LINE
+      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return WITH_SPACING
+      case (XmlTokenType.XML_DATA_CHARACTERS, _, _, _) => return ON_NEW_LINE
+      case (_, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return ON_NEW_LINE
+      case (ScalaElementTypes.XML_EMPTY_TAG, ScalaElementTypes.XML_EMPTY_TAG, _, _) => return ON_NEW_LINE
       case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return COMMON_SPACING
       case (XmlTokenType.XML_START_TAG_START | XmlTokenType.XML_END_TAG_START |
               XmlTokenType.XML_CDATA_START | XmlTokenType.XML_PI_START, _, _, _) => return NO_SPACING
       case (_, XmlTokenType.XML_TAG_END | XmlTokenType.XML_EMPTY_ELEMENT_END |

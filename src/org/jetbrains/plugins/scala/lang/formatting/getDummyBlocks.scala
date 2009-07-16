@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.codeStyle.CodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
 
 
@@ -61,12 +62,29 @@ object getDummyBlocks {
     else null
     for (val child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      val childAlignment = if (node.getPsi.isInstanceOf[ScParameterClause]) {
-        child.getElementType match {
-          case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
+      val childAlignment = {
+        node.getPsi match {
+          case _: ScParameterClause => {
+            child.getElementType match {
+              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => null
+              case _ => alignment
+            }
+          }
+          case _: ScXmlStartTag  | _: ScXmlEmptyTag => {
+            child.getElementType match {
+              case ScalaElementTypes.XML_ATTRIBUTE => alignment
+              case _ => null
+            }
+          }
+          case _: ScXmlElement => {
+            child.getElementType match {
+              case ScalaElementTypes.XML_START_TAG | ScalaElementTypes.XML_END_TAG => alignment
+              case _ => null
+            }
+          }
           case _ => alignment
         }
-      } else alignment
+      }
       subBlocks.add(new ScalaBlock (block, child, null, childAlignment, indent, block.getWrap, block.getSettings))
       prevChild = child
     }
@@ -164,6 +182,10 @@ object getDummyBlocks {
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
+      //case _: ScXmlExpr => true //todo: setting
+      case _: ScXmlStartTag => true //todo: setting
+      case _: ScXmlEmptyTag => true //todo: setting for attributes
+      //case _: ScXmlElement => true //todo: setting
       case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScTemplateParents if scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST => true

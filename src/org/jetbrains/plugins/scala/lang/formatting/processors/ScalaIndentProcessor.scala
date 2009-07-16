@@ -7,7 +7,7 @@ import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
 
-import com.intellij.lang.ASTNode;
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -27,6 +27,7 @@ import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
 
 
@@ -39,6 +40,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
                 child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) return Indent.getSpaceIndent(1)
 
     node.getPsi match {
+      case el: ScXmlElement => {
+        child.getPsi match {
+          case _: ScXmlStartTag | _: ScXmlEndTag => Indent.getNoneIndent
+          case _ => Indent.getNormalIndent
+        }
+      }
       case _: ScalaFile => Indent.getNoneIndent
       case _: ScPackaging => Indent.getNoneIndent
       case _: ScMatchStmt => {
