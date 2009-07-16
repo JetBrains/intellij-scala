@@ -44,7 +44,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
 
   override def equiv(t: ScType) = t match {
     case other : ScCompoundType => {
-      components.equalsWith (other.components) (_ equiv _) &&
+      (components.zip(other.components) forall {case (x, y) => x equiv y}) &&
       signatureMap.size == other.signatureMap.size &&
       signatureMap.elements.forall {case (sig, t) => other.signatureMap.get(sig) match {
         case None => false

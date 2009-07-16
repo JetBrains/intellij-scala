@@ -58,7 +58,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) ex
   override def equiv(t: ScType): Boolean = t match {
     case ScParameterizedType(designator1, typeArgs1) => {
       return designator.equiv(designator1) &&
-             typeArgs.equalsWith(typeArgs1) {_ equiv _}
+             (typeArgs.zip(typeArgs1) forall {case (x,y) => x equiv y})
     }
     case fun : ScFunctionType => fun equiv this
     case tuple : ScTupleType => tuple equiv this

@@ -58,8 +58,8 @@ object Conformance {
         case ScParameterizedType(owner1, args2) if (owner equiv owner1) => {
           ScType.extractDesignated(owner) match {
             case Some((owner: PsiClass, _)) => {
-              owner.getTypeParameters.equalsWith(args1 zip args2) {
-                (tp, argsPair) => tp match {
+              owner.getTypeParameters.zip(args1 zip args2) forall {
+                case (tp, argsPair) => tp match {
                   case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
                   case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
                   case _ => argsPair._1 match {

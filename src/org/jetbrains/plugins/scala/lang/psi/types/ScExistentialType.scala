@@ -79,7 +79,7 @@ case class ScExistentialType(val quantified : ScType,
   override def equiv(t : ScType) = t match {
     case ex : ScExistentialType => {
         val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._1, p._2)}
-        wildcards.equalsWith(ex.wildcards) {(w1, w2) => w1.equiv(unify.subst(w2))}
+        wildcards.zip(ex.wildcards) forall {case (w1, w2) => w1.equiv(unify.subst(w2))}
       } && (substitutor.subst(quantified) equiv ex.substitutor.subst(ex.quantified))
     case _ => false
   }
