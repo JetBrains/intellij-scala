@@ -21,25 +21,4 @@ public class ConsoleRunner {
     (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))),
         new PrintWriter(System.out))).main(args);
   }
-
-  public static Function1 getUnitFunction() {
-    return new Function1<String, Void>() {
-      public Void apply(String t) {
-        System.out.println(t);
-        return null;
-      }
-
-      public <A> Function1<A, Void> compose(Function1<A, String> f) {
-        return f.andThen(this);
-      }
-
-      public <A> Function1<String, A> andThen(Function1<Void, A> f) {
-        return f.compose(this);
-      }
-    };
-  }
-
-  public static GenericRunnerSettings getSettings() {
-    return new GenericRunnerSettings(ConsoleRunner.getUnitFunction());
-  }
 }

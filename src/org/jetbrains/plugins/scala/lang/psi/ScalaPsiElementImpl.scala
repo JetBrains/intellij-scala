@@ -50,4 +50,8 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     if (getNode != DummyASTNode && getNode != null) getNode.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
   }
+  
+  override def getParent() : PsiElement = {
+    getParentByStub()
+  }
 }
