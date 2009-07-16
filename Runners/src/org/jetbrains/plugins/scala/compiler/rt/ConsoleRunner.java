@@ -18,25 +18,8 @@ import java.io.PrintWriter;
  */
 public class ConsoleRunner {
   public static void main(String[] args) {
-    GenericRunnerCommand command = new GenericRunnerCommand(toList(args),
-        getSettings(args),
-        getUnitFunction());
-    Settings settings = command.settings();
-    String mkString = "";
-    for (String arg : args) {
-      mkString += arg + "|";
-    }
-    if (mkString.length() > 0) mkString = mkString.substring(0, mkString.length() -  1);
-    settings.parseParams(mkString);
-    (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))), new PrintWriter(System.out))).main(settings);
-  }
-
-  public static scala.collection.immutable.List toList(String[] args) {
-    ListBuffer<String> res = new ListBuffer<String>();
-    for (String arg : args) {
-      res.$plus$eq(arg);
-    }
-    return res.toList();
+    (new InterpreterLoop(new Some(new BufferedReader(new InputStreamReader(System.in))),
+        new PrintWriter(System.out))).main(args);
   }
 
   public static Function1 getUnitFunction() {
@@ -56,35 +39,7 @@ public class ConsoleRunner {
     };
   }
 
-  public static GenericRunnerSettings getSettings(String[] args) {
-    return new GenericRunnerSettings(ConsoleRunner.getUnitFunction()) {
-      public void parseParams(String line, Function1 error) {
-//        scala.collection.immutable.List args;
-//        if (line.trim().equals("")) args = toList(new String[0]);
-//        else {
-//          String[] newArgs = line.trim().split("[|]");
-//          for (int i = 0; i < newArgs.length; i++) {
-//            newArgs[i] = newArgs[i].trim();
-//          }
-//          args = toList(newArgs);
-//        }
-//        while (!args.isEmpty()) {
-//          scala.collection.immutable.List argsBuf = args;
-//          if (((String) args.head()).startsWith("-")) {
-//            scala.collection.immutable.List settings = allSettings();
-//            for (int i = 0; i < settings.length(); ++i) {
-//              args = ((Settings.Setting) settings.apply(i)).tryToSet(args);
-//            }
-//            /*for (setting : allSettings())
-//              args = setting.tryToSet(args);*/
-//          }
-//          else error.apply("Parameter '" + args.head() + "' does not start with '-'.");
-//          if (argsBuf == args) {
-//            error.apply("Parameter '" + args.head() + "' is not recognised by Scalac.");
-//            args = args.tail();
-//          }
-//        }
-      }
-    };
+  public static GenericRunnerSettings getSettings() {
+    return new GenericRunnerSettings(ConsoleRunner.getUnitFunction());
   }
 }
