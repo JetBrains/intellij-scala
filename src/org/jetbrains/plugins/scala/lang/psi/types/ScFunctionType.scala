@@ -17,14 +17,8 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ScTyp
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    try {
-      super.hashCode
-    } catch {
-      case e: Exception => {
-        returnType.hashCode + params.hashCode * 31
-      }
-    }
+  override def hashCode: Int = {
+    returnType.hashCode + params.hashCode * 31
   }
 }
 
