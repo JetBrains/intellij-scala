@@ -10,6 +10,6 @@ import com.intellij.psi._
 * Date: 07.03.2008
 */
 
-class ScParenthesisedPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScParenthesisedPattern {
+class ScParenthesisedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedPattern {
   override def toString: String = "PatternInParenthesis"
 }

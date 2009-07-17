@@ -46,7 +46,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
       }
     }
     new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.getName, psi.isInstanceOf[ScFunctionDeclaration],
-      psi.annotationNames, returnTypeText, bodyText, assign)
+      psi.annotationNames.toArray, returnTypeText, bodyText, assign)
   }
 
   def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {

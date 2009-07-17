@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
  * @author ilyas
  */
 
-class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScPatternImpl(node) with ScStableReferenceElementPattern {
+class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScalaPsiElementImpl(node) with ScStableReferenceElementPattern {
 
   override def toString: String = "StableElementPattern"
 

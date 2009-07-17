@@ -6,7 +6,6 @@ import api.toplevel.packaging.{ScPackaging, ScPackageStatement}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
 import api.toplevel.{ScEarlyDefinitions, ScTyped}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import api.base.patterns.ScCaseClause
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
@@ -24,6 +23,7 @@ import lexer.ScalaTokenTypes
 import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
+import patterns.{ScReferencePattern, ScCaseClause}
 import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -38,7 +38,7 @@ object ScalaPsiUtil {
       case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
               _: ScModifierList | _: ScVariable | _: ScValue | _: ScParameter | _: ScParameterClause |
               _: ScParameters | _: ScTypeParamClause | _: ScTypeParam | _: ScImportExpr |
-              _: ScImportSelector | _: ScImportSelectors => return shouldCreateStub(elem.getParent)
+              _: ScImportSelector | _: ScImportSelectors | _: ScPatternList | _: ScReferencePattern => return shouldCreateStub(elem.getParent)
       /*case _: ScalaFile | _: ScPrimaryConstructor | _: ScSelfTypeElement | _: ScEarlyDefinitions |
               _: ScPackageStatement | _: ScPackaging | _: ScTemplateParents | _: ScTemplateBody |
               _: ScExtendsBlock | _: ScTypeDefinition => return true*/
