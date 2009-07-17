@@ -200,4 +200,9 @@ class ScalacOutputParser extends OutputParser {
     }
   }
 
+  public boolean isTrimLines() {
+    return false;
+  }
+
+
 }
