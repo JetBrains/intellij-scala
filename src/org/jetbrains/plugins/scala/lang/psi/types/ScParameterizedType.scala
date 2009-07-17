@@ -68,9 +68,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
 object ScParameterizedType {
   def create(c: PsiClass, s : ScSubstitutor) =
-    new ScParameterizedType(new ScDesignatorType(c), c.getTypeParameters.map {
+    new ScParameterizedType(new ScDesignatorType(c), Seq(c.getTypeParameters.map {
       tp => s subst(ScalaPsiManager.typeVariable(tp))
-    })
+    } : _*))
 }
 
 abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
