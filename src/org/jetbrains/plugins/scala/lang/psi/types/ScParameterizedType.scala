@@ -27,7 +27,7 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
 import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
-case class ScParameterizedType(designator : ScType, typeArgs : Array[ScType]) extends ScType {
+case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ScType {
   def designated = ScType.extractDesignated(designator) match {
     case Some((e, _)) => Some(e)
     case _ => None

@@ -19,7 +19,7 @@ import scope._
 
 trait ScImportsHolder extends ScalaPsiElement {
 
-  def getImportStatements: Seq[ScImportStmt] = findChildrenByClass(classOf[ScImportStmt])
+  def getImportStatements: Seq[ScImportStmt] = Seq(findChildrenByClass(classOf[ScImportStmt]): _*)
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,

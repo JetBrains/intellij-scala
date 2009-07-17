@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTuple extends ScExpression {
-  def exprs = findChildrenByClass(classOf[ScExpression])
+  def exprs : Seq[ScExpression] = Seq(findChildrenByClass(classOf[ScExpression]): _*)
 }

@@ -23,7 +23,7 @@ object Bounds {
       case (ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
         ScFunctionType(lub(rt1, rt2), p1.toArray.zip(p2.toArray).map{case (t1, t2) => glb(t1, t2)})
       case (ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        ScTupleType(c1.toArray.zip(c2.toArray).map{case (t1, t2) => lub(t1, t2)})
+        ScTupleType(Seq(c1.toArray.zip(c2.toArray).map{case (t1, t2) => lub(t1, t2)}: _*))
 
       case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)

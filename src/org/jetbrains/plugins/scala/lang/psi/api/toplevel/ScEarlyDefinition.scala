@@ -9,5 +9,5 @@ import typedef.ScMember
 */
 
 trait ScEarlyDefinitions extends ScalaPsiElement {
-  def members() = findChildrenByClass(classOf[ScMember])
+  def members() : Seq[ScMember] = Seq(findChildrenByClass(classOf[ScMember]) : _*)
 }

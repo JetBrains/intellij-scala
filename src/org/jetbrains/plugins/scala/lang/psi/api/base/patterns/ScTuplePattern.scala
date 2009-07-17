@@ -12,7 +12,7 @@ trait ScTuplePattern extends ScPattern {
   def patternList = findChild(classOf[ScPatterns])
 
   override def calcType = patternList match {
-    case Some(l) => new ScTupleType(l.patterns.map {_.calcType})
+    case Some(l) => new ScTupleType(Seq(l.patterns.map {_.calcType} : _*))
     case None => Nothing
   }
 }

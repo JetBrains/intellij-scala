@@ -24,7 +24,7 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     case None => Nothing
     case Some(rOp) => ref.bind match {
       case None => Nothing
-      case Some(result) => new ScParameterizedType(new ScDesignatorType(result.element), Array(lOp.getType(visited), rOp.getType(visited)))
+      case Some(result) => new ScParameterizedType(new ScDesignatorType(result.element), Seq(lOp.getType(visited), rOp.getType(visited)))
     }
   }
 }

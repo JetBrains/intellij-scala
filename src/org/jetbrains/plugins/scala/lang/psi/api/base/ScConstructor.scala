@@ -14,5 +14,5 @@ trait ScConstructor extends ScalaPsiElement {
   def typeElement = findChildByClass(classOf[ScTypeElement])
 
   def args = findChild(classOf[ScArgumentExprList])
-  def arguments = findChildrenByClass(classOf[ScArgumentExprList])
+  def arguments : Seq[ScArgumentExprList] = Seq(findChildrenByClass(classOf[ScArgumentExprList]): _*)
 }

@@ -12,6 +12,6 @@ import types.ScType
 */
 
 trait ScTemplateParents extends ScalaPsiElement {
-  def typeElements: Seq[ScTypeElement] = findChildrenByClass(classOf[ScTypeElement])
+  def typeElements: Seq[ScTypeElement] = Seq(findChildrenByClass(classOf[ScTypeElement]) :_*)
   def superTypes: Seq[ScType]
 }

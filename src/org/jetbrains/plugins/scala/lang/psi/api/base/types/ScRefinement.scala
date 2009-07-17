@@ -8,6 +8,6 @@ import psi.ScalaPsiElement
 */
 
 trait ScRefinement extends ScalaPsiElement {
-  def holders() = findChildrenByClass(classOf[ScDeclaredElementsHolder])
-  def types() = findChildrenByClass(classOf[ScTypeAlias])
+  def holders() : Seq[ScDeclaredElementsHolder] = Seq(findChildrenByClass(classOf[ScDeclaredElementsHolder]): _*)
+  def types() : Seq[ScTypeAlias] = Seq(findChildrenByClass(classOf[ScTypeAlias]): _*)
 }

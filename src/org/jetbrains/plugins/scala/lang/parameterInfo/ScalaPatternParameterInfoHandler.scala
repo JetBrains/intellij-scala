@@ -90,9 +90,9 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               case Some((clazz, substitutor)) => clazz.getQualifiedName
               case _ => ""
             }
-            val generics: Array[ScType] = p match {
+            val generics: Seq[ScType] = p match {
               case pt: ScParameterizedType => pt.typeArgs
-              case _ => Array[ScType]()
+              case _ => Seq.empty
             }
             if (qual != "scala.Option" || generics.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
