@@ -10,7 +10,7 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScTuplePatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScTuplePattern{
+class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTuplePattern{
   override def toString: String = "TuplePattern"
 
   override def subpatterns =  patternList match {

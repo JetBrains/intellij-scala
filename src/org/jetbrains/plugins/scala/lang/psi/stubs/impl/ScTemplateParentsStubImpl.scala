@@ -17,7 +17,7 @@ import types.ScType
 class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
         extends StubBaseWrapper[ScTemplateParents](parent, elemType) with ScTemplateParentsStub {
-  private var typesStirng: Array[String] = new Array[String](0)
+  private var typesStirng: Array[StringRef] = new Array[StringRef](0)
 
   private var types: PatchedSoftReference[Array[ScTypeElement]] = null
 
@@ -25,10 +25,10 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
           typesString: Array[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.typesStirng = typesString
+    this.typesStirng = typesString.map(StringRef.fromString(_))
   }
 
-  def getTemplateParentsTypesTexts: Array[String] = typesStirng
+  def getTemplateParentsTypesTexts: Array[String] = typesStirng.map(StringRef.toString(_))
 
 
   def getTemplateParentsTypes: Array[ScType] = {

@@ -11,7 +11,10 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScTypedPatternImpl(node: ASTNode) extends ScBindingPatternImpl (node) with ScTypedPattern{
+class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern{
+  def nameId = findChildByType(TokenSets.ID_SET)
+
+  def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
 
   override def toString: String = "TypedPattern"
 }

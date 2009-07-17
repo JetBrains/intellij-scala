@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
+import com.intellij.extapi.psi.ASTDelegatePsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 

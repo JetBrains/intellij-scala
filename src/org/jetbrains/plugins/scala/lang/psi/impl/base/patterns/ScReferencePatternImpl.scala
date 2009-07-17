@@ -7,6 +7,7 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import lang.lexer._
+import psi.stubs.ScReferencePatternStub
 import psi.types.{ScCompoundType, ScType, Nothing}
 
 /**
@@ -14,7 +15,14 @@ import psi.types.{ScCompoundType, ScType, Nothing}
  * Date: 28.02.2008
  */
 
-class ScReferencePatternImpl(node: ASTNode) extends ScBindingPatternImpl(node) with ScReferencePattern {
+class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNode(null)}
+
+  def nameId = findChildByType(TokenSets.ID_SET)
+
+  def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+
   override def toString: String = "ReferencePattern"
 
   override def calcType = expectedType match {

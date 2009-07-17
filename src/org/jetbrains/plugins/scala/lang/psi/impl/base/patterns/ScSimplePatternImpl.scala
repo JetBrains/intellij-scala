@@ -12,7 +12,7 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScConstructorPatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScConstructorPattern {
+class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScConstructorPattern {
 
   override def toString: String = "ConstructorPattern"
 

@@ -10,7 +10,7 @@ import com.intellij.psi._
 * Date: 28.02.2008
 */
 
-class ScCompositePatternImpl(node: ASTNode) extends ScPatternImpl (node) with ScCompositePattern{
+class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCompositePattern{
 
   override def toString: String = "CompositePattern"
 

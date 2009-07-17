@@ -127,7 +127,7 @@ object ScalaElementTypes {
   /************************************ DEFINITION *************************************/
   /** ***********************************************************************************/
   val PATTERN_DEFINITION : ScValueElementType[_] = new ScValueDefinitionElementType
-  val PATTERN_LIST = new ScalaElementType("List of patterns")
+  val PATTERN_LIST = new ScPatternListElementType
   val VARIABLE_DEFINITION : ScVariableElementType[_] = new ScVariableDefinitionElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
@@ -232,7 +232,7 @@ object ScalaElementTypes {
   val CASE_CLAUSE = new ScalaElementType("case clause")
   val CASE_CLAUSES = new ScalaElementType("case clauses")
   val LITERAL_PATTERN = new ScalaElementType("literal pattern")
-  val REFERENCE_PATTERN = new ScalaElementType("reference pattern")
+  val REFERENCE_PATTERN = new ScReferencePatternElementType
   val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern")
   val PATTERN_IN_PARENTHESIS = new ScalaElementType("pattern in parenthesis")
 

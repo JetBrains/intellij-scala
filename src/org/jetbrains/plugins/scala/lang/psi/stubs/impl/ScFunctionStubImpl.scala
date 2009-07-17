@@ -21,7 +21,7 @@ class ScFunctionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi]
 extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
-  private var annotations: Seq[String] = Seq.empty
+  private var annotations: Array[StringRef] = Array[StringRef]()
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
   private var myReturnTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
@@ -30,12 +30,12 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String, isDeclaration: Boolean, annotations: Seq[String], typeText: String, bodyText: String,
+          name: String, isDeclaration: Boolean, annotations: Array[String], typeText: String, bodyText: String,
           assign: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
-    this.annotations = annotations
+    this.annotations = annotations.map(StringRef.fromString(_))
     this.typeText = StringRef.fromString(typeText)
     this.bodyText = StringRef.fromString(bodyText)
     this.assign = assign
@@ -45,7 +45,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
 
   def isDeclaration = declaration
 
-  def getAnnotations: Seq[String] = annotations
+  def getAnnotations: Array[String] = annotations.map(StringRef.toString(_))
 
   def getReturnTypeElement: Option[ScTypeElement] = {
     if (myReturnTypeElement != null && myReturnTypeElement.get != null) return myReturnTypeElement.get
