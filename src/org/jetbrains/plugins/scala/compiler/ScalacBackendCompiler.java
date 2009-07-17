@@ -24,7 +24,6 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -32,12 +31,8 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.facet.FacetManager;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessListener;
-import com.intellij.execution.process.ProcessEvent;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
@@ -86,7 +81,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     // Just skip pure Java projects
     if (!isScalaProject(allModules)) return true;
-
 
 
     VirtualFile[] scalaFiles = scope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
@@ -379,7 +373,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         Set<VirtualFile> cpVFiles = new HashSet<VirtualFile>();
         for (OrderEntry orderEntry : entries) {
           cpVFiles.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)));
-          // Add Java dependencies
+          // Add Java dependencies on other modules
           if (orderEntry instanceof ModuleOrderEntry && !(modules.contains(((ModuleOrderEntry) orderEntry).getModule()))) {
             sourceDependencies.addAll(Arrays.asList(orderEntry.getFiles(OrderRootType.SOURCES)));
           }
@@ -477,6 +471,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   public OutputParser createErrorParser(@NotNull String outputDir, final Process process) {
     return new ScalacOutputParser() {
       AtomicBoolean myDumperStarted = new AtomicBoolean(false);
+
       @Override
       public boolean processMessageLine(final Callback callback) {
         if (!myDumperStarted.getAndSet(true)) {
