@@ -50,11 +50,10 @@ object Conformance {
         case _ => false
       }
 
-      //todo here must be fuckTheScalaCompiler inlined
       case ScSkolemizedType(_, _, lower, _) => conforms(lower, r)
       case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r) //todo implement me
 
-      case ScParameterizedType(owner: ScType, args1) => r match { //Parameterized type can have not only designators (projection)
+      case ScParameterizedType(owner: ScType, args1) => r match { //Parametrized type can have not only designators (projection)
         case ScParameterizedType(owner1, args2) if (owner equiv owner1) => {
           ScType.extractDesignated(owner) match {
             case Some((owner: PsiClass, _)) => {

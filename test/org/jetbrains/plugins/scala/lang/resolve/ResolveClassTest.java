@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -33,8 +34,8 @@ public class ResolveClassTest extends ScalaResolveTestCase {
   public void testSeqClass() throws Exception {
     PsiReference ref = configureByFile("sdk1/sdk1.scala");
     PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof PsiClass);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "scala.Seq");
+    assertTrue(resolved instanceof ScTypeAliasDefinition);
+    assertEquals(((ScTypeAliasDefinition) resolved).getName(), "Seq");
   }
 
   public void testLocalClass() throws Exception {
