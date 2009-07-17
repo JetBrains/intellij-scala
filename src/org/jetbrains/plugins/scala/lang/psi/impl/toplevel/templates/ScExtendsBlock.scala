@@ -10,6 +10,7 @@ import api.expr.ScNewTemplateDefinition
 import api.toplevel.ScEarlyDefinitions
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import com.intellij.lang.ASTNode
+import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
@@ -199,5 +200,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def isUnderCaseClass: Boolean = getParentByStub match {
     case td: ScTypeDefinition if td.isCase => true
     case _ => false
+  }
+
+  override def getParent(): PsiElement = {
+    val p = super.getParent
+    p match {
+      case _: ScTypeDefinition => return p
+      case _ => return SharedImplUtil.getParent(getNode)
+    }
   }
 }
