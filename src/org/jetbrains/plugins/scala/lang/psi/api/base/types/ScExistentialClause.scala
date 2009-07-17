@@ -9,5 +9,5 @@ import statements.ScDeclaration
 */
 
 trait ScExistentialClause extends ScalaPsiElement {
-  def declarations = findChildrenByClass(classOf[ScDeclaration])
+  def declarations : Seq[ScDeclaration] = Seq(findChildrenByClass(classOf[ScDeclaration]): _*)
 }

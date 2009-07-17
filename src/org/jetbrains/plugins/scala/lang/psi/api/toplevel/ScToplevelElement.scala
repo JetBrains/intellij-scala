@@ -26,7 +26,7 @@ trait ScToplevelElement extends ScalaPsiElement {
     buff.toArray
   }
 
-  def immediateTypeDefinitions: Array[ScTypeDefinition] = {
+  def immediateTypeDefinitions: Seq[ScTypeDefinition] = {
     val stub: StubElement[_] = this match {
       case file: PsiFileImpl => file.getStub
       case st: StubBasedPsiElement[_] => st.getStub
@@ -36,10 +36,10 @@ trait ScToplevelElement extends ScalaPsiElement {
       stub.getChildrenByType(TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
         def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
       })
-    } else findChildrenByClass(classOf[ScTypeDefinition])
+    } else Seq(findChildrenByClass(classOf[ScTypeDefinition]) : _*)
   }
 
-  def packagings: Array[ScPackaging] = {
+  def packagings: Seq[ScPackaging] = {
     val stub: StubElement[_] = this match {
       case file: PsiFileImpl => file.getStub
       case st: StubBasedPsiElement[_] => st.getStub
@@ -49,6 +49,6 @@ trait ScToplevelElement extends ScalaPsiElement {
       stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
-    } else findChildrenByClass(classOf[ScPackaging])
+    } else Seq(findChildrenByClass(classOf[ScPackaging]) : _*)
   }
 }

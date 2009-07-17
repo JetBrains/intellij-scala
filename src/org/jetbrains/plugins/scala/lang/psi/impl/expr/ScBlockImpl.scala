@@ -29,7 +29,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
         val m = new HashMap[String, ScExistentialArgument]
         def existize (t : ScType) : ScType = t match {
           case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), params.map {existize _})
-          case ScTupleType(comps) => new ScTupleType(comps.map {existize _})
+          case ScTupleType(comps) => new ScTupleType(Seq(comps.map {existize _} : _*))
           case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
             case clazz : ScClass => {
               val t = existize(leastClassType(clazz))

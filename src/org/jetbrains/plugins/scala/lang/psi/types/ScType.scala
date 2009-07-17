@@ -84,7 +84,7 @@ object ScType {
         val tps = arrayClass.getTypeParameters
         if (tps.length == 1) {
           val typeArg = create(arrayType.getComponentType, project)
-          new ScParameterizedType(new ScDesignatorType(arrayClass), Array(typeArg))
+          new ScParameterizedType(new ScDesignatorType(arrayClass), Seq(typeArg))
         } else new ScDesignatorType(arrayClass)
       } else Nothing
     }

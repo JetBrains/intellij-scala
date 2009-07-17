@@ -14,6 +14,6 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
 
   override def getType = exprs match {
     case Array() => Unit
-    case exprs => new ScTupleType(exprs map {_.cachedType})
+    case exprs => new ScTupleType(Seq(exprs map {_.cachedType} : _*))
   }
 }
