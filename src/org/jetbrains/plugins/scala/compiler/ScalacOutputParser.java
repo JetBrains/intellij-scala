@@ -48,7 +48,9 @@ class ScalacOutputParser extends OutputParser {
   static {
     PHASES.addAll(Arrays.asList(
         "parser", "namer", "typer", "superaccessors", "pickler", "refchecks", "liftcode",
-        "uncurry", "tailcalls", "explicitouter", "cleanup"
+        "uncurry", "tailcalls", "explicitouter", "cleanup", "total", "inliner", "jvm",
+        "closelim", "inliner", "dce", "mixin", "flatten", "constructors", "erasure", "lazyvals",
+        "lambdalift"
     ));
   }
 
@@ -134,7 +136,16 @@ class ScalacOutputParser extends OutputParser {
         else if (getPhaseName(info) != null) {
           callback.setProgressText("Phase " + getPhaseName(info) + " passed" + info.substring(getPhaseName(info).length()));
         } else if (info.startsWith("loaded")) {
-          callback.setProgressText("Loading files...");
+          if (info.startsWith("loaded class file ")) { // Loaded file
+            final int end = info.indexOf(".class") + ".class".length();
+            final int begin = info.substring(0, end - 1).lastIndexOf("/") + 1;
+            callback.setProgressText("Loaded file " + info.substring(begin, end));
+          } else if (info.startsWith("loaded directory path ")) {
+            final int end = info.indexOf(".jar") + ".jar".length();
+            final int begin = info.substring(0, end - 1).lastIndexOf("/") + 1;
+            callback.setProgressText("Loaded directory path " + info.substring(begin, end));
+          }
+//          callback.setProgressText("Loading files...");
         } else if (info.startsWith(ourWroteMarker)) {
           callback.setProgressText(info);
           String outputPath = info.substring(ourWroteMarker.length());
