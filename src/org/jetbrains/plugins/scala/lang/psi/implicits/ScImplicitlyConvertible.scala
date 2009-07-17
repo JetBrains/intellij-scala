@@ -77,10 +77,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val set = processor.sig2Method(sig)
       for ((imports, fun) <- set) {
         val rt = sig.substitutor.subst(fun.returnType)
-        if (!result.contains(rt)) {
-          result += (rt -> Set((fun, imports)))
-        } else {
-          result += (rt -> (result(rt) + (Pair(fun, imports))))
+        try {
+          if (!result.contains(rt)) {
+            result += (rt -> Set((fun, imports)))
+          } else {
+            result += (rt -> (result(rt) + (Pair(fun, imports))))
+          }
+        } catch {
+          case e: UnsupportedOperationException => //todo: hide this
         }
       }
     }
