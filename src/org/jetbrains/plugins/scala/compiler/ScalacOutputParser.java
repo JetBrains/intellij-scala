@@ -48,7 +48,7 @@ class ScalacOutputParser extends OutputParser {
   static {
     PHASES.addAll(Arrays.asList(
         "parser", "namer", "typer", "superaccessors", "pickler", "refchecks", "liftcode",
-        "uncurry", "tailcalls", "explicitouter"
+        "uncurry", "tailcalls", "explicitouter", "cleanup"
     ));
   }
 
@@ -133,8 +133,9 @@ class ScalacOutputParser extends OutputParser {
         //add phases and their times to output
         else if (getPhaseName(info) != null) {
           callback.setProgressText("Phase " + getPhaseName(info) + " passed" + info.substring(getPhaseName(info).length()));
-        }
-        else if (info.startsWith(ourWroteMarker)) {
+        } else if (info.startsWith("loaded")) {
+          callback.setProgressText("Loading files...");
+        } else if (info.startsWith(ourWroteMarker)) {
           callback.setProgressText(info);
           String outputPath = info.substring(ourWroteMarker.length());
           final String path = outputPath.replace(File.separatorChar, '/');
