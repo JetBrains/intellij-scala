@@ -1,4 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+import com.intellij.lang.ASTNode
 import com.intellij.psi.stubs.{StubElement, IndexSink, IStubElementType, PsiFileStub}
 import wrappers.IStubElementTypeWrapper
 import com.intellij.psi.PsiElement
@@ -19,4 +20,6 @@ extends IStubElementTypeWrapper[S, T](debugName) {
     parent.asInstanceOf[ScFileStub].isCompiled
   }
 
+
+  override def shouldCreateStub(node: ASTNode): Boolean = ScalaPsiUtil.shouldCreateStub(node.getPsi)
 }

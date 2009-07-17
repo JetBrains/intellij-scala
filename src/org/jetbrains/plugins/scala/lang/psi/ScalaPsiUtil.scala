@@ -1,34 +1,51 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.base._
+import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
+import api.toplevel.packaging.{ScPackaging, ScPackageStatement}
+import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
+import api.toplevel.{ScEarlyDefinitions, ScTyped}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.base.patterns.ScCaseClause
-import api.base.types.ScTypeElement
-import api.base.{ScLiteral, ScStableCodeReferenceElement, ScModifierList}
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
-import api.statements.params.{ScParameter, ScParameterClause}
+import api.ScalaFile
 import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
 import com.intellij.openapi.project.Project
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements._
-import api.toplevel.templates.ScTemplateBody
-import api.toplevel.ScTyped
 import com.intellij.psi._
 import com.intellij.psi.util.PsiFormatUtil
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
+import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
 import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 /**
  * User: Alexander Podkhalyuzin
  * Date: 06.10.2008
  */
 
 object ScalaPsiUtil {
+  def shouldCreateStub(elem: PsiElement): Boolean = {
+    elem match {
+      case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
+              _: ScModifierList | _: ScVariable | _: ScValue | _: ScParameter | _: ScParameterClause |
+              _: ScParameters | _: ScTypeParamClause | _: ScTypeParam | _: ScImportExpr |
+              _: ScImportSelector | _: ScImportSelectors => return shouldCreateStub(elem.getParent)
+      /*case _: ScalaFile | _: ScPrimaryConstructor | _: ScSelfTypeElement | _: ScEarlyDefinitions |
+              _: ScPackageStatement | _: ScPackaging | _: ScTemplateParents | _: ScTemplateBody |
+              _: ScExtendsBlock | _: ScTypeDefinition => return true*/
+      case _ => return true
+    }
+  }
+
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
