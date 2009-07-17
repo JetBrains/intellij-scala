@@ -73,7 +73,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
           val s1 = args.zip(tcArgs.toArray).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
           s1.subst(aliased.v)
         }
-        case des => new ScParameterizedType(des, args)
+        case des => new ScParameterizedType(des, Seq(args : _*))
       }
     }
     case ScExistentialArgument(name, args, lower, upper) =>
