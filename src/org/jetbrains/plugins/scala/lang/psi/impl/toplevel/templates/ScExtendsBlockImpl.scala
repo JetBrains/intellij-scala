@@ -7,12 +7,13 @@ import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTy
 import api.ScalaFile
 import api.statements.{ScValue, ScVariable}
 import api.expr.ScNewTemplateDefinition
-import api.toplevel.ScEarlyDefinitions
 import api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import api.toplevel.{ScNamedElement, ScEarlyDefinitions}
+import caches.CachesUtil
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
 import com.intellij.util.{ArrayFactory, IncorrectOperationException}
 import parser.ScalaElementTypes
@@ -60,7 +61,15 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case None => None
   }
 
-  def superTypes(): List[ScType] = {
+  def superTypes: List[ScType] = {
+    CachesUtil.get(
+      this, CachesUtil.SUPER_TYPES_KEY,
+      new CachesUtil.MyProvider(this, {eb: ScExtendsBlockImpl => eb.superTypesInner})
+        (PsiModificationTracker.MODIFICATION_COUNT)
+    )
+  }
+
+  private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType): Unit = t match {
       case ScCompoundType(comps, _, _) => comps.foreach{addType _}
