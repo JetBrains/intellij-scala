@@ -62,7 +62,7 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.IDENTIFIER_LIST, new ArrayFactory[ScIdList] {
         def create(count: Int): Array[ScIdList] = new Array[ScIdList](count)
-      })
+      }).apply(0)
     } else findChildByClass(classOf[ScIdList])
   }
 }
