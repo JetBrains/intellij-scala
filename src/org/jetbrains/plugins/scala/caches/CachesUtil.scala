@@ -18,6 +18,7 @@ object CachesUtil {
   val EXPR_TYPE_KEY: Key[CachedValue[ScType]] = Key.create("expr.type.key")
   val TYPE_KEY: Key[CachedValue[ScTypeInferenceResult]] = Key.create("type.element.type.key")
   val PSI_RETURN_TYPE_KEY: Key[CachedValue[PsiType]] = Key.create("psi.return.type.key")
+  val SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("super.types.key")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
