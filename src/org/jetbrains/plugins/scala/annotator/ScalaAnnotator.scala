@@ -84,9 +84,11 @@ class ScalaAnnotator extends Annotator {
       return Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
     }
 
+    val resolve = refElement.multiResolve(false)
+
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
       //todo remove when resolve of unqualified expression will be fully implemented
-      if (refElement.getManager.isInProject(refElement) && refElement.multiResolve(false).length == 0 &&
+      if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
               (fixes.length > 0 || countError)) {
         val error = ScalaBundle.message("cannot.resolve", refElement.refName)
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
@@ -95,24 +97,23 @@ class ScalaAnnotator extends Annotator {
       }
     }
 
-    refElement.bind() match {
-      case None =>
-        refElement match {
-          case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
-                  e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
-          case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
-                  e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-          case e: ScReferenceExpression => processError(false, getFix)
-          case _ => refElement.getParent match {
-            case s: ScImportSelector if refElement.multiResolve(false).length > 0 =>
-            case _ => processError(true, getFix)
-          }
+    if (resolve.length != 1) {
+      refElement match {
+        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
+                e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
+        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
+                e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
+        case e: ScReferenceExpression => processError(false, getFix)
+        case _ => refElement.getParent match {
+          case s: ScImportSelector if resolve.length > 0 =>
+          case _ => processError(true, getFix)
         }
-      case Some(result) => {
-        AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       }
     }
-    for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
+    else {
+      AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
+    }
+    for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
     }
