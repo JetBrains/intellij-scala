@@ -10,5 +10,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScPatternListStub extends StubElement[ScPatternList] {
-
+  def allPatternsSimple: Boolean
 }

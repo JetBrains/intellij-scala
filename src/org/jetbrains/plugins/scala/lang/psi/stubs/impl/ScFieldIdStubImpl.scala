@@ -1,34 +1,27 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
-import api.statements.params.ScParameter
+
+import api.base.ScFieldId
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 19.10.2008
+ * Date: 19.07.2009
  */
 
-class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
+class ScFieldIdStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
-extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
+extends StubBaseWrapper[ScFieldId](parent, elemType) with ScFieldIdStub {
   private var name: StringRef = _
-  private var typeText: StringRef = _
-  private var stable: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String, typeText: String, stable: Boolean) = {
+          name: String) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
-    this.typeText = StringRef.fromString(typeText)
-    this.stable = stable
   }
 
   def getName: String = StringRef.toString(name)
-
-  def getTypeText: String = StringRef.toString(typeText)
-
-  def isStable: Boolean = stable
 }

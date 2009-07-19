@@ -209,7 +209,7 @@ object TypeDefinitionMembers {
             for (param <- constr.parameters) {
               val t = param.calcType
               addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
-              if (param.isVar) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
+              if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
           case _ =>

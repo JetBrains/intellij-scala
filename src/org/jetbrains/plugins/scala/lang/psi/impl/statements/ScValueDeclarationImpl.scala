@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.psi.stubs.StubElement
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -57,12 +58,11 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
   }
 
   def getIdList: ScIdList = {
-    /*val stub = getStub
+    val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScValueStub].getIdsContainer match {
-        case Some(x) => x
-        case None => null
-      }
-    } else */findChildByClass(classOf[ScIdList])
+      stub.getChildrenByType(ScalaElementTypes.IDENTIFIER_LIST, new ArrayFactory[ScIdList] {
+        def create(count: Int): Array[ScIdList] = new Array[ScIdList](count)
+      })
+    } else findChildByClass(classOf[ScIdList])
   }
 }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.psi.stubs.StubElement
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -63,12 +64,11 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   }
 
   def pList: ScPatternList = {
-    /*val stub = getStub
+    val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScValueStub].getPatternsContainer match {
-        case Some(x) => x
-        case None => null
-      }
-    } else */findChildByClass(classOf[ScPatternList])
+      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, new ArrayFactory[ScPatternList] {
+        def create(count: Int): Array[ScPatternList] = new Array[ScPatternList](count)
+      }).apply(0)
+    } else findChildByClass(classOf[ScPatternList])
   }
 }

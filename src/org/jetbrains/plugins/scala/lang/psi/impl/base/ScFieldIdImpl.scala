@@ -3,16 +3,18 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base
 import api.statements.ScVariable
 import api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import stubs.{ScFieldIdStub}
 
 /**
  * @author ilyas
  */
 
-class ScFieldIdImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFieldId with ScImportableDeclarationsOwner {
+class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with ScFieldId with ScImportableDeclarationsOwner {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScFieldIdStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "Field identifier"
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
