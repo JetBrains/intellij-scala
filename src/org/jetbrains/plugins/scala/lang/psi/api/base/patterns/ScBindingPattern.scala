@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
 import com.intellij.extapi.psi.ASTDelegatePsiElement
 import com.intellij.navigation.NavigationItem
+import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import lexer.ScalaTokenTypes
@@ -20,7 +21,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTyped with N
 
   override def getUseScope = {
     val func = PsiTreeUtil.getContextOfType(this, classOf[ScFunctionDefinition], true)
-    if (func != null) new LocalSearchScope(func) else getUseScope
+    if (func != null) new LocalSearchScope(func) else getManager.asInstanceOf[PsiManagerEx].getFileManager.getUseScope(this)
   }
 
   protected def getEnclosingVariable = {

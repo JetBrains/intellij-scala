@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import api.base.types.ScTypeElement
+import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import parser.ScalaElementTypes
 import stubs.{ScValueStub, ScVariableStub}
 /**
 * @author Alexander Podkhalyuzin
@@ -37,12 +39,11 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   }
 
   def pList: ScPatternList = {
-    /*val stub = getStub
+    val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getPatternsContainer match {
-        case Some(x) => x
-        case None => null
-      }
-    } else */findChildByClass(classOf[ScPatternList])
+      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, new ArrayFactory[ScPatternList] {
+        def create(count: Int): Array[ScPatternList] = new Array[ScPatternList](count)
+      }).apply(0)
+    } else findChildByClass(classOf[ScPatternList])
   }
 }

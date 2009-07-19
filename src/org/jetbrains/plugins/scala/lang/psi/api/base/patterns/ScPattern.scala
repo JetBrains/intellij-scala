@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
 
+import collection.immutable.Sequence
 import collection.mutable.ArrayBuffer
 import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._
@@ -32,7 +33,10 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def subpatterns : Seq[ScPattern] = findChildrenByClass(classOf[ScPattern])
+  def subpatterns : Seq[ScPattern] = {
+    if (this.isInstanceOf[ScReferencePattern]) return Sequence.empty
+    findChildrenByClass(classOf[ScPattern])
+  }
 
   def expectedType :Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {

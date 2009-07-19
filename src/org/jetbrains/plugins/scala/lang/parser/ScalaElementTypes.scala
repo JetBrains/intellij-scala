@@ -93,10 +93,9 @@ object ScalaElementTypes {
   /*********************************** IDENTIFIER **************************************/
   /** ***********************************************************************************/
 
-  //  val IDENTIFIER = new ScalaElementType("identifier")
   val UNIT_EXPR = new ScalaElementType("unit expression")
-  val IDENTIFIER_LIST = new ScalaElementType("list of identifiers")
-  val FIELD_ID = new ScalaElementType("Type field identifier")
+  val IDENTIFIER_LIST = new ScIdListElementType
+  val FIELD_ID = new ScFieldIdElementType
   val REFERENCE = new ScalaElementType("reference")
 
   /** ***********************************************************************************/

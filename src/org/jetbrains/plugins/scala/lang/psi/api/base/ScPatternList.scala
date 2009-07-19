@@ -10,4 +10,10 @@ import api.base.patterns._
 
 trait ScPatternList extends ScalaPsiElement {
   def patterns: Seq[ScPattern]
+
+  /**
+   * This method means that Pattern list has just reference patterns:
+   * val x, y, z = 44
+   */
+  def allPatternsSimple: Boolean
 }
