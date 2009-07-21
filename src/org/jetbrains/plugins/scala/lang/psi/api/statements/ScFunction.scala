@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 
+import collection.Sequence
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -60,7 +61,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter]
 
-  def paramTypes: Seq[ScType] = parameters.map{_.calcType}
+  def paramTypes: Seq[ScType] = {
+    /*if (paramClauses.clauses.length == 0) return Sequence.empty
+    paramClauses.clauses.apply(0).parameters.map{_.calcType}*/
+    parameters.map{_.calcType}
+  }
 
   def declaredElements = Seq.singleton(this)
 
