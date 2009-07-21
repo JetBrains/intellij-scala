@@ -1,10 +1,10 @@
-import scala.collection.mutable.ArrayBuffer
+import collection.mutable.ArrayBuffer
 
 val x = new ArrayBuffer[Int]
-val y = new /*ref*/BufferProxy
+val y = new /*ref*/CloneableCollection
 /*
-import collection.mutable.{BufferProxy, ArrayBuffer}
+import collection.mutable.{CloneableCollection, ArrayBuffer}
 
 val x = new ArrayBuffer[Int]
-val y = new /*ref*/BufferProxy
+val y = new /*ref*/CloneableCollection
 */
