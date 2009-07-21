@@ -41,16 +41,16 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
     case _ => false
   }
 
-  override def hashCode = name.hashCode * 31 + paramLength
+  override def hashCode = name.hashCode * 31 + types.hashCode
 }
 
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
   extends Signature(method.getName,
-                     new Suspension(() => method.getParameterList.getParameters.map {p => p match {
+                     new Suspension(() => Seq(method.getParameterList.getParameters.map {p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)
-                                                                }}),
+                                                                }}: _*)),
                      method.getParameterList.getParameters.length,
                      method.getTypeParameters,
                      substitutor) {
