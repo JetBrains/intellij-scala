@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
+import psi.api.statements.params.ScParameter
 import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.ScTyped
@@ -14,8 +16,6 @@ import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
-import _root_.scala.collection.mutable.ArrayBuffer
-
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
   def execute(element: PsiElement, state: ResolveState): Boolean = {
@@ -105,10 +105,30 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
               val s = c.substitutor
               t match {
                 case ScFunctionType(ret, params) => {
-                  (args.zip(params) forall {case (a, p) => Compatibility.compatible(s.subst(p), a)}) && (expected match {
+                  (expected match {
                     case None => true
                     case Some(t) => Compatibility.compatible(s.subst(t), ret)
-                  })
+                  }) && {
+                    def checkCompatibility: Boolean = {
+                      if (args.length < params.length) return false
+                      if (args.length > params.length && !(c.element match {
+                        case fun: ScFunction if fun.paramClauses.clauses.length > 0 => {
+                          fun.paramClauses.clauses.apply(0).hasRepeatedParam
+                        }
+                        //todo: Java
+                        case _ => false //synthetic functions always not repeated
+                      })) return false
+                      for (i <- 0 to args.length - 1) {
+                        if (i < params.length) {
+                          if (!Compatibility.compatible(s.subst(params(i)), args(i))) return false
+                        } else {
+                          if (!Compatibility.compatible(s.subst(params(params.length - 1)), args(i))) return false
+                        }
+                      }
+                      return true
+                    }
+                    checkCompatibility
+                  }
                 }
                 case _ => false
               }
@@ -140,7 +160,7 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
             case ScFunctionType(ret2, params2) => {
               val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
               val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-              Compatibility.compatible(ret1, ret2) && compt
+              Compatibility.compatible(ret1, ret2) && compt && params1.length == params2.length
             }
           }
         }
