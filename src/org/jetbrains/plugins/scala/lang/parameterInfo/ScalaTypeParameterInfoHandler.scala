@@ -177,7 +177,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                     case Some(ref) => {
                       ref.bind match {
                         case Some(ScalaResolveResult(element: PsiClass, substitutor)) => {
-                          res += (element, substitutor)
+                          res += Tuple(element, substitutor)
                         }
                         case _ =>
                       }
