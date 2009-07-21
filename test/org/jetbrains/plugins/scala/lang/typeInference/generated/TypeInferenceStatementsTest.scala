@@ -8,6 +8,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testIfStatement = doTest
 
+  def testInfix = doTest
+
   def testMatchStatement = doTest
 
   def testTryStatement = doTest
