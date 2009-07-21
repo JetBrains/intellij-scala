@@ -1,6 +1,6 @@
 package x
 
-import collection.immutable.EmptyMap
+import collection.immutable.HashMap
 
 class OneImport
 /*
