@@ -11,8 +11,8 @@ import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ParserDefinition, ASTNo
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import _root_.scala.collection.mutable.HashSet
-import _root_.scala.collection.mutable.ArrayBuffer
+import collection.mutable.HashSet
+import collection.mutable.ArrayBuffer
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement, CompositeElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.util.ArrayFactory
