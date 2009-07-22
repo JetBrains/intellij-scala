@@ -33,7 +33,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     val index = qualName.lastIndexOf('.');
     if (index < 0) "" else qualName.substring(0, index);
   }
-  
+
+  def getQualifiedNameForDebugger: String
 
   def functionsByName(name: String): Iterable[PsiMethod]
 
