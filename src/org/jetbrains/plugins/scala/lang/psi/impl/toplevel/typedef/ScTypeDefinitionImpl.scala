@@ -83,11 +83,15 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def getContainingClass = super[ScTypeDefinition].getContainingClass
 
-  override def getQualifiedName: String = {
+  override def getQualifiedName: String = qualifiedName(".")
+
+  def getQualifiedNameForDebugger: String = qualifiedName("$")
+
+  private def qualifiedName(classSeparator: String): String = {
     def _packageName(e: PsiElement): String = e.getParent match {
       case t: ScTypeDefinition => {
         val pn = _packageName(t)
-        if (pn.length > 0) pn + "." + t.name else t.name
+        if (pn.length > 0) pn + classSeparator + t.name else t.name
       }
       case p: ScPackaging => {
         val _packName = _packageName(p)

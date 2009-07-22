@@ -116,14 +116,14 @@ public class ScalaPositionManager implements PositionManager {
     ScalaPsiElement sourceImage = findReferenceTypeSourceImage(position);
     String qName = null;
     if (sourceImage instanceof ScTypeDefinition) {
-      qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedName(), ((ScTypeDefinition) sourceImage).getClass());
+      qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
     } else if (sourceImage instanceof ScFunctionExpr ||
         sourceImage instanceof ScForStatement ||
         sourceImage instanceof ScExtendsBlock ||
         sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
-        final String fqn = typeDefinition.getQualifiedName();
+        final String fqn = typeDefinition.getQualifiedNameForDebugger();
         qName = fqn + "$*";
       }
     }
@@ -131,14 +131,13 @@ public class ScalaPositionManager implements PositionManager {
     if (qName == null) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
-        qName = getSpecificName(typeDefinition.getQualifiedName(), typeDefinition.getClass());
+        qName = getSpecificName(typeDefinition.getQualifiedNameForDebugger(), typeDefinition.getClass());
       }
       if (qName == null) throw new NoDataException();
     }
 
-    final String processedName = qName.replace('.', '$');
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, processedName);
+    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, qName);
   }
 
   public SourcePosition getSourcePosition(final Location location) throws NoDataException {
@@ -218,13 +217,13 @@ public class ScalaPositionManager implements PositionManager {
         ScalaPsiElement sourceImage = findReferenceTypeSourceImage(position);
         if (sourceImage instanceof ScTypeDefinition) {
           ScTypeDefinition definition = (ScTypeDefinition) sourceImage;
-          String qName = getSpecificName(definition.getQualifiedName(), definition.getClass());
+          String qName = getSpecificName(definition.getQualifiedNameForDebugger(), definition.getClass());
           if (qName != null) return myDebugProcess.getVirtualMachineProxy().classesByName(qName);
         } else {
           final ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
           String enclosingName = null;
           if (typeDefinition != null) {
-            enclosingName = typeDefinition.getQualifiedName();
+            enclosingName = typeDefinition.getQualifiedNameForDebugger();
           }
           if (enclosingName != null) {
             final List<ReferenceType> outers = myDebugProcess.getVirtualMachineProxy().allClasses();
