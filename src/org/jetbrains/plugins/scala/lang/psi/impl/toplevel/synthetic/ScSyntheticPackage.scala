@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
-import _root_.scala.collection.mutable.HashSet
+import collection.mutable.HashSet
 import caches.ScalaCachesManager
 import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
