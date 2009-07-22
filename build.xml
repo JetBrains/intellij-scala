@@ -199,7 +199,7 @@
       </manifest>
     </jar>
 
-    <copy todir="{temp.jar.dir}/Scala/lib">
+    <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scala.aux.lib}">
         <include name="**/specs-runner.jar"/>
       </fileset>
