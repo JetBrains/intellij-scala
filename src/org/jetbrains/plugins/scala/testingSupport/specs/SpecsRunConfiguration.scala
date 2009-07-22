@@ -162,7 +162,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         val list = new java.util.ArrayList[String]
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[SpecsRunConfiguration])
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner]).replace("scala-plugin-runners", "specs-runner")
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)

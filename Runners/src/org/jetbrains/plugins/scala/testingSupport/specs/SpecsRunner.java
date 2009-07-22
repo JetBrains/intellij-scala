@@ -1,5 +1,11 @@
 package org.jetbrains.plugins.scala.testingSupport.specs;
 
+
+class EmptyClass {
+
+}
+
+/*
 import org.specs.Specification;
 import org.specs.runner.NotifierRunner;
 import org.specs.util.Classes$;
@@ -15,7 +21,6 @@ public class SpecsRunner {
       System.out.println("The first argument should be the specification class name");
       return;
     }
-/*
     ArrayList<String> classes = new ArrayList<String>();
     String sysFilter = ".*";
     String exFilter = ".*";
@@ -45,33 +50,33 @@ public class SpecsRunner {
       Option spec = Classes$.MODULE$.createObject(clazz);
       if (spec instanceof Some) {
         Specification s = (Specification) (spec.get());
-        (new NotifierRunner(s, new SpecsNotifier()) {
-          public String susFilterPattern() {
-            return finalSysFilter;
-          }
-
-          public String exampleFilterPattern() {
-            return finalExFilter;
-          }
-        }).reportSpecs();
+        try {
+          SpecsRunner.class.getClassLoader().loadClass("org.specs.runner.NotifierRunner").newInstance();
+        } catch (InstantiationException e) {
+          e.printStackTrace();
+        } catch (IllegalAccessException e) {
+          e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+        }
       } else {
         spec = Classes$.MODULE$.createObject(clazz + "$");
         if (spec instanceof Some) {
           Specification s = (Specification) (spec.get());
-          (new NotifierRunner(s, new SpecsNotifier()) {
-            public String susFilterPattern() {
-              return finalSysFilter;
-            }
-
-            public String exampleFilterPattern() {
-              return finalExFilter;
-            }
-          }).reportSpecs();
+          try {
+            NotifierRunner.class.newInstance();
+            SpecsRunner.class.getClassLoader().loadClass("org.specs.runner.NotifierRunner").newInstance();
+          } catch (InstantiationException e) {
+            e.printStackTrace();
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+          }
         } else {
           System.out.println("Scala Plugin internal error: no test class was found");
         }
       }
     }
-*/
   }
-}
+}*/

@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.specs;
 
+class EmptyClass2 {
+  
+}
+
+/*
 import org.specs.runner.Notifier;
 
 import java.util.HashMap;
@@ -59,4 +64,4 @@ class SpecsNotifier implements Notifier {
   private String escapeString(String s) {
     return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]");
   }
-}
+}*/
