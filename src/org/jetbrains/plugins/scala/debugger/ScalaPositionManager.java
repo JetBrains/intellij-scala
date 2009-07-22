@@ -127,7 +127,7 @@ public class ScalaPositionManager implements PositionManager {
         qName = fqn + "$*";
       }
     }
-    // Enclosinc closure not found
+    // Enclosing closure not found
     if (qName == null) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
@@ -136,8 +136,9 @@ public class ScalaPositionManager implements PositionManager {
       if (qName == null) throw new NoDataException();
     }
 
+    final String processedName = qName.replace('.', '$');
     ClassPrepareRequestor waitRequestor = new MyClassPrepareRequestor(position, requestor);
-    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, qName);
+    return myDebugProcess.getRequestsManager().createClassPrepareRequest(waitRequestor, processedName);
   }
 
   public SourcePosition getSourcePosition(final Location location) throws NoDataException {
