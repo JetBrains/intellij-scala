@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.script
 
-
-import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.collection.mutable.HashSet
+import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk
 import com.intellij.compiler.ModuleCompilerUtil
 import com.intellij.execution.configurations._
