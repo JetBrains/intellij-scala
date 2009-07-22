@@ -87,6 +87,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
       //partial match
       case Some(x) => x.supers.map{_.info}
+      case None => Seq[FullSignature]() //todo: to prevent match error
     }
     t
   }
