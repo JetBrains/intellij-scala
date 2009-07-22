@@ -27,11 +27,9 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.ResolveTestCase;
-import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.IOException;
