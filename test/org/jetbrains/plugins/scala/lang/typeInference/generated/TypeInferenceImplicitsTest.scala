@@ -7,4 +7,6 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
   def testImplicitCall = doTest
 
   def testImplicitCallScl1024 = doTest
+
+  def testImplicitConversionReturnTypeBasedOnParameterType = doTest
 }

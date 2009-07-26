@@ -72,7 +72,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
     val superTypes = t.extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new ScCompoundType(superTypes, holders, aliases)
+      new ScCompoundType(superTypes, holders.toList, aliases.toList)
     } else superTypes(0)
   }
 }
