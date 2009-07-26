@@ -1,9 +1,13 @@
-object Conv {
-  // If val2List was compiled to a .class file in a library, ready in by IntelliJ, the signature looks like this:
-  implicit def val2ListDepickledSignature[A >: scala.Nothing <: scala.Any](value: => A): scala.collection.immutable.List[A] = List(value)
+trait Foo {
+  def foo: Int
 }
 
-import Conv.val2ListDepickledSignature
-/*start*/1.length()/*end*/
-//This test not work just in tests
+object Conv {
+
+  // If val2Foo[A] was compiled to a .class file in a library and read in by IntelliJ, the signature looks like this:
+  implicit def val2FooDepickledSignature[A >: scala.Nothing <: scala.Any](value: => A): Foo[A] = null
+}
+
+import Conv.val2FooDepickledSignature
+/*start*/1.foo/*end*/
 //Int
