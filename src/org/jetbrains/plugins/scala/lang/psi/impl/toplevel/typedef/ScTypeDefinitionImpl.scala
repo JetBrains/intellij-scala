@@ -92,7 +92,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     def _packageName(e: PsiElement, sep: String): String = e.getParent match {
       case t: ScTypeDefinition => _packageName(t, sep) + t.name + sep
       case p: ScPackaging => _packageName(p, ".") + p.getPackageName + "."
-      case f: ScalaFile => f.getPackageName + "."
+      case f: ScalaFile => val pn = f.getPackageName; if (pn.length > 0) pn + "." else ""
       case _: PsiFile | null => ""
       case parent => _packageName(parent, sep)
     }
