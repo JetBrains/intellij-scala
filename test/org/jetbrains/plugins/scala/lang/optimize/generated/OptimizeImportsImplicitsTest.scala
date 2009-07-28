@@ -5,4 +5,6 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
   override def rootPath: String = super.rootPath + "implicits/"
 
   def testImplicitReference = doTest
+
+  def testImplicitReference2 = doTest
 }
