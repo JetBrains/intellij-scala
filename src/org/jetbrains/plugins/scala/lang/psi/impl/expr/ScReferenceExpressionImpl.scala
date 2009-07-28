@@ -104,8 +104,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
       processor.processType(e.cachedType, e, ResolveState.initial)
-
-      val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
       if (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) {
         for (t <- e.getImplicitTypes) {
           processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, e.getImportsForImplicit(t)))
