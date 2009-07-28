@@ -4,11 +4,11 @@ package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
 
-import com.intellij.psi.{PsiPackage, JavaDirectoryService, PsiFile}
-
+import com.intellij.psi.{JavaPsiFacade, PsiPackage, JavaDirectoryService, PsiFile}
 import java.lang.String
 import scala.lang.psi.api.ScalaFile
 import scala.lang.psi.api.toplevel.packaging.ScPackageStatement
+import scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -47,6 +47,15 @@ class PackageNameInspection extends LocalInspectionTool {
                 if (p.getQualifiedName != pack.getQualifiedName) {
                   buffer += new ScalaRenamePackageQuickFix(file, pack.getQualifiedName)
                   buffer += new ScalaMoveToPackageQuickFix(file, p)
+                }
+              }
+              case o: ScObject if o.isPackageObject => {
+                if (o.getQualifiedName != pack.getQualifiedName) {
+                  buffer += new ScalaRenamePackageQuickFix(file, pack.getQualifiedName)
+                  val p = JavaPsiFacade.getInstance(file.getProject).findPackage(o.getQualifiedName)
+                  if (p != null) {
+                    buffer += new ScalaMoveToPackageQuickFix(file, p)                    
+                  }
                 }
               }
               case _ => {
