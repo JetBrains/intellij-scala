@@ -5,6 +5,7 @@ import com.intellij.compiler.impl.javaCompiler.FileObject;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import static org.jetbrains.plugins.scala.compiler.ScalacOutputParser.MESSAGE_TYPE.*;
@@ -19,6 +20,7 @@ import java.util.Arrays;
  * @author ilyas
  */
 class ScalacOutputParser extends OutputParser {
+  public static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacOutputParser");
 
   @NonNls
   private static final String ourErrorMarker = " error:";
@@ -73,6 +75,9 @@ class ScalacOutputParser extends OutputParser {
   @Override
   public boolean processMessageLine(Callback callback) {
     final String line = callback.getNextLine();
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(line);
+    }
 
     if (line == null) {
       flushWrittenList(callback);
