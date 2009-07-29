@@ -88,20 +88,22 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   def getQualifiedNameForDebugger: String = qualifiedName("$")
 
   private def qualifiedName(classSeparator: String): String = {
+    val id: (String) => String = (x) => x
+
     // Returns prefix with convenient separator sep
-    def _packageName(e: PsiElement, sep: String): String = e.getParent match {
-      case t: ScTypeDefinition => _packageName(t, sep) + t.name + sep
-      case p: ScPackaging => _packageName(p, ".") + p.getPackageName + "."
-      case f: ScalaFile => val pn = f.getPackageName; if (pn.length > 0) pn + "." else ""
-      case _: PsiFile | null => ""
-      case parent => _packageName(parent, sep)
+    def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getParent match {
+      case t: ScTypeDefinition => _packageName(t, sep, (s) => k(s + t.name + sep))
+      case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
+      case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
+      case _: PsiFile | null => k("")
+      case parent => _packageName(parent, sep, id)
     }
 
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScTypeDefinitionStub].qualName
     } else {
-      val packageName = _packageName(this, classSeparator)
+      val packageName = _packageName(this, classSeparator, id)
       packageName + name
     }
   }
