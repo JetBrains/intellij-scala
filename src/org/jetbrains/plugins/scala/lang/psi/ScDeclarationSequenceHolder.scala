@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.base.ScStableCodeReferenceElement
 import api.statements.ScDeclaredElementsHolder
 import api.toplevel.ScNamedElement
+import api.toplevel.typedef.ScObject
 import com.intellij.psi._
 import psi.impl.ScalaFileImpl
 import scope._
@@ -17,7 +19,13 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = lastParent
       while (run != null) {
-        if (!processElement(run, processor, state)) return false
+        place match {
+          case id: ScStableCodeReferenceElement => run match {
+            case po: ScObject if po.isPackageObject && id.qualName == po.getQualifiedName => // do nothing
+            case _ => if (!processElement(run, processor, state)) return false
+          }
+          case _ => if (!processElement(run, processor, state)) return false
+        }
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
 
