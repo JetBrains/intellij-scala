@@ -23,8 +23,7 @@ object Scratch {
     "B".zero
   }
 }
-/*
-package scatch
+/*package scatch
 
 sealed trait Identity {
   def zero: Int = 0
@@ -48,5 +47,4 @@ object Scratch {
     import B._
     "B".zero
   }
-}
-*/
+}*/
