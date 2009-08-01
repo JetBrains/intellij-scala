@@ -1,4 +1,4 @@
-trait Foo {
+trait Foo[A] {
   def foo: Int
 }
 
