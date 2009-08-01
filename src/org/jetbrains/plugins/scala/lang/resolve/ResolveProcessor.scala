@@ -21,8 +21,13 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
-      candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-      return false //todo
+      return named match {
+        case o: ScObject if o.isPackageObject => true
+        case _ => {
+          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+          return false //todo
+        }
+      }
     }
     return true
   }
