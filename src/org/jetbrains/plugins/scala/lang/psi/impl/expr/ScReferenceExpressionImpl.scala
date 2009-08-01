@@ -106,7 +106,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       processor.processType(e.cachedType, e, ResolveState.initial)
       if (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) {
         for (t <- e.getImplicitTypes) {
-          processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, e.getImportsForImplicit(t)))
+          val importsUsed = e.getImportsForImplicit(t)
+          processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, importsUsed))
         }
       }
     }

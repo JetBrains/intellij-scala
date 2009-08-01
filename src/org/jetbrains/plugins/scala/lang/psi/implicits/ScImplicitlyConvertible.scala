@@ -77,10 +77,21 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val set = processor.sig2Method(sig)
       for ((imports, fun) <- set) {
         val rt = sig.substitutor.subst(fun.returnType)
-        if (!result.contains(rt)) {
-          result += (rt -> Set((fun, imports)))
-        } else {
-          result += (rt -> (result(rt) + (Pair(fun, imports))))
+
+        def register(t: ScType) = {
+          if (!result.contains(t)) {
+            result += (t -> Set((fun, imports)))
+          } else {
+            result += (t -> (result(t) + (Pair(fun, imports))))
+          }
+        }
+        rt match {
+          // This is needed to pass OptimizeImportsImplicitsTest.testImplicitReference2
+          case ct: ScCompoundType => {
+            register(ct)
+            for (t <- ct.components) register(t)
+          }
+          case t => register(t)
         }
       }
     }
