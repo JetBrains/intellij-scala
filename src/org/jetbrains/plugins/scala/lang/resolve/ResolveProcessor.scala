@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolve
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
+import psi.api.statements._
 import psi.api.statements.params.ScParameter
-import psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition, ScFun}
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.ScTyped
 import com.intellij.psi.scope._
@@ -16,6 +16,7 @@ import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
+
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
   def execute(element: PsiElement, state: ResolveState): Boolean = {
@@ -66,7 +67,14 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
+      def onlyImplicitParam(fd: ScFunctionDefinition) = {
+        fd.allClauses.headOption.map(_.isImplicit) getOrElse false
+      }
       named match {
+        case fd: ScFunctionDefinition if onlyImplicitParam(fd) => {
+          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state));
+          false
+        }
         case m: PsiMethod if m.getParameterList.getParametersCount > 0 => true
         case fun: ScFun if fun.paramTypes.length > 0 => true
         case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state)); false //todo
@@ -179,9 +187,9 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
 
 
   private def getType(e: PsiNamedElement): ScType = e match {
-    case fun: ScFun => new ScFunctionType(fun.retType, Seq(fun.paramTypes : _*))
+    case fun: ScFun => new ScFunctionType(fun.retType, Seq(fun.paramTypes: _*))
     case f: ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
-      new ScFunctionType(f.declaredType, Seq(f.paramTypes : _*))
+      new ScFunctionType(f.declaredType, Seq(f.paramTypes: _*))
     else f.calcType
     case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 
