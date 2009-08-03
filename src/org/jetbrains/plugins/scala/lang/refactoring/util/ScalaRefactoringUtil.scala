@@ -20,7 +20,7 @@ import psi.impl.ScalaPsiElementFactory
 import psi.api.statements.ScFunctionDefinition
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import _root_.scala.collection.mutable.ArrayBuffer
+import collection.mutable.ArrayBuffer
 import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler

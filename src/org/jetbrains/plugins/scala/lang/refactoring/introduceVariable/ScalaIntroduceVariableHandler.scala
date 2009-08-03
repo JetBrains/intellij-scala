@@ -35,7 +35,7 @@ import refactoring.util.ScalaRefactoringUtil
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
-  var deleteOccurence = false;
+  var deleteOccurrence = false;
 
 
 
@@ -55,7 +55,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
 
     val lineText = getLineText(editor)
     if (editor.getSelectionModel.getSelectedText != null &&
-            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurence = true
+            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
     invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
   }
@@ -210,7 +210,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val documentManager = PsiDocumentManager.getInstance(editor.getProject)
       documentManager.commitDocument(document)
       val leaf = file.findElementAt(offset)
-      if (!(deleteOccurence && replaceAllOccurrences) && leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+      if (!(deleteOccurrence && replaceAllOccurrences) && leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
         val textRange = leaf.getParent.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
@@ -303,7 +303,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
             ScalaPsiUtil.adjustTypes(createStmt)
           }
-          if (deleteOccurence && !replaceAllOccurrences) {
+          if (deleteOccurrence && !replaceAllOccurrences) {
             elem = createStmt.getNextSibling
             while (elem != null && elem.getText.trim == "") elem = elem.getNextSibling
             if (elem != null) {
