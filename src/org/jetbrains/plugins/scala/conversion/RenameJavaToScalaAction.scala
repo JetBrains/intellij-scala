@@ -51,7 +51,7 @@ class RenameJavaToScalaAction extends AnAction {
             val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
             document.insertString(0, newText)
             PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
-            CodeStyleManager.getInstance(file.getProject).reformat(file)
+            //CodeStyleManager.getInstance(file.getProject).reformat(file)
           }
         }, jFile.getProject, "Convert Java to Scala")
       }
