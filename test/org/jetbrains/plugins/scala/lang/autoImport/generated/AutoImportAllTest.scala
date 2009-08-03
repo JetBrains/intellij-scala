@@ -10,5 +10,7 @@ class AutoImportAllTest extends AutoImportTestBase {
 
   def testImportedPackage = doTest
 
+  def testObjectPackage = doTest
+
   def testPlaceHolder = doTest
 }
