@@ -15,6 +15,7 @@ import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import psi.impl.toplevel.synthetic.ScSyntheticPackage
 import collection.mutable.Set
+import refactoring.util.ScalaNamesUtil
 import scope._
 
 trait ScImportsHolder extends ScalaPsiElement {
@@ -162,7 +163,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     var importSt: ScImportStmt = null
     while (importSt == null) {
       val (pre, last) = getSplitQualifierElement(classPackageQual)
-      importString = last + "." + importString
+      if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
+      else importString = last + "." + importString
       if (packages.contains(classPackageQual)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
