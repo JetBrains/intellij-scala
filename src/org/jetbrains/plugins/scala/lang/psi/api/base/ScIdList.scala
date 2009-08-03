@@ -9,5 +9,5 @@ import com.intellij.psi._
 */
 
 trait ScIdList extends ScalaPsiElement {
-  def fieldIds: Seq[ScFieldId] = Seq(findChildrenByClass(classOf[ScFieldId]): _*)
+  def fieldIds: Seq[ScFieldId]
 }
