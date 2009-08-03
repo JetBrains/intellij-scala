@@ -90,6 +90,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox showFilesInProjectViewCheckBox;
   private JCheckBox doNotOfferAutoCheckBox;
 
+  //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
 
   final private int PREVIEW_PANEL = 6;
