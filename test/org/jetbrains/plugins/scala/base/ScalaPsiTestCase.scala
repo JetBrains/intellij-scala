@@ -11,7 +11,6 @@ import lang.superMember.SuperMethodTestUtil
 import util.TestUtils
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.projectRoots.JavaSdk
-import _root_.org.scalatest.junit.JUnit3Suite
 
 /**
  * User: Alexander Podkhalyuzin
