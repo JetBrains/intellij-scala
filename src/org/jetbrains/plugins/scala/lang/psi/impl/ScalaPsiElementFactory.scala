@@ -46,7 +46,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val text = "import a._"
 
     val dummyFile: ScalaFile =
-      PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text + " ").asInstanceOf[ScalaFile]
+      PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
     dummyFile.getLastChild.getLastChild.getLastChild.getNode
   }
 
