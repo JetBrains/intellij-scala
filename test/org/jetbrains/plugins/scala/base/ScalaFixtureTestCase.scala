@@ -1,37 +1,30 @@
 package org.jetbrains.plugins.scala.base
 
-import _root_.com.intellij.testFramework.PsiTestCase
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.roots.{ModifiableRootModel, ContentEntry, OrderRootType, ModuleRootManager}
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VfsUtil, LocalFileSystem, VirtualFile}
-import java.io.{File, IOException}
-import lang.superMember.SuperMethodTestUtil
-import util.TestUtils
-import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.projectRoots.JavaSdk
+import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
+import com.intellij.openapi.vfs.{VfsUtil, LocalFileSystem}
+import java.io.File
+import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
+import lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import util.TestUtils
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 24.02.2009
+ * Date: 03.08.2009
  */
 
-abstract class ScalaPsiTestCase extends PsiTestCase {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
   private val JDK_HOME = TestUtils.getMockJdk
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
-  /**
-   * Main test body. All tests should be with same body: def testSmthing = doTest
-   */
-  protected def doTest: Unit
-
   override protected def setUp: Unit = {
     super.setUp
-    myProject.getComponent(classOf[SyntheticClasses]).registerClasses
+    myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses
 
-    val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
+    val rootModel = ModuleRootManager.getInstance(myFixture.getModule).getModifiableModel
 
     val testDataRoot = LocalFileSystem.getInstance.findFileByPath(rootPath)
     assert(testDataRoot != null)
