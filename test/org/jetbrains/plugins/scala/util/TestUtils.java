@@ -18,18 +18,17 @@ package org.jetbrains.plugins.scala.util;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
+import junit.framework.AssertionFailedError;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import org.junit.Assert;
 
 /**
  * Created by IntelliJ IDEA.
@@ -118,5 +117,55 @@ public class TestUtils {
   public static String removeEndMarker(String text) {
     int index = text.indexOf(END_MARKER);
     return text.substring(0, index) + text.substring(index + END_MARKER.length());
+  }
+
+  private static final long ETALON_TIMING = 438;
+
+  public static final boolean COVERAGE_ENABLED_BUILD = "true".equals(System.getProperty("idea.coverage.enabled.build"));
+
+  public static void assertTiming(String message, long expected, long actual) {
+    if (COVERAGE_ENABLED_BUILD) return;
+    long expectedOnMyMachine = expected * Timings.MACHINE_TIMING / ETALON_TIMING;
+    final double acceptableChangeFactor = 1.1;
+
+    // Allow 10% more in case of test machine is busy.
+    // For faster machines (expectedOnMyMachine < expected) allow nonlinear performance rating:
+    // just perform better than acceptable expected
+    if (actual > expectedOnMyMachine * acceptableChangeFactor &&
+        (expectedOnMyMachine > expected || actual > expected * acceptableChangeFactor)) {
+      int percentage = (int)(((float)100 * (actual - expectedOnMyMachine)) / expectedOnMyMachine);
+      Assert.fail(message + ". Operation took " + percentage + "% longer than expected. Expected on my machine: " + expectedOnMyMachine +
+                  ". Actual: " + actual + ". Expected on Etalon machine: " + expected + "; Actual on Etalon: " +
+                  (actual * ETALON_TIMING / Timings.MACHINE_TIMING));
+    }
+    else {
+      int percentage = (int)(((float)100 * (actual - expectedOnMyMachine)) / expectedOnMyMachine);
+      System.out.println(message + ". Operation took " + percentage + "% longer than expected. Expected on my machine: " +
+                         expectedOnMyMachine + ". Actual: " + actual + ". Expected on Etalon machine: " + expected +
+                         "; Actual on Etalon: " + (actual * ETALON_TIMING / Timings.MACHINE_TIMING));
+    }
+  }
+
+  public static void assertTiming(String message, long expected, @NotNull Runnable actionToMeasure) {
+    assertTiming(message, expected, 4, actionToMeasure);
+  }
+
+  public static void assertTiming(String message, long expected, int attempts, @NotNull Runnable actionToMeasure) {
+    while (true) {
+      attempts--;
+      long start = System.currentTimeMillis();
+      actionToMeasure.run();
+      long finish = System.currentTimeMillis();
+      try {
+        assertTiming(message, expected, finish - start);
+        break;
+      }
+      catch (AssertionFailedError e) {
+        if (attempts == 0) throw e;
+        System.gc();
+        System.gc();
+        System.gc();
+      }
+    }
   }
 }
