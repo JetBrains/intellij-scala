@@ -216,13 +216,13 @@ object JavaToScala {
         res.append(" def ")
         if (!m.isConstructor) res.append(m.getName)
         else res.append("this")
-        res.append(convertPsiToText(m.getParameterList)).
-                append(": ").append(convertPsiToText(m.getReturnTypeElement))
+        res.append(convertPsiToText(m.getParameterList))
+        if (!m.isConstructor) res.append(": ").append(convertPsiToText(m.getReturnTypeElement))
         if (m.getBody != null) {
-          res.append(" = ")
+          if (!m.isConstructor) res.append(" = ")
           if (m.isConstructor) res.append("{\nthis()\n")
-          res.append(convertPsiToText(m.getBody))
-          if (m.isConstructor) res.append("\n}")
+          for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
+          if (m.isConstructor) res.append("}")
         }
       }
       case f: PsiField => {
@@ -253,17 +253,17 @@ object JavaToScala {
       case c: PsiClass => {
         var forClass = new HashSet[PsiMember]()
         var forObject = new HashSet[PsiMember]()
-        for (method <- c.getAllMethods) {
+        for (method <- c.getMethods) {
           if (method.hasModifierProperty("static")) {
             forObject += method
           } else forClass += method
         }
-        for (field <- c.getAllFields) {
+        for (field <- c.getFields) {
           if (field.hasModifierProperty("static")) {
             forObject += field
           } else forClass += field
         }
-        for (clazz <- c.getAllInnerClasses) {
+        for (clazz <- c.getInnerClasses) {
           if (clazz.hasModifierProperty("static")) {
             forObject += clazz
           } else forClass += clazz
@@ -332,10 +332,30 @@ object JavaToScala {
         }
       }
       case t: PsiTypeElement => {
-        //todo:
+        if (t.getText.endsWith("[]")) {
+          res.append("Array[").append(convertPsiToText(t.getFirstChild)).append("]")
+        } else {
+          t.getFirstChild match {
+            case k: PsiKeyword => {
+              k.getText match {
+                case "int" => res.append("Int")
+                case "long" => res.append("Long")
+                case "boolean" => res.append("Boolean")
+                case "short" => res.append("Short")
+                case "double" => res.append("Double")
+                case "void" => res.append("Unit")
+                case "float" => res.append("Float")
+                case "byte" => res.append("Byte")
+                case "char" => res.append("Char")
+              }
+            }
+            case x => res.append(convertPsiToText(x))
+          }
+        }
       }
       case m: PsiModifierList => {
-        //todo:
+        //todo: annotations
+        //todo: modifiers
       }
       case w: PsiWhiteSpace => {
         res.append(w.getText)
