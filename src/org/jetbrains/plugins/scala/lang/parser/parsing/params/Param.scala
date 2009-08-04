@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
 import com.intellij.lang.PsiBuilder
-import expressions.Annotation
+import expressions.{Expr, Annotation}
 import lexer.ScalaTokenTypes
 import types.ParamType
 
@@ -11,7 +11,7 @@ import types.ParamType
 */
 
 /*
- * Param ::= {Annotation} id [':' ParamType]
+ * Param ::= {Annotation} id [':' ParamType] ['=' Expr]
  */
 
 object Param {
@@ -34,6 +34,13 @@ object Param {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate :
         if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
+      }
+      case _ =>
+    }
+    builder.getTokenType match {
+      case ScalaTokenTypes.tASSIGN => {
+        builder.advanceLexer //Ate =
+        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
       }
       case _ =>
     }
