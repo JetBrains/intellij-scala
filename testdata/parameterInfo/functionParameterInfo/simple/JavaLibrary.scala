@@ -1,10 +1,10 @@
 val s = ""
 s.indexOf(/*caret*/)
 /*
-b: B
 ch: Int
 ch: Int, fromIndex: Int
-s: Seq[B]
+elem: B
+elem: B, from: Int
 str: String
 str: String, fromIndex: Int
 */
