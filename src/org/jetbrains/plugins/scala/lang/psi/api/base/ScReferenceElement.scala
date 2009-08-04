@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import _root_.scala.collection.Set
+import actors.{TIMEOUT, Actor}
 import codeInspection.{ScalaElementVisitor}
 
 import impl.ScalaPsiElementFactory

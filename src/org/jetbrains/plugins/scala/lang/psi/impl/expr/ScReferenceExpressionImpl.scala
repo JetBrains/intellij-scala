@@ -5,6 +5,7 @@ import api.statements._
 import api.base.patterns.ScReferencePattern
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.IncorrectOperationException
 import resolve._
 
@@ -103,9 +104,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
+      ProgressManager.getInstance.checkCanceled
       processor.processType(e.cachedType, e, ResolveState.initial)
       if (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) {
         for (t <- e.getImplicitTypes) {
+          ProgressManager.getInstance.checkCanceled
           val importsUsed = e.getImportsForImplicit(t)
           processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, importsUsed))
         }

@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.annotator
 
 import collection.mutable.HashMap
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.ide.util.importProject.DelegatingProgressIndicator
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.util.{PsiTreeUtil}
 import highlighter.{AnnotatorHighlighter}
 import importsTracker._
+import java.util.concurrent.TimeoutException
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
 
@@ -35,6 +38,8 @@ import scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicatorEx
+
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -42,7 +47,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 
 class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
-    if (!ApplicationManager.getApplication.isUnitTestMode && element.getNode.getFirstChildNode == null &&
+    /*if (!ApplicationManager.getApplication.isUnitTestMode && element.getNode.getFirstChildNode == null &&
             element.getTextOffset == 0) { //this is event for annotation starting
       val file = element.getContainingFile
       ScalaAnnotator.annotatingTimeExceeded.set(false)
@@ -62,7 +67,7 @@ class ScalaAnnotator extends Annotator {
       if (System.currentTimeMillis - time.get > timeToExceed) {
         ScalaAnnotator.annotatingTimeExceeded.set(true)
       } else ScalaAnnotator.annotatingTimeExceeded.set(false)
-    }
+    }*/
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -92,12 +97,35 @@ class ScalaAnnotator extends Annotator {
       }
       case sFile: ScalaFile => {
         ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile) //it must be last annotated element
-        ScalaAnnotator.annotatingTimeExceeded.set(false)
+        /*ScalaAnnotator.annotatingTimeExceeded.set(false)
         val time = sFile.getUserData(ScalaAnnotator.annotatingTimeStartKey)
-        if (time != null) time.remove
+        if (time != null) time.remove*/
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
+  }
+
+  private class ScalaTimeoutException extends ProcessCanceledException
+
+  private def breakableMultiresolve(refElement: ScReferenceElement): Array[ResolveResult] = {
+    var resolve: Array[ResolveResult] = null
+    val startTime = System.currentTimeMillis
+    ProgressManager.getInstance.runProcess(new Runnable {
+      def run: Unit = {
+        ProgressManager.getInstance.checkCanceled
+        resolve = refElement.multiResolve(false)
+      }
+    }, new DelegatingProgressIndicatorEx {
+      //var count: Long = 0; //to check timeout not very often
+
+      override def checkCanceled {
+        if (!isCanceled && /*({count = count + 1; count % 10 == 0}) &&*/ (System.currentTimeMillis - startTime > 20)) {
+          throw new ScalaTimeoutException
+        }
+        super.checkCanceled
+      }
+    })
+    resolve
   }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -109,7 +137,17 @@ class ScalaAnnotator extends Annotator {
       return Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
     }
 
-    val resolve = refElement.multiResolve(false)
+    var resolve: Array[ResolveResult] = null//refElement.multiResolve(false)
+
+    try {
+     resolve = breakableMultiresolve(refElement)
+    } catch {
+      case _: ScalaTimeoutException => {
+        val annotation = holder.createInformationAnnotation(refElement, "Checking for reference resolve is too long")
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+        return
+      }
+    }
 
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
       //todo remove when resolve of unqualified expression will be fully implemented
@@ -148,7 +186,20 @@ class ScalaAnnotator extends Annotator {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     val settings: ScalaCodeStyleSettings =
            CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    for (result <- refElement.multiResolve(false) if result.isInstanceOf[ScalaResolveResult];
+
+    var resolve: Array[ResolveResult] = null
+
+    try {
+     resolve = breakableMultiresolve(refElement)
+    } catch {
+      case _: ScalaTimeoutException => {
+        val annotation = holder.createInformationAnnotation(refElement.nameId, "Checking for reference resolve is too long")
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+        return
+      }
+    }
+
+    for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
     }
@@ -274,10 +325,10 @@ class ScalaAnnotator extends Annotator {
   }
 }
 
-object ScalaAnnotator {
+/*object ScalaAnnotator {
   val annotatingTimeExceeded: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
     override def initialValue: Boolean = false
   }
 
   val annotatingTimeStartKey: Key[ThreadLocal[Long]] = new Key("annotating.time.start.key")
-}
+}*/
