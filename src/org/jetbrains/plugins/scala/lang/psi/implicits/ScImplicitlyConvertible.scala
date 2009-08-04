@@ -5,6 +5,7 @@ import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
 import collection.mutable.{HashMap, HashSet}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.util.{PsiTreeUtil, CachedValue, PsiModificationTracker}
@@ -39,18 +40,18 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
-    import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+    /*import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
     if (ScalaAnnotator.annotatingTimeExceeded.get/* &&
             getUserData(ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY) == null*/)
       new HashMap[ScType, Set[(ScFunction, Set[ImportUsed])]]().
               asInstanceOf[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]
-    else {
+    else {*/
       CachesUtil.get(
         this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
         new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
           (PsiModificationTracker.MODIFICATION_COUNT)
         )
-    }
+    //}
   }
 
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
@@ -73,6 +74,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     val typez: ScType = cachedType
     val sigsFound = processor.signatures.filter((sig: Signature) => {
+      ProgressManager.getInstance().checkCanceled()
       val types = sig.types
       types.length == 1 && typez.conforms(types(0))
     })
