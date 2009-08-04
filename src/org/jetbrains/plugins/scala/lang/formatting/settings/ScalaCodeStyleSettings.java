@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
@@ -9,6 +10,10 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
  * Date: 28.07.2008
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
+
+  public static ScalaCodeStyleSettings getInstance(Project project) {
+    return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
+  }
 
 
   //spcaing settings:
@@ -87,6 +92,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean FOLD_BLOCK_COMMENTS = false;
   public boolean FOLD_PACKAGINGS = false;
   public boolean FOLD_IMPORT_IN_HEADER = true;
+
+  public int TIME_TO_DISABLE_SLOW_CHECKS = 2000;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

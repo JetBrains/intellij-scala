@@ -38,11 +38,20 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     case None => Set()
   }
 
-  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = CachesUtil.get(
-      this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
+    import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+    if (ScalaAnnotator.annotatingTimeExceeded.get/* &&
+            getUserData(ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY) == null*/)
+      new HashMap[ScType, Set[(ScFunction, Set[ImportUsed])]]().
+              asInstanceOf[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]
+    else {
+      CachesUtil.get(
+        this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
+        new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
+          (PsiModificationTracker.MODIFICATION_COUNT)
+        )
+    }
+  }
 
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
     val processor = new CollectImplicitsProcessor(cachedType)

@@ -89,6 +89,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox beforeMethodBracesCallCheckBox;
   private JCheckBox showFilesInProjectViewCheckBox;
   private JCheckBox doNotOfferAutoCheckBox;
+  private JTextField disableSlowChecksTextField;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -195,6 +196,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     } else {
       scalaSettings.BLANK_LINES_AFTER_LBRACE = 0;
       linesAfterLBrace.setValue(0);
+    }
+
+    try {
+      scalaSettings.TIME_TO_DISABLE_SLOW_CHECKS = Integer.parseInt(disableSlowChecksTextField.getText());
+    } catch (NumberFormatException e) {
+      scalaSettings.TIME_TO_DISABLE_SLOW_CHECKS = 2000;
+      disableSlowChecksTextField.setText("2000");
     }
 
     scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = alignListOfIdentifiersCheckBox.isSelected();
@@ -332,6 +340,15 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
     if (scalaSettings.BLANK_LINES_AFTER_LBRACE != (Integer) linesAfterLBrace.getValue()) return true;
     if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
+
+    try {
+      if (scalaSettings.TIME_TO_DISABLE_SLOW_CHECKS != Integer.parseInt(disableSlowChecksTextField.getText())) {
+        return true;
+      }
+    } catch (NumberFormatException e) {
+      return true;
+    }
+
     if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected())
       return true;
     if (scalaSettings.ALIGN_MULTILINE_BINARY_OPERATION != alignBinaryOperationsCheckBox.isSelected()) return true;
@@ -449,6 +466,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
+
+    disableSlowChecksTextField.setText("" + settings.TIME_TO_DISABLE_SLOW_CHECKS);
   }
 
   private static void setValue(JSpinner spinner, int value) {

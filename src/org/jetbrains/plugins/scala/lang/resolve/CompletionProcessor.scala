@@ -4,7 +4,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Sig
 import com.intellij.psi._
 
 import _root_.scala.collection.Set
-import _root_.scala.collection.mutable.HashSet
+import collection.mutable.HashSet
 import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 
 import psi.api.toplevel.typedef.ScTypeDefinition
