@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
 import api.base.types.ScTypeElement
 import api.toplevel.ScTypeParametersOwner
 import com.intellij.psi.search.LocalSearchScope
+import java.lang.String
 import lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -70,4 +71,12 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
       stub.asInstanceOf[ScTypeParamStub].getUpperTypeElement
     } else super.upperTypeElement
   }
+
+  def addAnnotation(p1: String): PsiAnnotation = null
+
+  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
+  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
+  def findAnnotation(p1: String): PsiAnnotation = null
 }

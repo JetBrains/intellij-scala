@@ -98,4 +98,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case _ => None
     }
   }
+
+  def getTypeNoResolve: PsiType = PsiType.VOID
 }

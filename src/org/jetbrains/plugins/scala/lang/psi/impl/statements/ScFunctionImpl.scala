@@ -108,6 +108,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
 
+  def getMethodReceiver: PsiMethodReceiver = null
+
+  def getReturnTypeNoResolve: PsiType = PsiType.VOID
+
   def getPom = null
 
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =

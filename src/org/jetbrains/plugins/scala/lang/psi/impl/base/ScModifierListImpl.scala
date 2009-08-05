@@ -24,6 +24,8 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
 
   override def toString: String = "Modifiers"
 
+  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
   def hasModifierProperty(name: String): Boolean = {
     val stub = getStub
     if (stub != null) {
