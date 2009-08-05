@@ -175,9 +175,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), clazz.typeParameters.map(new ScTypeParameterType(_, s)).toArray))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)): _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toArray))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)): _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => ResolveUtils.methodType(method, s)
