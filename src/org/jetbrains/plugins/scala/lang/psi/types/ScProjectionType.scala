@@ -18,9 +18,9 @@ case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends 
     case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
     case ScDesignatorType(des) => projected match {
       case ScSingletonType(path) => {
-        val proc = new ResolveProcessor(StdKinds.stableClass, ref.refName)
-        proc.processType(projected, path)
-        if (proc.candidates.size == 1) proc.candidates.toArray(0).element eq des else false
+        val processor = new ResolveProcessor(StdKinds.stableClass, ref.refName)
+        processor.processType(projected, path)
+        if (processor.candidates.size == 1) processor.candidates.toArray(0).element eq des else false
       }
       case _ => false
     }
