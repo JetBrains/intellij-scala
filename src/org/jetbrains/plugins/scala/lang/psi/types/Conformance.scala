@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import _root_.scala.collection.mutable.HashMap
 import api.base.ScReferenceElement
+import caches.CachesUtil
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import scala.Misc._
 import api.statements._
@@ -12,6 +13,7 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.scala.collection.immutable.HashSet
 
 import com.intellij.psi._
+import util.PsiModificationTracker
 
 object Conformance {
 
@@ -159,10 +161,10 @@ object Conformance {
     case ScDesignatorType(clazz: PsiClass) =>
       clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}
 
-    case proj: ScProjectionType => {
-      proj.element match {
-        case Some(synth: ScSyntheticClass) => conforms(l, synth.t)
-        case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
+    case projectionType: ScProjectionType => {
+      projectionType.element match {
+        case Some(syntheticClass: ScSyntheticClass) => conforms(l, syntheticClass.t)
+        case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(projectionType).find {t => conforms(l, t, visited + clazz)}
         case _ => false
       }
     }
@@ -209,12 +211,19 @@ object Conformance {
     case _ => false //todo
   }
 
-  //todo: cache
-  def getSignatureMap(clazz: PsiClass) = {
+  def getSignatureMapInner(clazz: PsiClass): HashMap[Signature, ScType] = {
     val m = new HashMap[Signature, ScType]
     for ((full, _) <- TypeDefinitionMembers.getSignatures(clazz)) {
       m += ((full.sig, full.retType))
     }
     m
+  }
+
+  def getSignatureMap(clazz: PsiClass): HashMap[Signature, ScType] = {
+    CachesUtil.get(
+      clazz, CachesUtil.SIGNATURES_MAP_KEY,
+      new CachesUtil.MyProvider(clazz, {clazz: PsiClass => getSignatureMapInner(clazz)})
+        (PsiModificationTracker.MODIFICATION_COUNT)
+    )
   }
 }
