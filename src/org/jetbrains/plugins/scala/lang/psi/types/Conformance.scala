@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import _root_.scala.collection.mutable.HashMap
 import api.base.ScReferenceElement
 import caches.CachesUtil
+import com.intellij.openapi.progress.ProgressManager
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import scala.Misc._
 import api.statements._
@@ -24,6 +25,7 @@ object Conformance {
   def conforms(l: ScType, r: ScType): Boolean = conforms(l, r, HashSet.empty)
 
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = {
+    ProgressManager.getInstance.checkCanceled
 
     def scalaCompilerIsTheBestCompilerInTheWorld = l match {
       case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)
