@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-import collection.mutable.HashMap
+import collection.mutable.{HashSet, HashMap}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.util.importProject.DelegatingProgressIndicator
 import com.intellij.openapi.application.ApplicationManager
@@ -47,6 +47,10 @@ import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicato
 
 class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
+    if (element.getNode.getFirstChildNode == null && element.getTextRange.getStartOffset == 0) {
+      val sFile = element.getContainingFile.asInstanceOf[ScalaFile]
+      ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
+    }
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -75,7 +79,7 @@ class ScalaAnnotator extends Annotator {
         ModifierChecker.checkModifiers(ml, holder)
       }
       case sFile: ScalaFile => {
-        ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile) //it must be last annotated element
+        ImportTracker.getInstance(sFile.getProject).markFileAnnotated(sFile)
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -299,4 +303,8 @@ class ScalaAnnotator extends Annotator {
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }
+}
+
+object ScalaAnnotator {
+  val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
 }
