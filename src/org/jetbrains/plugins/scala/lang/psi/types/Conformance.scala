@@ -25,11 +25,11 @@ object Conformance {
 
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = {
 
-    def scalaCompilerIstheBestCompilerInTheWorld = l match {
+    def scalaCompilerIsTheBestCompilerInTheWorld = l match {
       case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)
     }
 
-    if (l.isInstanceOf[ScTypeParameterType]) return scalaCompilerIstheBestCompilerInTheWorld
+    if (l.isInstanceOf[ScTypeParameterType]) return scalaCompilerIsTheBestCompilerInTheWorld
     if (r == Nothing) true
     else if (l equiv r) true
     else l match {
@@ -56,7 +56,9 @@ object Conformance {
       case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r) //todo implement me
 
       case ScParameterizedType(owner: ScType, args1) => r match { //Parametrized type can have not only designators (projection)
-        case ScParameterizedType(owner1, args2) if (owner equiv owner1) => {
+        case ScParameterizedType(owner1, args2) => {
+          if (!(owner equiv owner1)) return false
+          if (args1.length != args2.length) return false
           ScType.extractDesignated(owner) match {
             case Some((owner: PsiClass, _)) => {
               owner.getTypeParameters.zip(args1 zip args2) forall {
@@ -179,30 +181,19 @@ object Conformance {
     }
     case ScSkolemizedType(_, _, _, upper) => conforms(l, upper)
 
-    //todo: may be join next parametrized cases in one, by using ScType.extractDesignated
-    case p@ScParameterizedType(ScDesignatorType(td: ScTypeDefinition), _) => {
-      val s = p.substitutor
-      if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else None
-    }
-    case p@ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => {
-      val s = p.substitutor
-      clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
-    }
-    case p@ScParameterizedType(pr: ScProjectionType, _) => { //can have projection type instead designator
-      pr.resolveResult match {
-        case Some(ScalaResolveResult(td: ScTypeDefinition, _)) => {
-          val s = p.substitutor
-          if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else None
+    case p: ScParameterizedType => {
+      ScType.extractClassType(p) match {
+        case Some((td: ScTypeDefinition, s)) => {
+          if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else false
         }
-        case Some(ScalaResolveResult(clazz: PsiClass, _)) => {
-          val s = p.substitutor
+        case Some((clazz, s)) => {
           clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
         }
         case _ => false
       }
     }
 
-    case ScCompoundType(comps, _, _) => comps.find(l conforms _)
+    case ScCompoundType(comps, _, _) => comps.find(conforms(l, _))
 
     case ScExistentialArgument(_, params, _, upper) if params.isEmpty => conforms(l, upper)
 
