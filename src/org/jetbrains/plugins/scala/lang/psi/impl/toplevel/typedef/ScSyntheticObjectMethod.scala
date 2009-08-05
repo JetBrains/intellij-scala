@@ -37,6 +37,10 @@ import util.{PsiTreeUtil, MethodSignatureBackedByPsiMethod}
 
 class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, member: ScModifierListOwner) extends SyntheticNamedElement(manager, field.getName)
         with PsiMethod with PsiMethodFake {
+  def getReturnTypeNoResolve: PsiType = PsiType.VOID
+
+  def getMethodReceiver: PsiMethodReceiver = null
+
   override def toString = "Synthetic object method [" + field.getName + "]"
 
   override def setName(name: String): PsiElement = field.setName(name)

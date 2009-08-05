@@ -8,6 +8,7 @@ import com.intellij.psi._
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.stubs.ScAnnotationStub
+import util.PsiTreeUtil
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -37,6 +38,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
 
   def getNameReferenceElement: PsiJavaCodeReferenceElement = null
 
+  def getOwner: PsiAnnotationOwner = null
 
   def setDeclaredAttributeValue[T <: PsiAnnotationMemberValue](attributeName: String, value: T): T = null.asInstanceOf[T]
 }

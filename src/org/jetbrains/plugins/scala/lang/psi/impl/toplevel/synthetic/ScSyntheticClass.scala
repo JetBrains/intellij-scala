@@ -34,6 +34,14 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
 
 class ScSyntheticTypeParameter(manager: PsiManager, override val name: String, val owner: ScFun)
 extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake {
+  def addAnnotation(p1: String): PsiAnnotation = null
+
+  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
+  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
+
+  def findAnnotation(p1: String): PsiAnnotation = null
+  
   override def toString = "Synthetic type parameter"
 
   def isCovariant() = false
