@@ -47,27 +47,6 @@ import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicato
 
 class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
-    /*if (!ApplicationManager.getApplication.isUnitTestMode && element.getNode.getFirstChildNode == null &&
-            element.getTextOffset == 0) { //this is event for annotation starting
-      val file = element.getContainingFile
-      ScalaAnnotator.annotatingTimeExceeded.set(false)
-      val time = file.getUserData(ScalaAnnotator.annotatingTimeStartKey)
-      if (time != null) time.remove
-    }
-    if (!ApplicationManager.getApplication.isUnitTestMode && element.isInstanceOf[ScReferenceElement]) {
-      val file = element.getContainingFile
-      val timeToExceed = ScalaCodeStyleSettings.getInstance(file.getProject).TIME_TO_DISABLE_SLOW_CHECKS
-      var time: ThreadLocal[Long] = file.getUserData(ScalaAnnotator.annotatingTimeStartKey)
-      if (time == null) {
-        time = new ThreadLocal[Long]() {
-          override def initialValue: Long = System.currentTimeMillis
-        }
-        file.putUserData(ScalaAnnotator.annotatingTimeStartKey, time)
-      }
-      if (System.currentTimeMillis - time.get > timeToExceed) {
-        ScalaAnnotator.annotatingTimeExceeded.set(true)
-      } else ScalaAnnotator.annotatingTimeExceeded.set(false)
-    }*/
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -97,9 +76,6 @@ class ScalaAnnotator extends Annotator {
       }
       case sFile: ScalaFile => {
         ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile) //it must be last annotated element
-        /*ScalaAnnotator.annotatingTimeExceeded.set(false)
-        val time = sFile.getUserData(ScalaAnnotator.annotatingTimeStartKey)
-        if (time != null) time.remove*/
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
@@ -324,11 +300,3 @@ class ScalaAnnotator extends Annotator {
     }
   }
 }
-
-/*object ScalaAnnotator {
-  val annotatingTimeExceeded: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
-    override def initialValue: Boolean = false
-  }
-
-  val annotatingTimeStartKey: Key[ThreadLocal[Long]] = new Key("annotating.time.start.key")
-}*/
