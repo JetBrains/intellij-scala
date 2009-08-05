@@ -386,11 +386,11 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
           //todo: create
-          val paramname = param.getName match {
+          val paramName = param.getName match {
             case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
             case x => x
           }
-          res = res + changeKeyword(paramname) + ": "
+          res = res + changeKeyword(paramName) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
           var text = ScType.canonicalText(scType)
           if (text == "_root_.java.lang.Object") text = "Any"

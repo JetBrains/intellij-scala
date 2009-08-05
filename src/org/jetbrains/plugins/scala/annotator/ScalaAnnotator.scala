@@ -119,8 +119,8 @@ class ScalaAnnotator extends Annotator {
      resolve = breakableMultiresolve(refElement)
     } catch {
       case _: ScalaTimeoutException => {
-        val annotation = holder.createInformationAnnotation(refElement, "Checking for reference resolve is too long")
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+        /*val annotation = holder.createInformationAnnotation(refElement, "Checking for reference resolve is too long")
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)*/
         return
       }
     }
@@ -169,8 +169,8 @@ class ScalaAnnotator extends Annotator {
      resolve = breakableMultiresolve(refElement)
     } catch {
       case _: ScalaTimeoutException => {
-        val annotation = holder.createInformationAnnotation(refElement.nameId, "Checking for reference resolve is too long")
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+        /*val annotation = holder.createInformationAnnotation(refElement.nameId, "Checking for reference resolve is too long")
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)*/
         return
       }
     }

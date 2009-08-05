@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.caches
 
 
+import collection.mutable.HashMap
 import com.intellij.openapi.util.Key
 import com.intellij.psi.util.{CachedValueProvider, CachedValue}
 import com.intellij.psi.{PsiType, PsiElement, PsiManager}
 import lang.psi.api.base.types.ScTypeInferenceResult
-import lang.psi.types.ScType
-
+import lang.psi.types.{Signature, ScType}
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.06.2009
@@ -19,6 +19,7 @@ object CachesUtil {
   val TYPE_KEY: Key[CachedValue[ScTypeInferenceResult]] = Key.create("type.element.type.key")
   val PSI_RETURN_TYPE_KEY: Key[CachedValue[PsiType]] = Key.create("psi.return.type.key")
   val SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("super.types.key")
+  val SIGNATURES_MAP_KEY: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures.map.key")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
