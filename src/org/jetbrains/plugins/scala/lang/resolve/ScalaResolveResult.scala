@@ -14,6 +14,7 @@ object ScalaResolveResult {
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor,
                          val importsUsed: _root_.scala.collection.Set[ImportUsed]) extends ResolveResult {
+  def this(element: PsiNamedElement, substitutor: ScSubstitutor) = this(element, substitutor, Set[ImportUsed]())
   def this(element: PsiNamedElement) = this (element, ScSubstitutor.empty, Set[ImportUsed]())
 
   def getElement() = element

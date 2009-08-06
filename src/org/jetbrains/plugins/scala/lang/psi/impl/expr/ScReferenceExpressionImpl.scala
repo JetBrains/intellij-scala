@@ -59,9 +59,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
 
-  def getSameNameVariants: Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).
-          map(r => r.getElement.asInstanceOf[Object]).filter(elem => elem.isInstanceOf[PsiNamedElement] &&
-          elem.asInstanceOf[PsiNamedElement].getName == refName)
+  def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true))).
+          filter(r => r.getElement.isInstanceOf[PsiNamedElement] &&
+          r.getElement.asInstanceOf[PsiNamedElement].getName == refName)
 
   import com.intellij.psi.impl.PsiManagerEx
 

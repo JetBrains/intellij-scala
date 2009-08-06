@@ -93,10 +93,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
       case ScFunctionType(rt, params) if params.length == 0 => processType(rt, place)
 
-      case ScCompoundType(comp, decls, types) => {
+      case ScCompoundType(components, declarations, types) => {
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
-          for (decl <- decls) {
-            for (declared <- decl.declaredElements) {
+          for (declaration <- declarations) {
+            for (declared <- declaration.declaredElements) {
               if (!execute(declared, state)) return false
             }
           }
@@ -108,7 +108,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
 
-        for (c <- comp) {
+        for (c <- components) {
           if (!processType(c, place)) return false
         }
         true

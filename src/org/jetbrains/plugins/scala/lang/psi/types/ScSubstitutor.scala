@@ -31,7 +31,9 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
   def bindO(outer: PsiClass, t: ScType, ref : ScReferenceElement) = new ScSubstitutor(tvMap, aliasesMap, outerMap + ((outer, (t, ref))))
   def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap)
   def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap) {
-    override def subst(t: ScType) = s.subst(super.subst(t))
+    override def subst(t: ScType) = {
+      s.subst(ScSubstitutor.this.subst(t))
+    }
   }
 
   def subst(t: ScType) : ScType = t match {

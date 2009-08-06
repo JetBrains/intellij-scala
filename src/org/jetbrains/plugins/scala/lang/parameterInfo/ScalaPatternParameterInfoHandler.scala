@@ -210,7 +210,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
                 val name = ref.refName
-                val variants: Array[Object] = ref.getSameNameVariants
+                val variants: Array[PsiElement] = ref.getSameNameVariants.map(r => r.getElement)
                 for (variant <- variants if !variant.isInstanceOf[PsiMember] ||
                         ResolveUtils.isAccessible(variant.asInstanceOf[PsiMember], ref)) {
                   variant match {

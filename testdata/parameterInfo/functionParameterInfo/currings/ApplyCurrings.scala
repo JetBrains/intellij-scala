@@ -3,4 +3,4 @@ object ApplyCurrings {
 }
 
 ApplyCurrings(1)(/*caret*/)
-//p0: Int
+//y: Int
