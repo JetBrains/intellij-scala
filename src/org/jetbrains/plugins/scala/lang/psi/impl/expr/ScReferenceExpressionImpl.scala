@@ -154,9 +154,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
           s.subst _
         })
-      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), fun.paramTypes.map{
+      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), Seq(fun.paramTypes.map{
         s.subst _
-      })
+      }: _*))
 
       //prevent infinite recursion for recursive pattern reference
       case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {

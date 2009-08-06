@@ -527,7 +527,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         res += ((new PhysicalSignature(n.method, subst), i))
                     }
                     case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
-                      for (constr <- clazz.getConstructors) {
+                      for (constructor <- clazz.getConstructors) {
                         typeElement match {
                           case gen: ScParameterizedTypeElement => {
                             val tp = clazz.getTypeParameters.map(_.getName)
@@ -537,9 +537,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               map += Tuple(tp(i), typeArgs(i).calcType)
                             }
                             val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                            res += ((new PhysicalSignature(constr, substitutor.followed(subst)), i))
+                            res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
                           }
-                          case _ => res += ((new PhysicalSignature(constr, subst), i))
+                          case _ => res += ((new PhysicalSignature(constructor, subst), i))
                         }
                       }
                     }

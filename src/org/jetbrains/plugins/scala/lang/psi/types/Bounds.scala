@@ -21,7 +21,7 @@ object Bounds {
     else if (t2.conforms(t1)) t1
     else (t1, t2) match {
       case (ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-        ScFunctionType(lub(rt1, rt2), p1.toArray.zip(p2.toArray).map{case (t1, t2) => glb(t1, t2)})
+        ScFunctionType(lub(rt1, rt2), Seq(p1.toArray.zip(p2.toArray).map{case (t1, t2) => glb(t1, t2)}: _*))
       case (ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
         ScTupleType(Seq(c1.toArray.zip(c2.toArray).map{case (t1, t2) => lub(t1, t2)}: _*))
 

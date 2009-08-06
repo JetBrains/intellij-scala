@@ -35,7 +35,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
   }
 
   def subst(t: ScType) : ScType = t match {
-    case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), params map (subst _))
+    case ScFunctionType(ret, params) => new ScFunctionType(subst(ret), Seq(params map (subst _): _*))
     case ScTupleType(comps) => new ScTupleType(comps map {subst _})
     case ScProjectionType(proj, ref) => new ScProjectionType(subst(proj), ref)
 
