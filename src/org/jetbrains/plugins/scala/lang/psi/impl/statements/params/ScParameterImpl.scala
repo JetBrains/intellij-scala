@@ -100,4 +100,12 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   def getTypeNoResolve: PsiType = PsiType.VOID
+
+  def isDefaultParam: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScParameterStub].isDefaultParam
+    }
+    return findChildByType(ScalaTokenTypes.tASSIGN) != null
+  }
 }

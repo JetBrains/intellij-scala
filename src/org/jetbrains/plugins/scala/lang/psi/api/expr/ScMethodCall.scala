@@ -9,6 +9,14 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScMethodCall extends ScExpression {
+  def deepestInvokedExpr: ScExpression = {
+    getInvokedExpr match {
+      case call: ScMethodCall => {
+        call.deepestInvokedExpr
+      }
+      case expr => expr
+    }
+  }
 
   def getInvokedExpr: ScExpression = findChildByClass(classOf[ScExpression])
 

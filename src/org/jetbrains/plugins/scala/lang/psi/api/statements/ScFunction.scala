@@ -75,4 +75,19 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superSignatures: Seq[FullSignature]
 
+  def hasParamName(name: String, clausePosition: Int = -1): Boolean = {
+    clausePosition match {
+      case -1 => {
+        for (param <- parameters if param.name == name) return true
+        return false
+      }
+      case i if i < 0 => return false
+      case i if i >= allClauses.length => return false
+      case i => {
+        val clause: ScParameterClause = allClauses.apply(i)
+        for (param <- clause.parameters if param.name == name) return true
+        return false
+      }
+    }
+  }
 }

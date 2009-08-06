@@ -38,8 +38,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
    * Returns all types in respect of implicit conversions (defined and default)
    */
   def allTypes: Seq[ScType] = {
-    val settings: ScalaCodeStyleSettings =
-      CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     cachedType :: getImplicitTypes
   }
 

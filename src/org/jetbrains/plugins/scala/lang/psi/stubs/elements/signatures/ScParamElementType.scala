@@ -18,13 +18,14 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
       case Some(t) => t.getText()
       case None => ""
     }
-    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable)
+    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable, psi.isDefaultParam)
   }
 
   def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getTypeText)
     dataStream.writeBoolean(stub.isStable)
+    dataStream.writeBoolean(stub.isDefaultParam)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
@@ -32,7 +33,8 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val typeText = StringRef.toString(dataStream.readName)
     val stable = dataStream.readBoolean
-    new ScParameterStubImpl(parent, this, name, typeText, stable)
+    val default = dataStream.readBoolean
+    new ScParameterStubImpl(parent, this, name, typeText, stable, default)
   }
 
   def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {}
