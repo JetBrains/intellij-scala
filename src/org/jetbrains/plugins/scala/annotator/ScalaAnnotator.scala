@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
+import codeInspection.unusedInspections.ScalaUnusedImportPass
 import collection.mutable.{HashSet, HashMap}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.ide.util.importProject.DelegatingProgressIndicator
@@ -87,6 +88,8 @@ class ScalaAnnotator extends Annotator {
 
   private class ScalaTimeoutException extends ProcessCanceledException
 
+  private val timeout = 20
+
   private def breakableMultiresolve(refElement: ScReferenceElement): Array[ResolveResult] = {
     var resolve: Array[ResolveResult] = null
     val startTime = System.currentTimeMillis
@@ -99,7 +102,7 @@ class ScalaAnnotator extends Annotator {
       //var count: Long = 0; //to check timeout not very often
 
       override def checkCanceled {
-        if (!isCanceled && /*({count = count + 1; count % 10 == 0}) &&*/ (System.currentTimeMillis - startTime > 20)) {
+        if (!isCanceled && /*({count = count + 1; count % 10 == 0}) &&*/ (System.currentTimeMillis - startTime > timeout)) {
           throw new ScalaTimeoutException
         }
         super.checkCanceled

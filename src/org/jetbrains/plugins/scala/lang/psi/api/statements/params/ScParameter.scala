@@ -31,4 +31,6 @@ trait ScParameter extends ScNamedElement with ScTyped with ScModifierListOwner w
     case Some(p: ScParameterType) => p.isRepeatedParameter
     case None => false
   }
+
+  def isDefaultParam: Boolean
 }

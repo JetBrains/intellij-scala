@@ -16,14 +16,16 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: StringRef = _
   private var typeText: StringRef = _
   private var stable: Boolean = false
+  private var default: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
-          name: String, typeText: String, stable: Boolean) = {
+          name: String, typeText: String, stable: Boolean, default: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.typeText = StringRef.fromString(typeText)
     this.stable = stable
+    this.default = default
   }
 
   def getName: String = StringRef.toString(name)
@@ -31,4 +33,6 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   def getTypeText: String = StringRef.toString(typeText)
 
   def isStable: Boolean = stable
+
+  def isDefaultParam: Boolean = default
 }

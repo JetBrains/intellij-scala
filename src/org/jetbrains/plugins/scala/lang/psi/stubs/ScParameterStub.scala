@@ -12,4 +12,6 @@ trait ScParameterStub extends NamedStub[ScParameter] {
   def getTypeText: String
 
   def isStable: Boolean
+
+  def isDefaultParam: Boolean
 }

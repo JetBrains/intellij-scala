@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 
 import annotator.importsTracker.ImportTracker
-import _root_.scala.collection.Set
+import collection.Set
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil, AnnotationHolderImpl}

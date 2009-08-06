@@ -4,6 +4,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
  * @author ilyas
  */
 
+import _root_.java.lang.String
 import _root_.java.util.{List, ArrayList}
 import api.base.ScModifierList
 import com.intellij.openapi.util.{Pair, Iconable}

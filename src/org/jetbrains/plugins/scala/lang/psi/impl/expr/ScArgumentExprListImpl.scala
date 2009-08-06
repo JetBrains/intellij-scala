@@ -1,32 +1,93 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import api.statements.ScFunction
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-
-/** 
+import types.ScType
+/**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScArgumentExprList{
+class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScArgumentExprList {
   override def toString: String = "ArgumentList"
+
+  def nameCallFromParameter: Int = {
+    var i = 0
+    for (expr <- exprs) {
+      expr match {
+        case assign: ScAssignStmt => {
+          assign.assignName match {
+            case Some(name: String) => {
+              callReference match {
+                case Some(ref: ScReferenceExpression) => {
+                  val count = invocationCount
+                  val variants = ref.getSameNameVariants
+                  for {
+                    variant <- variants
+                    if variant.isInstanceOf[ScFunction]
+                    if variant.asInstanceOf[ScFunction].hasParamName(name, count)
+                  } {
+                    return i
+                  }
+                }
+                case None =>
+              }
+              val types = callExpression.allTypes
+              for (typez <- types) {
+                ScType.extractClassType(typez) match {
+                  case Some((clazz: PsiClass, _)) => {
+                    val applyMethods = clazz.findMethodsByName("apply", true)
+                    for{
+                      method <- applyMethods
+                      if method.isInstanceOf[ScFunction]
+                      function = method.asInstanceOf[ScFunction]
+                      if function.hasParamName(name)
+                    } {
+                      return i
+                    }
+                  }
+                  case None =>
+                }
+              }
+            }
+            case None =>
+          }
+        }
+        case _ =>
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  def invocationCount: Int = {
+    callExpression match {
+      case call: ScMethodCall => return call.args.invocationCount + 1
+      case _ => return 1
+    }
+  }
+
+  def callReference: Option[ScReferenceExpression] = {
+    getParent match {
+      case call: ScMethodCall =>{
+        call.deepestInvokedExpr match {
+          case ref: ScReferenceExpression => Some(ref)
+          case _ => None
+        }
+      }
+      case _ => None
+    }
+  }
+
+  def callExpression: ScExpression = {
+    getParent match {
+      case call: ScMethodCall => {
+        call.getInvokedExpr
+      }
+      case _ => null
+    }
+  }
 }

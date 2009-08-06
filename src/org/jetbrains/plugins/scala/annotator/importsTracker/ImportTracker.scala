@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.importsTracker
 
 
-import _root_.scala.collection.mutable.HashMap
-import _root_.scala.collection.Set
+import collection.mutable.HashMap
+import collection.Set
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import lang.psi.api.ScalaFile
