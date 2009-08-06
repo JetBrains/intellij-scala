@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScTypeDefinition
-import types.{Bounds, ScDesignatorType, ScCompoundType, Nothing}
+import types.{Bounds, ScDesignatorType, Nothing}
 import psi.ScalaPsiElementImpl
 import api.expr._
 import com.intellij.lang.ASTNode

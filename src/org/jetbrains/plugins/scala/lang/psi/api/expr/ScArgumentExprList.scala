@@ -43,4 +43,9 @@ trait ScArgumentExprList extends ScArguments {
    * Expression from which we try to invoke call, or apply method.
    */
   def callExpression: ScExpression
+
+  /**
+   * Generic call for this argument list if exist
+   */
+  def callGeneric: Option[ScGenericCall]
 }
