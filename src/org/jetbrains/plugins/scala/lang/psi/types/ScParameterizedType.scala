@@ -126,8 +126,8 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
       new Suspension[ScType]({() =>
               s.subst(
-        ScCompoundType(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
-                ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty))
+        ScCompoundType(Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+                ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty))
       }),
       new Suspension[ScType]({() =>
               s.subst(

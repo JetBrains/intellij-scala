@@ -16,7 +16,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def toString: String = "CompoundType"
 
   override def getType(implicit visited: Set[ScNamedElement]) = {
-    val comps = components.map {_.getType(visited).resType}
+    val comps = Seq(components.map {_.getType(visited).resType}: _*)
     refinement match {
       case None => new ScCompoundType(comps, Seq.empty, Seq.empty)
       case Some(r) => new ScCompoundType(comps, r.holders.toList, r.types.toList)

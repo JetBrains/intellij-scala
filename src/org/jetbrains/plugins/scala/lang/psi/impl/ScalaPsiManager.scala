@@ -65,7 +65,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           val lower = () => Nothing
           val upper = () => tp.getSuperTypes match {
             case Array(single) => ScType.create(single, project)
-            case many => new ScCompoundType(many.map{ScType.create(_, project)}, Seq.empty, Seq.empty)
+            case many => new ScCompoundType(Seq(many.map{ScType.create(_, project)}: _*), Seq.empty, Seq.empty)
           }
           val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
           typeVariables.put(tp, res)

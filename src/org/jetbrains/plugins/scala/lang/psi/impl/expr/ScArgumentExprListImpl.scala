@@ -75,6 +75,24 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case call: ScMethodCall =>{
         call.deepestInvokedExpr match {
           case ref: ScReferenceExpression => Some(ref)
+          case gen: ScGenericCall => {
+            gen.referencedExpr match {
+              case ref: ScReferenceExpression => Some(ref)
+              case _ => None
+            }
+          }
+          case _ => None
+        }
+      }
+      case _ => None
+    }
+  }
+
+  def callGeneric: Option[ScGenericCall] = {
+    getParent match {
+      case call: ScMethodCall => {
+        call.deepestInvokedExpr match {
+          case gen: ScGenericCall => Some(gen)
           case _ => None
         }
       }
