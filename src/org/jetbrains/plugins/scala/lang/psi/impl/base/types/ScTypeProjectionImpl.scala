@@ -60,7 +60,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getSameNameVariants: Array[Object] = _resolve(new CompletionProcessor(getKinds(true))).
-          map(r => r.getElement.asInstanceOf[Object]).filter(elem => elem.isInstanceOf[PsiNamedElement] &&
-          elem.asInstanceOf[PsiNamedElement].getName == refName)
+  def getSameNameVariants: Array[ResolveResult] = _resolve(new CompletionProcessor(getKinds(true))).
+          filter(r => r.getElement.isInstanceOf[PsiNamedElement] &&
+          r.getElement.asInstanceOf[PsiNamedElement].getName == refName)
 }

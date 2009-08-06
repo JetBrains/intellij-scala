@@ -24,7 +24,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
               callReference match {
                 case Some(ref: ScReferenceExpression) => {
                   val count = invocationCount
-                  val variants = ref.getSameNameVariants
+                  val variants = ref.getSameNameVariants.map(r => r.getElement)
                   for {
                     variant <- variants
                     if variant.isInstanceOf[ScFunction]

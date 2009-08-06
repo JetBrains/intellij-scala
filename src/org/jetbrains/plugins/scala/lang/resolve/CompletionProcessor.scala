@@ -23,9 +23,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
 
     element match {
       case td: ScTypeDefinition if !names.contains(td.getName) => {
-        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td)
+        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td, substitutor)
         ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td)
+          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td, substitutor)
           case _ =>
         }
       }
@@ -36,19 +36,19 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
               val sign = new PhysicalSignature(method, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named)
+                candidatesSet += new ScalaResolveResult(named, substitutor)
               }
             }
-            case patt: ScBindingPattern => {
-              val sign = new Signature(patt.getName, Seq.empty, 0, substitutor)
+            case bindingPattern: ScBindingPattern => {
+              val sign = new Signature(bindingPattern.getName, Seq.empty, 0, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named)
+                candidatesSet += new ScalaResolveResult(named, substitutor)
               }
             }
             case _ => {
               if (!names.contains(named.getName)) {
-                candidatesSet += new ScalaResolveResult(named)
+                candidatesSet += new ScalaResolveResult(named, substitutor)
                 names += named.getName
               }
             }
