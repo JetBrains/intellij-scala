@@ -7,4 +7,6 @@ class FunctionParameterInfoFunctionTypeTest extends FunctionParameterInfoTestBas
   def testFunctionType = doTest
 
   def testFunctionTypeTwo = doTest
+
+  def testNamingFunctionType = doTest
 }
