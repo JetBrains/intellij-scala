@@ -5,15 +5,11 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import _root_.org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
 import _root_.scala.collection.mutable.ArrayBuffer
-import annotations.Nullable
-
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.hint.HintUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.lang.parameterInfo._
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,17 +19,15 @@ import java.awt.Color
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
-import psi.api.base.patterns.{ScConstructorPattern, ScPatternArgumentList}
 import psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
-import psi.api.statements.params.{ScParameter, ScArguments, ScParameters, ScParameterClause}
-import psi.api.statements.{ScFunction, ScValue, ScVariable}
-import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
+import psi.api.statements.params.{ScParameter, ScParameterClause}
+import psi.api.statements.{ScFunction}
+import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTyped}
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import _root_.org.jetbrains.plugins.scala.util.ScalaUtils
-import psi.{ScalaPsiUtil, ScalaPsiElement}
+import psi.{ScalaPsiUtil}
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.01.2009
@@ -111,6 +105,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         var color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
+        var isGrey = false
+        //todo: var isGreen = true
+        var namedMode = false
 
         p match {
           case x: String if x == "" => {
@@ -125,19 +122,115 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 else {
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
                   val length = clause.parameters.length
-                  val parameters = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
+                  val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
                   if (parameters.length > 0) {
-                    if (clause.isImplicit) buffer.append("implicit ")
-                    buffer.append(parameters.
-                            map((param: ScParameter) => {
-                      val isBold = if (parameters.indexOf(param) == index || (param.isRepeatedParameter && index >= parameters.indexOf(param))) true
-                      else {
-                        //todo: check type
-                        false
+                    def paramText(param: ScParameter) = {
+                      ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
+                    }
+                    var k = 0
+                    val exprs: Seq[ScExpression] = args.exprs
+                    val used = new Array[Boolean](parameters.length)
+                    while (k < parameters.length) {
+                      val namedPrefix = "a"
+                      val namedPostfix = "b"
+                      def appendFirst(useGrey: Boolean = false) {
+                        val getIt = used.indexOf(false)
+                        used(getIt) = true
+                        if (namedMode) buffer.append(namedPrefix)
+                        val param: ScParameter = parameters(getIt)
+                        buffer.append(paramText(param))
+                        if (namedMode) buffer.append(namedPostfix)
                       }
-                      val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                      if (isBold) "<b>" + paramText + "</b>" else paramText
-                    }).mkString(", "))
+                      def doNoNamed(expr: ScExpression) {
+                        if (namedMode) {
+                          isGrey = true
+                          appendFirst()
+                        } else {
+                          val exprType: ScType = expr.cachedType
+                          val getIt = used.indexOf(false)
+                          used(getIt) = true
+                          val param: ScParameter = parameters(getIt)
+                          val paramType = param.calcType
+                          if (!exprType.conforms(paramType)) isGrey = true
+                          buffer.append(paramText(param))
+                        }
+                      }
+                      if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+                              parameters(parameters.length - 1).isRepeatedParameter)) {
+                        buffer.append("<b>")
+                      }
+                      if (k < index && !isGrey) {
+                        //slow checking
+                        if (k >= exprs.length) { //shouldn't be
+                          appendFirst(true)
+                          isGrey = true
+                        } else {
+                          exprs(k) match {
+                            case assign: ScAssignStmt if assign.assignName != None => {
+                              val name = assign.assignName match {case Some(name) => name}
+                              val ind = parameters.findIndexOf(_.name == name)
+                              if (ind == -1 || used(ind) == true) {
+                                doNoNamed(assign)
+                              } else {
+                                namedMode = true
+                                used(ind) = true
+                                val param: ScParameter = parameters(ind)
+                                buffer.append(namedPrefix).append(paramText(param)).append(namedPostfix)
+                                assign.getRExpression match {
+                                  case Some(expr: ScExpression) => {
+                                    val exprType = expr.cachedType
+                                    val paramType = param.calcType
+                                    if (!exprType.conforms(paramType)) isGrey = true
+                                  }
+                                  case _ => isGrey = true
+                                }
+                              }
+                            }
+                            case expr: ScExpression => {
+                              doNoNamed(expr)
+                            }
+                          }
+                        }
+                      } else {
+                        //fast checking
+                        if (k >= exprs.length) {
+                          appendFirst()
+                        } else {
+                          exprs(k) match {
+                            case assign: ScAssignStmt if assign.assignName != None => {
+                              val name = assign.assignName match {case Some(name) => name}
+                              val ind = parameters.findIndexOf(_.name == name)
+                              if (ind == -1 || used(ind) == true) {
+                                appendFirst()
+                              } else {
+                                namedMode = true
+                                used(ind) = true
+                                buffer.append(namedPrefix).append(paramText(parameters(ind))).append(namedPostfix)
+                              }
+                            }
+                            case _ => appendFirst()
+                          }
+                        }
+                      }
+                      if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+                              parameters(parameters.length - 1).isRepeatedParameter)) {
+                        buffer.append("</b>")
+                      }
+                      k = k + 1
+                      if (k != parameters.length) buffer.append(", ")
+                    }
+                    if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
+                      if (!namedMode && parameters(parameters.length - 1).isRepeatedParameter) {
+                        val paramType = parameters(parameters.length - 1).calcType
+                        while (!isGrey && k < exprs.length.min(index)) {
+                          if (k < index) {
+                            val exprType = exprs(k).cachedType
+                            if (!exprType.conforms(paramType)) isGrey = true
+                          }
+                          k = k + 1
+                        }
+                      } else isGrey = true
+                    }
                   } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 }
               }
@@ -213,8 +306,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           }
           case _ =>
         }
-        val isGrey = buffer.indexOf("<g>")
-        if (isGrey != -1) buffer.replace(isGrey, isGrey + 3, "")
         val startOffset = buffer.indexOf("<b>")
         if (startOffset != -1) buffer.replace(startOffset, startOffset + 3, "")
 
@@ -222,7 +313,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
         if (buffer.toString != "")
-          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, false, false, false, color)
+          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, isGrey, false, false, color)
         else
           context.setUIComponentEnabled(false)
       }

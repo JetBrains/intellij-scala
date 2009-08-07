@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements.params
 
+import expr.ScExpression
 import icons.Icons
 import javax.swing.Icon
 import lexer.ScalaTokenTypes
@@ -33,4 +34,6 @@ trait ScParameter extends ScNamedElement with ScTyped with ScModifierListOwner w
   }
 
   def isDefaultParam: Boolean
+
+  def getDefaultExpression: Option[ScExpression] = findChild(classOf[ScExpression])
 }
