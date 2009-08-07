@@ -66,13 +66,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     treeWalkUp(this, null)
 
     val typez: ScType = cachedType
+    val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
+    if (typez == Nothing) return result
+    
     val sigsFound = processor.signatures.filter((sig: Signature) => {
       ProgressManager.getInstance().checkCanceled()
       val types = sig.types
       types.length == 1 && typez.conforms(types(0))
     })
-
-    val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
 
     //to prevent infinite recursion
     val functionContext = PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false)
