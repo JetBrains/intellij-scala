@@ -8,6 +8,8 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
 
   def testJavaConstructor = doTest
 
+  def testNamingCaseClass = doTest
+
   def testScalaConstructor = doTest
 
   def testThisScalaConstructor = doTest
