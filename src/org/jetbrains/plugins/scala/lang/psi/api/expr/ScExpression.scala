@@ -26,12 +26,22 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
   def getType: ScType = Nothing //todo
 
+  @volatile
+  private var exprType: ScType = null
+
+  @volatile
+  private var modCount: Long = 0
+
   def cachedType: ScType = {
-    CachesUtil.get(
-      this, CachesUtil.EXPR_TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScExpression => ic.getType})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+    var tp = exprType
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && modCount == curModCount) {
+      return tp
+    }
+    tp = getType
+    exprType = tp
+    modCount = curModCount
+    return tp
   }
 
   /**
