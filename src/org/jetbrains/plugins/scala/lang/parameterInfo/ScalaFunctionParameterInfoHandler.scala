@@ -8,6 +8,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
+import com.intellij.lang.ASTNode
 import com.intellij.lang.parameterInfo._
 
 import com.intellij.psi._
@@ -26,6 +27,7 @@ import psi.api.statements.params.{ScParameter, ScParameterClause}
 import psi.api.statements.{ScFunction}
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTyped}
+import psi.impl.statements.params.ScParameterImpl
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
 /**
@@ -108,7 +110,117 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         var isGrey = false
         //todo: var isGreen = true
         var namedMode = false
-
+        def applyToParameters(parameters: Seq[ScParameter], subst: ScSubstitutor, canBeNaming: Boolean) {
+          if (parameters.length > 0) {
+            def paramText(param: ScParameter) = {
+              ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
+            }
+            var k = 0
+            val exprs: Seq[ScExpression] = args.exprs
+            val used = new Array[Boolean](parameters.length)
+            while (k < parameters.length) {
+              val namedPrefix = "["
+              val namedPostfix = "]"
+              def appendFirst(useGrey: Boolean = false) {
+                val getIt = used.indexOf(false)
+                used(getIt) = true
+                if (namedMode) buffer.append(namedPrefix)
+                val param: ScParameter = parameters(getIt)
+                buffer.append(paramText(param))
+                if (namedMode) buffer.append(namedPostfix)
+              }
+              def doNoNamed(expr: ScExpression) {
+                if (namedMode) {
+                  isGrey = true
+                  appendFirst()
+                } else {
+                  val exprType: ScType = expr.cachedType
+                  val getIt = used.indexOf(false)
+                  used(getIt) = true
+                  val param: ScParameter = parameters(getIt)
+                  val paramType = param.calcType
+                  if (!exprType.conforms(paramType)) isGrey = true
+                  buffer.append(paramText(param))
+                }
+              }
+              if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+                      parameters(parameters.length - 1).isRepeatedParameter)) {
+                buffer.append("<b>")
+              }
+              if (k < index && !isGrey) {
+                //slow checking
+                if (k >= exprs.length) { //shouldn't be
+                  appendFirst(true)
+                  isGrey = true
+                } else {
+                  exprs(k) match {
+                    case assign: ScAssignStmt if assign.assignName != None => {
+                      val name = assign.assignName match {case Some(name) => name}
+                      val ind = parameters.findIndexOf(_.name == name)
+                      if (ind == -1 || used(ind) == true) {
+                        doNoNamed(assign)
+                      } else {
+                        namedMode = true
+                        used(ind) = true
+                        val param: ScParameter = parameters(ind)
+                        buffer.append(namedPrefix).append(paramText(param)).append(namedPostfix)
+                        assign.getRExpression match {
+                          case Some(expr: ScExpression) => {
+                            val exprType = expr.cachedType
+                            val paramType = param.calcType
+                            if (!exprType.conforms(paramType)) isGrey = true
+                          }
+                          case _ => isGrey = true
+                        }
+                      }
+                    }
+                    case expr: ScExpression => {
+                      doNoNamed(expr)
+                    }
+                  }
+                }
+              } else {
+                //fast checking
+                if (k >= exprs.length) {
+                  appendFirst()
+                } else {
+                  exprs(k) match {
+                    case assign: ScAssignStmt if assign.assignName != None => {
+                      val name = assign.assignName match {case Some(name) => name}
+                      val ind = parameters.findIndexOf(_.name == name)
+                      if (ind == -1 || used(ind) == true) {
+                        appendFirst()
+                      } else {
+                        namedMode = true
+                        used(ind) = true
+                        buffer.append(namedPrefix).append(paramText(parameters(ind))).append(namedPostfix)
+                      }
+                    }
+                    case _ => appendFirst()
+                  }
+                }
+              }
+              if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
+                      parameters(parameters.length - 1).isRepeatedParameter)) {
+                buffer.append("</b>")
+              }
+              k = k + 1
+              if (k != parameters.length) buffer.append(", ")
+            }
+            if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
+              if (!namedMode && parameters(parameters.length - 1).isRepeatedParameter) {
+                val paramType = parameters(parameters.length - 1).calcType
+                while (!isGrey && k < exprs.length.min(index)) {
+                  if (k < index) {
+                    val exprType = exprs(k).cachedType
+                    if (!exprType.conforms(paramType)) isGrey = true
+                  }
+                  k = k + 1
+                }
+              } else isGrey = true
+            }
+          } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+        }
         p match {
           case x: String if x == "" => {
             buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -123,115 +235,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
                   val length = clause.parameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
-                  if (parameters.length > 0) {
-                    def paramText(param: ScParameter) = {
-                      ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                    }
-                    var k = 0
-                    val exprs: Seq[ScExpression] = args.exprs
-                    val used = new Array[Boolean](parameters.length)
-                    while (k < parameters.length) {
-                      val namedPrefix = "a"
-                      val namedPostfix = "b"
-                      def appendFirst(useGrey: Boolean = false) {
-                        val getIt = used.indexOf(false)
-                        used(getIt) = true
-                        if (namedMode) buffer.append(namedPrefix)
-                        val param: ScParameter = parameters(getIt)
-                        buffer.append(paramText(param))
-                        if (namedMode) buffer.append(namedPostfix)
-                      }
-                      def doNoNamed(expr: ScExpression) {
-                        if (namedMode) {
-                          isGrey = true
-                          appendFirst()
-                        } else {
-                          val exprType: ScType = expr.cachedType
-                          val getIt = used.indexOf(false)
-                          used(getIt) = true
-                          val param: ScParameter = parameters(getIt)
-                          val paramType = param.calcType
-                          if (!exprType.conforms(paramType)) isGrey = true
-                          buffer.append(paramText(param))
-                        }
-                      }
-                      if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                              parameters(parameters.length - 1).isRepeatedParameter)) {
-                        buffer.append("<b>")
-                      }
-                      if (k < index && !isGrey) {
-                        //slow checking
-                        if (k >= exprs.length) { //shouldn't be
-                          appendFirst(true)
-                          isGrey = true
-                        } else {
-                          exprs(k) match {
-                            case assign: ScAssignStmt if assign.assignName != None => {
-                              val name = assign.assignName match {case Some(name) => name}
-                              val ind = parameters.findIndexOf(_.name == name)
-                              if (ind == -1 || used(ind) == true) {
-                                doNoNamed(assign)
-                              } else {
-                                namedMode = true
-                                used(ind) = true
-                                val param: ScParameter = parameters(ind)
-                                buffer.append(namedPrefix).append(paramText(param)).append(namedPostfix)
-                                assign.getRExpression match {
-                                  case Some(expr: ScExpression) => {
-                                    val exprType = expr.cachedType
-                                    val paramType = param.calcType
-                                    if (!exprType.conforms(paramType)) isGrey = true
-                                  }
-                                  case _ => isGrey = true
-                                }
-                              }
-                            }
-                            case expr: ScExpression => {
-                              doNoNamed(expr)
-                            }
-                          }
-                        }
-                      } else {
-                        //fast checking
-                        if (k >= exprs.length) {
-                          appendFirst()
-                        } else {
-                          exprs(k) match {
-                            case assign: ScAssignStmt if assign.assignName != None => {
-                              val name = assign.assignName match {case Some(name) => name}
-                              val ind = parameters.findIndexOf(_.name == name)
-                              if (ind == -1 || used(ind) == true) {
-                                appendFirst()
-                              } else {
-                                namedMode = true
-                                used(ind) = true
-                                buffer.append(namedPrefix).append(paramText(parameters(ind))).append(namedPostfix)
-                              }
-                            }
-                            case _ => appendFirst()
-                          }
-                        }
-                      }
-                      if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                              parameters(parameters.length - 1).isRepeatedParameter)) {
-                        buffer.append("</b>")
-                      }
-                      k = k + 1
-                      if (k != parameters.length) buffer.append(", ")
-                    }
-                    if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
-                      if (!namedMode && parameters(parameters.length - 1).isRepeatedParameter) {
-                        val paramType = parameters(parameters.length - 1).calcType
-                        while (!isGrey && k < exprs.length.min(index)) {
-                          if (k < index) {
-                            val exprType = exprs(k).cachedType
-                            if (!exprType.conforms(paramType)) isGrey = true
-                          }
-                          k = k + 1
-                        }
-                      } else isGrey = true
-                    }
-                  } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                  applyToParameters(parameters, subst, true)
                 }
               }
               case method: PsiMethod => {
@@ -271,37 +275,32 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
           }
-          case ScFunctionType(_, params) => {
+          case ScFunctionType(_, params: Seq[ScType]) => {
             if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-            buffer.append(params.map((param: ScType) => {
-              val paramText = "p" + params.indexOf(param) + ": " + ScType.presentableText(param)
-              val isBold = if (params.indexOf(param) == index) true
-              else {
-                //todo: check type
-                false
+            val parameters: Array[ScParameter] = new Array[ScParameter](params.length)
+            for (i <- 0 until params.length) {
+              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: how to avoid NPE?
+                override def getName = "v" + (i + 1)
+
+                override def name(): String = "v" + (i + 1)
+
+                override def calcType: ScType = params(i)
+
+                override def annotations: Seq[ScAnnotation] = Seq.empty
+
+                override def isRepeatedParameter: Boolean = false
+
+                override def isDefaultParam: Boolean = false
               }
-              if (isBold) "<b>" + paramText + "</b>" else paramText
-            }).mkString(", "))
+            }
+            applyToParameters(Seq(parameters: _*), ScSubstitutor.empty, true)
           }
-          case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
-            val clauses = constr.parameterList.clauses
+          case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
+            val clauses = constructor.parameterList.clauses
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
-              if (clause.parameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-              else {
-                if (clause.isImplicit) buffer.append("implicit ")
-                buffer.append(clause.parameters.
-                        map((param: ScParameter) => {
-                  val isBold = if (clause.parameters.indexOf(param) == index) true
-                  else {
-                    //todo: check type
-                    false
-                  }
-                  val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                  if (isBold) "<b>" + paramText + "</b>" else paramText
-                }).mkString(", "))
-              }
+              applyToParameters(clause.parameters, subst, true)
             }
           }
           case _ =>
@@ -428,7 +427,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0))
                           }
                           case ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor) if clazz.isCase => {
-                            res += ((clazz, subst.followed(collectSubstitutor(clazz))))
+                            clazz.constructor match {
+                              case Some(constructor) => res += ((constructor, subst.followed(collectSubstitutor(clazz)), 0))
+                              case None => res += ""
+                            }
                           }
                           case ScalaResolveResult(typed: ScTyped, subst: ScSubstitutor) => {
                             val typez = subst.subst(typed.calcType) //todo: implicit conversions

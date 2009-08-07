@@ -41,7 +41,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
     CachesUtil.get(
-      this, ScImplicitlyConvertible.IMPLICIT_CONVERIONS_KEY,
+      this, ScImplicitlyConvertible.IMPLICIT_CONVERSIONS_KEY,
       new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
         (PsiModificationTracker.MODIFICATION_COUNT)
       )
@@ -154,5 +154,5 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 }
 
 object ScImplicitlyConvertible {
-  val IMPLICIT_CONVERIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
+  val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
 }
