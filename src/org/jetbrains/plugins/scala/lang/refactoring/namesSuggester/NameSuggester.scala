@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package namesSuggester
 
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.project.Project

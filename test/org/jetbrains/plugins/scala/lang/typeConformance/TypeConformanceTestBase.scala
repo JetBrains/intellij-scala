@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.typeConformance
+package org.jetbrains.plugins.scala
+package lang
+package typeConformance
 
 import base.ScalaPsiTestCase
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}

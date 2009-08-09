@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalaTest
 
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}

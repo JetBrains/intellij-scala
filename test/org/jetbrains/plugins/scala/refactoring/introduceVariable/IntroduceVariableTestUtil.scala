@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.refactoring.introduceVariable
+package org.jetbrains.plugins.scala
+package refactoring.introduceVariable
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project

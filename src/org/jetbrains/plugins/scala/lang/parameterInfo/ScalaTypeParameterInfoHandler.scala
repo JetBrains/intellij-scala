@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
 
 
 import collection.mutable.ArrayBuffer

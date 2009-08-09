@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package base
+package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import api.base.patterns.ScStableReferenceElementPattern

@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package typedef
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType

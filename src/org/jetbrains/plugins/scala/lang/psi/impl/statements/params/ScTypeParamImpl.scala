@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package statements
+package params
 
 import api.base.types.ScTypeElement
 import api.toplevel.ScTypeParametersOwner

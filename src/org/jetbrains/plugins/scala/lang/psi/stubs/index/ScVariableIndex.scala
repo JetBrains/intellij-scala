@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.index
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package index
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 import api.statements.{ScValue, ScVariable}

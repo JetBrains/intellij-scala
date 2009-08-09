@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang
+package resolve
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature, ScSubstitutor}
 import com.intellij.psi._

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang
+package resolve
 
 import com.intellij.psi.scope._
 import com.intellij.psi._

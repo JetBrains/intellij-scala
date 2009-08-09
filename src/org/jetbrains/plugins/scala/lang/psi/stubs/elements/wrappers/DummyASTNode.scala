@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package elements
+package wrappers
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.{TreeElement, TreeElementVisitor}

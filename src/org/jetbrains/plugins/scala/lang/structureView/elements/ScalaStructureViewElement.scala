@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements
+package org.jetbrains.plugins.scala
+package lang
+package structureView
+package elements
 
 import com.intellij.ide.structureView.impl.common.PsiTreeElementBase
 import com.intellij.ide.structureView.StructureViewTreeElement

@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.console
+package org.jetbrains.plugins.scala
+package console
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
@@ -28,7 +29,7 @@ import icons.Icons
 import java.lang.String
 import javax.swing.filechooser.{FileFilter, FileView}
 import javax.swing.{Icon, JFileChooser, KeyStroke}
-import jdom.Element
+import org.jdom.Element
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor

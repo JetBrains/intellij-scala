@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.params
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package params
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes

@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.runner
+package org.jetbrains.plugins.scala
+package runner
 
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi._

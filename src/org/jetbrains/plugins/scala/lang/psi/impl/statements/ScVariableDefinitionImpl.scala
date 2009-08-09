@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.statements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package statements
 
 import com.intellij.lang.ASTNode
 import api.base.types.ScTypeElement

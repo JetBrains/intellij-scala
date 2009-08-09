@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.formatting.processors
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package processors
 
 import com.intellij.formatting._
 import psi.api.ScalaFile

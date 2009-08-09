@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala
+package annotator
+package gutter
 
 import collection.mutable.HashSet
 import com.intellij.codeInsight.navigation.NavigationUtil

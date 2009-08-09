@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala
+package lang
+package formatting
 /**
 * @author ilyas
 */

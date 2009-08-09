@@ -1,6 +1,9 @@
-package org.jetbrains.plugins.scala.lang.optimize
+package org.jetbrains.plugins.scala
+package lang
+package optimize
 
 
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import base.ScalaPsiTestCase
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
@@ -17,7 +20,6 @@ import com.intellij.psi.PsiManager
 import psi.api.ScalaFile
 import java.io.File
 import com.intellij.openapi.vfs.LocalFileSystem
-import scala.editor.importOptimizer.ScalaImportOptimizer
 import util.ScalaUtils
 
 /**

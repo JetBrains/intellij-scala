@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.documentationProvider
+package org.jetbrains.plugins.scala
+package editor.documentationProvider
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.scala.collection.immutable.HashSet

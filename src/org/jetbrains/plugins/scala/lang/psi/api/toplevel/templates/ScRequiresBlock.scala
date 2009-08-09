@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package templates
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.statements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package statements
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._

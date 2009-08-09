@@ -1,7 +1,12 @@
 /**
  * @author ven
  */
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package typedef
 
 import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
@@ -297,7 +302,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  import scala.lang.resolve._, scala.lang.resolve.ResolveTargets._
+  import lang.resolve._, org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
   def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)

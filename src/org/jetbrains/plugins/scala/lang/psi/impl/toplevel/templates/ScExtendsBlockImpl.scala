@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package templates
 
 
 import _root_.scala.collection.mutable.ListBuffer

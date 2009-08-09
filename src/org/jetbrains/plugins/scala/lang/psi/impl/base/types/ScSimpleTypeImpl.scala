@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package base
+package types
 
 import api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.{ScNamedElement, ScPolymorphicElement}
@@ -9,7 +14,7 @@ import api.base.types._
 import api.base.ScReferenceElement
 import psi.ScalaPsiElementImpl
 import lexer.ScalaTokenTypes
-import scala.lang.resolve.ScalaResolveResult
+import lang.resolve.ScalaResolveResult
 import psi.types._
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import collection.Set

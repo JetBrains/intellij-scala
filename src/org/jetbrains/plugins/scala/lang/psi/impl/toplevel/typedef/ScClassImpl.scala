@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package typedef
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import api.base.{ScPrimaryConstructor, ScModifierList}

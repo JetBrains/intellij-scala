@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.expression
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.expression
 
 import java.util.regex.{Pattern, Matcher}
 import lexer.ScalaTokenTypes

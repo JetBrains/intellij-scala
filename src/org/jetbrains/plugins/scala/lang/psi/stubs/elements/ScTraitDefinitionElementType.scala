@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import api.toplevel.typedef.ScTrait

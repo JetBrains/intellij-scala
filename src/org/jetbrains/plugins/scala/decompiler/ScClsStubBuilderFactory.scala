@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.decompiler
+package org.jetbrains.plugins.scala
+package decompiler
 
 import com.intellij.lang.LanguageParserDefinitions
 import com.intellij.openapi.project.ProjectManager

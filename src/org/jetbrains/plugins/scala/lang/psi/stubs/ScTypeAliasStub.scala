@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
 
 import api.base.types.ScTypeElement
 import api.statements.ScTypeAlias

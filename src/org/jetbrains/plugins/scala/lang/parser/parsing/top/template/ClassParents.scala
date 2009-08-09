@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top.template
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package top.template
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

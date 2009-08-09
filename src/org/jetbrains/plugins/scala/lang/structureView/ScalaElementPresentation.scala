@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.structureView
+package org.jetbrains.plugins.scala
+package lang
+package structureView
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._

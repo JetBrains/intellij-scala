@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.statements.params
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package statements
+package params
 
 import toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScPolymorphicElement}
 import types.ScType

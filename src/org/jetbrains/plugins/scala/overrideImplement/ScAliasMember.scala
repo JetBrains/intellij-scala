@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.overrideImplement
+package org.jetbrains.plugins.scala
+package overrideImplement
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import com.intellij.psi.{PsiMethod, PsiSubstitutor}

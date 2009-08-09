@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.statements.params
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package statements
+package params
 
 import psi.stubs._
 import psi.types.{ScType, ScFunctionType}

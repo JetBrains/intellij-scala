@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalaTest
 
 
 import _root_.java.io.File
@@ -19,7 +21,7 @@ import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
-import jdom.Element
+import org.jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.openapi.options.SettingsEditor

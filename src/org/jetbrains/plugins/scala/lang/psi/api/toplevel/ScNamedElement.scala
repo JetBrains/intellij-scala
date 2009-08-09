@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
 
 import com.intellij.navigation.{ItemPresentation, NavigationItem}
 import com.intellij.openapi.editor.colors.TextAttributesKey

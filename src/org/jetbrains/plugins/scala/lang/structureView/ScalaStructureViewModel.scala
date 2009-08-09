@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.structureView
+package org.jetbrains.plugins.scala
+package lang
+package structureView
 
 import com.intellij.ide.structureView.impl.java.InheritedMembersFilter
 import com.intellij.ide.structureView.StructureViewTreeElement

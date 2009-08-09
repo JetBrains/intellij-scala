@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.base
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package base
 
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
 import com.intellij.psi.{PsiElement, PsiNamedElement}

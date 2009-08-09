@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.script
+package org.jetbrains.plugins.scala
+package script
 
 
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}

@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package base
+package patterns
 
 import collection.immutable.Sequence
 import collection.mutable.ArrayBuffer

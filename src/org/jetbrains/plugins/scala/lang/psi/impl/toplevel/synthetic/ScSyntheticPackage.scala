@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package synthetic
 
 import collection.mutable.HashSet
 import caches.ScalaCachesManager

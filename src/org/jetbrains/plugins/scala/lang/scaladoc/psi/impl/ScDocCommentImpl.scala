@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
+package org.jetbrains.plugins.scala
+package lang
+package scaladoc
+package psi
+package impl
 
 
 import com.intellij.lang.ASTNode

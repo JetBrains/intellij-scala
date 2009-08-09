@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.scalaTest.locationProvider
+package org.jetbrains.plugins.scala
+package testingSupport
+package scalaTest.locationProvider
 
 import com.intellij.execution.{Location, PsiLocation}
 import com.intellij.openapi.project.Project

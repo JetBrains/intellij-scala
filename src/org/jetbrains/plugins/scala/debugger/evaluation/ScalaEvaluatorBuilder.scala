@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.debugger.evaluation
+package org.jetbrains.plugins.scala
+package debugger.evaluation
 
 
 import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Evaluator, ExpressionEvaluatorImpl, EvaluatorBuilder}

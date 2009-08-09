@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInsight.template.util
+package org.jetbrains.plugins.scala
+package codeInsight.template.util
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.BaseProcessor
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

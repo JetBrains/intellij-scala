@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.structureView.elements.impl
+package org.jetbrains.plugins.scala
+package lang
+package structureView
+package elements
+package impl
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
 import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement

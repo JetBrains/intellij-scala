@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.importOptimizer
+package org.jetbrains.plugins.scala
+package editor.importOptimizer
 
 
 import codeInspection.ScalaRecursiveElementVisitor

@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.resolve.imports
+package org.jetbrains.plugins.scala
+package lang
+package resolve
+package imports
 
 
 import com.intellij.psi.PsiPolyVariantReference

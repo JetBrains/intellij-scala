@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
 
 import com.intellij.psi.impl.java.stubs.PsiClassStub
 import com.intellij.psi.{PsiElement, PsiClass}

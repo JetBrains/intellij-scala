@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.implicits
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package implicits
 
 
 import types.ScType

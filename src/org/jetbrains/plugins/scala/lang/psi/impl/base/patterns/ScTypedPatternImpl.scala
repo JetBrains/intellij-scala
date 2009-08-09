@@ -1,9 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package base
+package patterns
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import scala.lang.lexer._
+import lang.lexer._
 import com.intellij.psi._
 
 /**

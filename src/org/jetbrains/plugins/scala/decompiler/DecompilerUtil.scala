@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.decompiler
+package org.jetbrains.plugins.scala
+package decompiler
 
 import _root_.scala.tools.scalap.scalax.rules.scalasig.ByteCode
 import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileInfo

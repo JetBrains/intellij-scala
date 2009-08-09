@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package imports
 
 import com.intellij.psi.PsiElement
 import packaging.ScPackaging

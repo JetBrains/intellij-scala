@@ -1,14 +1,16 @@
-package org.jetbrains.plugins.scala.codeInspection.fileNameInspection
+package org.jetbrains.plugins.scala
+package codeInspection
+package fileNameInspection
 
 
 import collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.HighlightDisplayLevel
+import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import lang.psi.api.ScalaFile
 import com.intellij.codeInspection._
 import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.psi.PsiFile
 import java.lang.String
-import scala.lang.psi.api.ScalaFile
-import scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin

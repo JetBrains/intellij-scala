@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.overrideImplement
+package org.jetbrains.plugins.scala
+package lang
+package overrideImplement
 
 import _root_.com.intellij.testFramework.PsiTestCase
 import _root_.junit.framework.Test

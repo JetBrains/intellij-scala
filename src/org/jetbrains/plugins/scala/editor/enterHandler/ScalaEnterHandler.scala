@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.enterHandler
+package org.jetbrains.plugins.scala
+package editor.enterHandler
 
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.{EditorWriteActionHandler, EditorActionHandler}

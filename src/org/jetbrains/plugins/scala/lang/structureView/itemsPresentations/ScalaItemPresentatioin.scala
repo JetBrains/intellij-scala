@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations
+package org.jetbrains.plugins.scala
+package lang
+package structureView
+package itemsPresentations
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;

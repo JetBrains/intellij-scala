@@ -1,10 +1,15 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package typedef
 
 /**
  * @author ilyas
  */
 
-import annotations.Nullable
+import org.jetbrains.annotations.Nullable
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiWhiteSpace, PsiDocCommentOwner}

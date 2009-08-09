@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.inline
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package inline
 
 
 import collection.mutable.ArrayBuffer

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.base
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package base
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

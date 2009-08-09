@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package imports
 
 import com.intellij.psi.PsiElement
 import com.intellij.util.ArrayFactory

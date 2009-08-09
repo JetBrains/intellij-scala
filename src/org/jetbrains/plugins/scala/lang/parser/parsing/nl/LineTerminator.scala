@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.nl
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package nl
 
 /** 
 * @author Alexander Podkhalyuzin

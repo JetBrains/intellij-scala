@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.superMember
+package org.jetbrains.plugins.scala
+package lang
+package superMember
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiNamedElement, PsiFile}

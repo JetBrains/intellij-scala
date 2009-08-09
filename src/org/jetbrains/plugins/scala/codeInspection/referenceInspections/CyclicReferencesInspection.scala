@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.referenceInspections
+package org.jetbrains.plugins.scala
+package codeInspection
+package referenceInspections
 
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel

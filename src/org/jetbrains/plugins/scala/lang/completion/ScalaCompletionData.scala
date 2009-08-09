@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import handlers.ScalaInsertHandler
 import com.intellij.openapi.application.ApplicationManager

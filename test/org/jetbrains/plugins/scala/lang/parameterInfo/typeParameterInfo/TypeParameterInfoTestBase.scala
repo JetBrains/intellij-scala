@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo.typeParameterInfo
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
+package typeParameterInfo
 
 
 

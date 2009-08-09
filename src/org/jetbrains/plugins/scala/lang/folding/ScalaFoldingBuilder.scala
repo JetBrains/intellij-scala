@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.folding
+package org.jetbrains.plugins.scala
+package lang
+package folding
 
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
 import com.intellij.psi.impl.source.tree.LeafPsiElement

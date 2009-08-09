@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
+package functionParameterInfo
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.runtime.RichString

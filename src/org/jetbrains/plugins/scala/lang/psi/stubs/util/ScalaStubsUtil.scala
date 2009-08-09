@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.util
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package util
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScAnnotatedMemberIndex}

@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.base.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package base
+package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.Unit
 import api.toplevel.ScNamedElement

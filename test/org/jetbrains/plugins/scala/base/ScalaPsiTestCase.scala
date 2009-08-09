@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.base
+package org.jetbrains.plugins.scala
+package base
 
 import _root_.com.intellij.testFramework.PsiTestCase
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses

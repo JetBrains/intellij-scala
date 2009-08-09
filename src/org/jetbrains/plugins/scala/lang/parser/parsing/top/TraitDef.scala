@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.top
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package top
 
 import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import com.intellij.lang.PsiBuilder

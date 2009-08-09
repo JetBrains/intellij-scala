@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.conversion
+package org.jetbrains.plugins.scala
+package conversion
 
 
 import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction}

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala
+package lang
+package psi
 
 import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
 import com.intellij.psi.impl.source.tree.CompositeElement

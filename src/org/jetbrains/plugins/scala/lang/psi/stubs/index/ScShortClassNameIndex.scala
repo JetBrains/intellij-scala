@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.index
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package index
 import com.intellij.psi.PsiClass
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}

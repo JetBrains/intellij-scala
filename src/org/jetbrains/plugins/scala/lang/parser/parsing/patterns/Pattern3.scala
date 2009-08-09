@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package patterns
 
 import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder

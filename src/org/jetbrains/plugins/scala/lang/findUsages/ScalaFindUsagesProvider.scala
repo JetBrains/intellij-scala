@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.findUsages
+package org.jetbrains.plugins.scala
+package lang
+package findUsages
 
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern

@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.components
+package org.jetbrains.plugins.scala
+package components
 
 import com.intellij.psi._
 import icons.Icons

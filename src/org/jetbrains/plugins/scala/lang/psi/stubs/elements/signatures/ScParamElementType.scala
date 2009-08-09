@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package elements
+package signatures
 
 import api.statements.params.{ScClassParameter, ScParameter}
 import com.intellij.psi.PsiElement

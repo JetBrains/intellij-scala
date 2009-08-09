@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.overrideImplement
+package org.jetbrains.plugins.scala
+package overrideImplement
 
 import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
 import com.intellij.openapi.editor.{Editor, VisualPosition}
