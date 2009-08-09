@@ -7,7 +7,6 @@ import com.intellij.codeInspection._
 import com.intellij.psi.{JavaPsiFacade, PsiPackage, JavaDirectoryService, PsiFile}
 import java.lang.String
 import scala.lang.psi.api.ScalaFile
-import scala.lang.psi.api.toplevel.packaging.ScPackageStatement
 import scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
@@ -30,7 +29,7 @@ class PackageNameInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
-      case file: ScalaFile => {
+/*      case file: ScalaFile => {
         if (file.getClasses.length == 0) return null
         val dir = file.getContainingDirectory
         if (dir == null) return null
@@ -71,7 +70,7 @@ class PackageNameInspection extends LocalInspectionTool {
           }
         }
       }
-      case _ => return null
+*/      case _ => return null
     }
   }
 }

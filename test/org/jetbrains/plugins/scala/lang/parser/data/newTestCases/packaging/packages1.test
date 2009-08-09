@@ -1,0 +1,25 @@
+package aaa.bbb
+package ccc
+package ddd
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement
+      CodeReferenceElement
+        PsiElement(identifier)('aaa')
+      PsiElement(.)('.')
+      PsiElement(identifier)('bbb')
+    PsiElement(newline)('\n')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement
+        PsiElement(identifier)('ccc')
+      PsiElement(newline)('\n')
+      ScPackaging
+        PsiElement(package)('package')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement
+          PsiElement(identifier)('ddd')

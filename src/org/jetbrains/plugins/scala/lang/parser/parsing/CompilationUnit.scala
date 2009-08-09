@@ -8,10 +8,10 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 05.02.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ * Date: 05.02.2008
+ */
 
 /*
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
@@ -20,110 +20,74 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
 object CompilationUnit {
   def parse(builder: PsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
+
+    def parsePackagingBody = {
+      while (builder.getTokenType != null) {
+        TopStatSeq.parse(builder, false, false) match {
+          case ParserState.EMPTY_STATE =>
+          case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
+          case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
+          case _ => parseState = ParserState.SCRIPT_STATE
+        }
+        builder.advanceLexer
+      }
+    }
+
     //look for file package
     builder.getTokenType match {
-      case ScalaTokenTypes.kPACKAGE 
-        if !ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT) => {
-        val packChooseMarker = builder.mark()
-        builder.advanceLexer //Ate package
+      case ScalaTokenTypes.kPACKAGE => {
 
-        def parsePackageStmt = {
-          //try to split package and packaging
-          builder.getTokenType match {
-            case ScalaTokenTypes.tSEMICOLON => {
-              packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
+        /*
+        * Parse sequence of packages according to 2.8 changes
+        * */
+        def parsePackageSequence(completed: Boolean, k: => Unit) {
+          def askType = builder.getTokenType
+          if (askType == null) k
+          else if (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(askType)) {
+            builder.advanceLexer
+            parsePackageSequence(true, k)
+          } else {
+            // Mark error
+            if (!completed) {
+              builder.error(ErrMsg("semi.expected"))
             }
-
-            case ScalaTokenTypes.tLBRACE => {
-              builder.advanceLexer //Ate '{'
-              //parse packaging body
-              TopStatSeq parse (builder, true)
-              //Look for '}'
-              builder.getTokenType match {
-                case ScalaTokenTypes.tRBRACE => builder.advanceLexer
-                //Ate '}'
-                case _ => builder error ScalaBundle.message("rbrace.expected")
-              }
-              packChooseMarker.done(ScalaElementTypes.PACKAGING)
-            }
-
-            case ScalaTokenTypes.tLINE_TERMINATOR => {
-              //Single or multiple new-line token
-              if (LineTerminator(builder.getTokenText)) {
-                builder.advanceLexer //Ate new-line token
-                //if { => packaging
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tLBRACE => {
-                    builder.advanceLexer //Ate '{'
-                    //parse packaging body
-                    TopStatSeq parse (builder, true)
-                    //Look for '}'
-                    builder.getTokenType match {
-                      case ScalaTokenTypes.tRBRACE => builder.advanceLexer
-                      //Ate '}'
-                      case _ => builder error ScalaBundle.message("rbrace.expected")
-                    }
-                    packChooseMarker.done(ScalaElementTypes.PACKAGING)
-                  }
-                  case _ => {
-                    packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
+            if (ScalaTokenTypes.kPACKAGE == askType &&
+                    !ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
+              // Parse package statement
+              val newMarker = builder.mark
+              builder.advanceLexer
+              askType match {
+                case ScalaTokenTypes.tIDENTIFIER => {
+                  Qual_Id parse builder
+                  // Detect explicit packaging with curly braces
+                  if (ParserUtils.lookAhead(builder, ScalaTokenTypes.tLBRACE) ||
+                  ParserUtils.lookAhead(builder, ScalaTokenTypes.tLINE_TERMINATOR, ScalaTokenTypes.tLBRACE) &&
+                  !builder.getTokenText.matches(".*\n.*\n.*")) {
+                    newMarker.rollbackTo
+                    parsePackagingBody
+                    k
+                  } else {
+                    parsePackageSequence(false, {newMarker.done(ScalaElementTypes.PACKAGING); k})
                   }
                 }
+                case _ => {
+                  builder error ErrMsg("package.qualID.expected")
+                  newMarker.drop
+                  parsePackageSequence(true, k)
+                }
               }
-              else {
-                builder.advanceLexer //Ate new-line token
-                packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
-              }
-            }
-
-            //if builder.eof
-            case null => {
-              packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
-            }
-
-            case _ => {
-              builder error ScalaBundle.message("semi.expected")
-              packChooseMarker.done(ScalaElementTypes.PACKAGE_STMT)
+            } else {
+              // Parse the remainder of a file
+              parsePackagingBody
+              k
             }
           }
         }
 
-        //Look for identifier
-        builder.getTokenType match {
-          case ScalaTokenTypes.tIDENTIFIER => {
-            Qual_Id parse builder
-            parsePackageStmt
-          }
-          case _ => {
-            builder error ErrMsg("package.qualID.expected")
-            packChooseMarker.drop
-          }
-        }
+        parsePackageSequence(true, ())
 
-
-
-        while (builder.getTokenType != null) {
-          TopStatSeq.parse(builder, false, true) match {
-            case ParserState.EMPTY_STATE =>
-            case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
-            case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
-            case _ => parseState = ParserState.SCRIPT_STATE
-          }
-          builder.advanceLexer
-        }
       }
-
-      case _ => {
-        while (builder.getTokenType != null) {
-          TopStatSeq.parse(builder, false, false) match {
-            case ParserState.EMPTY_STATE =>
-            case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
-            case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
-            case _ => parseState = ParserState.SCRIPT_STATE
-          }
-          builder.advanceLexer
-        }
-      }
+      case _ => parsePackagingBody
     }
     return parseState
   }

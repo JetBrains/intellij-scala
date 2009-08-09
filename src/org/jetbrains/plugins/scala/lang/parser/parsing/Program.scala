@@ -12,7 +12,7 @@ class Program {
   def parse(builder: PsiBuilder): Int = {
     var parseState = 0
     // Debug print mode off
-    DebugPrint.displayLog_=(false) 
+    DebugPrint.displayLog = false  
 
     if ( !builder.eof() ){
       parseState = CompilationUnit.parse(builder)

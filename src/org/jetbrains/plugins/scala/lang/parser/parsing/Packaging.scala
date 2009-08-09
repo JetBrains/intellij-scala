@@ -27,7 +27,7 @@ object Packaging {
           packMarker.drop
           return false
         }
-        //parsing body of packaging
+        //parsing body of regular packaging
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate '{'

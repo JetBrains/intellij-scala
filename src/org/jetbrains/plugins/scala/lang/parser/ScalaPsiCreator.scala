@@ -46,7 +46,6 @@ object ScalaPsiCreator {
       /********************** DEF ************************/
       /***************************************************/
 
-      case ScalaElementTypes.PACKAGE_STMT => new ScPackageStatementImpl(node)
       case ScalaElementTypes.CLASS_DEF => new ScClassImpl(node)
       case ScalaElementTypes.OBJECT_DEF => new ScObjectImpl(node)
       case ScalaElementTypes.TRAIT_DEF => new ScTraitImpl(node)

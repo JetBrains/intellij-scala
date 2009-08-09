@@ -2,7 +2,7 @@ package a.b.c;@Nullable class a{}
 object b {}
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement
@@ -13,37 +13,37 @@ ScalaFile
         PsiElement(identifier)('b')
       PsiElement(.)('.')
       PsiElement(identifier)('c')
-  PsiElement(;)(';')
-  ScClass
-    AnnotationsList
-      Annotation
-        PsiElement(@)('@')
-        AnnotationExpression
-          Constructor
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('Nullable')
-    PsiWhiteSpace(' ')
-    Modifiers
-      <empty list>
-    PsiElement(class)('class')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('a')
-    ExtendsBlock
-      ScTemplateBody
-        PsiElement({)('{')
-        PsiElement(})('}')
-  PsiElement(newline)('\n')
-  ScObject
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(object)('object')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('b')
-    PsiWhiteSpace(' ')
-    ExtendsBlock
-      ScTemplateBody
-        PsiElement({)('{')
-        PsiElement(})('}')
+    PsiElement(;)(';')
+    ScClass
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            Constructor
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Nullable')
+      PsiWhiteSpace(' ')
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('a')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')
+    PsiElement(newline)('\n')
+    ScObject
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')

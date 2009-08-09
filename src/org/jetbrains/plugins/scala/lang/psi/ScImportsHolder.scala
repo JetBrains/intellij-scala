@@ -10,7 +10,7 @@ import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, 
 import lexer.ScalaTokenTypes
 import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import api.toplevel.packaging.{ScPackageStatement, ScPackaging}
+import api.toplevel.packaging.ScPackaging
 import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import psi.impl.toplevel.synthetic.ScSyntheticPackage
@@ -26,8 +26,6 @@ trait ScImportsHolder extends ScalaPsiElement {
       state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
@@ -274,23 +272,24 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
       case _ => {
         //we have not import statement, so we insert new import statement as close to element begin as possible
-        findChild(classOf[ScPackageStatement]) match {
-          case Some(x) => {
-            val next = x.getNextSibling
-            if (next != null && !next.getText.contains("\n")){
-              val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-              addImportBefore(importSt, next)
-              addImportBefore(nl, next)
-            } else {
-              //unnecessary nl will be removed by formatter
-              val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-              val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-              addImportAfter(nl1, x)
-              addImportAfter(importSt, nl1)
-              addImportAfter(nl2, importSt)
-            }
-          }
-          case None => {
+
+        //        findChild(classOf[ScPackageStatement]) match {
+//          case Some(x) => {
+//            val next = x.getNextSibling
+//            if (next != null && !next.getText.contains("\n")){
+//              val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+//              addImportBefore(importSt, next)
+//              addImportBefore(nl, next)
+//            } else {
+//              //unnecessary nl will be removed by formatter
+//              val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+//              val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+//              addImportAfter(nl1, x)
+//              addImportAfter(importSt, nl1)
+//              addImportAfter(nl2, importSt)
+//            }
+//          }
+//          case None => {
             //Here we must to find left brace, if not => it's ScalaFile (we can use addBefore etc.)
             getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
               case null => {
@@ -314,8 +313,8 @@ trait ScImportsHolder extends ScalaPsiElement {
               }
             }
 
-          }
-        }
+//          }
+//        }
       }
     }
     HintManager.getInstance.hideAllHints

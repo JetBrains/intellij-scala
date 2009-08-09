@@ -1,23 +1,20 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import _root_.com.intellij.extapi.psi.StubBasedPsiElementBase
 import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
-import api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import api.toplevel.{ScNamedElement, ScTyped}
-import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ParserDefinition, ASTNode}
+import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import collection.mutable.HashSet
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.impl.source.tree.{TreeElement, FileElement, CompositeElement}
+import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
-import com.intellij.util.ArrayFactory
 import formatting.settings.ScalaCodeStyleSettings
-import lexer.{ScalaLexer, ScalaTokenTypes}
+import lexer.{ScalaLexer}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
@@ -26,14 +23,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.util.DebugPrint
-import com.intellij.lexer.Lexer
-import com.intellij.lang.impl.PsiBuilderImpl
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
-import psi.stubs._
-import elements.{ScObjectDefinitionElementType, ScPackageStmtElementType}
 import refactoring.util.ScalaNamesUtil
 import types._
 import com.intellij.psi.util.PsiTreeUtil
@@ -115,23 +107,15 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     return ref
   }
 
-  def createImportStatementFromClass(file: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
+  def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
     val qualifiedName = clazz.getQualifiedName
-    val packageName = file match {
-      case file: ScalaFile => file.packageStatement match {
-        case Some(x) => x.getPackageName
-        case None => null
-      }
-      case file: ScPackaging => file.getPackageName
+    val packageName = holder match {
+      case packaging: ScPackaging => packaging.getPackageName
       case _ => {
-        var element: PsiElement = file
+        var element: PsiElement = holder
         while (element != null && !element.isInstanceOf[ScalaFile] && !element.isInstanceOf[ScPackaging]) element = element.getParent
         element match {
-          case file: ScalaFile => file.packageStatement match {
-            case Some(x) => x.getPackageName
-            case None => null
-          }
-          case file: ScPackaging => file.getPackageName
+          case packaging: ScPackaging => packaging.getPackageName
           case _ => null
         }
       }

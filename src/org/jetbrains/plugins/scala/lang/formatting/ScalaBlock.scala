@@ -64,9 +64,10 @@ extends Object with ScalaTokenTypes with Block {
     val parent = getNode.getPsi
     parent match {
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
-           _: ScTryBlock | _: ScCatchBlock | _: ScPackaging | _: ScMatchStmt => {
+           _: ScTryBlock | _: ScCatchBlock | _: ScMatchStmt => {
         return new ChildAttributes(Indent.getNormalIndent, null)
       }
+      case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
       case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
       case x: ScDoStmt => {
