@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package introduceVariable
 
 import com.intellij.openapi.util.TextRange
 import psi.api.statements.params.ScParameters

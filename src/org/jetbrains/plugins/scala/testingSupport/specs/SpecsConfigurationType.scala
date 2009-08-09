@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.testingSupport.specs
+package org.jetbrains.plugins.scala
+package testingSupport
+package specs
 
 import _root_.java.lang.String
 import _root_.javax.swing.Icon

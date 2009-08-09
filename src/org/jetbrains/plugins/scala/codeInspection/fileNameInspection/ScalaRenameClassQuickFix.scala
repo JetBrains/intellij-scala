@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.fileNameInspection
+package org.jetbrains.plugins.scala
+package codeInspection
+package fileNameInspection
 
 
 import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}

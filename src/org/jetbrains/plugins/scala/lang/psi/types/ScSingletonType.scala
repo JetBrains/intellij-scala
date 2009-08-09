@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
 
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.{ScReferenceElement, ScPathElement}

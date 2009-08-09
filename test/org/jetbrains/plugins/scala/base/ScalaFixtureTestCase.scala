@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.base
+package org.jetbrains.plugins.scala
+package base
 
 
 import com.intellij.openapi.application.ApplicationManager

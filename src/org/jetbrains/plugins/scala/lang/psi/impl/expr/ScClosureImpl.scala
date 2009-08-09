@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.expr
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package expr
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes

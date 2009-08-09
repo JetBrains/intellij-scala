@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.formatting
+package org.jetbrains.plugins.scala
+package lang
+package formatting
 
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;

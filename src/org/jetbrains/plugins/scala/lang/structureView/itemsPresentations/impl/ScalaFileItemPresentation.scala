@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
+package org.jetbrains.plugins.scala
+package lang
+package structureView
+package itemsPresentations
+package impl
 
 import psi._
 import psi.api.ScalaFile

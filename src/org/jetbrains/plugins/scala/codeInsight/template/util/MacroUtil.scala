@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInsight.template.util
+package org.jetbrains.plugins.scala
+package codeInsight.template.util
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}

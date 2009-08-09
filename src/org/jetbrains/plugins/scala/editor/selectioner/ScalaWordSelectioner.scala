@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.selectioner
+package org.jetbrains.plugins.scala
+package editor.selectioner
 
 import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import lang.psi.api.expr.{ScNewTemplateDefinition, ScMethodCall}

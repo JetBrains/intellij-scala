@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.highlighter
+package org.jetbrains.plugins.scala
+package highlighter
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import com.intellij.extapi.psi.StubBasedPsiElementBase

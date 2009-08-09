@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.selectioner
+package org.jetbrains.plugins.scala
+package editor.selectioner
 
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor

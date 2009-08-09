@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.statements
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package statements
 
 import base.Modifier
 import com.intellij.lang.PsiBuilder

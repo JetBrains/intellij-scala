@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.performance.highlighting
+package org.jetbrains.plugins.scala
+package performance.highlighting
 
 
 import base.ScalaFixtureTestCase

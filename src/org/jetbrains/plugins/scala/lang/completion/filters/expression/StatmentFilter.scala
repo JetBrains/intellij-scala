@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.expression
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.expression
 
 import psi.api.base.patterns.ScStableReferenceElementPattern
 import psi.api.toplevel.templates.ScTemplateBody

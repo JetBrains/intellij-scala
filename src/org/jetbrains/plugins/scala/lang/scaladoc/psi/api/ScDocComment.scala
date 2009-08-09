@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.psi.api
+package org.jetbrains.plugins.scala
+package lang
+package scaladoc
+package psi
+package api
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement

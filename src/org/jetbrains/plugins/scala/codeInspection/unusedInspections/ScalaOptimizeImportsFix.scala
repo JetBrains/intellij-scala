@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.unusedInspections
+package org.jetbrains.plugins.scala
+package codeInspection
+package unusedInspections
 
 
 import com.intellij.codeInsight.CodeInsightUtilBase

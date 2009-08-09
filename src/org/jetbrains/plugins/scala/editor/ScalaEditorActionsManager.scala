@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor
+package org.jetbrains.plugins.scala
+package editor
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.actionSystem.{EditorActionManager, EditorActionHandler}

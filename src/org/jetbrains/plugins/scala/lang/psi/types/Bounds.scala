@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import _root_.scala.collection.mutable.{Set, HashSet}

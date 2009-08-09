@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.impl
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
 
 
 import api.ScalaFile

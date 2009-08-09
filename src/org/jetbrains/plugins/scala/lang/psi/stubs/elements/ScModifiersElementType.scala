@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.elements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package elements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import api.base.ScModifierList

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
 
 import com.intellij.psi.PsiElement
 import stubs.ScEarlyDefinitionsStub;

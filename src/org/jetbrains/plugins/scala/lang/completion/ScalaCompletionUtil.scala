@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang
+package completion
 
 import psi._
 import psi.api.base.patterns.ScCaseClause

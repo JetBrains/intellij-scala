@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala
+package lang
+package parser
 
 import com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode

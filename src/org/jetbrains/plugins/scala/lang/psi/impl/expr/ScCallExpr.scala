@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.expr
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package expr
 import api.expr.{ScReferenceExpression, ScExpression}
 import api.statements.ScFun
 import api.toplevel.ScTyped

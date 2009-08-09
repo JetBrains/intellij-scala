@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.refactoring
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
 
 
 import com.intellij.lang.refactoring.DefaultRefactoringSupportProvider

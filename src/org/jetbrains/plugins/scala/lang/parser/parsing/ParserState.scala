@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
 
 /**
  * User: Alexander Podkhalyuzin

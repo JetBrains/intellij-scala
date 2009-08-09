@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.rename
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package rename
 
 import com.intellij.CommonBundle
 import com.intellij.ide.IdeBundle

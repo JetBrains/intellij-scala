@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.toplevel
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.toplevel
 
 import psi.api.base.patterns.{ScCaseClause, ScStableReferenceElementPattern, ScReferencePattern}
 import psi.api.base.ScStableCodeReferenceElement

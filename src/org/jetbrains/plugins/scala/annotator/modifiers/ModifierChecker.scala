@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.modifiers
+package org.jetbrains.plugins.scala
+package annotator
+package modifiers
 
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.psi.util.PsiTreeUtil

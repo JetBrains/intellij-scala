@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.testingSupport.specs
+package org
+package jetbrains
+package plugins
+package scala
+package testingSupport
+package specs
 
 import _root_.java.io.File
 import _root_.scala.collection.mutable.ArrayBuffer

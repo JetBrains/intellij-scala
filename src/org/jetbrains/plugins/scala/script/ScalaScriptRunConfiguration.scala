@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.script
+package org.jetbrains.plugins.scala
+package script
 
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk
@@ -35,7 +36,7 @@ import util.{ScalaUtils}
 
 import com.intellij.vcsUtil.VcsUtil
 import java.util.{Arrays, Collection}
-import jdom.Element
+import org.jdom.Element
 /**
  * User: Alexander Podkhalyuzin
  * Date: 04.02.2009

@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.impl
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package impl
 import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}

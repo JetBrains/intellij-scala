@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.search
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package search
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScFunction, ScTypeAlias}

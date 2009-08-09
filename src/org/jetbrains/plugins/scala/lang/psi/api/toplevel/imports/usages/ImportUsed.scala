@@ -1,4 +1,10 @@
-package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package toplevel
+package imports
+package usages
 
 
 import com.intellij.openapi.util.Key

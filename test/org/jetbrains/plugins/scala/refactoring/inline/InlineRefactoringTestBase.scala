@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.refactoring.inline
+package org.jetbrains.plugins.scala
+package refactoring
+package inline
 
 
 import base.ScalaPsiTestCase

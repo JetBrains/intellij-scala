@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package parsing
+package expressions
 
 
 import com.intellij.lang.PsiBuilder

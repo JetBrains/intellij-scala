@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.statements
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 import base.types.ScTypeElement

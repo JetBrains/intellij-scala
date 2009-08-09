@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.annotator.intention
+package org.jetbrains.plugins
+package scala
+package annotator
+package intention
 
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}

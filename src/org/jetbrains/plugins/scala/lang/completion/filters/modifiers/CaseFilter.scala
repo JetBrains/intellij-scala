@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.modifiers
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.modifiers
 
 import com.intellij.lang.ASTNode
 import psi._

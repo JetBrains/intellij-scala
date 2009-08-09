@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.todo
+package org.jetbrains.plugins.scala
+package editor.todo
 
 import com.intellij.lexer.Lexer
 import com.intellij.psi.impl.search.IndexPatternBuilder

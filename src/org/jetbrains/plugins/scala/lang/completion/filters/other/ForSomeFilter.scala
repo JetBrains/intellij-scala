@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.other
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.other
 
 import psi.api.base.types.ScInfixTypeElement
 import psi.api.base.types.ScTypeElement

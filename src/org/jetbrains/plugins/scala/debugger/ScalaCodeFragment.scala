@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala
+package debugger
 
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.LightVirtualFile

@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.definitions
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.definitions
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;

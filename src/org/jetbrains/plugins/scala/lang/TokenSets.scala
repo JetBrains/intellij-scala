@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang
+package org.jetbrains.plugins.scala
+package lang
 
 /**
  * @author ilyas

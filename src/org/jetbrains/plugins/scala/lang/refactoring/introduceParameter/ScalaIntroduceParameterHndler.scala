@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package introduceParameter
 
 
 import com.intellij.openapi.actionSystem.DataContext

@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInspection
+package org.jetbrains.plugins.scala
+package codeInspection
 
 
 import com.intellij.codeInspection.InspectionToolProvider

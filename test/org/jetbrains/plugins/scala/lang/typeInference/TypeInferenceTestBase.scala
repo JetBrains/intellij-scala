@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.typeInference
+package org.jetbrains.plugins.scala
+package lang
+package typeInference
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import base.ScalaPsiTestCase

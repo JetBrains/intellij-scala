@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
 
 import _root_.scala.collection.mutable.HashMap
 import api.base.ScReferenceElement
 import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
 import psi.impl.toplevel.synthetic.ScSyntheticClass
-import scala.Misc._
+import org.jetbrains.plugins.scala.Misc._
 import api.statements._
 import params._
 import resolve.ScalaResolveResult

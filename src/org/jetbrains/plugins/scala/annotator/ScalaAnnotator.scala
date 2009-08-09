@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import codeInspection.unusedInspections.ScalaUnusedImportPass
 import collection.mutable.{HashSet, HashMap}
@@ -24,19 +25,19 @@ import com.intellij.lang.annotation._
 
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.{FullSignature}
+import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.imports.usages.ImportUsed
+import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
-import com.intellij.psi._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
-import scala.lang.formatting.settings.ScalaCodeStyleSettings
-import scala.lang.psi.api.ScalaFile
-import scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import com.intellij.psi._
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicatorEx

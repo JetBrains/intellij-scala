@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.console
+package org.jetbrains.plugins.scala
+package console
 
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil

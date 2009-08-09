@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.moveHandler
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package moveHandler
 
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.ex.DataConstantsEx

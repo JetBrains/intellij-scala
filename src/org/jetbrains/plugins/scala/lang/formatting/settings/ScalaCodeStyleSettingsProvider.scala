@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package settings
 
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CustomCodeStyleSettings, CodeStyleSettingsProvider}
 import com.intellij.openapi.options.Configurable

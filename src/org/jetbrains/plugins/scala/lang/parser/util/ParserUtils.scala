@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.parser.util
+package org.jetbrains.plugins.scala
+package lang
+package parser
+package util
 
 import _root_.scala.collection.mutable._
 

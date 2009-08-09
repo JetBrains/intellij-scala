@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.hierarchy
+package org.jetbrains.plugins.scala
+package hierarchy
 
 
 import com.intellij.ide.hierarchy.method.JavaMethodHierarchyProvider

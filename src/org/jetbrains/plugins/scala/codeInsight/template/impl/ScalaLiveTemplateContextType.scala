@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInsight.template.impl
+package org.jetbrains.plugins.scala
+package codeInsight.template.impl
 
 import com.intellij.codeInsight.template.FileTypeBasedContextType
 

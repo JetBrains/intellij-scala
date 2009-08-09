@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.decompiler
+package org.jetbrains.plugins.scala
+package decompiler
 
 import _root_.org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter
 

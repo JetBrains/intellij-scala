@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
+package org.jetbrains.plugins.scala
+package codeInspection
+package packageNameInspection
 
 
+import lang.psi.api.ScalaFile
+import lang.psi.api.toplevel.typedef.ScObject
 import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
 
 import com.intellij.psi.{JavaPsiFacade, PsiPackage, JavaDirectoryService, PsiFile}
 import java.lang.String
-import scala.lang.psi.api.ScalaFile
-import scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin

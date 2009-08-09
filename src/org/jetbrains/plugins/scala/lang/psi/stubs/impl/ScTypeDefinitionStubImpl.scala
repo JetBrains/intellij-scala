@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.stubs.impl
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package stubs
+package impl
 
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.impl.java.stubs.PsiClassStub

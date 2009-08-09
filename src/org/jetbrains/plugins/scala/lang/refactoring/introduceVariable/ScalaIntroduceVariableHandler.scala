@@ -1,6 +1,10 @@
-package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package introduceVariable
 
 
+import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.editor.{Editor, VisualPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
@@ -26,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
-import scala.util.ScalaUtils
 import refactoring.util.ScalaRefactoringUtil
 /**
 * User: Alexander Podkhalyuzin

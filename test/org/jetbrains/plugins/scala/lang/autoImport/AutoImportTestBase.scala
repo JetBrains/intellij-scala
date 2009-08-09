@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.autoImport
+package org.jetbrains.plugins.scala
+package lang
+package autoImport
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import annotator.intention.ScalaImportClassFix

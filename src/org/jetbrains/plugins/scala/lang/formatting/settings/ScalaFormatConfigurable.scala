@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
+package org.jetbrains.plugins.scala
+package lang
+package formatting
+package settings
 
 import icons.Icons
 import com.intellij.application.options.{CodeStyleAbstractConfigurable, CodeStyleAbstractPanel}

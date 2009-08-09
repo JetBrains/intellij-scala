@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package synthetic
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.light.LightIdentifier

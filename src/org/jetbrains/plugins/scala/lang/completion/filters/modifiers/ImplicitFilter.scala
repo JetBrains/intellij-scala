@@ -1,6 +1,9 @@
-package org.jetbrains.plugins.scala.lang.completion.filters.modifiers
+package org.jetbrains.plugins.scala
+package lang
+package completion
+package filters.modifiers
 
-import annotations.NonNls
+import org.jetbrains.annotations.NonNls
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
 import lexer.ScalaTokenTypes

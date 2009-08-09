@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.gutter
+package org.jetbrains.plugins.scala
+package annotator
+package gutter
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler

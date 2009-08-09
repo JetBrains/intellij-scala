@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package packaging
 
 import api.base.ScStableCodeReferenceElement
 import api.toplevel.typedef.ScTypeDefinition

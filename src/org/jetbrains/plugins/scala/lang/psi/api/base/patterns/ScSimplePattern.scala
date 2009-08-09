@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.api.base.patterns
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package base
+package patterns
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import statements.params.ScParameter

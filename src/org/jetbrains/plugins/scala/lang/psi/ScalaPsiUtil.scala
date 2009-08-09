@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.psi
+package org.jetbrains.plugins.scala
+package lang
+package psi
 
 import api.base._
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}

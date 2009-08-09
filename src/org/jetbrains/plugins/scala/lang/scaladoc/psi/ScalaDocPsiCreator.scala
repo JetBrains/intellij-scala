@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.psi
+package org.jetbrains.plugins.scala
+package lang
+package scaladoc
+package psi
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import parser.ScalaDocElementTypes

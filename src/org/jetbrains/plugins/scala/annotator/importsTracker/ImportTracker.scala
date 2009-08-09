@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.annotator.importsTracker
+package org.jetbrains.plugins.scala
+package annotator
+package importsTracker
 
 
 import collection.mutable.HashMap

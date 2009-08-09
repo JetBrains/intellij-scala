@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.debugger
+package org.jetbrains.plugins.scala
+package debugger
 
 import com.intellij.debugger.engine.evaluation.{CodeFragmentFactory, TextWithImports}
 import com.intellij.openapi.fileTypes.LanguageFileType

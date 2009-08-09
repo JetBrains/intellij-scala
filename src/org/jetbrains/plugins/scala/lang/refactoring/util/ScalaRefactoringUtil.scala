@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.refactoring.util
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package util
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -28,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
-import scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.ScalaUtils
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008

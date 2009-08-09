@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
 
 import _root_.org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._

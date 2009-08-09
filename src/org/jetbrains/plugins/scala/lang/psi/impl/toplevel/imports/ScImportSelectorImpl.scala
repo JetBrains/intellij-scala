@@ -1,4 +1,9 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package impl
+package toplevel
+package imports
 
 import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode

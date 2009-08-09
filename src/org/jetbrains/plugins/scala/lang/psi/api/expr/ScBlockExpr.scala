@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.lang.psi.api.expr
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
+package expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition

@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.surroundWith.descriptors;
+package org.jetbrains.plugins.scala
+package lang
+package surroundWith
+package descriptors;
 
 /**
  * User: Dmitry.Krasilschikov

@@ -1,6 +1,8 @@
-package org.jetbrains.plugins.scala.lang.parameterInfo
+package org.jetbrains.plugins.scala
+package lang
+package parameterInfo
 
-
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import _root_.java.lang.{Class, String}
 import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.codeInsight.CodeInsightBundle
@@ -22,7 +24,6 @@ import psi.api.statements.ScFunction
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import psi.ScalaPsiUtil
 import psi.types._
-import scala.editor.documentationProvider.ScalaDocumentationProvider
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import com.intellij.util.ArrayUtil
 import java.awt.Color

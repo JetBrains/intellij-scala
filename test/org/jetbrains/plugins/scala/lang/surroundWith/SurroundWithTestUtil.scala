@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.surroundWith
+package org.jetbrains.plugins.scala
+package lang
+package surroundWith
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.finder
+package org.jetbrains.plugins.scala
+package finder
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage

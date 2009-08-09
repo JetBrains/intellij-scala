@@ -1,4 +1,7 @@
-package org.jetbrains.plugins.scala.lang.psi.api
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package api
 
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
 import com.intellij.psi.{PsiClassOwner, PsiImportHolder, PsiClass}
