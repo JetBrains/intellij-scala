@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 
 
 import api.ScalaFile
-import api.toplevel.packaging.ScPackageStatement
 import com.intellij.psi.impl.file.UpdateAddedFileProcessor
 import com.intellij.psi.{PsiPackage, PsiDirectory, JavaDirectoryService, PsiFile}
 /**

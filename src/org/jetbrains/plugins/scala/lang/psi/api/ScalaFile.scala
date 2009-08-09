@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
 import com.intellij.psi.{PsiClassOwner, PsiImportHolder, PsiClass}
 
-import toplevel.packaging.{ScPackageStatement, ScPackaging}
+import toplevel.packaging.ScPackaging
 import toplevel.ScToplevelElement
 
 /**
@@ -21,8 +21,6 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
   def getPackagings: Array[ScPackaging]
 
   def getPackageName: String
-
-  def packageStatement: Option[ScPackageStatement]
 
   def isCompiled: Boolean
 

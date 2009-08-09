@@ -4,16 +4,13 @@ package a
 }
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-  PsiErrorElement:Wrong top statement declaration
-    <empty list>
-  PsiElement({)('{')
-  PsiErrorElement:Wrong top statement declaration
-    <empty list>
-  PsiWhiteSpace('\n')
-  PsiElement(})('}')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

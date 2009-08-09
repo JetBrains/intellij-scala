@@ -89,7 +89,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (stub == null) {
       for (n <- getNode.getChildren(null); child = n.getPsi) {
         child match {
-          case _: ScPackageStatement | _: ScPackaging => return false
+          case _: ScPackaging => return false
           case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
           case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
         }
@@ -109,10 +109,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def setPackageName(name: String) {
-    packageStatement match {
-      case Some(x: ScPackageStatement) => x.setPackageName(name)
-      case None =>
-    }
+    //todo implement with packagings
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
@@ -126,26 +123,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     } else findChildrenByClass(classOf[ScPackaging])
   }
 
-  def getPackageName: String =
-    packageStatement match {
-      case None => ""
-      case Some(stat) => stat.getPackageName
-    }
-
-
-  def packageStatement: Option[ScPackageStatement] = {
-    val stub = getStub
-    if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.PACKAGE_STMT, new ArrayFactory[ScPackageStatement] {
-        def create(count: Int): Array[ScPackageStatement] = new Array[ScPackageStatement](count)
-      })
-      if (array.length == 0) {
-        return None
-      } else {
-        return Some(array.apply(0))
-      }
-    } else findChild(classOf[ScPackageStatement])
-  }
+  def getPackageName: String = ""
 
   override def getClasses = {
     if (!isScriptFile) {

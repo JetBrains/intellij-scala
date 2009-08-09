@@ -1,7 +1,7 @@
 package scala.test.org.jetbrains
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement

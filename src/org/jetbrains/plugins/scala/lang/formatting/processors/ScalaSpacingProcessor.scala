@@ -474,8 +474,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
-      // case for packageStmt
-      case (ScalaElementTypes.PACKAGE_STMT, _, _, _) => DOUBLE_LINE
       //case for covariant or contrvariant type params
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.TYPE_PARAM, ScalaElementTypes.TYPE_PARAM) => return NO_SPACING
       //xml

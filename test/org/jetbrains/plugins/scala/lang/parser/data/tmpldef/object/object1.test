@@ -3,19 +3,19 @@ package a
 object b
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-  ScObject
-    AnnotationsList
-      <empty list>
-    Modifiers
-      <empty list>
-    PsiElement(object)('object')
-    PsiWhiteSpace(' ')
-    PsiElement(identifier)('b')
-    ExtendsBlock
-      <empty list>
+    ScObject
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('b')
+      ExtendsBlock
+        <empty list>

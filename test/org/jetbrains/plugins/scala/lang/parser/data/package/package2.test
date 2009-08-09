@@ -2,7 +2,7 @@ package a
 
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement

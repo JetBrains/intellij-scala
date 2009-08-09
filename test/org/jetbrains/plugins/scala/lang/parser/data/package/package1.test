@@ -3,18 +3,18 @@ package a
 import b.c
 -----
 ScalaFile
-  ScPackageStatement
+  ScPackaging
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-  ScImportStatement
-    PsiElement(import)('import')
-    PsiWhiteSpace(' ')
-    ImportExpression
-      CodeReferenceElement
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
         CodeReferenceElement
-          PsiElement(identifier)('b')
-        PsiElement(.)('.')
-        PsiElement(identifier)('c')
+          CodeReferenceElement
+            PsiElement(identifier)('b')
+          PsiElement(.)('.')
+          PsiElement(identifier)('c')

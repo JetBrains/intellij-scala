@@ -6,6 +6,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.IStubElementType
+import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
 import api.toplevel.packaging._
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 import psi.stubs.elements.wrappers.DummyASTNode
 
 /**
- * @author AlexanderPodkhalyuzin
+ * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
 
@@ -38,6 +39,8 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     }
     reference match {case Some(r) => _innerRefName(r) case None => ""}
   }
+
+  def isExplicit = findChildByType(ScalaTokenTypes.tLBRACE) != null
 
   def ownNamePart = reference match {case Some(r) => r.qualName case None => ""}
 
@@ -67,11 +70,9 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    val own = ownNamePart
-    val i = own.indexOf(".")
-    val top = if (i > 0) own.substring(0, i) else own
+    val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
 
-    var p = JavaPsiFacade.getInstance(getProject).findPackage(concat(prefix, top))
+    var p = JavaPsiFacade.getInstance(getProject).findPackage(pName)
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false
     }

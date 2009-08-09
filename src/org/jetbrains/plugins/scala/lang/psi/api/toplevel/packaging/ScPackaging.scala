@@ -8,4 +8,6 @@ import api.toplevel._
 
 trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageContainer with ScDeclaredElementsHolder {
   def getPackageName: String
+
+  def isExplicit: Boolean
 }

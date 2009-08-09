@@ -23,8 +23,6 @@ object ScalaElementTypes {
   val TRAIT_DEF = new ScTraitDefinitionElementType()
 
   val PACKAGING = new ScPackagingElementType()
-  val PACKAGE_STMT = new ScPackageStmtElementType()
-
   val EXTENDS_BLOCK = new ScExtendsBlockElementType()
 
   val CLASS_PARENTS = new ScClassParentsElementType

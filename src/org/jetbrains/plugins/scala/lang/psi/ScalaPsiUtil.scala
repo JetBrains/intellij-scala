@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import api.base._
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
-import api.toplevel.packaging.{ScPackaging, ScPackageStatement}
+import api.toplevel.packaging.{ScPackaging}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
 import api.toplevel.{ScEarlyDefinitions, ScTyped}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
