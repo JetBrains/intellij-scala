@@ -117,7 +117,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
 
-  def getPackagings = {
+  def getPackagings: Array[ScPackaging] = {
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
@@ -160,6 +160,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
+        //todo: this is redundant pName now always ""
         val pName = getPackageName
 
         // Treat package object first
