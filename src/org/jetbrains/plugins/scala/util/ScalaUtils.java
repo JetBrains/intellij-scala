@@ -78,7 +78,7 @@ public abstract class ScalaUtils {
     if (roots.length > 0) {
       return roots[0];
     }
-    return (module.getModuleFile().getParent());
+    return module.getModuleFile().getParent();
   }
 
   /**
