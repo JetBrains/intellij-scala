@@ -276,13 +276,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         def updateFirst {
           val first = getFirstChild
           if (first != null) {
-            /*val manager = first.getManager
-            if (first.getText.trim.length > 0) {
-              val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n\n").getPsi
-              addBefore(importSt, first)
-              addBefore(n2, first)
-            }
-            else */addBefore(importSt, first)
+            addBefore(importSt, first)
           }
           else addImport(importSt)
         }
@@ -295,30 +289,13 @@ trait ScImportsHolder extends ScalaPsiElement {
             val x = getNode.findChildByType(ScalaElementTypes.REFERENCE).getPsi
             if (x != null) {
               val next = x.getNextSibling
-              /*if (next != null && !next.getText.contains("\n")) {
-                val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-                addImportBefore(importSt, next)
-                addImportBefore(nl, next)
-              }
-              else {*/
-                //unnecessary nl will be removed by formatter
-//                val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-//                val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-//                addImportAfter(nl1, x)
                 addImportAfter(importSt, x)
-//                addImportAfter(nl2, importSt)
-//              }
             } else {
               updateFirst
             }
           }
           case node => {
-//            val manager = node.getPsi.getManager
-//            val n1 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
-//            val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
-//            addImportAfter(n1, node.getPsi)
             addImportAfter(importSt, node.getPsi)
-//            addImportAfter(n2, importSt)
           }
         }
       }
