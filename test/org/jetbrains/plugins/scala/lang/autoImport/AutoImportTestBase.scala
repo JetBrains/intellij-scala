@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCache
@@ -60,12 +62,15 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
 
     var res: String = null
 
+
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
+   
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run {
-          scalaFile.addImportForClass(classes(0))
+          org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix.
+                  getImportHolder(ref, myProject).addImportForClass(classes(0))
         }
       }, myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

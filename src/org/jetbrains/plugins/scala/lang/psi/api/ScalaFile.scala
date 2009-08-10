@@ -16,6 +16,7 @@ import toplevel.ScToplevelElement
 trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclarationSequenceHolder 
     with PsiImportHolder with ScImportsHolder with PsiFileWithStubSupport {
 
+  @Deprecated
   def importClass(aClass: PsiClass): Boolean = {
     addImportForClass(aClass)
     true

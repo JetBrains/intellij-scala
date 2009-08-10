@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import api.base.ScReferenceElement
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
 import collection.mutable.{HashSet, ArrayBuffer}
@@ -107,10 +110,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
     val selectors = new ArrayBuffer[String]
 
-    val qualName = clazz.getQualifiedName
-    val index = qualName.lastIndexOf('.')
+    val qualifiedName = clazz.getQualifiedName
+    val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
-    var classPackageQual = qualName.substring(0, index)
+    var classPackageQualifier = qualifiedName.substring(0, index)
 
     //collecting selectors to add into new import statement
     for (imp <- importStatementsInHeader) {
@@ -122,7 +125,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             case clazz: PsiClass => clazz.getQualifiedName
             case _ => ""
           }
-          if (qn == classPackageQual) {
+          if (qn == classPackageQualifier) {
             selectors ++= expr.getNames
             expr.deleteExpr
           }
@@ -162,14 +165,14 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     var importSt: ScImportStmt = null
     while (importSt == null) {
-      val (pre, last) = getSplitQualifierElement(classPackageQual)
+      val (pre, last) = getSplitQualifierElement(classPackageQualifier)
       if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
       else importString = last + "." + importString
-      if (packages.contains(classPackageQual)) {
+      if (packages.contains(classPackageQualifier)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
-        classPackageQual = pre
-        if (classPackageQual == "") {
+        classPackageQualifier = pre
+        if (classPackageQualifier == "") {
           importString = "_root_." + importString
           importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
@@ -178,12 +181,12 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     //cheek all imports under new import to fix problems
     if (isPlaceHolderImport) {
-      val synthPackage = ScSyntheticPackage.get(getSplitQualifierElement(qualName)._1, getProject)
+      val syntheticPackage = ScSyntheticPackage.get(getSplitQualifierElement(qualifiedName)._1, getProject)
 
-      val subPackages = if (synthPackage != null)
-        synthPackage.getSubPackages
+      val subPackages = if (syntheticPackage != null)
+        syntheticPackage.getSubPackages
       else {
-        val psiPack = JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualName)._1)
+        val psiPack = JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualifiedName)._1)
         if (psiPack != null) psiPack.getSubPackages
         else Array[PsiPackage]()
       }
@@ -191,8 +194,8 @@ trait ScImportsHolder extends ScalaPsiElement {
         element match {
           case expr: ScImportExpr => {
             def iterateExpr {
-              val qual = expr.qualifier
-              var firstQualifier = qual
+              val qualifier = expr.qualifier
+              var firstQualifier = qualifier
               if (firstQualifier.getText == "_root_") return
               while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier match {case Some(e) => e}
               if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
@@ -201,7 +204,7 @@ trait ScImportsHolder extends ScalaPsiElement {
                   case cl: PsiClass => cl.getQualifiedName
                   case _ => return
                 })._1
-                var importString = qual.getText
+                var importString = qualifier.getText
                 var break = true
                 while (break) {
                   val (pre, last) = getSplitQualifierElement(classPackageQual)
@@ -216,8 +219,8 @@ trait ScImportsHolder extends ScalaPsiElement {
                     }
                   }
                 }
-                val newQual = ScalaPsiElementFactory.createReferenceFromText(importString, getManager)
-                qual.replace(newQual)
+                val newQualifier = ScalaPsiElementFactory.createReferenceFromText(importString, getManager)
+                qualifier.replace(newQualifier)
                 iterateExpr
               }
             }
@@ -244,15 +247,14 @@ trait ScImportsHolder extends ScalaPsiElement {
           stmt match {
             case im: ScImportStmt => {
               def processPackage(elem: PsiElement): Boolean = {
-                if (classPackageQual == "") return true
-                val completionProcessor = new ResolveProcessor(StdKinds.packageRef, getSplitQualifierElement(classPackageQual)._2)
+                if (classPackageQualifier == "") return true
+                val completionProcessor = new ResolveProcessor(StdKinds.packageRef, getSplitQualifierElement(classPackageQualifier)._2)
                 elem.getContainingFile.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
                 completionProcessor.candidates.length > 0
               }
               if (importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)) {
                 added = true
                 addImportBefore(importSt, im)
-                addImportBefore(ScalaPsiElementFactory.createNewLineNode(im.getManager).getPsi, im)
               }
             }
             case _ =>
@@ -264,77 +266,79 @@ trait ScImportsHolder extends ScalaPsiElement {
           if (stmt != null) {
             while (!stmt.isInstanceOf[ScImportStmt]) stmt = stmt.getPrevSibling
             addImportAfter(importSt, stmt)
-            addImportAfter(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi, stmt)
           }
           else {
             addImportAfter(importSt, getLastChild)
-            addImportAfter(ScalaPsiElementFactory.createNewLineNode(getLastChild.getManager).getPsi, getLastChild)
           }
         }
       }
       case _ => {
-        //we have not import statement, so we insert new import statement as close to element begin as possible
-
-        //        findChild(classOf[ScPackageStatement]) match {
-//          case Some(x) => {
-//            val next = x.getNextSibling
-//            if (next != null && !next.getText.contains("\n")){
-//              val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-//              addImportBefore(importSt, next)
-//              addImportBefore(nl, next)
-//            } else {
-//              //unnecessary nl will be removed by formatter
-//              val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-//              val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
-//              addImportAfter(nl1, x)
-//              addImportAfter(importSt, nl1)
-//              addImportAfter(nl2, importSt)
-//            }
-//          }
-//          case None => {
-            //Here we must to find left brace, if not => it's ScalaFile (we can use addBefore etc.)
-            getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
-              case null => {
-                val first = getFirstChild
-                if (first != null) {
-                  val manager = first.getManager
-                  if (first.getText.trim.length > 0) {
-                    val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n\n").getPsi
-                    addBefore(importSt, first)
-                    addBefore(n2, first)
-                  } else addBefore(importSt, first) 
-                } else addImoprt(importSt)
-              }
-              case node => {
-                val manager = node.getPsi.getManager
-                val n1 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
-                val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
-                addImportAfter(n1, node.getPsi)
-                addImportAfter(importSt, n1)
-                addImportAfter(n2, importSt)
-              }
+        def updateFirst {
+          val first = getFirstChild
+          if (first != null) {
+            /*val manager = first.getManager
+            if (first.getText.trim.length > 0) {
+              val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n\n").getPsi
+              addBefore(importSt, first)
+              addBefore(n2, first)
             }
+            else */addBefore(importSt, first)
+          }
+          else addImport(importSt)
+        }
 
-//          }
-//        }
+        getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
+          case null if this.isInstanceOf[ScalaFile] => {
+            updateFirst
+          }
+          case null => {
+            val x = getNode.findChildByType(ScalaElementTypes.REFERENCE).getPsi
+            if (x != null) {
+              val next = x.getNextSibling
+              /*if (next != null && !next.getText.contains("\n")) {
+                val nl = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+                addImportBefore(importSt, next)
+                addImportBefore(nl, next)
+              }
+              else {*/
+                //unnecessary nl will be removed by formatter
+//                val nl1 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+//                val nl2 = ScalaPsiElementFactory.createNewLineNode(x.getManager, "\n\n").getPsi
+//                addImportAfter(nl1, x)
+                addImportAfter(importSt, x)
+//                addImportAfter(nl2, importSt)
+//              }
+            } else {
+              updateFirst
+            }
+          }
+          case node => {
+//            val manager = node.getPsi.getManager
+//            val n1 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
+//            val n2 = ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi
+//            addImportAfter(n1, node.getPsi)
+            addImportAfter(importSt, node.getPsi)
+//            addImportAfter(n2, importSt)
+          }
+        }
       }
     }
     HintManager.getInstance.hideAllHints
   }
 
 
-  def addImoprt(element: PsiElement): PsiElement = {
-    getNode.addChild(element.getNode)
+  def addImport(element: PsiElement): PsiElement = {
+    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, null)
     return getNode.getLastChildNode.getPsi
   }
 
   def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
-    getNode.addChild(element.getNode, anchor.getNode)
+    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchor.getNode)
     return anchor.getNode.getTreePrev.getPsi
   }
 
   def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
-    if (anchor.getNode == getNode.getLastChildNode) return addImoprt(element)
+    if (anchor.getNode == getNode.getLastChildNode) return addImport(element)
     addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
   }
 

@@ -19,19 +19,19 @@ import psi.impl.ScalaFileImpl
  */
 class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
-  def createLexer(project: Project) = new ScalaLexer()
+  def createLexer(project: Project) = new ScalaLexer
 
-  def createLexer() = new ScalaLexer()
+  def createLexer = new ScalaLexer
 
-  def createParser(project: Project): PsiParser = new ScalaParser()
+  def createParser(project: Project): PsiParser = new ScalaParser
 
-  def getFileNodeType(): IFileElementType = ScalaElementTypes.FILE
+  def getFileNodeType: IFileElementType = ScalaElementTypes.FILE
 
-  def getCommentTokens(): TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
+  def getCommentTokens: TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 
-  def getStringLiteralElements(): TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
+  def getStringLiteralElements: TokenSet = ScalaTokenTypes.STRING_LITERAL_TOKEN_SET
 
-  def getWhitespaceTokens(): TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
+  def getWhitespaceTokens: TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
   def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
 
@@ -39,8 +39,13 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
     return new ScalaFileImpl(fileViewProvider);
   }
 
-  override def spaceExistanceTypeBetweenTokens(astNode: ASTNode, astNode1: ASTNode): ParserDefinition.SpaceRequirements = {
-    return super.spaceExistanceTypeBetweenTokens(astNode, astNode1)
+  override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
+    import ParserDefinition._
+    (leftNode.getElementType, rightNode.getElementType) match {
+      case (ScalaTokenTypes.tLINE_TERMINATOR, _) => SpaceRequirements.MAY
+      case (_, ScalaTokenTypes.kIMPORT) => SpaceRequirements.MUST_LINE_BREAK
+      case _ => super.spaceExistanceTypeBetweenTokens(leftNode, rightNode)
+    }
   }
 
 }

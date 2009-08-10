@@ -53,7 +53,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
         if (qualName != null) {
-          file.addImportForClass(c)
+          org.jetbrains.plugins.scala.annotator.intention.
+                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+                addImportForClass(c, ref = this) 
         }
         this
       }

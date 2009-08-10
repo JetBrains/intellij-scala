@@ -67,7 +67,7 @@
     <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
     <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.moveHandler.MoveClassHandler" order="first"/>
     <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
-    <refactoring.copyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.copy.ScalaCopyClassesHandler"/>
+    <!--<refactoring.copyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.copy.ScalaCopyClassesHandler"/>-->
     <updateAddedFileProcessor implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScUpdateAddedFileProcessor"/>
     <!--<refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>-->
 

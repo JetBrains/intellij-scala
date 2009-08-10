@@ -4,6 +4,7 @@ package annotator
 package intention
 
 
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
 import com.intellij.codeInsight.CodeInsightUtilBase
 
@@ -54,7 +55,6 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
 
   private val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   def showHint(editor: Editor): Boolean = {
-    if (scalaSettings.DO_NOT_OFFER_IMPORT_HINT) return false
     ref.qualifier match {
       case Some(_) => return false
       case None => {
@@ -81,10 +81,10 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
   private def caretNear(editor: Editor): Boolean = ref.getTextRange.grown(1).contains(editor.getCaretModel.getOffset)
 
   private def range(editor: Editor) = {
-    val visibleRect = editor.getScrollingModel.getVisibleArea;
-    val startPosition = editor.xyToLogicalPosition(new Point(visibleRect.x, visibleRect.y));
+    val visibleRectangle = editor.getScrollingModel.getVisibleArea;
+    val startPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x, visibleRectangle.y));
     val myStartOffset = editor.logicalPositionToOffset(startPosition);
-    val endPosition = editor.xyToLogicalPosition(new Point(visibleRect.x + visibleRect.width, visibleRect.y + visibleRect.height));
+    val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height));
     val myEndOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0));
     new TextRange(myStartOffset, myEndOffset);
   }
@@ -117,28 +117,22 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
 
   def startInWriteAction(): Boolean = true
 
+
+
   class ScalaAddImportAction(editor: Editor, classes: Array[PsiClass], ref: ScReferenceElement) extends QuestionAction {
     def addImport(clazz: PsiClass) {
       ApplicationManager.getApplication().invokeLater(new Runnable() {
         def run() {
           if (!CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
-          ref.getContainingFile match {
-            case file: ScalaFile => {
-              ScalaUtils.runWriteAction(new Runnable {
-                def run: Unit = {
-                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                  getImportHolder.addImportForClass(clazz, ref)
-                }
-              }, clazz.getProject, "Add import action")
+          ScalaUtils.runWriteAction(new Runnable {
+            def run: Unit = {
+              PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+              ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
             }
-          }
+          }, clazz.getProject, "Add import action")
         }
       })
     }
-
-    def getImportHolder: ScImportsHolder = if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE)
-        PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
-      else ref.getContainingFile.asInstanceOf[ScImportsHolder]
 
     def chooseClass {
       val list = new JList(classes.asInstanceOf[Array[Object]])
@@ -167,6 +161,19 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
 }
 
 object ScalaImportClassFix {
+  def getImportHolder(ref: ScReferenceElement, project: Project): ScImportsHolder = {
+    val scalaSettings: ScalaCodeStyleSettings =
+      CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+    if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE)
+      PsiTreeUtil.getParentOfType(ref, classOf[ScImportsHolder])
+    else {
+      PsiTreeUtil.getParentOfType(ref, classOf[ScPackaging]) match {
+        case null => ref.getContainingFile.asInstanceOf[ScImportsHolder]
+        case packaging: ScPackaging => packaging
+      }
+    }
+  }
+
   private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
     def parent(t: ScTypeDefinition): PsiElement = {
       val stub = t.asInstanceOf[ScTypeDefinitionImpl].getStub
@@ -177,6 +184,7 @@ object ScalaImportClassFix {
       case t: ScTypeDefinition => {
        parent(t) match {
           case _: ScalaFile => true
+          case _: ScPackaging => true
           case _: ScTemplateBody if t.getContainingClass.isInstanceOf[ScObject] => {
             val obj = t.getContainingClass.asInstanceOf[ScObject]
             ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
