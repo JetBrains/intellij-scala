@@ -163,9 +163,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           return ref
         }
         val qname = c.getQualifiedName
-        if (qname != null) getContainingFile match {
-          case file: ScalaFile => file.addImportForClass(c) //todo: correct handling
-        }
+        if (qname != null) org.jetbrains.plugins.scala.annotator.intention.
+                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+                addImportForClass(c, ref = this) //todo: correct handling
         this
       }
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")

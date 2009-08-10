@@ -88,7 +88,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
   private JCheckBox showFilesInProjectViewCheckBox;
-  private JCheckBox doNotOfferAutoCheckBox;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -216,7 +215,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = addUnambiguousImportsOnCheckBox.isSelected();
     scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = addImportStatementInCheckBox.isSelected();
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
-    scalaSettings.DO_NOT_OFFER_IMPORT_HINT = doNotOfferAutoCheckBox.isSelected();
 
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
 
@@ -353,7 +351,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
-    if (scalaSettings.DO_NOT_OFFER_IMPORT_HINT != doNotOfferAutoCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaSettings.SHOW_FILES_IN_PROJECT_VIEW != showFilesInProjectViewCheckBox.isSelected()) return true;
@@ -435,7 +432,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(indentCaseFromMatchCheckBox, settings.INDENT_CASE_FROM_SWITCH);
     setValue(addUnambiguousImportsOnCheckBox, settings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY);
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
-    setValue(doNotOfferAutoCheckBox, settings.DO_NOT_OFFER_IMPORT_HINT);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
 
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
