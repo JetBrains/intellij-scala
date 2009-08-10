@@ -171,14 +171,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
           if (!obj.processDeclarations(processor, state, null, place)) return false
         }
 
-        var curr = JavaPsiFacade.getInstance(getProject).findPackage(pName)
-        while (curr != null) {
-          if (!curr.processDeclarations(processor, state, null, place)) return false
-          curr = curr.getParentPackage
+        var current = JavaPsiFacade.getInstance(getProject).findPackage(pName)
+        while (current != null) {
+          if (!current.processDeclarations(processor, state, null, place)) return false
+          current = current.getParentPackage
 
           // Treat parent package object
-          if (curr != null) {
-            val parentObj = cache.getPackageObjectByName(curr.getQualifiedName, GlobalSearchScope.allScope(getProject))
+          if (current != null) {
+            val parentObj = cache.getPackageObjectByName(current.getQualifiedName, GlobalSearchScope.allScope(getProject))
             if (parentObj != null) {
               if (!parentObj.processDeclarations(processor, state, null, place)) return false
             }
