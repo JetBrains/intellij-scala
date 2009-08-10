@@ -305,13 +305,12 @@ trait ScImportsHolder extends ScalaPsiElement {
 
 
   def addImport(element: PsiElement): PsiElement = {
-    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, null)
-    return getNode.getLastChildNode.getPsi
+    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, null).getPsi
   }
 
   def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
-    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchor.getNode)
-    return anchor.getNode.getTreePrev.getPsi
+    val anchorNode = anchor.getNode
+    return CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
   }
 
   def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
