@@ -34,20 +34,20 @@ object ScalaMarkerType {
     def fun(element: PsiElement): String = {
       element match {
         case method: ScFunction => {
-          val sigs = method.superSignatures
+          val signatures: Seq[FullSignature] = method.superSignatures
           //removed assertion, because can be change before adding gutter, so just need to return ""
-          if (sigs.length != 0) return ""
-          val clazz = sigs(0).clazz
+          if (signatures.length != 0) return ""
+          val clazz = signatures(0).clazz
           assert(clazz != null)
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
         }
         case _: ScValue | _: ScVariable => {
-          val sigs = new ArrayBuffer[FullSignature]
+          val signatures = new ArrayBuffer[FullSignature]
           val bindings = element match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
-          for (z <- bindings) sigs ++= ScalaPsiUtil.superValsSignatures(z)
-          assert(sigs.length != 0)
-          val clazz = sigs(0).clazz
+          for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
+          assert(signatures.length != 0)
+          val clazz = signatures(0).clazz
           assert(clazz != null)
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
