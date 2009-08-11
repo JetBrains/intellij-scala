@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package optimize
+package org.jetbrains.plugins.scala.lang.optimize
 package generated
 
 class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {

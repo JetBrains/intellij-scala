@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package optimize
+package org.jetbrains.plugins.scala.lang.optimize
 package generated
 
 class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
@@ -8,6 +6,4 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
   override def rootPath: String = super.rootPath + "implicits/"
 
   def testImplicitReference = doTest
-
-  def testImplicitReference2 = doTest
 }
