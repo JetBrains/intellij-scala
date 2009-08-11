@@ -30,4 +30,9 @@ trait ScPrimaryConstructor extends ScMember {
 
   //hack: no ClassParamList present at the moment
   def parameters : Seq[ScClassParameter] = parameterList.params.asInstanceOf[Seq[ScClassParameter]]
+
+  /**
+   * return only parameters, which are additionally members.
+   */
+  def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 }
