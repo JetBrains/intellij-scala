@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
+import _root_.com.intellij.psi.util.PsiTreeUtil
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import com.intellij.lang.ParserDefinition, com.intellij.lang.PsiParser
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
@@ -41,6 +43,9 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
     import ParserDefinition._
+    lazy val imp: ScImportStmt = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt])
+    if (rightNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR && imp != null &&
+            rightNode.getTextRange.getStartOffset == imp.getTextRange.getEndOffset) return SpaceRequirements.MUST_LINE_BREAK
     (leftNode.getElementType, rightNode.getElementType) match {
       case (ScalaTokenTypes.tLINE_TERMINATOR, _) => SpaceRequirements.MAY
       case (_, ScalaTokenTypes.kIMPORT) => SpaceRequirements.MUST_LINE_BREAK

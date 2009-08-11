@@ -551,6 +551,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       //Imports
       case (ScalaElementTypes.IMPORT_STMT, ScalaElementTypes.IMPORT_STMT, _, _) => return IMPORT_BETWEEN_SPACING
       case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.FILE, _) => return DOUBLE_LINE
+      case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.PACKAGING, _) => return DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, _, _) => return IMPORT_BETWEEN_SPACING
       //Dot
       case (ScalaTokenTypes.tDOT, _, _, _) => return NO_SPACING_WITH_NEWLINE

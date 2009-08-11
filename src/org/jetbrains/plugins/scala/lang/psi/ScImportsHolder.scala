@@ -118,9 +118,9 @@ trait ScImportsHolder extends ScalaPsiElement {
     //collecting selectors to add into new import statement
     for (imp <- importStatementsInHeader) {
       for (expr: ScImportExpr <- imp.importExprs) {
-        val qual = expr.qualifier
-        if (qual != null) { //in case "import scala" it can be null
-          val qn = qual.resolve match {
+        val qualifier = expr.qualifier
+        if (qualifier != null) { //in case "import scala" it can be null
+          val qn = qualifier.resolve match {
             case pack: PsiPackage => pack.getQualifiedName
             case clazz: PsiClass => clazz.getQualifiedName
             case _ => ""
@@ -157,7 +157,19 @@ trait ScImportsHolder extends ScalaPsiElement {
 
 
     val completionProcessor = new CompletionProcessor(StdKinds.packageRef)
-    this.processDeclarations(completionProcessor, ResolveState.initial, getLastChild, getLastChild)
+    val place = getLastChild
+    def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+      place match {
+        case null =>
+        case p => {
+          if (!p.processDeclarations(completionProcessor,
+            ResolveState.initial,
+            lastParent, place)) return
+          treeWalkUp(place.getContext, place)
+        }
+      }
+    }
+    treeWalkUp(this, place)
     val packages = completionProcessor.candidates.map((result: ScalaResolveResult) => result match {
       case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName
       case _ => ""
@@ -249,7 +261,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               def processPackage(elem: PsiElement): Boolean = {
                 if (classPackageQualifier == "") return true
                 val completionProcessor = new ResolveProcessor(StdKinds.packageRef, getSplitQualifierElement(classPackageQualifier)._2)
-                elem.getContainingFile.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
+                this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
                 completionProcessor.candidates.length > 0
               }
               if (importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)) {
