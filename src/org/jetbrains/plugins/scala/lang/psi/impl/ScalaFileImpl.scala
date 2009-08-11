@@ -4,44 +4,25 @@ package psi
 package impl
 
 
-import api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement}
+import api.base.{ScStableCodeReferenceElement}
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-
-
 import caches.{ScalaCachesManager, CachesUtil}
 import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
 import com.intellij.openapi.util.Key
-import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.{ArrayFactory, IncorrectOperationException}
+import com.intellij.util.{ArrayFactory}
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import api.ScalaFile
-import com.intellij.psi.stubs.StubElement
-import api.toplevel.typedef.ScTypeDefinition
-import api.toplevel.imports.ScImportStmt
-import com.intellij.lang.Language
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import decompiler.CompiledFileAdjuster
 import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import psi.api.toplevel._
-import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-
-import _root_.scala.collection.mutable._
-import util.PsiModificationTracker
-
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())

@@ -199,7 +199,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               if (firstQualifier.getText == "_root_") return
               while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier match {case Some(e) => e}
               if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
-                var classPackageQual = getSplitQualifierElement(firstQualifier.resolve match {
+                var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve match {
                   case pack: PsiPackage => pack.getQualifiedName
                   case cl: PsiClass => cl.getQualifiedName
                   case _ => return
@@ -207,13 +207,13 @@ trait ScImportsHolder extends ScalaPsiElement {
                 var importString = qualifier.getText
                 var break = true
                 while (break) {
-                  val (pre, last) = getSplitQualifierElement(classPackageQual)
+                  val (pre, last) = getSplitQualifierElement(classPackageQualifier)
                   if (last != "") importString = last + "." + importString
-                  if (packages.contains(classPackageQual)) {
+                  if (packages.contains(classPackageQualifier)) {
                     break = false
                   } else {
-                    classPackageQual = pre
-                    if (classPackageQual == "") {
+                    classPackageQualifier = pre
+                    if (classPackageQualifier == "") {
                       importString = "_root_." + importString
                       break = false
                     }
