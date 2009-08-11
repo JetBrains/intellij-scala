@@ -15,6 +15,9 @@ ScalaFile
       PsiElement(.)('.')
       PsiElement(identifier)('c')
     PsiElement(newline)('\n\n')
-    BlockExpression
-      PsiElement({)('{')
-      PsiElement(})('}')
+    PsiErrorElement:Wrong top statement declaration
+      <empty list>
+    PsiElement({)('{')
+    PsiErrorElement:Wrong top statement declaration
+      <empty list>
+    PsiElement(})('}')

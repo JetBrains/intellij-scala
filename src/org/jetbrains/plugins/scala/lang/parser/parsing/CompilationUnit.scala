@@ -24,9 +24,9 @@ object CompilationUnit {
   def parse(builder: PsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
 
-    def parsePackagingBody = {
+    def parsePackagingBody(hasPackage: Boolean) = {
       while (builder.getTokenType != null) {
-        TopStatSeq.parse(builder, false, false) match {
+        TopStatSeq.parse(builder, false, hasPackage) match {
           case ParserState.EMPTY_STATE =>
           case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
           case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
@@ -58,7 +58,7 @@ object CompilationUnit {
                     !ParserUtils.lookAhead(builder, ScalaTokenTypes.kPACKAGE, ScalaTokenTypes.kOBJECT)) {
               // Parse package statement
               val newMarker = builder.mark
-              builder.advanceLexer
+              builder.advanceLexer //package
               askType match {
                 case ScalaTokenTypes.tIDENTIFIER => {
                   Qual_Id parse builder
@@ -67,7 +67,7 @@ object CompilationUnit {
                   ParserUtils.lookAhead(builder, ScalaTokenTypes.tLINE_TERMINATOR, ScalaTokenTypes.tLBRACE) &&
                   !builder.getTokenText.matches(".*\n.*\n.*")) {
                     newMarker.rollbackTo
-                    parsePackagingBody
+                    parsePackagingBody(true)
                     k
                   } else {
                     parsePackageSequence(false, {newMarker.done(ScalaElementTypes.PACKAGING); k})
@@ -81,7 +81,7 @@ object CompilationUnit {
               }
             } else {
               // Parse the remainder of a file
-              parsePackagingBody
+              parsePackagingBody(true)
               k
             }
           }
@@ -90,7 +90,7 @@ object CompilationUnit {
         parsePackageSequence(true, ())
 
       }
-      case _ => parsePackagingBody
+      case _ => parsePackagingBody(false)
     }
     return parseState
   }
