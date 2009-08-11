@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package autoImport
+package org.jetbrains.plugins.scala.lang.autoImport
 package generated
 
 class AutoImportAllTest extends AutoImportTestBase {
