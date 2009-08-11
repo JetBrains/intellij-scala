@@ -111,7 +111,7 @@ object TypeDefinitionMembers {
               map += ((dcl, new Node(dcl, subst)))
             }
           case constr: ScPrimaryConstructor =>
-            for (param <- constr.parameters) {
+            for (param <- constr.valueParameters) {
               map += ((param, new Node(param, subst)))
             }
           case _ =>
@@ -211,7 +211,7 @@ object TypeDefinitionMembers {
               addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.calcType, dcl)
             }
           case constr: ScPrimaryConstructor =>
-            for (param <- constr.parameters) {
+            for (param <- constr.valueParameters) {
               val t = param.calcType
               addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
