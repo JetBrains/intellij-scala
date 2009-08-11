@@ -10,7 +10,10 @@ ScalaFile
     CodeReferenceElement
       PsiElement(identifier)('a')
     PsiElement(newline)('\n\n')
-    BlockExpression
-      PsiElement({)('{')
-      PsiWhiteSpace('\n')
-      PsiElement(})('}')
+    PsiErrorElement:Wrong top statement declaration
+      <empty list>
+    PsiElement({)('{')
+    PsiErrorElement:Wrong top statement declaration
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
