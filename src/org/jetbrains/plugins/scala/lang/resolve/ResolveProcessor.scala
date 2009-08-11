@@ -220,6 +220,7 @@ object StdKinds {
   val stableClass = HashSet.empty + CLASS
 
   val stableClassOrObject = HashSet.empty + CLASS + OBJECT
+  val classOrObjectOrValues = stableClassOrObject + VAL + VAR
 
   val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
   val refExprQualRef = refExprLastRef + PACKAGE
