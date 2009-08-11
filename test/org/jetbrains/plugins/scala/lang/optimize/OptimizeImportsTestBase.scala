@@ -3,6 +3,7 @@ package lang
 package optimize
 
 
+import _root_.com.intellij.psi.impl.source.tree.TreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import base.ScalaPsiTestCase
 import com.intellij.openapi.command.undo.UndoManager
@@ -43,14 +44,10 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, 0), false)
 
     var res: String = null
-    var lastPsi = scalaFile.getLastChild
+    var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
     try {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run {
-          new ScalaImportOptimizer().processFile(scalaFile).run
-        }
-      }, myProject, "Test")
+      ScalaUtils.runWriteAction(new ScalaImportOptimizer().processFile(scalaFile), myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {
