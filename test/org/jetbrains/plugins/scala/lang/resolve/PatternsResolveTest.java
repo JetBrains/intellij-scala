@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
  * User: Alexander Podkhalyuzin
  * Date: 11.08.2009
  */
-public class PatternsResolveTest extends ScalaResolveTestCase{
+public class PatternsResolveTest extends ScalaResolveTestCase {
 
   public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/";
