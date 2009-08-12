@@ -1,0 +1,31 @@
+<!--EXTERNAL_PROPERTIES: config_path-->
+<project>
+  <property name="nightly_task_assembly" value="${project::get-base-directory()}/../Platform/Tools/NightlyDaemon/DeployNightlyBuildTask/bin/Debug/DeployNightlyBuildTask.dll"/>
+  <property name="full_config_path" value="\\Main\ReSharperBuilds\NightlyConfig\config.xml"/>
+  <property name="artifacts.dir" value="${project::get-base-directory()}/artifacts"/>
+  <target name="deploy">
+    <loadtasks assembly="${nightly_task_assembly}">
+    </loadtasks>
+    <ifnot test="${directory::exists(artifacts.dir)}">
+      <mkdir dir="${artifacts.dir}"/>
+    </ifnot>
+    <delete>
+      <fileset basedir="${artifacts.dir}">
+        <include name="*bin*.zip"/>
+      </fileset>
+    </delete>
+    <deploy_nightly config_path="${full_config_path}"
+                    artifacts="${artifacts.dir}"
+                    show_fixes="False"
+                    link_prefix="http://download.jetbrains.com/scala/"
+                    space="Scala"
+                    page="Scala Plugin Nightly Builds"
+                    file_templates="Scala.Plugin.{0}.{1}.zip"
+                    name_templates="Download"
+                    table_template="{0}"
+                    build_number_pattern="4 \x2E 5 \x2E (?&lt;build_number&gt;\d+)  \x2E \x7B 0 \x7D"
+                    build_type_id="bt520"
+                    publish="${build.publish}"
+                    failonerror="true"/>
+  </target>
+</project>

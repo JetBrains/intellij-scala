@@ -5,6 +5,7 @@ package impl
 package toplevel
 package synthetic
 
+import _root_.javax.swing.Icon
 import api.statements.params.ScTypeParam
 import api.toplevel.typedef.ScTemplateDefinition
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
@@ -120,6 +121,12 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   override def toString = "Synthetic method"
 }
 
+class ScSyntheticValue(manager: PsiManager, val name: String, val tp: ScType) extends SyntheticNamedElement(manager, name) {
+  override def getIcon(flags: Int): Icon = icons.Icons.VAL
+
+  override def toString = "Synthetic value"
+}
+
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
@@ -147,6 +154,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
     any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
     val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+    val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
       val stringType = new ScDesignatorType(stringClass)
       any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
@@ -204,8 +212,14 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
         ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Long)))
       }
     }
+    scriptSyntheticValues = new HashSet[ScSyntheticValue]
+    if (stringClass != null && arrayClass != null) {
+      scriptSyntheticValues += new ScSyntheticValue(manager, "args",
+        ScParameterizedType(ScDesignatorType(arrayClass), Seq(ScDesignatorType(stringClass))))
+    }
   }
 
+  var scriptSyntheticValues: Set[ScSyntheticValue] = new HashSet[ScSyntheticValue]
   var all: Map[String, ScSyntheticClass] = new HashMap[String, ScSyntheticClass]
   var numeric: Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
   var integer : Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
@@ -254,9 +268,11 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   }
 
   override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)
+
+  def getScriptSyntheticValues: Seq[ScSyntheticValue] = scriptSyntheticValues.toSeq
 }
 
 object SyntheticClasses {
-  def get(project: Project) = project.getComponent(classOf[SyntheticClasses])
+  def get(project: Project): SyntheticClasses = project.getComponent(classOf[SyntheticClasses])
 }
 

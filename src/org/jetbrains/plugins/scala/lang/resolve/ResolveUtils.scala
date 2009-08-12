@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang
 package resolve
+
+import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import com.intellij.psi.util.PsiTreeUtil
 import lexer.ScalaTokenTypes
 import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
@@ -53,6 +55,7 @@ object ResolveUtils {
             case _: ScParameter => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
+            case _: ScSyntheticValue => kinds contains VAL
             case f: PsiField => (kinds contains VAR) || (f.hasModifierProperty(PsiModifier.FINAL) && kinds.contains(VAL))
             case _ => false
           })
