@@ -23,8 +23,8 @@
                     file_templates="Scala.Plugin.{0}.{1}.zip"
                     name_templates="Download"
                     table_template="{0}"
-                    build_number_pattern="4 \x2E 5 \x2E (?&lt;build_number&gt;\d+)  \x2E \x7B 0 \x7D"
-                    build_type_id="bt520"
+                    build_number_pattern="(?&lt;build_number&gt;\d+)"
+                    build_type_id="bt110"
                     publish="${build.publish}"
                     failonerror="true"/>
   </target>
