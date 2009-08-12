@@ -1,7 +1,7 @@
 <!--EXTERNAL_PROPERTIES: config_path-->
 <project>
   <property name="nightly_task_assembly" value="${project::get-base-directory()}/../Platform/Tools/NightlyDaemon/DeployNightlyBuildTask/bin/Debug/DeployNightlyBuildTask.dll"/>
-  <property name="full_config_path" value="\\Main\ReSharperBuilds\NightlyConfig\config.xml"/>
+  <property name="full_config_path" value="\\Main\Home\Alexander.Podkhalyuzin\NightlyConfig\config.xml"/>
   <property name="artifacts.dir" value="${project::get-base-directory()}/artifacts"/>
   <target name="deploy">
     <loadtasks assembly="${nightly_task_assembly}">

@@ -4,9 +4,9 @@ package parser
 package parsing
 package top.params
 
+import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, Annotation}
 import base.Modifier
 import com.intellij.lang.PsiBuilder
-import expressions.Annotation
 import lexer.ScalaTokenTypes
 import types.ParamType
 
@@ -16,7 +16,7 @@ import types.ParamType
 */
 
 /*
- * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType
+ * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
  */
 
 object ClassParam {
@@ -58,21 +58,26 @@ object ClassParam {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
         builder.advanceLexer //Ate ':'
-        if (ParamType parse builder) {
-          classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
-          return true
-        }
-        else {
+        if (!ParamType.parse(builder)) {
           builder.error(ScalaBundle.message("parameter.type.expected"))
-          classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
-          return true
         }
       }
       case _ => {
         builder.error(ScalaBundle.message("colon.expected"))
-        classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
-        return true
       }
     }
+
+    //default param
+    builder.getTokenType match {
+      case ScalaTokenTypes.tASSIGN => {
+        builder.advanceLexer //Ate '='
+        if (!Expr.parse(builder)) {
+          builder error ScalaBundle.message("wrong.expression")
+        }
+      }
+      case _ =>
+    }
+    classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
+    return true
   }
 }
