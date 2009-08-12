@@ -177,7 +177,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     import toplevel.synthetic.SyntheticClasses
 
     for (synth <- SyntheticClasses.get(getProject).getAll) {
-      if (!processor.execute(synth, state)) return false;
+      if (!processor.execute(synth, state)) return false
+    }
+
+    if (isScriptFile) {
+      for (syntheticValue <- SyntheticClasses.get(getProject).getScriptSyntheticValues) {
+        if (!processor.execute(syntheticValue, state)) return false
+      }
     }
 
     for (implP <- ImplicitlyImported.packages) {
