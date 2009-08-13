@@ -21,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import impl.PsiManagerEx
+import impl.source.resolve.ResolveCache
 import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -29,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import formatting.settings.ScalaCodeStyleSettings
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -64,7 +67,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
+  def getVariants(): Array[Object] = {
+    val tp: ScType = qualifier match {
+      case None => psi.types.Nothing
+      case Some(qual: ScExpression) => qual.cachedType
+    }
+    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => {
+      r match {
+        case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
+        case _ => r.getElement
+      }
+    })
+  }
 
   def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true))).
           filter(r => r.getElement.isInstanceOf[PsiNamedElement] &&

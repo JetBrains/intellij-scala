@@ -193,14 +193,14 @@ class ScalaCompletionData extends CompletionData {
         var hasApplicableVariants = false
         for (variant <- variants) {
           if (variant.hasReferenceFilter()) {
-            variant.setInsertHandler(new ScalaInsertHandler)
+            //variant.setInsertHandler(new ScalaInsertHandler)
             variant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
             hasApplicableVariants = true
           }
         }
 
         if (!hasApplicableVariants) {
-          myGenericVariant.setInsertHandler(new ScalaInsertHandler)
+          //myGenericVariant.setInsertHandler(new ScalaInsertHandler)
           myGenericVariant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
         }
       }

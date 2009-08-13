@@ -16,18 +16,25 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
   private val names = new HashSet[String]
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
-    def substitutor: ScSubstitutor = {
+    lazy val substitutor: ScSubstitutor = {
       state.get(ScSubstitutor.key) match {
         case null => ScSubstitutor.empty
         case x => x
       }
     }
 
+    lazy val isRenamed: Option[String] = {
+      state.get(ResolverEnv.nameKey) match {
+        case null => None
+        case x: String => Some(x)
+      }
+    }
+
     element match {
       case td: ScTypeDefinition if !names.contains(td.getName) => {
-        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td, substitutor)
+        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td, substitutor, nameShadow = isRenamed)
         ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td, substitutor)
+          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td, substitutor, nameShadow = isRenamed)
           case _ =>
         }
       }
@@ -38,20 +45,20 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends
               val sign = new PhysicalSignature(method, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, substitutor)
+                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed)
               }
             }
             case bindingPattern: ScBindingPattern => {
-              val sign = new Signature(bindingPattern.getName, Seq.empty, 0, substitutor)
+              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Seq.empty, 0, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, substitutor)
+                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed)
               }
             }
             case _ => {
               if (!names.contains(named.getName)) {
-                candidatesSet += new ScalaResolveResult(named, substitutor)
-                names += named.getName
+                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed)
+                names += isRenamed.getOrElse(named.getName)
               }
             }
           }

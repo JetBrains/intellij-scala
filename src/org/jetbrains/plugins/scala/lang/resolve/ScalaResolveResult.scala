@@ -14,16 +14,17 @@ object ScalaResolveResult {
 }
 
 class ScalaResolveResult(val element: PsiNamedElement,
-                         val substitutor: ScSubstitutor,
-                         val importsUsed: _root_.scala.collection.Set[ImportUsed]) extends ResolveResult {
-  def this(element: PsiNamedElement, substitutor: ScSubstitutor) = this(element, substitutor, Set[ImportUsed]())
-  def this(element: PsiNamedElement) = this (element, ScSubstitutor.empty, Set[ImportUsed]())
+                         val substitutor: ScSubstitutor = ScSubstitutor.empty,
+                         val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
+                         val nameShadow: Option[String] = None) extends ResolveResult {
 
   def getElement() = element
 
   def isValidResult() = true
 
   def isCyclicReference = false
+
+  def isRenamed: Option[String] = nameShadow
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

@@ -5,17 +5,17 @@ package handlers
 
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupItem}
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
 import psi.api.expr.{ScInfixExpr, ScPostfixExpr}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 28.07.2008
  */
 
-class ScalaInsertHandler extends InsertHandler[LookupItem[_]] {
-  override def handleInsert(context: InsertionContext, item: LookupItem[_]) {
+class ScalaInsertHandler extends InsertHandler[LookupElement] {
+  override def handleInsert(context: InsertionContext, item: LookupElement) {
     val editor = context.getEditor
     val document = editor.getDocument
     if (context.getCompletionChar == '(') {

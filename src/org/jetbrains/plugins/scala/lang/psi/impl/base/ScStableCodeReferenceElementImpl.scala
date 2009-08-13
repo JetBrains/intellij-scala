@@ -34,7 +34,12 @@ import api.expr.{ScSuperReference, ScThisReference}
  */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => r.getElement)
+  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => {
+    r match {
+      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
+      case _ => r.getElement
+    }
+  })
 
   override def toString: String = "CodeReferenceElement"
 
