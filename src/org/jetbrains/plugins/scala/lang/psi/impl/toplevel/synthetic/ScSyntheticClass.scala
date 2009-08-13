@@ -22,6 +22,9 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 
 import _root_.scala.collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, MultiMap}
+import com.intellij.navigation.ItemPresentation
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import java.lang.String
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -62,6 +65,18 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 class ScSyntheticClass(manager: PsiManager, val className: String, val t: StdType)
 extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFake {
+  override def getPresentation: ItemPresentation = {
+    new ItemPresentation {
+      val This = ScSyntheticClass.this
+      def getLocationString: String = "(scala)"
+
+      def getTextAttributesKey: TextAttributesKey = null
+
+      def getPresentableText: String = This.getName
+
+      def getIcon(open: Boolean): Icon = This.getIcon(0)
+    }
+  }
 
   override def toString = "Synthetic class"
 

@@ -314,7 +314,11 @@ object ScType {
         buffer.append("}")
       }
       case ScSingletonType(path: ScStableCodeReferenceElement) => {
-        buffer.append(path.getText).append(".type")
+        path.bind match {
+          case Some(r: ScalaResolveResult) => buffer.append(nameFun(r.getElement))
+          case _ => buffer.append(path.refName)
+        }
+        buffer.append(".type")
       }
       case _ => null //todo
     }

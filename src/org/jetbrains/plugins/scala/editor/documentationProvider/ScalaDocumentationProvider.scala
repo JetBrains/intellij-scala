@@ -204,7 +204,7 @@ object ScalaDocumentationProvider {
       param.getDefaultExpression match {
         case Some(expr) => {
           val text: String = expr.getText
-          val cutTo = 10
+          val cutTo = 20
           buffer.append(text.substring(0, text.length.min(cutTo)))
           if (text.length > cutTo) buffer.append("...")
         }
