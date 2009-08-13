@@ -167,7 +167,7 @@ object ResolveUtils {
     }
   }
 
-  def getLookupElement(resolveResult: ScalaResolveResult, qualifierType: ScType = Nothing): LookupElement = {
+  def getLookupElement(resolveResult: ScalaResolveResult, qualifierType: ScType = Nothing): (LookupElement, PsiElement) = {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -244,6 +244,6 @@ object ResolveUtils {
         }), isDeprecated, isBold)
       }
     })
-    lookupBuilder.createLookupElement
+    (lookupBuilder.createLookupElement, element)
   }
 }
