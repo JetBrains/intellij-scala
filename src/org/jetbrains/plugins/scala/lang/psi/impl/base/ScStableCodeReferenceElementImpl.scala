@@ -58,7 +58,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getKinds(incomplete: Boolean) = {
+  def getKinds(incomplete: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
     getContext match {
       case _: ScStableCodeReferenceElement => stableQualRef
@@ -148,6 +148,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ => true
     }).toArray[ResolveResult]
   }
+
+  object E1 extends Enumeration {
+  val x = Value("x")
+  val y = Value("y")
+}
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)

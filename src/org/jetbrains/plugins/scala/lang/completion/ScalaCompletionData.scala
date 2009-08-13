@@ -5,7 +5,8 @@ package completion
 import handlers.ScalaInsertHandler
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.{PsiElement, PsiReference, PsiFile}
-import com.intellij.codeInsight.completion._;
+import com.intellij.codeInsight.completion._
+import java.util.Set;
 import com.intellij.codeInsight.TailType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.PsiElement;
@@ -138,10 +139,6 @@ class ScalaCompletionData extends CompletionData {
     registerStandardCompletion(new RequiresFilter, "requires")
   }
 
-  /*private def registerIfCompletion {
-    registerStandardCompletion(new IfFilter, "if")
-  }*/
-
   private def registerDefTypeCompletion {
     registerStandardCompletion(new DefTypeFilter, "def", "type")
   }
@@ -187,24 +184,5 @@ class ScalaCompletionData extends CompletionData {
 
   override def completeReference(reference: PsiReference,  set: java.util.Set[LookupElement], position: PsiElement,  file: PsiFile,
                                 offset: Int) {
-    val variants = findVariants(position, file)
-    ApplicationManager.getApplication().runReadAction(new Runnable() {
-      def run() {
-        var hasApplicableVariants = false
-        for (variant <- variants) {
-          if (variant.hasReferenceFilter()) {
-            //variant.setInsertHandler(new ScalaInsertHandler)
-            variant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
-            hasApplicableVariants = true
-          }
-        }
-
-        if (!hasApplicableVariants) {
-          //myGenericVariant.setInsertHandler(new ScalaInsertHandler)
-          myGenericVariant.addReferenceCompletions(reference, position, set, file, ScalaCompletionData.this)
-        }
-      }
-    })
   }
-
 }
