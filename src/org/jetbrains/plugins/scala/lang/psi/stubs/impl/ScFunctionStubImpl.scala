@@ -21,7 +21,7 @@ import types.ScType
  */
 
 class ScFunctionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
@@ -33,7 +33,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var assign: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, isDeclaration: Boolean, annotations: Array[String], typeText: String, bodyText: String,
           assign: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])

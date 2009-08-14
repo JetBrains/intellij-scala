@@ -15,7 +15,7 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
  */
 
 class ScAnnotationsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScAnnotations](parent, elemType) with ScAnnotationsStub {
 
 }

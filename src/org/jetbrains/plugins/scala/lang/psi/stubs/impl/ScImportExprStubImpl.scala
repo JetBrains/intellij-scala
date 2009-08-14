@@ -18,7 +18,7 @@ import psi.impl.ScalaPsiElementFactory
  */
 
 class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
   extends StubBaseWrapper[ScImportExpr](parent, elemType) with ScImportExprStub {
 
   var referenceText: StringRef = StringRef.fromString("")
@@ -26,7 +26,7 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   private var myReference: PatchedSoftReference[Option[ScStableCodeReferenceElement]] = null
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_], _ <: PsiElement], refText: String, singleWildcard: Boolean) {
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, singleWildcard: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     referenceText = StringRef.fromString(refText)
     this.singleWildcard = singleWildcard

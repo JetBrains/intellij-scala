@@ -20,7 +20,7 @@ import psi.impl.toplevel.imports.{ScImportSelectorImpl, ScImportStmtImpl}
 class ScImportSelectorElementType[Func <: ScImportSelector]
         extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
   def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeName(stub.asInstanceOf[ScImportSelectorStubImpl[_]].referenceText.toString)
+    dataStream.writeName(stub.asInstanceOf[ScImportSelectorStubImpl[_ <: PsiElement]].referenceText.toString)
     dataStream.writeName(stub.importedName)
   }
 

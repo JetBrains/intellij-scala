@@ -14,5 +14,5 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
  */
 
 class ScIdListStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScIdList](parent, elemType) with ScIdListStub

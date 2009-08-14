@@ -6,7 +6,8 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.stubs.{StubElement, IndexSink, IStubElementType, PsiFileStub}
 import wrappers.IStubElementTypeWrapper
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiFile, PsiElement}
+
 /**
  * @author ilyas
  */
@@ -18,7 +19,7 @@ extends IStubElementTypeWrapper[S, T](debugName) {
 
   def isCompiled(stub: S) = {
     var parent = stub
-    while (!(parent.isInstanceOf[PsiFileStub[_]])) {
+    while (!(parent.isInstanceOf[PsiFileStub[_ <: PsiFile]])) {
       parent = parent.getParentStub.asInstanceOf[S]
     }
     parent.asInstanceOf[ScFileStub].isCompiled

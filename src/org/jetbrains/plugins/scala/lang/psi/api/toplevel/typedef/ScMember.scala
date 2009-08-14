@@ -21,7 +21,7 @@ import impl.source.PsiFileImpl
 
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def getContainingClass: ScTemplateDefinition = {
-    val stub: StubElement[_] = this match {
+    val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
       case st: StubBasedPsiElement[_] => st.getStub
       case _ => null

@@ -17,7 +17,7 @@ import com.intellij.psi.PsiElement
  */
 
 class ScTemplateBodyStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
   extends StubBaseWrapper[ScTemplateBody](parent, elemType) with ScTemplateBodyStub {
 
 }

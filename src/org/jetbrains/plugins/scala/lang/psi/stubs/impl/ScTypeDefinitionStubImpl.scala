@@ -16,7 +16,7 @@ import api.toplevel.typedef.ScTypeDefinition
  */
 
 class ScTypeDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                        elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                        elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitionStub {
 
   var myName: StringRef = _
@@ -26,7 +26,7 @@ extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitio
   private var _isPackageObject: Boolean = _
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String,
           qualName: String,
           sourceFileName: String,

@@ -109,7 +109,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  private def superTypes = qualifier match {
+  private def superTypes: Option[Seq[ScType]] = qualifier match {
     case Some(q) => q.resolve match {
       case c : PsiClass => Some(c.getSuperTypes.map {t => ScType.create(t, getProject)})
       case _ => None
@@ -117,7 +117,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     case None => {
       PsiTreeUtil.getContextOfType(this, classOf[ScExtendsBlock], false) match {
         case null => None
-        case eb => Some(eb.superTypes)
+        case eb: ScExtendsBlock => Some(eb.superTypes)
       }
     }
   }

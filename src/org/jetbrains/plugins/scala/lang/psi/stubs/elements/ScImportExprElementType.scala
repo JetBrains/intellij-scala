@@ -20,7 +20,7 @@ import com.intellij.psi.PsiElement
 class ScImportExprElementType[Func <: ScImportExpr]
         extends ScStubElementType[ScImportExprStub, ScImportExpr]("import expression") {
   def serialize(stub: ScImportExprStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeName(stub.asInstanceOf[ScImportExprStubImpl[_]].referenceText.toString)
+    dataStream.writeName(stub.asInstanceOf[ScImportExprStubImpl[_ <: PsiElement]].referenceText.toString)
     dataStream.writeBoolean(stub.isSingleWildcard)
   }
 

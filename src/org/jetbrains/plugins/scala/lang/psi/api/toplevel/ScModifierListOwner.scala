@@ -19,7 +19,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
   override def getModifierList: ScModifierList = {
     this match {
       case st: StubBasedPsiElement[_] => {
-        val stub: StubElement[_] = st.getStub
+        val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, new ArrayFactory[ScModifierList] {
             def create(count: Int): Array[ScModifierList] = new Array[ScModifierList](count)
@@ -36,7 +36,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
   def hasModifierProperty(name: String): Boolean = {
     this match {
       case st: StubBasedPsiElement[_] =>  {
-        val stub: StubElement[_] = st.getStub
+        val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val mods: Array[ScModifierList] = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, new ArrayFactory[ScModifierList] {
             def create(count: Int): Array[ScModifierList] = new Array[ScModifierList](count)

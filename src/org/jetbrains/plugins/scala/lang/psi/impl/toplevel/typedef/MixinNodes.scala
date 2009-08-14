@@ -11,10 +11,9 @@ package typedef
 import _root_.scala.collection.mutable.LinkedHashSet
 import api.statements.ScTypeAliasDefinition
 import api.toplevel.ScNamedElement
-import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScTypeDefinition, ScMember, ScTemplateDefinition}
+import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.{PsiClass}
 import psi.types._
 import synthetic.ScSyntheticClass
 
@@ -44,8 +43,8 @@ abstract class MixinNodes {
 
   def mergeSupers (maps : List[Map]) : MultiMap = {
     maps.foldRight(MultiMap.empty){
-      (curr, res) => {
-        for ((k, node) <- curr) {
+      (current, res) => {
+        for ((k, node) <- current) {
           res.addBinding(k, node)
         }
         res
@@ -79,10 +78,9 @@ abstract class MixinNodes {
 
   private def putAliases(template : ScTemplateDefinition, s : ScSubstitutor) = {
     var run = s
-    import Misc.opt2bool
     for (alias <- template.aliases) {
       alias match {
-        case aliasDef: ScTypeAliasDefinition if !s.aliasesMap.get(aliasDef.name) =>
+        case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
           run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(Predef.Set[ScNamedElement]()).resType})
         case _ =>
       }
@@ -96,18 +94,18 @@ abstract class MixinNodes {
       if (visited.contains(clazz)) return map
       visited += clazz
 
-      val (superTypes, s1) = clazz match {
-        case tmpl: ScTemplateDefinition => {
-          processScala(tmpl, subst, map)
-          (tmpl.superTypes, putAliases(tmpl, subst))
+      val (superTypes, s1): (Seq[ScType], ScSubstitutor) = clazz match {
+        case tmp: ScTemplateDefinition => {
+          processScala(tmp, subst, map)
+          (tmp.superTypes: Seq[ScType], putAliases(tmp, subst))
         }
         case syn : ScSyntheticClass => {
           processSyntheticScala(syn, subst, map)
-          (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)}, subst)
+          ((syn.getSuperTypes.map {psiType => ScType.create(psiType, syn.getProject)}): Seq[ScType], subst)
         }
         case _ => {
           processJava(clazz, subst, map)
-          (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}, subst)
+          ((clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}): Seq[ScType], subst)
         }
       }
 
@@ -125,25 +123,25 @@ abstract class MixinNodes {
 
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
-    val (superTypes, subst) = clazz match {
+    val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
       case template : ScTemplateDefinition => {
         processScala(template, ScSubstitutor.empty, map)
-        (template.superTypes, putAliases(template, ScSubstitutor.empty))
+        (template.superTypes: Seq[ScType], putAliases(template, ScSubstitutor.empty))
       }
       case syn: ScSyntheticClass => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
-        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)}, ScSubstitutor.empty)
+        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType], ScSubstitutor.empty)
       }
       case _ => {
         processJava(clazz, ScSubstitutor.empty, map)
-        (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)}, ScSubstitutor.empty)
+        (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)} : Seq[ScType], ScSubstitutor.empty)
       }
     }
 
     for (superType <- superTypes) {
       ScType.extractClassType(superType) match {
         case Some((superClass, s)) =>
-          // Do not include scala.ScalaObject to Predef's basetypes to prevent SOE
+          // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
             superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
           }
