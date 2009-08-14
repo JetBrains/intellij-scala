@@ -99,7 +99,7 @@ object Bounds {
     if (base == drv) Some(drvSubst) else {
       if (visited.contains(drv)) None else {
         visited += drv
-        val superTypes = drv match {
+        val superTypes: Seq[ScType] = drv match {
           case td: ScTypeDefinition => td.superTypes
           case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
         }

@@ -21,7 +21,7 @@ import psi.impl.ScalaPsiElementFactory
  */
 
 class ScValueStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var names: Array[StringRef] = _
   private var declaration: Boolean = false
@@ -34,7 +34,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
   private var myPatterns: PatchedSoftReference[Option[ScPatternList]] = null
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           names: Array[String], isDeclaration: Boolean, typeText: String, bodyText: String,
           containerText: String) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])

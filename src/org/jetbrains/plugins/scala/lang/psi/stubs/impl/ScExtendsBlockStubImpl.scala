@@ -13,12 +13,12 @@ import com.intellij.util.io.StringRef
  */
 
 class ScExtendsBlockStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScExtendsBlock](parent, elemType) with ScExtendsBlockStub {
   var baseClasses: Array[StringRef] = Array[StringRef]()
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           base: Array[String]) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     baseClasses = base.map(StringRef.fromString(_))

@@ -14,7 +14,7 @@ import com.intellij.psi.stubs.{IStubElementType, StubElement}
  */
 
 class ScPrimaryConstructorStubImpl [ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScPrimaryConstructor](parent, elemType) with ScPrimaryConstructorStub {
 
 }

@@ -18,14 +18,14 @@ import com.intellij.util.io.StringRef
  */
 
 class ScImportSelectorStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelectorStub {
   var referenceText: StringRef = _
   var name: StringRef = _
   private var myReference: PatchedSoftReference[ScStableCodeReferenceElement] = null
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_], _ <: PsiElement], refText: String, importedName: String) {
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String, importedName: String) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.referenceText = StringRef.fromString(refText)
     this.name = StringRef.fromString(importedName)

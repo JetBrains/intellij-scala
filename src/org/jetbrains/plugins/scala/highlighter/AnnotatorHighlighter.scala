@@ -24,8 +24,8 @@ import stubs.StubElement
  */
 
 object AnnotatorHighlighter {
-  private def getParentStub(el: StubBasedPsiElement[_ <: StubElement[_]]): PsiElement = {
-    val stub: StubElement[_] = el.getStub
+  private def getParentStub(el: StubBasedPsiElement[_ <: StubElement[_ <: PsiElement]]): PsiElement = {
+    val stub: StubElement[_ <: PsiElement] = el.getStub
     if (stub != null) {
       stub.getParentStub.getPsi
     } else el.getParent

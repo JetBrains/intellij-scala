@@ -14,11 +14,11 @@ import com.intellij.psi.stubs.{StubElement, IStubElementType}
  */
 
 class ScPatternListStubImpl[ParentPsi <: PsiElement] private (parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScPatternList](parent, elemType) with ScPatternListStub {
   var patternsSimple: Boolean = false
 
-  def this(parent: StubElement[ParentPsi], elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+  def this(parent: StubElement[ParentPsi], elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
            patternsSimple: Boolean) {
     this(parent, elemType)
     this.patternsSimple = patternsSimple

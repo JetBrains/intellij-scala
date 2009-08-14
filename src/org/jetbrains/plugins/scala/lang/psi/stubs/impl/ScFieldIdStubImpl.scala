@@ -16,12 +16,12 @@ import com.intellij.util.io.StringRef
  */
 
 class ScFieldIdStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScFieldId](parent, elemType) with ScFieldIdStub {
   private var name: StringRef = _
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)

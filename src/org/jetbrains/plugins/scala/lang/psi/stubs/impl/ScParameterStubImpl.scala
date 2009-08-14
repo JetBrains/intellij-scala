@@ -15,7 +15,7 @@ import com.intellij.util.io.StringRef
  */
 
 class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: StringRef = _
   private var typeText: StringRef = _
@@ -23,7 +23,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var default: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, typeText: String, stable: Boolean, default: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)

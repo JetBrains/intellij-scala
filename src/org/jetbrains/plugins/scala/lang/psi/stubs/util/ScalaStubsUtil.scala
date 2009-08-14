@@ -32,7 +32,7 @@ object ScalaStubsUtil {
       val extendsBlock = iterator.next
       val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
       if (stub != null) {
-        if (stub.getParentStub.getStubType.isInstanceOf[ScTypeDefinitionElementType[_]]) {
+        if (stub.getParentStub.getStubType.isInstanceOf[ScTypeDefinitionElementType[_ <: ScTypeDefinition]]) {
           inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTypeDefinition]
         }
       } else {

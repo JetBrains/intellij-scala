@@ -23,7 +23,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     if (visited.contains(this)) {
       ScTypeInferenceResult(types.Nothing, true, Some(this))
     } else {
-      val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_]].getStub
+      val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
       if (stub != null) {
         stub.asInstanceOf[ScTypeAliasStub].getTypeElement.getType(visited + this)
       } else 

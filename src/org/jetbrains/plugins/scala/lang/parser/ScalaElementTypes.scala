@@ -6,6 +6,9 @@ import com.intellij.psi.tree.IStubFileElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import psi.stubs.elements._
 import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterElementType, ScParamClauseElementType, ScParamClausesElementType}
+import com.intellij.psi.stubs.PsiFileStub
+import psi.api.statements.{ScFunction, ScVariable, ScValue}
+import com.intellij.psi.PsiFile
 
 /**
  * User: Dmitry.Krasilschikov
@@ -18,7 +21,7 @@ object ScalaElementTypes {
 
 
   //Stub element types
-  val FILE: IStubFileElementType[_] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
+  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
 
   val CLASS_DEF = new ScClassDefinitionElementType()
   val OBJECT_DEF = new ScObjectDefinitionElementType()
@@ -117,17 +120,17 @@ object ScalaElementTypes {
   /** ***********************************************************************************/
   /************************************ DECLARATION ************************************/
   /** ***********************************************************************************/
-  val VALUE_DECLARATION : ScValueElementType[_] = new ScValueDeclarationElementType
-  val VARIABLE_DECLARATION : ScVariableElementType[_] = new ScVariableDeclarationElementType
-  val FUNCTION_DECLARATION :ScFunctionElementType[_] = new ScFunctionDeclarationElementType
+  val VALUE_DECLARATION : ScValueElementType[_ <: ScValue] = new ScValueDeclarationElementType
+  val VARIABLE_DECLARATION : ScVariableElementType[_ <: ScVariable] = new ScVariableDeclarationElementType
+  val FUNCTION_DECLARATION :ScFunctionElementType[_ <: ScFunction] = new ScFunctionDeclarationElementType
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
 
   /** ***********************************************************************************/
   /************************************ DEFINITION *************************************/
   /** ***********************************************************************************/
-  val PATTERN_DEFINITION : ScValueElementType[_] = new ScValueDefinitionElementType
+  val PATTERN_DEFINITION : ScValueElementType[_ <: ScValue] = new ScValueDefinitionElementType
   val PATTERN_LIST = new ScPatternListElementType
-  val VARIABLE_DEFINITION : ScVariableElementType[_] = new ScVariableDefinitionElementType
+  val VARIABLE_DEFINITION : ScVariableElementType[_ <: ScVariable] = new ScVariableDefinitionElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
 

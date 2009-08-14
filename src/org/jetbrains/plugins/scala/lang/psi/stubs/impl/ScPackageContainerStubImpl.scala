@@ -14,14 +14,14 @@ import com.intellij.util.io.StringRef
  */
 
 class ScPackageContainerStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScPackageContainer](parent, elemType) with ScPackageContainerStub {
 
   var myPrefix : StringRef = _
   var myOwnNamePart : StringRef = _
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           prefix : String,
           ownNamePart : String) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])

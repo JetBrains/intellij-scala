@@ -14,14 +14,14 @@ import com.intellij.util.io.StringRef
  */
 
 class ScModifiersStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                          elemType: IStubElementType[_ <: StubElement[_], _ <: PsiElement])
+                                                          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScModifierList](parent, elemType) with ScModifiersStub {
   def getModifiers(): Array[String] = modifiers.map(StringRef.toString(_))
 
   private var modifiers: Array[StringRef] = Array[StringRef]()
 
   def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_], _ <: PsiElement],
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           modifiers: Array[String]) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.modifiers = modifiers.map(StringRef.fromString(_))
