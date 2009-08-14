@@ -24,6 +24,7 @@
                     name_templates="Download"
                     table_template="{0}"
                     build_number_pattern="(?&lt;build_number&gt;\d+)"
+                    build_pattern="(?&lt;build_number&gt;\d+)"
                     build_type_id="bt110"
                     publish="${build.publish}"
                     failonerror="true"
