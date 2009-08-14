@@ -259,15 +259,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     commandLine.add(javaExecutablePath);
 
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
+
+    //For debug
+    //commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
+
+
     commandLine.add(XSS_COMPILER_PROPERTY);
     commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
     commandLine.add("-cp");
 
-
-    // For debug
-
-//    commandLine.add("-Xdebug");
-//    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=127.0.0.1:5448");
 
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();

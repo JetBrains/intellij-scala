@@ -23,7 +23,9 @@ class ScalacOutputParser extends OutputParser {
   public static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacOutputParser");
 
   @NonNls
-  private static final String ourErrorMarker = " error:";
+  private static final String errorMarker = "error:";
+  @NonNls
+  private static final String ourErrorMarker = " " + errorMarker;
   @NonNls
   private static final String ourWarningMarker = " warning:";
   @NonNls
@@ -59,6 +61,7 @@ class ScalacOutputParser extends OutputParser {
   private boolean mustProcessMsg = false;
   private boolean fullCrash = false;
   private boolean stopProcessing = false;
+  private boolean notUrlErrorProcessing = false;
   private int myMsgColumnMarker;
   private MESSAGE_TYPE myMsgType = PLAIN;
   private ArrayList<String> myWrittenList = new ArrayList<String>();
@@ -97,6 +100,21 @@ class ScalacOutputParser extends OutputParser {
       return true;
     }
 
+    //this is for cases like: UTF-8 error
+    if (text.startsWith(errorMarker)) {
+      callback.message(CompilerMessageCategory.ERROR, text.substring(errorMarker.length()), "", -1, -1);
+      notUrlErrorProcessing = true;
+      return true;
+    }
+
+    if (notUrlErrorProcessing && !stopMsgProcessing(text) && !stopProcessing) {
+      callback.message(CompilerMessageCategory.ERROR, text, "", -1, -1);
+      return true;
+    } else if (notUrlErrorProcessing) {
+      notUrlErrorProcessing = false;
+    }
+
+
     // Add error message to output
     if (myMessage != null && stopMsgProcessing(text) && (mustProcessMsg || stopProcessing)) {
       myMsgColumnMarker = myMsgColumnMarker > 0 ? myMsgColumnMarker : 1;
@@ -112,9 +130,9 @@ class ScalacOutputParser extends OutputParser {
     }
 
     if (text.indexOf(ourErrorMarker) > 0) { // new error occurred
-      processErrorMesssage(text, text.indexOf(ourErrorMarker), ERROR, callback);
+      processErrorMessage(text, text.indexOf(ourErrorMarker), ERROR, callback);
     } else if (text.indexOf(ourWarningMarker) > 0) {
-      processErrorMesssage(text, text.indexOf(ourWarningMarker), WARNING, callback);
+      processErrorMessage(text, text.indexOf(ourWarningMarker), WARNING, callback);
     } else if (!text.startsWith(ourInfoMarkerStart)) { //  continuing process [error | warning] message
       if (mustProcessMsg) {
         if (ourColumnMarker.equals(text.trim())) {
@@ -184,7 +202,7 @@ class ScalacOutputParser extends OutputParser {
   }
 
   private boolean stopMsgProcessing(String text) {
-    return text.startsWith(ourInfoMarkerStart) && !text.trim().equals(ourColumnMarker) ||
+    return text.startsWith(ourInfoMarkerStart) ||
             text.indexOf(ourErrorMarker) > 0 ||
             text.indexOf(ourWarningMarker) > 0 ||
             stopProcessing;
@@ -193,7 +211,7 @@ class ScalacOutputParser extends OutputParser {
   /*
  Collect information about error occurrence
   */
-  private void processErrorMesssage(String text, int errIndex, MESSAGE_TYPE msgType, Callback callback) {
+  private void processErrorMessage(String text, int errIndex, MESSAGE_TYPE msgType, Callback callback) {
     String errorPlace = text.substring(0, errIndex);
     if (errorPlace.endsWith(":"))
       errorPlace = errorPlace.substring(0, errorPlace.length() - 1); //hack over compiler output
