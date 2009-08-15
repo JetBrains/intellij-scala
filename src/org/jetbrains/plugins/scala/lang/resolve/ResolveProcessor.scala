@@ -18,6 +18,7 @@ import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
+import psi.api.expr.ScExpression
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -85,8 +86,9 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
   }
 }
 
-class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
+class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
                              expected: Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
+  private val args: Seq[ScType] = exprs.map(_.cachedType)
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
@@ -115,38 +117,46 @@ class MethodResolveProcessor(ref: ScReferenceElement, args: Seq[ScType],
 
   override def candidates[T >: ScalaResolveResult]: Array[T] = {
     val applicable = candidatesSet.filter {
-      c =>
-              val t = getType(c.element)
-              val s = c.substitutor
-              t match {
-                case ScFunctionType(ret, params) => {
-                  (expected match {
-                    case None => true
-                    case Some(t) => Compatibility.compatible(s.subst(t), ret)
-                  }) && {
-                    def checkCompatibility: Boolean = {
-                      if (args.length < params.length) return false
-                      if (args.length > params.length && !(c.element match {
-                        case fun: ScFunction if fun.paramClauses.clauses.length > 0 => {
-                          fun.paramClauses.clauses.apply(0).hasRepeatedParam
-                        }
-                        //todo: Java
-                        case _ => false //synthetic functions always not repeated
-                      })) return false
-                      for (i <- 0 to args.length - 1) {
-                        if (i < params.length) {
-                          if (!Compatibility.compatible(s.subst(params(i)), args(i))) return false
-                        } else {
-                          if (!Compatibility.compatible(s.subst(params(params.length - 1)), args(i))) return false
-                        }
+      (c: ScalaResolveResult) => {
+        val substitutor: ScSubstitutor = c.substitutor
+        c.element match {
+          case method: PsiMethod => {
+            Compatibility.compatible(new PhysicalSignature(method, substitutor), exprs)
+          }
+          case _ => { // old code, this is good code for types (actually no)
+            val t = getType(c.element)
+            t match {
+              case ScFunctionType(ret, params) => {
+                (expected match {
+                  case None => true
+                  case Some(t) => Compatibility.compatible(substitutor.subst(t), ret)
+                }) && {
+                  def checkCompatibility: Boolean = {
+                    if (args.length < params.length) return false
+                    if (args.length > params.length && !(c.element match {
+                      case fun: ScFunction if fun.paramClauses.clauses.length > 0 => {
+                        fun.paramClauses.clauses.apply(0).hasRepeatedParam
                       }
-                      return true
+                      case _ => false //synthetic functions always not repeated
+                    })) return false
+                    for (i <- 0 to args.length - 1) {
+                      if (i < params.length) {
+                        if (!Compatibility.compatible(substitutor.subst(params(i)), args(i))) return false
+                      }
+                      else {
+                        if (!Compatibility.compatible(substitutor.subst(params(params.length - 1)), args(i))) return false
+                      }
                     }
-                    checkCompatibility
+                    return true
                   }
+                  checkCompatibility
                 }
-                case _ => false
               }
+              case _ => false
+            }
+          }
+        }
+      }
     }
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]

@@ -103,11 +103,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       def proc(e : PsiElement) : ResolveProcessor = e.getContext match {
         case generic : ScGenericCall => proc(generic)
         case call: ScMethodCall =>
-          new MethodResolveProcessor(ref, call.args.exprs.map{_.cachedType}, expectedType)
+          new MethodResolveProcessor(ref, call.args.exprs, expectedType)
         case inf: ScInfixExpr if ref == inf.operation => {
-          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp.cachedType) else inf.rOp match {
-            case tuple: ScTuple => tuple.exprs.map{_.cachedType}
-            case rOp => Seq.singleton(rOp.cachedType)
+          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp) else inf.rOp match {
+            case tuple: ScTuple => tuple.exprs
+            case rOp => Seq.singleton(rOp)
           }
           new MethodResolveProcessor(ref, args, expectedType)
         }

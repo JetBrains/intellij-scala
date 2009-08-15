@@ -110,10 +110,16 @@ object TypeDefinitionMembers {
             for (dcl <- _val.declaredElements) {
               map += ((dcl, new Node(dcl, subst)))
             }
-          case constr: ScPrimaryConstructor =>
-            for (param <- constr.valueParameters) {
+          case constr: ScPrimaryConstructor => {
+            val isCase: Boolean = template match {
+              case td: ScTypeDefinition if td.isCase => true
+              case _ => false
+            }
+            val parameters = if (isCase) constr.parameters else constr.valueParameters
+            for (param <- parameters) {
               map += ((param, new Node(param, subst)))
             }
+          }
           case _ =>
         }
       }
@@ -210,12 +216,18 @@ object TypeDefinitionMembers {
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.calcType, dcl)
             }
-          case constr: ScPrimaryConstructor =>
-            for (param <- constr.valueParameters) {
+          case constr: ScPrimaryConstructor => {
+            val isCase: Boolean = template match {
+              case td: ScTypeDefinition if td.isCase => true
+              case _ => false
+            }
+            val parameters = if (isCase) constr.parameters else constr.valueParameters
+            for (param <- parameters) {
               val t = param.calcType
               addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
+          }
           case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
           case _ =>
         }
