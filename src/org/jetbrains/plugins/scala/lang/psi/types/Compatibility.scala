@@ -107,8 +107,7 @@ object Compatibility {
         }
         checkConformance(true, parameters.map {param: ScParameter => Parameter(param.getName, () => {
           sign.substitutor.subst(param.calcType)
-        },
-          param.isDefaultParam, param.isRepeatedParameter)},exprs)
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq

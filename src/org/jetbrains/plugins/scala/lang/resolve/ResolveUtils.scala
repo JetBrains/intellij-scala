@@ -173,8 +173,8 @@ object ResolveUtils {
     val substitutor = resolveResult.substitutor
     val isRenamed = resolveResult.isRenamed
 
-    val name = isRenamed.getOrElse(element.getName)
-    val lookupBuilder: LookupElementBuilder = LookupElementFactory.builder(name) //don't add elements to lookup
+    val name: String = isRenamed.getOrElse(element.getName)
+    val lookupBuilder: LookupElementBuilder = LookupElementFactory.builder(name, Tuple(element)) //don't add elements to lookup
     lookupBuilder.setInsertHandler(new ScalaInsertHandler)
     lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
