@@ -21,7 +21,7 @@ class ImportTracker {
   private val annotatedFiles: HashMap[ScalaFile, Boolean] = new HashMap[ScalaFile, Boolean]
   private val lock = new Object()
 
-  def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
+  def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]): Boolean = {
     lock synchronized {
       usedImports.get(file) match {
         case None => {
@@ -31,6 +31,7 @@ class ImportTracker {
         }
         case Some(set: collection.mutable.Set[ImportUsed]) => set ++= used
       }
+      true
     }
   }
 

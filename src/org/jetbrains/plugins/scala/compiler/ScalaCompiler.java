@@ -91,30 +91,21 @@ public class ScalaCompiler implements TranslatingCompiler {
     return facetManager.getFacetByType(ScalaFacet.ID)  != null;
   }
 
-  public ExitStatus compile(CompileContext context, VirtualFile[] files) {
-        final BackendCompiler backEndCompiler = getBackEndCompiler();
-        ArrayList<VirtualFile> filesToCompile = new ArrayList<VirtualFile>(files.length);
-        filesToCompile.addAll(Arrays.asList(files));
-        final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, filesToCompile,
-            (CompileContextEx) context, backEndCompiler);
-        OutputItem[] outputItems;
-        try {
-          List<OutputItem> list = wrapper.compile();
-          outputItems = list.toArray(new OutputItem[list.size()]);
-        }
-        catch (CompilerException e) {
-            outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
-            context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
-        }
-        catch (CacheCorruptedException e) {
-            LOG.info(e);
-            context.requestRebuildNextTime(e.getMessage());
-            outputItems = EMPTY_OUTPUT_ITEM_ARRAY;
-        }
-
-    Collection<VirtualFile> virtualFiles = wrapper.getFilesToRecompile();
-    return new ExitStatusImpl(outputItems, virtualFiles.toArray(new VirtualFile[virtualFiles.size()]));
+  public void compile(CompileContext context, VirtualFile[] files, OutputSink outputSink) {
+    final BackendCompiler backEndCompiler = getBackEndCompiler();
+    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(myProject, Arrays.asList(files),
+        (CompileContextEx) context, backEndCompiler, outputSink);
+    try {
+      wrapper.compile();
     }
+    catch (CompilerException e) {
+      context.addMessage(CompilerMessageCategory.ERROR, e.getMessage(), null, -1, -1);
+    }
+    catch (CacheCorruptedException e) {
+      LOG.info(e);
+      context.requestRebuildNextTime(e.getMessage());
+    }
+  }
 
     public boolean validateConfiguration(CompileScope scope) {
         return getBackEndCompiler().checkCompiler(scope);
@@ -122,24 +113,5 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     private BackendCompiler getBackEndCompiler() {
         return new ScalacBackendCompiler(myProject);
-    }
-
-  private static class ExitStatusImpl implements ExitStatus {
-
-        private OutputItem[] myOuitputItems;
-        private VirtualFile[] myMyFilesToRecompile;
-
-        public ExitStatusImpl(OutputItem[] ouitputItems, VirtualFile[] myFilesToRecompile) {
-            myOuitputItems = ouitputItems;
-            myMyFilesToRecompile = myFilesToRecompile;
-        }
-
-        public OutputItem[] getSuccessfullyCompiled() {
-            return myOuitputItems;
-        }
-
-        public VirtualFile[] getFilesToRecompile() {
-            return myMyFilesToRecompile;
-        }
     }
 }
