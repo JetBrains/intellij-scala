@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 package generated
 
 class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
