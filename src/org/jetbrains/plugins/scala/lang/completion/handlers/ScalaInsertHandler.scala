@@ -23,7 +23,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
     val startOffset = context.getStartOffset
     item.getObject match {
-      case method: PsiMethod => {
+      case Tuple1(method: PsiMethod) => {
         val count = method.getParameterList.getParametersCount
         if (count > 0) {
           val endOffset = startOffset + method.getName.length

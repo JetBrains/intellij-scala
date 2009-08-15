@@ -123,7 +123,7 @@ class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
           case method: PsiMethod => {
             Compatibility.compatible(new PhysicalSignature(method, substitutor), exprs)
           }
-          case _ => { // old code, this is good code for types (actually no)
+          case _ => { //todo: for types you can use named parameters too
             val t = getType(c.element)
             t match {
               case ScFunctionType(ret, params) => {
