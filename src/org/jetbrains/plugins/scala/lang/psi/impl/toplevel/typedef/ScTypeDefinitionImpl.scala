@@ -177,7 +177,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       else return s.substring(0, s.length - 6)
     }
     if (id.getText == shortName(id.getPsi.getContainingFile.getName)) {
-      this.getParent match {
+      this.getContainingFile match {
         case x: ScalaFile => x.setName(name + ".scala")
         case _ =>
       }
