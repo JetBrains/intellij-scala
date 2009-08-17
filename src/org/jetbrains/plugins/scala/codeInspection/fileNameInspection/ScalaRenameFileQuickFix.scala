@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringFactory
 import java.lang.String
 import lang.psi.api.ScalaFile
+import com.intellij.refactoring.openapi.impl.RenameRefactoringImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ import lang.psi.api.ScalaFile
 
 class ScalaRenameFileQuickFix(file: ScalaFile, name: String) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    RefactoringFactory.getInstance(project).createRename(file, name).run
+    (new RenameRefactoringImpl(project, file, name, false, true)).run
   }
 
   def getName: String = "Rename File " + file.getName + " to " + name

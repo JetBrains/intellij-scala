@@ -171,7 +171,10 @@ object ResolveUtils {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
-    val isRenamed = resolveResult.isRenamed
+    val isRenamed: Option[String] = resolveResult.isRenamed match {
+      case Some(x) if element.getName != x => Some(x)
+      case _ => None
+    }
 
     val name: String = isRenamed.getOrElse(element.getName)
     val lookupBuilder: LookupElementBuilder = LookupElementFactory.builder(name, Tuple(element)) //don't add elements to lookup
