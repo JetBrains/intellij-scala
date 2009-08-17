@@ -26,7 +26,7 @@ object ScalaInplaceVariableRenamer {
     element match {
       case name: ScNamedElement => {
         ScalaPsiUtil.nameContext(name) match {
-          case v@(_: ScValue | _: ScVariable | _: ScParameter | _: ScFunction | _: ScCaseClause) if !v.getParent.isInstanceOf[ScTemplateBody] &&
+          case v@(_: ScValue | _: ScVariable | _: ScFunction | _: ScCaseClause) if !v.getParent.isInstanceOf[ScTemplateBody] &&
                   !v.isInstanceOf[ScClassParameter] && !v.getParent.isInstanceOf[ScEarlyDefinitions] => {
             val stringToSearch = name.getName
             val usages = new ArrayList[UsageInfo]

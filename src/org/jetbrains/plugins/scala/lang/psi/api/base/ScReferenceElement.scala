@@ -16,7 +16,8 @@ import com.intellij.psi._
 import com.intellij.psi.PsiPolyVariantReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
-import statements.ScTypeAlias
+import toplevel.typedef.ScTypeDefinition
+import statements.{ScFunction, ScTypeAlias}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -64,7 +65,26 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     return this
   }
 
-  def isReferenceTo(element: PsiElement): Boolean = resolve() == element
+  def isReferenceTo(element: PsiElement): Boolean = {
+    val res = resolve
+    if (res == null) return false
+    if (res == element) return true
+    element match {
+      case td: ScTypeDefinition if td.getName == refName => {
+        res match {
+          case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
+            method.getName == "unapplySeq" => {
+            val clazz = method.getContainingClass
+            if (clazz == td) return true
+            if (td.isInheritor(clazz, true)) return true
+          }
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+    return false
+  }
 
   def qualifier: Option[ScalaPsiElement]
 
