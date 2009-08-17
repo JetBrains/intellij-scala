@@ -1,26 +1,19 @@
 package org.jetbrains.plugins.scala.refactoring.rename;
 
-import com.intellij.codeInsight.TargetElementUtilBase;
-import com.intellij.lang.LanguageNamesValidation;
-import com.intellij.lang.refactoring.NamesValidator;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.psi.*;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.refactoring.rename.RenameProcessor;
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * @author ilyas
@@ -40,6 +33,12 @@ public class ScalaRenameTest extends ScalaResolveTestCase {
     final PsiElement element = getTargetElement("class/circle.scala");
     performAction(element, "newName");
     checkResultByFile(element, "class/circle.test");
+  }
+
+  public void testObjectApply() throws Exception {
+    final PsiElement element = getTargetElement("class/ObjectApply.scala");
+    performAction(element, "newName");
+    checkResultByFile(element, "class/ObjectApply.test");
   }
 
   private void checkResultByFile(PsiElement element, String s) throws IOException {
