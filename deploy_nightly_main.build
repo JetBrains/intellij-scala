@@ -18,7 +18,7 @@
                     artifacts="${artifacts.dir}"
                     show_fixes="False"
                     link_prefix="http://download.jetbrains.com/scala/"
-                    space="Scala"
+                    space="SCA"
                     page="Scala Plugin Nightly Builds"
                     file_templates="scala-intellij-bin-0.2.{0}.zip"
                     name_templates="Download"
