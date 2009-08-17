@@ -157,6 +157,44 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
           }
+          ref.getParent match {
+            case assign: ScAssignStmt if assign.getLExpression == ref &&
+                    assign.getParent.isInstanceOf[ScArgumentExprList] => {
+              assign.getParent match { //trying to resolve naming parameter
+                case args: ScArgumentExprList => {
+                  val exprs = args.exprs
+                  val assignName = ref.refName
+                  var resultFound = false
+                  args.callReference match {
+                    case Some(callReference) => {
+                      val count = args.invocationCount
+                      val variants = callReference.multiResolve(false)
+                      for (variant <- variants) {
+                        variant match {
+                          case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
+                            fun.getParamByName(assignName, count - 1) match {
+                              case Some(param) => {
+                                processor.execute(param, ResolveState.initial) //it's not interesting to have
+                                                                               // substitutor during this resolve
+                                resultFound = true
+                              }
+                              case None =>
+                            }
+                          }
+                          case _ =>
+                        }
+                      }
+                    }
+                    case None =>
+                  }
+                  if (!resultFound) {
+                    //todo: do it for types
+                  }
+                }
+              }
+            }
+            case _ => //todo: constructors
+          }
           treeWalkUp(ref, null)
         }
       }
