@@ -36,7 +36,8 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
           val psi: PsiElement = imp match {
             case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) => {
               val impSt = expr.getParent.asInstanceOf[ScImportStmt]
-              if (impSt.importExprs.length == 1) impSt
+              if (impSt == null) null //todo: investigate this case, this cannot be null
+              else if (impSt.importExprs.length == 1) impSt
               else expr
             }
             case ImportSelectorUsed(sel) => sel
