@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -39,6 +40,12 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     assertEquals("c", ((ScFunction) resolved).getContainingClass().getName());
+  }
+
+  public void testNamingParam() throws Exception {
+    PsiReference ref = configureByFile("call/NamingParam.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScParameter);
   }
 
 }
