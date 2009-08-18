@@ -5,9 +5,11 @@ package stubs
 package impl
 
 import api.toplevel.packaging.ScPackageContainer
-import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef
+import com.intellij.psi.{PsiClass, PsiElement}
+import collection.mutable.ArrayBuffer
+import com.intellij.psi.tree.TokenSet
 
 /**
  * @author ilyas
@@ -31,5 +33,4 @@ extends StubBaseWrapper[ScPackageContainer](parent, elemType) with ScPackageCont
 
   def prefix = StringRef.toString(myPrefix)
   def ownNamePart = StringRef.toString(myOwnNamePart)
-
 }
