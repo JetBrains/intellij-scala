@@ -6,6 +6,7 @@ package stubs
 import api.toplevel.packaging.ScPackageContainer
 import com.intellij.psi.stubs.{StubElement, NamedStub}
 import com.intellij.util.io.StringRef
+import com.intellij.psi.PsiClass
 
 /**
  * @author ilyas

@@ -111,12 +111,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getClasses = {
     if (!isScriptFile) {
-      val stub = getStub
-      if (stub != null) {
-        stub.getClasses
-      } else {
-        typeDefinitions.map(t => t: PsiClass)
-      }
+      typeDefinitions.map(t => t: PsiClass)
     } else PsiClass.EMPTY_ARRAY
   }
 
