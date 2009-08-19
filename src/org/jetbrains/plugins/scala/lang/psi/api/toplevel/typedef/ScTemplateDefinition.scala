@@ -64,6 +64,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement) : Boolean = {
+    // Process selftype reference
+    selfTypeElement match {
+      case Some(se) => if (!processor.execute(se, state)) return false
+      case None =>
+    }
+
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
@@ -93,17 +99,17 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                 }
                 case None =>
               }
-              case _ => extendsBlock match {
-                case e : ScExtendsBlock if e != null => {
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-                  }
+              case _ =>
+            }
+            extendsBlock match {
+              case e: ScExtendsBlock if e != null => {
+                if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                  if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                 }
-                case _ => true
               }
+              case _ => true
             }
           }
-
           true
       }
   }

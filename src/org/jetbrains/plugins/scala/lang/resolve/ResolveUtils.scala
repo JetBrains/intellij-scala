@@ -24,6 +24,7 @@ import icons.Icons
 import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
 import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
+import psi.api.base.types.ScSelfTypeElement
 
 /**
  * @author ven
@@ -57,6 +58,7 @@ object ResolveUtils {
                 kinds contains VAR else kinds contains VAL
             }
             case _: ScParameter => kinds contains VAL
+            case _: ScSelfTypeElement => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
             case _: ScSyntheticValue => kinds contains VAL

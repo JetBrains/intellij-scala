@@ -19,6 +19,38 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     return TestUtils.getTestDataPath() + "/resolve/class/";
   }
 
+  public void testEmptySelfReference() throws Exception {
+    PsiReference ref = configureByFile("selftype/selftype1.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScTrait);
+    final ScTrait trait = (ScTrait) resolved;
+    assertEquals(trait.getName(), "Inner");
+  }
+
+  public void testEmptySelfReference2() throws Exception {
+    PsiReference ref = configureByFile("selftype/selftype2.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScTrait);
+    final ScTrait trait = (ScTrait) resolved;
+    assertEquals(trait.getName(), "Inner");
+  }
+
+  public void testEmptySelfReference3() throws Exception {
+    PsiReference ref = configureByFile("selftype/selftype3.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScTrait);
+    final ScTrait trait = (ScTrait) resolved;
+    assertEquals(trait.getName(), "Inner");
+  }
+
+  public void testEmptySelfReference4() throws Exception {
+    PsiReference ref = configureByFile("selftype/selftype4.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScTrait);
+    final ScTrait trait = (ScTrait) resolved;
+    assertEquals(trait.getName(), "Inner");
+  }
+
   public void testImportFromParam() throws Exception {
     PsiReference ref = configureByFile("dependent/MainXMLExporter.scala");
     PsiElement resolved = ref.resolve();
