@@ -5,24 +5,11 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.openapi.editor.Editor
-import com.intellij.psi.impl.ElementBase
-import com.intellij.util.VisibilityIcons
-import javax.swing.Icon
 import statements._
-import types.{ScType, PhysicalSignature, ScSubstitutor}
-import base.types.ScSelfTypeElement
+import types.{ScType, ScSubstitutor}
 import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
-
-import parser._
-import psi.ScalaPsiElement
-import lexer._
-import packaging._
-import templates._
-import statements.params._
-import base._
 
 /**
  * @author AlexanderPodkhalyuzin
