@@ -2,18 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package folding
 
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
+import com.intellij.psi.codeStyle.{CodeStyleSettingsManager}
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.PsiWhiteSpace
 import formatting.settings.ScalaCodeStyleSettings
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
-import java.util.ArrayList;
+import psi.api.toplevel.packaging.ScPackaging;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.FoldingBuilder;
 import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
-import com.intellij.psi.tree.IElementType;
+
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -34,12 +33,11 @@ class ScalaFoldingBuilder extends FoldingBuilder {
                                descriptors: ArrayBuffer[FoldingDescriptor]): Unit = {
 
 
+    val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaElementTypes.TEMPLATE_BODY |
                 ScalaDocElementTypes.SCALA_DOC_COMMENT => descriptors += (new FoldingDescriptor(node, node.getTextRange))
-        case ScalaElementTypes.PACKAGING => descriptors += (new FoldingDescriptor(node,
-          new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
         case ScalaElementTypes.IMPORT_STMT if isGoodImport(node) => {
           descriptors += (new FoldingDescriptor(node,
             new TextRange(node.getTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))))
@@ -47,14 +45,21 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.MATCH_STMT => 
         case _ =>
       }
+      psi match {
+        case p: ScPackaging if p.isExplicit => {
+          descriptors += (new FoldingDescriptor(node,
+            new TextRange(node.getTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, node.getTextRange.getEndOffset)))
+        }
+        case _ =>
+      }
       if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScFunction]) {
-        node.getPsi match {
+        psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange())
           case _ =>
         }
       }
     }
-    for (ch <- node.getPsi.getChildren; val child = ch.getNode) {
+    for (ch <- psi.getChildren; val child = ch.getNode) {
       appendDescriptors(child, document, descriptors)
     }
   }
