@@ -48,41 +48,39 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val sourceFile = sourceName
       val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
+      val project = getProject
+      val moduleManager = ModuleManager.getInstance(project)
+      // Look in all modules for such a source file
+      for (m <- moduleManager.getModules) {
+        val rootManager = ModuleRootManager.getInstance(m)
+        for (e <- rootManager.getOrderEntries if e.isInstanceOf[ModuleSourceOrderEntry]) {
+          for (f <- e.getFiles(OrderRootType.SOURCES)) {
+            val source = f.findFileByRelativePath(relPath)
+            if (source != null) {
+              val psiSource = getManager.findFile(source)
+              psiSource match {
+                case o: PsiClassOwner => return o
+                case _ =>
+              }
+            }
+          }
+        }
+      }
+
+      // Look in libraries' sources
       val vFile = getContainingFile.getVirtualFile
       val index = ProjectRootManager.getInstance(getProject).getFileIndex
       val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
       for (entry <- entries) {
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
-
-        if (files.length == 0) {
-          for (file <- files) {
-            val source = file.findFileByRelativePath(relPath)
-            if (source != null) {
-              val psiSource = getManager.findFile(source)
-              return psiSource match {
-                case o: PsiClassOwner => return o
-                case _ => return this
-              }
-            }
-          }
-        } else {
-          val project = getProject
-          val moduleManager = ModuleManager.getInstance(project)
-          // Look in all modules for such a source file
-          for (m <- moduleManager.getModules) {
-            val rootManager = ModuleRootManager.getInstance(m)
-            for (e <- rootManager.getOrderEntries if e.isInstanceOf[ModuleSourceOrderEntry]) {
-              for (f <- e.getFiles(OrderRootType.SOURCES)) {
-                val source = f.findFileByRelativePath(relPath)
-                if (source != null) {
-                  val psiSource = getManager.findFile(source)
-                  return psiSource match {
-                    case o: PsiClassOwner => return o
-                    case _ => return this
-                  }
-                }
-              }
+        for (file <- files) {
+          val source = file.findFileByRelativePath(relPath)
+          if (source != null) {
+            val psiSource = getManager.findFile(source)
+            psiSource match {
+              case o: PsiClassOwner => return o
+              case _ =>
             }
           }
         }
