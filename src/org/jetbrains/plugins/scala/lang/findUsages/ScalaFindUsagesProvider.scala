@@ -5,6 +5,7 @@ package findUsages
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
 import com.intellij.psi.util.PsiFormatUtil
+import com.intellij.psi.util.PsiFormatUtilBase
 import com.intellij.lang.cacheBuilder.{DefaultWordsScanner, WordsScanner}
 import lexer.{ScalaLexer, ScalaTokenTypes}
 import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
@@ -62,8 +63,8 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
     val name = element match {
       case c: PsiClass => c.getQualifiedName
       case x: PsiMethod => PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
-        PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
-        PsiFormatUtil.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
+        PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
+        PsiFormatUtilBase.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
       case x: PsiVariable => x.getName
       case x: PsiFile => x.getName
       case x: ScNamedElement => x.getName
@@ -77,8 +78,8 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
     element match {
       case c: PsiClass => if (useFullName) c.getQualifiedName else c.getName
       case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
-              PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_PARAMETERS,
-              PsiFormatUtil.SHOW_TYPE)
+              PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
+              PsiFormatUtilBase.SHOW_TYPE)
       case c: PsiVariable => c.getName
       case c: PsiFile => c.getName
       case c: ScNamedElement => c.getName
