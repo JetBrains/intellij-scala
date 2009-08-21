@@ -8,7 +8,6 @@ import api.base.{ScStableCodeReferenceElement}
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import caches.{ScalaCachesManager, CachesUtil}
-import com.intellij.openapi.roots.{OrderEntry, ProjectRootManager, OrderRootType}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.{ArrayFactory}
@@ -23,6 +22,8 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
+import com.intellij.openapi.roots._
+import com.intellij.openapi.module.ModuleManager
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -51,14 +52,37 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val index = ProjectRootManager.getInstance(getProject).getFileIndex
       val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
       for (entry <- entries) {
+        // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
-        for (file <- files) {
-          val source = file.findFileByRelativePath(relPath)
-          if (source != null) {
-            val psiSource = getManager.findFile(source)
-            return psiSource match {
-              case o: PsiClassOwner => o
-              case _ => this
+
+        if (files.length == 0) {
+          for (file <- files) {
+            val source = file.findFileByRelativePath(relPath)
+            if (source != null) {
+              val psiSource = getManager.findFile(source)
+              return psiSource match {
+                case o: PsiClassOwner => return o
+                case _ => return this
+              }
+            }
+          }
+        } else {
+          val project = getProject
+          val moduleManager = ModuleManager.getInstance(project)
+          // Look in all modules for such a source file
+          for (m <- moduleManager.getModules) {
+            val rootManager = ModuleRootManager.getInstance(m)
+            for (e <- rootManager.getOrderEntries if e.isInstanceOf[ModuleSourceOrderEntry]) {
+              for (f <- e.getFiles(OrderRootType.SOURCES)) {
+                val source = f.findFileByRelativePath(relPath)
+                if (source != null) {
+                  val psiSource = getManager.findFile(source)
+                  return psiSource match {
+                    case o: PsiClassOwner => return o
+                    case _ => return this
+                  }
+                }
+              }
             }
           }
         }
