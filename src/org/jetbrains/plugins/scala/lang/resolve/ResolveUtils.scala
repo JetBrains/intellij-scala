@@ -218,7 +218,7 @@ object ResolveUtils {
           }
           case clazz: PsiClass => {
             val location: String = clazz.getPresentation.getLocationString
-            presentation.setTailText(" " + location, true, false, false)
+            presentation.setTailText(" " + location, true)
           }
           case alias: ScTypeAliasDefinition => {
             presentation.setTypeText(presentationString(alias.aliasedType.resType, substitutor))

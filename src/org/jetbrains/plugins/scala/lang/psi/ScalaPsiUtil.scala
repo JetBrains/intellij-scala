@@ -20,6 +20,7 @@ import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiFormatUtil
+import com.intellij.psi.util.PsiFormatUtilBase
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import params._
@@ -149,9 +150,9 @@ object ScalaPsiUtil {
         return ScalaElementPresentation.getMethodPresentableText(method, false)
       }
       case _ => {
-        val PARAM_OPTIONS: Int = PsiFormatUtil.SHOW_NAME | PsiFormatUtil.SHOW_TYPE | PsiFormatUtil.TYPE_AFTER
+        val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
         return PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
-          PARAM_OPTIONS | PsiFormatUtil.SHOW_PARAMETERS, PARAM_OPTIONS)
+          PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
   }
