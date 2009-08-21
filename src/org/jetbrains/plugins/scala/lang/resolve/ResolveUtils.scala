@@ -248,7 +248,7 @@ object ResolveUtils {
           case _ => ""
         }))
         presentation.setStrikeout(isDeprecated)
-        presentation.setBold(isBold)
+        presentation.setItemTextBold(isBold)
       }
     })
     (lookupBuilder.createLookupElement, element)
