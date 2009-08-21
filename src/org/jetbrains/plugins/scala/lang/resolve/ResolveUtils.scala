@@ -246,7 +246,9 @@ object ResolveUtils {
           }
           case p: PsiTypeParameterListOwner => "" //todo:
           case _ => ""
-        }), isDeprecated, isBold)
+        }))
+        presentation.setStrikeout(isDeprecated)
+        presentation.setBold(isBold)
       }
     })
     (lookupBuilder.createLookupElement, element)
