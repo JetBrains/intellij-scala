@@ -29,55 +29,91 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author Dmitry Avdeev
  */
+// todo The null checks in this class were added because when ProgressManager.getInstance().getProgressIndicator()
+//      returned null when running the HighlightingPerformanceTest. Is there a better solution?
 public class DelegatingProgressIndicatorEx implements ProgressIndicatorEx {
 
   private ProgressIndicatorEx myDelegate;
 
   public DelegatingProgressIndicatorEx() {
-    myDelegate = (ProgressIndicatorEx)ProgressManager.getInstance().getProgressIndicator();
+    myDelegate = (ProgressIndicatorEx) ProgressManager.getInstance().getProgressIndicator();
   }
 
   public void addStateDelegate(@NotNull ProgressIndicatorEx delegate) {
-    myDelegate.addStateDelegate(delegate);
+    if (myDelegate != null) {
+      myDelegate.addStateDelegate(delegate);
+    }
   }
 
   public void initStateFrom(@NotNull ProgressIndicatorEx indicator) {
-    myDelegate.initStateFrom(indicator);
+    if (myDelegate != null) {
+      myDelegate.initStateFrom(indicator);
+    }
   }
 
   @NotNull
   public Stack<String> getTextStack() {
-    return myDelegate.getTextStack();
+    if (myDelegate != null) {
+      return myDelegate.getTextStack();
+    } else {
+      return new Stack<String>();
+    }
   }
 
   @NotNull
   public DoubleArrayList getFractionStack() {
-    return myDelegate.getFractionStack();
+    if (myDelegate != null) {
+      return myDelegate.getFractionStack();
+    } else {
+      return new DoubleArrayList();
+    }
   }
 
   @NotNull
   public Stack<String> getText2Stack() {
-    return myDelegate.getText2Stack();
+    if (myDelegate != null) {
+      return myDelegate.getText2Stack();
+    } else {
+      return new Stack<String>();
+    }
   }
 
   public int getNonCancelableCount() {
-    return myDelegate.getNonCancelableCount();
+    if (myDelegate != null) {
+      return myDelegate.getNonCancelableCount();
+    } else {
+      return 0;
+    }
   }
 
   public boolean isModalityEntered() {
-    return myDelegate.isModalityEntered();
+    if (myDelegate != null) {
+      return myDelegate.isModalityEntered();
+    } else {
+      return false;
+    }
   }
 
   public void finish(@NotNull TaskInfo task) {
-    myDelegate.finish(task);
+    if (myDelegate != null) {
+      myDelegate.finish(task);
+    }
   }
 
   public boolean isFinished(@NotNull TaskInfo task) {
-    return myDelegate.isFinished(task);
+    if (myDelegate != null) {
+      return myDelegate.isFinished(task);
+    } else {
+      return true;
+    }
   }
 
   public boolean wasStarted() {
-    return myDelegate.wasStarted();
+    if (myDelegate != null) {
+      return myDelegate.wasStarted();
+    } else {
+      return true;
+    }
   }
 
   public void processFinish() {
@@ -93,7 +129,11 @@ public class DelegatingProgressIndicatorEx implements ProgressIndicatorEx {
   }
 
   public boolean isRunning() {
-    return myDelegate.isRunning();
+    if (myDelegate != null) {
+      return myDelegate.isRunning();
+    } else {
+      return false;
+    }
   }
 
   public void cancel() {
@@ -101,70 +141,118 @@ public class DelegatingProgressIndicatorEx implements ProgressIndicatorEx {
   }
 
   public boolean isCanceled() {
-    return myDelegate.isCanceled();
+    if (myDelegate != null) {
+      return myDelegate.isCanceled();
+    } else {
+      return false;
+    }
   }
 
   public void setText(String text) {
-    myDelegate.setText(text);
+    if (myDelegate != null) {
+      myDelegate.setText(text);
+    }
   }
 
   public String getText() {
-    return myDelegate.getText();
+    if (myDelegate != null) {
+      return myDelegate.getText();
+    } else {
+      return "";
+    }
   }
 
   public void setText2(String text) {
-    myDelegate.setText2(text);
+    if (myDelegate != null) {
+      myDelegate.setText2(text);
+    }
   }
 
   public String getText2() {
-    return myDelegate.getText2();
+    if (myDelegate != null) {
+      return myDelegate.getText2();
+    } else {
+      return "";
+    }
   }
 
   public double getFraction() {
-    return myDelegate.getFraction();
+    if (myDelegate != null) {
+      return myDelegate.getFraction();
+    } else {
+      return 0;
+    }
   }
 
   public void setFraction(double fraction) {
-    myDelegate.setFraction(fraction);
+    if (myDelegate != null) {
+      myDelegate.setFraction(fraction);
+    }
   }
 
   public void pushState() {
-    myDelegate.pushState();
+    if (myDelegate != null) {
+      myDelegate.pushState();
+    }
   }
 
   public void popState() {
-    myDelegate.popState();
+    if (myDelegate != null) {
+      myDelegate.popState();
+    }
   }
 
   public void startNonCancelableSection() {
-    myDelegate.startNonCancelableSection();
+    if (myDelegate != null) {
+      myDelegate.startNonCancelableSection();
+    }
   }
 
   public void finishNonCancelableSection() {
-    myDelegate.finishNonCancelableSection();
+    if (myDelegate != null) {
+      myDelegate.finishNonCancelableSection();
+    }
   }
 
   public boolean isModal() {
-    return myDelegate.isModal();
+    if (myDelegate != null) {
+      return myDelegate.isModal();
+    } else {
+      return false;
+    }
   }
 
   public ModalityState getModalityState() {
-    return myDelegate.getModalityState();
+    if (myDelegate != null) {
+      return myDelegate.getModalityState();
+    } else {
+      return ModalityState.defaultModalityState();
+    }
   }
 
   public void setModalityProgress(ProgressIndicator modalityProgress) {
-    myDelegate.setModalityProgress(modalityProgress);
+    if (myDelegate != null) {
+      myDelegate.setModalityProgress(modalityProgress);
+    }
   }
 
   public boolean isIndeterminate() {
-    return myDelegate.isIndeterminate();
+    if (myDelegate != null) {
+      return myDelegate.isIndeterminate();
+    } else {
+      return true;
+    }
   }
 
   public void setIndeterminate(boolean indeterminate) {
-    myDelegate.setIndeterminate(indeterminate);
+    if (myDelegate != null) {
+      myDelegate.setIndeterminate(indeterminate);
+    }
   }
 
   public void checkCanceled() throws ProcessCanceledException {
-    myDelegate.checkCanceled();
+    if (myDelegate != null) {
+      myDelegate.checkCanceled();
+    }
   }
 }
