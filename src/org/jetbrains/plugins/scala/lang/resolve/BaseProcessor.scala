@@ -13,13 +13,13 @@ import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
+import psi.impl.toplevel.synthetic.ScSyntheticClass
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
-
   import _root_.scala.collection.mutable.HashSet
 
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
@@ -36,7 +36,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         case null => true
         case DeclaractionKind.PACKAGE => kinds contains ResolveTargets.PACKAGE
         case DeclaractionKind.CLASS => (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
-              (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
+                (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
         case DeclaractionKind.VARIABLE => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
         case DeclaractionKind.METHOD => kinds contains (ResolveTargets.METHOD)
         case _ => false
@@ -93,7 +93,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
       }
 
-      case ScFunctionType(rt, params) if params.length == 0 => processType(rt, place)
+      case ft@ScFunctionType(rt, params) => {
+        def processFunctionTrait = ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true) 
+        if (params.isEmpty) {
+          processType(rt, place) && processFunctionTrait
+        } else {
+          processFunctionTrait
+        }
+      }
 
       case ScCompoundType(components, declarations, types) => {
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
@@ -125,7 +132,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     case ta: ScTypeAlias => processType(s.subst(ta.upperBound), place)
 
     //need to process scala way
-    case clazz : PsiClass =>
+    case clazz: PsiClass =>
       TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, s),
         null, place)
 
@@ -141,5 +148,5 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
   }
- 
+
 }
