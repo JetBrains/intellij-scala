@@ -27,9 +27,7 @@ trait ScType {
 }
 
 abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType {
-  def asClass(project : Project) = SyntheticClasses.get(project).byName(name) match {
-    case Some(c) => c
-  }
+  def asClass(project : Project) = SyntheticClasses.get(project).byName(name).get
 }
 
 case object Any extends StdType("Any", None)

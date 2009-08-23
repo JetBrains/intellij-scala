@@ -1,12 +1,6 @@
 package org.jetbrains.plugins.scala
 package decompiler
 
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ByteCode
-import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileInfo
-import _root_.scala.tools.scalap.scalax.rules.scalasig.SourceFileAttributeParser
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ScalaSigPrinter
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ScalaSigAttributeParsers
-import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
@@ -16,6 +10,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
+import tools.scalap.scalax.rules.scalasig._
+
 /**
  * @author ilyas
  */
@@ -84,51 +80,50 @@ object DecompilerUtil {
     val sf = sourceFileAttribute.readAttributeBytes(file)
     val (bts, sourceFile) = if (ba != null && sf != null) (ba, sf) else {
       val classFile = ClassFileParser.parse(byteCode)
-      classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse) match {
-        case Some(scalaSig) => {
-          val baos = new ByteArrayOutputStream
-          val stream = new PrintStream(baos)
-          val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
-          // Print package with special treatment for package objects
-          syms.first.parent match {
-          //Partial match
-            case Some(p) if (p.name != "<empty>") => {
-              val path = p.path
-              if (!isPackageObject) {
-                stream.print("package ");
-                stream.print(path);
-                stream.print("\n")
-              } else {
-                val i = path.lastIndexOf(".")
-                if (i > 0) {
-                  stream.print("package ");
-                  stream.print(path.substring(0, i))
-                  stream.print("\n")
-                }
-              }
-            }
-            case _ =>
-          }
-          // Print classes
-          val printer = new ScalaSigPrinter(stream, true)
-          for (c <- syms) {
-            printer.printSymbol(c)
-          }
-          val bs = baos.toByteArray
-          decompiledTextAttribute.writeAttributeBytes(file, bs, 0, bs.length)
+      val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get
 
-          // Obtain source file name
-          val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
-          val source: String = classFile.header.constants(index) match {
-            case s: String => s
-            case _ => ""
+      val baos = new ByteArrayOutputStream
+      val stream = new PrintStream(baos)
+      val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+      // Print package with special treatment for package objects
+      syms.first.parent match {
+      //Partial match
+        case Some(p) if (p.name != "<empty>") => {
+          val path = p.path
+          if (!isPackageObject) {
+            stream.print("package ");
+            stream.print(path);
+            stream.print("\n")
+          } else {
+            val i = path.lastIndexOf(".")
+            if (i > 0) {
+              stream.print("package ");
+              stream.print(path.substring(0, i))
+              stream.print("\n")
+            }
           }
-          val sBytes = source.getBytes(CharsetToolkit.UTF8)
-          sourceFileAttribute.writeAttributeBytes(file, sBytes, 0, sBytes.length)
-          (bs, sBytes)
         }
+        case _ =>
       }
+      // Print classes
+      val printer = new ScalaSigPrinter(stream, true)
+      for (c <- syms) {
+        printer.printSymbol(c)
+      }
+      val bs = baos.toByteArray
+      decompiledTextAttribute.writeAttributeBytes(file, bs, 0, bs.length)
+
+      // Obtain source file name
+      val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
+      val source: String = classFile.header.constants(index) match {
+        case s: String => s
+        case _ => ""
+      }
+      val sBytes = source.getBytes(CharsetToolkit.UTF8)
+      sourceFileAttribute.writeAttributeBytes(file, sBytes, 0, sBytes.length)
+      (bs, sBytes)
     }
+
     (new String(bts, CharsetToolkit.UTF8), new String(sourceFile, CharsetToolkit.UTF8))
   }
 }

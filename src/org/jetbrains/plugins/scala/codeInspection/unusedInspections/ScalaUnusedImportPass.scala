@@ -41,7 +41,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
               else expr
             }
             case ImportSelectorUsed(sel) => sel
-            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => e.wildcardElement match {case Some(p) => p}
+            case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 => e.wildcardElement.get
             case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) => e.getParent
             case _ => null
           }

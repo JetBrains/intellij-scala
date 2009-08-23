@@ -73,24 +73,20 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def superMethods = TypeDefinitionMembers.getMethods(getContainingClass).
-      get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
-    //partial match
-    case Some(x) => x.supers.map{_.info.method}
-  }
+          get(new PhysicalSignature(this, ScSubstitutor.empty)).get.supers.map {_.info.method}
+
 
   def superMethod = TypeDefinitionMembers.getMethods(getContainingClass).
-          get(new PhysicalSignature(this, ScSubstitutor.empty)) match {
-    //partial match
-    case Some(x) => x.primarySuper match {case Some (n) => Some(n.info.method) case None => None}
-  }
+          get(new PhysicalSignature(this, ScSubstitutor.empty)).get.primarySuper.map(_.info.method)
+  
 
   def superSignatures: Seq[FullSignature] = {
     val clazz = getContainingClass
     val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), returnType, this, clazz)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
-      //partial match
-      case Some(x) => x.supers.map{_.info}
+    //partial match
+      case Some(x) => x.supers.map {_.info}
       case None => Seq[FullSignature]() //todo: to prevent match error
     }
     t
