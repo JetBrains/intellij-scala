@@ -3,7 +3,6 @@ package lang
 package refactoring
 package util
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
@@ -15,12 +14,9 @@ import parser.ScalaElementTypes
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import psi.api.expr._
 import psi.api.ScalaFile
-import psi.api.statements.ScVariable
-import psi.api.statements.ScValue
 import psi.api.toplevel.typedef.ScMember
 import psi.api.base.ScStableCodeReferenceElement
 import psi.impl.ScalaPsiElementFactory
-import psi.api.statements.ScFunctionDefinition
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import collection.mutable.ArrayBuffer
@@ -32,6 +28,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import psi.types.{ScFunctionType, ScType}
+import psi.api.statements.{ScFunction, ScVariable, ScValue, ScFunctionDefinition}
+import lang.resolve.ScalaResolveResult
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
@@ -123,7 +123,21 @@ object ScalaRefactoringUtil {
       }
       return None
     }
-    return Some((element, element.cachedType))
+    val cachedType = element.cachedType
+
+    object ReferenceToFunction {
+      def unapply(refExpr: ScReferenceExpression) = refExpr.bind match {
+        case Some(srr: ScalaResolveResult) if srr.element.isInstanceOf[ScFunction] => Some(srr.element.asInstanceOf[ScFunction])
+        case _ => None
+      }
+    }
+    // Handle omitted parentheses in calls to functions with empty parameter list.
+    // todo add a test for case with only implicit parameter list.
+    val exprType = (element, cachedType) match {
+      case (ReferenceToFunction(func), ScFunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
+      case _ => cachedType
+    }
+    return Some((element, exprType))
   }
 
   def getEnclosingContainer(file: PsiFile, startOffset: Int, endOffset: Int): PsiElement = {

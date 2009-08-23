@@ -121,7 +121,6 @@ public class IntroduceVariableTest extends ActionTestBase {
     return result;
   }
 
-
   public static Test suite() {
     return new IntroduceVariableTest();
   }
