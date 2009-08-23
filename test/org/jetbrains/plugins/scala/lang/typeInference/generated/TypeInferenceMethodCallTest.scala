@@ -15,6 +15,10 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testFunctionApplyWithParams = doTest
 
+  def testFunctionApplyReturnTypeAlsoHasApplyMethod = doTest
+
+  def testFunctionDirectCall = doTest
+
   def testLibraryList = doTest
 
   def testMapApply = doTest
