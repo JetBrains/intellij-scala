@@ -156,8 +156,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                 } else {
                   exprs(k) match {
-                    case assign: ScAssignStmt if assign.assignName != None => {
-                      val name = assign.assignName match {case Some(name) => name}
+                    case assign@NamedAssignStmt(name) => {
                       val ind = parameters.findIndexOf(_.name == name)
                       if (ind == -1 || used(ind) == true) {
                         doNoNamed(assign)
@@ -187,8 +186,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   appendFirst()
                 } else {
                   exprs(k) match {
-                    case assign: ScAssignStmt if assign.assignName != None => {
-                      val name = assign.assignName match {case Some(name) => name}
+                    case NamedAssignStmt(name) => {
                       val ind = parameters.findIndexOf(_.name == name)
                       if (ind == -1 || used(ind) == true) {
                         appendFirst()
@@ -407,7 +405,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                                              length >= count => true
                                   case _ => false
                                 })=> {
-                          val constructor = clazz.constructor match {case Some(constructor) => constructor}
+                          val constructor = clazz.constructor.get
                           res += ((constructor, subst.followed(collectSubstitutor(clazz)), count - 1))
                           return
                         }

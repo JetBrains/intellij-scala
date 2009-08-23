@@ -4,9 +4,9 @@ package psi
 package types
 
 import api.statements.params.{ScParameters, ScParameter}
-import api.expr.{ScAssignStmt, ScExpression, ScArgumentExprList}
 import com.intellij.psi.{PsiParameter, PsiMethod}
 import api.statements.{ScFun, ScFunction}
+import api.expr.{NamedAssignStmt, ScAssignStmt, ScExpression, ScArgumentExprList}
 
 /**
  * @author ven
@@ -47,8 +47,7 @@ object Compatibility {
       }
 
       exprs(k) match {
-        case assign: ScAssignStmt if assign.assignName != None => {
-          val name = assign.assignName match {case Some(name) => name}
+        case assign@NamedAssignStmt(name) => {
           val ind = parameters.findIndexOf(_.name == name)
           if (ind == -1 || used(ind) == true) {
             if (!doNoNamed(assign)) return false
