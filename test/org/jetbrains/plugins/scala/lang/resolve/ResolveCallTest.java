@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -46,6 +47,12 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     PsiReference ref = configureByFile("call/NamingParam.scala");
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScParameter);
+  }
+
+  public void testSimpleCallParensOmitted() throws Exception {
+    PsiReference ref = configureByFile("call/SimpleCallParensOmitted.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunctionDefinition);
   }
 
 }
