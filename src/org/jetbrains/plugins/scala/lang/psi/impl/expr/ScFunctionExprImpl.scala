@@ -9,13 +9,14 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import api.statements.params.{ScParameter, ScParameters}
+import types.{Nothing, ScFunctionType};
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -48,6 +49,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       }
       case _ => true
     }
+  }
+
+  override def getType = {
+    val paramTypes = (parameters: Seq[ScParameter]).map((_: ScParameter).calcType)
+    (for (r <- result) yield ScFunctionType(r.getType, paramTypes.toList)) getOrElse Nothing
   }
 
 }
