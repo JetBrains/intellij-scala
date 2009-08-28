@@ -5,6 +5,7 @@ import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -21,6 +22,13 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScReferencePattern);
     assertEquals(((ScReferencePattern) resolved).name(), "aaa");
+  }
+
+  public void testGillesThis() throws Exception {
+    PsiReference ref = configureByFile("this/gilles.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunction);
+    assertEquals(((ScFunction) resolved).name(), "iii");
   }
 
   public void testSecondaryConstructorParameter() throws Exception {

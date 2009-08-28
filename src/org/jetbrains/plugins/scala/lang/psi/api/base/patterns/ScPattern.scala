@@ -43,7 +43,7 @@ trait ScPattern extends ScalaPsiElement {
     findChildrenByClass(classOf[ScPattern])
   }
 
-  def expectedType :Option[ScType] = getParent match {
+  def expectedType: Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
       case _var : ScVariable => Some(_var.getType)
       case _val : ScValue => Some(_val.getType)

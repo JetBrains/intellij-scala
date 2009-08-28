@@ -20,8 +20,8 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
         case e => new ScDesignatorType(e)
       }
     }
-    case thisPath: ScThisReference => thisPath.refClass match {
-      case Some(clazz) => new ScDesignatorType(clazz)
+    case thisPath: ScThisReference => thisPath.refTemplate match {
+      case Some(tmpl) => tmpl.getType
       case _ => Nothing
     }
     case superPath: ScSuperReference => superPath.staticSuper match {
@@ -43,7 +43,7 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
               case (None, None) => true
               case _ => false
             })
-          case (t1: ScThisReference, t2: ScThisReference) => t1.refClass == t2.refClass
+          case (t1: ScThisReference, t2: ScThisReference) => t1.refTemplate == t2.refTemplate
           case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate &&
                   ((s1.staticSuper, s2.staticSuper) match {
                     case (Some(t1), Some(t2)) => t1 equiv t2

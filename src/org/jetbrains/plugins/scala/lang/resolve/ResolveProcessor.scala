@@ -88,7 +88,11 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
 
 class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
                              expected: Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
+
+  // Return RAW types to not cycle while evaluating Parameter expected type
+  // i.e. for functions return the most common type (Any, ..., Any) => Nothing
   private val args: Seq[ScType] = exprs.map(_.cachedType)
+
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
