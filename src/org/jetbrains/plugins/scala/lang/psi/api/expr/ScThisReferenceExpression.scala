@@ -5,8 +5,8 @@ package api
 package expr
 
 import base.{ScStableCodeReferenceElement, ScPathElement}
-import toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiElement
+import toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,5 +16,5 @@ import psi.ScalaPsiElement
 trait ScThisReference extends ScExpression with ScPathElement {
   def reference = findChild(classOf[ScStableCodeReferenceElement])
 
-  def refClass : Option[ScTypeDefinition]
+  def refTemplate : Option[ScTemplateDefinition]
 }

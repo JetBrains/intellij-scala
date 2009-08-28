@@ -37,9 +37,9 @@ import psi.stubs.ScTypeDefinitionStub
 import stubs.StubElement
 import synthetic.JavaIdentifier
 import Misc._
-import types.{PhysicalSignature, ScSubstitutor, ScType}
 import util.{PsiUtil, PsiTreeUtil}
 import source.PsiFileImpl
+import types._
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -48,6 +48,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       case _ => super.add(element)
     }
   }
+
+  def getType : ScType = new ScDesignatorType(this)
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
 

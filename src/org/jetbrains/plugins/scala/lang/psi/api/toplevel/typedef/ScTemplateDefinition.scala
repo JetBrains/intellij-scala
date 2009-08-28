@@ -7,16 +7,15 @@ package typedef
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, ResolveState, PsiClass, PsiNamedElement}
+import com.intellij.psi.{PsiElement, ResolveState, PsiClass}
 import com.intellij.util.ArrayFactory
 import resolve.BaseProcessor
-import statements.params.ScTypeParamClause
 import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
-import types.{ScType, PhysicalSignature, ScSubstitutor}
+import types.{ScType, ScSubstitutor}
 
 /**
  * @author ven
@@ -41,6 +40,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     findChildByClass(classOf[ScExtendsBlock])
   }
+
+  def getType : ScType
 
   def members(): Seq[ScMember] = extendsBlock.members
   def functions(): Seq[ScFunction] = extendsBlock.functions
