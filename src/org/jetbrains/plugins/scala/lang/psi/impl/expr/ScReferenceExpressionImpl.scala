@@ -32,6 +32,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import formatting.settings.ScalaCodeStyleSettings
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import api.base.types.ScTypeElement
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -100,25 +101,36 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
-      def proc(e : PsiElement) : ResolveProcessor = e.getContext match {
-        case generic : ScGenericCall => proc(generic)
-        case call: ScMethodCall =>
-          new MethodResolveProcessor(ref, call.args.exprs, expectedType)
+
+      def defineProcessor(e : PsiElement, typeArgs: Seq[ScTypeElement]) : ResolveProcessor = e.getContext match {
+        case generic : ScGenericCall => defineProcessor(generic, generic.arguments)
+
+        case _: ScMethodCall | _ : ScUnderscoreSection =>
+          def defProc1(e: PsiElement, argsClauses: List[Seq[ScExpression]]) : MethodResolveProcessor = e.getContext match {
+            case call: ScMethodCall => defProc1(call, argsClauses ::: List(call.argumentExpressions)) //todo rewrite this crap!
+            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, argsClauses, typeArgs, expectedType, section = true)
+            case _ => new MethodResolveProcessor(ref, argsClauses, typeArgs, expectedType)
+          }
+          defProc1(e, Nil)
+
         case inf: ScInfixExpr if ref == inf.operation => {
           val args = if (ref.rightAssoc) Seq.singleton(inf.lOp) else inf.rOp match {
             case tuple: ScTuple => tuple.exprs
             case rOp => Seq.singleton(rOp)
           }
-          new MethodResolveProcessor(ref, args, expectedType)
+          new MethodResolveProcessor(ref, List(args), Nil, expectedType)
         }
+
         case postf: ScPostfixExpr if ref == postf.operation =>
-          new MethodResolveProcessor(ref, Seq.empty, expectedType)
+          new MethodResolveProcessor(ref, Nil, Nil, expectedType)
+
         case pref: ScPrefixExpr if ref == pref.operation =>
-          new MethodResolveProcessor(ref, Seq.empty, expectedType)
+          new MethodResolveProcessor(ref, Nil, Nil, expectedType)
+
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }
 
-      val res = _resolve(ref, proc(ref))
+      val res = _resolve(ref, defineProcessor(ref, Nil))
       res
     }
   }

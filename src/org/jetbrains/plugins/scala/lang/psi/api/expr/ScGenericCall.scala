@@ -4,8 +4,8 @@ package psi
 package api
 package expr
 
-import base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import base.types.{ScTypeElement, ScTypeArgs}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,6 +16,11 @@ trait ScGenericCall extends ScExpression {
 
   def referencedExpr = findChildByClass(classOf[ScExpression])
 
-  def typeArgs = findChildByClass(classOf[ScTypeArgs])
+  def typeArgs = findChild(classOf[ScTypeArgs])
+
+  def arguments : Seq[ScTypeElement] = (for (t <- typeArgs) yield t.typeArgs) match {
+    case Some(x) => x
+    case _ => Nil
+  }
 
 }

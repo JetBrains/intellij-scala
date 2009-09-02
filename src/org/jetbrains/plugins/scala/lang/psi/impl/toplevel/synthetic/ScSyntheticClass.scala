@@ -37,7 +37,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
 
   def nameId(): PsiElement = null
   override def getNameIdentifier: PsiIdentifier = null
-  protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[T]()
+  protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[ScalaPsiElement]().asInstanceOf[Array[T]]
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
 }
 

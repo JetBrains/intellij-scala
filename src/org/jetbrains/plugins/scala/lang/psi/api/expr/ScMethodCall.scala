@@ -26,12 +26,6 @@ trait ScMethodCall extends ScExpression {
 
   def args: ScArgumentExprList = findChildByClass(classOf[ScArgumentExprList])
 
-  def allArgumentExprLists: Array[ScArgumentExprList] = {
-    getInvokedExpr match {
-      case call: ScMethodCall => {
-        return call.allArgumentExprLists ++ Array[ScArgumentExprList](args)
-      }
-      case _ => Array[ScArgumentExprList](args)
-    }
-  }
+  def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
+
 }
