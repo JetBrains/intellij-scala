@@ -20,20 +20,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 object AnnotType {
   def parse(builder: PsiBuilder): Boolean = {
     val annotMarker = builder.mark
-    val annotationsMarker = builder.mark
     var isAnnotation = false
-    while (Annotation.parse(builder)) {isAnnotation = true}
-    if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
-    else annotationsMarker.drop
     //parse Simple type
     if (SimpleType parse builder){
-      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE)
-      else annotMarker.drop
-      return true
+      val annotationsMarker = builder.mark
+      while (Annotation.parse(builder)) {isAnnotation = true}
+
+      if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS) else annotationsMarker.drop
+      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE) else annotMarker.drop
+      true
     }
     else {
       annotMarker.rollbackTo
-      return false
+      false
     }
   }
 }

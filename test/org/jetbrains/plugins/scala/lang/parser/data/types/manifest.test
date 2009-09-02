@@ -1,0 +1,354 @@
+object Manifest {
+
+  val Byte = new (Manifest[Byte] @serializable) {
+    def erasure = java.lang.Byte.TYPE
+    override def toString = "Byte"
+    override def newArray(len: Int): BoxedArray[Byte] = new BoxedByteArray(new Array[Byte](len))
+  }
+
+  val Short = new (Manifest[Short] @serializable) {
+    def erasure = java.lang.Short.TYPE
+    override def toString = "Short"
+    override def newArray(len: Int): BoxedArray[Short] = new BoxedShortArray(new Array[Short](len))
+  }
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Manifest')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('Byte')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NewTemplateDefinition
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ClassParents
+                Constructor
+                  TypeInParenthesis
+                    PsiElement(()('(')
+                    TypeWithAnnotation
+                      ParametrizedTypeElement
+                        SimpleTypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('Manifest')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Byte')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            Constructor
+                              SimpleTypeElement
+                                CodeReferenceElement
+                                  PsiElement(identifier)('serializable')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('erasure')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    <empty list>
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression
+                    ReferenceExpression
+                      ReferenceExpression
+                        ReferenceExpression
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Byte')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TYPE')
+                PsiElement(newline)('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('toString')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    <empty list>
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  Literal
+                    PsiElement(string content)('"Byte"')
+                PsiElement(newline)('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newArray')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('len')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedTypeElement
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('BoxedArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleTypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('Byte')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  NewTemplateDefinition
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      ClassParents
+                        Constructor
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('BoxedByteArray')
+                          ArgumentList
+                            PsiElement(()('(')
+                            NewTemplateDefinition
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                ClassParents
+                                  Constructor
+                                    ParametrizedTypeElement
+                                      SimpleTypeElement
+                                        CodeReferenceElement
+                                          PsiElement(identifier)('Array')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        SimpleTypeElement
+                                          CodeReferenceElement
+                                            PsiElement(identifier)('Byte')
+                                        PsiElement(])(']')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression
+                                        PsiElement(identifier)('len')
+                                      PsiElement())(')')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiElement(newline)('\n\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('Short')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NewTemplateDefinition
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ClassParents
+                Constructor
+                  TypeInParenthesis
+                    PsiElement(()('(')
+                    TypeWithAnnotation
+                      ParametrizedTypeElement
+                        SimpleTypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('Manifest')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Short')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            Constructor
+                              SimpleTypeElement
+                                CodeReferenceElement
+                                  PsiElement(identifier)('serializable')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('erasure')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    <empty list>
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression
+                    ReferenceExpression
+                      ReferenceExpression
+                        ReferenceExpression
+                          PsiElement(identifier)('java')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('lang')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Short')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('TYPE')
+                PsiElement(newline)('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('toString')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    <empty list>
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  Literal
+                    PsiElement(string content)('"Short"')
+                PsiElement(newline)('\n    ')
+                ScFunctionDefinition
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(override)('override')
+                  PsiWhiteSpace(' ')
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('newArray')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('len')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParametrizedTypeElement
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('BoxedArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      SimpleTypeElement
+                        CodeReferenceElement
+                          PsiElement(identifier)('Short')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  NewTemplateDefinition
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      ClassParents
+                        Constructor
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('BoxedShortArray')
+                          ArgumentList
+                            PsiElement(()('(')
+                            NewTemplateDefinition
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                ClassParents
+                                  Constructor
+                                    ParametrizedTypeElement
+                                      SimpleTypeElement
+                                        CodeReferenceElement
+                                          PsiElement(identifier)('Array')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        SimpleTypeElement
+                                          CodeReferenceElement
+                                            PsiElement(identifier)('Short')
+                                        PsiElement(])(']')
+                                    ArgumentList
+                                      PsiElement(()('(')
+                                      ReferenceExpression
+                                        PsiElement(identifier)('len')
+                                      PsiElement())(')')
+                            PsiElement())(')')
+                PsiWhiteSpace('\n  ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
