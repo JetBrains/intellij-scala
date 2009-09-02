@@ -41,6 +41,8 @@ import com.intellij.psi._
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicatorEx
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import types.ScTypeElement
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -83,6 +85,9 @@ class ScalaAnnotator extends Annotator {
       case sFile: ScalaFile => {
         ImportTracker.getInstance(sFile.getProject).markFileAnnotated(sFile)
       }
+      case sTypeParam: ScTypeBoundsOwner => {
+        checkTypeParamBounds(sTypeParam, holder)
+      }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
   }
@@ -90,6 +95,13 @@ class ScalaAnnotator extends Annotator {
   private class ScalaTimeoutException extends ProcessCanceledException
 
   private val timeout = 20
+
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {
+//    sTypeParam.viewTypeElement match {
+//      case Some(vb: ScTypeElement) => vb.getPrevSibling
+//      case _ =>
+//    }
+  }
 
   private def breakableMultiresolve(refElement: ScReferenceElement): Array[ResolveResult] = {
     var resolve: Array[ResolveResult] = null
