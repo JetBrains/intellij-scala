@@ -1,4 +1,4 @@
-class a extends @t(b) C with D {val d = -f}
+class a extends C @t(b) with D {val d = -f}
 -----
 ScalaFile
   ScClass
@@ -16,6 +16,10 @@ ScalaFile
       ClassParents
         Constructor
           TypeWithAnnotation
+            SimpleTypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('C')
+            PsiWhiteSpace(' ')
             AnnotationsList
               Annotation
                 PsiElement(@)('@')
@@ -29,10 +33,6 @@ ScalaFile
                       ReferenceExpression
                         PsiElement(identifier)('b')
                       PsiElement())(')')
-            PsiWhiteSpace(' ')
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('C')
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')

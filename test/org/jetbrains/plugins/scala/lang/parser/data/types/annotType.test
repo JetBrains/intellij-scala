@@ -1,0 +1,64 @@
+class C{
+  def foo = new (Manifest[Byte] @serializable){}
+}
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          PsiWhiteSpace(' ')
+          Parameters
+            <empty list>
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          NewTemplateDefinition
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ClassParents
+                Constructor
+                  TypeInParenthesis
+                    PsiElement(()('(')
+                    TypeWithAnnotation
+                      ParametrizedTypeElement
+                        SimpleTypeElement
+                          CodeReferenceElement
+                            PsiElement(identifier)('Manifest')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          SimpleTypeElement
+                            CodeReferenceElement
+                              PsiElement(identifier)('Byte')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            Constructor
+                              SimpleTypeElement
+                                CodeReferenceElement
+                                  PsiElement(identifier)('serializable')
+                    PsiElement())(')')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,4 +1,4 @@
-class a extends @t A(2+2,3)
+class a extends A@t(2+2,3)
 -----
 ScalaFile
   ScClass
@@ -16,6 +16,9 @@ ScalaFile
       ClassParents
         Constructor
           TypeWithAnnotation
+            SimpleTypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('A')
             AnnotationsList
               Annotation
                 PsiElement(@)('@')
@@ -24,20 +27,16 @@ ScalaFile
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('t')
-            PsiWhiteSpace(' ')
-            SimpleTypeElement
-              CodeReferenceElement
-                PsiElement(identifier)('A')
-          ArgumentList
-            PsiElement(()('(')
-            InfixExpression
-              Literal
-                PsiElement(integer)('2')
-              ReferenceExpression
-                PsiElement(identifier)('+')
-              Literal
-                PsiElement(integer)('2')
-            PsiElement(,)(',')
-            Literal
-              PsiElement(integer)('3')
-            PsiElement())(')')
+                    ArgumentList
+                      PsiElement(()('(')
+                      InfixExpression
+                        Literal
+                          PsiElement(integer)('2')
+                        ReferenceExpression
+                          PsiElement(identifier)('+')
+                        Literal
+                          PsiElement(integer)('2')
+                      PsiElement(,)(',')
+                      Literal
+                        PsiElement(integer)('3')
+                      PsiElement())(')')

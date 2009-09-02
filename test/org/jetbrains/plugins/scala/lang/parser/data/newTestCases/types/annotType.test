@@ -1,5 +1,5 @@
 class a {
-  val x: @annot Type#id
+  val x: Type#id @annot 
 }
 -----
 ScalaFile
@@ -29,6 +29,13 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypeWithAnnotation
+            TypeProjection
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Type')
+              PsiElement(#)('#')
+              PsiElement(identifier)('id')
+            PsiWhiteSpace(' ')
             AnnotationsList
               Annotation
                 PsiElement(@)('@')
@@ -37,12 +44,5 @@ ScalaFile
                     SimpleTypeElement
                       CodeReferenceElement
                         PsiElement(identifier)('annot')
-            PsiWhiteSpace(' ')
-            TypeProjection
-              SimpleTypeElement
-                CodeReferenceElement
-                  PsiElement(identifier)('Type')
-              PsiElement(#)('#')
-              PsiElement(identifier)('id')
-        PsiWhiteSpace('\n')
+        PsiWhiteSpace(' \n')
         PsiElement(})('}')
