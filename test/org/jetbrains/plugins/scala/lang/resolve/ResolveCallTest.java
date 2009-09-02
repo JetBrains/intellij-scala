@@ -55,4 +55,18 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     assertTrue(resolved instanceof ScFunctionDefinition);
   }
 
+  public void testResolveAmbiguousWithTypeParameter() throws Exception {
+    PsiReference ref = configureByFile("functions/typeParam1/tp1.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunctionDefinition);
+    assertEquals(resolved.getText(), "def gul[A](a:A): A = null.asInstanceOf[A]");
+  }
+
+  public void testResolveAmbiguousWithout() throws Exception {
+    PsiReference ref = configureByFile("functions/typeParam2/tp2.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunctionDefinition);
+    assertEquals(resolved.getText(), "def gul(i:Int) : Int = i");
+  }
+
 }

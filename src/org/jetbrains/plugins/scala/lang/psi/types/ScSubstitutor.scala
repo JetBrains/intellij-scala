@@ -23,7 +23,8 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val tvMap: Map[String, ScType],
+class
+ScSubstitutor(val tvMap: Map[String, ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) {
   def this() = this (Map.empty, Map.empty, Map.empty)

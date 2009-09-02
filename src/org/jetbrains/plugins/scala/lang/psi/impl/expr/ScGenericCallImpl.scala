@@ -50,8 +50,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case _ => return Nothing
       }
       val applyMethods = ScalaPsiUtil.getApplyMethods(clazz).filter((sign: PhysicalSignature) => sign.method match {
-        case fun: ScFunction => fun.typeParameters.length == this.typeArgs.typeArgs.length
-        case meth: PsiMethod => meth.getTypeParameters.length == this.typeArgs.typeArgs.length
+        case fun: ScFunction => fun.typeParameters.length == arguments.length
+        case meth: PsiMethod => meth.getTypeParameters.length == arguments.length
       })
       val methods = (if (!isPlaceholder)
         ScalaPsiUtil.getMethodsConformingToMethodCall(applyMethods, args, createSubst(_))

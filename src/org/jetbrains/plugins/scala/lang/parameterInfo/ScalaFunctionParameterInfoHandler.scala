@@ -354,7 +354,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.getName)
                     case _ => return ScSubstitutor.empty
                   }
-                  val typeArgs: Seq[ScTypeElement] = gen.typeArgs.typeArgs
+                  val typeArgs: Seq[ScTypeElement] = gen.arguments
                   val map = new collection.mutable.HashMap[String, ScType]
                   for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                     map += Tuple(tp(i), typeArgs(i).calcType)

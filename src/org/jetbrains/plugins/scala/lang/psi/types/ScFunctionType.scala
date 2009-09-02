@@ -12,7 +12,12 @@ import api.toplevel.typedef.ScTrait
 * @author ilyas
 */
 
+/**
+ * @param shortDef is true for functions defined as follows
+ *  def foo : Type = ...
+ */
 case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ScType {
+
   override def equiv(that : ScType) = that match {
     case ScFunctionType(rt1, params1) => (returnType equiv rt1) &&
                                (params.zip(params1) forall {case (x,y) => x equiv y})

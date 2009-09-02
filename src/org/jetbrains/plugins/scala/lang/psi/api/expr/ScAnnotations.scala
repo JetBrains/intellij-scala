@@ -39,7 +39,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
       {case Some(Some(res: ScalaResolveResult)) => res.getElement},
       {case c: PsiClass if c.getQualifiedName == "scala.throws" => constr.args},
       {case args: ScArgumentExprList if args != null => args.exprs},
-      {case Seq(gc@(_: ScGenericCall)) => (gc.referencedExpr, gc.typeArgs.typeArgs)},
+      {case Seq(gc@(_: ScGenericCall)) => (gc.referencedExpr, gc.arguments)},
       {case (ref: ScReferenceExpression, ta) => (ref.bind.map(_.getElement), ta)},
       {case (Some(m: PsiMethod), ta) if m.getName == "classOf" => ta},
       {case Seq(s: ScSimpleTypeElement) => s.reference.map(_.bind)},

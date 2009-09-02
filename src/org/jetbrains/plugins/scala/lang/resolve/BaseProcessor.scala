@@ -26,7 +26,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def changedLevel = true
 
-  def candidates[T >: ScalaResolveResult]: Array[T] = candidatesSet.toArray[T]
+  def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = candidatesSet.toArray[T]
 
   //java compatibility
   object MyElementClassHint extends ElementClassHint {

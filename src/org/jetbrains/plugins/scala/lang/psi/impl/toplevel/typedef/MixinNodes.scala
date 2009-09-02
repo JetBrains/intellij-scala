@@ -57,7 +57,7 @@ abstract class MixinNodes {
     val primarySupers = new Map
     for ((key, nodes) <- supersMerged) {
       val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
-        case None => nodes.toArray(0)
+        case None => nodes.toList(0)
         case Some(concrete) => concrete
       }
       primarySupers += ((key, primarySuper))

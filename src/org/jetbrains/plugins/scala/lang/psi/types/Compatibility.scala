@@ -94,25 +94,43 @@ object Compatibility {
     return true
   }
 
-  def compatible(sign: PhysicalSignature, exprs: Seq[ScExpression]): Boolean = {
+  def compatible(sign: PhysicalSignature, argClauses: List[Seq[ScExpression]], curried : Boolean): Boolean = {
     sign.method match {
       case fun: ScFunction => {
-        val parameters: Seq[ScParameter] = fun.clauses match {
-          case Some(params: ScParameters) => {
-            if (params.clauses.length == 0) return exprs.length == 0
-            params.clauses.apply(0).parameters
-          }
-          case None => return exprs.length == 0
+
+        def checkClausesConformance(funType: ScType, argCls: List[Seq[ScExpression]]) : Boolean =
+          funType match {
+            case ScFunctionType(rt, params) => argCls match {
+              case h :: t => Conformance.conformsSeq(params.map(sign.substitutor.subst(_)),
+                                                     h.map(_.cachedType))
+              case Nil => curried
+            }
+            case _ =>  false
         }
-        checkConformance(true, parameters.map {param: ScParameter => Parameter(param.getName, () => {
-          sign.substitutor.subst(param.calcType)
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
+
+        checkClausesConformance(fun.functionType, argClauses)
+
+//        val parameters: Seq[ScParameter] = fun.clauses match {
+//          case Some(params: ScParameters) => {
+//            if (params.clauses.length == 0) return exprs.length == 0
+//            params.clauses.apply(0).parameters
+//          }
+//          case None => return exprs.length == 0
+//        }
+//
+//
+//
+//        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+//          sign.substitutor.subst(param.calcType)
+//        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
       }
+
+
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
         checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, () => {
           sign.substitutor.subst(ScType.create(param.getType, method.getProject))
-        }, false, param.isVarArgs)}, exprs)
+        }, false, param.isVarArgs)}, if (argClauses.length == 0) Nil else argClauses.head)
       }
     }
   }

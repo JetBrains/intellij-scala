@@ -39,6 +39,25 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
+  /**
+   * Returns pure `function' type as it was defined as a field with functional value
+   */
+  def functionType : ScFunctionType = {
+    val clauseTypes : Seq[Seq[ScType]] = clauses match {
+      case None => Nil
+      case Some(paramClauses) => {
+        val cls = paramClauses.clauses
+        if (cls.length == 0) Nil
+        else cls.map(cl => cl.parameters.map(_.calcType))
+      }
+    }
+    clauseTypes match {
+      case Nil => ScFunctionType(returnType, Nil)
+      case _ => clauseTypes.foldRight(returnType)((x, z) => ScFunctionType(z, x)).asInstanceOf[ScFunctionType]
+    }
+  }
+
+
   def paramClauses: ScParameters
 
   def returnTypeElement: Option[ScTypeElement] = {

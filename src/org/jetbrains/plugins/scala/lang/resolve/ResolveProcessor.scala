@@ -19,6 +19,7 @@ import psi.types._
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
 import psi.api.expr.ScExpression
+import psi.api.base.types.ScTypeElement
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -86,12 +87,15 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
   }
 }
 
-class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
-                             expected: Option[ScType]) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
+class MethodResolveProcessor(ref: ScReferenceElement, 
+                             argumentClauses: List[Seq[ScExpression]],
+                             typeArgElements: Seq[ScTypeElement],
+                             expected: Option[ScType],
+                             section : Boolean = false) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
 
   // Return RAW types to not cycle while evaluating Parameter expected type
   // i.e. for functions return the most common type (Any, ..., Any) => Nothing
-  private val args: Seq[ScType] = exprs.map(_.cachedType)
+  private val args: Seq[ScType] = Nil //argumentClauses.map(_.cachedType)
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -119,15 +123,15 @@ class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
     return true
   }
 
-  override def candidates[T >: ScalaResolveResult]: Array[T] = {
+  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
     val applicable = candidatesSet.filter {
       (c: ScalaResolveResult) => {
         val substitutor: ScSubstitutor = c.substitutor
         c.element match {
           case method: PsiMethod => {
-            Compatibility.compatible(new PhysicalSignature(method, substitutor), exprs)
+            Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)
           }
-          case _ => { //todo: for types you can use named parameters too
+          case _ =>  false /*{ //todo: for types you can use named parameters too
             val t = getType(c.element)
             t match {
               case ScFunctionType(ret, params) => {
@@ -159,10 +163,11 @@ class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
               case _ => false
             }
           }
-        }
+*/        }
       }
     }
-    if (applicable.isEmpty) candidatesSet.toArray else {
+
+    if (applicable.isEmpty) candidates else {
       val buff = new ArrayBuffer[ScalaResolveResult]
       def existsBetter(r: ScalaResolveResult): Boolean = {
         for (r1 <- applicable if r != r1) {
@@ -173,11 +178,21 @@ class MethodResolveProcessor(ref: ScReferenceElement, exprs: Seq[ScExpression],
       for (r <- applicable if !existsBetter(r)) {
         buff += r
       }
-      buff.toArray
+      buff.toArray[T]
     }
   }
 
-  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = ScSubstitutor.empty //todo
+  /**
+   Pick all type parameters by method maps them to the appropriate type arguments, if they are
+   */
+  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
+    typeArgElements.map(_.cachedType.resType).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
+      (subst, pair) =>
+              val scType = pair._1
+              val typeParameter = pair._2
+              subst.bindT(typeParameter.getName, scType)
+    }
+  }
 
   def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement) = {
     val t1 = getType(e1)

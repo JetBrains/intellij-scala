@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScPrefixExpr extends ScExpression {
-  def operand = findChildrenByClass(classOf[ScExpression])(1)
-  def operation : ScReferenceExpression = findChildrenByClass(classOf[ScExpression])(0) match {
+  def operand = findChildrenByClass(classOf[ScExpression]).apply(1)
+  def operation : ScReferenceExpression = findChildrenByClass(classOf[ScExpression]).apply(0) match {
     case re : ScReferenceExpression => re
   }
 }
