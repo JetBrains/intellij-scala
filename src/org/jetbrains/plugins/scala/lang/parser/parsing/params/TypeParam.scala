@@ -56,7 +56,7 @@ object TypeParam {
       case _ =>
     }
     builder.getTokenText match {
-      case "<%" => {
+      case "<%" | ":" => {
         builder.advanceLexer
         if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
       }
