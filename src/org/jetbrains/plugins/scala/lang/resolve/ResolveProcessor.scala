@@ -167,7 +167,7 @@ class MethodResolveProcessor(ref: ScReferenceElement,
       }
     }
 
-    if (applicable.isEmpty) candidates else {
+    if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
       def existsBetter(r: ScalaResolveResult): Boolean = {
         for (r1 <- applicable if r != r1) {

@@ -29,6 +29,7 @@ import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.util.Function;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
@@ -41,6 +42,8 @@ import java.util.Properties;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import scala.tools.nsc.Global;
 
 /**
  * @author ilyas
@@ -185,10 +188,19 @@ public class ScalaConfigUtils {
   @NotNull
   public static String getScalaSdkJarPath(Module module) {
     if (module == null) return "";
-    Library[] libraries = getScalaSdkLibrariesByModule(module);
-    if (libraries.length == 0) return "";
-    final Library library = libraries[0];
-    return getScalaSdkJarPathForLibrary(library);
+    final FacetManager manager = FacetManager.getInstance(module);
+    final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
+    if (facet == null) return "";
+    final ScalaFacetConfiguration configuration = facet.getConfiguration();
+    final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
+    if (libConf.takeFromSettings) {
+      return libConf.myScalaSdkJarPath;
+    } else {
+      Library[] libraries = getScalaSdkLibrariesByModule(module);
+      if (libraries.length == 0) return "";
+      final Library library = libraries[0];
+      return getScalaSdkJarPathForLibrary(library);
+    }
   }
 
   public static String getScalaSdkJarPathForLibrary(Library library) {

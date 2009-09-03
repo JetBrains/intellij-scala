@@ -277,9 +277,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String scalaSdkJarPath = "";
     String scalaCompilerJarPath = "";
 
-    final Module[] modules = chunk.getModules();
     final ModuleManager manager = ModuleManager.getInstance(myProject);
-
     final Module[] allModules = manager.getModules();
     for (Module module : allModules) {
       scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);

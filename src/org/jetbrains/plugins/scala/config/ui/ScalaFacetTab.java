@@ -22,16 +22,14 @@ import com.intellij.facet.ui.FacetValidatorsManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.config.ScalaLibrariesConfiguration;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * @author ilyas
@@ -44,6 +42,9 @@ public class ScalaFacetTab extends FacetEditorTab {
   private JPanel myPanel;
   private JCheckBox myCompilerExcludeCb;
   private JCheckBox myLibraryExcludeCb;
+  private JTextField myCompilerJarPath;
+  private JTextField mySDKJarPath;
+  private JCheckBox myUseSettingsChb;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ScalaLibrariesConfiguration myConfiguration;
@@ -55,11 +56,24 @@ public class ScalaFacetTab extends FacetEditorTab {
 
     myConfiguration = configuration;
 
-    myCompilerExcludeCb.setSelected(myConfiguration.myExcludeCompilerFromModuleScope);
-    myLibraryExcludeCb.setSelected(myConfiguration.myExcludeSdkFromModuleScope);
-    
+    myUseSettingsChb.setEnabled(true);
+    myUseSettingsChb.setSelected(myConfiguration.takeFromSettings);
+
+    myCompilerJarPath.setEnabled(myConfiguration.takeFromSettings);
+    myCompilerJarPath.setText(myConfiguration.myScalaCompilerJarPath);
+    mySDKJarPath.setEnabled(myConfiguration.takeFromSettings);
+    mySDKJarPath.setText(myConfiguration.myScalaSdkJarPath);
+
     myCompilerExcludeCb.setVisible(false);
     myLibraryExcludeCb.setVisible(false);
+
+
+    myUseSettingsChb.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        myCompilerJarPath.setEnabled(myUseSettingsChb.isSelected());
+        mySDKJarPath.setEnabled(myUseSettingsChb.isSelected());
+      }
+    });
     reset();
   }
 
@@ -74,7 +88,18 @@ public class ScalaFacetTab extends FacetEditorTab {
 
   public boolean isModified() {
     return !(myConfiguration.myExcludeCompilerFromModuleScope == myCompilerExcludeCb.isSelected() &&
-        myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected());
+        myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected() &&
+        myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
+        myConfiguration.myScalaCompilerJarPath.equals(getCompilerPath()) &&
+        myConfiguration.myScalaCompilerJarPath.equals(getSdkPath()));
+  }
+
+  private String getSdkPath() {
+    return mySDKJarPath.getText();
+  }
+
+  private String getCompilerPath() {
+    return myCompilerJarPath.getText();
   }
 
   @Override
@@ -88,6 +113,9 @@ public class ScalaFacetTab extends FacetEditorTab {
   public void apply() throws ConfigurationException {
     myConfiguration.myExcludeCompilerFromModuleScope = myCompilerExcludeCb.isSelected();
     myConfiguration.myExcludeSdkFromModuleScope = myLibraryExcludeCb.isSelected();
+    myConfiguration.myScalaCompilerJarPath = getCompilerPath();
+    myConfiguration.myScalaSdkJarPath = getSdkPath();
+    myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
   }
 
   public void reset() {
