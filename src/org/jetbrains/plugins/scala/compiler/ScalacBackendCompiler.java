@@ -77,7 +77,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
   public boolean checkCompiler(CompileScope scope) {
     // Do not run compiler for pure Java projects
-    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
+    final Module[] allModules = scope.getAffectedModules();
 
     // Just skip pure Java projects
     if (!isScalaProject(allModules)) return true;
@@ -277,8 +277,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String scalaSdkJarPath = "";
     String scalaCompilerJarPath = "";
 
-    final ModuleManager manager = ModuleManager.getInstance(myProject);
-    final Module[] allModules = manager.getModules();
+    final Module[] allModules = chunk.getModules();
     for (Module module : allModules) {
       scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
       if (scalaCompilerJarPath.length() > 0) break;
