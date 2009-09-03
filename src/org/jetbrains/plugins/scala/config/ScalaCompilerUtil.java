@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.config;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
+import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.util.LibrariesUtil;
@@ -25,10 +26,10 @@ import java.util.jar.JarFile;
  */
 public class ScalaCompilerUtil {
   public static final Condition<Library> SCALA_COMPILER_LIB_CONDITION = new Condition<Library>() {
-  public boolean value(Library library) {
-    return isScalaCompilerLibrary(library);
-  }
-};
+    public boolean value(Library library) {
+      return isScalaCompilerLibrary(library);
+    }
+  };
   public static final String COMPILER_PROPERTIES_PATH = "compiler.properties";
   private static final String FJBG_JAR_PREFIX = "fjbg";
   public static final String SCALA_COMPILER_JAR_NAME_PREFIX = "scala-compiler";
@@ -50,11 +51,22 @@ public class ScalaCompilerUtil {
   @NotNull
   public static String getScalaCompilerJarPath(Module module) {
     if (module == null) return "";
-    Library[] libraries = getScalaCompilerLibrariesByModule(module);
-    if (libraries.length == 0) return "";
-    final Library library = libraries[0];
-    if (library instanceof LibraryImpl && ((LibraryImpl) library).isDisposed()) return "";
-    return getScalaCompilerJarPathForLibrary(library);
+
+    final FacetManager manager = FacetManager.getInstance(module);
+    final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
+    if (facet == null) return "";
+    final ScalaFacetConfiguration configuration = facet.getConfiguration();
+    final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
+
+    if (libConf.takeFromSettings) {
+      return libConf.myScalaCompilerJarPath;
+    } else {
+      Library[] libraries = getScalaCompilerLibrariesByModule(module);
+      if (libraries.length == 0) return "";
+      final Library library = libraries[0];
+      if (library instanceof LibraryImpl && ((LibraryImpl) library).isDisposed()) return "";
+      return getScalaCompilerJarPathForLibrary(library);
+    }
   }
 
   public static String getScalaCompilerJarPathForLibrary(Library library) {
@@ -69,7 +81,6 @@ public class ScalaCompilerUtil {
     String jarVersion = ScalaConfigUtils.getScalaJarVersion(jarPath, COMPILER_PROPERTIES_PATH);
     return jarVersion != null ? jarVersion : ScalaConfigUtils.UNDEFINED_VERSION;
   }
-
 
 
   // Compiler libraries management

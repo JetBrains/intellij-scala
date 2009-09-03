@@ -208,6 +208,7 @@
     <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
+        <include name="**/scala-compiler.jar"/>
         <include name="**/scalap.jar"/>
       </fileset>
     </copy>
