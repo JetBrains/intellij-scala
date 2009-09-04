@@ -36,9 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
-import org.jetbrains.plugins.scala.config.ScalaCompilerUtil;
-import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
-import org.jetbrains.plugins.scala.config.ScalaFacet;
+import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.io.*;
@@ -277,10 +275,20 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String scalaSdkJarPath = "";
     String scalaCompilerJarPath = "";
 
+    boolean takeCompilerFromFacet = false;
     final Module[] allModules = chunk.getModules();
     for (Module module : allModules) {
       scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-      if (scalaCompilerJarPath.length() > 0) break;
+      if (scalaCompilerJarPath.length() > 0) {
+        final FacetManager manager = FacetManager.getInstance(module);
+        final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
+        if (facet != null) {
+          final ScalaFacetConfiguration configuration = facet.getConfiguration();
+          final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
+          takeCompilerFromFacet = libConf.takeFromSettings;
+        }
+        break;
+      }
     }
 
     for (Module module : allModules) {
@@ -298,9 +306,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     // Special check to compile scala language library
 
-    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH)) {
+    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH) || takeCompilerFromFacet) {
 
-      //Normal scala congiguration
+      //Normal scala configuration by module or facet settings
       classPathBuilder.append(scalaCompilerJarPath);
       classPathBuilder.append(File.pathSeparator);
     } else {
