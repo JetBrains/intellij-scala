@@ -8,6 +8,7 @@ import com.intellij.psi.scope._
 import com.intellij.psi._
 import _root_.scala.collection.Set
 import org.jetbrains.plugins.scala.lang.psi.api._
+import expr.ScReferenceExpression
 import statements.{ScTypeAlias}
 import psi.types._
 import psi.ScalaPsiElement
@@ -65,6 +66,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def processType(t: ScType, place: ScalaPsiElement, state: ResolveState): Boolean = {
     ProgressManager.getInstance.checkCanceled
+
+    def isInApplyCall = place.getContext match {
+      case expr: ScReferenceExpression => expr.nameId.getText == "apply"
+      case _ => false
+    }
+
     t match {
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
@@ -93,8 +100,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
       }
 
-      case ft@ScFunctionType(rt, params) => {
+      case ft@ScFunctionType(rt, params) if isInApplyCall => {
         ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
+      }
+
+      case ft@ScFunctionType(rt, params) if params.isEmpty => {
+        processType(rt, place)
       }
 
       case ScCompoundType(components, declarations, types) => {
