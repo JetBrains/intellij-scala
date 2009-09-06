@@ -44,7 +44,7 @@ public class ScalaRenameTest extends ScalaResolveTestCase {
   private void checkResultByFile(PsiElement element, String s) throws IOException {
     final PsiFile file = element.getContainingFile();
     final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(getTestDataPath() + s.replace(File.separatorChar, '/'));
-    assertEquals(file.getText(), VfsUtil.loadText(vFile));
+    assertEquals(VfsUtil.loadText(vFile), file.getText());
   }
 
   private void performAction(final PsiElement element, final String newName) {
