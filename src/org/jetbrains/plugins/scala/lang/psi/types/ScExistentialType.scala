@@ -57,7 +57,7 @@ object ScExistentialTypeReducer {
           case targ => targ
           }
         })
-        new ScParameterizedType(des, newArgs)
+        new ScParameterizedType(des, Seq(newArgs: _*))
       }
       case _ => t
     }
