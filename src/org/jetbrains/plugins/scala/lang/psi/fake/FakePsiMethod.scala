@@ -23,7 +23,7 @@ import com.intellij.lang.Language
  */
 
 class FakePsiMethod(
-        navElement: PsiElement,
+        val navElement: PsiElement,
         name: String,
         retType: ScType
         ) extends {
@@ -44,6 +44,8 @@ class FakePsiMethod(
   override def getTextOffset: Int = navElement.getTextOffset
 
   override def getNavigationElement: PsiElement = navElement
+
+  override def getOriginalElement: PsiElement = navElement
 
   def getDocComment: PsiDocComment = null
 
