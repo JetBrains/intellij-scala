@@ -76,7 +76,7 @@
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
-    <!--<findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory"/>-->
+    <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaPatternParameterInfoHandler"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaTypeParameterInfoHandler"/>

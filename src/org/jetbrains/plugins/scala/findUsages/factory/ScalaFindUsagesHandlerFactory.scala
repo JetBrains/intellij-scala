@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.find.findUsages.{FindUsagesHandler, FindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 
 /**
  * User: Alexander Podkhalyuzin
@@ -11,16 +12,14 @@ import com.intellij.openapi.project.Project
  */
 
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory {
-  val typeDefinitionFindUsagesOptions = FindUsagesHandler.createFindUsagesOptions(project)
-
   def canFindUsages(element: PsiElement): Boolean = {
     element match {
-      case _: ScTypeDefinition => true
+      case _: FakePsiMethod => true
       case _ => false
     }
   }
 
   def createFindUsagesHandler(element: PsiElement, forHighlightUsages: Boolean): FindUsagesHandler = {
-    new ScalaFindUsagesHandler(element, typeDefinitionFindUsagesOptions)
+    new ScalaFindUsagesHandler(element)
   }
 }
