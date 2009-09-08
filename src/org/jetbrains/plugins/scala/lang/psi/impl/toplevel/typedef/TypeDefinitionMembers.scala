@@ -22,6 +22,9 @@ import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
 import util._
 import _root_.scala.collection.mutable.HashMap
+import lang.resolve.BaseProcessor
+import fake.FakePsiMethod
+import api.toplevel.ScTyped
 //import Suspension._
 
 object TypeDefinitionMembers {
@@ -300,9 +303,25 @@ object TypeDefinitionMembers {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
+    //this is for Java: to find methods, which is vals in Scala
+    if (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)) {
+      for ((_, n) <- vals) {
+        n.info match {
+          case t: ScTyped => {
+            if (!processor.execute(new FakePsiMethod(t), state/*.put(PsiSubstitutor.KEY,
+              ScalaPsiUtil.getPsiSubstitutor(n.substitutor, place.getProject))*/)) return false
+          }
+          case _ =>
+        }
+
+      }
+    }
     if (shouldProcessMethods(processor)) {
       for ((_, n) <- methods) {
-        if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        val substitutor = n.substitutor followed subst
+        if (!processor.execute(n.info.method,
+          state.put(ScSubstitutor.key, substitutor)/*.
+                put(PsiSubstitutor.KEY, ScalaPsiUtil.getPsiSubstitutor(substitutor, place.getProject))*/)) return false
       }
     }
     if (shouldProcessTypes(processor)) {
@@ -314,7 +333,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  import lang.resolve._, org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+  import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
   def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)

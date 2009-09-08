@@ -40,6 +40,9 @@ import Misc._
 import util.{PsiUtil, PsiTreeUtil}
 import source.PsiFileImpl
 import types._
+import fake.FakePsiMethod
+import api.base.patterns.ScBindingPattern
+import api.toplevel.ScTyped
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -201,11 +204,40 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     super.setName(name)
   }
 
-  override def getMethods = functions.toArray
+  /**
+   * Do not use it for scala. Use functions method instead.
+   */
+  override def getMethods: Array[PsiMethod] = {
+    val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
+    buffer ++= members.flatMap {
+      p => {
+        import api.statements.{ScVariable, ScFunction, ScValue}
+        import synthetic.PsiMethodFake
+        p match {
+          case function: ScFunction => Array[PsiMethod](function)
+          case value: ScValue => {
+            for (binding <- value.declaredElements) yield new FakePsiMethod(binding)
+          }
+          case variable: ScVariable => {
+            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding)
+          }
+          case _ => Array[PsiMethod]()
+        }
+      }
+    }
+    return buffer.toArray
+  }
 
   override def getAllMethods: Array[PsiMethod] = {
-    val methods = TypeDefinitionMembers.getMethods(this)
-    return methods.toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
+    val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
+    buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
+    for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
+       t match {
+         case t: ScTyped => buffer += new FakePsiMethod(t)
+         case _ =>
+       }
+    }
+    return buffer.toArray
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

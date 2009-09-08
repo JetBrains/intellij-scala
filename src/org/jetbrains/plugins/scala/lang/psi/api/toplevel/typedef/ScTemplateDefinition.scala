@@ -21,6 +21,7 @@ import types.{ScType, ScSubstitutor}
  * @author ven
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClass {
+  import com.intellij.psi.PsiMethod
   def extendsBlock: ScExtendsBlock = {
     this match {
       case st: ScalaStubBasedElementImpl[_] => {
