@@ -10,12 +10,12 @@ import com.intellij.psi._
 import java.lang.String
 import javadoc.PsiDocComment
 import search.GlobalSearchScope
-import util.{PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
 import com.intellij.lang.Language
+import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,7 +69,13 @@ class FakePsiMethod(
 
   def findDeepestSuperMethod: PsiMethod = null
 
-  def getSignature(substitutor: PsiSubstitutor): MethodSignature = null
+  def getSignature(substitutor: PsiSubstitutor): MethodSignature = {
+    new MethodSignatureBase(PsiSubstitutor.EMPTY, PsiType.EMPTY_ARRAY, PsiTypeParameter.EMPTY_ARRAY) {
+      def isRaw: Boolean = false
+
+      def getName: String = name
+    }
+  }
 
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): List[MethodSignatureBackedByPsiMethod] = null
 
