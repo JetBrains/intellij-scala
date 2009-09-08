@@ -65,7 +65,7 @@ class ScalaAnnotator extends Annotator {
         //        checkImplementedMethods(x, holder)
       }
       case x: ScBlock => {
-        checkResultExpression(x, holder)
+        //this is not necessary now: checkResultExpression(x, holder)
       }
       case ref: ScReferenceElement => {
         ref.qualifier match {
