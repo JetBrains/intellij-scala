@@ -34,7 +34,9 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                   refElement.getParent match {
                     case assign: ScAssignStmt if assign.getLExpression == refElement &&
                             assign.getParent.isInstanceOf[ScArgumentExprList] => {
-                      if (refElement.resolve == parameter) consumer.process(ref)
+                      if (refElement.resolve == parameter) {
+                        if (!consumer.process(ref)) return false
+                      }
                     }
                     case _ =>
                   }
