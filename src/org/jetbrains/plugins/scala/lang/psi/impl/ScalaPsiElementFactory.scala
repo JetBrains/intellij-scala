@@ -37,6 +37,13 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   private val DUMMY = "dummy."
 
+  /*def createMethodFromVariable(variable: ScVariable): PsiMethod = {
+    val clazz = variable.getContainingClass
+    if (clazz == null || !clazz.isInstanceOf[ScTypeDefinition]) return null
+    val text = "package " + clazz.asInstanceOf[ScTypeDefinition].getPath + "\n" +
+            "class " +
+  } */
+
   def createWildcardNode(manager: PsiManager): ASTNode = {
     val text = "import a._"
 

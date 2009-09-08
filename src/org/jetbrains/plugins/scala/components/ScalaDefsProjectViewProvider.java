@@ -71,21 +71,22 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       Object o = treeNode.getValue();
       if (o instanceof ScalaFile) {
         final ScalaFile scalaFile = (ScalaFile) o;
-        AbstractTreeNode ultimateParent = getUltimateParent(parent);
 
         final ViewSettings viewSettings = ((ProjectViewNode) parent).getSettings();
         ScalaCodeStyleSettings styleSettings = CodeStyleSettingsManager.getSettings(myProject).getCustomSettings(ScalaCodeStyleSettings.class);
         
-        if (styleSettings.SHOW_FILES_IN_PROJECT_VIEW && ultimateParent instanceof ProjectViewProjectNode) {
+        if (styleSettings.SHOW_FILES_IN_PROJECT_VIEW && getUltimateParent(parent) instanceof ProjectViewProjectNode) {
           showTypesIfSimpleFileOtherwiseShowFile(settings, result, scalaFile, viewSettings);
         } else {
           if (scalaFile.typeDefinitions().length == 0 || scalaFile.isScriptFile()) {
             result.add(child);
+          } else {
+            addTypes(result, scalaFile, viewSettings);
           }
-          addTypes(result, scalaFile, viewSettings);
         }
-      } else
+      } else {
         result.add(treeNode);
+      }
     }
     return result;
   }
@@ -94,11 +95,9 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
 
   private void addTypes(List<AbstractTreeNode> result, ScalaFile file, ViewSettings viewSettings) {
     PsiClass[] classes = file.getClasses();
-    if (classes.length != 0) {
-      for (PsiClass aClass : classes) {
-        if (aClass.isValid()) {
-          result.add(new ClassTreeNode(myProject, aClass, viewSettings));
-        }
+    for (PsiClass aClass : classes) {
+      if (aClass.isValid()) {
+        result.add(new ClassTreeNode(myProject, aClass, viewSettings));
       }
     }
   }
