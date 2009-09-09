@@ -85,7 +85,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val guard: ScGuard = PsiTreeUtil.getParentOfType(expr, classOf[ScGuard])
       if (guard != null && guard.getParent.isInstanceOf[ScCaseClause]) showErrorMessage(ScalaBundle.message("cannot.refactor.guard"), project)
 
-      val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile) file
+      val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile()) file
       else {
         var res: PsiElement = file.findElementAt(startOffset)
         while (!res.isInstanceOf[ScFunction] && res.getParent != null && 

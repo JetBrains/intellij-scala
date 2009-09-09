@@ -129,7 +129,7 @@ object ResolveUtils {
                   case td: ScTemplateDefinition => {
                     PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                   }
-                  case file: ScalaFile if file.isScriptFile => {
+                  case file: ScalaFile if file.isScriptFile() => {
                     PsiTreeUtil.isAncestor(file, place, false)
                   }
                   case _ => {

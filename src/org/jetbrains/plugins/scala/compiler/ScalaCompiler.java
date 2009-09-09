@@ -5,6 +5,7 @@ import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
 import com.intellij.compiler.make.CacheCorruptedException;
 import com.intellij.facet.FacetManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerMessageCategory;
@@ -17,22 +18,18 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Computable;
-import com.intellij.psi.PsiManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Collection;
 
 /**
  * @author ven, ilyas
@@ -65,7 +62,7 @@ public class ScalaCompiler implements TranslatingCompiler {
       });
 
       Module module = context.getModuleByFile(file);
-      return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile()) ||
+      return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile(true)) ||
                context.getProject() != null &&
                    fileType.equals(StdFileTypes.JAVA) &&
                    ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&

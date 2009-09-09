@@ -28,7 +28,7 @@ object IntroduceVariableTestUtil {
     val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
             get(null)
 
-    val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile) file
+    val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile()) file
     else {
       var res: PsiElement = file.findElementAt(startOffset)
       while (res.getParent != null && !res.getParent.isInstanceOf[ScTemplateBody]) res = res.getParent

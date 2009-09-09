@@ -72,7 +72,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     try {
       val file: VirtualFile = VcsUtil.getVirtualFile(scriptPath)
       PsiManager.getInstance(project).findFile(file) match {
-        case f: ScalaFile if f.isScriptFile =>
+        case f: ScalaFile if f.isScriptFile() =>
         case _ => fileNotFoundError
       }
     }

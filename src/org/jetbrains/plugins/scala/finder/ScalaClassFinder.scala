@@ -19,7 +19,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   def findClasses(qName: String, scope: GlobalSearchScope) =
     ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope).filter {
       c => c.getContainingFile match {
-        case s : ScalaFile => !s.isScriptFile
+        case s : ScalaFile => !s.isScriptFile()
         case _ => true
       }
     }

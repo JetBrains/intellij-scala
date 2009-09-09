@@ -28,12 +28,12 @@ class ExtendsFilter extends ElementFilter {
     if (context.isInstanceOf[PsiComment]) return false
     var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     val file = leaf.getContainingFile.asInstanceOf[ScalaFile]
-    if (leaf != null && file.isScriptFile) {
+    if (leaf != null && file.isScriptFile()) {
       leaf = leaf.getParent
     }
     if (leaf != null) {
       var prev = leaf.getPrevSibling
-      if (prev == null && file.isScriptFile) prev = leaf.getParent.getPrevSibling
+      if (prev == null && file.isScriptFile()) prev = leaf.getParent.getPrevSibling
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
