@@ -216,10 +216,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
         p match {
           case function: ScFunction => Array[PsiMethod](function)
           case value: ScValue => {
-            for (binding <- value.declaredElements) yield new FakePsiMethod(binding)
+            for (binding <- value.declaredElements) yield new FakePsiMethod(binding, isInstanceOf[ScObject])
           }
           case variable: ScVariable => {
-            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding)
+            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding, isInstanceOf[ScObject])
           }
           case _ => Array[PsiMethod]()
         }
@@ -233,7 +233,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
     for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
        t match {
-         case t: ScTyped => buffer += new FakePsiMethod(t)
+         case t: ScTyped => buffer += new FakePsiMethod(t, isInstanceOf[ScObject])
          case _ =>
        }
     }
