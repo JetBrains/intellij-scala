@@ -2,36 +2,32 @@ package org.jetbrains.plugins.scala.lang.refactoring.copy;
 
 import com.intellij.codeInsight.ChangeContextUtil;
 import com.intellij.featureStatistics.FeatureUsageTracker;
-import com.intellij.ide.util.EditorHelper;
 import com.intellij.ide.TwoPaneIdeView;
-import com.intellij.ide.structureView.StructureViewFactoryEx;
 import com.intellij.ide.projectView.ProjectView;
-import com.intellij.lang.StdLanguages;
+import com.intellij.ide.structureView.StructureViewFactoryEx;
+import com.intellij.ide.util.EditorHelper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.fileTypes.StdFileTypes;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowId;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowId;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.jsp.jspJava.JspClass;
 import com.intellij.psi.impl.source.jsp.jspJava.JspHolderMethod;
 import com.intellij.refactoring.RefactoringBundle;
 import com.intellij.refactoring.copy.CopyHandlerDelegate;
-import com.intellij.refactoring.copy.CopyHandler;
-import com.intellij.util.IncorrectOperationException;
 import com.intellij.ui.content.Content;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.codeInspection.ScalaRecursiveElementVisitor;
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -150,7 +146,7 @@ public class ScalaCopyClassesHandler implements CopyHandlerDelegate {
       for (PsiClass clazz : classes) {
         createdFile.deleteChildRange(clazz, clazz);
       }
-      if (!aClass.getName().equals(copyClassName)) ((ScalaFile) createdFile).addImportForClass(aClass);
+      if (!aClass.getName().equals(copyClassName)) ((ScalaFile) createdFile).addImportForClass(aClass, null);
       PsiClass newClass = (PsiClass)createdFile.add(classCopy);
       ChangeContextUtil.decodeContextInfo(newClass, newClass, null);
       replaceClassOccurrences(newClass, (PsiClass) elementToCopy);

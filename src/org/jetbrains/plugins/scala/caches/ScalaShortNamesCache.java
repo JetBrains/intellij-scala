@@ -42,7 +42,7 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
       if (name.equals(clazz.getQualifiedName())) {
         if (clazz.getContainingFile() instanceof ScalaFile) {
           ScalaFile file = (ScalaFile) clazz.getContainingFile();
-          if (file.isScriptFile()) continue;
+          if (file.isScriptFile(true)) continue;
         }
         return clazz;
       }

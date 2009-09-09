@@ -25,7 +25,8 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
             paramTypesEquiv(other)
   }
 
-  protected def paramTypesEquiv(other: Signature) = {
+  protected def paramTypesEquiv(other: Signature): Boolean = {
+    if (paramLength != other.paramLength) return false
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     types.zip(other.types) forall {case (t1, t2) => {unified1.subst(t1) equiv unified2.subst(t2)}}
@@ -44,7 +45,9 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
     case _ => false
   }
 
-  override def hashCode = name.hashCode * 31 + types.hashCode
+  override def hashCode: Int = {
+    name.hashCode * 31 + types.hashCode
+  }
 }
 
 import com.intellij.psi.PsiMethod

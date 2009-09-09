@@ -34,7 +34,7 @@ object ScalaStubsUtil {
               asInstanceOf[java.util.Iterator[PsiElement]]
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
-      if (checkPsi(extendsBlock, classOf[ScExtendsBlock])) {
+      if (checkPsiForExtendsBlock(extendsBlock)) {
         val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
         if (stub != null) {
           if (stub.getParentStub.getStubType.isInstanceOf[ScTypeDefinitionElementType[_ <: ScTypeDefinition]]) {
@@ -58,9 +58,9 @@ object ScalaStubsUtil {
     List.fromArray(StubIndex.getInstance.get(ScAnnotatedMemberIndex.KEY, name, clazz.getProject, scope).toArray(Array[ScMember]()))
   }
 
-  def checkPsi[T <: PsiElement](element: PsiElement, clazz: Class[T]): Boolean = {
+  def checkPsiForExtendsBlock(element: PsiElement): Boolean = {
     element match {
-      case x: T => return true
+      case x: ScExtendsBlockImpl => return true
       case _ => {
         val faultyContainer = PsiUtilBase.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)

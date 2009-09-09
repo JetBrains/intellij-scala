@@ -15,22 +15,24 @@
 
 package org.jetbrains.plugins.scala.components;
 
-import com.intellij.ide.projectView.*;
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.projectView.ProjectViewNode;
+import com.intellij.ide.projectView.TreeStructureProvider;
+import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
-import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode;
+import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.icons.Icons;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
-import org.jetbrains.plugins.scala.icons.Icons;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +80,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
         if (styleSettings.SHOW_FILES_IN_PROJECT_VIEW && getUltimateParent(parent) instanceof ProjectViewProjectNode) {
           showTypesIfSimpleFileOtherwiseShowFile(settings, result, scalaFile, viewSettings);
         } else {
-          if (scalaFile.typeDefinitions().length == 0 || scalaFile.isScriptFile()) {
+          if (scalaFile.typeDefinitions().length == 0 || scalaFile.isScriptFile(true)) {
             result.add(child);
           } else {
             addTypes(result, scalaFile, viewSettings);

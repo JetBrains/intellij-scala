@@ -35,7 +35,7 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
     val file = location.getPsiElement.getContainingFile
     file match {
       case null => return null
-      case scalaFile: ScalaFile if scalaFile.isScriptFile => {
+      case scalaFile: ScalaFile if scalaFile.isScriptFile() => {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.getName, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
         val module = ModuleUtil.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
