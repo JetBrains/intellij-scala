@@ -25,15 +25,16 @@ import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod,
 class FakePsiMethod(
         val navElement: PsiElement,
         name: String,
-        retType: ScType
+        retType: ScType,
+        isStatic: Boolean
         ) extends {
     val project: Project = navElement.getProject
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val manager = navElement.getManager
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod{
-  def this(value: ScTyped) = {
-    this(value, value.getName, value.calcType)
+  def this(value: ScTyped, isStatic: Boolean) = {
+    this(value, value.getName, value.calcType, isStatic)
   }
   override def toString: String = name + "()"
 
@@ -51,7 +52,12 @@ class FakePsiMethod(
 
   def isDeprecated: Boolean = false
 
-  def hasModifierProperty(name: String): Boolean = false
+  def hasModifierProperty(name: String): Boolean = {
+    name match {
+      case "static" if isStatic => true
+      case _ => false
+    }
+  }
 
   def getTypeParameterList: PsiTypeParameterList = null
 
@@ -61,7 +67,7 @@ class FakePsiMethod(
 
   def accept(visitor: PsiElementVisitor): Unit = {}
 
-  def copy: PsiElement = new FakePsiMethod(navElement, name, retType)
+  def copy: PsiElement = new FakePsiMethod(navElement, name, retType, isStatic)
 
   def getText: String = throw new IncorrectOperationException
 

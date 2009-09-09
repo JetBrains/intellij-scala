@@ -278,7 +278,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean =
-    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz)) &&
+    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz),
+      clazz.isInstanceOf[ScObject]) &&
             AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
             Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
 
@@ -287,7 +288,8 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean =
-    processDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td))
+    processDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
+      td.isInstanceOf[ScObject])
 
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
@@ -295,7 +297,8 @@ object TypeDefinitionMembers {
                                   place: PsiElement,
                                   vals: => ValueNodes.Map,
                                   methods: => MethodNodes.Map,
-                                  types: => TypeNodes.Map): Boolean = {
+                                  types: => TypeNodes.Map,
+                                  isObject: Boolean): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
     if (shouldProcessVals(processor)) {
@@ -308,7 +311,7 @@ object TypeDefinitionMembers {
       for ((_, n) <- vals) {
         n.info match {
           case t: ScTyped => {
-            if (!processor.execute(new FakePsiMethod(t), state/*.put(PsiSubstitutor.KEY,
+            if (!processor.execute(new FakePsiMethod(t, isObject), state/*.put(PsiSubstitutor.KEY,
               ScalaPsiUtil.getPsiSubstitutor(n.substitutor, place.getProject))*/)) return false
           }
           case _ =>
