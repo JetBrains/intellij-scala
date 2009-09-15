@@ -9,11 +9,11 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiModifierList}
 import com.intellij.util.ArrayFactory
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList};
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -81,5 +81,14 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }
 
-  override def isCase = hasModifierProperty("case")
+  override def isCase: Boolean = hasModifierProperty("case")
+
+  override def getAllMethods: Array[PsiMethod] = {
+    constructor match {
+      case Some(c) => Array[PsiMethod](c) ++ super.getAllMethods
+      case _ => super.getAllMethods
+    }
+  }
+
+  override def getConstructors: Array[PsiMethod] = getMethods.filter(_.isConstructor)
 }

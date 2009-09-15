@@ -8,13 +8,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import statements.ScFunction
+import com.intellij.psi.PsiMethod
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember {
+trait ScPrimaryConstructor extends ScMember with PsiMethod {
   /**
    *  @return has annotation
    */
