@@ -7,6 +7,7 @@ import api.statements.params.{ScParameters, ScParameter}
 import com.intellij.psi.{PsiParameter, PsiMethod}
 import api.statements.{ScFun, ScFunction}
 import api.expr.{NamedAssignStmt, ScAssignStmt, ScExpression, ScArgumentExprList}
+import impl.toplevel.synthetic.ScSyntheticFunction
 
 /**
  * @author ven
@@ -133,5 +134,10 @@ object Compatibility {
         }, false, param.isVarArgs)}, if (argClauses.length == 0) Nil else argClauses.head)
       }
     }
+  }
+
+  def compatible(synthetic: ScSyntheticFunction, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]]): Boolean = {
+    checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", () => subst.subst(tp), false, false)},
+      if (argClauses.length == 0) Nil else argClauses.head)
   }
 }

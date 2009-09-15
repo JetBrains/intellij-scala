@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.config.ScalaFacetType;
  * @author ilyas
  */
 public class ScalaActionUtil {
-
   public static boolean isScalaConfigured(AnActionEvent e) {
     DataContext context = e.getDataContext();
     Module module = (Module) context.getData(DataKeys.MODULE.getName());
@@ -25,5 +24,4 @@ public class ScalaActionUtil {
     }
     return false;
   }
-
 }

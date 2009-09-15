@@ -20,6 +20,7 @@ import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
 import psi.api.expr.ScExpression
 import psi.api.base.types.ScTypeElement
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -128,6 +129,9 @@ class MethodResolveProcessor(ref: ScReferenceElement,
       (c: ScalaResolveResult) => {
         val substitutor: ScSubstitutor = c.substitutor
         c.element match {
+          case synthetic: ScSyntheticFunction => {
+            Compatibility.compatible(synthetic, substitutor, argumentClauses)
+          }
           case method: PsiMethod => {
             Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)
           }
