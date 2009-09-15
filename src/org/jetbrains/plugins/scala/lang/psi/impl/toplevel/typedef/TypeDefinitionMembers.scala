@@ -70,6 +70,10 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
       for (member <- template.members) {
         member match {
+          case primary: ScPrimaryConstructor => {
+            val sig = new PhysicalSignature(primary, subst)
+            map += ((sig, new Node(sig, subst)))
+          }
           case method: ScFunction => {
             val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))

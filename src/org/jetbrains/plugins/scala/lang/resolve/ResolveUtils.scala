@@ -179,9 +179,9 @@ object ResolveUtils {
     }
 
     val name: String = isRenamed.getOrElse(element.getName)
-    val lookupBuilder: LookupElementBuilder = LookupElementFactory.builder(name, Tuple(element)) //don't add elements to lookup
-    lookupBuilder.setInsertHandler(new ScalaInsertHandler)
-    lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
+    var lookupBuilder: LookupElementBuilder = LookupElementBuilder.create(Tuple(element), name) //don't add elements to lookup
+    lookupBuilder = lookupBuilder.setInsertHandler(new ScalaInsertHandler)
+    lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
         var isBold = false
         var isDeprecated = false
@@ -251,6 +251,6 @@ object ResolveUtils {
         presentation.setItemTextBold(isBold)
       }
     })
-    (lookupBuilder.createLookupElement, element)
+    (lookupBuilder, element)
   }
 }

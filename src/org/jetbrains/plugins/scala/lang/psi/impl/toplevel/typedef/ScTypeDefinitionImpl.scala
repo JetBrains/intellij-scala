@@ -11,7 +11,6 @@ package typedef
 
 import _root_.java.lang.String
 import _root_.java.util.{List, ArrayList}
-import api.base.ScModifierList
 import com.intellij.openapi.util.{Pair, Iconable}
 import api.ScalaFile
 import com.intellij.psi.search.GlobalSearchScope
@@ -43,6 +42,7 @@ import types._
 import fake.FakePsiMethod
 import api.base.patterns.ScBindingPattern
 import api.toplevel.ScTyped
+import api.base.{ScPrimaryConstructor, ScModifierList}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -214,6 +214,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
         import api.statements.{ScVariable, ScFunction, ScValue}
         import synthetic.PsiMethodFake
         p match {
+          case primary: ScPrimaryConstructor => Array[PsiMethod](primary)
           case function: ScFunction => Array[PsiMethod](function)
           case value: ScValue => {
             for (binding <- value.declaredElements) yield new FakePsiMethod(binding, isInstanceOf[ScObject])

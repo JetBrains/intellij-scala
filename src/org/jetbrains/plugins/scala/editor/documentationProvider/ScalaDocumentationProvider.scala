@@ -35,7 +35,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
     null
   }
 
-  def getUrlFor(element: PsiElement, originalElement: PsiElement): String = {
+  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = {
     null
   }
 
