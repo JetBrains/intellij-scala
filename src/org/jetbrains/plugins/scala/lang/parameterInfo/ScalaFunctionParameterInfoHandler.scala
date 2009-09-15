@@ -478,7 +478,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case _ =>
                       }
                       for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-                        if n.method.getName == "this" && (!n.method.isInstanceOf[ScFunction]
+                        if !n.method.isInstanceOf[ScPrimaryConstructor] && n.method.getName == "this" &&
+                                n.method.getContainingClass == clazz &&
+                                (!n.method.isInstanceOf[ScFunction]
                                 || (n.method.asInstanceOf[ScFunction].clauses match {
                           case Some(x) => x.clauses.length
                           case None => 1
