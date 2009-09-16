@@ -67,9 +67,18 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiClass[] getClassesByFQName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), fqn.hashCode(), myProject, scope);
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), fqn.hashCode(), myProject, scope);
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
-    for (PsiClass psiClass : classes) {
+    for (PsiElement element : classes) {
+      if (!(element instanceof PsiClass)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return null;
+      }
+      PsiClass psiClass = (PsiClass) element;
       if (fqn.equals(psiClass.getQualifiedName())) {
         list.add(psiClass);
       }
