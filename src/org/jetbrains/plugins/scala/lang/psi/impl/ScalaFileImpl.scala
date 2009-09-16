@@ -24,6 +24,9 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.module.ModuleManager
+import org.jetbrains.annotations.Nullable
+import api.toplevel.ScToplevelElement
+import scala.util.control.Breaks._
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -115,7 +118,30 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def setPackageName(name: String) {
-    //todo implement with packagings
+    if (packageName == null) return
+    else if (packageName == name) return
+    val document = PsiDocumentManager.getInstance(getProject).getDocument(this)
+    try {
+      if (packageName == "") {
+        document.insertString(0, "package " + name + "\n\n")
+        return
+      }
+      def getPackaging(elem: PsiElement): Option[ScPackaging] = {
+        elem.getChildren.find(_.isInstanceOf[ScPackaging]).map(_.asInstanceOf[ScPackaging])
+      }
+      var element: PsiElement = this
+      var child: Option[ScPackaging] = getPackaging(this)
+      while (child != None) {
+        element = child.get
+        child = getPackaging(element)
+      }
+      if (element == null) return
+      val text = element.asInstanceOf[ScPackaging].getBodyText
+      document.replaceString(0, document.getTextLength, "package " + name + "\n\n" + text)
+    }
+    finally {
+      PsiDocumentManager.getInstance(getProject).commitDocument(document)
+    }
   }
 
   override def getStub: ScFileStub = super[PsiFileBase].getStub.asInstanceOf[ScFileStub]
@@ -129,7 +155,24 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     } else findChildrenByClass(classOf[ScPackaging])
   }
 
-  def getPackageName: String = ""
+  def getPackageName: String = {
+    if (packageName == null) "" else packageName
+  }
+
+  @Nullable
+  def packageName: String = {
+    if (isScriptFile) return null
+    var res: String = ""
+    var x: ScToplevelElement = this
+    while (true) {
+      val packs: Seq[ScPackaging] = x.packagings
+      if (packs.length > 1) return null
+      else if (packs.length == 0) return if (res.length == 0) res else res.substring(1)
+      res += "." + packs(0).getPackageName
+      x = packs(0)
+    }
+    null //impossiible line
+  }
 
   private def getPackageNameInner: String = {
     val ps = getPackagings
