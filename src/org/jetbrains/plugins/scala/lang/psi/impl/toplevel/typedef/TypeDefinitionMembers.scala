@@ -336,6 +336,12 @@ object TypeDefinitionMembers {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
+    //static inner classes
+    if (isObject && shouldProcessJavaInnerClasses(processor)) {
+      for ((_, n) <- types if n.info.isInstanceOf[ScTypeDefinition]) {
+        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+      }
+    }
 
     true
   }
@@ -361,5 +367,11 @@ object TypeDefinitionMembers {
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
     case BaseProcessor(kinds) => (kinds contains CLASS) || (kinds contains METHOD)
     case _ => false //important: do not process inner classes!
+  }
+
+  def shouldProcessJavaInnerClasses(processor: PsiScopeProcessor): Boolean = {
+    if (processor.isInstanceOf[BaseProcessor]) return false
+    val hint = processor.getHint(ElementClassHint.KEY)
+    hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.CLASS)
   }
 }
