@@ -155,9 +155,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     } else findChildrenByClass(classOf[ScPackaging])
   }
 
-  def getPackageName: String = {
-    if (packageName == null) "" else packageName
-  }
+  def getPackageName: String = ""
 
   @Nullable
   def packageName: String = {
