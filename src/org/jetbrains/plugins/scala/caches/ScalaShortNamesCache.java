@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.caches;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.stubs.StubIndex;
+import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.util.containers.HashSet;
+import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +27,7 @@ import java.util.Collection;
  * @author ilyas
  */
 public class ScalaShortNamesCache extends PsiShortNamesCache {
+  private Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCache");
 
   Project myProject;
 
@@ -37,8 +43,17 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @Nullable
   public PsiClass getClassByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, scope);
-    for (PsiClass clazz : classes) {
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, scope);
+    for (PsiElement element : classes) {
+      if (!(element instanceof PsiClass)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return null;
+      }
+      PsiClass clazz = (PsiClass) element;
       if (name.equals(clazz.getQualifiedName())) {
         if (clazz.getContainingFile() instanceof ScalaFile) {
           ScalaFile file = (ScalaFile) clazz.getContainingFile();
