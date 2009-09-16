@@ -323,4 +323,21 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     }
     res
   }
+
+  override def getInnerClasses: Array[PsiClass] = {
+    members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray
+  }
+
+  override def getAllInnerClasses: Array[PsiClass] = {
+    members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray  //todo: possible add base classes inners
+  }
+
+  override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = {
+    (if (checkBases) {
+      //todo: possibly add base classes inners
+      members.find(p => p.isInstanceOf[PsiClass] && p.asInstanceOf[PsiClass].getName == name).getOrElse(null)
+    } else {
+      members.find(p => p.isInstanceOf[PsiClass] && p.asInstanceOf[PsiClass].getName == name).getOrElse(null)
+    }).asInstanceOf[PsiClass]
+  }
 }
