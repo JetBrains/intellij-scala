@@ -42,12 +42,22 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     case None => Set()
   }
 
+  @volatile
+  private var cachedImplicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = null
+
+  @volatile
+  private var modCount: Long = 0
+
   private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
-    CachesUtil.get(
-      this, ScImplicitlyConvertible.IMPLICIT_CONVERSIONS_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScImplicitlyConvertible => ic.buildImplicitMap})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-      )
+    var tp = cachedImplicitMap
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && modCount == curModCount) {
+      return tp
+    }
+    tp = buildImplicitMap
+    cachedImplicitMap = tp
+    modCount = curModCount
+    return tp
   }
 
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
