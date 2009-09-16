@@ -41,7 +41,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _: ScClass => "class"
       case _: ScObject => "object"
       case _: ScTrait => "trait"
-      case RealPsiClass(c) => if (c.isInterface) "interface" else "class"
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (c.isInterface) "interface" else "class"
       case _: PsiMethod => "method"
       case _: ScTypeParam => "type parameter"
       case _: ScBindingPattern => {
@@ -64,14 +64,14 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     val name = element match {
-      case RealPsiClass(c) => c.getQualifiedName
       case x: PsiMethod => PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
         PsiFormatUtilBase.SHOW_TYPE) + " of " + getDescriptiveName(x.getContainingClass)
       case x: PsiVariable => x.getName
       case x: PsiFile => x.getName
-      case x: ScNamedElement => x.getName // todo This line should match, but doesn't. https://lampsvn.epfl.ch/trac/scala/ticket/2337
-      case x: ScTypeParam => (x: ScNamedElement).getName // todo Should even compile! Previous pattern should match! Scalac bug?
+      case x: ScTypeDefinition => x.getQualifiedName
+      case x: ScNamedElement => x.getName
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => c.getQualifiedName
       case _ => element.getText
     }
     Option(name) getOrElse "anonymous"
@@ -80,20 +80,16 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getNodeText(element: PsiElement, useFullName: Boolean): String = {
     val name = element match {
-      case RealPsiClass(c) => if (useFullName) c.getQualifiedName else c.getName
       case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
               PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
               PsiFormatUtilBase.SHOW_TYPE)
       case c: PsiVariable => c.getName
       case c: PsiFile => c.getName
+      case c: ScTypeDefinition => if (useFullName) c.getQualifiedName else c.getName
       case c: ScNamedElement => c.getName
-      case c: ScTypeParam => (c: ScNamedElement).getName // todo Should not even compile! Previous pattern should match! Scalac bug? https://lampsvn.epfl.ch/trac/scala/ticket/2337
+      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (useFullName) c.getQualifiedName else c.getName
       case _ => element.getText
     }
     Option(name) getOrElse "anonymous"
-  }
-
-  object RealPsiClass {
-    def unapply(c: PsiClass) = if (c.isInstanceOf[PsiClassFake]) None else Some(c)
   }
 }
