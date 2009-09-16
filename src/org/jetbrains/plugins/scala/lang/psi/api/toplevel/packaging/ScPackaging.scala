@@ -15,4 +15,6 @@ trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageC
   def getPackageName: String
 
   def isExplicit: Boolean
+
+  def getBodyText: String
 }

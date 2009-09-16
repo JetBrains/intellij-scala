@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiClassOwner, PsiImportHolder, PsiClass}
 
 import toplevel.packaging.ScPackaging
 import toplevel.ScToplevelElement
+import org.jetbrains.annotations.Nullable
 
 /**
  * @author ilyas
@@ -25,6 +26,9 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
   def getPackagings: Array[ScPackaging]
 
   def getPackageName: String
+
+  @Nullable
+  def packageName: String
 
   def isCompiled: Boolean
 

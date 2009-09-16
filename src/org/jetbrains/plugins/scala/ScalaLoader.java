@@ -23,13 +23,12 @@ import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.debugger.DebuggerManager;
 import com.intellij.debugger.PositionManager;
 import com.intellij.debugger.engine.DebugProcess;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerAdapter;
+import com.intellij.psi.impl.source.tree.ChangeUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +39,7 @@ import org.jetbrains.plugins.scala.editor.ScalaEditorActionsManager;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 import java.util.Set;
@@ -76,6 +76,8 @@ public class ScalaLoader implements ApplicationComponent {
     SelectWordUtil.registerSelectioner(new ScalaLiteralSelectioner());
 
     ScalaEditorActionsManager.registerScalaActionHandlers();
+
+    ChangeUtil.registerCopyHandler(new ScalaChangeUtilSupport());
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
