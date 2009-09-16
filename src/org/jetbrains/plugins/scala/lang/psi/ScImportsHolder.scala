@@ -22,6 +22,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticPackage
 import collection.mutable.Set
 import refactoring.util.ScalaNamesUtil
 import scope._
+import com.intellij.openapi.progress.ProgressManager
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -34,6 +35,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
+        ProgressManager.getInstance.checkCanceled
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)

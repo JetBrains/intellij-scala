@@ -10,6 +10,7 @@ import com.intellij.psi._
 import psi.impl.ScalaFileImpl
 import scope._
 import com.intellij.psi.stubs.StubElement
+import com.intellij.openapi.progress.ProgressManager
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -21,6 +22,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = lastParent
       while (run != null) {
+        ProgressManager.getInstance.checkCanceled
         place match {
           case id: ScStableCodeReferenceElement => run match {
             case po: ScObject if po.isPackageObject && id.qualName == po.getQualifiedName => // do nothing
@@ -34,6 +36,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       //forward references are allowed (e.g. 2 local methods see each other), with highlighting errors in case of var/vals
       run = ScalaPsiUtil.getNextStubOrPsiElement(lastParent)
       while (run != null) {
+        ProgressManager.getInstance.checkCanceled
         if (!processElement(run, processor, state)) return false
         run = ScalaPsiUtil.getNextStubOrPsiElement(run)
       }

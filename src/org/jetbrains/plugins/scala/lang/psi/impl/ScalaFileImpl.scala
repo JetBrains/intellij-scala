@@ -27,6 +27,7 @@ import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import scala.util.control.Breaks._
+import com.intellij.openapi.progress.ProgressManager
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -228,6 +229,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
         var current = JavaPsiFacade.getInstance(getProject).findPackage(pName)
         while (current != null) {
+          ProgressManager.getInstance.checkCanceled
           if (!current.processDeclarations(processor, state, null, place)) return false
           current = current.getParentPackage
 
@@ -243,6 +245,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
 
     for (implObj <- ImplicitlyImported.objects) {
+      ProgressManager.getInstance.checkCanceled
       val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
     }
@@ -250,16 +253,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     import toplevel.synthetic.SyntheticClasses
 
     for (synth <- SyntheticClasses.get(getProject).getAll) {
+      ProgressManager.getInstance.checkCanceled
       if (!processor.execute(synth, state)) return false
     }
 
     if (isScriptFile) {
       for (syntheticValue <- SyntheticClasses.get(getProject).getScriptSyntheticValues) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(syntheticValue, state)) return false
       }
     }
 
     for (implP <- ImplicitlyImported.packages) {
+      ProgressManager.getInstance.checkCanceled
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }
