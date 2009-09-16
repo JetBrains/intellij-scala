@@ -30,7 +30,8 @@
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
     <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
-    <errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>
+    <!--<errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>-->
+    <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
     <treeStructureProvider language="Scala" implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
