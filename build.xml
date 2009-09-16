@@ -146,7 +146,7 @@
             destdir="${main.dest}"
             target="jvm-1.5"
             force="changed"
-            fork="true">
+            fork="false">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
@@ -248,7 +248,7 @@
             destdir="${test.dest}"
             target="jvm-1.5"
             force="changed"
-            fork="true">
+            fork="false">
       <classpath refid="base.path"/>
       <classpath>
         <path location="${main.dest}"/>
