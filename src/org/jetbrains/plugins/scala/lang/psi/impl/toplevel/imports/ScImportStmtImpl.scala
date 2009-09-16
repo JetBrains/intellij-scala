@@ -16,6 +16,7 @@ import _root_.scala.collection.mutable.HashSet
 import parser.ScalaElementTypes
 import psi.stubs.ScImportStmtStub
 import usages._
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,6 +40,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     for (importExpr <- importExprs) {
+      ProgressManager.getInstance.checkCanceled
       if (importExpr == lastParent) return true
       val elemsAndUsages = importExpr.reference match {
         case Some(ref) => ref.multiResolve(false).map {
@@ -50,6 +52,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         case _ => Seq.empty
       }
       for ((elem, importsUsed) <- elemsAndUsages) {
+        ProgressManager.getInstance.checkCanceled
         importExpr.selectorSet match {
           case None =>
             // Update the set of used imports
