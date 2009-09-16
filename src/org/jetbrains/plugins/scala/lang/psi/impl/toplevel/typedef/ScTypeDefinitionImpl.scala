@@ -41,8 +41,8 @@ import source.PsiFileImpl
 import types._
 import fake.FakePsiMethod
 import api.base.patterns.ScBindingPattern
-import api.toplevel.ScTyped
 import api.base.{ScPrimaryConstructor, ScModifierList}
+import api.toplevel.{ScToplevelElement, ScTyped}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -142,22 +142,15 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
   override def delete() = {
-    var parent = getParent
-    var remove: PsiElement = this
-    while (parent.isInstanceOf[ScPackaging]) {
-      remove = parent
-      parent = parent.getParent
+    var toDelete: PsiElement = this
+    var parent: PsiElement = getParent
+    while (parent.isInstanceOf[ScToplevelElement] && parent.asInstanceOf[ScToplevelElement].typeDefinitions.length == 1) {
+      toDelete = parent
+      parent = toDelete.getParent
     }
-    parent match {
-      case f: ScalaFile => {
-        if (f.typeDefinitions.length == 1) {
-          f.delete
-        } else {
-          f.getNode.removeChild(remove.getNode)
-        }
-      }
-      case e: ScalaPsiElement => e.getNode.removeChild(remove.getNode)
-      case _ => throw new IncorrectOperationException("Invalid type definition")
+    toDelete match {
+      case file: ScalaFile => file.delete
+      case _ => parent.getNode.removeChild(toDelete.getNode)
     }
   }
 
