@@ -25,6 +25,7 @@ import _root_.scala.collection.mutable.HashMap
 import lang.resolve.BaseProcessor
 import fake.FakePsiMethod
 import api.toplevel.ScTyped
+import com.intellij.openapi.progress.ProgressManager
 //import Suspension._
 
 object TypeDefinitionMembers {
@@ -307,12 +308,14 @@ object TypeDefinitionMembers {
     val subst = if (substK == null) ScSubstitutor.empty else substK
     if (shouldProcessVals(processor)) {
       for ((_, n) <- vals) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //this is for Java: to find methods, which is vals in Scala
     if (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)) {
       for ((_, n) <- vals) {
+        ProgressManager.getInstance.checkCanceled
         n.info match {
           case t: ScTyped => {
             if (!processor.execute(new FakePsiMethod(t, isObject), state/*.put(PsiSubstitutor.KEY,
@@ -325,6 +328,7 @@ object TypeDefinitionMembers {
     }
     if (shouldProcessMethods(processor)) {
       for ((_, n) <- methods) {
+        ProgressManager.getInstance.checkCanceled
         val substitutor = n.substitutor followed subst
         if (!processor.execute(n.info.method,
           state.put(ScSubstitutor.key, substitutor)/*.
@@ -333,12 +337,14 @@ object TypeDefinitionMembers {
     }
     if (shouldProcessTypes(processor)) {
       for ((_, n) <- types) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //static inner classes
     if (isObject && shouldProcessJavaInnerClasses(processor)) {
       for ((_, n) <- types if n.info.isInstanceOf[ScTypeDefinition]) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
