@@ -145,7 +145,8 @@
     <scalac srcdir="${base.dir}"
             destdir="${main.dest}"
             target="jvm-1.5"
-            force="changed">
+            force="changed"
+            fork="true">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
@@ -246,7 +247,8 @@
     <scalac srcdir="${base.dir}/test"
             destdir="${test.dest}"
             target="jvm-1.5"
-            force="changed">
+            force="changed"
+            fork="true">
       <classpath refid="base.path"/>
       <classpath>
         <path location="${main.dest}"/>
