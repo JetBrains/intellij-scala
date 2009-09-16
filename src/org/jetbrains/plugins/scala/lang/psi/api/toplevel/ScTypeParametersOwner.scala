@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import parser.ScalaElementTypes
+import com.intellij.openapi.progress.ProgressManager
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
   def typeParameters(): Seq[ScTypeParam] = typeParametersClause match {
@@ -43,6 +44,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
                                   place: PsiElement): Boolean = {
     if (lastParent != null) {
       for (tp <- typeParameters) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(tp, state)) return false
       }
     }

@@ -48,6 +48,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     case named: ScNamedElement => processor.execute(named, state)
     case holder: ScDeclaredElementsHolder => {
       for (declared <- holder.declaredElements) {
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(declared, state)) return false
       }
       true
