@@ -90,7 +90,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         case None => true
       }
 
-      case StdType(name, tSuper) => SyntheticClasses.get(place.getProject).byName(name) match {
+      case StdType(name, tSuper) => (SyntheticClasses.get(place.getProject).byName(name): @unchecked) match {
         case Some(c) => {
           c.processDeclarations(this, state, null, place) &&
                   (tSuper match {
