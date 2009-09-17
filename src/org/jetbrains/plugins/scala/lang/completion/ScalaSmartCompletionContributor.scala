@@ -14,6 +14,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
   extend(CompletionType.SMART, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER),
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+        val element = parameters.getPosition
+        if (element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER) return
 
       }
     })

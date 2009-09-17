@@ -99,7 +99,7 @@ object Compatibility {
     sign.method match {
       case fun: ScFunction => {
 
-        def checkClausesConformance(funType: ScType, argCls: List[Seq[ScExpression]]) : Boolean =
+        /*def checkClausesConformance(funType: ScType, argCls: List[Seq[ScExpression]]) : Boolean =
           funType match {
             case ScFunctionType(rt, params) => argCls match {
               case h :: t => Conformance.conformsSeq(params.map(sign.substitutor.subst(_)),
@@ -109,21 +109,22 @@ object Compatibility {
             case _ =>  false
         }
 
-        checkClausesConformance(fun.functionType, argClauses)
+        checkClausesConformance(fun.functionType, argClauses)*/
+        val exprs: Seq[ScExpression] = if (argClauses.isEmpty) Nil else argClauses.head
 
-//        val parameters: Seq[ScParameter] = fun.clauses match {
-//          case Some(params: ScParameters) => {
-//            if (params.clauses.length == 0) return exprs.length == 0
-//            params.clauses.apply(0).parameters
-//          }
-//          case None => return exprs.length == 0
-//        }
-//
-//
-//
-//        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
-//          sign.substitutor.subst(param.calcType)
-//        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
+        val parameters: Seq[ScParameter] = fun.clauses match {
+          case Some(params: ScParameters) => {
+            if (params.clauses.length == 0) return exprs.length == 0
+            params.clauses.apply(0).parameters
+          }
+          case None => return exprs.length == 0
+        }
+
+
+
+        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+          sign.substitutor.subst(param.calcType)
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
       }
 
 
