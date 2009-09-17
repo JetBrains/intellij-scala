@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import com.intellij.codeInsight.completion.CompletionData;
 import com.intellij.formatting.FormattingModelBuilder;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.lang.ParserDefinition;
@@ -55,7 +54,6 @@ public abstract class ScalaToolsFactory implements ApplicationComponent {
 
   public abstract SurroundDescriptors createSurroundDescriptors();
 
-  public abstract CompletionData createScalaCompletionData();
 
   public abstract FormattingModelBuilder createScalaFormattingModelBuilder();
 
