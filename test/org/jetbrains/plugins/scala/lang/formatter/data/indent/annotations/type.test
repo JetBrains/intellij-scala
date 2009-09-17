@@ -1,9 +1,7 @@
 class a {
-  var x : @annot
-   T = 3
+  var x : T @ annot   = 3
 }
 -----
 class a {
-  var x: @annot
-    T = 3
+  var x: T@annot = 3
 }
