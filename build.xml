@@ -146,7 +146,8 @@
             destdir="${main.dest}"
             target="jvm-1.5"
             force="changed"
-            fork="false">
+            fork="true"
+            jvmargs="-Xmx512M -Xms64M">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
