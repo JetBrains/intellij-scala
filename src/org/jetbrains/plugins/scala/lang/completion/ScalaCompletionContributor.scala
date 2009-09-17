@@ -30,6 +30,7 @@ class ScalaCompletionContributor extends CompletionContributor {
               case _ =>
             }
           }
+          result.stopHere
         }
         case _ =>
       }
@@ -40,7 +41,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     if (!parameters.getOriginalFile.isInstanceOf[ScalaFile]) return null
     val messages = Array[String](
       null
-      )
+    )
     messages apply (new Random).nextInt(messages.size)
   }
 
