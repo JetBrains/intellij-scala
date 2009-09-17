@@ -147,7 +147,7 @@
             target="jvm-1.5"
             force="changed"
             fork="true"
-            jvmargs="-Xmx512M -Xms64M -Xss128m">
+            jvmargs="-Xmx512M -Xss256m">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
