@@ -92,9 +92,9 @@ class ScalaAnnotator extends Annotator {
     }
   }
 
-  private class ScalaTimeoutException extends ProcessCanceledException
+//  private class ScalaTimeoutException extends ProcessCanceledException
 
-  private val timeout = 20
+//  private val timeout = 20
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {
 //    sTypeParam.viewTypeElement match {
@@ -103,7 +103,7 @@ class ScalaAnnotator extends Annotator {
 //    }
   }
 
-  private def breakableMultiresolve(refElement: ScReferenceElement): Array[ResolveResult] = {
+  /*private def breakableMultiresolve(refElement: ScReferenceElement): Array[ResolveResult] = {
     var resolve: Array[ResolveResult] = null
     val startTime = System.currentTimeMillis
     ProgressManager.getInstance.runProcess(new Runnable {
@@ -122,7 +122,7 @@ class ScalaAnnotator extends Annotator {
       }
     })
     resolve
-  }
+  }*/
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
@@ -135,15 +135,15 @@ class ScalaAnnotator extends Annotator {
 
     var resolve: Array[ResolveResult] = null//refElement.multiResolve(false)
 
-    try {
-     resolve = breakableMultiresolve(refElement)
-    } catch {
-      case _: ScalaTimeoutException => {
+    //try {
+     resolve = refElement.multiResolve(false)
+    /*} catch {
+      /*case _: ScalaTimeoutException => {
         /*val annotation = holder.createInformationAnnotation(refElement, "Checking for reference resolve is too long")
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)*/
         return
-      }
-    }
+      }*/
+    }*/
 
     def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
       //todo remove when resolve of unqualified expression will be fully implemented
@@ -185,15 +185,15 @@ class ScalaAnnotator extends Annotator {
 
     var resolve: Array[ResolveResult] = null
 
-    try {
-     resolve = breakableMultiresolve(refElement)
-    } catch {
+    //try {
+    resolve = refElement.multiResolve(false)
+    /*} catch {
       case _: ScalaTimeoutException => {
         /*val annotation = holder.createInformationAnnotation(refElement.nameId, "Checking for reference resolve is too long")
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)*/
         return
       }
-    }
+    }*/
 
     for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
