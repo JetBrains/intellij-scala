@@ -123,7 +123,7 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
     def addImport(clazz: PsiClass) {
       ApplicationManager.getApplication().invokeLater(new Runnable() {
         def run() {
-          if (!CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
+          if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
           ScalaUtils.runWriteAction(new Runnable {
             def run: Unit = {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
