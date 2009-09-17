@@ -17,7 +17,6 @@ package org.jetbrains.plugins.scala;
 
 import com.intellij.codeHighlighting.Pass;
 import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
-import com.intellij.codeInsight.completion.CompletionUtil;
 import com.intellij.codeInsight.editorActions.SelectWordUtil;
 import com.intellij.codeInsight.editorActions.TypedHandler;
 import com.intellij.debugger.DebuggerManager;
@@ -40,7 +39,6 @@ import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport;
-import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
 
 import java.util.Set;
 
@@ -69,8 +67,8 @@ public class ScalaLoader implements ApplicationComponent {
   public static void loadScala() {
     TypedHandler.registerQuoteHandler(ScalaFileType.SCALA_FILE_TYPE, new ScalaQuoteHandler());
 
-    CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
-            ScalaToolsFactory.getInstance().createScalaCompletionData());
+    /*CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
+            ScalaToolsFactory.getInstance().createScalaCompletionData());*/
 
     SelectWordUtil.registerSelectioner(new ScalaWordSelectioner());
     SelectWordUtil.registerSelectioner(new ScalaLiteralSelectioner());
