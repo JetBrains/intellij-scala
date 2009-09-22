@@ -6,6 +6,7 @@ package expr
 
 import base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin

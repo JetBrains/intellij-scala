@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,7 +54,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     expr = ref
    */
   extend(CompletionType.SMART, superParentPattern(classOf[ScAssignStmt]), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
       val assign = ref.getParent.asInstanceOf[ScAssignStmt]
@@ -77,12 +79,15 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
    */
   extend(CompletionType.SMART, StandardPatterns.or[PsiElement](superParentPattern(classOf[ScPatternDefinition]),
     superParentPattern(classOf[ScVariableDefinition])), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
       ref.getParent match {
-        case patternDefinition: ScPatternDefinition => acceptTypes(Seq[ScType](patternDefinition.getType), ref.getVariants, result)
-        case variableDefinition: ScVariableDefinition => acceptTypes(Seq[ScType](variableDefinition.getType), ref.getVariants, result)
+        case patternDefinition: ScPatternDefinition => acceptTypes(Seq[ScType](patternDefinition.getType),
+          ref.getVariants, result)
+        case variableDefinition: ScVariableDefinition => acceptTypes(Seq[ScType](variableDefinition.getType),
+          ref.getVariants, result)
       }
     }
   })
@@ -90,44 +95,50 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
   /*
     call(exprs, ref, exprs)
    */
-  extend(CompletionType.SMART, superParentPattern(classOf[ScArgumentExprList]), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+  extend(CompletionType.SMART, superParentPattern(classOf[ScArgumentExprList]),
+    new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
+      val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      val assign = ref.getParent.asInstanceOf[ScArgumentExprList]
-      /*val index = arg.exprs.findIndexOf(_ == ref)
+      val args = ref.getParent.asInstanceOf[ScArgumentExprList]
+      val index = args.exprs.findIndexOf(_ == ref)
       if (index == -1) return
-      arg.callExpression match {
-        case refExpr: ScReferenceExpression => //todo:
-        case expr: ScExpression => {
-          val tp = expr.cachedType
-          tp match {
-            case funType: ScFunctionType => {
-              val params = funType.params
-              if (params.length > index) {
-                typez += params(index)
-              }
-              return
-            }
-            case _ =>
-          }
-          ScType.extractClassType(tp) match {
-            case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
-              for ( method <- ScalaPsiUtil.getApplyMethods(clazz) ) {
+      val nameCallFromParameter = args.nameCallFromParameter
+      if (nameCallFromParameter != -1 && nameCallFromParameter <= index) return //todo: we can complete parameter names
+      args.callReference match {
+        case Some(ref: ScReferenceElement) => {
+          val variants = ref.multiResolve(false)
+          val invocationCount = args.invocationCount
+          for (variant <- variants) {
+            variant match {
+              case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) => {
                 method match {
+                  case fun: ScSyntheticFunction => if (invocationCount == 1 && index < fun.paramTypes.length)
+                    typez += subst.subst(fun.paramTypes.apply(index))
                   case fun: ScFunction => {
-
+                    val clauses = fun.paramClauses.clauses
+                    if (invocationCount <= clauses.length) {
+                      val types = clauses.apply(invocationCount - 1).paramTypes
+                      if (index < types.length)
+                        typez += subst.subst(types.apply(index))
+                    }
                   }
                   case method: PsiMethod => {
-
+                    if (invocationCount == 1 && index < method.getParameterList.getParameters.length)
+                      typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(index).
+                              getTypeElement.getType, method.getProject))
                   }
                 }
               }
+              case _ => //todo: another options
             }
-            case _ =>
           }
         }
-      }*/
+        case None =>
+      }
+      acceptTypes(typez.toArray, ref.getVariants, result)
     }
   })
 }
