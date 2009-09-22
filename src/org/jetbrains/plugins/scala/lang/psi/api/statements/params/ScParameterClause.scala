@@ -7,6 +7,7 @@ package params
 
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
+  def paramTypes: Seq[ScType] = parameters.map(_.calcType)
   def isImplicit: Boolean = getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
 }

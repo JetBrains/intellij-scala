@@ -5,11 +5,12 @@ package impl
 package expr
 
 import api.statements.ScFunction
-import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.ScType
+import com.intellij.psi.{PsiElement, PsiClass}
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
