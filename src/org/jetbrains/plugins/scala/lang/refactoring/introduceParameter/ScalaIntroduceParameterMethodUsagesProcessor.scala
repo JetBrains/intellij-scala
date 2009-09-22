@@ -11,6 +11,8 @@ import java.util.{Collections, List}
 import psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import psi.api.statements.ScFunction
 import resolve.ScalaResolveResult
+import com.intellij.psi.PsiElement
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 11.06.2009
@@ -31,7 +33,8 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     false
   }
 
-  def findConflicts(data: IntroduceParameterData, usages: Array[UsageInfo]): List[String] = Collections.emptyList[String]
+  def findConflicts(data: IntroduceParameterData, usages: Array[UsageInfo]): java.util.Map[PsiElement, String] = 
+    Collections.emptyMap[PsiElement, String]
 
   def isMethodUsage(usage: UsageInfo): Boolean = {
     val elem = usage.getElement

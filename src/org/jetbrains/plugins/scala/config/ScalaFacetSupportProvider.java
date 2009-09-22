@@ -15,10 +15,11 @@
 
 package org.jetbrains.plugins.scala.config;
 
-import com.intellij.facet.impl.ui.FacetTypeFrameworkSupportProvider;
 import com.intellij.facet.ui.libraries.LibraryInfo;
+import com.intellij.facet.ui.FacetBasedFrameworkSupportProvider;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ModifiableRootModel;
+import com.intellij.ide.util.frameworkSupport.FrameworkVersion;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -29,7 +30,7 @@ import java.util.List;
 /**
  * @author ilyas
  */
-public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider<ScalaFacet> {
+public class ScalaFacetSupportProvider extends FacetBasedFrameworkSupportProvider<ScalaFacet> {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider");
 
@@ -37,9 +38,7 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     super(ScalaFacetType.INSTANCE);
   }
 
-  @NotNull
-  @NonNls
-  public String getLibraryName(final String name) {
+  private static String getLibraryName(final String name) {
     return "scala-" + name;
   }
 
@@ -48,13 +47,18 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     return ScalaBundle.message("scala.facet.title");
   }
 
+  @Override
+   protected void setupConfiguration(ScalaFacet facet, ModifiableRootModel rootModel, FrameworkVersion version) {
+    //do nothing
+  }
+
   @NotNull
-  public String[] getVersions() {
-    List<String> versions = new ArrayList<String>();
+  public List<FrameworkVersion> getVersions() {
+    List<FrameworkVersion> versions = new ArrayList<FrameworkVersion>();
     for (ScalaVersion version : ScalaVersion.values()) {
-      versions.add(version.toString());
+      versions.add(new FrameworkVersion(version.toString(), getLibraryName(version.toString()), getLibraries(version.toString())));
     }
-    return versions.toArray(new String[versions.size()]);
+    return versions;
   }
 
   private static ScalaVersion getVersion(String versionName) {
@@ -67,16 +71,10 @@ public class ScalaFacetSupportProvider extends FacetTypeFrameworkSupportProvider
     return null;
   }
 
-  @NotNull
-  protected LibraryInfo[] getLibraries(final String selectedVersion) {
+  private static LibraryInfo[] getLibraries(final String selectedVersion) {
     ScalaVersion version = getVersion(selectedVersion);
     LOG.assertTrue(version != null);
     return version.getJars();
-  }
-
-
-  protected void setupConfiguration(ScalaFacet facet, ModifiableRootModel rootModel, String v) {
-    //do nothing
   }
 
 }

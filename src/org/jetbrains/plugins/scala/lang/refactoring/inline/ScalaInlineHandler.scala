@@ -27,6 +27,7 @@ import psi.api.statements._
 import psi.api.toplevel.templates.ScTemplateBody
 import psi.ScalaPsiUtil
 import util.ScalaRefactoringUtil
+import com.intellij.usageView.UsageInfo
 
 /**
  * User: Alexander Podkhalyuzin
@@ -85,7 +86,8 @@ class ScalaInlineHandler extends InlineHandler {
       case _ => return null
     })
     new InlineHandler.Inliner {
-      def inlineReference(reference: PsiReference, referenced: PsiElement): Unit = {
+      def inlineUsage(usage: UsageInfo, referenced: PsiElement): Unit = {
+        val reference = usage.getReference
         reference match {
           case expression: ScExpression => {
             val ne = expression.replaceExpression(expr, true)
@@ -101,7 +103,8 @@ class ScalaInlineHandler extends InlineHandler {
         }
       }
 
-      def getConflicts(reference: PsiReference, referenced: PsiElement): Collection[String] = new java.util.ArrayList[String]()
+      def getConflicts(reference: PsiReference, referenced: PsiElement): java.util.Map[PsiElement, String] =
+        new java.util.HashMap[PsiElement, String]()
     }
   }
 
