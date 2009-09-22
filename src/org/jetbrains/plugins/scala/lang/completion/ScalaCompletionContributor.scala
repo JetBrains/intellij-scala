@@ -26,7 +26,7 @@ class ScalaCompletionContributor extends CompletionContributor {
           val variants = ref.getVariants
           for (variant <- variants) {
             variant match {
-              case (el: LookupElement, _) => result.addElement(el)
+              case (el: LookupElement, _, _) => result.addElement(el)
               case _ =>
             }
           }

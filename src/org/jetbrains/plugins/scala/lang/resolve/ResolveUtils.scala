@@ -169,7 +169,7 @@ object ResolveUtils {
     }
   }
 
-  def getLookupElement(resolveResult: ScalaResolveResult, qualifierType: ScType = Nothing): (LookupElement, PsiElement) = {
+  def getLookupElement(resolveResult: ScalaResolveResult, qualifierType: ScType = Nothing): (LookupElement, PsiElement, ScSubstitutor) = {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -251,6 +251,6 @@ object ResolveUtils {
         presentation.setItemTextBold(isBold)
       }
     })
-    (lookupBuilder, element)
+    (lookupBuilder, element, substitutor)
   }
 }
