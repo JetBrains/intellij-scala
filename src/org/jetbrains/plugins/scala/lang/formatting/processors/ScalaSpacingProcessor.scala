@@ -110,7 +110,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (scalaSettings.SPACE_AFTER_COMMA) return WITH_SPACING
       else return WITHOUT_SPACING
     }
-    if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
+    if (leftNode.getElementType == ScalaTokenTypes.tCOLON) {
       if (scalaSettings.SPACE_AFTER_COLON) return WITH_SPACING
       else return WITHOUT_SPACING
     }

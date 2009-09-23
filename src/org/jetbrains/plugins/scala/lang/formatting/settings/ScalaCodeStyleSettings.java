@@ -19,8 +19,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   //spcaing settings:
   public boolean SPACE_BEFORE_COMMA = false;
   public boolean SPACE_AFTER_COMMA = true;
-  public boolean SPACE_BEFORE_SEMICOLON = false;
-  public boolean SPACE_AFTER_SEMICOLON = true;
   public boolean SPACE_BEFORE_COLON = false;
   public boolean SPACE_AFTER_COLON = true;
   public boolean SPACE_BEFORE_IF_PARENTHESES = true;
@@ -47,6 +45,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_FINALLY_LBRACE = true;
   public boolean SPACE_BEFORE_WHILE_PARENTHESES = true;
   public boolean SPACE_BEFORE_ELSE_LBRACE = true;
+  public boolean SPACE_BEFORE_SEMICOLON = false;
+  public boolean SPACE_AFTER_SEMICOLON = true;
 
   //keep blank lines
   public int KEEP_BLANK_LINES_IN_CODE = 2;
