@@ -4,16 +4,17 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.PsiClass
 import expr.{ScAnnotations, ScAnnotation}
 import types.{ScDesignatorType, ScType}
+import java.lang.String
+import com.intellij.psi.{PsiAnnotation, PsiAnnotationOwner, PsiClass}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.01.2009
  */
 
-trait ScAnnotationsHolder extends ScalaPsiElement {
+trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   def annotations: Seq[ScAnnotation] = if (findChildByClass(classOf[ScAnnotations]) != null)
     findChildByClass(classOf[ScAnnotations]).getAnnotations.toSeq
   else Seq.empty
@@ -23,13 +24,25 @@ trait ScAnnotationsHolder extends ScalaPsiElement {
     text.substring(text.lastIndexOf(".", 0) + 1, text.length)
   })
 
-  def hasAnnotation(clazz: PsiClass): Boolean = {
-    annotations.map((x: ScAnnotation) => x.annotationExpr.constr.typeElement.cachedType.resType match {
-      case ScDesignatorType(clazz: PsiClass) => clazz
-      case _ => null
-    }).find(_.getQualifiedName == clazz.getQualifiedName) match {
-      case Some(x) => true
+  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.getQualifiedName) != None
+
+  def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
+    annotations.find(_.annotationExpr.constr.typeElement.cachedType.resType match {
+      case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName == qualifiedName
       case _ => false
+    })
+  }
+
+  def addAnnotation(qualifiedName: String): PsiAnnotation = null //todo:
+
+  def findAnnotation(qualifiedName: String): PsiAnnotation = {
+    hasAnnotation(qualifiedName) match {
+      case Some(x) => x
+      case None => null
     }
   }
+
+  def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
+
+  def getAnnotations: Array[PsiAnnotation] = annotations.toArray
 }
