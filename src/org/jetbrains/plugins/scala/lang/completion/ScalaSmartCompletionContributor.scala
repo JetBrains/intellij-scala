@@ -30,7 +30,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       variant match {
         case (el: LookupElement, elem: PsiElement, subst: ScSubstitutor) => {
           def checkType(tp: ScType): Unit = {
-            if (typez.find(subst.subst(tp) conforms _) != None) result.addElement(el)
+            if (subst.subst(tp) != Nothing &&
+                    typez.find(subst.subst(tp) conforms _) != None) result.addElement(el)
           }
           elem match {
             case fun: ScSyntheticFunction => checkType(fun.retType)
