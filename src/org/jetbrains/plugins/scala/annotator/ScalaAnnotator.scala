@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import codeInspection.unusedInspections.ScalaUnusedImportPass
 import collection.mutable.{HashSet, HashMap}
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.ide.util.importProject.DelegatingProgressIndicator
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.util.{PsiTreeUtil}
 import highlighter.{AnnotatorHighlighter}
 import importsTracker._
-import java.util.concurrent.TimeoutException
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
 
@@ -41,10 +35,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import com.intellij.psi._
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import org.jetbrains.plugins.scala.annotator.progress.DelegatingProgressIndicatorEx
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import types.ScTypeElement
-
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
