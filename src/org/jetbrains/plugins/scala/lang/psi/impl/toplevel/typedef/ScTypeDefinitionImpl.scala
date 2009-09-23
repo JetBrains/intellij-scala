@@ -210,10 +210,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
           case primary: ScPrimaryConstructor => Array[PsiMethod](primary)
           case function: ScFunction => Array[PsiMethod](function)
           case value: ScValue => {
-            for (binding <- value.declaredElements) yield new FakePsiMethod(binding, isInstanceOf[ScObject])
+            for (binding <- value.declaredElements) yield new FakePsiMethod(binding, value.hasModifierProperty _)
           }
           case variable: ScVariable => {
-            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding, isInstanceOf[ScObject])
+            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding, variable.hasModifierProperty _)
           }
           case _ => Array[PsiMethod]()
         }
@@ -227,7 +227,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
     for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
        t match {
-         case t: ScTyped => buffer += new FakePsiMethod(t, isInstanceOf[ScObject])
+         case t: ScTyped => {
+           val context = ScalaPsiUtil.nameContext(t)
+           buffer += new FakePsiMethod(t, context match {
+              case o: PsiModifierListOwner => o.hasModifierProperty _
+              case _ => (s: String) => false
+            })
+         }
          case _ =>
        }
     }

@@ -318,7 +318,11 @@ object TypeDefinitionMembers {
         ProgressManager.getInstance.checkCanceled
         n.info match {
           case t: ScTyped => {
-            if (!processor.execute(new FakePsiMethod(t, isObject), state/*.put(PsiSubstitutor.KEY,
+            val context = ScalaPsiUtil.nameContext(t)
+            if (!processor.execute(new FakePsiMethod(t, context match {
+              case o: PsiModifierListOwner => o.hasModifierProperty _
+              case _ => (s: String) => false
+            }), state/*.put(PsiSubstitutor.KEY,
               ScalaPsiUtil.getPsiSubstitutor(n.substitutor, place.getProject))*/)) return false
           }
           case _ =>
