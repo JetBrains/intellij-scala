@@ -6,4 +6,6 @@ class CompletionSmartTest extends CompletionTestBase {
   override def rootPath: String = super.rootPath + "smart/"
 
   def testSmartAfterReturn = doTest
+
+  def testSmartValueInitializerCompletion = doTest
 }

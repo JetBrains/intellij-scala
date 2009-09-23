@@ -12,6 +12,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.util.Consumer
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.codeInsight.completion.{CompletionType, CompletionParameters, CompletionService}
+import collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,12 +39,14 @@ class CompletionTestBase extends ScalaPsiTestCase {
     val element: PsiElement = scalaFile.findElementAt(offset - 1)
     val parameters: CompletionParameters = new CompletionParameters(element, scalaFile, if (testName.startsWith("Smart"))
       CompletionType.SMART else CompletionType.BASIC, offset, if (testName.endsWith("Second")) 2 else 1)
-    var res: String = ""
-    val items = CompletionService.getCompletionService.performCompletion(parameters, new Consumer[LookupElement] {
+
+    val items: ArrayBuffer[String] = new ArrayBuffer[String]
+    CompletionService.getCompletionService.performCompletion(parameters, new Consumer[LookupElement] {
       def consume(lookupElement: LookupElement): Unit = {
-        res += lookupElement.getLookupString
+        items += lookupElement.getLookupString
       }
     })
+    val res = items.sortWith(_ < _).mkString("\n")
     
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)
@@ -55,6 +58,6 @@ class CompletionTestBase extends ScalaPsiTestCase {
         text.substring(2, text.length - 2).trim
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
-    assertEquals(output, res)
+    assertEquals(output, res.trim)
   }
 }
