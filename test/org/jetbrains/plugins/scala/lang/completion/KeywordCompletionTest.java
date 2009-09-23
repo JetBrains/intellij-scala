@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala.lang.completion;
 
 import com.intellij.codeInsight.completion.CompletionData;
@@ -7,9 +8,11 @@ import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 
+*/
 /**
  * @author ilyas
- */
+ *//*
+
 public class KeywordCompletionTest extends CompletionTestBase {
 
   @NonNls
@@ -39,4 +42,4 @@ public class KeywordCompletionTest extends CompletionTestBase {
   public static Test suite() {
     return new KeywordCompletionTest();
   }
-}
+}*/
