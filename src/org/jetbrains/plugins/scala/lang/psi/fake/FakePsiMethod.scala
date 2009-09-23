@@ -75,7 +75,7 @@ class FakePsiMethod(
   def findDeepestSuperMethod: PsiMethod = null
 
   def getSignature(substitutor: PsiSubstitutor): MethodSignature = {
-    new MethodSignatureBase(PsiSubstitutor.EMPTY, PsiType.EMPTY_ARRAY, PsiTypeParameter.EMPTY_ARRAY) {
+    new MethodSignatureBase(PsiSubstitutor.EMPTY, getParameterList.getParameters.map(_.getType), PsiTypeParameter.EMPTY_ARRAY) {
       def isRaw: Boolean = false
 
       def getName: String = name
