@@ -70,7 +70,7 @@ class ScalaInlineHandler extends InlineHandler {
     }
   }
 
-  def createInliner(element: PsiElement): InlineHandler.Inliner = {
+  def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = {
     val expr = ScalaRefactoringUtil.unparExpr(element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {

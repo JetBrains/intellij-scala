@@ -45,8 +45,6 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
 
-  def getAnnotations = PsiAnnotation.EMPTY_ARRAY
-
   def getTypeElement = null
 
   def typeElement = paramType match {
