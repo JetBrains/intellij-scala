@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import patterns.ScBindingPattern
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
@@ -140,6 +141,7 @@ class ScalaAnnotator extends Annotator {
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
     }
+    checkAccessForReference(resolve, refElement, holder)
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -151,6 +153,32 @@ class ScalaAnnotator extends Annotator {
     for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
+    }
+    checkAccessForReference(resolve, refElement, holder)
+  }
+
+  private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
+    if (resolve.length != 1) return
+    resolve.apply(0) match {
+      case res: ScalaResolveResult => {
+        val memb: PsiMember = res.getElement match {
+          case member: PsiMember => member
+          case bind: ScBindingPattern => {
+            ScalaPsiUtil.nameContext(bind) match {
+              case member: PsiMember => member
+              case _ => return
+            }
+          }
+          case _ => return
+        }
+        if (!ResolveUtils.isAccessible(memb, refElement)) {
+          val error = ScalaBundle.message("element.is.not.accessible", refElement.refName)
+          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+          //todo: fixes for changing access
+        }
+      }
+      case _ =>
     }
   }
 
