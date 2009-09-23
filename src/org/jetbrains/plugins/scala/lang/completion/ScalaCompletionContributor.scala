@@ -9,9 +9,14 @@ import psi.api.base.ScReferenceElement
 import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.patterns.{PlatformPatterns}
-import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
-import scala.util.Random;
+import scala.util.Random
+import resolve.ResolveUtils
+import com.intellij.psi.{PsiMember, PsiElement}
+import org.jetbrains.plugins.groovy.lang.resolve.ResolveUtil
+import psi.api.statements.ScFun
+import psi.api.base.patterns.ScBindingPattern
+import psi.ScalaPsiUtil;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,7 +31,26 @@ class ScalaCompletionContributor extends CompletionContributor {
           val variants = ref.getVariants
           for (variant <- variants) {
             variant match {
-              case (el: LookupElement, _, _) => result.addElement(el)
+              case (el: LookupElement, elem: PsiElement, _) => {
+                elem match {
+                  case fun: ScFun => result.addElement(el)
+                  case memb: PsiMember => {
+                    if (parameters.getInvocationCount > 1 ||
+                            ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                  }
+                  case patt: ScBindingPattern => {
+                    val context = ScalaPsiUtil.nameContext(patt)
+                    context match {
+                      case memb: PsiMember => {
+                        if (parameters.getInvocationCount > 1 ||
+                            ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                      }
+                      case _ => result.addElement(el)
+                    }
+                  }
+                  case _ => result.addElement(el)
+                }
+              }
               case _ =>
             }
           }
