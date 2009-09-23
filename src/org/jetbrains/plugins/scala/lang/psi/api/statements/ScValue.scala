@@ -23,7 +23,7 @@ import expr.ScBlockStatement
 * Date: 08.04.2008
  */
 
-trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
+trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
   def declaredElements: Seq[ScTyped]
   def typeElement: Option[ScTypeElement]
 

@@ -26,6 +26,7 @@ import lang.resolve.BaseProcessor
 import fake.FakePsiMethod
 import api.toplevel.ScTyped
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.text.StringUtil
 //import Suspension._
 
 object TypeDefinitionMembers {
@@ -322,8 +323,48 @@ object TypeDefinitionMembers {
             if (!processor.execute(new FakePsiMethod(t, context match {
               case o: PsiModifierListOwner => o.hasModifierProperty _
               case _ => (s: String) => false
-            }), state/*.put(PsiSubstitutor.KEY,
-              ScalaPsiUtil.getPsiSubstitutor(n.substitutor, place.getProject))*/)) return false
+            }), state)) return false
+            context match {
+              case annotated: ScAnnotationsHolder => {
+                annotated.hasAnnotation("scala.reflect.BeanProperty") match {
+                  case Some(_) => {
+                    context match {
+                      case value: ScValue => {
+                        if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                          Array.empty, t.calcType, value.hasModifierProperty _), state)) return false
+                      }
+                      case variable: ScVariable => {
+                        if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                          Array.empty, t.calcType, variable.hasModifierProperty _), state)) return false
+                        if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                          Array[ScType](t.calcType), Unit, variable.hasModifierProperty _), state)) return false
+                      }
+                      case _ =>
+                    }
+                  }
+                  case None =>
+                }
+                annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
+                  case Some(_) => {
+                    context match {
+                      case value: ScValue => {
+                        if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                          Array.empty, t.calcType, value.hasModifierProperty _), state)) return false
+                      }
+                      case variable: ScVariable => {
+                        if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                          Array.empty, t.calcType, variable.hasModifierProperty _), state)) return false
+                        if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                          Array[ScType](t.calcType), Unit, variable.hasModifierProperty _), state)) return false
+                      }
+                      case _ =>
+                    }
+                  }
+                  case None =>
+                }
+              }
+              case _ =>
+            }
           }
           case _ =>
         }
@@ -335,8 +376,7 @@ object TypeDefinitionMembers {
         ProgressManager.getInstance.checkCanceled
         val substitutor = n.substitutor followed subst
         if (!processor.execute(n.info.method,
-          state.put(ScSubstitutor.key, substitutor)/*.
-                put(PsiSubstitutor.KEY, ScalaPsiUtil.getPsiSubstitutor(substitutor, place.getProject))*/)) return false
+          state.put(ScSubstitutor.key, substitutor))) return false
       }
     }
     if (shouldProcessTypes(processor)) {

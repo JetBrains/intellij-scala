@@ -16,6 +16,7 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -89,6 +90,19 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         case variableDefinition: ScVariableDefinition => acceptTypes(Seq[ScType](variableDefinition.getType),
           ref.getVariants, result)
       }
+    }
+  })
+
+  /*
+    return ref
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScReturnStmt]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      val fun: ScFunction = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
+      if (fun == null) return
+      acceptTypes(Seq[ScType](fun.returnType), ref.getVariants, result)
     }
   })
 

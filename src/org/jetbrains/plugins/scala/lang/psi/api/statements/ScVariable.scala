@@ -20,7 +20,7 @@ import base.types.ScTypeElement
 * Time: 9:45:29
 */
 
-trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder {
+trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
   def declaredElements : Seq[ScTyped]
   def typeElement: Option[ScTypeElement]
 
