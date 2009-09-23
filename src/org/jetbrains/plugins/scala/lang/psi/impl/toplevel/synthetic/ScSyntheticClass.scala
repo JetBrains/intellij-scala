@@ -153,94 +153,85 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def disposeComponent {}
 
   def initComponent() {
-    StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable {
+    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
       def run = registerClasses
     })
   }
 
   def registerClasses: Unit = {
-    try {
-      all = new HashMap[String, ScSyntheticClass]
-      file = PsiFileFactory.getInstance(project).createFileFromText(
-        "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
+    all = new HashMap[String, ScSyntheticClass]
+    file = PsiFileFactory.getInstance(project).createFileFromText(
+      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
 
-      val any = registerClass(Any, "Any")
-      val manager = any.manager
-      any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
-      any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
-      any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
-      any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
-      val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
-      val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
-      if (stringClass != null) {
-        val stringType = new ScDesignatorType(stringClass)
-        any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
+    val any = registerClass(Any, "Any")
+    val manager = any.manager
+    any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
+    any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
+    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+    val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
+    if (stringClass != null) {
+      val stringType = new ScDesignatorType(stringClass)
+      any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
+    }
+    any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
+    any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
+      override val retType = ScalaPsiManager.typeVariable(typeParams(0))
+    })
+
+    val anyRef = registerClass(AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
+
+    registerClass(AnyVal, "AnyVal")
+    registerClass(Nothing, "Nothing")
+    registerClass(Null, "Null")
+    registerClass(Singleton, "Singleton")
+    registerClass(Unit, "Unit")
+
+    val boolc = registerClass(Boolean, "Boolean")
+    for (op <- bool_bin_ops)
+      boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(Boolean)))
+    boolc.addMethod(new ScSyntheticFunction(manager, "!", Boolean, Seq.empty))
+
+    registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
+    registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
+    registerIntegerClass(registerNumericClass(registerClass(Long, "Long")))
+    registerIntegerClass(registerNumericClass(registerClass(Byte, "Byte")))
+    registerIntegerClass(registerNumericClass(registerClass(Short, "Short")))
+    registerNumericClass(registerClass(Float, "Float"))
+    registerNumericClass(registerClass(Double, "Double"))
+
+    for (nc <- numeric) {
+      for (nc1 <- numeric; op <- numeric_comp_ops)
+        nc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(nc1.t)))
+      for (nc1 <- numeric; op <- numeric_arith_ops)
+        nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
+      for (nc1 <- numeric if nc1 ne nc)
+        nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
+      for (un_op <- numeric_arith_unary_ops)
+        nc.addMethod(new ScSyntheticFunction(manager, un_op, nc.t, Seq.empty))
+    }
+
+    for (ic <- integer) {
+      for (ic1 <- integer; op <- bitwise_bin_ops)
+        ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
+      ic.addMethod(new ScSyntheticFunction(manager, "~", ic.t, Seq.empty))
+
+      val ret = ic.t match {
+        case Long => Long
+        case _ => Int
       }
-      any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
-      any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
-        override val retType = ScalaPsiManager.typeVariable(typeParams(0))
-      })
-
-      val anyRef = registerClass(AnyRef, "AnyRef")
-      anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
-      anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
-
-      registerClass(AnyVal, "AnyVal")
-      registerClass(Nothing, "Nothing")
-      registerClass(Null, "Null")
-      registerClass(Singleton, "Singleton")
-      registerClass(Unit, "Unit")
-
-      val boolc = registerClass(Boolean, "Boolean")
-      for (op <- bool_bin_ops)
-        boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(Boolean)))
-      boolc.addMethod(new ScSyntheticFunction(manager, "!", Boolean, Seq.empty))
-
-      registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
-      registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
-      registerIntegerClass(registerNumericClass(registerClass(Long, "Long")))
-      registerIntegerClass(registerNumericClass(registerClass(Byte, "Byte")))
-      registerIntegerClass(registerNumericClass(registerClass(Short, "Short")))
-      registerNumericClass(registerClass(Float, "Float"))
-      registerNumericClass(registerClass(Double, "Double"))
-
-      for (nc <- numeric) {
-        for (nc1 <- numeric; op <- numeric_comp_ops)
-          nc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(nc1.t)))
-        for (nc1 <- numeric; op <- numeric_arith_ops)
-          nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
-        for (nc1 <- numeric if nc1 ne nc)
-          nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
-        for (un_op <- numeric_arith_unary_ops)
-          nc.addMethod(new ScSyntheticFunction(manager, un_op, nc.t, Seq.empty))
-      }
-
-      for (ic <- integer) {
-        for (ic1 <- integer; op <- bitwise_bin_ops)
-          ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
-        ic.addMethod(new ScSyntheticFunction(manager, "~", ic.t, Seq.empty))
-
-        val ret = ic.t match {
-          case Long => Long
-          case _ => Int
-        }
-        for (op <- bitwise_shift_ops) {
-          ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Int)))
-          ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Long)))
-        }
-      }
-      scriptSyntheticValues = new HashSet[ScSyntheticValue]
-      if (stringClass != null && arrayClass != null) {
-        scriptSyntheticValues += new ScSyntheticValue(manager, "args",
-          ScParameterizedType(ScDesignatorType(arrayClass), Seq(ScDesignatorType(stringClass))))
+      for (op <- bitwise_shift_ops) {
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Int)))
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Long)))
       }
     }
-    catch {
-      case e: ProcessCanceledException => {
-        StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable {
-          def run = registerClasses
-        })
-      }
+    scriptSyntheticValues = new HashSet[ScSyntheticValue]
+    if (stringClass != null && arrayClass != null) {
+      scriptSyntheticValues += new ScSyntheticValue(manager, "args",
+        ScParameterizedType(ScDesignatorType(arrayClass), Seq(ScDesignatorType(stringClass))))
     }
   }
 
