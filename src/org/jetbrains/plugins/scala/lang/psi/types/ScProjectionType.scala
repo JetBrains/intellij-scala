@@ -7,6 +7,7 @@ package types
 import api.base.ScReferenceElement
 import com.intellij.psi.{PsiNamedElement, PsiMember}
 import resolve._
+import impl.toplevel.synthetic.ScSyntheticClass
 
 /**
 * @author ilyas
@@ -26,6 +27,12 @@ case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends 
         if (processor.candidates.size == 1) processor.candidates.apply(0).element eq des else false
       }
       case _ => false
+    }
+    case t: StdType => {
+      element match {
+        case Some(synth: ScSyntheticClass) => synth.t equiv t
+        case _ => false
+      }
     }
     case _ => false
   }
