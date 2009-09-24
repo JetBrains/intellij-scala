@@ -226,29 +226,42 @@ object ScType {
     case _ => None
   }
 
-  def presentableText(t: ScType) = typeText(t, {e => e.getName})
-
-  def urlText(t: ScType) = typeText(t, e => {
+  def presentableText(t: ScType) = typeText(t, {e => e.getName}, {e: PsiNamedElement => {
     e match {
-      case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName + "</code></a>"
-      case _ => e.getName
+      case obj: ScObject if obj.getQualifiedName == "scala.Predef" => ""
+      case pack: PsiPackage => ""
+      case _ => e.getName + "."
     }
-  })
+  }})
+
+  def urlText(t: ScType) = {
+    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+      e match {
+        case obj: ScObject if withPoint && obj.getQualifiedName == "scala.Predef" => ""
+        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName + "</code></a>."
+        case pack: PsiPackage if withPoint => ""
+        case _ => e.getName + "."
+      }
+    }
+    typeText(t, nameFun(_, false), nameFun(_, true))
+  }
 
   //todo: resolve cases when java type have keywords as name (type -> `type`)
-  def canonicalText(t: ScType) = typeText(t,
-    {
-      e => e match {
+  def canonicalText(t: ScType) = {
+    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
+      (e match {
         case c: PsiClass => {
           val qname = c.getQualifiedName
           if (qname != null) "_root_." + qname else c.getName
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.getName
-      }
-    })
+      }) + (if (withPoint) "." else "")
+    }
+    typeText(t, nameFun(_, false), nameFun(_, true))
+  }
 
-  private def typeText(t: ScType, nameFun: PsiNamedElement => String): String = {
+  private def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     val buffer = new StringBuilder
     def appendSeq(ts: Seq[ScType], sep: String) = {
       var first = true
@@ -266,19 +279,8 @@ object ScType {
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, ref) => p match {
         case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
-          case Some(res) => res match {
-            case r: ScalaResolveResult if r.getElement.isInstanceOf[ScObject] && r.getElement.asInstanceOf[ScObject].getQualifiedName == "scala.Predef" => {
-              buffer.append(ref.refName)
-            }
-            case r: ScalaResolveResult if r.getElement.isInstanceOf[PsiPackage] => buffer.append(ref.refName)
-            case o if o != null => inner(p); buffer.append("#").append(ref.refName)
-            case _ => buffer.append(ref.refName)
-          }
-          case None => buffer.append(ref.refName)
-        }
-        case ScDesignatorType(elem) => elem match {
-          case _: PsiPackage => buffer.append(ref.refName)
-          case o => inner(p); buffer.append("#").append(ref.refName)
+          case Some(res) => buffer.append(nameWithPointFun(res.getElement)).append(ref.refName)
+          case None => inner(p); buffer.append(".").append(ref.refName)
         }
         case _ => inner(p); buffer.append("#").append(ref.refName)
       }
@@ -314,7 +316,7 @@ object ScType {
       case ScSingletonType(path: ScStableCodeReferenceElement) => {
         path.bind match {
           case Some(r: ScalaResolveResult) => buffer.append(nameFun(r.getElement))
-          case _ => buffer.append(path.refName)
+          case _ => buffer.append(path.qualName)
         }
         buffer.append(".type")
       }
