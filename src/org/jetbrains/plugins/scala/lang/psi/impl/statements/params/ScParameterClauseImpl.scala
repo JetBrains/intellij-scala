@@ -34,7 +34,7 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
   override def toString: String = "ParametersClause"
 
   def parameters: Seq[ScParameter] = {
-    getStubOrPsiChildren(TokenSets.PARAMETERS, new ArrayFactory[ScParameter]{
+    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, new ArrayFactory[ScParameter]{
       def create(count: Int): Array[ScParameter] = new Array[ScParameter](count)
     })
   }

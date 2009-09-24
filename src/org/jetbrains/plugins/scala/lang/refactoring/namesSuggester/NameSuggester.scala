@@ -90,7 +90,7 @@ object NameSuggester {
           generateCamelNames(names, validator, name)
         }
       }
-      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Array(arg)) if c.getQualifiedName == "scala.Array" => {
+      case ScParameterizedType(des@ScDesignatorType(c: PsiClass), Seq(arg)) if c.getQualifiedName == "scala.Array" => {
         var s = ""
         arg match {
           case ValType(name) => {

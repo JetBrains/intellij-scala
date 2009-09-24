@@ -67,12 +67,12 @@ object ResolveUtils {
           })
 
   def methodType(m : PsiMethod, s : ScSubstitutor) = new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject)),
-                                                              Seq(m.getParameterList.getParameters.map {
+                                                              collection.immutable.Sequence(m.getParameterList.getParameters.map({
                                                                 p => val pt = p.getType
                                                                      //scala hack: Objects in java are modelled as Any in scala
                                                                      if (pt.equalsToText("java.lang.Object")) Any
                                                                      else s.subst(ScType.create(pt, m.getProject))
-                                                              }: _*))
+                                                              }).toSeq: _*))
 
   def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
     if (member.hasModifierProperty("public")) return true

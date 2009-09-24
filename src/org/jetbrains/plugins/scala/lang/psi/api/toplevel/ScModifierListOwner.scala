@@ -30,7 +30,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
       }
       case _ =>
     }
-    findChildByClass(classOf[ScModifierList])
+    findChildByClassScala(classOf[ScModifierList])
   }
 
   def hasModifierProperty(name: String): Boolean = {

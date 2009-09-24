@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScNamingPattern extends ScBindingPattern {
-  def named = findChildByClass(classOf[ScPattern])
+  def named = findChildByClassScala(classOf[ScPattern])
 }

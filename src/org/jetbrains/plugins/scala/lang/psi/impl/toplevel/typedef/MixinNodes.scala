@@ -64,11 +64,11 @@ abstract class MixinNodes {
       thisMap.get(key) match {
         case Some(node) => {
           node.primarySuper = Some(primarySuper)
-          node.supers = nodes.toArray
+          node.supers = nodes.toSeq
         }
         case None => {
           nodes -= primarySuper
-          primarySuper.supers = nodes.toArray
+          primarySuper.supers = nodes.toSeq
           thisMap += ((key, primarySuper))
         }
       }

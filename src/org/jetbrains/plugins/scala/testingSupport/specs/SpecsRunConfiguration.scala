@@ -202,7 +202,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler, consoleProperties, getRunnerSettings,
           getConfigurationSettings, "Scala")
 
-        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
+        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
       }
     }
     return state;

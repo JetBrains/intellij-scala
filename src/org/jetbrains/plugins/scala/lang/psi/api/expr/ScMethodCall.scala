@@ -22,9 +22,9 @@ trait ScMethodCall extends ScExpression {
     }
   }
 
-  def getInvokedExpr: ScExpression = findChildByClass(classOf[ScExpression])
+  def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  def args: ScArgumentExprList = findChildByClass(classOf[ScArgumentExprList])
+  def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 
   def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
 

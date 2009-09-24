@@ -45,7 +45,7 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
 
 
   def typeDefinitions: Seq[ScTypeDefinition] = {
-    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
+    getStubOrPsiChildren[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
       def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
     })
   }

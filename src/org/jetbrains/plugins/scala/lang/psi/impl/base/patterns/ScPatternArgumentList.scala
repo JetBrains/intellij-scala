@@ -18,6 +18,6 @@ class ScPatternArgumentListImpl(node: ASTNode) extends ScalaPsiElementImpl (node
 
   override def toString: String = "Pattern Argument List"
 
-  def patterns = findChildrenByClass(classOf[ScPattern])
+  def patterns = findChildrenByClass(classOf[ScPattern]).toSeq
 
 }

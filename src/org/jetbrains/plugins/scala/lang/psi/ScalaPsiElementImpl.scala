@@ -17,6 +17,10 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     override def initialValue: Boolean = false
   }
 
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
   override protected def lock(handler: => Unit) {
     if (!_locked.get) {
       _locked.set(true)
@@ -56,4 +60,8 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
   override def getParent() : PsiElement = {
     getParentByStub()
   }
+
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 }

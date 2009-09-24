@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScInfixTypeElement extends ScTypeElement {
-  def lOp : ScTypeElement = findChildByClass(classOf[ScTypeElement])
+  def lOp : ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
   def rOp : Option[ScTypeElement] 
-  def ref : ScStableCodeReferenceElement = findChildByClass(classOf[ScStableCodeReferenceElement])
+  def ref : ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }

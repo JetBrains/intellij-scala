@@ -16,6 +16,6 @@ import psi.ScalaPsiElement
 */
 trait ScConstructorPattern extends ScPattern {
   def args: ScPatternArgumentList
-  def ref = findChildByClass(classOf[ScStableCodeReferenceElement])
+  def ref = findChildByClassScala(classOf[ScStableCodeReferenceElement])
   def bindParamTypes() : Option[Seq[ScType]]
 }

@@ -40,7 +40,7 @@ trait ScPattern extends ScalaPsiElement {
 
   def subpatterns : Seq[ScPattern] = {
     if (this.isInstanceOf[ScReferencePattern]) return Sequence.empty
-    findChildrenByClass(classOf[ScPattern])
+    findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
   def expectedType: Option[ScType] = getParent match {

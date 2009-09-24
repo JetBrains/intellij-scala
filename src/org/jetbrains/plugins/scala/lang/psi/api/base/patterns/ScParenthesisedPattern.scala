@@ -13,6 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScParenthesisedPattern extends ScPattern {
-  def subpattern = findChildByClass(classOf[ScPattern]) // not null, otherwise it is a tuple pattern
+  def subpattern = findChildByClassScala(classOf[ScPattern]) // not null, otherwise it is a tuple pattern
   override def calcType = subpattern.calcType
 }

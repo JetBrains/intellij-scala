@@ -12,5 +12,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTuple extends ScExpression {
-  def exprs : Seq[ScExpression] = Seq(findChildrenByClass(classOf[ScExpression]): _*)
+  def exprs : Seq[ScExpression] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
 }

@@ -13,8 +13,10 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import api.expr._
+import api.toplevel.templates.ScTemplateBody
+import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
@@ -23,8 +25,8 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   override def toString: String = "NewTemplateDefinition"
 
   override def getType = {
-    val (holders, aliases) = extendsBlock.templateBody match {
-      case Some(b) => (b.holders, b.aliases)
+    val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
+      case Some(b: ScTemplateBody) => (b.holders, b.aliases)
       case None => (Seq.empty, Seq.empty)
     }
 

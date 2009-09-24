@@ -62,7 +62,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     parentPackageName(this)
   }
 
-  def typeDefs = findChildrenByClass(classOf[ScTypeDefinition])
+  def typeDefs = findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
 
   def declaredElements = {
     val _prefix = prefix

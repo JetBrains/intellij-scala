@@ -39,7 +39,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       }
       case _ =>
     }
-    findChildByClass(classOf[ScExtendsBlock])
+    findChildByClassScala(classOf[ScExtendsBlock])
   }
 
   def getType : ScType

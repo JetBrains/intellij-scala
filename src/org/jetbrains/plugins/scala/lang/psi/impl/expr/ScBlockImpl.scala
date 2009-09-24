@@ -8,7 +8,6 @@ import _root_.scala.collection.mutable.HashMap
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import api.toplevel.{ScNamedElement, ScTyped}
 import com.intellij.psi.util.PsiTreeUtil
-import api.statements.ScTypeAlias
 import _root_.scala.collection.immutable.Set
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import lexer.ScalaTokenTypes
@@ -18,6 +17,8 @@ import com.intellij.lang.ASTNode
 import psi.ScDeclarationSequenceHolder
 import api.expr._
 import _root_.scala.collection.mutable.HashSet
+import api.toplevel.templates.ScTemplateBody
+import api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 
 /**
 * @author ilyas
@@ -32,8 +33,8 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
       case Some(e) => {
         val m = new HashMap[String, ScExistentialArgument]
         def existize (t : ScType) : ScType = t match {
-          case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), Seq(params.map {existize _}: _*))
-          case ScTupleType(comps) => new ScTupleType(Seq(comps.map {existize _} : _*))
+          case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), collection.immutable.Sequence(params.map({existize _}).toSeq: _*))
+          case ScTupleType(comps) => new ScTupleType(collection.immutable.Sequence(comps.map({existize _}).toSeq : _*))
           case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
             case clazz : ScClass => {
               val t = existize(leastClassType(clazz))
@@ -53,9 +54,9 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
             }
           }
           case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
-          case ScCompoundType(comps, decls, types) => new ScCompoundType(Seq(comps.map {existize _}: _*), decls, types)
+          case ScCompoundType(comps, decls, types) => new ScCompoundType(collection.immutable.Sequence(comps.map({existize _}).toSeq: _*), decls, types)
           case ScParameterizedType (des, typeArgs) =>
-            new ScParameterizedType(existize(des), Seq(typeArgs.map {existize _} : _*))
+            new ScParameterizedType(existize(des), collection.immutable.Sequence(typeArgs.map({existize _}).toSeq : _*))
           case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
           case ex@ScExistentialType(q, wildcards) => {
              new ScExistentialType(existize(q), wildcards.map {ex =>
@@ -69,8 +70,8 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
       }
     }
   private def leastClassType(t : ScTypeDefinition) = {
-    val (holders, aliases) = t.extendsBlock.templateBody match {
-      case Some(b) => (b.holders, b.aliases)
+    val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
+      case Some(b: ScTemplateBody) => (b.holders, b.aliases)
       case None => (Seq.empty, Seq.empty)
     }
 

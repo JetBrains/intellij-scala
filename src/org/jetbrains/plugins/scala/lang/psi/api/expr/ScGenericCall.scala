@@ -14,7 +14,7 @@ import base.types.{ScTypeElement, ScTypeArgs}
 
 trait ScGenericCall extends ScExpression {
 
-  def referencedExpr = findChildByClass(classOf[ScExpression])
+  def referencedExpr = findChildByClassScala(classOf[ScExpression])
 
   def typeArgs = findChild(classOf[ScTypeArgs])
 

@@ -24,7 +24,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ScTyp
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
       if args.length > 0 && c.getQualifiedName == functionTraitName => {
       val (otherArgsTypes, List(otherReturnType)) = args.splitAt(args.length - 1)
-      (returnType equiv otherReturnType) && otherArgsTypes.zip(params.toArray).forall{case (t1, t2) => t1 equiv t2}
+      (returnType equiv otherReturnType) && otherArgsTypes.zip(params.toArray[ScType]).forall{case (t1, t2) => t1 equiv t2}
     }
     case _ => false
   }
@@ -52,7 +52,7 @@ case class ScTupleType(components: Seq[ScType]) extends ScType {
     case ScTupleType(c1) => components.zip(c1) forall {case (x,y)=> x equiv y}
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
       if args.length > 0 && c.getQualifiedName == "scala.Tuple" + args.length => {
-      args.zip(components.toArray).forall{case (t1, t2) => t1 equiv t2}
+      args.zip(components.toArray[ScType]).forall{case (t1, t2) => t1 equiv t2}
     }
     case _ => false
   }

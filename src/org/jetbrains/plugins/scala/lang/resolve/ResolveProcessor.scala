@@ -221,9 +221,9 @@ class MethodResolveProcessor(ref: ScReferenceElement,
   }
 
   private def getType(e: PsiNamedElement): ScType = e match {
-    case fun: ScFun => new ScFunctionType(fun.retType, Seq(fun.paramTypes: _*))
+    case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Sequence(fun.paramTypes.toSeq: _*))
     case f: ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
-      new ScFunctionType(f.declaredType, Seq(f.paramTypes: _*))
+      new ScFunctionType(f.declaredType, collection.immutable.Sequence(f.paramTypes.toSeq: _*))
     else f.calcType
     case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 

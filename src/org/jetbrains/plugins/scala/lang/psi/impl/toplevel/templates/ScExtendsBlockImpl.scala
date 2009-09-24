@@ -12,7 +12,6 @@ import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTy
 import api.ScalaFile
 import api.statements.{ScValue, ScVariable}
 import api.expr.ScNewTemplateDefinition
-import api.toplevel.typedef.{ScTypeDefinition, ScObject}
 import api.toplevel.{ScNamedElement, ScEarlyDefinitions}
 import caches.CachesUtil
 import com.intellij.lang.ASTNode
@@ -29,6 +28,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import stubs.elements.wrappers.DummyASTNode
 import stubs.{ScFileStub, ScExtendsBlockStub}
 import typedef.TypeDefinitionMembers
+import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -129,7 +129,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       }
     }
 
-    buf.toArray
+    buf.toArray[PsiClass]
   }
 
   def directSupersNames: Seq[String] = {
@@ -154,9 +154,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def members() = {
-    val bodyMembers = templateBody match {
+    val bodyMembers: Seq[ScMember] = templateBody match {
       case None => Seq.empty
-      case Some(body) => body.members
+      case Some(body: ScTemplateBody) => body.members
     }
     val earlyMembers = earlyDefinitions match {
       case None => Seq.empty

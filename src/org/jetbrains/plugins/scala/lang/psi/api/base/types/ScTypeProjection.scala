@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTypeProjection extends ScTypeElement with ScReferenceElement {
-  def typeElement = findChildByClass(classOf[ScTypeElement])
+  def typeElement = findChildByClassScala(classOf[ScTypeElement])
 }

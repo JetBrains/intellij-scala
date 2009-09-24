@@ -16,8 +16,8 @@ import types._
 class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple {
   override def toString: String = "Tuple"
 
-  override def getType = exprs match {
-    case Array() => Unit
-    case exprs => new ScTupleType(Seq(exprs map {_.cachedType} : _*))
+  override def getType = {
+    if (exprs.length == 0) Unit
+    else new ScTupleType(collection.immutable.Sequence(exprs.map({p => p.cachedType}).toSeq : _*))
   }
 }
