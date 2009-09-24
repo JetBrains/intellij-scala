@@ -15,6 +15,7 @@ import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import api.expr.{ScSuperReference, ScThisReference}
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
@@ -281,7 +282,7 @@ object ScType {
         case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
           case Some(res) => buffer.append(nameWithPointFun(res.getElement)).append(ref.refName)
           case None => inner(p); buffer.append(".").append(ref.refName)
-        }
+        } //todo: another shorthands for ScSingletonType
         case _ => inner(p); buffer.append("#").append(ref.refName)
       }
       case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
@@ -319,6 +320,39 @@ object ScType {
           case _ => buffer.append(path.qualName)
         }
         buffer.append(".type")
+      }
+      case ScSingletonType(path: ScThisReference) => {//todo: this can become super etc.
+        path.refTemplate match {
+          case Some(clazz: PsiClass) => {
+            buffer.append(clazz.getName).append(".this")
+          }
+          case _ => {
+            path.reference match {
+              case Some(ref: ScStableCodeReferenceElement) => buffer.append(ref.refName).append(".this")
+              case None => buffer.append("this")
+            }
+          }
+        }
+        buffer.append(".type")
+      }
+      case ScSingletonType(path: ScSuperReference) => {//todo: this can become super etc.
+        path.staticSuper match {
+          case Some(tp: ScType) => inner(tp)
+          case None => {
+            path.drvTemplate match {
+              case Some(clazz: PsiClass) => {
+                buffer.append(clazz.getName).append(".super")
+              }
+              case _ => {
+                path.qualifier match {
+                  case Some(ref: ScStableCodeReferenceElement) => buffer.append(ref.refName).append(".super")
+                  case None => buffer.append("super")
+                }
+              }
+            }
+            buffer.append(".type")
+          }
+        }
       }
       case _ => null //todo
     }

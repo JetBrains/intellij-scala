@@ -26,7 +26,7 @@ import resolve._
 * Date: 13.03.2008
 */
 
-class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection{
+class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
   override def toString: String = "TypeProjection"
 
   override def getType(implicit visited: collection.Set[ScNamedElement]) = bind match {
