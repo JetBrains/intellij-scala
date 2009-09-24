@@ -5,6 +5,7 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -13,4 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScReturnStmt extends ScExpression {
   def expr = findChild(classOf[ScExpression])
+
+  def returnKeyword: PsiElement
 }

@@ -36,6 +36,8 @@ import com.intellij.psi._
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import types.ScTypeElement
+
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -269,16 +271,38 @@ class ScalaAnnotator extends Annotator {
   private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
     var fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
     fun match {
-      case null => return
-      case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => return
+      case null => {
+        val error = ScalaBundle.message("return.outside.method.definition")
+        val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      }
+      case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => {
+        return //can return anything
+        //todo: add warning to not return something except nothing
+      }
       case _ => fun.returnTypeElement match {
-        case Some(x) => return //todo: add checking type
+        case Some(x: ScTypeElement) => {
+          import org.jetbrains.plugins.scala.lang.psi.types._
+          val funType = fun.returnType
+          val exprType = ret.expr match {
+            case Some(e: ScExpression) => e.cachedType
+            case None => Unit
+          }
+          if (funType.equiv(Nothing)) return //do not check if type inference don't work properly
+          else if (!exprType.conforms(funType)) {
+            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType))
+            val annotation: Annotation = holder.createErrorAnnotation(ret, error)
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            //todo: add fix to change function return type
+          } else return
+        }
         case _ => {
           val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
           val annotation: Annotation = holder.createErrorAnnotation(
             new TextRange(ret.getTextRange.getStartOffset, ret.getTextRange.getStartOffset + 6),
             error)
           annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          //todo: add fix to add function return type
         }
       }
     }
