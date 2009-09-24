@@ -13,10 +13,11 @@ import com.intellij.psi.{PsiClass, PsiMethod, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi._
+import types.{ScDesignatorType, StdType, ScSubstitutor, ScType}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,13 +26,16 @@ import com.intellij.psi.util.PsiTreeUtil
 
 class ScalaSmartCompletionContributor extends CompletionContributor {
   private def acceptTypes(typez: Seq[ScType], variants: Array[Object], result: CompletionResultSet) {
-    if (typez.length == 0 || typez.forall(_ == Nothing)) return
+    if (typez.length == 0 || typez.forall(_ == types.Nothing)) return
     for (variant <- variants) {
       variant match {
         case (el: LookupElement, elem: PsiElement, subst: ScSubstitutor) => {
           def checkType(tp: ScType): Unit = {
-            if (subst.subst(tp) != Nothing &&
-                    typez.find(subst.subst(tp) conforms _) != None) result.addElement(el)
+            val scType = subst.subst(tp)
+            import types.Nothing
+            if (!scType.equiv(Nothing) && typez.find(scType conforms _) != None) {
+              result.addElement(el)
+            }
           }
           elem match {
             case fun: ScSyntheticFunction => checkType(fun.retType)
@@ -156,4 +160,19 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       acceptTypes(typez.toArray, ref.getVariants, result)
     }
   })
+
+  /*
+    if (ref) expr
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScIfStmt]),
+    new CompletionProvider[CompletionParameters] {
+      def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                         result: CompletionResultSet): Unit = {
+        val typez = Array[ScType](types.Boolean)
+        val element = parameters.getPosition
+        val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+        val ifStmt = ref.getParent.asInstanceOf[ScIfStmt]
+        if (ifStmt.condition == Some(ref)) acceptTypes(typez, ref.getVariants, result)
+      }
+    })
 }
