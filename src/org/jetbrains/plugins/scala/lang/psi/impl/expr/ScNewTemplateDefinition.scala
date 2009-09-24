@@ -26,7 +26,7 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 
   override def getType = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
-      case Some(b: ScTemplateBody) => (b.holders, b.aliases)
+      case Some(b: ScTemplateBody) => (b.holders.toSeq, b.aliases.toSeq)
       case None => (Seq.empty, Seq.empty)
     }
 
