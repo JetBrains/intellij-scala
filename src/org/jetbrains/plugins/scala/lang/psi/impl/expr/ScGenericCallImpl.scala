@@ -33,7 +33,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
       //ugly method for appling it to methods chooser (to substitute types for every method)
       def createSubst(method: PhysicalSignature): ScSubstitutor = {
-        val tp = method.method match {
+        val tp: Seq[String] = method.method match {
           case fun: ScFunction => fun.typeParameters.map(_.name)
           case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
         }
@@ -62,7 +62,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         val typez = method match {
           case fun: ScFunction => fun.calcType
           case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
-            Seq(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)): _*))
+            collection.immutable.Sequence(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)).toSeq: _*))
         }
         return createSubst(methods(0)).subst(typez)
       } else {

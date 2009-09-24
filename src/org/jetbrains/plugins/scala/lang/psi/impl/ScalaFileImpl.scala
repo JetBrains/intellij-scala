@@ -38,6 +38,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def toString = "ScalaFile"
 
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
   def isCompiled = {
     val stub = getStub
     if (stub != null) stub.isCompiled else compiled

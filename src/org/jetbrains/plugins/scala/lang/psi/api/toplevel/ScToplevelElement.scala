@@ -37,10 +37,10 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType(TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
+      stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
         def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
       })
-    } else Seq(findChildrenByClass(classOf[ScTypeDefinition]) : _*)
+    } else collection.immutable.Sequence(findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq : _*)
   }
 
   def packagings: Seq[ScPackaging] = {
@@ -50,9 +50,9 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
+      stub.getChildrenByType[ScPackaging](ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
-    } else Seq(findChildrenByClass(classOf[ScPackaging]) : _*)
+    } else collection.immutable.Sequence(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
   }
 }

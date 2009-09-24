@@ -44,6 +44,6 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
       stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM, new ArrayFactory[ScTypeParam] {
         def create(count: Int): Array[ScTypeParam] = new Array[ScTypeParam](count)
       }).toSeq
-    } else findChildrenByClass(classOf[ScTypeParam])
+    } else findChildrenByClass(classOf[ScTypeParam]).toSeq
   }
 }

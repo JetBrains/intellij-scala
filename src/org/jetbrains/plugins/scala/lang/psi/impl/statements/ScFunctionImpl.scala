@@ -137,7 +137,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def getParameterList: ScParameters = paramClauses
 
   def calcType = paramClauses.clauses.toList.foldRight(returnType)((cl, t) =>
-          ScFunctionType(t, Seq(cl.parameters.map {p => p.calcType} : _*)))
+          ScFunctionType(t, collection.immutable.Sequence(cl.parameters.map({p => p.calcType}).toSeq : _*)))
 
   override def getUseScope: SearchScope = {
     getParent match {

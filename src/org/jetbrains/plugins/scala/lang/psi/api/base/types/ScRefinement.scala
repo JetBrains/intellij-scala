@@ -13,6 +13,6 @@ import psi.ScalaPsiElement
 */
 
 trait ScRefinement extends ScalaPsiElement {
-  def holders() : Seq[ScDeclaredElementsHolder] = Seq(findChildrenByClass(classOf[ScDeclaredElementsHolder]): _*)
-  def types() : Seq[ScTypeAlias] = Seq(findChildrenByClass(classOf[ScTypeAlias]): _*)
+  def holders() : Seq[ScDeclaredElementsHolder] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScDeclaredElementsHolder]).toSeq: _*)
+  def types() : Seq[ScTypeAlias] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScTypeAlias]).toSeq: _*)
 }

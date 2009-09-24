@@ -225,9 +225,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
           s.subst _
         })
-      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), Seq(fun.paramTypes.map{
+      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), collection.immutable.Sequence(fun.paramTypes.map({
         s.subst _
-      }: _*))
+      }).toSeq: _*))
 
       //prevent infinite recursion for recursive pattern reference
       case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
@@ -246,9 +246,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)): _*)))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), collection.immutable.Sequence(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)): _*)))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), collection.immutable.Sequence(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => ResolveUtils.methodType(method, s)

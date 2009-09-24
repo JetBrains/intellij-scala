@@ -18,5 +18,5 @@ trait ScVariableDefinition extends ScVariable {
   def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
   def declaredElements = bindings
-  def expr = findChildByClass(classOf[ScExpression])
+  def expr = findChildByClassScala(classOf[ScExpression])
 }

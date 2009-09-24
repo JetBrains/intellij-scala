@@ -34,8 +34,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         val argTypes = argTypesWrapped.map{_.resType}
         val cyclic = argTypesWrapped.find(_.isCyclic)
         cyclic match {
-          case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res, Seq(argTypes: _*)), true, result.cycleStart)
-          case None => new ScParameterizedType(res, Seq(typeArgList.typeArgs.map{_.getType(visited).resType} : _*))
+          case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res, collection.immutable.Sequence(argTypes.toSeq: _*)), true, result.cycleStart)
+          case None => new ScParameterizedType(res, collection.immutable.Sequence(typeArgList.typeArgs.map({_.getType(visited).resType}).toSeq : _*))
         }
       }
     }

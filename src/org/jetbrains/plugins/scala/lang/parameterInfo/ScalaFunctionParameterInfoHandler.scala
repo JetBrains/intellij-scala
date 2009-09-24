@@ -293,7 +293,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 override def isDefaultParam: Boolean = false
               }
             }
-            applyToParameters(Seq(parameters: _*), ScSubstitutor.empty, true)
+            applyToParameters(collection.immutable.Sequence(parameters.toSeq: _*), ScSubstitutor.empty, true)
           }
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
             val clauses = constructor.parameterList.clauses
@@ -349,8 +349,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 val gen = args.callGeneric.getOrElse(null: ScGenericCall)
                 def collectSubstitutor(element: PsiElement): ScSubstitutor = {
                   if (gen == null) return ScSubstitutor.empty
-                  val tp = element match {
-                    case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.name)
+                  val tp: Array[String] = element match {
+                    case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.name).toArray
                     case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.getName)
                     case _ => return ScSubstitutor.empty
                   }

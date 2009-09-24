@@ -26,5 +26,5 @@ trait ScMatchStmt extends ScExpression {
     }
   }
 
-  def getCaseClauses: ScCaseClauses = findChildByClass(classOf[ScCaseClauses])
+  def getCaseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
 }

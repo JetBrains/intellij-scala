@@ -28,11 +28,11 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Enumerators"
 
-  def enumerators = findChildrenByClass(classOf[ScEnumerator])
+  def enumerators = findChildrenByClass[ScEnumerator](classOf[ScEnumerator])
 
-  def generators = findChildrenByClass(classOf[ScGenerator])
+  def generators = findChildrenByClass[ScGenerator](classOf[ScGenerator])
 
-  def guards = findChildrenByClass(classOf[ScGuard])
+  def guards = findChildrenByClass[ScGuard](classOf[ScGuard])
 
   def namings = for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
           yield c.asInstanceOf[{def pattern: ScPattern}]

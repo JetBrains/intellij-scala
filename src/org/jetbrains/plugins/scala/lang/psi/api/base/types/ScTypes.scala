@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
  */
 
 trait ScTypes extends ScalaPsiElement {
-  def types: Seq[ScTypeElement] = Seq(findChildrenByClass(classOf[ScTypeElement]): _*)
+  def types: Seq[ScTypeElement] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScTypeElement]).toSeq: _*)
 }

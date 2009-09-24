@@ -15,8 +15,8 @@ import com.intellij.psi.{PsiAnnotation, PsiAnnotationOwner, PsiClass}
  */
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
-  def annotations: Seq[ScAnnotation] = if (findChildByClass(classOf[ScAnnotations]) != null)
-    findChildByClass(classOf[ScAnnotations]).getAnnotations.toSeq
+  def annotations: Seq[ScAnnotation] = if (findChildByClassScala(classOf[ScAnnotations]) != null)
+    findChildByClassScala(classOf[ScAnnotations]).getAnnotations.toSeq
   else Seq.empty
 
   def annotationNames: Seq[String] = annotations.map((x: ScAnnotation) => {

@@ -16,5 +16,5 @@ import expr.ScExpression
 trait ScPatternDefinition extends ScValue {
   def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
-  def expr: ScExpression = findChildByClass(classOf[ScExpression]) //not null, otherwise it is a different syntactic category
+  def expr: ScExpression = findChildByClassScala(classOf[ScExpression]) //not null, otherwise it is a different syntactic category
 }

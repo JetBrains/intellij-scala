@@ -280,7 +280,7 @@ object ScalaOIUtil {
       }
     }
 
-    return buf2.toArray
+    return buf2.toSeq
   }
 
 

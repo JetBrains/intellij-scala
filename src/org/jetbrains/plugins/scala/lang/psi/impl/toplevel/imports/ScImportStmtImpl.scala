@@ -42,14 +42,14 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
     for (importExpr <- importExprs) {
       ProgressManager.getInstance.checkCanceled
       if (importExpr == lastParent) return true
-      val elemsAndUsages = importExpr.reference match {
-        case Some(ref) => ref.multiResolve(false).map {
+      val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] = importExpr.reference match {
+        case Some(ref) => (ref.multiResolve(false).map {
           x => x match {
             case s: ScalaResolveResult => (s.getElement, s.importsUsed)
             case r: ResolveResult => (r.getElement, Set[ImportUsed]())
           }
-        } 
-        case _ => Seq.empty
+        }).toArray
+        case _ => Array()
       }
       for ((elem, importsUsed) <- elemsAndUsages) {
         ProgressManager.getInstance.checkCanceled

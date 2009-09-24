@@ -194,7 +194,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler, consoleProperties, getRunnerSettings,
           getConfigurationSettings, "Scala")
 
-        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler))
+        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
       }
     }
     return state;

@@ -37,11 +37,11 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   val substitutor : ScSubstitutor = {
-    val (params, initial) = designator match {
+    val (params, initial): (Seq[ScTypeParameterType], ScSubstitutor) = designator match {
       case ScPolymorphicType(_, args, _, _) => (args, ScSubstitutor.empty)
       case _ => ScType.extractDesignated(designator) match {
         case Some((owner: ScTypeParametersOwner, s)) => (owner.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}, s)
-        case Some((owner: PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}, s)
+        case Some((owner: PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map({tp => ScalaPsiManager.typeVariable(tp)}).toSeq, s)
         case _ => (Seq.empty, ScSubstitutor.empty)
       }
     }
@@ -71,9 +71,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
 object ScParameterizedType {
   def create(c: PsiClass, s : ScSubstitutor) =
-    new ScParameterizedType(new ScDesignatorType(c), Seq(c.getTypeParameters.map {
+    new ScParameterizedType(new ScDesignatorType(c), collection.immutable.Sequence(c.getTypeParameters.map({
       tp => s subst(ScalaPsiManager.typeVariable(tp))
-    } : _*))
+    }).toSeq : _*))
 }
 
 abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
@@ -129,7 +129,7 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
       new Suspension[ScType]({() =>
               s.subst(
-        ScCompoundType(Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+        ScCompoundType(collection.immutable.Sequence(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
                 ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty))
       }),
       new Suspension[ScType]({() =>

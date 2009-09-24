@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTupleTypeElement extends ScTypeElement {
-  def typeList = findChildByClass(classOf[ScTypes])
+  def typeList = findChildByClassScala(classOf[ScTypes])
 
   def components = typeList.types
 }

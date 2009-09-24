@@ -57,7 +57,7 @@ object ScExistentialTypeReducer {
           case targ => targ
           }
         })
-        new ScParameterizedType(des, Seq(newArgs: _*))
+        new ScParameterizedType(des, collection.immutable.Sequence(newArgs.toSeq: _*))
       }
       case _ => t
     }

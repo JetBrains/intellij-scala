@@ -10,7 +10,7 @@ package expr
 */
 
 trait ScTryStmt extends ScExpression {
-  def tryBlock = findChildByClass(classOf[ScTryBlock])
+  def tryBlock = findChildByClassScala(classOf[ScTryBlock])
   def catchBlock = findChild(classOf[ScCatchBlock])
   def finallyBlock = findChild(classOf[ScFinallyBlock])
 }

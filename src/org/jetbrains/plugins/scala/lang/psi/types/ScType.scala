@@ -66,8 +66,8 @@ object ScType {
           val des = new ScDesignatorType(clazz)
           tps match {
             case Array() => des
-            case _ => new ScParameterizedType(des, Seq(tps.map
-                      {tp => create(result.getSubstitutor.substitute(tp), project)} : _*))
+            case _ => new ScParameterizedType(des, collection.immutable.Sequence(tps.map
+                      ({tp => create(result.getSubstitutor.substitute(tp), project)}).toSeq : _*))
           }
         }
         case _ => Nothing

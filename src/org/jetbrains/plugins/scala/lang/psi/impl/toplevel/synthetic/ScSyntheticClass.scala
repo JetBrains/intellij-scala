@@ -61,6 +61,10 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   def getIndex = -1
   def getOwner = null
+
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass(clazz)
+
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass(clazz)
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
@@ -135,6 +139,10 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   override def getIcon(flags: Int) = icons.Icons.FUNCTION
 
   override def toString = "Synthetic method"
+
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass(clazz)
+
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass(clazz)
 }
 
 class ScSyntheticValue(manager: PsiManager, val name: String, val tp: ScType) extends SyntheticNamedElement(manager, name) {

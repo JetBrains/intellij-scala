@@ -35,7 +35,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
 
   def findTagsByName(name: String): Array[PsiDocTag] = null
 
-  protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = null //shouldn't be used
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClassScala(clazz)
 
-  protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null //shouldn't be used
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClassScala(clazz)
 }

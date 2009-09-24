@@ -157,7 +157,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         }
         case None =>
       }
-      acceptTypes(typez.toArray, ref.getVariants, result)
+      acceptTypes(typez.toArray[ScType], ref.getVariants, result)
     }
   })
 
