@@ -30,6 +30,7 @@
   <property name="idea.lib" value="${idea.home}/lib"/>
   <property name="java.lib" value="${jdk.home}/lib"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
+  <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-lib"/>
 
   <property name="test.dist" value="${basedir}/test_dist"/>
 
@@ -69,7 +70,6 @@
     </fileset>
     <fileset dir="${scala.aux.lib}">
       <include name="**/*.jar"/>
-      <exclude name="**/*2.8*.jar"/>
     </fileset>
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
@@ -141,7 +141,7 @@
             jvmargs="-Xmx512M -Xss128m">
       <classpath>
         <path  refid="base.path"/>
-        <path location="${scala.aux.lib}/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+        <path location="${base.dir}/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
       </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
       <include name="ScalaRunners/src/**/*.scala"/>
@@ -154,7 +154,7 @@
       <classpath>
         <path  refid="base.path"/>
         <path location="${runners.dest}"/>
-        <path location="${scala.aux.lib}/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+        <path location="${base.dir}/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
       </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
     </javac2>
