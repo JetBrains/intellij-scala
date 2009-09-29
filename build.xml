@@ -82,6 +82,15 @@
     </fileset>
   </path>
 
+  <path id="scala.runners.path">
+    <fileset dir="${scala.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${scala.aux.scala.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
   <!--Scalac taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -140,8 +149,7 @@
             fork="true"
             jvmargs="-Xmx512M -Xss128m">
       <classpath>
-        <path  refid="base.path"/>
-        <path location="${base.dir}/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+        <path refid="scala.runners.path"/>
       </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
       <include name="ScalaRunners/src/**/*.scala"/>
@@ -152,9 +160,7 @@
             target="1.5"
             debug="true">
       <classpath>
-        <path  refid="base.path"/>
-        <path location="${runners.dest}"/>
-        <path location="${base.dir}/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+        <path refid="scala.runners.path"/>
       </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
     </javac2>
