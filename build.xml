@@ -89,6 +89,12 @@
     <fileset dir="${scala.aux.scala.lib}">
       <include name="**/*.jar"/>
     </fileset>
+    <fileset dir="${java.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
   </path>
 
   <!--Scalac taskdef-->
