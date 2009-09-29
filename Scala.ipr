@@ -100,9 +100,6 @@
           </value>
         </option>
         <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
-        <ScalaCodeStyleSettings>
-          <option name="ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY" value="true" />
-        </ScalaCodeStyleSettings>
         <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
@@ -811,7 +808,7 @@
     </library>
     <library name="scalatest-1.0">
       <CLASSES>
-        <root url="jar://C:/work/ScalaTest/scalatest-1.0-for-scala-2.8.0-SNAPSHOT/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
