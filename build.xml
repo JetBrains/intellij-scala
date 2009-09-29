@@ -69,6 +69,7 @@
     </fileset>
     <fileset dir="${scala.aux.lib}">
       <include name="**/*.jar"/>
+      <exclude name="**/*2.8*.jar"/>
     </fileset>
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
@@ -138,7 +139,10 @@
             force="changed"
             fork="true"
             jvmargs="-Xmx512M -Xss128m">
-      <classpath refid="base.path"/>
+      <classpath>
+        <path  refid="base.path"/>
+        <path location="${scala.aux.lib}/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+      </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
       <include name="ScalaRunners/src/**/*.scala"/>
     </scalac>
@@ -150,6 +154,7 @@
       <classpath>
         <path  refid="base.path"/>
         <path location="${runners.dest}"/>
+        <path location="${scala.aux.lib}/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
       </classpath>
       <include name="ScalaRunners/src/**/*.java"/>
     </javac2>
