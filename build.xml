@@ -30,7 +30,7 @@
   <property name="idea.lib" value="${idea.home}/lib"/>
   <property name="java.lib" value="${jdk.home}/lib"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
-  <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-lib"/>
+  <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-aux-lib"/>
 
   <property name="test.dist" value="${basedir}/test_dist"/>
 
@@ -86,9 +86,9 @@
     <fileset dir="${scala.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <filelist dir="${scala.aux.scala.lib}">
-      <file name="scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
-    </filelist>
+    <fileset dir="${scala.aux.scala.lib">
+      <include name="**/*.jar"/>
+    </fileset>
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
