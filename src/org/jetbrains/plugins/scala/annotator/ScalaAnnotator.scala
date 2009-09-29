@@ -282,7 +282,7 @@ class ScalaAnnotator extends Annotator {
       }
       case _ => fun.returnTypeElement match {
         case Some(x: ScTypeElement) => {
-          import org.jetbrains.plugins.scala.lang.psi.types._
+          /*import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           val exprType = ret.expr match {
             case Some(e: ScExpression) => e.cachedType
@@ -294,7 +294,7 @@ class ScalaAnnotator extends Annotator {
             val annotation: Annotation = holder.createErrorAnnotation(ret, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             //todo: add fix to change function return type
-          } else return
+          } else return*/
         }
         case _ => {
           val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
