@@ -4,7 +4,6 @@ package parser
 package parsing
 package expressions
 
-import actors.!
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
