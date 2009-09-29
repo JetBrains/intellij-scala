@@ -51,8 +51,10 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
+  val SCALA_MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestScalaRunner"
   val SUITE_PATH = "org.scalatest.Suite"
   val REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
+  val SCALA_REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestScalaReporter"
   private var testClassPath = ""
   private var testPackagePath = ""
   private var testArgs = ""
@@ -137,8 +139,17 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
     if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
 
-    val rootManager = ModuleRootManager.getInstance(module);
-    val sdk = rootManager.getSdk();
+    val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
+    var isScala_2_8 = true
+    try {
+      val vers = java.lang.Double.parseDouble(version.substring(0,3))
+      isScala_2_8 = vers > 2.75
+    } catch {
+      case e: Exception => //nothing to do
+    }
+
+    val rootManager = ModuleRootManager.getInstance(module)
+    val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
       throw CantRunException.noJdkForModule(module);
     }
@@ -157,7 +168,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestScalaRunner])
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)
@@ -173,13 +184,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(MAIN_CLASS)
+        params.setMainClass(if (isScala_2_8) SCALA_MAIN_CLASS else MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
 
-        params.getProgramParametersList.add("-rYZTFGUPBISAR")
-        params.getProgramParametersList.add(REPORTER)
+        params.getProgramParametersList.add(if (isScala_2_8) "-r" else "-rYZTFGUPBISAR")
+        params.getProgramParametersList.add(if (isScala_2_8) SCALA_REPORTER else REPORTER)
         params.getProgramParametersList.addParametersString(testArgs)
         return params
       }

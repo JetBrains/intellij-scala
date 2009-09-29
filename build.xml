@@ -123,15 +123,6 @@
     <!--logging="debug"-->
     <!--scalacdebugging="yes"-->
 
-    <!--<scalac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            target="jvm-1.5"
-            force="changed">
-      <classpath refid="base.path"/>
-      <include name="Runners/src/**/*.scala"/>
-      <include name="Runners/src/**/*.java"/>
-    </scalac>-->
-
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
             target="1.5"
@@ -139,6 +130,28 @@
             debug="true">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.java"/>
+    </javac2>
+
+    <scalac srcdir="${base.dir}"
+            destdir="${runners.dest}"
+            target="jvm-1.5"
+            force="changed"
+            fork="true"
+            jvmargs="-Xmx512M -Xss128m">
+      <classpath refid="base.path"/>
+      <include name="ScalaRunners/src/**/*.java"/>
+      <include name="ScalaRunners/src/**/*.scala"/>
+    </scalac>
+
+    <javac2 srcdir="${base.dir}"
+            destdir="${runners.dest}"
+            target="1.5"
+            debug="true">
+      <classpath>
+        <path  refid="base.path"/>
+        <path location="${runners.dest}"/>
+      </classpath>
+      <include name="ScalaRunners/src/**/*.java"/>
     </javac2>
 
 
