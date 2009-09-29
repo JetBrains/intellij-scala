@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
-import org.scalatest.Reporter;import org.scalatest.Report;
-
-import java.util.HashMap;
-import java.io.StringWriter;
-import java.io.PrintWriter;
-
+import org.scalatest.Report;
+import org.scalatest.Reporter;
 import scala.Some;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
 
 public class ScalaTestReporter implements Reporter {
   private HashMap<String, Long> map = new HashMap<String, Long>();
@@ -54,7 +54,7 @@ public class ScalaTestReporter implements Reporter {
   }
 
   public void suiteStarting(Report r) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(r.name()) + "' location='scala://" +
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(r.name()) + "' locationHint='scala://" +
         escapeString(r.name()) + "']");
   }
 
