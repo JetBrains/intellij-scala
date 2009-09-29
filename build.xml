@@ -86,13 +86,16 @@
     <fileset dir="${scala.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${scala.aux.scala.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
+    <filelist dir="${scala.aux.scala.lib}">
+      <file name="scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar"/>
+    </filelist>
     <fileset dir="${java.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${idea.home}/plugins/">
       <include name="**/*.jar"/>
     </fileset>
   </path>
