@@ -17,4 +17,6 @@ trait ScParameterStub extends NamedStub[ScParameter] {
   def isStable: Boolean
 
   def isDefaultParam: Boolean
+
+  def isRepeated: Boolean
 }

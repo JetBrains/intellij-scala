@@ -32,12 +32,9 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   private def reference = findChild(classOf[ScStableCodeReferenceElement])
 
-  def getPackageName = reference match {
-    case Some(r) => r.qualName
-    case None => ""
-  }
+  def getPackageName = ownNamePart
 
-  private def innerRefName() = {
+  private def innerRefName: String = {
     def _innerRefName(ref: ScStableCodeReferenceElement): String = ref.qualifier match {
       case Some(q) => _innerRefName(q)
       case None => ref.refName
@@ -47,9 +44,19 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   def isExplicit = findChildByType(ScalaTokenTypes.tLBRACE) != null
 
-  def ownNamePart = reference match {case Some(r) => r.qualName case None => ""}
+  def ownNamePart: String = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScPackageContainerStub].ownNamePart
+    }
+    reference match {case Some(r) => r.qualName case None => ""}
+  }
 
-  def prefix = {
+  def prefix: String = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScPackageContainerStub].prefix
+    }
     def parentPackageName(e: PsiElement): String = e.getParent match {
       case p: ScPackaging => {
         val _packName = parentPackageName(p)
@@ -66,7 +73,11 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   def declaredElements = {
     val _prefix = prefix
-    val top = if (_prefix.length > 0) _prefix + "." + innerRefName else innerRefName
+    val packageName = getPackageName
+    val topRefName = if (packageName.indexOf(".") != -1) {
+      packageName.substring(0, packageName.indexOf("."))
+    } else packageName
+    val top = if (_prefix.length > 0) _prefix + "." + topRefName else topRefName
     val p = JavaPsiFacade.getInstance(getProject).findPackage(top)
     if (p == null) Seq.empty else Seq.singleton(p)
   }

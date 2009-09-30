@@ -33,10 +33,7 @@ trait ScParameter extends ScNamedElement with ScTyped with ScModifierListOwner w
 
   override def getIcon(flags: Int): Icon = Icons.PARAMETER
 
-  def isRepeatedParameter: Boolean = paramType match {
-    case Some(p: ScParameterType) => p.isRepeatedParameter
-    case None => false
-  }
+  def isRepeatedParameter: Boolean
 
   def isDefaultParam: Boolean
 
