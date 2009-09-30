@@ -1,34 +1,32 @@
-package org.jetbrains.plugins.scala
-package refactoring
-package inline
+package org.jetbrains.plugins.scala.refactoring.rename
 
-
-import base.ScalaPsiTestCase
-import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.psi.util.PsiTreeUtil
-import lang.lexer.ScalaTokenTypes
-import lang.psi.api.base.patterns.ScBindingPattern
-import util.ScalaUtils
-import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
+import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-
-import com.intellij.psi.PsiManager
+import com.intellij.openapi.command.undo.UndoManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
+import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.inline.GenericInlineHandler
-import lang.psi.api.ScalaFile
-import java.io.File
+import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.vfs.LocalFileSystem
-import lang.refactoring.inline.ScalaInlineHandler
+import java.io.File
+import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.refactoring.rename.RenameProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 16.06.2009
+ * Date: 30.09.2009
  */
 
-abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
+class ScalaRenameTestBase extends ScalaPsiTestCase {
   id : ScalaPsiTestCase =>
   val caretMarker = "/*caret*/"
 
-  override protected def rootPath = super.rootPath + "inline/"
+  override protected def rootPath = super.rootPath + "rename/"
 
   protected def doTest: Unit = {
     import _root_.junit.framework.Assert._
@@ -37,24 +35,27 @@ abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
     assert(file != null, "file " + filePath + " not found")
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
-    val offset = fileText.indexOf(caretMarker) + caretMarker.length
+    val offset = fileText.indexOf(caretMarker) + caretMarker.length + 1
     assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
-    val element = scalaFile.findElementAt(offset)
+    val element = scalaFile.findElementAt(offset).getParent
+    assert(element.isInstanceOf[ScReferenceElement], "Reference is not specified.")
+    val resolve = element.asInstanceOf[ScReferenceElement].resolve
+    assert(resolve != null, "Cannot resolve Symbol")
     val fileEditorManager = FileEditorManager.getInstance(myProject)
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
 
     var res: String = null
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    
+
     //start to inline
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run {
-          GenericInlineHandler.invoke(PsiTreeUtil.getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
+          new RenameProcessor(resolve.getProject, resolve, "NameAfterRename", false, false).run()
         }
-      }, myProject, "Test")
-      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
+      }, resolve.getProject, "Test")
+      res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
       case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
@@ -84,6 +85,6 @@ abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
         ""
       }
     }
-    assertEquals(output, res.trim)
+    assertEquals(output, res)
   }
 }
