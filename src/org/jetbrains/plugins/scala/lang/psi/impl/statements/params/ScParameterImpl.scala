@@ -111,4 +111,15 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
     return findChildByType(ScalaTokenTypes.tASSIGN) != null
   }
+
+  def isRepeatedParameter: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScParameterStub].isRepeated
+    }
+    paramType match {
+      case Some(p: ScParameterType) => p.isRepeatedParameter
+      case None => false
+    }
+  }
 }
