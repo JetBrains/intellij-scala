@@ -6,6 +6,8 @@ import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
 import lang.refactoring.util.ScalaNamesUtil
+import lang.psi.types.ScType
+
 /**
  * @author: Alexander Podkhalyuzin
  * Date: 23.07.2009
@@ -16,6 +18,12 @@ object JavaToScala {
     if (element == null) return ""
     if (element.getLanguage != StdLanguages.JAVA) return ""
     val res = new StringBuilder("")
+    element match {
+      case docCommentOwner: PsiDocCommentOwner if docCommentOwner.getDocComment != null => {
+        res.append(docCommentOwner.getDocComment.getText).append("\n")
+      }
+      case _ =>
+    }
     element match {
       case f: PsiFile => {
         for (child <- f.getChildren) {
@@ -211,7 +219,16 @@ object JavaToScala {
         res.append("super")
       }
       case n: PsiNewExpression => {
-        //todo:
+        if (n.getArrayInitializer != null) {
+          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
+          res.append(n.getArrayInitializer.getInitializers.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+        } else if (n.getArrayDimensions.length > 0) {
+          res.append("new ").append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
+          res.append(n.getArrayDimensions.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+        } else {
+          res.append("new ").append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
+          res.append(convertPsiToText(n.getArgumentList))
+        }
       }
       //declarations
       case m: PsiMethod => {
@@ -372,8 +389,11 @@ object JavaToScala {
         //todo:
       }
       case p: PsiParameterList => {
-        //todo:
+        if (p.getParametersCount > 0) {
+          res.append(p.getParameters.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+        }
       }
+      case comment: PsiComment => res.append(comment.getText)
       case e => {
         throw new UnsupportedOperationException("PsiElement: " +  e + " is not supported for this" +
                 " converter.")

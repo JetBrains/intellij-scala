@@ -12,6 +12,7 @@ import lang.superMember.SuperMethodTestUtil
 import util.TestUtils
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.projectRoots.JavaSdk
+import com.intellij.openapi.fileTypes.FileTypeManager
 
 /**
  * User: Alexander Podkhalyuzin
