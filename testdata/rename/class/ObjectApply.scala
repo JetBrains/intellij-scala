@@ -1,10 +1,28 @@
-object ObjectApply {
-  def apply(s: String) = s + "biaka"
-  def foo(s: String) = ObjectApply(s)
-}
+object OuterObjectApply {
+  object Objecta {
+    def apply(s: String) = s + "biaka"
 
-object Main {
-  def main(args: Array[String]) {
-    print(<ref>ObjectApply.foo("ti "))
+    def foo(s: String) = Objecta(s)
+  }
+
+  object Main {
+    def main(args: Array[String]) {
+      print( /*caret*/ Objecta.foo("ti "))
+    }
   }
 }
+/*
+object OuterObjectApply {
+  object NameAfterRename {
+    def apply(s: String) = s + "biaka"
+
+    def foo(s: String) = NameAfterRename(s)
+  }
+
+  object Main {
+    def main(args: Array[String]) {
+      print( /*caret*/ NameAfterRename.foo("ti "))
+    }
+  }
+}
+*/
