@@ -43,6 +43,7 @@ import fake.FakePsiMethod
 import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.toplevel.{ScToplevelElement, ScTyped}
+import com.intellij.openapi.project.DumbService
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -242,7 +243,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   import com.intellij.psi.scope.PsiScopeProcessor
 
-  override def isInheritor(baseClass: PsiClass, deep: Boolean) = {
+  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
       if (visited.contains(drv)) false
       else drv match {
@@ -267,6 +268,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
         }
       }
     }
+    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indecies
     isInheritorInner(baseClass, this, deep, Set.empty)
   }
 
