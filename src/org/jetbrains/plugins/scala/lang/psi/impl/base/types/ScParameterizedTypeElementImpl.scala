@@ -11,6 +11,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import collection.Set
+import collection.mutable.HashMap
 
 /**
  * @author Alexander Podkhalyuzin
@@ -34,8 +35,25 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         val argTypes = argTypesWrapped.map{_.resType}
         val cyclic = argTypesWrapped.find(_.isCyclic)
         cyclic match {
-          case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res, collection.immutable.Sequence(argTypes.toSeq: _*)), true, result.cycleStart)
-          case None => new ScParameterizedType(res, collection.immutable.Sequence(typeArgList.typeArgs.map({_.getType(visited).resType}).toSeq : _*))
+          case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res,
+            collection.immutable.Sequence(argTypes.toSeq: _*)), true, result.cycleStart)
+          case None => {
+            res match {
+              case tp: ScTypeConstructorType => {
+                val map = new HashMap[String, ScType]
+                for (i <- 0 until argTypes.length.min(tp.args.size)) {
+                  map += Tuple(tp.args.apply(i).name, argTypes(i))
+                }
+                val subst = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                subst.subst(tp.aliased.v)
+              }
+              case _ => {
+                new ScParameterizedType(res, collection.immutable.Sequence(
+                  typeArgList.typeArgs.map({_.getType(visited).resType}).toSeq: _*
+                  ))
+              }
+            }
+          }
         }
       }
     }

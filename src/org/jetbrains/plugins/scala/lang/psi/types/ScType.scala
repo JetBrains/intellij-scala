@@ -13,9 +13,9 @@ import impl.ScalaPsiManager
 import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import resolve.ScalaResolveResult
 import com.intellij.psi._
-import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.expr.{ScSuperReference, ScThisReference}
+import com.intellij.openapi.project.{DumbService, Project}
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
