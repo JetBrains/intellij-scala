@@ -4,10 +4,9 @@ package console
 import com.intellij.execution._
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.intellij.execution.executors.DefaultRunExecutor
-import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunnerAndConfigurationSettingsImpl}
-import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
+import com.intellij.execution.impl.{RunnerAndConfigurationSettingsImpl}
+import com.intellij.execution.runners.{ExecutionEnvironment}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DataConstants}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.ActionRunner
 import icons.Icons
@@ -41,7 +40,6 @@ class RunConsoleAction extends AnAction {
     catch {
       case e: Exception => disable
     }
-
   }
 
   def actionPerformed(e: AnActionEvent): Unit = {
