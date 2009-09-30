@@ -31,8 +31,6 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
 
   override protected def setUp: Unit = {
     super.setUp
-    myProject.getComponent(classOf[SyntheticClasses]).registerClasses
-
     val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
 
     val testDataRoot = LocalFileSystem.getInstance.findFileByPath(rootPath)
