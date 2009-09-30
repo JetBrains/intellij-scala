@@ -32,7 +32,9 @@ object JavaToScala {
       }
       case l: PsiLiteralExpression => res.append(l.getText)
       case e: PsiExpressionStatement => res.append(convertPsiToText(e.getExpression))
-      case b: PsiBlockStatement => res.append(convertPsiToText(b.getCodeBlock))
+      case b: PsiBlockStatement => {
+        res.append(convertPsiToText(b.getCodeBlock))
+      }
       case b: PsiCodeBlock => {
         res.append("{\n")
         for (st <- b.getStatements) res.append(convertPsiToText(st)).append("\n")
@@ -217,13 +219,18 @@ object JavaToScala {
         res.append(" def ")
         if (!m.isConstructor) res.append(m.getName)
         else res.append("this")
-        res.append(convertPsiToText(m.getParameterList))
+        var params = convertPsiToText(m.getParameterList)
+        if (params == "" && m.isConstructor) params = "()"
+        res.append(params)
         if (!m.isConstructor) res.append(": ").append(convertPsiToText(m.getReturnTypeElement))
         if (m.getBody != null) {
           if (!m.isConstructor) res.append(" = ")
-          if (m.isConstructor) res.append("{\nthis()\n")
-          for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
-          if (m.isConstructor) res.append("}")
+          if (m.isConstructor) {
+            res.append("{\nthis()\n")
+            for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
+          } else {
+            res.append(convertPsiToText(m.getBody))
+          }
         }
       }
       case f: PsiField => {
