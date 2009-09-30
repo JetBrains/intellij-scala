@@ -48,7 +48,7 @@ class RenameJavaToScalaAction extends AnAction {
             val directory = jFile.getContainingDirectory
             val name = jFile.getName.substring(0, jFile.getName.length - 5)
             val file = directory.createFile(name + ".scala")
-            val newText = JavaToScala.convertPsiToText(jFile)
+            val newText = JavaToScala.convertPsiToText(jFile).trim
             val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
             document.insertString(0, newText)
             PsiDocumentManager.getInstance(file.getProject).commitDocument(document)

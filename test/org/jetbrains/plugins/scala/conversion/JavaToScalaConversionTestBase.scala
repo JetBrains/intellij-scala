@@ -4,7 +4,6 @@ package conversion
 
 import base.ScalaPsiTestCase
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.{JavaTokenType, PsiJavaFile, PsiElement, PsiManager}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.types.ScType
 import lang.psi.api.expr.ScExpression
@@ -12,6 +11,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import lang.psi.api.ScalaFile
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.psi._
+import codeStyle.CodeStyleManager
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,15 +37,16 @@ class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
     val javaFile: PsiJavaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[PsiJavaFile]
     val fileText = javaFile.getText
     val offset = fileText.indexOf(startMarker)
-    val startOffset = offset + startMarker.length
+    val startOffset = if (offset != -1) offset + startMarker.length else 0
 
-    assert(offset != -1, "Not specified start marker in test case. Use /*start in scala file for this.")
-    val endOffset = fileText.indexOf(endMarker)
-    assert(endOffset != -1, "Not specified end marker in test case. Use end in scala file for this.")
+    val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
+    var endOffset = fileText.indexOf(endMarker)
+    if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
 
     var elem: PsiElement = javaFile.findElementAt(startOffset)
     assert(elem.getTextRange.getStartOffset == startOffset)
-    while (elem.getParent != null && elem.getParent.getTextRange.getStartOffset == startOffset) {
+    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && 
+            elem.getParent.getTextRange.getStartOffset == startOffset) {
       elem = elem.getParent
     }
     val buf = new ArrayBuffer[PsiElement]
@@ -53,10 +55,11 @@ class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
       elem = elem.getNextSibling
       buf += elem
     }
-    val res = JavaToScala.convertPsiToText(buf.toArray)
+    var res = JavaToScala.convertPsiToText(buf.toArray)
+
     println("------------------------ " + javaFile.getName + " ------------------------")
     println(res)
-    val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
+
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
       case JavaTokenType.END_OF_LINE_COMMENT => text.substring(2).trim

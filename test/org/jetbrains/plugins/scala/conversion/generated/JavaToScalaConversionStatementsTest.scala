@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package conversion
+package org.jetbrains.plugins.scala.conversion
 package generated
 
 class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase {
