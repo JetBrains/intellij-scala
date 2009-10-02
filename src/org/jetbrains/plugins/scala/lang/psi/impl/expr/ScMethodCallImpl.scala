@@ -4,17 +4,19 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.base.ScStableCodeReferenceElement
 import api.statements.{ScFunction, ScFun}
 import api.toplevel.ScTyped
 import api.toplevel.typedef.{ScClass, ScObject}
-import com.intellij.psi.{PsiMethod, PsiField, PsiElement, PsiClass}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
 import toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
+import lang.resolve.{MethodResolveProcessor, ScalaResolveResult}
+import api.base.types.ScTypeElement
 import types._
+import com.intellij.psi._
+
 /**
  * @author Alexander Podkhalyuzin
  * Date: 06.03.2008
@@ -27,33 +29,37 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
     /**
      * Utility method to get type for apply (and update) methods of concrecte class.
      */
-    def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
-      //ugly method for appling it to methods chooser (to substitute types for every method)
-      def createSubst(method: PhysicalSignature): ScSubstitutor = {
-        //here we don't care for generics because this case was filtered
-        method.substitutor.followed(subst)
-      }
+    def processType(tp: ScType): ScType = {
       val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == this
+      val methodName = if (isUpdate) "update" else "apply"
       val args: Seq[ScExpression] = this.args.exprs ++ (
               if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
                 case Some(x) => Seq[ScExpression](x)
                 case None =>
                   Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
-                    clazz.getManager)) //we can't to not add something => add Nothing expression
+                    getManager)) //we can't to not add something => add Nothing expression
               }
               else Seq.empty)
-      val applyMethods = if (!isUpdate) ScalaPsiUtil.getApplyMethods(clazz) else ScalaPsiUtil.getUpdateMethods(clazz)
-      val methods = ScalaPsiUtil.getMethodsConformingToMethodCall(applyMethods, args, createSubst(_))
-      if (methods.length == 1) {
-        val method = methods(0).method
-        val typez = method match {
-          case fun: ScFunction => fun.returnType  
-          case meth: PsiMethod => ScType.create(meth.getReturnType, meth.getProject)
+      val typeArgs: Seq[ScTypeElement] = getInvokedExpr match {
+        case gen : ScGenericCall => gen.arguments
+        case _ => Seq.empty
+      }
+      val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil,
+        typeArgs, expectedType)
+      processor.processType(tp, getInvokedExpr, ResolveState.initial)
+      val candidates = processor.candidates
+      if (candidates.length != 1) Nothing
+      else {
+        candidates(0) match {
+          case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
+            fun match {
+              case fun: ScFun => s.subst(fun.retType)
+              case fun: ScFunction => s.subst(fun.returnType)
+              case meth: PsiMethod => s.subst(ScType.create(meth.getReturnType, getProject))
+            }
+          }
+          case _ => Nothing
         }
-        return createSubst(methods(0)).subst(typez)
-      } else {
-        return Nothing
-        //todo: according to expected type choose appropriate method if it's possible, else => Nothing
       }
     }
     val invokedType = getInvokedExpr.getType
@@ -67,7 +73,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
             clazz match {
               case clazz: ScClass if clazz.isCase => tp //todo: infer implicit generic type
-              case _ => processClass(clazz, subst)
+              case _ => processType(tp)
             }
           }
           case _ => Nothing

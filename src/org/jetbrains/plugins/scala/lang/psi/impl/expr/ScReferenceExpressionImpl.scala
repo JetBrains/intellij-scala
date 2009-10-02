@@ -108,8 +108,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _: ScMethodCall | _ : ScUnderscoreSection =>
           def defProc1(e: PsiElement, argsClauses: List[Seq[ScExpression]]) : MethodResolveProcessor = e.getContext match {
             case call: ScMethodCall => defProc1(call, argsClauses ::: List(call.argumentExpressions)) //todo rewrite this crap!
-            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, argsClauses, typeArgs, expectedType, section = true)
-            case _ => new MethodResolveProcessor(ref, argsClauses, typeArgs, expectedType)
+            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, ref.refName, argsClauses, typeArgs, expectedType, section = true)
+            case _ => new MethodResolveProcessor(ref, ref.refName, argsClauses, typeArgs, expectedType)
           }
           defProc1(e, Nil)
 
@@ -118,14 +118,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case tuple: ScTuple => tuple.exprs
             case rOp => Seq.singleton(rOp)
           }
-          new MethodResolveProcessor(ref, List(args), Nil, expectedType)
+          new MethodResolveProcessor(ref, ref.refName, List(args), Nil, expectedType)
         }
 
         case postf: ScPostfixExpr if ref == postf.operation =>
-          new MethodResolveProcessor(ref, Nil, Nil, expectedType)
+          new MethodResolveProcessor(ref, ref.refName,  Nil, Nil, expectedType)
 
         case pref: ScPrefixExpr if ref == pref.operation =>
-          new MethodResolveProcessor(ref, Nil, Nil, expectedType)
+          new MethodResolveProcessor(ref, ref.refName, Nil, Nil, expectedType)
 
         case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
       }

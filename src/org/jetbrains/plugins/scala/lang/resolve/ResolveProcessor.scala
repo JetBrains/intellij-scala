@@ -88,11 +88,12 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
   }
 }
 
-class MethodResolveProcessor(ref: ScReferenceElement, 
+class MethodResolveProcessor(ref: PsiElement,
+                             refName: String,
                              argumentClauses: List[Seq[ScExpression]],
                              typeArgElements: Seq[ScTypeElement],
                              expected: Option[ScType],
-                             section : Boolean = false) extends ResolveProcessor(StdKinds.methodRef, ref.refName) {
+                             section : Boolean = false) extends ResolveProcessor(StdKinds.methodRef, refName) {
 
   // Return RAW types to not cycle while evaluating Parameter expected type
   // i.e. for functions return the most common type (Any, ..., Any) => Nothing
