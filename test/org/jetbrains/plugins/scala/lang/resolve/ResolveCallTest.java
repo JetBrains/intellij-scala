@@ -50,7 +50,7 @@ public class ResolveCallTest extends ScalaResolveTestCase {
   }
 
   public void testSimpleCallParensOmitted() throws Exception {
-    PsiReference ref = configureByFile("call/SimpleCallParensOmitted.scala");
+    PsiReference ref = configureByFile("call/simpleCallParensOmitted.scala");
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunctionDefinition);
   }
