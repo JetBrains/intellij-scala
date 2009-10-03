@@ -50,7 +50,7 @@ ScSubstitutor(val tvMap: Map[String, ScType],
 
   def subst(t: ScType): ScType = if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
 
-  private def substInternal(t: ScType) : ScType = t match {
+  protected def substInternal(t: ScType) : ScType = t match {
     case ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), collection.immutable.Sequence(params.map(substInternal _).toSeq : _*))
     case ScTupleType(comps) => new ScTupleType(comps map {substInternal _})
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)

@@ -85,7 +85,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     val sigsFound = processor.signatures.filter((sig: Signature) => {
       ProgressManager.getInstance().checkCanceled()
       val types = sig.types
-      types.length == 1 && typez.conforms(types(0))
+      types.length == 1 && typez.conforms(sig.substitutor.subst(types(0)))
     })
 
     //to prevent infinite recursion
@@ -128,12 +128,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     def execute(element: PsiElement, state: ResolveState) = {
 
       val implicitSubstitutor = new ScSubstitutor {
-        override def subst(t: ScType): ScType = t match {
-          case tpt: ScTypeParameterType => eType
-          case _ => super.subst(t)
+        override protected def substInternal(t: ScType): ScType = {
+          t match {
+            case tpt: ScTypeParameterType => eType
+            case _ => super.substInternal(t)
+          }
         }
-
-        override def followed(s: ScSubstitutor): ScSubstitutor = s
       }
 
       element match {
