@@ -1,6 +1,6 @@
 import scala.xml._
 
-object testXml2 {
+object UnapplySeq {
 
   def main(args : Array[String]) {
     val root = <root>content</root>;
@@ -10,4 +10,4 @@ object testXml2 {
     }
   }
 }
-//String, String, MetaData, NamespaceBinding, Node*
+//String, String, MetaData, NamespaceBinding, Seq[Node]
