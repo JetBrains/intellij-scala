@@ -1,6 +1,6 @@
 object MyConv {
-  implicit def StringTo(s: String): {def capitalize: Int} = new {
-    def capitalize = 0
+  implicit def StringTo(s: String): {def caPitalize: Int} = new {
+    def caPitalize = 0
   }
 }
 
@@ -9,5 +9,5 @@ object MyConv {
 import MyConv.StringTo
 import Predef.{stringWrapper => _}
 
-"".<ref>capitalize
+"".<ref>caPitalize
 
