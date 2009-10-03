@@ -61,6 +61,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case _ => Nothing
         }
       }
+      //add implicit types check
     }
     val invokedType = getInvokedExpr.getType
     if (invokedType == types.Nothing) return Nothing
@@ -72,7 +73,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         ScType.extractClassType(tp) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
             clazz match {
-              case clazz: ScClass if clazz.isCase => tp //todo: infer implicit generic type
+              case clazz: ScClass if clazz.isCase => tp //todo: this is wrong if reference isn't class name
               case _ => processType(tp)
             }
           }
