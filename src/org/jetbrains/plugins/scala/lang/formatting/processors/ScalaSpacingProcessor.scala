@@ -477,6 +477,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      //annotation
+      case (_, ScalaElementTypes.ANNOTATIONS, ScalaElementTypes.ANNOT_TYPE, _) => WITHOUT_SPACING
       //case for package statement
       case (ScalaElementTypes.REFERENCE, ret, _, _) if ret != ScalaElementTypes.PACKAGING &&
               leftNode.getTreePrev != null && leftNode.getTreePrev.getTreePrev != null &&
