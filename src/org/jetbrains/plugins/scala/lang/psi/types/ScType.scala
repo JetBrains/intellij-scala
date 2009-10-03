@@ -6,7 +6,6 @@ package types
 import api.base.{ScStableCodeReferenceElement}
 import api.statements.{ScTypeAliasDefinition}
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
@@ -16,6 +15,8 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import api.expr.{ScSuperReference, ScThisReference}
 import com.intellij.openapi.project.{DumbService, Project}
+import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
+import api.statements.params.ScTypeParam
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
@@ -209,6 +210,15 @@ object ScType {
       }
     }
     case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject), ScSubstitutor.empty))
+    /*case ScTupleType(comp) => {
+      val tupleClass = JavaPsiFacade.getInstance(DecompilerUtil.obtainProject).
+              findClass("scala.Tuple" + comp.length)
+      if (tupleClass == null) return None
+      val substitutor =  tupleClass.asInstanceOf[ScTypeDefinition].typeParameters.zip(comp).foldLeft(
+        ScSubstitutor.empty
+        )({(s: ScSubstitutor, t: (ScTypeParam, ScType)) => s.bindA(t._1.name, t._2)})
+      Some(tupleClass, substitutor)
+    }*/
     case _ => None
   }
 

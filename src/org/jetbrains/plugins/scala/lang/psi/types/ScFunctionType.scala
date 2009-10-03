@@ -6,7 +6,7 @@ package types
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.ScTrait
+import api.toplevel.typedef.{ScClass, ScTrait}
 
 /**
 * @author ilyas
@@ -56,4 +56,21 @@ case class ScTupleType(components: Seq[ScType]) extends ScType {
     }
     case _ => false
   }
+
+  def resolveTupleTrait(project: Project): Option[ScParameterizedType] = {
+    def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
+        val psiFacade = JavaPsiFacade.getInstance(project)
+        val allScope = GlobalSearchScope.allScope(project)
+        Option(psiFacade.findClass(tupleTraitName, allScope))
+    }
+    findClass(tupleTraitName) match {
+      case Some(t: ScClass) => {
+        val typeParams = components.toList
+        Some(ScParameterizedType(ScDesignatorType(t), typeParams))
+      }
+      case _ => None
+    }
+  }
+
+  private def tupleTraitName = "scala.Tuple" + components.length
 }
