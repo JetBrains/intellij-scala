@@ -108,6 +108,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processType(rt, place)
       }
 
+      case tp@ScTupleType(comps) => {
+        tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
+      }
+
       case ScCompoundType(components, declarations, types) => {
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
           for (declaration <- declarations) {
