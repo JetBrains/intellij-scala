@@ -123,7 +123,7 @@ object ResolveUtils {
                   Such members can be accessed only from within the directly enclosing
                   template and its companion module or companion class
                 */
-                val enclosing = ScalaPsiUtil.getParentOfType(scMember,
+                val enclosing = ScalaPsiUtil.getParentOfType(scMember, true,
                   classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
                 enclosing match {
                   case td: ScTemplateDefinition => {
