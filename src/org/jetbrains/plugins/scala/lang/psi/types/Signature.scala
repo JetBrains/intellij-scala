@@ -48,7 +48,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
   }
 
   override def hashCode: Int = {
-    name.hashCode * 31 + substitutedTypes.hashCode
+    name.hashCode * 31 + substitutedTypes.map(ScType.canonicalText(_)).hashCode
   }
 }
 
