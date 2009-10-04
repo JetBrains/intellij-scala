@@ -108,7 +108,7 @@ object ResolveUtils {
                         if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
                         val placePackageName = placeEnclosing match {
                           case file: ScalaFile => file.getPackageName
-                          case pack: ScPackaging => pack.getPackageName
+                          case pack: ScPackaging => pack.fqn
                         }
                         return placePackageName.startsWith(packageName)
                       }
