@@ -88,7 +88,7 @@ object addressbook {
     val file = PsiFileFactory.getInstance(myFixture.getProject).
             createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
       ScalaFileType.SCALA_LANGUAGE, text, true, false)
-    TestUtils.assertTiming("Failed highlighting performance test", 4500,
+    TestUtils.assertTiming("Failed highlighting performance test", 6000,
       new Runnable {
         def run: Unit = {
           try {
