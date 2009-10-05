@@ -15,6 +15,7 @@ import com.intellij.psi._
 import api.expr._
 import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
+import collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -49,4 +50,13 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   def nameId(): PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
   override def name(): String = "<anonymous>"
+
+  override def getSupers: Array[PsiClass] = {
+    val direct = extendsBlock.supers.toArray
+    val res = new ArrayBuffer[PsiClass]
+    res ++= direct
+    for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers
+    // return strict superclasses
+    res.filter(_ != this).toArray
+  }
 }

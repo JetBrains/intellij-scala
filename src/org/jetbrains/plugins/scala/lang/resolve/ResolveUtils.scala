@@ -149,8 +149,48 @@ object ResolveUtils {
               }
             }
           } else if (am.isProtected) {
-            true
-            //todo:
+            am.id match {
+              case Some(id: PsiElement) => {
+                true //todo:
+              }
+              case None => {
+                val enclosing = ScalaPsiUtil.getParentOfType(scMember, true,
+                  classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
+                enclosing match {
+                  case td: ScTypeDefinition => {
+                    if (PsiTreeUtil.isAncestor(td, place, false) ||
+                            PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).
+                                    getOrElse(null: PsiElement), place, false)) return true
+                    var placeTd: ScTemplateDefinition = PsiTreeUtil.getParentOfType(place, classOf[ScTemplateDefinition], true)
+                    while (placeTd != null) {
+                      if (placeTd.isInheritor(td, true)) return true
+                      val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+                      if (companion != null && companion.isInheritor (td, true)) return true
+                      placeTd = PsiTreeUtil.getParentOfType(placeTd, classOf[ScTemplateDefinition], true)
+                    }
+                    false
+                  }
+                  case td: ScTemplateDefinition => {
+                    //it'd anonymous class, has access only inside
+                    PsiTreeUtil.isAncestor(td, place, false)
+                  }
+                  case _ => {
+                    //same as for private
+                    val packageName = enclosing match {
+                      case file: ScalaFile => file.getPackageName
+                      case packaging: ScPackaging => packaging.getPackageName
+                    }
+                    val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                    if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                    val placePackageName = placeEnclosing match {
+                      case file: ScalaFile => file.getPackageName
+                      case pack: ScPackaging => pack.getPackageName
+                    }
+                    return placePackageName.startsWith(packageName)
+                  }
+                }
+              }
+            }
           } else true
         }
       }
