@@ -151,12 +151,10 @@ object ResolveUtils {
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
+            var withCompanion = am.access != am.Access.THIS_PROTECTED
             am.id match {
               case Some(id: PsiElement) => {
                 id match {
-                  case x if x.getNode.getElementType == ScalaTokenTypes.kTHIS => {
-                    return true //todo:
-                  }
                   case _ => {
                     val ref = am.getReference
                     val bind = ref.resolve
@@ -189,15 +187,15 @@ object ResolveUtils {
             enclosing match {
               case td: ScTypeDefinition => {
                 if (PsiTreeUtil.isAncestor(td, place, false) ||
-                        PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).
-                                getOrElse(null: PsiElement), place, false)) return true
+                        (withCompanion && PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).
+                                getOrElse(null: PsiElement), place, false))) return true
                 var placeTd: ScTemplateDefinition = PsiTreeUtil.
                         getParentOfType(place, classOf[ScTemplateDefinition], true)
                 while (placeTd != null) {
                   if (placeTd.isInheritor(td, true)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-                  if (companion != null && companion.isInheritor (td, true)) return true
+                  if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
                   placeTd = PsiTreeUtil.getParentOfType(placeTd, classOf[ScTemplateDefinition], true)
                 }
                 false
