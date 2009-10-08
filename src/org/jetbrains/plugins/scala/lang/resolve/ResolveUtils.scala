@@ -89,7 +89,7 @@ object ResolveUtils {
               */
               val enclosing = PsiTreeUtil.getContextOfType(scMember, classOf[ScTemplateDefinition], false)
               if (enclosing == null) return true
-              PsiTreeUtil.isAncestor(enclosing, place, false)
+              return PsiTreeUtil.isAncestor(enclosing, place, false)
             }
             am.id match {
               case Some(id: PsiElement) => {
