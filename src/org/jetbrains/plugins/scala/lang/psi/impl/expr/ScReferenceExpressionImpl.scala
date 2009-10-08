@@ -106,9 +106,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case generic : ScGenericCall => defineProcessor(generic, generic.arguments)
 
         case _: ScMethodCall | _ : ScUnderscoreSection =>
-          def defProc1(e: PsiElement, argsClauses: List[Seq[ScExpression]]) : MethodResolveProcessor = e.getContext match {
-            case call: ScMethodCall => defProc1(call, argsClauses ::: List(call.argumentExpressions)) //todo rewrite this crap!
-            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, ref.refName, argsClauses, typeArgs, expectedType, section = true)
+          def defProc1(e: PsiElement, argsClauses: List[Seq[ScExpression]]) : MethodResolveProcessor =  e.
+                  getContext match {
+            case call: ScMethodCall =>
+              defProc1(call, argsClauses ::: List(call.argumentExpressions)) //todo rewrite this crap!
+            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, ref.refName, argsClauses,
+              typeArgs, expectedType, section = true)
             case _ => new MethodResolveProcessor(ref, ref.refName, argsClauses, typeArgs, expectedType)
           }
           defProc1(e, Nil)
@@ -219,15 +222,28 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def rightAssoc = refName.endsWith(":")
 
   override def getType(): ScType = {
+    def isMethodCall: Boolean = {
+      var parent = getParent
+      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
+      parent match {
+        case _: ScUnderscoreSection | _: ScMethodCall => true
+        case _ => false
+      }
+    }
     bind match {
     //prevent infinite recursion for recursive method invocation
-      case Some(ScalaResolveResult(f: ScFunction, s)) if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
+      case Some(ScalaResolveResult(f: ScFunction, s))
+        if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
         new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
           s.subst _
         })
-      case Some(ScalaResolveResult(fun: ScFun, s)) => new ScFunctionType(s.subst(fun.retType), collection.immutable.Sequence(fun.paramTypes.map({
-        s.subst _
-      }).toSeq: _*))
+      case Some(ScalaResolveResult(fun: ScFun, s)) => {
+        if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
+          collection.immutable.Sequence(fun.paramTypes.map({
+            s.subst _
+          }).toSeq: _*))
+        else s.subst(fun.retType)
+      }
 
       //prevent infinite recursion for recursive pattern reference
       case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
@@ -243,15 +259,24 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
+      case Some(ScalaResolveResult(fun: ScFunction, s)) => {
+        if (isMethodCall) s.subst(fun.calcType)
+        else s.subst(fun.returnType)
+      }
       case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), collection.immutable.Sequence(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz),
+          collection.immutable.Sequence(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), collection.immutable.Sequence(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
+        s.subst(ScParameterizedType(ScDesignatorType(clazz), 
+          collection.immutable.Sequence(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
-      case Some(ScalaResolveResult(method: PsiMethod, s)) => ResolveUtils.methodType(method, s)
+      case Some(ScalaResolveResult(method: PsiMethod, s)) => {
+        if (isMethodCall) ResolveUtils.methodType(method, s)
+        else s.subst(ScType.create(method.getReturnType, getProject))
+      }
       case _ => Nothing
     }
   }
