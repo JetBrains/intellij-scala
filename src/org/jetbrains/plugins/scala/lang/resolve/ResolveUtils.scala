@@ -81,19 +81,19 @@ object ResolveUtils {
         case None => true
         case Some(am: ScAccessModifier) => {
           if (am.isPrivate) {
+            if (am.access == am.Access.THIS_PRIVATE) {
+              /*
+              ScalaRefernce.pdf:
+                A member M marked with this modifier can be accessed only from
+                within the object in which it is defined.
+              */
+              val enclosing = PsiTreeUtil.getContextOfType(scMember, classOf[ScTemplateDefinition], false)
+              if (enclosing == null) return true
+              PsiTreeUtil.isAncestor(enclosing, place, false)
+            }
             am.id match {
               case Some(id: PsiElement) => {
                 id match {
-                  case x if x.getNode.getElementType == ScalaTokenTypes.kTHIS => {
-                    /*
-                    ScalaRefernce.pdf:
-                      A member M marked with this modifier can be accessed only from
-                      within the object in which it is defined.
-                    */
-                    val enclosing = PsiTreeUtil.getContextOfType(scMember, classOf[ScTemplateDefinition], false)
-                    if (enclosing == null) return true
-                    PsiTreeUtil.isAncestor(enclosing, place, false)
-                  }
                   case _ => {
                     val ref = am.getReference
                     val bind = ref.resolve
@@ -155,7 +155,7 @@ object ResolveUtils {
               case Some(id: PsiElement) => {
                 id match {
                   case x if x.getNode.getElementType == ScalaTokenTypes.kTHIS => {
-                    true //todo:
+                    return true //todo:
                   }
                   case _ => {
                     val ref = am.getReference
