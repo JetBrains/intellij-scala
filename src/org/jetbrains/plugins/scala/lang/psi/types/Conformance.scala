@@ -86,7 +86,7 @@ object Conformance {
 
       case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (ScType.extractClassType(r) match {
         case Some((clazz, subst)) => {
-          if (!decls.isEmpty) {
+          if (!decls.isEmpty || (comps.isEmpty && decls.isEmpty && types.isEmpty)) { //if decls not empty or it's synthetic created
             val sigs = getSignatureMap(clazz)
             for ((sig, t) <- c.signatureMap) {
               sigs.get(sig) match {

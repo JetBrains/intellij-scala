@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScInfixExpr extends ScExpression {
-  def lOp = findChildrenByClassScala(classOf[ScExpression]).apply(0)
+  def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
     case re : ScReferenceExpression => re
   }
-  def rOp = findChildrenByClassScala(classOf[ScExpression]).apply(2)
+  def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
 }
