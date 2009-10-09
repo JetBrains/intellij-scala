@@ -8,6 +8,8 @@ import com.intellij.codeInsight.completion._
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
 import psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
+import psi.api.statements.ScFun
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,11 +25,14 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
     val startOffset = context.getStartOffset
     item.getObject match {
-      case Tuple1(method: PsiMethod) => {
-        val count = method.getParameterList.getParametersCount
+      case Tuple1(_: PsiMethod) | Tuple1(_: ScFun) => {
+        val (count, methodName) = item.getObject match {
+          case Tuple1(method: PsiMethod) => (method.getParameterList.getParametersCount, method.getName)
+          case Tuple1(fun: ScFun) => (fun.paramTypes.length, fun.asInstanceOf[ScSyntheticFunction].name)
+        }
         if (count > 0) {
-          val endOffset = startOffset + method.getName.length
-          val file = PsiDocumentManager.getInstance(method.getProject).getPsiFile(document)
+          val endOffset = startOffset + methodName.length
+          val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
           val element = file.findElementAt(startOffset)
 
           // for infix expressions
