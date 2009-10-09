@@ -54,14 +54,19 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
           var refInv = false
           // for reference invocations
-          if (endOffset == document.getTextLength() || document.getCharsSequence().charAt(endOffset) != '(') {
+          if (context.getCompletionChar == ' ') {
+            context.setAddCompletionChar(false)
+            document.insertString(endOffset, " _")
+            editor.getCaretModel.moveToOffset(endOffset + 2)
+          } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
             document.insertString(endOffset, "()")
             refInv = true
+            editor.getCaretModel.moveToOffset(endOffset + 1)
+            AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
+          } else {
+            editor.getCaretModel.moveToOffset(endOffset + 1)
           }
-          editor.getCaretModel.moveToOffset(endOffset + 1)
-          if (refInv) AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
         }
-
       }
       case _ =>
     }
