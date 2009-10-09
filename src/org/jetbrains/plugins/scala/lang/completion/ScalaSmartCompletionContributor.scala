@@ -7,9 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.{PsiClass, PsiMethod, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
@@ -17,7 +15,9 @@ import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi._
-import types.{ScDesignatorType, StdType, ScSubstitutor, ScType}
+import api.statements.{ScFun, ScVariableDefinition, ScPatternDefinition, ScFunction}
+import com.intellij.psi.{ResolveResult, PsiClass, PsiMethod, PsiElement}
+import types._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -173,6 +173,71 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val ref = element.getParent.asInstanceOf[ScReferenceExpression]
         val ifStmt = ref.getParent.asInstanceOf[ScIfStmt]
         if (ifStmt.condition == Some(ref)) acceptTypes(typez, ref.getVariants, result)
+      }
+    })
+
+  /*
+    expr op ref
+    expr ref name
+    ref op expr
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScInfixExpr]),
+    new CompletionProvider[CompletionParameters] {
+      def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+        val element = parameters.getPosition
+        val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+        val infix = ref.getParent.asInstanceOf[ScInfixExpr]
+        val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
+        def attachTypes: Unit = {
+          val results: Array[ResolveResult] = infix.operation.multiResolve(false)
+          for (result <- results) {
+            val scalaResult: ScalaResolveResult = result.asInstanceOf[ScalaResolveResult]
+            scalaResult match {
+              case ScalaResolveResult(fun: ScFun, subst: ScSubstitutor) => {
+                if (fun.paramTypes.length == 1) typez += subst.subst(fun.paramTypes.apply(0))
+              }
+              case ScalaResolveResult(fun: PsiMethod, subst: ScSubstitutor) => {
+                fun match {
+                  case fun: ScFunction => {
+                    if (fun.paramClauses.clauses.length > 0 && fun.paramClauses.clauses.apply(0).parameters.length == 1) {
+                      typez += subst.subst(fun.paramClauses.clauses.apply(0).paramTypes.apply(0))
+                    }
+                  }
+                  case method: PsiMethod => {
+                    if (method.getParameterList.getParametersCount == 1) {
+                      typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(0).getType, method.getProject))
+                    }
+                  }
+                }
+              }
+              case _ =>
+            }
+          }
+        }
+        if (infix.lOp == ref) {
+          val op: String = infix.operation.getText
+          if (op.endsWith(":")) {
+            attachTypes
+          } else {
+            val rOpType = infix.rOp.cachedType
+            val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
+            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty), types.Any)
+            typez += compoundType
+          }
+        } else if (infix.rOp == ref) {
+          val op: String = infix.operation.getText
+          if (op.endsWith(":")) {
+            val lOpType = infix.lOp.cachedType
+            val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
+            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty), types.Any)
+            typez += compoundType
+          } else {
+            attachTypes
+          }
+        } else {
+          //operation: nothing to do
+        }
+        acceptTypes(typez.toArray[ScType], ref.getVariants, result)
       }
     })
 }

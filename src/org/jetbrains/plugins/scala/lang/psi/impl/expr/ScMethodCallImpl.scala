@@ -63,7 +63,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       }
       //add implicit types check
     }
-    val invokedType = getInvokedExpr.getType
+    val invokedType = getInvokedExpr.cachedType
     if (invokedType == types.Nothing) return Nothing
     invokedType match {
       case ScFunctionType(retType: ScType, params: Seq[ScType]) => {
