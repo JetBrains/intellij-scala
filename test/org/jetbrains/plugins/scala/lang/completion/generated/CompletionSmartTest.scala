@@ -7,5 +7,11 @@ class CompletionSmartTest extends CompletionTestBase {
 
   def testSmartAfterReturn = doTest
 
+  def testSmartBlock = doTest
+
+  def testSmartDefaultParameter = doTest
+
+  def testSmartTry = doTest
+
   def testSmartValueInitializerCompletion = doTest
 }

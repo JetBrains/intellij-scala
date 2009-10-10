@@ -15,8 +15,9 @@ import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi._
-import api.statements.{ScFun, ScVariableDefinition, ScPatternDefinition, ScFunction}
+import api.statements._
 import com.intellij.psi.{ResolveResult, PsiClass, PsiMethod, PsiElement}
+import params.ScParameter
 import types._
 
 /**
@@ -197,13 +198,15 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               case ScalaResolveResult(fun: PsiMethod, subst: ScSubstitutor) => {
                 fun match {
                   case fun: ScFunction => {
-                    if (fun.paramClauses.clauses.length > 0 && fun.paramClauses.clauses.apply(0).parameters.length == 1) {
+                    if (fun.paramClauses.clauses.length > 0 && fun.paramClauses.clauses.apply(0).
+                            parameters.length == 1) {
                       typez += subst.subst(fun.paramClauses.clauses.apply(0).paramTypes.apply(0))
                     }
                   }
                   case method: PsiMethod => {
                     if (method.getParameterList.getParametersCount == 1) {
-                      typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(0).getType, method.getProject))
+                      typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(0).getType,
+                        method.getProject))
                     }
                   }
                 }
@@ -219,7 +222,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           } else {
             val rOpType = infix.rOp.cachedType
             val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
-            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty), types.Any)
+            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty),
+              types.Any)
             typez += compoundType
           }
         } else if (infix.rOp == ref) {
@@ -227,7 +231,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           if (op.endsWith(":")) {
             val lOpType = infix.lOp.cachedType
             val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
-            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty), types.Any)
+            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty),
+              types.Any)
             typez += compoundType
           } else {
             attachTypes
@@ -238,4 +243,73 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         acceptTypes(typez.toArray[ScType], ref.getVariants, result)
       }
     })
+
+  /*
+    inside try block according to expected type
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScTryBlock]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
+
+  /*
+   inside block expression according to expected type
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScBlockExpr]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
+
+  /*
+   inside finally block
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScFinallyBlock]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
+
+  /*
+   inside anonymous function
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScFunctionExpr]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
+
+  /*
+   for function definitions
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScFunctionDefinition]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
+
+  /*
+   for default parameters
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScParameter]), new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      val element = parameters.getPosition
+      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+    }
+  })
 }
