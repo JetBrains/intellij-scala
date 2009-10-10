@@ -261,7 +261,9 @@ object ScalaOIUtil {
               var flag = false
               for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
                 //getContainingClass == clazz so we sure that this is ScFunction (it is safe cast)
-                if (signe.method.asInstanceOf[ScFunction].parameters.length == 0 && signe.method.getName == x.getName) flag = true
+                if (signe.method.isInstanceOf[ScFunction] &&
+                        signe.method.asInstanceOf[ScFunction].parameters.length == 0 &&
+                        signe.method.getName == x.getName) flag = true
               }
               for (pair <- clazz.allVals; v = pair._1) if (v.getName == name.getName) {
                 ScalaPsiUtil.nameContext(v) match {
