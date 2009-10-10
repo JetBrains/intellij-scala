@@ -6,10 +6,10 @@ package handlers
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
-import psi.api.expr.{ScInfixExpr, ScPostfixExpr}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import psi.api.statements.ScFun
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
+import psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScPostfixExpr}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -36,7 +36,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           val element = file.findElementAt(startOffset)
 
           // for infix expressions
-          if (element.getParent != null) {
+          if (element.getParent != null && !(element.getParent.isInstanceOf[ScReferenceExpression] &&
+                  element.getParent.asInstanceOf[ScReferenceExpression].qualifier != None)) {
             element.getParent.getParent match {
               case _: ScInfixExpr | _: ScPostfixExpr => {
                 if (count > 1) {
