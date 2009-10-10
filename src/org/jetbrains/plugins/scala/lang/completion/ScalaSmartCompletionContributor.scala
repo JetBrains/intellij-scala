@@ -70,7 +70,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case call: ScMethodCall => //todo: it's update method
           case leftExpression: ScExpression => {
             //we can expect that the type is same for left and right parts.
-            acceptTypes(Seq[ScType](leftExpression.cachedType), ref.getVariants, result)
+            acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
           }
         }
       } else { //so it's left expression
@@ -89,12 +89,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                        result: CompletionResultSet): Unit = {
       val element = parameters.getPosition
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      ref.getParent match {
-        case patternDefinition: ScPatternDefinition => acceptTypes(Seq[ScType](patternDefinition.getType),
-          ref.getVariants, result)
-        case variableDefinition: ScVariableDefinition => acceptTypes(Seq[ScType](variableDefinition.getType),
-          ref.getVariants, result)
-      }
+      acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
     }
   })
 
@@ -163,16 +158,19 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
 
   /*
     if (ref) expr
+    if (expr) ref
+    if (expr) expr else ref
    */
   extend(CompletionType.SMART, superParentPattern(classOf[ScIfStmt]),
     new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                          result: CompletionResultSet): Unit = {
-        val typez = Array[ScType](types.Boolean)
         val element = parameters.getPosition
         val ref = element.getParent.asInstanceOf[ScReferenceExpression]
         val ifStmt = ref.getParent.asInstanceOf[ScIfStmt]
-        if (ifStmt.condition == Some(ref)) acceptTypes(typez, ref.getVariants, result)
+        if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
+          acceptTypes(ref.expectedType.toList.toSeq, ref.getVariants, result)
+        else acceptTypes(ifStmt.expectedType.toList.toSeq, ref.getVariants, result)
       }
     })
 
