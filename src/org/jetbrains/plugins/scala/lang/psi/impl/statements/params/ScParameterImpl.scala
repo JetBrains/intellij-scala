@@ -8,7 +8,6 @@ package params
 import psi.stubs._
 import psi.types.{ScType, ScFunctionType}
 import api.base._
-import api.expr.ScFunctionExpr
 import api.statements.params._
 import api.statements._
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
@@ -19,6 +18,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.util._
 import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
+import api.expr.{ExpectedTypes, ScArgumentExprList, ScFunctionExpr}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -92,12 +92,34 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     case clause: ScParameterClause => clause.getParent.getParent match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
       // an. fun's type
-      case f: ScFunctionExpr => f.expectedType.map({
-        case ScFunctionType(_, params) =>
+      case f: ScFunctionExpr => f.expectedType match {
+        case Some(ScFunctionType(_, params)) =>
           val i = clause.parameters.indexOf(this)
-          if (i >= 0 && i < params.length) params(i) else psi.types.Nothing
-        case _ => psi.types.Nothing
-      })
+          if (i >= 0 && i < params.length) Some(params(i)) else None
+        case Some(_) => None
+        case None => {
+          f.getParent match {
+            case args: ScArgumentExprList => {
+              val j = args.exprs.indexOf(f)
+              var result: Option[ScType] = null //strange logic to handle problems with detecting type
+              for (application: Array[ScType] <- args.possibleApplications if result != None && 
+                      application.length == args.exprs.length) { //todo: rewrite for default and named parameters
+                application(j) match {
+                  case ScFunctionType(_, params) if params.length == f.parameters.length => {
+                    val i = clause.parameters.indexOf(this)
+                    if (result != null) result = None
+                    else result = Some(params(i))
+                  }
+                  case _ =>
+                }
+              }
+              if (result == null) result = None
+              result
+            }
+            case _ => None
+          }
+        }
+      }
       case _ => None
     }
   }

@@ -7,6 +7,7 @@ package expr
 import base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiElement
+import types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -53,4 +54,9 @@ trait ScArgumentExprList extends ScArguments {
    * Generic call for this argument list if exist
    */
   def callGeneric: Option[ScGenericCall]
+
+  /**
+   * Return possible applications without using resolve of reference to this call (to avoid SOE)
+   */
+  def possibleApplications: Array[Array[ScType]]
 }

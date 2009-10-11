@@ -5,11 +5,14 @@ package api
 package expr
 
 import base.patterns.ScCaseClause
-import types.{ScType, ScFunctionType}
-import com.intellij.psi.PsiNamedElement
 import statements._
 import params.ScParameter
 import toplevel.ScTyped
+import com.intellij.psi.{PsiMethod, PsiNamedElement}
+import types.{ScSubstitutor, ScType, ScFunctionType}
+import impl.toplevel.synthetic.ScSyntheticFunction
+import resolve.ScalaResolveResult
+import base.{ScConstructor, ScReferenceElement}
 
 /**
  * @author ilyas
@@ -100,7 +103,7 @@ object ExpectedTypes {
           case _ => None
         }
       }
-      //...
+      //todo: this cannot have expected type, should be removed
       case args: ScArgumentExprList => args.getParent match {
         case mc: ScMethodCall => {
           None
