@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiElement;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
@@ -83,6 +83,13 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     final PsiElement t = ref.resolve();
     assertTrue(t instanceof ScFunction);
     assertEquals(((ScFunction) t).getName(), "ccc");
+  }
+
+  public void testSelfTypeShadow() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/selfTypeShadow.scala");
+    final PsiElement t = ref.resolve();
+    assertTrue(t instanceof ScTrait);
+    assertEquals(((ScTrait) t).getQualifiedName(), "Symbols.Symbol");
   }
 
   public void testSubstAliasBound() throws Exception {

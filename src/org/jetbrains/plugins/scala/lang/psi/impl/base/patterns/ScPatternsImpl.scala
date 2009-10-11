@@ -8,7 +8,6 @@ package patterns
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import _root_.scala.collection.mutable._
 
 /** 
 * @author Alexander Podkhalyuzin

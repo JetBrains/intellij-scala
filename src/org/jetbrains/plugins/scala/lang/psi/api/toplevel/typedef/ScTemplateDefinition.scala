@@ -96,7 +96,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             case _ => selfTypeElement match {
               case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) => ste.typeElement match {
                 case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
-                  case (b : BaseProcessor, s: ScalaPsiElement) => b.processType(t.cachedType, s, state)
+                  case (b : BaseProcessor, s: ScalaPsiElement) => {
+                    if (!b.processType(t.cachedType, s, state)) return false                    
+                  }
                   case _ =>
                 }
                 case None =>

@@ -13,6 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScCompoundTypeElement extends ScTypeElement {
-  def components : Seq[ScTypeElement] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScTypeElement]).toSeq: _*)
+  def components : Seq[ScTypeElement] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScTypeElement]).toSeq: _*)
   def refinement = findChild(classOf[ScRefinement])
 }

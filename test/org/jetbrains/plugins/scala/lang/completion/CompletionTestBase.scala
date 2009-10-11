@@ -19,7 +19,7 @@ import collection.mutable.ArrayBuffer
  * Date: 23.09.2009
  */
 
-class CompletionTestBase extends ScalaPsiTestCase {
+abstract class CompletionTestBase extends ScalaPsiTestCase {
   private val caretMarker = "/*caret*/"
 
   override def rootPath: String = super.rootPath + "completion/"

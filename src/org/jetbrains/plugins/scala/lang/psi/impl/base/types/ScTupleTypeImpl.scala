@@ -20,5 +20,5 @@ class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) w
   override def toString: String = "TupleType"
 
   override def getType(implicit visited: Set[ScNamedElement]) =
-    new ScTupleType(collection.immutable.Sequence(components.map[ScType, Seq[ScType]]({t: ScTypeElement => t.getType(visited)}).toSeq : _*))
+    new ScTupleType(collection.immutable.Seq(components.map[ScType, Seq[ScType]]({t: ScTypeElement => t.getType(visited)}).toSeq : _*))
 }

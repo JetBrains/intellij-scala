@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScCaseClauses extends ScalaPsiElement {
   def caseClause = findChildByClassScala(classOf[ScCaseClause])
-  def caseClauses: Seq[ScCaseClause] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScCaseClause]).toSeq: _*)
+  def caseClauses: Seq[ScCaseClause] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScCaseClause]).toSeq: _*)
 }

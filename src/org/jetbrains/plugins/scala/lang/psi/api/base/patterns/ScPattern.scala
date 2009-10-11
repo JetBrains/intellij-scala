@@ -5,7 +5,6 @@ package api
 package base
 package patterns
 
-import collection.immutable.Sequence
 import collection.mutable.ArrayBuffer
 import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._

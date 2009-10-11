@@ -24,7 +24,7 @@ trait ScArgumentExprList extends ScArguments {
   /**
    * Expressions applied to appropriate method call (@see ScMethodCall).
    */
-  def exprs: Seq[ScExpression] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
+  def exprs: Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
 
   /**
    * Is there param with assign expression with same name as

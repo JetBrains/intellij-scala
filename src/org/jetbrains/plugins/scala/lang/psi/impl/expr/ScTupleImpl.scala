@@ -18,6 +18,6 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
 
   override def getType = {
     if (exprs.length == 0) Unit
-    else new ScTupleType(collection.immutable.Sequence(exprs.map({p => p.cachedType}).toSeq : _*))
+    else new ScTupleType(collection.immutable.Seq(exprs.map({p => p.cachedType}).toSeq : _*))
   }
 }

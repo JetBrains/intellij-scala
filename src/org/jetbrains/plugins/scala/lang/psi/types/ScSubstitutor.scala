@@ -51,7 +51,7 @@ ScSubstitutor(val tvMap: Map[String, ScType],
   def subst(t: ScType): ScType = if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
 
   protected def substInternal(t: ScType) : ScType = t match {
-    case ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), collection.immutable.Sequence(params.map(substInternal _).toSeq : _*))
+    case ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), collection.immutable.Seq(params.map(substInternal _).toSeq : _*))
     case ScTupleType(comps) => new ScTupleType(comps map {substInternal _})
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
 
@@ -89,7 +89,7 @@ ScSubstitutor(val tvMap: Map[String, ScType],
           val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
           s1.subst(aliased.v)
         }
-        case des => new ScParameterizedType(des, collection.immutable.Sequence(args.toSeq : _*))
+        case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
       }
     }
     case ScExistentialArgument(name, args, lower, upper) =>

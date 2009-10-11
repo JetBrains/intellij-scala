@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
  * Date: 30.09.2009
  */
 
-class ScalaRenameTestBase extends ScalaPsiTestCase {
+abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
   id : ScalaPsiTestCase =>
   val caretMarker = "/*caret*/"
 

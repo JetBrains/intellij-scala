@@ -3,26 +3,19 @@ package org.jetbrains.plugins.scala.gotoclass;
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.stubs.StubIndex;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.stubs.StubIndex;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
-import scala.collection.Sequence;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * User: Alexander Podkhalyuzin
