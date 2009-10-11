@@ -239,7 +239,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         })
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
-          collection.immutable.Sequence(fun.paramTypes.map({
+          collection.immutable.Seq(fun.paramTypes.map({
             s.subst _
           }).toSeq: _*))
         else s.subst(fun.retType)
@@ -267,10 +267,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
-          collection.immutable.Sequence(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
+          collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz), 
-          collection.immutable.Sequence(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
+          collection.immutable.Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => {

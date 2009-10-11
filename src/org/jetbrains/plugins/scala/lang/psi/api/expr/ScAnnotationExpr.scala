@@ -14,5 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScAnnotationExpr extends ScalaPsiElement {
   def constr = findChildByClassScala(classOf[ScConstructor])
-  def getAttributes: Seq[ScNameValuePair] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScNameValuePair]).toSeq: _*)
+  def getAttributes: Seq[ScNameValuePair] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScNameValuePair]).toSeq: _*)
 }

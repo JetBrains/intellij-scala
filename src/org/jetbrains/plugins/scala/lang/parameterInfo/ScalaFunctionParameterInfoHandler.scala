@@ -293,7 +293,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 override def isDefaultParam: Boolean = false
               }
             }
-            applyToParameters(collection.immutable.Sequence(parameters.toSeq: _*), ScSubstitutor.empty, true)
+            applyToParameters(collection.immutable.Seq(parameters.toSeq: _*), ScSubstitutor.empty, true)
           }
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
             val clauses = constructor.parameterList.clauses

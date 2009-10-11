@@ -10,11 +10,11 @@ import psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi._
 import stubs.StubElement
 import impl.source.PsiFileImpl
+import collection.mutable.ArrayBuffer
 
 /**
  * Trait that implements logic by some type definitions aggregation
@@ -40,7 +40,7 @@ trait ScToplevelElement extends ScalaPsiElement {
       stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
         def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
       })
-    } else collection.immutable.Sequence(findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq : _*)
+    } else collection.immutable.Seq(findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq : _*)
   }
 
   def packagings: Seq[ScPackaging] = {
@@ -53,6 +53,6 @@ trait ScToplevelElement extends ScalaPsiElement {
       stub.getChildrenByType[ScPackaging](ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
-    } else collection.immutable.Sequence(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
+    } else collection.immutable.Seq(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
   }
 }

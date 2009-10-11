@@ -14,5 +14,5 @@ import statements.ScDeclaration
 */
 
 trait ScExistentialClause extends ScalaPsiElement {
-  def declarations : Seq[ScDeclaration] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScDeclaration]).toSeq: _*)
+  def declarations : Seq[ScDeclaration] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScDeclaration]).toSeq: _*)
 }

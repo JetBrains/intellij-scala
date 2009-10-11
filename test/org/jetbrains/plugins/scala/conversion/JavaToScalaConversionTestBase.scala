@@ -22,7 +22,7 @@ import codeStyle.CodeStyleManager
  * To change this template use File | Settings | File Templates.
  */
 
-class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
+abstract class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 

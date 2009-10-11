@@ -5,7 +5,7 @@ package api
 package statements
 
 
-import collection.Sequence
+import collection.Seq
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._

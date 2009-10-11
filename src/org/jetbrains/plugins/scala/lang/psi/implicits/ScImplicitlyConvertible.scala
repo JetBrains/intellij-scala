@@ -107,7 +107,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           // This is needed to pass OptimizeImportsImplicitsTest.testImplicitReference2
           case ct: ScCompoundType => {
             register(ct)
-            for (t <- ct.components) register(t)
+            for (t <- ct.components)
+              register(t)
           }
           case t => register(t)
         }

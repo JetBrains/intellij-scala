@@ -27,7 +27,7 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     }
 
     paramTypeElement match {
-      case tup : ScTupleTypeElement => new ScFunctionType(ret, collection.immutable.Sequence(tup.components.map({_.getType(visited).resType}).toSeq: _*))
+      case tup : ScTupleTypeElement => new ScFunctionType(ret, collection.immutable.Seq(tup.components.map({_.getType(visited).resType}).toSeq: _*))
       case other: ScTypeElement => {
         val paramTypes = other.getType(visited).resType match {
           case Unit => Seq.empty

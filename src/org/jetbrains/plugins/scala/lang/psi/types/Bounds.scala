@@ -24,9 +24,9 @@ object Bounds {
     else if (t2.conforms(t1)) t1
     else (t1, t2) match {
       case (ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-        ScFunctionType(lub(rt1, rt2), collection.immutable.Sequence(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*))
+        ScFunctionType(lub(rt1, rt2), collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*))
       case (ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        ScTupleType(collection.immutable.Sequence(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*))
+        ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*))
 
       case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)
@@ -45,7 +45,7 @@ object Bounds {
           set.toArray match {
             case Array() => Any
 //            case Array(only) => only    // unreachable code
-            case many => new ScCompoundType(collection.immutable.Sequence(many.toSeq: _*), Seq.empty, Seq.empty)
+            case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty)
           }
         }
         case None => Any //todo compound types

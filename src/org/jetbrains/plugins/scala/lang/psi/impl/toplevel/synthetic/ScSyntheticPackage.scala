@@ -85,7 +85,7 @@ object ScSyntheticPackage {
 
     import com.intellij.psi.stubs.StubIndex
 
-    val packages = collection.immutable.Sequence(StubIndex.getInstance().get(
+    val packages = collection.immutable.Seq(StubIndex.getInstance().get(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
       fqn.hashCode(), project, GlobalSearchScope.allScope(project)).toArray(Array[ScPackageContainer]()).toSeq : _*)
 

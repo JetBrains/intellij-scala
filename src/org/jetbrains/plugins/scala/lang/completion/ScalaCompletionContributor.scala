@@ -13,7 +13,6 @@ import lexer.ScalaTokenTypes
 import scala.util.Random
 import resolve.ResolveUtils
 import com.intellij.psi.{PsiMember, PsiElement}
-import org.jetbrains.plugins.groovy.lang.resolve.ResolveUtil
 import psi.api.statements.ScFun
 import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil;

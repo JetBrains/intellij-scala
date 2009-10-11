@@ -55,7 +55,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
   extends Signature(method.getName,
-                     new Suspension(() => collection.immutable.Sequence(method.getParameterList.getParameters.map({p => p match {
+                     new Suspension(() => collection.immutable.Seq(method.getParameterList.getParameters.map({p => p match {
                                                                   case scp : ScParameter => scp.calcType
                                                                   case _ => ScType.create(p.getType, p.getProject)
                                                                 }}).toSeq :_*)),

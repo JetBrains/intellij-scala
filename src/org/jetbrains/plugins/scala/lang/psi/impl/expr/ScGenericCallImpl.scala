@@ -62,7 +62,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         val typez = method match {
           case fun: ScFunction => fun.calcType
           case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
-            collection.immutable.Sequence(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)).toSeq: _*))
+            collection.immutable.Seq(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)).toSeq: _*))
         }
         return createSubst(methods(0)).subst(typez)
       } else {

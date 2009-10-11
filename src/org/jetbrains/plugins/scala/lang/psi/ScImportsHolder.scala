@@ -26,7 +26,7 @@ import com.intellij.openapi.progress.ProgressManager
 
 trait ScImportsHolder extends ScalaPsiElement {
 
-  def getImportStatements: Seq[ScImportStmt] = collection.immutable.Sequence(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
+  def getImportStatements: Seq[ScImportStmt] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,

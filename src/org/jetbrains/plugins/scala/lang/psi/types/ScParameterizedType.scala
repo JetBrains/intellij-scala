@@ -71,7 +71,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
 object ScParameterizedType {
   def create(c: PsiClass, s : ScSubstitutor) =
-    new ScParameterizedType(new ScDesignatorType(c), collection.immutable.Sequence(c.getTypeParameters.map({
+    new ScParameterizedType(new ScDesignatorType(c), collection.immutable.Seq(c.getTypeParameters.map({
       tp => s subst(ScalaPsiManager.typeVariable(tp))
     }).toSeq : _*))
 }
@@ -129,7 +129,7 @@ extends ScPolymorphicType(name, args, lower, upper) {
     this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
       new Suspension[ScType]({() =>
               s.subst(
-        ScCompoundType(collection.immutable.Sequence(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+        ScCompoundType(collection.immutable.Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
                 ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty))
       }),
       new Suspension[ScType]({() =>

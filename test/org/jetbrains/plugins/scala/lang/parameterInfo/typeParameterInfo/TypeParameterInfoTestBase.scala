@@ -26,7 +26,7 @@ import java.io.File
  * @date 26.04.2009
  */
 
-class TypeParameterInfoTestBase extends ScalaPsiTestCase {
+abstract class TypeParameterInfoTestBase extends ScalaPsiTestCase {
   val caretMarker = "/*caret*/"
 
 
