@@ -69,14 +69,10 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
   private def leastClassType(t : ScTypeDefinition) = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
       case Some(b: ScTemplateBody) => {
-        (b.holders, b.aliases)
-      }
-      case None => {
         // jzaugg: Without these type annotations, a class cast exception occured above. I'm not entirely sure why.
-        val emptyHolders: Seq[ScDeclaredElementsHolder] = Seq.empty
-        val emptyAliases: Seq[ScTypeAlias] = Seq.empty
-        (emptyHolders, emptyAliases)
+        (b.holders: Seq[ScDeclaredElementsHolder], b.aliases: Seq[ScTypeAlias])
       }
+      case None => (Seq.empty, Seq.empty)
     }
 
     val superTypes = t.extendsBlock.superTypes
