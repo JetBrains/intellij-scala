@@ -8,8 +8,10 @@ import api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import types.ScType
-import com.intellij.psi.{PsiElement, PsiClass}
+import resolve.ScalaResolveResult
+import com.intellij.psi.{PsiMethod, PsiElement, PsiClass}
+import types.{ScSubstitutor, ScType}
+import collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -111,6 +113,45 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         call.getInvokedExpr
       }
       case _ => null
+    }
+  }
+
+  def possibleApplications: Array[Array[ScType]] = {
+    getParent match {
+      case call: ScMethodCall => {
+        val ref: ScReferenceExpression = call.getInvokedExpr match {
+          case ref: ScReferenceExpression => ref
+          case gen: ScGenericCall => {
+            gen.referencedExpr match {
+              case ref: ScReferenceExpression => ref
+              case _ => null
+            }
+          }
+          case _ => null
+        }
+        val buffer = new ArrayBuffer[Array[ScType]]
+        if (ref == null) {
+          //todo: according to type: apply methods
+        } else {
+          val variants = ref.getSameNameVariants
+          for (variant <- variants) {
+            variant match {
+              case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) => {
+                method match {
+                  case fun: ScFunction => {
+                    if (fun.paramClauses.clauses.length > 0) {
+                      buffer += fun.paramClauses.clauses.apply(0).paramTypes.map(subst.subst(_)).toArray
+                    } else buffer += Array.empty
+                  }
+                }
+              }
+              case _ => //todo: other options
+            }
+          }
+        }
+        buffer.toArray
+      }
+      case _ => Array.empty//todo: constructor
     }
   }
 }
