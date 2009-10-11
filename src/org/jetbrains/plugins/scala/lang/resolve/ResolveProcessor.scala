@@ -200,25 +200,16 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement) = {
-    val t1 = getType(e1)
-    val t2 = getType(e2)
-    e1 match {
-      case _: PsiMethod | _: ScFun => {
-        t1 match {
-          case ScFunctionType(ret1, params1) => t2 match {
-            case ScFunctionType(ret2, params2) => {
-              val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
-              val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-              Compatibility.compatible(ret1, ret2) && compt && params1.length == params2.length
-            }
-          }
-        }
+    (e1, e2, getType(e1), getType(e2)) match {
+      case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
+        if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
+          val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
+          val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
+          Compatibility.compatible(ret1, ret2) && compt && params1.length == params2.length
       }
-      case _ => e2 match {
-        case _: PsiMethod => true
-        case _ => Compatibility.compatible(t1, t2)
-      }
-    }
+      case (_, e2: PsiMethod, _, _) => true
+      case _ => Compatibility.compatible(getType(e1), getType(e2))
+    }   
   }
 
   private def getType(e: PsiNamedElement): ScType = e match {
