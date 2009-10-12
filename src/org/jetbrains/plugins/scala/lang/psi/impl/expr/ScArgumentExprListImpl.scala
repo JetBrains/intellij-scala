@@ -116,7 +116,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def possibleApplications: Array[Array[ScType]] = {
+  def possibleApplications: Array[Array[(String, ScType)]] = {
     getParent match {
       case call: ScMethodCall => {
         val ref: ScReferenceExpression = call.getInvokedExpr match {
@@ -129,7 +129,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
           }
           case _ => null
         }
-        val buffer = new ArrayBuffer[Array[ScType]]
+        val buffer = new ArrayBuffer[Array[(String, ScType)]]
         if (ref == null) {
           //todo: according to type: apply methods
         } else {
@@ -140,7 +140,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 method match {
                   case fun: ScFunction => {
                     if (fun.paramClauses.clauses.length > 0) {
-                      buffer += fun.paramClauses.clauses.apply(0).paramTypes.map(subst.subst(_)).toArray
+                      buffer += fun.paramClauses.clauses.apply(0).parameters.map({p => (p.name, p.calcType)}).toArray
                     } else buffer += Array.empty
                   }
                 }

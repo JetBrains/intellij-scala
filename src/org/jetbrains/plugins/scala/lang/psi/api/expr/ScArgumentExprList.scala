@@ -58,5 +58,5 @@ trait ScArgumentExprList extends ScArguments {
   /**
    * Return possible applications without using resolve of reference to this call (to avoid SOE)
    */
-  def possibleApplications: Array[Array[ScType]]
+  def possibleApplications: Array[Array[(String, ScType)]]
 }

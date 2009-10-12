@@ -18,7 +18,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.util._
 import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
-import api.expr.{ExpectedTypes, ScArgumentExprList, ScFunctionExpr}
+import api.expr._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -92,31 +92,33 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     case clause: ScParameterClause => clause.getParent.getParent match {
       // For parameter of anonymous functions to infer parameter's type from an appropriate
       // an. fun's type
-      case f: ScFunctionExpr => f.expectedType match {
-        case Some(ScFunctionType(_, params)) =>
-          val i = clause.parameters.indexOf(this)
-          if (i >= 0 && i < params.length) Some(params(i)) else None
-        case Some(_) => None
-        case None => {
-          f.getParent match {
-            case args: ScArgumentExprList => {
-              val j = args.exprs.indexOf(f)
-              var result: Option[ScType] = null //strange logic to handle problems with detecting type
-              for (application: Array[ScType] <- args.possibleApplications if result != None && 
-                      application.length == args.exprs.length) { //todo: rewrite for default and named parameters
-                application(j) match {
-                  case ScFunctionType(_, params) if params.length == f.parameters.length => {
-                    val i = clause.parameters.indexOf(this)
-                    if (result != null) result = None
-                    else result = Some(params(i))
-                  }
-                  case _ =>
+      case f: ScFunctionExpr => {
+        ExpectedTypes.expectedForArguments(f) match {
+          case Some(args: ScArgumentExprList) => {
+            val expr: ScExpression = args.exprs.find({expr: ScExpression => expr.getTextRange.
+                    containsRange(f.getTextRange.getStartOffset, f.getTextRange.getEndOffset)}).getOrElse(null)
+            val j = args.exprs.indexOf(expr)
+            var result: Option[ScType] = null //strange logic to handle problems with detecting type
+            for (application: Array[(String, ScType)] <- args.possibleApplications if result != None) {
+              application(j)._2 match {
+                case ScFunctionType(_, params) if params.length == f.parameters.length => {
+                  val i = clause.parameters.indexOf(this)
+                  if (result != null) result = None
+                  else result = Some(params(i))
                 }
+                case _ =>
               }
-              if (result == null) result = None
-              result
             }
-            case _ => None
+            if (result == null) result = None
+            result
+          }
+          case _ => {
+            f.expectedType match {
+              case Some(ScFunctionType(_, params)) =>
+                val i = clause.parameters.indexOf(this)
+                if (i >= 0 && i < params.length) Some(params(i)) else None
+              case _ => None
+            }
           }
         }
       }

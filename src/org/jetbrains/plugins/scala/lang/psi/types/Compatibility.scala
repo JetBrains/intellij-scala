@@ -6,8 +6,8 @@ package types
 import api.statements.params.{ScParameters, ScParameter}
 import com.intellij.psi.{PsiParameter, PsiMethod}
 import api.statements.{ScFun, ScFunction}
-import api.expr.{NamedAssignStmt, ScAssignStmt, ScExpression, ScArgumentExprList}
 import impl.toplevel.synthetic.ScSyntheticFunction
+import api.expr._
 
 /**
  * @author ven
@@ -59,6 +59,12 @@ object Compatibility {
             used(ind) = true
             val param: Parameter = parameters(ind)
             assign.getRExpression match {
+              case Some(expr: ScFunctionExpr) => {
+                val length = expr.parameters.length
+                val exprType = new ScFunctionType(types.Any, Seq.fill(length)(types.Nothing))
+                val paramType = param.tp()
+                if (!exprType.conforms(paramType)) return false
+              }
               case Some(expr: ScExpression) => {
                 val exprType = expr.cachedType
                 val paramType = param.tp()
