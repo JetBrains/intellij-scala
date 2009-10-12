@@ -58,14 +58,32 @@ object ExpectedTypes {
       }
       //SLS[6.15]
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
+        /*if (a.getParent.isInstanceOf[ScArgumentExprList] && a.getLExpression.isInstanceOf[ScReferenceExpression]) {
+          return None
+          /*//we cannot resolve here, so we should to find appropriate named parameter
+          val args = a.getParent.asInstanceOf[ScArgumentExprList]
+          val applications = args.possibleApplications
+          var result: Option[ScType] = null
+          for (application: Array[(String, ScType)] <- applications if application.map(_._1).contains(a.getLExpression.
+                  getText) && result != None) {
+            if (result == null) result = Some(application.find(_._1 == a.getLExpression.getText).
+                    getOrElse(("", types.Nothing): (String, ScType))._2)
+            else result = None
+          }
+          if (result != null) return result //if null we can resolve without problems*/
+        }*/
         a.getLExpression match {
           case ref: ScReferenceExpression => {
-            ref.resolve match {
-              case named: PsiNamedElement => {
+            ref.bind match {
+              case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
                   case v: ScValue => Some(named.asInstanceOf[ScTyped].calcType)
                   case v: ScVariable => Some(named.asInstanceOf[ScTyped].calcType)
                   case f: ScFunction => None //todo: find functionName_= method and do as argument call expected type
+                  case p: ScParameter => {
+                    //for named parameters
+                    Some(subst.subst(p.calcType))
+                  }
                   case _ => None
                 }
               }
@@ -142,6 +160,47 @@ object ExpectedTypes {
         }
         case _ => None
       }
+      case _ => None
+    }
+
+  }
+
+  def expectedForArguments(expr: ScExpression): Option[ScArgumentExprList] = {
+    expr.getParent match {
+      case b: ScBlockExpr => b.lastExpr match {
+        case Some(e) if e == expr => expectedForArguments(b)
+        case _ => None
+      }
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => None
+      case cond: ScIfStmt if cond.elseBranch != None => expectedForArguments(cond)
+      case cond: ScIfStmt => None
+      case tb: ScTryBlock => tb.lastExpr match {
+        case Some(e) if e == expr => expectedForArguments(tb.getParent.asInstanceOf[ScTryStmt])
+        case _ => None
+      }
+      case fb: ScFinallyBlock => None
+      case c: ScCaseClause => c.getParent.getParent match {
+        case m: ScMatchStmt => expectedForArguments(m)
+        case _ => None
+      }
+      case f: ScFunctionExpr => None
+      case t: ScTypedStmt => None
+      case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
+        a.getParent match {
+          case args: ScArgumentExprList => {
+            val i = args.exprs.indexOf(a)
+            val fromParameter = args.nameCallFromParameter
+            if (fromParameter == -1 || i < fromParameter) None
+            else Some(args)
+          }
+          case _ => None
+        }
+      }
+      case v: ScPatternDefinition if v.expr == expr => None
+      case v: ScVariableDefinition if v.expr == expr => None
+      case v: ScFunctionDefinition if v.body.getOrElse(null: ScExpression) == expr => None
+      case param: ScParameter => None
+      case args: ScArgumentExprList => Some(args)
       case _ => None
     }
 

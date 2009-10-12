@@ -189,8 +189,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                           case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
                             fun.getParamByName(assignName, count - 1) match {
                               case Some(param) => {
-                                processor.execute(param, ResolveState.initial) //it's not interesting to have
-                                                                               // substitutor during this resolve
+                                processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
                                 resultFound = true
                               }
                               case None =>
