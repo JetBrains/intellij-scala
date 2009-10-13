@@ -24,7 +24,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
   override def toString: String = "BlockOfExpressions"
 
-  override def getType = lastExpr match {
+  protected override def innerType = lastExpr match {
     case None => Unit
     case Some(e) => {
       val m = new HashMap[String, ScExistentialArgument]
@@ -61,7 +61,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
         case singl : ScSingletonType => existize(singl.pathType)
         case _ => t
       }
-      val t = existize(e.cachedType)
+      val t = existize(e.getType)
       if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
     }
   }

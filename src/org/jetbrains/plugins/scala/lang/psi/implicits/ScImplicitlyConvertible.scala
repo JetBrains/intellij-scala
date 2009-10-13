@@ -61,7 +61,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
-    val processor = new CollectImplicitsProcessor(cachedType)
+    val processor = new CollectImplicitsProcessor(getType)
 
     // Collect implicit conversions from bottom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
@@ -78,7 +78,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    val typez: ScType = cachedType
+    val typez: ScType = getType
     val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
     if (typez == Nothing) return result
     

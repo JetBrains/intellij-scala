@@ -24,8 +24,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def toString: String = "GenericCall"
 
 
-  override def getType(): ScType = {
-    val refType = referencedExpr.cachedType
+  protected override def innerType(): ScType = {
+    val refType = referencedExpr.getType
 
     /**
      * Utility method to get generics for apply methods of concrecte class.

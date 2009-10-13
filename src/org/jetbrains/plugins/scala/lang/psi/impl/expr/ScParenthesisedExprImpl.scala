@@ -18,8 +18,8 @@ import types.Nothing
 class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
   override def toString: String = "ExpressionInParenthesis"
 
-  override def getType = expr match {
-    case Some(e) => e.cachedType
+  protected override def innerType = expr match {
+    case Some(e) => e.getType
     case None => Nothing
   }
 }

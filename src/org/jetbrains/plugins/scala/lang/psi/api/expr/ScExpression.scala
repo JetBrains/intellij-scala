@@ -4,23 +4,10 @@ package psi
 package api
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import base.patterns.ScCaseClause
-import base.ScLiteral
-import caches.CachesUtil
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
-import formatting.settings.ScalaCodeStyleSettings
+import com.intellij.psi.{PsiInvalidElementAccessException}
 import impl.ScalaPsiElementFactory
-import implicits.{ScImplicitlyConvertible, Implicits}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import parser.parsing.expressions.InfixExpr
-import parser.util.ParserUtils
-import statements.params.ScArguments
-import statements.ScFunction
-import types.{ScType, Nothing, ScFunctionType}
-import xml.ScXmlExpr
+import implicits.{ScImplicitlyConvertible}
+import types.{ScFunctionType, ScType, Nothing}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -28,7 +15,17 @@ import xml.ScXmlExpr
 
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
-  def getType: ScType = Nothing //todo
+  def getType: ScType = {
+    var tp = exprType
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && modCount == curModCount) {
+      return tp
+    }
+    tp = typeWithUnderscore
+    exprType = tp
+    modCount = curModCount
+    return tp
+  }
 
   @volatile
   private var exprType: ScType = null
@@ -36,23 +33,26 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   @volatile
   private var modCount: Long = 0
 
-  def cachedType: ScType = {
-    var tp = exprType
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && modCount == curModCount) {
-      return tp
+  private def typeWithUnderscore: ScType = {
+    getText.indexOf("_") match {
+      case -1 => innerType //optimization
+      case _ => {
+        val unders = ScUnderScoreSectionUtil.underscores(this)
+        if (unders.length == 0) innerType
+        else {
+          new ScFunctionType(innerType, unders.map(_.getType))
+        }
+      }
     }
-    tp = getType
-    exprType = tp
-    modCount = curModCount
-    return tp
   }
+
+  protected def innerType: ScType = Nothing
 
   /**
    * Returns all types in respect of implicit conversions (defined and default)
    */
   def allTypes: Seq[ScType] = {
-    cachedType :: getImplicitTypes
+    getType :: getImplicitTypes
   }
 
   /**
@@ -75,6 +75,4 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
 
   def expectedType: Option[ScType] = ExpectedTypes.expectedExprType(this)
-
-
 }

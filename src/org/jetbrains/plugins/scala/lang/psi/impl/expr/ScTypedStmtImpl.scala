@@ -17,8 +17,8 @@ import com.intellij.lang.ASTNode
 class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedStmt {
   override def toString: String = "TypedStatement"
 
-  override def getType = typeElement match {
+  protected override def innerType = typeElement match {
     case Some(te) => te.cachedType
-    case None => expr.cachedType
+    case None => expr.getType
   }
 }

@@ -72,7 +72,7 @@ trait ScPattern extends ScalaPsiElement {
     }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
       case matchStat : ScMatchStmt => matchStat.expr match {
-        case Some(e) => Some(e.cachedType)
+        case Some(e) => Some(e.getType)
         case _ => None
       }
       case _ : ScCatchBlock => {

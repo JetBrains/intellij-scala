@@ -19,7 +19,7 @@ import psi.types._
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral{
   override def toString: String = "Literal"
 
-  override def getType() = {
+  protected override def innerType() = {
     val child = getFirstChild.getNode
     child.getElementType match {
       case ScalaTokenTypes.kNULL => Null

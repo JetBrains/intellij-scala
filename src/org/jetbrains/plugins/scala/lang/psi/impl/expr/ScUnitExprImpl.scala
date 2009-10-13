@@ -16,5 +16,5 @@ import types.Unit
 
 class ScUnitExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnitExpr {
   override def toString: String = "UnitExpression"
-  override def getType = Unit
+  protected override def innerType = Unit
 }

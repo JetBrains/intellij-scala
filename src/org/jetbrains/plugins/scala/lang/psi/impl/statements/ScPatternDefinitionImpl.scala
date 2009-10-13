@@ -56,7 +56,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
 
   def getType = typeElement match {
     case Some(te) => te.cachedType
-    case None => expr.cachedType
+    case None => expr.getType
   }
 
   def typeElement: Option[ScTypeElement] = {

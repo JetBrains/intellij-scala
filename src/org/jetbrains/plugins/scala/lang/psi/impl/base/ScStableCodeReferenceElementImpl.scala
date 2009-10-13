@@ -133,7 +133,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
         }
       }
-      case Some(thisQ: ScThisReference) => processor.processType(thisQ.cachedType, this)
+      case Some(thisQ: ScThisReference) => processor.processType(thisQ.getType, this)
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
     processor.candidates.filter(srr => srr.element match {

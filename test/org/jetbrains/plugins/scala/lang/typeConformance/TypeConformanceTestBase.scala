@@ -36,7 +36,7 @@ abstract class TypeConformanceTestBase extends ScalaPsiTestCase {
     assert(expr != null, "Not specified expression in range to check conformance.")
     val valueDecl = expr.asInstanceOf[ScPatternDefinition]
     val declaredType = valueDecl.declaredType.getOrElse(Predef.error("Must provide type annotation for LHS"))
-    val rhsType = valueDecl.expr.cachedType
+    val rhsType = valueDecl.expr.getType
     val res: Boolean = Conformance.conforms(declaredType, rhsType)
     println("------------------------ " + scalaFile.getName + " ------------------------")
     println(res)

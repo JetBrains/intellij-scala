@@ -122,5 +122,5 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  override def getType() = Nothing
+  protected override def innerType() = Nothing
 }

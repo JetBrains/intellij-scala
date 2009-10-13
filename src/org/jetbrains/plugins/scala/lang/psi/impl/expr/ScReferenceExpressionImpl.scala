@@ -71,7 +71,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants(): Array[Object] = {
     val tp: ScType = qualifier match {
       case None => psi.types.Nothing
-      case Some(qual: ScExpression) => qual.cachedType
+      case Some(qual: ScExpression) => qual.getType
     }
     _resolve(this, new CompletionProcessor(getKinds(true))).map(r => {
       r match {
@@ -141,7 +141,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
       ProgressManager.getInstance.checkCanceled
-      processor.processType(e.cachedType, e, ResolveState.initial)
+      processor.processType(e.getType, e, ResolveState.initial)
       if (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) {
         for (t <- e.getImplicitTypes) {
           ProgressManager.getInstance.checkCanceled
@@ -220,7 +220,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def rightAssoc = refName.endsWith(":")
 
-  override def getType(): ScType = {
+  protected override def innerType(): ScType = {
     def isMethodCall: Boolean = {
       var parent = getParent
       while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent

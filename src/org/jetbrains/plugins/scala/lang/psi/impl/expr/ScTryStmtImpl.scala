@@ -36,12 +36,12 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
   override def toString: String = "TryStatement"
 
 
-  override def getType(): ScType = {
-    var result = tryBlock.cachedType
+  protected override def innerType(): ScType = {
+    var result = tryBlock.getType
     catchBlock match {
       case Some(catchBlock) =>
-        catchBlock.getBranches.foldLeft(tryBlock.cachedType: ScType)((t, b) => Bounds.lub(t, b.cachedType))
-      case None => tryBlock.cachedType
+        catchBlock.getBranches.foldLeft(tryBlock.getType: ScType)((t, b) => Bounds.lub(t, b.getType))
+      case None => tryBlock.getType
     }
   }
 }

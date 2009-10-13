@@ -136,7 +136,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType: ScType = expr.cachedType
+                  val exprType: ScType = expr.getType
                   val getIt = used.indexOf(false)
                   used(getIt) = true
                   val param: ScParameter = parameters(getIt)
@@ -167,7 +167,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         buffer.append(namedPrefix).append(paramText(param)).append(namedPostfix)
                         assign.getRExpression match {
                           case Some(expr: ScExpression) => {
-                            val exprType = expr.cachedType
+                            val exprType = expr.getType
                             val paramType = param.calcType
                             if (!exprType.conforms(paramType)) isGrey = true
                           }
@@ -212,7 +212,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 val paramType = parameters(parameters.length - 1).calcType
                 while (!isGrey && k < exprs.length.min(index)) {
                   if (k < index) {
-                    val exprType = exprs(k).cachedType
+                    val exprType = exprs(k).getType
                     if (!exprType.conforms(paramType)) isGrey = true
                   }
                   k = k + 1
@@ -410,7 +410,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           return
                         }
                         case _ => {
-                          val typez = call.getInvokedExpr.cachedType //todo: implicit conversions
+                          val typez = call.getInvokedExpr.getType //todo: implicit conversions
                           collectForType(typez)
                         }
                       }
@@ -442,7 +442,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                   }
                   case None => {
-                    val typez = call.getInvokedExpr.cachedType //todo: implicit conversions
+                    val typez = call.getInvokedExpr.getType //todo: implicit conversions
                     collectForType(typez)
                   }
                 }

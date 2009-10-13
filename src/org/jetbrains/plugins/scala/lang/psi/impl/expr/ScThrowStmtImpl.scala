@@ -17,5 +17,5 @@ import types.Nothing
 class ScThrowStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThrowStmt {
   override def toString: String = "ThrowStatement"
 
-  override def getType = Nothing
+  protected override def innerType = Nothing
 }

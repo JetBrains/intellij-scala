@@ -51,7 +51,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  override def getType = {
+  protected override def innerType = {
     val paramTypes = (parameters: Seq[ScParameter]).map((_: ScParameter).calcType)
     (for (r <- result) yield ScFunctionType(r.getType, paramTypes.toList)) getOrElse Nothing
   }
