@@ -188,10 +188,15 @@ object ExpectedTypes {
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
         a.getParent match {
           case args: ScArgumentExprList => {
-            val i = args.exprs.indexOf(a)
-            val fromParameter = args.nameCallFromParameter
-            if (fromParameter == -1 || i < fromParameter) None
-            else Some(args)
+            a.getLExpression match {
+              case ref: ScReferenceExpression => {
+                val name = ref.refName
+                for (application <- args.possibleApplications 
+                  if application.find((t: (String, ScType)) => t._1 == name) != None) return Some(args)
+                None
+              }
+              case _ => None
+            }
           }
           case _ => None
         }

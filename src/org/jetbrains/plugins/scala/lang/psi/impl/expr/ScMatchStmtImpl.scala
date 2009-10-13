@@ -27,5 +27,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMatchStmt {
   override def toString: String = "MatchStatement"
 
-  override def getType(): ScType = getBranches.foldLeft(types.Nothing: ScType)((t, b) => Bounds.lub(t, b.cachedType))
+  protected override def innerType(): ScType = getBranches.foldLeft(types.Nothing: ScType)((t, b) => Bounds.lub(t, b.getType))
 }

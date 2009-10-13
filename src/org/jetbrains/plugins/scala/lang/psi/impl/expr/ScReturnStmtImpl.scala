@@ -19,7 +19,7 @@ import lexer.ScalaTokenTypes
 class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReturnStmt {
   override def toString: String = "ReturnStatement"
 
-  override def getType = Nothing
+  protected override def innerType = Nothing
 
   def returnKeyword: PsiElement = findChildByType(ScalaTokenTypes.kRETURN)
 }

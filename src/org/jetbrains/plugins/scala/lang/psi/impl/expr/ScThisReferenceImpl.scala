@@ -19,7 +19,7 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
   override def toString: String = "ThisReference"
 
-  override def getType = refTemplate match {
+  protected override def innerType = refTemplate match {
     case Some(td) => {
       val refType = td.getType
       td.selfType match {

@@ -25,7 +25,7 @@ import com.intellij.psi._
 class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMethodCall {
   override def toString: String = "MethodCall"
 
-  override def getType: ScType = {
+  protected override def innerType: ScType = {
     /**
      * Utility method to get type for apply (and update) methods of concrecte class.
      */
@@ -63,7 +63,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       }
       //add implicit types check
     }
-    val invokedType = getInvokedExpr.cachedType
+    val invokedType = getInvokedExpr.getType
     if (invokedType == types.Nothing) return Nothing
     invokedType match {
       case ScFunctionType(retType: ScType, params: Seq[ScType]) => {

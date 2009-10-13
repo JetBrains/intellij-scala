@@ -29,7 +29,7 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
   override def toString: String = "XmlExpression"
 
 
-  override def getType(): ScType = {
+  protected override def innerType(): ScType = {
     def getType(s: String): ScType = {
       val nodeType = JavaPsiFacade.getInstance(getProject).findClass(s)
       if (nodeType != null) new ScDesignatorType(nodeType) else types.Nothing

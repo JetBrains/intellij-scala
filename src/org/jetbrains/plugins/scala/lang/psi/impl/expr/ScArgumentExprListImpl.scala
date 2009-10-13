@@ -140,7 +140,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 method match {
                   case fun: ScFunction => {
                     if (fun.paramClauses.clauses.length > 0) {
-                      buffer += fun.paramClauses.clauses.apply(0).parameters.map({p => (p.name, p.calcType)}).toArray
+                      buffer += fun.paramClauses.clauses.apply(0).parameters.map({p => (p.name,
+                              subst.subst(p.calcType))}).toArray
                     } else buffer += Array.empty
                   }
                 }

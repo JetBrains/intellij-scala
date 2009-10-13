@@ -60,7 +60,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     returnTypeElement match {
       case None if !hasAssign => Unit
       case None => body match {
-        case Some(b) => b.cachedType
+        case Some(b) => b.getType
         case _ => Unit
       }
       case Some(rte) => rte.cachedType

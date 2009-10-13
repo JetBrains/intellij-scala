@@ -37,7 +37,7 @@ object Compatibility {
           return false
         }
         else {
-          val exprType: ScType = expr.cachedType
+          val exprType: ScType = expr.getType
           val getIt = used.indexOf(false)
           used(getIt) = true
           val param: Parameter = parameters(getIt)
@@ -59,14 +59,8 @@ object Compatibility {
             used(ind) = true
             val param: Parameter = parameters(ind)
             assign.getRExpression match {
-              case Some(expr: ScFunctionExpr) => {
-                val length = expr.parameters.length
-                val exprType = new ScFunctionType(types.Any, Seq.fill(length)(types.Nothing))
-                val paramType = param.tp()
-                if (!exprType.conforms(paramType)) return false
-              }
               case Some(expr: ScExpression) => {
-                val exprType = expr.cachedType
+                val exprType = expr.getType
                 val paramType = param.tp()
                 if (!exprType.conforms(paramType)) return false
               }
@@ -86,7 +80,7 @@ object Compatibility {
       if (!parameters.last.isRepeated) return false
       val paramType: ScType = parameters.last.tp()
       while (k < exprs.length) {
-        val exprType: ScType = exprs(k).cachedType
+        val exprType: ScType = exprs(k).getType
         if (!exprType.conforms(paramType)) return false
         k = k + 1
       }

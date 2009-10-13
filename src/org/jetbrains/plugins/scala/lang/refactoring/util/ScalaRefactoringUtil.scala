@@ -123,7 +123,7 @@ object ScalaRefactoringUtil {
       }
       return None
     }
-    val cachedType = element.cachedType
+    val cachedType = element.getType
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression) = refExpr.bind match {

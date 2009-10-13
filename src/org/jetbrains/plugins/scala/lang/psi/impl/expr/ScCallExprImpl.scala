@@ -15,7 +15,7 @@ import types._
 trait ScCallExprImpl extends ScExpression {
   def operation : ScReferenceExpression
 
-  override def getType = operation.bind match {
+  protected override def innerType = operation.bind match {
     case None => Nothing
     case Some(r) => r.element match {
       case typed : ScTyped => r.substitutor.subst(typed.calcType match {case ScFunctionType(ret, _) => ret case t => t})
