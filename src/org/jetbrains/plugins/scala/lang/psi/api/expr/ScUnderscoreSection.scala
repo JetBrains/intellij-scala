@@ -70,6 +70,10 @@ object ScUnderScoreSectionUtil {
     def inner(innerExpr: PsiElement): Seq[ScUnderscoreSection] = {
       innerExpr match {
         case under: ScUnderscoreSection => {
+          under.bindingExpr match {
+            case Some(e) => return Seq.empty
+            case _ =>
+          }
           under.overExpr match {
             case Some(e) if expr == e => Seq(under)
             case _ => Seq.empty
