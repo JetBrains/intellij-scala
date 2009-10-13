@@ -22,9 +22,5 @@
     <orderEntry type="library" name="Scala SDK" level="project" />
     <orderEntry type="module" module-name="ScalaRunners" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ACTIVE_VCS_NAME" value="svn" />
-    <option name="USE_PROJECT_VCS" value="false" />
-  </component>
 </module>
 
