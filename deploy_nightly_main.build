@@ -20,7 +20,7 @@
                     link_prefix="http://download.jetbrains.com/scala/"
                     space="SCA"
                     page="Scala Plugin Nightly Builds"
-                    file_templates="scala-intellij-bin-0.2.{0}.zip"
+                    file_templates="scala-intellij-bin-0.3.{0}.zip"
                     name_templates="Download"
                     table_template="{0}"
                     build_number_pattern="(?&lt;build_number&gt;\d+)"
