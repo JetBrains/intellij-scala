@@ -14,10 +14,10 @@ import com.intellij.psi.PsiElement
 */
 
 trait ScUnderscoreSection extends ScExpression {
-  def bindingExpr: Option[ScReferenceExpression] = {
-    findChildByClassScala(classOf[ScReferenceExpression]) match {
+  def bindingExpr: Option[ScExpression] = {
+    findChildByClassScala(classOf[ScExpression]) match {
       case null => None
-      case ref: ScReferenceExpression => Some(ref)
+      case expression: ScExpression => Some(expression)
     }
   }
 
