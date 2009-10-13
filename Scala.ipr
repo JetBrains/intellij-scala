@@ -808,7 +808,7 @@
     </library>
     <library name="scalatest-1.0">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
