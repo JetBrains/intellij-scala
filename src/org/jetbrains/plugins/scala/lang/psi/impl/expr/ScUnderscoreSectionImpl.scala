@@ -21,6 +21,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     bindingExpr match {
       case Some(x) => psi.types.Nothing //todo: implement me
       case None => {
+        getParent match {
+          case typed: ScTypedStmt => return typed.getType
+          case _ =>
+        }
         overExpr match {
           case None => psi.types.Nothing
           case Some(expr: ScExpression) => { //todo: code duplicate with changes: ScParameterImpl.expectedParamType
