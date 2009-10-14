@@ -133,6 +133,19 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             if (result == null) result = None
             result
           }
+          case Some(e: ScExpression) => {
+            e.getType match {
+              case ScFunctionType(rt, _) => {
+                rt match {
+                  case ScFunctionType(_, params) =>
+                    val i = clause.parameters.indexOf(this)
+                    if (i >= 0 && i < params.length) Some(params(i)) else None
+                  case _ => None
+                }
+              }
+              case _ => None
+            }
+          }
           case _ => {
             f.expectedType match {
               case Some(ScFunctionType(_, params)) =>

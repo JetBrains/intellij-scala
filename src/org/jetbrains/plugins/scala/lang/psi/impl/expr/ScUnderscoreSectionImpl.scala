@@ -76,8 +76,21 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 if (result == null) result = None
                 result.getOrElse(psi.types.Nothing)
               }
+              case Some(expr: ScExpression) => {
+                expr.getType match {
+                  case ScFunctionType(rt, _) => {
+                    rt match {
+                      case ScFunctionType(_, params) =>
+                        if (i >= 0 && i < params.length) params(i) else psi.types.Nothing
+                      case _ => psi.types.Nothing
+                    }
+                  }
+                  case _ => psi.types.Nothing
+                }
+              }
               case _ => {
-                expr.expectedType match {
+                val option: Option[ScType] = expr.expectedType
+                option match {
                   case Some(ScFunctionType(_, params)) =>
                     if (i >= 0 && i < params.length) params(i) else psi.types.Nothing
                   case _ => psi.types.Nothing
