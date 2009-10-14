@@ -136,7 +136,21 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
           val variants = ref.getSameNameVariants
           for (variant <- variants) {
             variant match {
-              case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) => {
+              case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
+                val subst = call.getInvokedExpr match { //needs for generic call => substitutor more complex
+                  case gen: ScGenericCall => {
+                    val tp: Seq[String] = method match {
+                      case fun: ScFunction => {
+                        fun.typeParameters.map(_.name)
+                      }
+                      case method: PsiMethod => {
+                        method.getTypeParameters.map(_.getName)
+                      }
+                    }
+                    s.followed(ScalaPsiUtil.genericCallSubstitutor(tp, gen))
+                  }
+                  case _ => s
+                }
                 method match {
                   case fun: ScFunction => {
                     if (fun.paramClauses.clauses.length > 0) {
