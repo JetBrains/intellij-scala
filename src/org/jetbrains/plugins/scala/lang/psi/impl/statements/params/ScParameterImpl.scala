@@ -90,71 +90,29 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       // For parameter of anonymous functions to infer parameter's type from an appropriate
       // an. fun's type
       case f: ScFunctionExpr => {
-        ExpectedTypes.expectedForArguments(f) match {
-          case Some(args: ScArgumentExprList) => {
-            val expr: ScExpression = args.exprs.find({expr: ScExpression => expr.getTextRange.
-                    containsRange(f.getTextRange.getStartOffset, f.getTextRange.getEndOffset)}).getOrElse(null)
-            val j = args.exprs.indexOf(expr)
-            val name = expr match {
-              case assign: ScAssignStmt => assign.getLExpression.getText
-              case _ => ""
+        var result: Option[ScType] = null //strange logic to handle problems with detecting type
+        for (tp <- ExpectedTypes.expectedExprTypes(f) if result != None) {
+          tp match {
+            case ScFunctionType(_, params) if params.length == f.parameters.length => {
+              val i = clause.parameters.indexOf(this)
+              if (result != null) result = None
+              else result = Some(params(i))
             }
-            var result: Option[ScType] = null //strange logic to handle problems with detecting type
-            for (application: Array[(String, ScType)] <- args.possibleApplications if result != None) {
-              val tp: ScType = name match {
-                case "" => {
-                  if (application.length > j) application(j)._2
-                  else psi.types.Nothing
-                }
-                case _ => application.find(_._1 == name) match {
-                  case None => psi.types.Nothing
-                  case Some(t) => t._2
-                }
-              }
-              tp match {
-                case ScFunctionType(_, params) if params.length == f.parameters.length => {
+            case ScParameterizedType(t, args) => {
+              ScType.extractDesignated(t) match { //todo: this is hack, scala.Function1 ScProjectionType?
+                case Some((c: PsiClass, _)) if c.getQualifiedName == "scala.Function" + f.parameters.length => {
                   val i = clause.parameters.indexOf(this)
                   if (result != null) result = None
-                  else result = Some(params(i))
-                }
-                case ScParameterizedType(t, args) => {
-                  ScType.extractDesignated(t) match { //todo: this is hack, scala.Function1 ScProjectionType?
-                    case Some((c: PsiClass, _)) if c.getQualifiedName == "scala.Function" + f.parameters.length => {
-                      val i = clause.parameters.indexOf(this)
-                      if (result != null) result = None
-                      else result = Some(args(i))
-                    }
-                    case _ =>
-                  }
+                  else result = Some(args(i))
                 }
                 case _ =>
               }
             }
-            if (result == null) result = None
-            result
-          }
-          case Some(e: ScExpression) => {
-            e.getType match {
-              case ScFunctionType(rt, _) => {
-                rt match {
-                  case ScFunctionType(_, params) =>
-                    val i = clause.parameters.indexOf(this)
-                    if (i >= 0 && i < params.length) Some(params(i)) else None
-                  case _ => None
-                }
-              }
-              case _ => None
-            }
-          }
-          case _ => {
-            f.expectedType match {
-              case Some(ScFunctionType(_, params)) =>
-                val i = clause.parameters.indexOf(this)
-                if (i >= 0 && i < params.length) Some(params(i)) else None
-              case _ => None
-            }
+            case _ =>
           }
         }
+        if (result == null) result = None
+        result
       }
       case _ => None
     }
