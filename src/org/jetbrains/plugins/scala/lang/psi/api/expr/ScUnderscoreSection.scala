@@ -49,7 +49,13 @@ trait ScUnderscoreSection extends ScExpression {
         case ref: ScReferenceExpression => go(ref, false)
         case call: ScMethodCall => go(call, false)
         case gen: ScGenericCall => go(gen, false)
-        case x: ScExpression => Some(x) //todo: need to check this statement
+        case x: ScExpression if calcArguments => Some(x)
+        case x: ScExpression if !calcArguments => {
+          expr match {
+            case x: ScExpression => Some(x)
+            case _ => None
+          }
+        }
         case _ => None
       }
     }
