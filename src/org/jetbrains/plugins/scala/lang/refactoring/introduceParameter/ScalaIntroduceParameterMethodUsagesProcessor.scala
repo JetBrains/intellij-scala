@@ -12,6 +12,7 @@ import psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import psi.api.statements.ScFunction
 import resolve.ScalaResolveResult
 import com.intellij.psi.PsiElement
+import com.intellij.util.containers.MultiMap
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,6 +23,11 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
   def processAddDefaultConstructor(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = false
 
   def processAddSuperCall(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = false
+
+  def findConflicts(introduceParameterData: IntroduceParameterData, usageInfos: Array[UsageInfo],
+                    psiElementStringMultiMap: MultiMap[PsiElement, String]): Unit = {
+    
+  }
 
   def processChangeMethodSignature(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = {
     if (!usage.getElement.isInstanceOf[ScFunction]) return true

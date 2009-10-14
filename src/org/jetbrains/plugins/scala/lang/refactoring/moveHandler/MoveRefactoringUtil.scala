@@ -9,7 +9,6 @@ import com.intellij.refactoring.move.MoveCallback
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesDialog
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.refactoring.{HelpID, JavaRefactoringSettings}
-import com.jniwrapper.P
 
 /**
  * User: Alexander Podkhalyuzin
