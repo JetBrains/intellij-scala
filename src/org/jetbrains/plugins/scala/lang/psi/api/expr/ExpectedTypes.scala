@@ -58,20 +58,6 @@ object ExpectedTypes {
       }
       //SLS[6.15]
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
-        /*if (a.getParent.isInstanceOf[ScArgumentExprList] && a.getLExpression.isInstanceOf[ScReferenceExpression]) {
-          return None
-          /*//we cannot resolve here, so we should to find appropriate named parameter
-          val args = a.getParent.asInstanceOf[ScArgumentExprList]
-          val applications = args.possibleApplications
-          var result: Option[ScType] = null
-          for (application: Array[(String, ScType)] <- applications if application.map(_._1).contains(a.getLExpression.
-                  getText) && result != None) {
-            if (result == null) result = Some(application.find(_._1 == a.getLExpression.getText).
-                    getOrElse(("", types.Nothing): (String, ScType))._2)
-            else result = None
-          }
-          if (result != null) return result //if null we can resolve without problems*/
-        }*/
         a.getLExpression match {
           case ref: ScReferenceExpression => {
             ref.bind match {
@@ -120,45 +106,6 @@ object ExpectedTypes {
           case Some(_) => Some(param.calcType)
           case _ => None
         }
-      }
-      //todo: this cannot have expected type, should be removed
-      case args: ScArgumentExprList => args.getParent match {
-        case mc: ScMethodCall => {
-          None
-          /*
-          val argLists = mc.allArgumentExprLists
-
-          def invoked(m: ScMethodCall): ScExpression = m.getInvokedExpr match {
-            case mc1: ScMethodCall => invoked(mc1)
-            case e => e
-          }
-
-          val inv = invoked(mc)
-          //todo To be replaced
-          inv match {
-            case e: ScReferenceExpression => e.bind.map {
-              case ScalaResolveResult(element, s) => {
-                element match {
-                  case f: ScFunction => {
-                    val ftype = s.subst(f.calcType)
-                    ftype match {
-                    //todo HACK remove me as soon as possible!
-                      case ScFunctionType(_, params) if argLists.length == 1 => {
-                        val i = argLists(0).exprs.indexOf(this)
-                        if (i >= 0 && i < params.length) params(i) else types.Nothing
-                      }
-                      case _ => types.Nothing
-                    }
-                  }
-                  case _ => types.Nothing
-                }
-              }
-            }
-            case _ => None
-          }
-  */
-        }
-        case _ => None
       }
       case _ => None
     }
