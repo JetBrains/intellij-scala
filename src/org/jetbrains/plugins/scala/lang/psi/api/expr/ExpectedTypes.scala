@@ -8,11 +8,11 @@ import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
 import toplevel.ScTyped
-import com.intellij.psi.{PsiMethod, PsiNamedElement}
 import types.{ScSubstitutor, ScType, ScFunctionType}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 
 /**
  * @author ilyas
@@ -22,33 +22,42 @@ import base.{ScConstructor, ScReferenceElement}
 
 object ExpectedTypes {
   def expectedExprType(expr: ScExpression): Option[ScType] = {
+    //this method needs to replace expected type to return type if it's placholder function expression
+    def finalize(expr: ScExpression): Option[ScType] = {
+      ScUnderScoreSectionUtil.underscores(expr).length match {
+        case 0 => expr.expectedType
+        case _ => {
+          expr.expectedType match {
+            case Some(ScFunctionType(rt: ScType, _)) => Some(rt)
+            case x => None
+          }
+        }
+      }
+    }
     expr.getParent match {
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr => b.expectedType
+        case Some(e) if e == expr => finalize(b)
         case _ => None
       }
       //see SLS[6.16]
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Some(types.Boolean)
-      case cond: ScIfStmt if cond.elseBranch != None => cond.expectedType
+      case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
       case cond: ScIfStmt => Some(types.Unit)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => tb.getParent.asInstanceOf[ScTryStmt].expectedType
+        case Some(e) if e == expr => finalize(tb.getParent.asInstanceOf[ScTryStmt])
         case _ => None
       }
       //todo: make catch block an expression with appropriate type and expected type (PartialFunction[Throwable, pt])
       case fb: ScFinallyBlock => Some(types.Unit)
       //see SLS[8.4]
       case c: ScCaseClause => c.getParent.getParent match {
-        case m: ScMatchStmt => m.expectedType
+        case m: ScMatchStmt => finalize(m)
         case _ => None
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedType match { //There is only one way to be fun's child - it's result
-        case Some(ScFunctionType(rt, _)) => Some(rt)
-        case _ => None
-      }
+      case f: ScFunctionExpr => finalize(f)
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
@@ -112,22 +121,35 @@ object ExpectedTypes {
 
   }
 
-  def expectedForArguments(expr: ScExpression): Option[ScArgumentExprList] = {
+  /**
+   * this method returns arguments for which we can try to evaluate expected type
+   * or returns expression with placeholders for which expectedForArguments not null
+   */
+  def expectedForArguments(expr: ScExpression): Option[PsiElement] = {
+    def finalize(expr: ScExpression): Option[PsiElement] = {
+      ScUnderScoreSectionUtil.underscores(expr).length match {
+        case 0 => expectedForArguments(expr)
+        case _ => expectedForArguments(expr) match {
+          case Some(e) => Some(expr)
+          case _ => None
+        }
+      }
+    }
     expr.getParent match {
       case b: ScBlockExpr => b.lastExpr match {
-        case Some(e) if e == expr => expectedForArguments(b)
+        case Some(e) if e == expr => finalize(b)
         case _ => None
       }
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => None
-      case cond: ScIfStmt if cond.elseBranch != None => expectedForArguments(cond)
+      case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
       case cond: ScIfStmt => None
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => expectedForArguments(tb.getParent.asInstanceOf[ScTryStmt])
+        case Some(e) if e == expr => finalize(tb.getParent.asInstanceOf[ScTryStmt])
         case _ => None
       }
       case fb: ScFinallyBlock => None
       case c: ScCaseClause => c.getParent.getParent match {
-        case m: ScMatchStmt => expectedForArguments(m)
+        case m: ScMatchStmt => finalize(m)
         case _ => None
       }
       case f: ScFunctionExpr => None
