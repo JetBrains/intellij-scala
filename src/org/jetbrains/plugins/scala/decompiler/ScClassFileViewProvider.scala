@@ -22,7 +22,7 @@ extends SingleRootFileViewProvider(manager, file, physical) {
 
   def this(manager: PsiManager, file: VirtualFile) = this(manager, file, true);
 
-  override def creatFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
+  override def createFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
     val name = vFile.getNameWithoutExtension
     // skip inners & anonymous
     if (name.lastIndexOf('$') >= 0) null
