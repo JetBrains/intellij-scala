@@ -52,11 +52,16 @@ trait ScUnderscoreSection extends ScExpression {
         case x: ScExpression if calcArguments => Some(x)
         case x: ScExpression if !calcArguments => {
           expr match {
+            case _: ScUnderscoreSection => None
             case x: ScExpression => Some(x)
             case _ => None
           }
         }
-        case _ => None
+        case _ => expr match {
+          case x: ScUnderscoreSection => None
+          case x: ScExpression => Some(x)
+          case _ => None
+        }
       }
     }
     getParent match {

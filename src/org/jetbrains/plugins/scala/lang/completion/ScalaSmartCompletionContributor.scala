@@ -114,46 +114,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet): Unit = {
-      val typez: ArrayBuffer[ScType] = new ArrayBuffer[ScType]
       val element = parameters.getPosition
-      val ref = element.getParent.asInstanceOf[ScReferenceExpression]
-      val args = ref.getParent.asInstanceOf[ScArgumentExprList]
-      val index = args.exprs.findIndexOf(_ == ref)
-      if (index == -1) return
-      val nameCallFromParameter = args.nameCallFromParameter
-      if (nameCallFromParameter != -1 && nameCallFromParameter <= index) return //todo: we can complete parameter names
-      args.callReference match {
-        case Some(ref: ScReferenceElement) => {
-          val variants = ref.multiResolve(false)
-          val invocationCount = args.invocationCount
-          for (variant <- variants) {
-            variant match {
-              case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) => {
-                method match {
-                  case fun: ScSyntheticFunction => if (invocationCount == 1 && index < fun.paramTypes.length)
-                    typez += subst.subst(fun.paramTypes.apply(index))
-                  case fun: ScFunction => {
-                    val clauses = fun.paramClauses.clauses
-                    if (invocationCount <= clauses.length) {
-                      val types = clauses.apply(invocationCount - 1).paramTypes
-                      if (index < types.length)
-                        typez += subst.subst(types.apply(index))
-                    }
-                  }
-                  case method: PsiMethod => {
-                    if (invocationCount == 1 && index < method.getParameterList.getParameters.length)
-                      typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(index).
-                              getTypeElement.getType, method.getProject))
-                  }
-                }
-              }
-              case _ => //todo: another options
-            }
-          }
-        }
-        case None =>
-      }
-      acceptTypes(typez.toArray[ScType], ref.getVariants, result)
+      val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(ExpectedTypes.expectedExprTypes(referenceExpression), referenceExpression.getVariants, result)
     }
   })
 
