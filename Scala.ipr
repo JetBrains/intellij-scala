@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project relativePaths="false" version="4">
+<project version="4">
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
     <buildFile url="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/core/build.xml">
@@ -219,6 +219,7 @@
       <entry name="?*.dtd" />
       <entry name="?*.tld" />
     </wildcardResourcePatterns>
+    <annotationProcessing enabled="false" useClasspath="true" />
   </component>
   <component name="CopyrightManager" default="">
     <module2copyright />
@@ -268,9 +269,6 @@
   </component>
   <component name="IdProvider" IDEtalkID="CA57306CD032AD7AF462C2DE24318A97" />
   <component name="InspectionProjectProfileManager">
-    <option name="PROJECT_PROFILE" value="Project Default" />
-    <option name="USE_PROJECT_PROFILE" value="true" />
-    <version value="1.0" />
     <profiles>
       <profile version="1.0" is_locked="false">
         <option name="myName" value="Project Default" />
@@ -304,9 +302,16 @@
           <option name="IGNORE_JAVADOC_PERIOD" value="true" />
           <option name="myAdditionalJavadocTags" value="author:,date:" />
         </inspection_tool>
-        <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false" />
+        <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+          <option name="processCode" value="true" />
+          <option name="processLiterals" value="true" />
+          <option name="processComments" value="true" />
+        </inspection_tool>
       </profile>
     </profiles>
+    <option name="PROJECT_PROFILE" value="Project Default" />
+    <option name="USE_PROJECT_PROFILE" value="true" />
+    <version value="1.0" />
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="TYPO" />
       <item index="1" class="java.lang.String" itemvalue="WARNING" />
@@ -478,6 +483,7 @@
     <option name="projectName" value="Scala" />
   </component>
   <component name="ProjectDictionaryState">
+    <dictionary name="ilya" />
     <dictionary name="Alexander.Podkhalyuz">
       <words>
         <w>Args</w>
@@ -611,7 +617,7 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="com.intellij.jsf.UserDefinedFacesConfigs">
@@ -779,9 +785,7 @@
         <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-0.9.5.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="file://C:/work/ScalaTest/scalatest-0.9.5/scalatest-0.9.5/src" />
-      </SOURCES>
+      <SOURCES />
     </library>
     <library name="specs">
       <CLASSES>
@@ -790,34 +794,13 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Scala SDK">
-      <CLASSES>
-        <root url="jar://C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-compiler.jar!/" />
-        <root url="jar://C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-library.jar!/" />
-        <root url="jar://C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scalap.jar!/" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES>
-        <root url="file://C:/work/scala-lang/scala/src/library" />
-        <root url="file://C:/work/scala-lang/scala/src/msil" />
-        <root url="file://C:/work/scala-lang/scala/src/actors" />
-        <root url="file://C:/work/scala-lang/scala/src/partest" />
-        <root url="file://C:/work/scala-lang/scala/src/compiler" />
-        <root url="file://C:/work/scala-lang/scala/src/scalap" />
-      </SOURCES>
-    </library>
     <library name="scalatest-1.0">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="file://C:/work/ScalaTest/scalatest-1.0-for-scala-2.8.0-SNAPSHOT/scalatest-1.0-for-scala-2.8.0-SNAPSHOT-sources" />
-      </SOURCES>
+      <SOURCES />
     </library>
   </component>
-  <UsedPathMacros>
-    <macro name="TEMPLATE" />
-  </UsedPathMacros>
 </project>
 
