@@ -6,7 +6,7 @@ package expr
 
 import _root_.scala.collection.mutable.HashMap
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
-import api.toplevel.{ScTyped}
+import api.toplevel.{ScTypedDefinition}
 import com.intellij.psi.util.PsiTreeUtil
 import types._
 import psi.ScalaPsiElementImpl
@@ -43,7 +43,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
             m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
             new ScTypeVariable(obj.name)
           }
-          case typed : ScTyped => {
+          case typed : ScTypedDefinition => {
             val t = existize(typed.calcType)
             m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
             new ScTypeVariable(typed.name)

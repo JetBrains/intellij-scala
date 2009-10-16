@@ -28,7 +28,7 @@ import psi.api.expr._
 import psi.api.statements.params.{ScParameter, ScParameterClause}
 import psi.api.statements.{ScFunction}
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
-import psi.api.toplevel.{ScTypeParametersOwner, ScTyped}
+import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
@@ -432,7 +432,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               case None => res += ""
                             }
                           }
-                          case ScalaResolveResult(typed: ScTyped, subst: ScSubstitutor) => {
+                          case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) => {
                             val typez = subst.subst(typed.calcType) //todo: implicit conversions
                             collectForType(typez)
                           }

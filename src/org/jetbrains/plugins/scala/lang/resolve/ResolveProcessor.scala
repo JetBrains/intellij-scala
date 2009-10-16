@@ -8,7 +8,7 @@ import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import psi.api.statements.params.ScParameter
 import psi.api.toplevel.typedef.{ScClass, ScObject}
-import psi.api.toplevel.ScTyped
+import psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -227,7 +227,7 @@ class MethodResolveProcessor(ref: PsiElement,
       case _ => refPatt.calcType
     }
 
-    case typed: ScTyped => typed.calcType
+    case typed: ScTypedDefinition => typed.calcType
     case _ => Nothing
   }
 

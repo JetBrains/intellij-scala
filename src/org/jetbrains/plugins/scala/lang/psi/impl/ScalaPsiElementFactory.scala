@@ -8,7 +8,7 @@ import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
-import api.toplevel.{ScNamedElement, ScTyped}
+import api.toplevel.{ScNamedElement, ScTypedDefinition}
 import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
@@ -32,6 +32,7 @@ import parser.parsing.statements.{Dcl, Def}
 import refactoring.util.ScalaNamesUtil
 import types._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -257,7 +258,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     return al
   }
 
-  def createOverrideImplementVariable(variable: ScTyped, substitutor: ScSubstitutor, manager: PsiManager,
+  def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
                                       isOverride: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
     val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
@@ -424,7 +425,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
       alias match {
         case alias: ScTypeAliasDefinition => {
           return "override type " + alias.getName + " = " +
-                  ScType.canonicalText(substitutor.subst(alias.aliasedType(Set[ScNamedElement]())))
+                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty)))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body
@@ -437,7 +438,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     }
   }
 
-  def getOverrideImplementVariableSign(variable: ScTyped, substitutor: ScSubstitutor, body: String, isOverride: Boolean,
+  def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor, body: String, isOverride: Boolean,
                                        isVal: Boolean, needsInferType: Boolean): String = {
     var res = ""
     if (isOverride) res = res + "override "

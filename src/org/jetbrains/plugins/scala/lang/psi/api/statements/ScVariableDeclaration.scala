@@ -7,7 +7,7 @@ package statements
 
 import base.ScIdList
 import api.base.types.ScTypeElement
-import toplevel.ScTyped
+import toplevel.ScTypedDefinition
 import psi.types.Nothing
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +17,7 @@ import psi.types.Nothing
 
 trait ScVariableDeclaration extends ScVariable with ScTypedDeclaration {
   def getIdList: ScIdList
-  def declaredElements : Seq[ScTyped]
+  def declaredElements : Seq[ScTypedDefinition]
   def getType = typeElement match {
     case Some(te) => te.cachedType
     case None => Nothing

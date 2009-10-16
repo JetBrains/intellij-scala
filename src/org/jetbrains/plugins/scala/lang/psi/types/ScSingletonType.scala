@@ -5,7 +5,7 @@ package types
 
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.{ScReferenceElement, ScPathElement}
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 /**
 * @author ilyas
 */
@@ -16,7 +16,7 @@ case class ScSingletonType(path: ScPathElement) extends ScType {
     case ref: ScReferenceElement => ref.bind match {
       case None => Nothing
       case Some(r) => r.element match {
-        case typed: ScTyped => typed.calcType
+        case typed: ScTypedDefinition => typed.calcType
         case e => new ScDesignatorType(e)
       }
     }

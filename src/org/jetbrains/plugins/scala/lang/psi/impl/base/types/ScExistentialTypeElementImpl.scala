@@ -16,6 +16,7 @@ import com.intellij.psi.{ResolveState, PsiElement}
 
 import _root_.scala.collection.mutable.ListBuffer
 import collection.Set
+import result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,8 +26,8 @@ import collection.Set
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   override def toString: String = "ExistentialType"
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
-    val q = quantified.getType(visited)
+  override def getType(ctx: TypingContext) = {
+    val q = quantified.getType(ctx)
     val wildcards: List[ScExistentialArgument] = {
       var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
       for (decl <- clause.declarations) {
@@ -39,7 +40,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
           case value: ScValueDeclaration => {
             value.typeElement match {
               case Some(te) =>
-                val t = new ScCompoundType(Seq(te.getType(visited).resType, Singleton), Seq.empty, Seq.empty)
+                val t = new ScCompoundType(Seq(te.getType(ctx).resType, Singleton), Seq.empty, Seq.empty)
                 for (declared <- value.declaredElements) {
                   buff += new ScExistentialArgument(declared.name, Nil, Nothing, t)
                 }

@@ -7,7 +7,7 @@ package expr
 import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
-import toplevel.ScTyped
+import toplevel.ScTypedDefinition
 import types.{ScSubstitutor, ScType, ScFunctionType}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import resolve.ScalaResolveResult
@@ -84,8 +84,8 @@ object ExpectedTypes {
             ref.bind match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
-                  case v: ScValue => Array(named.asInstanceOf[ScTyped].calcType)
-                  case v: ScVariable => Array(named.asInstanceOf[ScTyped].calcType)
+                  case v: ScValue => Array(named.asInstanceOf[ScTypedDefinition].calcType)
+                  case v: ScVariable => Array(named.asInstanceOf[ScTypedDefinition].calcType)
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters

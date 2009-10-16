@@ -4,13 +4,9 @@ package psi
 package impl
 package expr
 
-import api.statements.ScFun
-import api.toplevel.ScTyped
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi._
 import api.expr._
-import types.{ScType, Nothing, ScFunctionType}
 
 /** 
 * @author Alexander Podkhalyuzin

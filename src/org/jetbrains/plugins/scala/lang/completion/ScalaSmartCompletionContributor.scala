@@ -6,7 +6,7 @@ import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -42,7 +42,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             case fun: ScSyntheticFunction => checkType(fun.retType)
             case fun: ScFunction => checkType(fun.returnType)
             case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject))
-            case typed: ScTyped => checkType(typed.calcType)
+            case typed: ScTypedDefinition => checkType(typed.calcType)
             case _ =>
           }
         }

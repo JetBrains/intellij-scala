@@ -6,7 +6,7 @@ package base
 package types
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import toplevel.{ScTyped, ScNamedElement}
+import toplevel.{ScTypedDefinition, ScNamedElement}
 import com.intellij.psi.util.PsiTreeUtil
 import toplevel.typedef.ScTypeDefinition
 import psi.types.ScDesignatorType
@@ -16,7 +16,7 @@ import psi.types.ScDesignatorType
 * Date: 07.03.2008
 */
 
-trait ScSelfTypeElement extends ScNamedElement with ScTyped {
+trait ScSelfTypeElement extends ScNamedElement with ScTypedDefinition {
   def typeElement = findChild(classOf[ScTypeElement])
 
 

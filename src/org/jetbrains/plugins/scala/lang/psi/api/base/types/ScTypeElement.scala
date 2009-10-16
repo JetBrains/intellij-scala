@@ -11,6 +11,7 @@ import expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.psi._
+import result.{TypingContext, TypeResult, TypingContextOwner}
 import toplevel.ScNamedElement
 import util.PsiModificationTracker
 import collection.Set
@@ -20,18 +21,16 @@ import collection.Set
 * Date: 14.04.2008
 */
 
-trait ScTypeElement extends ScalaPsiElement {
+trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
   def cachedType: ScTypeInferenceResult = {
     CachesUtil.get(
       this, CachesUtil.TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(HashSet[ScNamedElement]())})
+      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.calcType})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
   }
 
-  def getType(implicit visited: collection.Set[ScNamedElement]) : ScTypeInferenceResult = ScTypeInferenceResult(Nothing, false, None)
-
-  def calcType: ScType = getType(HashSet[ScNamedElement]()).resType
+  def calcType: ScType = getType(TypingContext.empty).resType
 }
 
 case class ScTypeInferenceResult(resType: ScType, isCyclic: Boolean, cycleStart: Option[ScNamedElement])

@@ -27,7 +27,7 @@ import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.openapi.util._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import formatting.settings.ScalaCodeStyleSettings
@@ -262,7 +262,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (isMethodCall) s.subst(fun.calcType)
         else s.subst(fun.returnType)
       }
-      case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),

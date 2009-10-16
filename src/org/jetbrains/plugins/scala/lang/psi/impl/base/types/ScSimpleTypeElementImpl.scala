@@ -18,6 +18,7 @@ import lang.resolve.ScalaResolveResult
 import psi.types._
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import collection.Set
+import result.TypingContext
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,14 +30,14 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
+  override def getType(ctx: TypingContext) = {
     if (singleton) new ScSingletonType(pathElement) else reference match {
       case Some(ref) => ref.qualifier match {
         case None => ref.bind match {
           case None => Nothing
           case Some(ScalaResolveResult(e, s)) => e match {
             case aliasDef: ScTypeAliasDefinition =>
-              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(visited) match {
+              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) match {
                 case ScTypeInferenceResult(t, false, _) => s.subst(t)
                 case ScTypeInferenceResult(t, true, e) => ScTypeInferenceResult(s.subst(t), true, e)
               }

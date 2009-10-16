@@ -118,7 +118,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
         buffer.append(decl match {case _: ScValue => "val " case _: ScVariable => "var " case _ => ""})
         buffer.append("<b>" + (element match {case named: ScNamedElement => named.name case _ => "unknown"}) + "</b>")
-        buffer.append(element match {case typed: ScTyped => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"} )
+        buffer.append(element match {case typed: ScTypedDefinition => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"} )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
         return "<html><body>" + buffer.toString + "</body></html>"
@@ -161,7 +161,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 }
 
 object ScalaDocumentationProvider {
-  def parseType(elem: ScTyped, typeToString: ScType => String): String = {
+  def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
       case fun: ScFunction => fun.returnType
@@ -413,7 +413,7 @@ object ScalaDocumentationProvider {
         buffer.append("val ")
         buffer.append(field.name)
         field match {
-          case typed: ScTyped => {
+          case typed: ScTypedDefinition => {
             val typez = typed.calcType
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
@@ -431,7 +431,7 @@ object ScalaDocumentationProvider {
         buffer.append("var ")
         buffer.append(field.name)
         field match {
-          case typed: ScTyped => {
+          case typed: ScTypedDefinition => {
             val typez = typed.calcType
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }

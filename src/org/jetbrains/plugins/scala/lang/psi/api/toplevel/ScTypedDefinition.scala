@@ -5,11 +5,14 @@ package api
 package toplevel
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import types.result.{TypingContextOwner}
 
-trait ScTyped extends ScNamedElement {
-  def calcType() : ScType
+/**
+ * Member definitions, classes, named patterns which have types
+ */
+trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
 
-  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+  def calcType : ScType
 
   /**
    * @return false for variable elements

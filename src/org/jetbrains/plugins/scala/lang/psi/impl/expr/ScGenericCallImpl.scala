@@ -6,7 +6,7 @@ package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements.{ScFunction}
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 import api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -83,7 +83,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
         }
-        case Some(ScalaResolveResult(typed: ScTyped, subst)) => { //here we must investigate method apply (not update, because can't be generic)
+        case Some(ScalaResolveResult(typed: ScTypedDefinition, subst)) => { //here we must investigate method apply (not update, because can't be generic)
           val scType = subst.subst(typed.calcType)
           ScType.extractClassType(scType) match {
             case Some((clazz: PsiClass, subst)) => {

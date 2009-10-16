@@ -11,6 +11,7 @@ import collection.Set
 import com.intellij.lang.ASTNode
 import api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import psi.types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -20,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   override def toString: String = "CompoundType"
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
-    val comps = collection.immutable.Seq(components.map({_.getType(visited).resType}).toSeq: _*)
+  override def getType(ctx: TypingContext) = {
+    val comps = collection.immutable.Seq(components.map({_.getType(ctx).resType}).toSeq: _*)
     refinement match {
       case None => new ScCompoundType(comps, Seq.empty, Seq.empty)
       case Some(r) => new ScCompoundType(comps, r.holders.toList, r.types.toList)
