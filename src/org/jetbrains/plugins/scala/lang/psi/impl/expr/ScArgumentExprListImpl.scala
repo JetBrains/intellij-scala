@@ -9,9 +9,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import resolve.ScalaResolveResult
-import com.intellij.psi.{PsiMethod, PsiElement, PsiClass}
 import types.{ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
+import api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import api.statements.params.ScParameter
+import api.base.{ScPrimaryConstructor, ScConstructor}
+import com.intellij.psi.{PsiParameter, PsiMethod, PsiElement, PsiClass}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -131,7 +134,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         }
         val buffer = new ArrayBuffer[Array[(String, ScType)]]
         if (ref == null) {
-          //todo: according to type: apply methods
+          //todo: according to type: apply or update methods, case classes
         } else {
           val variants = ref.getSameNameVariants
           for (variant <- variants) {
@@ -165,6 +168,50 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
           }
         }
         buffer.toArray
+      }
+      case constr: ScConstructor => {
+        val res = new ArrayBuffer[Array[(String, ScType)]]
+        val i: Int = constr.arguments.indexOf(this)
+        ScType.extractDesignated(constr.typeElement.cachedType) match {
+          case Some((clazz: ScClass, subst: ScSubstitutor)) => {
+            for (function: ScFunction <- clazz.functions if function.isConstructor) {
+              val clauses = function.paramClauses.clauses
+              if (i < clauses.length) {
+                val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
+                val clause = clauses(i)
+                for (param: ScParameter <- clause.parameters) {
+                  add += Tuple(param.name, subst.subst(param.calcType))
+                }
+                res += add.toArray
+              }
+            }
+            clazz.constructor match {
+              case Some(constr: ScPrimaryConstructor) => {
+                val clauses = constr.parameterList.clauses
+                if (i < clauses.length) {
+                  val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
+                  val clause = clauses(i)
+                  for (param: ScParameter <- clause.parameters) {
+                    add += Tuple(param.name, subst.subst(param.calcType))
+                  }
+                  res += add.toArray
+                }
+              }
+              case None =>
+            }
+          }
+          case Some((clazz: PsiClass, subst: ScSubstitutor)) if i == 0 => { //if i > 0 then it cannot be Java Class
+            for (constr: PsiMethod <- clazz.getConstructors) {
+              val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
+              for (param: PsiParameter <- constr.getParameterList.getParameters) {
+                add += Tuple("", subst.subst(ScType.create(param.getType, getProject)))
+              }
+              res += add.toArray
+            }
+          }
+          case _ =>
+        }
+        res.toArray
       }
       case _ => Array.empty//todo: constructor
     }
