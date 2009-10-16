@@ -223,8 +223,9 @@ object ResolveUtils {
           } else true
         }
       }
-      case _ => JavaPsiFacade.getInstance(place.getProject).
-              getResolveHelper.isAccessible(member, place, null)
+      case _ => true //todo:
+    /*JavaPsiFacade.getInstance(place.getProject).
+              getResolveHelper.isAccessible(member, place, null)*/
     }
   }
 
