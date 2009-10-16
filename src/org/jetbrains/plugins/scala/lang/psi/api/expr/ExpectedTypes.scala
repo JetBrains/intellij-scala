@@ -131,7 +131,6 @@ object ExpectedTypes {
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
         expr match {
-          case assign: ScAssignStmt => //todo: naming parameters?
           case _ => {
             val i: Int = args.exprs.findIndexOf(_ == expr)
             for (application: Array[(String, ScType)] <- args.possibleApplications) {
