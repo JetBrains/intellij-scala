@@ -6,7 +6,7 @@ package statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 import base.types.ScTypeElement
-import toplevel.ScTyped
+import toplevel.ScTypedDefinition
 
 trait ScTypedDeclaration extends ScDeclaration {
   def typeElement : Option[ScTypeElement]
@@ -14,5 +14,5 @@ trait ScTypedDeclaration extends ScDeclaration {
     case Some(te) => te.cachedType
     case None => Nothing
   }
-  def declaredElements : Seq[ScTyped]
+  def declaredElements : Seq[ScTypedDefinition]
 }

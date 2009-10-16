@@ -42,7 +42,7 @@ import types._
 import fake.FakePsiMethod
 import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
-import api.toplevel.{ScToplevelElement, ScTyped}
+import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
@@ -228,7 +228,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
     for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
        t match {
-         case t: ScTyped => {
+         case t: ScTypedDefinition => {
            val context = ScalaPsiUtil.nameContext(t)
            buffer += new FakePsiMethod(t, context match {
               case o: PsiModifierListOwner => o.hasModifierProperty _

@@ -20,6 +20,7 @@ import psi.types._
 
 import com.intellij.lang.ASTNode
 import resolve._
+import result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,12 +30,12 @@ import resolve._
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
   override def toString: String = "TypeProjection"
 
-  override def getType(implicit visited: collection.Set[ScNamedElement]) = bind match {
+  override def getType(ctx: TypingContext) = bind match {
     case None => Nothing
     case Some(ScalaResolveResult(alias : ScTypeAliasDefinition, s)) =>
       if (alias.typeParameters == 0) s.subst(alias.aliasedType(visited)) else new ScTypeConstructorType(alias, s)
     case Some(ScalaResolveResult(alias : ScTypeAliasDeclaration, s)) => new ScTypeAliasType(alias, s)
-    case _ => new ScProjectionType(typeElement.getType(visited), this)
+    case _ => new ScProjectionType(typeElement.getType(ctx), this)
   }
 
   def getKinds(incomplete: Boolean) = StdKinds.stableClass

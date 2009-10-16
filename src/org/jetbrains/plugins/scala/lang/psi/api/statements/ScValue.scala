@@ -10,7 +10,7 @@ import icons.Icons
 import javax.swing.Icon
 import params.ScParameterClause
 import toplevel.templates.ScExtendsBlock
-import toplevel.{ScTyped, ScTypeParametersOwner}
+import toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import types.ScType
 import psi.ScalaPsiElement
 import toplevel.typedef._
@@ -24,7 +24,7 @@ import expr.ScBlockStatement
  */
 
 trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
-  def declaredElements: Seq[ScTyped]
+  def declaredElements: Seq[ScTypedDefinition]
   def typeElement: Option[ScTypeElement]
 
   def declaredType : Option[ScType] = typeElement match {

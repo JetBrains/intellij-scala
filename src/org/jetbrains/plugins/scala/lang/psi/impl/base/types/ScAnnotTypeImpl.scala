@@ -27,5 +27,5 @@ import collection.Set
 class ScAnnotTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScAnnotTypeElement{
   override def toString: String = "TypeWithAnnotation"
 
-  override def getType(implicit visited: Set[ScNamedElement]) = typeElement.getType(visited)
+  override def getType(ctx: TypingContext) = typeElement.getType(ctx)
 }

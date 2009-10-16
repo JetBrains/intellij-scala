@@ -6,7 +6,7 @@ import api.base._
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
-import api.toplevel.{ScEarlyDefinitions, ScTyped}
+import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
@@ -100,7 +100,7 @@ object ScalaPsiUtil {
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
     val empty = Seq.empty
-    val typed = x match {case x: ScTyped => x case _ => return empty}
+    val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val context: PsiElement = nameContext(typed) match {
       case value: ScValue if value.getParent.isInstanceOf[ScTemplateBody] => value
       case value: ScVariable if value.getParent.isInstanceOf[ScTemplateBody] => value

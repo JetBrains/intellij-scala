@@ -11,6 +11,7 @@ import psi.ScalaPsiElementImpl
 import lang.psi.types._
 import com.intellij.lang.ASTNode
 import collection.Set
+import result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -20,16 +21,16 @@ import collection.Set
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
   override def toString: String = "FunctionalType"
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
+  override def getType(ctx: TypingContext) = {
     val ret = returnTypeElement match {
-      case Some(r) => r.getType(visited).resType
+      case Some(r) => r.getType(ctx).resType
       case None => Nothing
     }
 
     paramTypeElement match {
-      case tup : ScTupleTypeElement => new ScFunctionType(ret, collection.immutable.Seq(tup.components.map({_.getType(visited).resType}).toSeq: _*))
+      case tup : ScTupleTypeElement => new ScFunctionType(ret, collection.immutable.Seq(tup.components.map({_.getType(ctx).resType}).toSeq: _*))
       case other: ScTypeElement => {
-        val paramTypes = other.getType(visited).resType match {
+        val paramTypes = other.getType(ctx).resType match {
           case Unit => Seq.empty
           case t => Seq(t)
         }

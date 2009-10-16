@@ -13,7 +13,7 @@ import search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.lang.Language
 import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
@@ -35,7 +35,7 @@ class FakePsiMethod(
     val manager = navElement.getManager
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod{
-  def this(value: ScTyped, hasModifier: String => Boolean) = {
+  def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
     this(value, value.getName, Array.empty, value.calcType, hasModifier)
   }
   override def toString: String = name + "()"

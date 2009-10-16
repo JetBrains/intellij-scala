@@ -11,6 +11,8 @@ import com.intellij.lang.ASTNode
 import collection.Set
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import psi.types.{ScType, ScTupleType}
+import psi.types.result.TypingContext
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 07.03.2008
@@ -19,6 +21,6 @@ import psi.types.{ScType, ScTupleType}
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTupleTypeElement{
   override def toString: String = "TupleType"
 
-  override def getType(implicit visited: Set[ScNamedElement]) =
-    new ScTupleType(collection.immutable.Seq(components.map[ScType, Seq[ScType]]({t: ScTypeElement => t.getType(visited)}).toSeq : _*))
+  override def getType(ctx : TypingContext) =
+    new ScTupleType(collection.immutable.Seq(components.map[ScType, Seq[ScType]]({t: ScTypeElement => t.getType(ctx)}).toSeq : _*))
 }

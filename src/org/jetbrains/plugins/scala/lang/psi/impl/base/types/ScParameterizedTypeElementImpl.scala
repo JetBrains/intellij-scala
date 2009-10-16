@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import collection.Set
 import collection.mutable.HashMap
+import result.TypingContext
 
 /**
  * @author Alexander Podkhalyuzin
@@ -25,13 +26,13 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
 
   def typeElement = findChildByClass(classOf[ScTypeElement])
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
-    typeElement.getType(visited) match {
+  override def getType(ctx: TypingContext) = {
+    typeElement.getType(ctx) match {
       case r@ScTypeInferenceResult(_, true, _) => r
       //todo think about recursive types
       case ScTypeInferenceResult(res, false, _) => {
         //Find cyclic type reference
-        val argTypesWrapped = typeArgList.typeArgs.map{_.getType(visited)}
+        val argTypesWrapped = typeArgList.typeArgs.map{_.getType(ctx)}
         val argTypes = argTypesWrapped.map{_.resType}
         val cyclic = argTypesWrapped.find(_.isCyclic)
         cyclic match {
@@ -49,7 +50,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
               }
               case _ => {
                 new ScParameterizedType(res, collection.immutable.Seq(
-                  typeArgList.typeArgs.map({_.getType(visited).resType}).toSeq: _*
+                  typeArgList.typeArgs.map({_.getType(ctx).resType}).toSeq: _*
                   ))
               }
             }

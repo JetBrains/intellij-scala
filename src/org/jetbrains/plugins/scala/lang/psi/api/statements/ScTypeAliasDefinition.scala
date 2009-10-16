@@ -11,6 +11,8 @@ import com.intellij.psi.util.{PsiModificationTracker, CachedValueProvider, Cache
 import com.intellij.psi.{PsiManager, PsiElement}
 import stubs.ScTypeAliasStub
 import toplevel.ScNamedElement
+import types.result.TypingContext
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -19,15 +21,15 @@ import toplevel.ScNamedElement
 trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def aliasedType(visited: collection.Set[ScNamedElement]): ScTypeInferenceResult = {
-    if (visited.contains(this)) {
+  def aliasedType(ctx: TypingContext): ScTypeInferenceResult = {
+    if (ctx.contains(this)) {
       ScTypeInferenceResult(types.Nothing, true, Some(this))
     } else {
       val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
       if (stub != null) {
-        stub.asInstanceOf[ScTypeAliasStub].getTypeElement.getType(visited + this)
+        stub.asInstanceOf[ScTypeAliasStub].getTypeElement.getType(ctx(this))
       } else 
-        aliasedTypeElement.getType(visited + this)
+        aliasedTypeElement.getType(ctx(this))
     }
   }
 

@@ -6,7 +6,7 @@ package expr
 
 import api.base.ScStableCodeReferenceElement
 import api.statements.{ScFunction, ScFun}
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 import api.toplevel.typedef.{ScClass, ScObject}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode

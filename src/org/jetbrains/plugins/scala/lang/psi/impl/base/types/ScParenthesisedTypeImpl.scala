@@ -12,6 +12,7 @@ import collection.Set
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import psi.types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -21,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 
-  override def getType(implicit visited: Set[ScNamedElement]) = typeElement match {
-    case Some(te) => te.getType(visited)
+  override def getType(ctx: TypingContext) = typeElement match {
+    case Some(te) => te.getType(ctx)
     case None => Unit
   }
 }
