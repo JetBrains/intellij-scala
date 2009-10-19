@@ -134,7 +134,9 @@ object Expr1 {
             }
           }
           case _ => {
-            builder error ErrMsg("block.expected")
+            if (!Block.parse(builder, false)) {
+              builder error ErrMsg("block.expected")
+            }
           }
         }
         tryMarker.done(ScalaElementTypes.TRY_BLOCK)
