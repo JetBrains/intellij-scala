@@ -258,7 +258,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
 
     //For debug
-    commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
+    //commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
 
 
     commandLine.add(XSS_COMPILER_PROPERTY);
