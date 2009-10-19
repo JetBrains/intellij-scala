@@ -15,6 +15,7 @@ import types.{ScFunctionType, ScType, Nothing}
 
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
+
   def getType: ScType = {
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount

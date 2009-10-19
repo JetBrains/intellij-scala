@@ -94,7 +94,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     for (sig <- sigsFound if (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => true})) {
       val set = processor.sig2Method(sig)
       for ((imports, fun) <- set) {
-        val rt = sig.substitutor.subst(fun.returnType)
+        val rt = sig.substitutor.subst(fun.returnType.unwrap(Any))
 
         def register(t: ScType) = {
           if (!result.contains(t)) {

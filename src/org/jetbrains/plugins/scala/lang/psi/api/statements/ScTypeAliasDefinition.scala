@@ -5,7 +5,7 @@ package api
 package statements
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import base.types.{ScTypeInferenceResult, ScTypeElement}
+import base.types.ScTypeElement
 import caches.CachesUtil
 import com.intellij.psi.util.{PsiModificationTracker, CachedValueProvider, CachedValue}
 import com.intellij.psi.{PsiManager, PsiElement}
@@ -23,7 +23,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedType(ctx: TypingContext): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {
-      Failure(ScalaBundle.message("circular.dependency.detected", getName), Some(this))
+      new Failure(ScalaBundle.message("circular.dependency.detected", getName), Some(this)) {override def isCyclic = true}
     } else {
       val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
       if (stub != null) {
@@ -33,7 +33,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
   }
 
-  def aliasedType: ScTypeInferenceResult = CachesUtil.get(
+  def aliasedType: TypeResult[ScType] = CachesUtil.get(
       this, CachesUtil.ALIASED_KEY,
       new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => ta.aliasedType(TypingContext.empty)})
         (PsiModificationTracker.MODIFICATION_COUNT)

@@ -191,7 +191,7 @@ class MethodResolveProcessor(ref: PsiElement,
    Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
   def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
-    typeArgElements.map(_.cachedType.resType).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
+    typeArgElements.map(_.cachedType.unwrap(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
       (subst, pair) =>
               val scType = pair._1
               val typeParameter = pair._2
@@ -215,7 +215,7 @@ class MethodResolveProcessor(ref: PsiElement,
   private def getType(e: PsiNamedElement): ScType = e match {
     case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Seq(fun.paramTypes.toSeq: _*))
     case f: ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
-      new ScFunctionType(f.declaredType, collection.immutable.Seq(f.paramTypes.toSeq: _*))
+      new ScFunctionType(f.declaredType.unwrap(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*))
     else f.calcType
     case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 

@@ -4,9 +4,10 @@ package psi
 package types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
-import _root_.scala.collection.mutable.{HashSet, HashMap}
 import api.statements._
 import com.intellij.psi.PsiTypeParameter
+import collection.mutable.{ListBuffer, HashSet, HashMap}
+import result.{TypingContext, Failure}
 
 case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder], val typeDecls: Seq[ScTypeAlias]) extends ScType{
   //compound types are checked by checking the set of signatures in their refinements
@@ -18,8 +19,10 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   val types = new HashMap[String, Bounds]
 
   for (typeDecl <- typeDecls) {
-    types += ((typeDecl.name, (typeDecl.lowerBound, typeDecl.upperBound)))
+    types += ((typeDecl.name, (typeDecl.lowerBound.unwrap(Nothing), typeDecl.upperBound.unwrap(Any))))
   }
+
+  val problems : ListBuffer[Failure] = new ListBuffer
 
   for (decl <- decls) {
     decl match {
@@ -28,17 +31,19 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
       case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
-            val varType = te.getType(Set(varDecl.declaredElements.toSeq: _*)).resType
-            signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty),varType))
-            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType), 1, ScSubstitutor.empty), Unit)) //setter
+            val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
+            varType match {case f@Failure(_, _) => problems += f; case _ =>}
+            signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), varType.unwrap(Any)))
+            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType.unwrap(Any)), 1, ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }
       }
       case valDecl: ScValue => valDecl.typeElement match {
         case Some(te) => for (e <- valDecl.declaredElements) {
-          val valType = te.getType(Set(valDecl.declaredElements.toSeq: _*)).resType
-          signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), valType))
+          val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
+          valType match {case f@Failure(_, _) => problems += f; case _ =>}
+          signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), valType.unwrap(Any)))
         }
         case None =>
       }

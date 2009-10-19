@@ -30,7 +30,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     }
   }
 
-  def getTextOffset: Int = nameId.getTextRange.getStartOffset
+  override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def getName = name
 

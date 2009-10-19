@@ -8,6 +8,7 @@ import expr.{ScAnnotations, ScAnnotation}
 import types.{ScDesignatorType, ScType}
 import java.lang.String
 import com.intellij.psi.{PsiAnnotation, PsiAnnotationOwner, PsiClass}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,7 +28,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.getQualifiedName) != None
 
   def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
-    annotations.find(_.annotationExpr.constr.typeElement.cachedType.resType match {
+    annotations.find(_.annotationExpr.constr.typeElement.cachedType.unwrap(Any) match {
       case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName == qualifiedName
       case _ => false
     })

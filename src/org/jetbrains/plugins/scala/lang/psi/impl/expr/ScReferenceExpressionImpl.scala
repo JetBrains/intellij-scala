@@ -233,7 +233,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
-        new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
+        new ScFunctionType(s.subst(f.declaredType.unwrap(Any)), f.paramTypes.map{
           s.subst _
         })
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
@@ -260,7 +260,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
         if (isMethodCall) s.subst(fun.calcType)
-        else s.subst(fun.returnType)
+        else s.subst(fun.returnType.unwrap(Any))
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)

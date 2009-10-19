@@ -14,6 +14,7 @@ import resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author ilyas
@@ -117,7 +118,7 @@ object ExpectedTypes {
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.getOrElse(null: ScExpression) == expr => {
         v.returnTypeElement match {
-          case Some(_) => Array(v.returnType)
+          case Some(_) => Array(v.returnType.unwrap(Any))
           case _ => Array.empty
         }
       }

@@ -58,12 +58,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def empty = getNode.getFirstChildNode == null
 
-  def selfType = selfTypeElement match {
-    case Some(ste) => ste.typeElement match {
-      case Some(te) => Some(te.cachedType)
-      case None => None
+  def selfType = selfTypeElement flatMap {
+    ste => ste.typeElement map {
+      te => te.cachedType.unwrap(Any)
     }
-    case None => None
   }
 
   def superTypes: List[ScType] = {

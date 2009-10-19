@@ -105,12 +105,12 @@ object Conformance {
                   n.info match {
                     case ta: ScTypeAlias => {
                       val s = subst1 followed subst
-                      if (!s.subst(ta.upperBound).conforms(t.upperBound) ||
-                              !t.lowerBound.conforms(s.subst(ta.lowerBound))) return false
+                      if (!s.subst(ta.upperBound.unwrap(Any)).conforms(t.upperBound.unwrap(Any)) ||
+                              !t.lowerBound.unwrap(Nothing).conforms(s.subst(ta.lowerBound.unwrap(Nothing)))) return false
                     }
                     case inner: PsiClass => {
                       val des = ScParameterizedType.create(inner, subst1 followed subst)
-                      if (!subst.subst(des).conforms(t.upperBound) || !t.lowerBound.conforms(des)) return false
+                      if (!subst.subst(des).conforms(t.upperBound.unwrap(Any)) || !t.lowerBound.unwrap(Nothing).conforms(des)) return false
                     }
                   }
                 }
@@ -220,6 +220,6 @@ object Conformance {
       clazz, CachesUtil.SIGNATURES_MAP_KEY,
       new CachesUtil.MyProvider(clazz, {clazz: PsiClass => getSignatureMapInner(clazz)})
         (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+      )
   }
 }

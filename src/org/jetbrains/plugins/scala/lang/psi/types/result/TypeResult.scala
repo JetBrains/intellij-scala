@@ -13,6 +13,8 @@ sealed abstract class TypeResult[+T <: ScType] {
   def filter(f: T => Boolean): TypeResult[T]
   def apply(fail: Failure): TypeResult[T]
   def unwrap(default: ScType): ScType
+  def isCyclic: Boolean
+  def foreach[B](f: T => B): Unit
 }
 
 case class Success[+T <: ScType](result: T, elem: Option[PsiElement]) extends TypeResult[T] { self =>
@@ -24,6 +26,8 @@ case class Success[+T <: ScType](result: T, elem: Option[PsiElement]) extends Ty
     override def innerFailures = fail :: self.innerFailures
   }
   def unwrap(default: ScType) = result
+  def isCyclic = false
+  def foreach[B](f: T => B) {f(result)}
 }
 
 case class Failure(cause: String, place: Option[PsiElement]) extends TypeResult[Nothing] {
@@ -32,4 +36,6 @@ case class Failure(cause: String, place: Option[PsiElement]) extends TypeResult[
   def filter(f: Nothing => Boolean) = this
   def apply(fail: Failure) = this
   def unwrap(default: ScType) = default
+  def isCyclic = false
+  def foreach[B](f: Nothing => B) {}
 }

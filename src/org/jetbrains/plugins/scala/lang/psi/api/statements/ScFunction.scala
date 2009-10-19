@@ -16,6 +16,7 @@ import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
 import types._
+import result.TypeResult
 
 /**
  * @author Alexander Podkhalyuzin
@@ -51,9 +52,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         else cls.map(cl => cl.parameters.map(_.calcType))
       }
     }
+    val rt = returnType.unwrap(Any)
     clauseTypes match {
-      case Nil => ScFunctionType(returnType, Nil)
-      case _ => clauseTypes.foldRight(returnType)((x, z) => ScFunctionType(z, x)).asInstanceOf[ScFunctionType]
+      case Nil => ScFunctionType(rt, Nil)
+      case _ => clauseTypes.foldRight(rt)((x, z) => ScFunctionType(z, x)).asInstanceOf[ScFunctionType]
     }
   }
 
@@ -73,12 +75,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     findChild(classOf[ScTypeElement])
   }
 
-  def returnType: ScType
+  def returnType: TypeResult[ScType]
 
-  def declaredType: ScType = returnTypeElement match {
-    case Some(rte) => rte.cachedType
-    case None => Nothing
-  }
+  def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.cachedType)
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 

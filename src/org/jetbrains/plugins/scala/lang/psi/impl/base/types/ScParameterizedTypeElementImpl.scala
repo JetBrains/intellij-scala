@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import collection.mutable.HashMap
-import result.TypingContext
+import result.{TypeResult, Success, Failure, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -24,29 +24,29 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   def typeElement = findChildByClass(classOf[ScTypeElement])
 
   override def getType(ctx: TypingContext) = {
-    typeElement.getType(ctx) map { res => {
-        //Find cyclic type references
+    typeElement.getType(ctx) flatMap {
+      res => {
         val argTypesWrapped = typeArgList.typeArgs.map {_.getType(ctx)}
-        val argTypes = argTypesWrapped.map {_.resType}
-        val cyclic = argTypesWrapped.find(_.isCyclic)
-        cyclic match {
-          case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res,
-            collection.immutable.Seq(argTypes.toSeq: _*)), true, result.cycleStart)
-          case None => {
-            res match {
-              case tp: ScTypeConstructorType => {
-                val map = new HashMap[String, ScType]
-                for (i <- 0 until argTypes.length.min(tp.args.size)) {
-                  map += Tuple(tp.args.apply(i).name, argTypes(i))
-                }
-                val subst = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-                subst.subst(tp.aliased.v)
+        val argTypesUnwrapped = argTypesWrapped.map {_.unwrap(Any)}
+        def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(Success(t, Some(this)))(_.apply(_))
+        val lift : (ScType) => Success[ScType] = Success(_, Some(this))
+
+        //Find cyclic type references
+        argTypesWrapped.find(_.isCyclic) match {
+          case Some(_) => fails(new ScParameterizedType(res, Seq(argTypesUnwrapped.toSeq: _*)))
+          case None => res match {
+            case tp: ScTypeConstructorType => {
+              val map = new HashMap[String, ScType]
+              for (i <- 0 until argTypesUnwrapped.length.min(tp.args.size)) {
+                map += Tuple(tp.args.apply(i).name, argTypesUnwrapped(i))
               }
-              case _ => {
-                new ScParameterizedType(res, collection.immutable.Seq(
-                  typeArgList.typeArgs.map({_.getType(ctx).resType}).toSeq: _*
-                  ))
-              }
+              val subst = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+              fails(subst.subst(tp.aliased.v))
+            }
+            case _ => {
+              val typeArgs = typeArgList.typeArgs.map(_.getType(ctx))
+              val result = new ScParameterizedType(res, typeArgs.map(_.unwrap(Any)))
+              (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
             }
           }
         }
