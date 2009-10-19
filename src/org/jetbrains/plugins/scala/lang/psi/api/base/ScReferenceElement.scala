@@ -90,6 +90,8 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   //provides the set of possible namespace alternatives based on syntactic position 
   def getKinds(incomplete: Boolean): Set[ResolveTargets.Value]
 
+  def getVariants(implicits: Boolean): Array[Object] = getVariants()
+
   def getSameNameVariants: Array[ResolveResult]
 
   override def accept(visitor: PsiElementVisitor) {

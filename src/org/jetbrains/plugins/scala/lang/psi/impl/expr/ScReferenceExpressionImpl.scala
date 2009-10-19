@@ -68,12 +68,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getVariants(): Array[Object] = {
+  def getVariants: Array[Object] = getVariants(true)
+
+  override def getVariants(implicits: Boolean): Array[Object] = {
     val tp: ScType = qualifier match {
       case None => psi.types.Nothing
       case Some(qual: ScExpression) => qual.getType
     }
-    _resolve(this, new CompletionProcessor(getKinds(true))).map(r => {
+    _resolve(this, new CompletionProcessor(getKinds(true), implicits)).map(r => {
       r match {
         case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
         case _ => r.getElement
@@ -142,7 +144,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def processTypes(e: ScExpression) = {
       ProgressManager.getInstance.checkCanceled
       processor.processType(e.getType, e, ResolveState.initial)
-      if (processor.candidates.length == 0 || processor.isInstanceOf[CompletionProcessor]) {
+      if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
+              processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
         for (t <- e.getImplicitTypes) {
           ProgressManager.getInstance.checkCanceled
           val importsUsed = e.getImportsForImplicit(t)
