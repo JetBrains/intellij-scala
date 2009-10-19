@@ -17,6 +17,7 @@ import toplevel.typedef._
 import com.intellij.psi._
 import base.types.ScTypeElement
 import expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -27,10 +28,7 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
   def declaredElements: Seq[ScTypedDefinition]
   def typeElement: Option[ScTypeElement]
 
-  def declaredType : Option[ScType] = typeElement match {
-    case Some(te) => Some(te.cachedType)
-    case None => None
-  }
+  def declaredType: Option[ScType] = typeElement map (_.cachedType.unwrap(Any))
 
   def getType: ScType
 

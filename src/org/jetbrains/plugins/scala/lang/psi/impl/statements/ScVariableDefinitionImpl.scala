@@ -12,15 +12,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import parser.ScalaElementTypes
 import stubs.{ScValueStub, ScVariableStub}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:56:07
-*/
+ * @author Alexander Podkhalyuzin
+ */
 
 class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDefinition {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScVariableStub) = {this(); setStub(stub); setNode(null)}
+  def this(node: ASTNode) = {this (); setNode(node)}
+
+  def this(stub: ScVariableStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString: String = "ScVariableDefinition"
 
@@ -30,7 +31,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   }
 
   def getType = typeElement match {
-    case Some(te) => te.cachedType
+    case Some(te) => te.cachedType.unwrap(Any)
     case None => expr.getType
   }
 

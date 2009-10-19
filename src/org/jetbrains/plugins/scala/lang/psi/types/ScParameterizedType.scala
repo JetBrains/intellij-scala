@@ -112,8 +112,8 @@ extends ScPolymorphicType(alias.name, args, lower, upper) {
 
   def this(ta : ScTypeAlias, s : ScSubstitutor) =
     this(ta, ta.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(ta.lowerBound)}),
-      new Suspension[ScType]({() => s.subst(ta.upperBound)}))
+      new Suspension[ScType]({() => s.subst(ta.lowerBound.unwrap(Nothing))}),
+      new Suspension[ScType]({() => s.subst(ta.upperBound.unwrap(Any))}))
 }
 
 case class ScTypeParameterType(override val name: String, override val args: List[ScTypeParameterType],
@@ -122,8 +122,8 @@ case class ScTypeParameterType(override val name: String, override val args: Lis
 extends ScPolymorphicType(name, args, lower, upper) {
   def this(tp : ScTypeParam, s : ScSubstitutor) =
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(tp.lowerBound)}),
-      new Suspension[ScType]({() => s.subst(tp.upperBound)}),
+      new Suspension[ScType]({() => s.subst(tp.lowerBound.unwrap(Nothing))}),
+      new Suspension[ScType]({() => s.subst(tp.upperBound.unwrap(Any))}),
       tp)
 
   def this(ptp: PsiTypeParameter, s: ScSubstitutor) = 

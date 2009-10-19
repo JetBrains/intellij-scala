@@ -316,17 +316,16 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             var res: String = ""
             res += (if (typeParam.isContravariant) "-" else if (typeParam.isCovariant) "+" else "")
             res += typeParam.getName
-            typeParam.lowerBound match {
+            typeParam.lowerBound foreach {
               case psi.types.Nothing =>
               case x => res =  res + " >: " + ScType.canonicalText(substitutor.subst(x))
             }
-            typeParam.upperBound match {
+            typeParam.upperBound foreach {
               case psi.types.Any =>
               case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x)) 
             }
-            typeParam.viewBound match {
-              case None =>
-              case Some(x) => res = res + " <% " + ScType.canonicalText(substitutor.subst(x))
+            typeParam.viewBound foreach {
+              x => res = res + " <% " + ScType.canonicalText(substitutor.subst(x))
             }
             return res
           }
@@ -337,9 +336,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
           for (paramClause <- method.paramClauses.clauses) {
             def get(param: ScParameter): String = {
               var res: String = param.getName
-              param.typeElement match {
-                case None =>
-                case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType))
+              param.typeElement foreach {
+                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.unwrap(Any)))
               }
               return res
             }
@@ -348,9 +346,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
           }
         }
         if (needsInferType) {
-          method.returnTypeElement match {
-            case None =>
-            case Some(x) => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType))
+          method.returnTypeElement foreach {
+            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.unwrap(Any)))
           }
         }
         res = res + " = "

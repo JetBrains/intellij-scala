@@ -28,16 +28,19 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
 
   override def getType(ctx: TypingContext) = {
     val q = quantified.getType(ctx)
-    val problems: ListBuffer[TypeResult[_]] = new ListBuffer
+    val problems: ListBuffer[TypeResult[ScType]] = new ListBuffer
     problems += q
     val wildcards: List[ScExistentialArgument] = {
       var buff: ListBuffer[ScExistentialArgument] = new ListBuffer
       for (decl <- clause.declarations) {
         decl match {
           case alias: ScTypeAliasDeclaration => {
+            val lb = alias.lowerBound
+            val ub = alias.upperBound
+            problems += lb; problems += ub
             buff +=  new ScExistentialArgument(alias.name,
                                                alias.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList,
-                                               alias.lowerBound, alias.upperBound)
+                                               lb.unwrap(Nothing), ub.unwrap(Any))
           }
           case value: ScValueDeclaration => {
             value.typeElement match {

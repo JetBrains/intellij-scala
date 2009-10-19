@@ -58,8 +58,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val tv = tp match {
         case stp: ScTypeParam => {
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
-          val lower = () => stp.lowerBound
-          val upper = () => stp.upperBound
+          val lower = () => stp.lowerBound.unwrap(Nothing)
+          val upper = () => stp.upperBound.unwrap(Any)
+          // todo rework for error handling!
           val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
           typeVariables.put(tp, res)
           res

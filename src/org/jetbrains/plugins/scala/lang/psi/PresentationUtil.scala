@@ -34,17 +34,16 @@ object PresentationUtil {
         var paramText = param.getName
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
-        param.lowerBound match {
+        param.lowerBound foreach {
           case psi.types.Nothing =>
           case tp: ScType => paramText = paramText + " >: " + presentationString(tp, substitutor)
         }
-        param.upperBound match {
+        param.upperBound foreach {
           case psi.types.Any =>
           case tp: ScType => paramText = paramText + " <: " + presentationString(tp, substitutor)
         }
-        param.viewBound match {
-          case Some(tp: ScType) => paramText = paramText + " <% " + presentationString(tp, substitutor)
-          case None =>
+        param.viewBound foreach {
+          (tp: ScType) => paramText = paramText + " <% " + presentationString(tp, substitutor)
         }
         return paramText
       }

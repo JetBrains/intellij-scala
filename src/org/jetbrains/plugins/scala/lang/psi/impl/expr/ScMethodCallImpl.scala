@@ -54,7 +54,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
             fun match {
               case fun: ScFun => s.subst(fun.retType)
-              case fun: ScFunction => s.subst(fun.returnType)
+              case fun: ScFunction => s.subst(fun.returnType.unwrap(Any))
               case meth: PsiMethod => s.subst(ScType.create(meth.getReturnType, getProject))
             }
           }

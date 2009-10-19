@@ -31,22 +31,25 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   override def getType(ctx: TypingContext) = {
+    val lift : (ScType) => Success[ScType] = Success(_, Some(this))
+
     if (singleton) Success(ScSingletonType(pathElement), Some(this))
-    else for (ref <- wrap(reference)) yield ref.qualifier match {
-      case Some(q) => ScProjectionType(new ScSingletonType(q), ref)
-      case None => wrap(ref.bind) map {
-        case ScalaResolveResult(e, s) => e match {
-          case aliasDef: ScTypeAliasDefinition =>
-            if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map { t => s.subst(t)}
-            else {
-              //todo work with recursive aliases
-              new ScTypeConstructorType(aliasDef, s)
-            }
-          case alias: ScTypeAliasDeclaration => new ScTypeAliasType(alias, s)
-          case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-          case synth: ScSyntheticClass => synth.t
-          case null => Nothing
-          case _ => new ScDesignatorType(e)
+    wrap(reference) flatMap { ref => ref.qualifier match {
+        case Some(q) => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+        case None => wrap(ref.bind) flatMap {
+          case ScalaResolveResult(e, s) => e match {
+            case aliasDef: ScTypeAliasDefinition =>
+              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
+              else {
+                //todo work with recursive aliases
+                lift(new ScTypeConstructorType(aliasDef, s))
+              }
+            case alias: ScTypeAliasDeclaration => lift(new ScTypeAliasType(alias, s))
+            case tp: PsiTypeParameter => lift(ScalaPsiManager.typeVariable(tp))
+            case synth: ScSyntheticClass => lift(synth.t)
+            case null => lift(Any)
+            case _ => lift(ScDesignatorType(e))
+          }
         }
       }
     }

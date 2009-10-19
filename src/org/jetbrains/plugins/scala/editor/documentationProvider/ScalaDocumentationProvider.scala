@@ -162,7 +162,7 @@ object ScalaDocumentationProvider {
   def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
-      case fun: ScFunction => fun.returnType
+      case fun: ScFunction => fun.returnType.unwrap(Any)
       case _ => elem.calcType
     }
     buffer.append(typeToString(typez))

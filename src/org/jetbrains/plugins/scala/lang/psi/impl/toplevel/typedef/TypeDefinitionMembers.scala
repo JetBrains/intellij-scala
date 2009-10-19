@@ -237,7 +237,7 @@ object TypeDefinitionMembers {
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           }
-          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
+          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.unwrap(Any)), f)
           case _ =>
         }
       }

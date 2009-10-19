@@ -15,6 +15,10 @@ trait MonadTransformer { self : PsiElement =>
     def map[U <: ScType](f: T => U): TypeResult[U]
   }
 
+  type SemiMonadLike[+T] = {
+    def flatMap(f: T => TypeResult[ScType]): TypeResult[ScType]
+  }
+
   implicit val DEFAULT_ERROR_MESSAGE = "No element found"
 
   implicit def wrap[T](opt: Option[T])(implicit msg: String): MonadLike[T] = new {
@@ -25,6 +29,13 @@ trait MonadTransformer { self : PsiElement =>
     def map[U <: ScType](f: T => U): TypeResult[U] = opt match {
       case s@Some(elem) => Success(f(elem), Some(self))
       case None         => Failure(msg, None)
+    }
+  }
+
+  implicit def wrapWith[T](opt: Option[T], default: ScType)(implicit msg: String): SemiMonadLike[T] = new {
+    def flatMap(f: T => TypeResult[ScType]): TypeResult[ScType] = opt match {
+      case Some(elem) => f(elem)
+      case None       => Success(default, None)
     }
   }
 }

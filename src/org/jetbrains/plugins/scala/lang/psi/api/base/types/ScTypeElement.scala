@@ -8,7 +8,7 @@ package types
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import result.{TypingContext, TypingContextOwner}
+import result.{TypeResult, TypingContext, TypingContextOwner}
 import toplevel.ScNamedElement
 import com.intellij.psi.util.PsiModificationTracker
 
@@ -18,15 +18,14 @@ import com.intellij.psi.util.PsiModificationTracker
 */
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
-  def cachedType: ScTypeInferenceResult = {
+
+  def cachedType: TypeResult[ScType] = {
     CachesUtil.get(
       this, CachesUtil.TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.calcType})
+      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(TypingContext.empty)})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
   }
 
-  def calcType: ScType = getType(TypingContext.empty).resType
+  def calcType: ScType = getType(TypingContext.empty).unwrap(Any)
 }
-
-case class ScTypeInferenceResult(resType: ScType, isCyclic: Boolean, cycleStart: Option[ScNamedElement])
