@@ -5,18 +5,15 @@ package impl
 package base
 package types
 
-import api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import collection.Set
 import collection.mutable.HashMap
 import result.TypingContext
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 13.03.2008
+ * @author Alexander Podkhalyuzin, ilyas
  */
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
@@ -27,13 +24,10 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   def typeElement = findChildByClass(classOf[ScTypeElement])
 
   override def getType(ctx: TypingContext) = {
-    typeElement.getType(ctx) match {
-      case r@ScTypeInferenceResult(_, true, _) => r
-      //todo think about recursive types
-      case ScTypeInferenceResult(res, false, _) => {
-        //Find cyclic type reference
-        val argTypesWrapped = typeArgList.typeArgs.map{_.getType(ctx)}
-        val argTypes = argTypesWrapped.map{_.resType}
+    typeElement.getType(ctx) map { res => {
+        //Find cyclic type references
+        val argTypesWrapped = typeArgList.typeArgs.map {_.getType(ctx)}
+        val argTypes = argTypesWrapped.map {_.resType}
         val cyclic = argTypesWrapped.find(_.isCyclic)
         cyclic match {
           case Some(result) => ScTypeInferenceResult(new ScParameterizedType(res,

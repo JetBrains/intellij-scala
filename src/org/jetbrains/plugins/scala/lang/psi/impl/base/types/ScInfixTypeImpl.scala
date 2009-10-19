@@ -5,20 +5,17 @@ package impl
 package base
 package types
 
-import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import psi.types._
-import collection.Set
 import com.intellij.lang.ASTNode
 import result.{TypeResult, TypingContext}
-import util.monads.MonadTransformer
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
  */
 
-class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement with MonadTransformer {
+class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixTypeElement {
   override def toString: String = "InfixType"
 
   def rOp = findChildrenByClass(classOf[ScTypeElement]) match {
@@ -27,8 +24,8 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = for (
-    rop <- wrap(rOp);
-    element <- wrap(ref.bind.map(_.element));
+    rop <- wrap(rOp)(ScalaBundle.message("no.right.operand.found"));
+    element <- wrap(ref.bind.map(_.element))("cannot.resolve.infix.operator");
     rType <- rop.getType(ctx);
     lType <- lOp.getType(ctx)
   )

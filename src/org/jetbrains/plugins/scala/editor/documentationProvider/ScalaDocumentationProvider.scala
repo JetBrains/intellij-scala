@@ -2,27 +2,25 @@ package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import _root_.scala.collection.immutable.HashSet
-import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.{ScConstructor, ScAccessModifier, ScPrimaryConstructor}
-import lang.psi.api.expr.{ScAnnotationExpr, ScConstrExpr, ScAnnotation, ScNameValuePair}
+import lang.psi.api.expr.{ScAnnotation}
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
-import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
+import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import lang.psi.api.toplevel._
 import lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
+import lang.psi.types.result.{Failure, Success, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -458,7 +456,11 @@ object ScalaDocumentationProvider {
     alias match {
       case d: ScTypeAliasDefinition => {
         buffer.append(" = ")
-        buffer.append(ScType.presentableText(d.aliasedType(Set[ScNamedElement]()).resType))
+        val ttype = d.aliasedType(TypingContext.empty) match {
+          case Success(t, _) => t
+          case Failure(_, _) => Any
+        }
+        buffer.append(ScType.presentableText(ttype))
       }
       case _ =>
     }

@@ -1,6 +1,6 @@
 <!--EXTERNAL_PROPERTIES: config_path-->
 <project>
-  <property name="nightly_task_assembly" value="${project::get-base-directory()}/../DeployNightlyBuildTask/bin/Debug/DeployNightlyBuildTask.dll"/>
+  <property name="nightly_task_assembly" value="${project::get-base-directory()}/DeployNightlyBuildTask/bin/Debug/DeployNightlyBuildTask.dll"/>
   <property name="full_config_path" value="\\MSDC\Home\Alexander.Podkhalyuzin\NightlyConfig\config.xml"/>
   <property name="artifacts.dir" value="${project::get-base-directory()}/artifacts"/>
   <target name="deploy">
@@ -28,6 +28,21 @@
                     build_type_id="bt110"
                     publish="${build.publish}"
                     failonerror="true"
-                    status_should_contain_tests="false"/>
+                    status_should_contain_tests="false"
+
+                    product="scala"
+                    confluence_url="http://www.jetbrains.net/confluence/"
+                    confluence_user_name="serge239"
+                    confluence_password="ZWlkalJqQgo="
+                    db_server="unit-237"
+                    db_user_name="buser"
+                    db_database="nightly"
+                    db_password="cXdlMTIz"
+                    ftp_url="ftp://upload.cds.intellij.net/"
+                    ftp_user_name="scala"
+                    ftp_password="clVJZWtPcQ=="
+                    watchers="ilyas239@gmail.com"
+
+/>
   </target>
 </project>

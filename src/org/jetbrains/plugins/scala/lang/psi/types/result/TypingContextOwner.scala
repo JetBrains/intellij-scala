@@ -29,11 +29,11 @@ trait TypingContext {
    */
   def visited: Set[ScNamedElement]
 
-  def apply(named: ScNamedElement) = new TypingContext {
+  def apply(named: ScNamedElement): TypingContext = new TypingContext {
     def visited = HashSet(self.visited.toSeq: _*) + named
   }
 
-  def apply(seq: Seq[ScNamedElement]) = seq.foldLeft(TypingContext.empty)((ctx, elem) => ctx(elem))
+  def apply(seq: Seq[ScNamedElement]): TypingContext = seq.foldLeft(TypingContext.empty)((ctx, elem) => ctx(elem))
 
 }
 
