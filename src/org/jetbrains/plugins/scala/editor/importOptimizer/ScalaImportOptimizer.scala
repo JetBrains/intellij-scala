@@ -28,12 +28,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
         file.accept(new ScalaRecursiveElementVisitor {
           override def visitReference(ref: ScReferenceElement) = {
             if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
-              for{
-                resolveResult <- ref.multiResolve(false)
-                if resolveResult.isInstanceOf[ScalaResolveResult]
-                scalaResult: ScalaResolveResult = resolveResult.asInstanceOf[ScalaResolveResult]
-              } {
-                usedImports ++= scalaResult.importsUsed
+              ref.multiResolve(false) foreach {
+                case scalaResult: ScalaResolveResult =>
+                  usedImports ++= scalaResult.importsUsed
+                  //println(ref.getElement.getText + " -- " + scalaResult.importsUsed + " -- " + scalaResult.element)
+                case _ =>
               }
             }
             super.visitReference(ref)
