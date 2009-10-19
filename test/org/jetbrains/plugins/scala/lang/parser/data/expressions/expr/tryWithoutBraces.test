@@ -1,0 +1,53 @@
+object A {
+  try 2 + 2 catch {case e: Throwable =>}
+}
+------
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        TryStatement
+          TryBlock
+            PsiElement(try)('try')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              Literal
+                PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              Literal
+                PsiElement(integer)('2')
+          PsiWhiteSpace(' ')
+          CatchBlock
+            PsiElement(catch)('catch')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypedPattern
+                  PsiElement(identifier)('e')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleTypeElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('Throwable')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
