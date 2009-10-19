@@ -11,7 +11,7 @@ import com.intellij.psi.util.{PsiModificationTracker, CachedValueProvider, Cache
 import com.intellij.psi.{PsiManager, PsiElement}
 import stubs.ScTypeAliasStub
 import toplevel.ScNamedElement
-import types.result.TypingContext
+import types.result.{TypeResult, Failure, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,9 +21,9 @@ import types.result.TypingContext
 trait ScTypeAliasDefinition extends ScTypeAlias {
   def aliasedTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def aliasedType(ctx: TypingContext): ScTypeInferenceResult = {
-    if (ctx.contains(this)) {
-      ScTypeInferenceResult(types.Nothing, true, Some(this))
+  def aliasedType(ctx: TypingContext): TypeResult[ScType] = {
+    if (ctx.visited.contains(this)) {
+      Failure(ScalaBundle.message("circular.dependency.detected", getName), Some(this))
     } else {
       val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
       if (stub != null) {
@@ -35,10 +35,10 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
 
   def aliasedType: ScTypeInferenceResult = CachesUtil.get(
       this, CachesUtil.ALIASED_KEY,
-      new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => ta.aliasedType(Set[ScNamedElement]())})
+      new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => ta.aliasedType(TypingContext.empty)})
         (PsiModificationTracker.MODIFICATION_COUNT)
     )
 
-  def lowerBound: ScType = aliasedType(Set[ScNamedElement]())
-  def upperBound: ScType = aliasedType(Set[ScNamedElement]())
+  def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
+  def upperBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
 }

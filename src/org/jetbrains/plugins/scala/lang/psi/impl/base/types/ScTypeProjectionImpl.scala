@@ -20,7 +20,7 @@ import psi.types._
 
 import com.intellij.lang.ASTNode
 import resolve._
-import result.TypingContext
+import result.{Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -30,12 +30,15 @@ import result.TypingContext
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
   override def toString: String = "TypeProjection"
 
-  override def getType(ctx: TypingContext) = bind match {
-    case None => Nothing
-    case Some(ScalaResolveResult(alias : ScTypeAliasDefinition, s)) =>
-      if (alias.typeParameters == 0) s.subst(alias.aliasedType(visited)) else new ScTypeConstructorType(alias, s)
-    case Some(ScalaResolveResult(alias : ScTypeAliasDeclaration, s)) => new ScTypeAliasType(alias, s)
-    case _ => new ScProjectionType(typeElement.getType(ctx), this)
+  override def getType(ctx: TypingContext) = {
+    def lift(t: ScType) = Success(t, Some(this))
+    wrap(bind) flatMap {
+      case ScalaResolveResult(alias: ScTypeAliasDefinition, s) =>
+        if (alias.typeParameters == 0) alias.aliasedType(ctx) map {s.subst(_)}
+        else lift(new ScTypeConstructorType(alias, s))
+      case ScalaResolveResult(alias: ScTypeAliasDeclaration, s) => lift(new ScTypeAliasType(alias, s))
+      case _ => typeElement.getType(ctx) map {ScProjectionType(_, this)}
+    }
   }
 
   def getKinds(incomplete: Boolean) = StdKinds.stableClass

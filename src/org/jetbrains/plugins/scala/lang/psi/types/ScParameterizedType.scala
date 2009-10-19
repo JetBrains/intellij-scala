@@ -18,6 +18,7 @@ import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, P
 import resolve.{ResolveProcessor, StdKinds}
 import api.statements.params.ScTypeParam
 import psi.impl.ScalaPsiManager
+import result.TypingContext
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
   override def equiv(t: ScType) = t match {
@@ -92,7 +93,7 @@ extends ScPolymorphicType(alias.name, args, aliased, aliased) {
 
   def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
     this(tad, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(tad.aliasedType(Set[ScNamedElement]()).resType)}))
+      new Suspension[ScType]({() => s.subst(tad.aliasedType(TypingContext.empty).unwrap(Any))}))
 }
 
 case class ScTypeAliasType(alias : ScTypeAlias, override val args : List[ScTypeParameterType],

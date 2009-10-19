@@ -425,7 +425,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
       alias match {
         case alias: ScTypeAliasDefinition => {
           return "override type " + alias.getName + " = " +
-                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty)))
+                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).unwrap(Any)))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body

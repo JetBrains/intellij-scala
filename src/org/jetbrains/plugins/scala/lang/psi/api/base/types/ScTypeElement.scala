@@ -5,16 +5,12 @@ package api
 package base
 package types
 
-import _root_.scala.collection.immutable.HashSet
 import caches.CachesUtil
-import expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import com.intellij.psi._
-import result.{TypingContext, TypeResult, TypingContextOwner}
+import result.{TypingContext, TypingContextOwner}
 import toplevel.ScNamedElement
-import util.PsiModificationTracker
-import collection.Set
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
 * @author Alexander Podkhalyuzin
