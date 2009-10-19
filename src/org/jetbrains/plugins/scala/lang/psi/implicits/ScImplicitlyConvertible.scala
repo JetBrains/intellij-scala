@@ -150,6 +150,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             } else {
               signatures2ImplicitMethods += ((sign -> (signatures2ImplicitMethods(sign) + Pair(getImports(state), f))))
             }
+
+//            if (!getImports(state).isEmpty) {
+//              println("agaga -> " + getImports(state))
+//            }
+
             candidatesSet += new ScalaResolveResult(f, getSubst(state), getImports(state))
           }
           //todo add implicit objects
