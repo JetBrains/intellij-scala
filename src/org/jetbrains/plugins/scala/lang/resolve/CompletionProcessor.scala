@@ -11,7 +11,8 @@ import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
-class CompletionProcessor(override val kinds: Set[ResolveTargets.Value]) extends BaseProcessor(kinds) {
+class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
+                          val collectImplicits: Boolean = false) extends BaseProcessor(kinds) {
   private val signatures = new HashSet[Signature]
   private val names = new HashSet[String]
 

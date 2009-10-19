@@ -27,21 +27,21 @@ class ScalaCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
-          val variants = ref.getVariants
+          val variants: Array[Object] = if (parameters.getInvocationCount == 1) ref.getVariants(false) else ref.getVariants
           for (variant <- variants) {
             variant match {
               case (el: LookupElement, elem: PsiElement, _) => {
                 elem match {
                   case fun: ScFun => result.addElement(el)
                   case memb: PsiMember => {
-                    if (parameters.getInvocationCount > 1 ||
+                    if (parameters.getInvocationCount > 2 ||
                             ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
                   }
                   case patt: ScBindingPattern => {
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
                       case memb: PsiMember => {
-                        if (parameters.getInvocationCount > 1 ||
+                        if (parameters.getInvocationCount > 2 ||
                             ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
                       }
                       case _ => result.addElement(el)
