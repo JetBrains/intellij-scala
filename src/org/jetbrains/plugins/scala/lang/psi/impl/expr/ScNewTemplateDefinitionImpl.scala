@@ -59,4 +59,6 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     // return strict superclasses
     res.filter(_ != this).toArray
   }
+
+
 }

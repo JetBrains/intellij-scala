@@ -20,7 +20,7 @@ import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFi
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
-import lang.psi.api.toplevel.{ScModifierListOwner, ScTyped}
+import lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -64,13 +64,13 @@ object ScalaOIUtil {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
               name match {
-                case y: ScTyped => classMembersBuf += new ScValueMember(x, y, subst)
+                case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
             case x: ScVariable => {
               name match {
-                case y: ScTyped => classMembersBuf += new ScVariableMember(x, y, subst)
+                case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
@@ -313,7 +313,7 @@ object ScalaOIUtil {
             return ScalaPsiElementFactory.createOverrideImplementType(alias, subst, alias.getManager, !isImplement)
           }
           case _: ScValue | _: ScVariable => {
-            val typed: ScTyped = name match {case x: ScTyped => x case _ => return null}
+            val typed: ScTypedDefinition = name match {case x: ScTypedDefinition => x case _ => return null}
             return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, 
               element match {case _: ScValue => true case _ => false}, true)
           }

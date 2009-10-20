@@ -11,10 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import resolve.ScalaResolveResult
 import types.{ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
-import api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import api.toplevel.typedef.{ScClass}
 import api.statements.params.ScParameter
 import api.base.{ScPrimaryConstructor, ScConstructor}
-import com.intellij.psi.{PsiParameter, PsiMethod, PsiElement, PsiClass}
+import com.intellij.psi.{PsiParameter, PsiMethod, PsiClass}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
 * @author Alexander Podkhalyuzin
@@ -172,7 +173,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case constr: ScConstructor => {
         val res = new ArrayBuffer[Array[(String, ScType)]]
         val i: Int = constr.arguments.indexOf(this)
-        ScType.extractDesignated(constr.typeElement.cachedType) match {
+        ScType.extractDesignated(constr.typeElement.cachedType.unwrap(Any)) match {
           case Some((clazz: ScClass, subst: ScSubstitutor)) => {
             for (function: ScFunction <- clazz.functions if function.isConstructor) {
               val clauses = function.paramClauses.clauses

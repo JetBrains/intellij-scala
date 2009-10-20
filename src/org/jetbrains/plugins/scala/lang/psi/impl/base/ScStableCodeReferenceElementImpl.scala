@@ -24,7 +24,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 import api.statements.ScTypeAlias
 import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
@@ -104,7 +104,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(q: ScStableCodeReferenceElement) => {
         q.bind match {
           case None =>
-          case Some(ScalaResolveResult(typed: ScTyped, s)) => processor.processType(s.subst(typed.calcType), this)
+          case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => processor.processType(s.subst(typed.calcType), this)
           case Some(r@ScalaResolveResult(pack: PsiPackage, _)) => {
 
             // Process synthetic classes for scala._ package

@@ -14,7 +14,7 @@ import types.ScType
  */
 
 trait ScImportableDeclarationsOwner extends ScalaPsiElement {
-  self: ScTyped =>
+  self: ScTypedDefinition =>
 
   /**
    * Declarations may be taken from stable elements only

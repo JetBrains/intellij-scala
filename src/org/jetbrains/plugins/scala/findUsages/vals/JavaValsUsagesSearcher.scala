@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.findUsages.vals
 
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
 import collection.mutable.HashSet
@@ -22,7 +22,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
     element match {
-      case vals: ScTyped if ScalaPsiUtil.nameContext(vals).isInstanceOf[ScValue] ||
+      case vals: ScTypedDefinition if ScalaPsiUtil.nameContext(vals).isInstanceOf[ScValue] ||
               ScalaPsiUtil.nameContext(vals).isInstanceOf[ScVariable] => {
         val name: String = vals.getName
         val collectedReferences: HashSet[PsiReference] = new HashSet[PsiReference]

@@ -6,7 +6,7 @@ package expr
 
 import api.base.ScStableCodeReferenceElement
 import api.statements.{ScFunction, ScFun}
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 import api.toplevel.typedef.{ScClass, ScObject}
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -54,7 +54,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
             fun match {
               case fun: ScFun => s.subst(fun.retType)
-              case fun: ScFunction => s.subst(fun.returnType)
+              case fun: ScFunction => s.subst(fun.returnType.unwrap(Any))
               case meth: PsiMethod => s.subst(ScType.create(meth.getReturnType, getProject))
             }
           }

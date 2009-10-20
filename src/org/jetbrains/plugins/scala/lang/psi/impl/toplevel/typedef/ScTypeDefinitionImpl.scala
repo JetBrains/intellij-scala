@@ -42,8 +42,9 @@ import types._
 import fake.FakePsiMethod
 import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
-import api.toplevel.{ScToplevelElement, ScTyped}
+import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
+import result.{Success, TypingContext}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -54,6 +55,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   }
 
   def getType : ScType = new ScDesignatorType(this)
+
+  def getType(ctx: TypingContext)  = Success(new ScDesignatorType(this), Some(this))
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
 
@@ -228,7 +231,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
     buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
     for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
        t match {
-         case t: ScTyped => {
+         case t: ScTypedDefinition => {
            val context = ScalaPsiUtil.nameContext(t)
            buffer += new FakePsiMethod(t, context match {
               case o: PsiModifierListOwner => o.hasModifierProperty _
@@ -303,7 +306,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
       val tp = eb.templateParents
       tp match {
         case Some(tp1) => (for (te <- tp1.typeElements;
-                                t = te.cachedType;
+                                t = te.cachedType.unwrap(Any);
                                 asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY

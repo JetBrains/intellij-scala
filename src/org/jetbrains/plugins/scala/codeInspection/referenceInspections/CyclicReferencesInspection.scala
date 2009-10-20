@@ -9,8 +9,8 @@ import com.intellij.psi.{PsiRecursiveElementVisitor, PsiElementVisitor, PsiNamed
 import lang.resolve.ScalaResolveResult
 import java.lang.String
 import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.base.types.ScTypeInferenceResult
 import lang.psi.api.statements.ScTypeAliasDefinition
+import lang.psi.types.result.Failure
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,8 +50,8 @@ class CyclicReferencesInspection extends LocalInspectionTool {
     ref.bind match {
       case Some(ScalaResolveResult(alias: ScTypeAliasDefinition, _)) => {
         alias.aliasedType match {
-          case ScTypeInferenceResult(_, true, Some(ta)) => {
-            holder.registerProblem(ref.nameId, ScalaBundle.message("cyclic.reference.type", ta.getName),
+          case f@Failure(msg, Some(elem)) if f.isCyclic && (elem eq this) => {
+            holder.registerProblem(ref.nameId, msg,
               ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
           }
           //todo check projection types

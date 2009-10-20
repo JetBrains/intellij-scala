@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import lang.lexer._
 import com.intellij.psi._
+import psi.types.result.{Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,4 +23,8 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
 
   override def toString: String = "TypedPattern"
+
+  // todo rework it!
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+
 }

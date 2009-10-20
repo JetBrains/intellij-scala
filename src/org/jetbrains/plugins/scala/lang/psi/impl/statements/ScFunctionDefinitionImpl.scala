@@ -23,19 +23,22 @@ import typedef._
 import packaging.ScPackaging
 import com.intellij.psi.scope._
 import types.{ScType, Unit, Nothing, ScFunctionType}
+import types.result.{Success, TypeResult}
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ */
 
 class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScFunctionStub) = {this(); setStub(stub); setNode(null)}
+  def this(node: ASTNode) = {this (); setNode(node)}
+
+  def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     //process function's type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
@@ -54,17 +57,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   override def toString: String = "ScFunctionDefinition"
 
-  import com.intellij.openapi.util.Key
-
-  def returnType: ScType = {
-    returnTypeElement match {
-      case None if !hasAssign => Unit
-      case None => body match {
-        case Some(b) => b.getType
-        case _ => Unit
-      }
-      case Some(rte) => rte.cachedType
+  def returnType: TypeResult[ScType] = returnTypeElement match {
+    case None if !hasAssign => Success(Unit, Some(this))
+    case None => body match {
+      case Some(b) => Success(b.getType, Some(b))
+      case _ => Success(Unit, Some(this))
     }
+    case Some(rte) => rte.cachedType
   }
 
   def body: Option[ScExpression] = {
