@@ -5,7 +5,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, S
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
-import lang.psi.api.toplevel.ScTyped
+import lang.psi.api.toplevel.ScTypedDefinition
 import lang.refactoring.namesSuggester.NameSuggester
 /**
  * User: Alexander Podkhalyuzin
@@ -57,7 +57,7 @@ object SuggestNamesUtil {
                   filter(_.getName == x(1))
           if (items.length == 0) return Array[String]("x")
           items(0) match {
-            case typed: ScTyped => typed.calcType match {
+            case typed: ScTypedDefinition => typed.calcType match {
               case ScParameterizedType(_, typeArgs) => typeArgs(0)
               case _ => return Array[String]("x")
             }

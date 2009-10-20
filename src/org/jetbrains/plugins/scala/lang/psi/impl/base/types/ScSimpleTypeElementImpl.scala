@@ -18,6 +18,7 @@ import lang.resolve.ScalaResolveResult
 import psi.types._
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import collection.Set
+import result.{Success, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,31 +30,28 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  override def getType(implicit visited: Set[ScNamedElement]) = {
-    if (singleton) new ScSingletonType(pathElement) else reference match {
-      case Some(ref) => ref.qualifier match {
-        case None => ref.bind match {
-          case None => Nothing
-          case Some(ScalaResolveResult(e, s)) => e match {
+  override def getType(ctx: TypingContext) = {
+    val lift : (ScType) => Success[ScType] = Success(_, Some(this))
+
+    if (singleton) Success(ScSingletonType(pathElement), Some(this))
+    wrap(reference) flatMap { ref => ref.qualifier match {
+        case Some(q) => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+        case None => wrap(ref.bind) flatMap {
+          case ScalaResolveResult(e, s) => e match {
             case aliasDef: ScTypeAliasDefinition =>
-              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(visited) match {
-                case ScTypeInferenceResult(t, false, _) => s.subst(t)
-                case ScTypeInferenceResult(t, true, e) => ScTypeInferenceResult(s.subst(t), true, e)
-              }
+              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
               else {
                 //todo work with recursive aliases
-                new ScTypeConstructorType(aliasDef, s)
+                lift(new ScTypeConstructorType(aliasDef, s))
               }
-            case alias: ScTypeAliasDeclaration => new ScTypeAliasType(alias, s)
-            case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-            case synth: ScSyntheticClass => synth.t
-            case null => Nothing
-            case _ => new ScDesignatorType(e)
+            case alias: ScTypeAliasDeclaration => lift(new ScTypeAliasType(alias, s))
+            case tp: PsiTypeParameter => lift(ScalaPsiManager.typeVariable(tp))
+            case synth: ScSyntheticClass => lift(synth.t)
+            case null => lift(Any)
+            case _ => lift(ScDesignatorType(e))
           }
         }
-        case Some(q) => new ScProjectionType(new ScSingletonType(q), ref)
       }
-      case None => Nothing
     }
   }
 }

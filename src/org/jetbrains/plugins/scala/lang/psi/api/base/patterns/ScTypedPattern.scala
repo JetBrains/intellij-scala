@@ -5,13 +5,10 @@ package api
 package base
 package patterns
 
-import com.intellij.extapi.psi.ASTDelegatePsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 28.02.2008
 */
 
 trait ScTypedPattern extends ScBindingPattern  {
@@ -19,6 +16,6 @@ trait ScTypedPattern extends ScBindingPattern  {
 
   override def calcType = typePattern match {
     case None => Nothing
-    case Some(tp) => tp.typeElement.cachedType
+    case Some(tp) => tp.typeElement.cachedType.unwrap(Any)
   }
 }

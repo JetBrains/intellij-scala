@@ -13,11 +13,11 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import lexer.ScalaTokenTypes
 import com.intellij.psi.util.PsiTreeUtil
 import statements.{ScFunctionDefinition, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTyped}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 
-trait ScBindingPattern extends ScPattern with ScNamedElement with ScTyped with NavigationItem {
+trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def calcType: ScType

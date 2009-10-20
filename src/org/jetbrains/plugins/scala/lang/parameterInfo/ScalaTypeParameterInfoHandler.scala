@@ -80,17 +80,16 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                     var paramText = param.getName
                     if (param.isContravariant) paramText = "-" + paramText
                     else if (param.isCovariant) paramText = "+" + paramText
-                    param.lowerBound match {
+                    param.lowerBound foreach {
                       case psi.types.Nothing =>
                       case tp: ScType => paramText = paramText + " >: " + ScType.presentableText(substitutor.subst(tp))
                     }
-                    param.upperBound match {
+                    param.upperBound foreach {
                       case psi.types.Any =>
                       case tp: ScType => paramText = paramText + " <: " + ScType.presentableText(substitutor.subst(tp))
                     }
-                    param.viewBound match {
-                      case Some(tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
-                      case None =>
+                    param.viewBound foreach {
+                      (tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
                     }
                     if (isBold) "<b>" + paramText + "</b>" else paramText
                   }).mkString(", "))

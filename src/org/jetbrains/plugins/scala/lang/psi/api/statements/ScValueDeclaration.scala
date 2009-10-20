@@ -7,7 +7,7 @@ package statements
 import toplevel.typedef._
 import base.ScIdList
 import base.types.ScTypeElement
-import toplevel.ScTyped
+import toplevel.ScTypedDefinition
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,5 +17,5 @@ import toplevel.ScTyped
 
 trait ScValueDeclaration extends ScValue with ScTypedDeclaration {
   def getIdList: ScIdList
-  def declaredElements : Seq[ScTyped]
+  def declaredElements : Seq[ScTypedDefinition]
 }

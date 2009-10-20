@@ -14,6 +14,7 @@ import com.intellij.psi._
 import lang.lexer._
 import psi.stubs.ScReferencePatternStub
 import psi.types.{ScCompoundType, ScType, Nothing}
+import psi.types.result.{TypingContext, Success}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -58,4 +59,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
     }
   }
 
+  // todo implement to handle errors
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+  
 }

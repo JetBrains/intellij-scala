@@ -26,6 +26,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
+import result.Success
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -56,8 +57,8 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   def isCovariant() = false
   def isContravariant() = false
-  def lowerBound() = Nothing
-  def upperBound() = Any
+  def lowerBound() = Success(Nothing, Some(this))
+  def upperBound() = Success(Any, Some(this))
 
   def getIndex = -1
   def getOwner = null

@@ -5,36 +5,30 @@ package impl
 package statements
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, PhysicalSignature, ScFunctionType, ScSubstitutor}
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 
-import api.base.patterns.ScReferencePattern
 import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
-import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import api.toplevel.{ScTypeParametersOwner}
 import caches.CachesUtil
 import collection.mutable.{HashSet, ArrayBuffer}
-import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import parser.ScalaElementTypes
-import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
 import toplevel.synthetic.JavaIdentifier
 
-import toplevel.typedef.{TypeDefinitionMembers, MixinNodes}
-import impl.toplevel.typedef.TypeDefinitionMembers.MethodNodes
+import toplevel.typedef.{TypeDefinitionMembers}
 import java.util._
-import com.intellij.lang._
 import com.intellij.psi._
 import com.intellij.psi.util._
 import icons._
 import lexer._
 import types._
-import api.base._
-import api.base.types._
 import api.statements._
 import api.statements.params._
+import result.{Success, TypingContext}
+
 /**
  * @author ilyas
  */
@@ -82,7 +76,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superSignatures: Seq[FullSignature] = {
     val clazz = getContainingClass
-    val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), returnType, this, clazz)
+    val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), returnType.unwrap(Any), this, clazz)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
     //partial match
@@ -136,7 +130,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getParameterList: ScParameters = paramClauses
 
-  def calcType = paramClauses.clauses.toList.foldRight(returnType)((cl, t) =>
+  def calcType = paramClauses.clauses.toList.foldRight(returnType.unwrap(Any))((cl, t) =>
           ScFunctionType(t, collection.immutable.Seq(cl.parameters.map({p => p.calcType}).toSeq : _*)))
 
   override def getUseScope: SearchScope = {
@@ -160,4 +154,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def paramClauses: ScParameters = {
     getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
   }
+
+
+  // todo implement to handle errors
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
 }

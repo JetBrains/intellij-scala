@@ -24,7 +24,7 @@ import util._
 import _root_.scala.collection.mutable.HashMap
 import lang.resolve.BaseProcessor
 import fake.FakePsiMethod
-import api.toplevel.ScTyped
+import api.toplevel.ScTypedDefinition
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
 //import Suspension._
@@ -237,7 +237,7 @@ object TypeDefinitionMembers {
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           }
-          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType), f)
+          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.unwrap(Any)), f)
           case _ =>
         }
       }
@@ -318,7 +318,7 @@ object TypeDefinitionMembers {
       for ((_, n) <- vals) {
         ProgressManager.getInstance.checkCanceled
         n.info match {
-          case t: ScTyped => {
+          case t: ScTypedDefinition => {
             val context = ScalaPsiUtil.nameContext(t)
             if (!processor.execute(new FakePsiMethod(t, context match {
               case o: PsiModifierListOwner => o.hasModifierProperty _

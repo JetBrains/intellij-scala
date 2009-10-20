@@ -223,9 +223,36 @@ object ResolveUtils {
           } else true
         }
       }
-      case _ => true //todo:
-    /*JavaPsiFacade.getInstance(place.getProject).
-              getResolveHelper.isAccessible(member, place, null)*/
+      case _ => {
+        if (member.hasModifierProperty("public")) true
+        else if (member.hasModifierProperty("private")) false
+        else if (member.hasModifierProperty("protected")) {
+          val clazz = member.getContainingClass
+          var placeTd: ScTemplateDefinition = PsiTreeUtil.
+                  getParentOfType(place, classOf[ScTemplateDefinition], true)
+          while (placeTd != null) {
+            if (placeTd.isInheritor(clazz, true)) return true
+            val companion: ScTemplateDefinition = ScalaPsiUtil.
+                    getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+            if (companion != null && companion.isInheritor (clazz, true)) return true
+            placeTd = PsiTreeUtil.getParentOfType(placeTd, classOf[ScTemplateDefinition], true)
+          }
+          false
+        } else {
+          val packageName = member.getContainingFile match {
+            case f: PsiClassOwner => f.getPackageName
+            case _ => return false
+          }
+          val placeEnclosing: PsiElement = ScalaPsiUtil.
+                  getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+          if (placeEnclosing == null) return false
+          val placePackageName = placeEnclosing match {
+            case file: ScalaFile => file.getPackageName
+            case pack: ScPackaging => pack.getPackageName
+          }
+          return placePackageName.startsWith(packageName)
+        }
+      }
     }
   }
 
@@ -291,7 +318,7 @@ object ResolveUtils {
             presentation.setTailText(" " + location, true)
           }
           case alias: ScTypeAliasDefinition => {
-            presentation.setTypeText(presentationString(alias.aliasedType.resType, substitutor))
+            presentation.setTypeText(presentationString(alias.aliasedType.unwrap(Any), substitutor))
           }
           case method: PsiMethod => {
             presentation.setTypeText(presentationString(method.getReturnType, substitutor))

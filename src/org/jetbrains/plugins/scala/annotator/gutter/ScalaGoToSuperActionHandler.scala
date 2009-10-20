@@ -11,10 +11,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import lang.psi.api.statements._
-import lang.psi.api.toplevel.ScTyped
 import lang.psi.api.toplevel.typedef.{ScTemplateDefinition}
 import lang.psi.ScalaPsiUtil
 import ScalaMarkerType.ScCellRenderer
+import lang.psi.api.toplevel.ScTypedDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -77,11 +77,11 @@ private object ScalaGoToSuperActionHandler {
       }
       case d: ScDeclaredElementsHolder => {
         var el = file.findElementAt(offset)
-        while (el != null && !el.isInstanceOf[ScTyped]) el = el.getParent
+        while (el != null && !el.isInstanceOf[ScTypedDefinition]) el = el.getParent
         val elements = d.declaredElements
         if (elements.length == 0) return empty
-        val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTyped])) {
-          ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTyped])
+        val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
+          ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
         } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element): _*)
         return supers.toArray
       }

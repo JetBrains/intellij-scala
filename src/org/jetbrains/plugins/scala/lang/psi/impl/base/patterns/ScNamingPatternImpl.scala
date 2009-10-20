@@ -10,6 +10,7 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import psi.types.result.{Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,4 +25,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+
+  // todo rework it!
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
 }
