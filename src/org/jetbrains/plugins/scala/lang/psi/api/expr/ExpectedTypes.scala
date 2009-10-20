@@ -7,13 +7,14 @@ package expr
 import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
-import toplevel.ScTyped
+import toplevel.ScTypedDefinition
 import types.{ScSubstitutor, ScType, ScFunctionType}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author ilyas
@@ -84,8 +85,8 @@ object ExpectedTypes {
             ref.bind match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
-                  case v: ScValue => Array(named.asInstanceOf[ScTyped].calcType)
-                  case v: ScVariable => Array(named.asInstanceOf[ScTyped].calcType)
+                  case v: ScValue => Array(named.asInstanceOf[ScTypedDefinition].calcType)
+                  case v: ScVariable => Array(named.asInstanceOf[ScTypedDefinition].calcType)
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters
@@ -117,7 +118,7 @@ object ExpectedTypes {
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.getOrElse(null: ScExpression) == expr => {
         v.returnTypeElement match {
-          case Some(_) => Array(v.returnType)
+          case Some(_) => Array(v.returnType.unwrap(Any))
           case _ => Array.empty
         }
       }

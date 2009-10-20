@@ -15,6 +15,7 @@ import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.{PsiClass}
 import psi.types._
+import result.TypingContext
 import synthetic.ScSyntheticClass
 
 abstract class MixinNodes {
@@ -81,7 +82,7 @@ abstract class MixinNodes {
     for (alias <- template.aliases) {
       alias match {
         case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
-          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(Predef.Set[ScNamedElement]()).resType})
+          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).unwrap(Any)})
         case _ =>
       }
     }

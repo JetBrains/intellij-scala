@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import _root_.scala.collection.mutable.HashSet
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
+import util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper {
+trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]

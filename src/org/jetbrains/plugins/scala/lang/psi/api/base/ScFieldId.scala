@@ -14,7 +14,7 @@ import psi.types.Nothing
 */
 
 //wrapper over identifier for variable declarations 'var v : T' 
-trait ScFieldId extends ScTyped {
+trait ScFieldId extends ScTypedDefinition {
   def calcType = getParent/*id list*/.getParent match {
     case typed : ScTypedDeclaration => typed.calcType
     //partial matching

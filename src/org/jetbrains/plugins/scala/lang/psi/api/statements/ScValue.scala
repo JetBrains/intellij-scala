@@ -10,13 +10,14 @@ import icons.Icons
 import javax.swing.Icon
 import params.ScParameterClause
 import toplevel.templates.ScExtendsBlock
-import toplevel.{ScTyped, ScTypeParametersOwner}
+import toplevel.{ScTypedDefinition, ScTypeParametersOwner}
 import types.ScType
 import psi.ScalaPsiElement
 import toplevel.typedef._
 import com.intellij.psi._
 import base.types.ScTypeElement
 import expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -24,13 +25,10 @@ import expr.ScBlockStatement
  */
 
 trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
-  def declaredElements: Seq[ScTyped]
+  def declaredElements: Seq[ScTypedDefinition]
   def typeElement: Option[ScTypeElement]
 
-  def declaredType : Option[ScType] = typeElement match {
-    case Some(te) => Some(te.cachedType)
-    case None => None
-  }
+  def declaredType: Option[ScType] = typeElement map (_.cachedType.unwrap(Any))
 
   def getType: ScType
 

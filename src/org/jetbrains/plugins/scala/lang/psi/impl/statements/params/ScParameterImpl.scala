@@ -16,6 +16,8 @@ import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
 import api.expr._
 import psi.types.{ScParameterizedType, ScType, ScFunctionType}
+import types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author Alexander Podkhalyuzin
@@ -69,7 +71,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
         case Some(t) => t
         case None => lang.psi.types.Nothing
       }
-      case Some(e) => e.cachedType
+      case Some(e) => e.cachedType.unwrap(Any)
     }
   }
 
@@ -83,7 +85,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getInitializer = null
 
-  def getType: PsiType = ScType.toPsi(calcType, getProject, getResolveScope)
+  // todo rewrite to handle errors
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+
+  def getType = ScType.toPsi(calcType, getProject, getResolveScope)
 
   private def expectedParamType: Option[ScType] = getParent match {
     case clause: ScParameterClause => clause.getParent.getParent match {

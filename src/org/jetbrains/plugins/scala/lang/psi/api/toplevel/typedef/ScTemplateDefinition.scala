@@ -16,6 +16,7 @@ import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
 import types.{ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * @author ven
@@ -97,7 +98,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
               case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) => ste.typeElement match {
                 case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
                   case (b : BaseProcessor, s: ScalaPsiElement) => {
-                    if (!b.processType(t.cachedType, s, state)) return false                    
+                    if (!b.processType(t.cachedType.unwrap(Any), s, state)) return false
                   }
                   case _ =>
                 }
