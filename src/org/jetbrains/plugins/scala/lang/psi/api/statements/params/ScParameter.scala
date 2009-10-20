@@ -12,14 +12,14 @@ import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi._
 import api.statements.params._
-import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScNamedElement, ScTyped}
+import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008
  */
 
-trait ScParameter extends ScNamedElement with ScTyped with ScModifierListOwner with
+trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
         PsiParameter with ScAnnotationsHolder with ScImportableDeclarationsOwner {
   def getTypeElement: PsiTypeElement
 

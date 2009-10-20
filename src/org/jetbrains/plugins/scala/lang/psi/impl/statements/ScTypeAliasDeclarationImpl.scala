@@ -9,7 +9,8 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
-import stubs.ScTypeAliasStub;
+import stubs.ScTypeAliasStub
+import types.result.Success;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -40,18 +41,14 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   
   override def toString: String = "ScTypeAliasDeclaration"
 
-  def lowerBound = {
-    lowerTypeElement match {
+  def lowerBound = lowerTypeElement match {
       case Some(te) => te.cachedType
-      case None => Nothing
-    }
+      case None => Success(Nothing, Some(this))
   }
 
-  def upperBound = {
-    upperTypeElement match {
+  def upperBound = upperTypeElement match {
       case Some(te) => te.cachedType
-      case None => Any
-    }
+      case None => Success(Any, Some(this))
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {

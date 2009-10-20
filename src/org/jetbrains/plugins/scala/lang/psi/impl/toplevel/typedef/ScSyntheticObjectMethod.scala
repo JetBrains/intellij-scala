@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import api.expr.ScNewTemplateDefinition
-import api.toplevel.{ScModifierListOwner, ScTyped}
+import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.impl.light.LightElement
@@ -86,7 +86,7 @@ class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, membe
   override def hasModifierProperty(name: String): Boolean = member.hasModifierProperty(name)
 
   def getReturnType: PsiType = field match {
-    case t: ScTyped => t.calcType match {
+    case t: ScTypedDefinition => t.calcType match {
       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case x => ScType.toPsi(x, getProject, getResolveScope)
     }

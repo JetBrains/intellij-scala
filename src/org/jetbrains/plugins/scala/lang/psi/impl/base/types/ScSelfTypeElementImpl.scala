@@ -6,12 +6,13 @@ package base
 package types
 
 import com.intellij.lang.ASTNode
-import psi.stubs.ScSelfTypeElementStub;
+import psi.stubs.ScSelfTypeElementStub
+import psi.types.result.{Success, TypingContext}
+
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 07.03.2008
 */
 
 class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement] with ScSelfTypeElement{
@@ -21,4 +22,6 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
   override def toString: String = "SelfType"
 
   def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
+
+  def getType(ctx: TypingContext) = Success(calcType, Some(this))
 }

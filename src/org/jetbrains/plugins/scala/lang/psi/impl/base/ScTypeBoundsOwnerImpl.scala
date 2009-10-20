@@ -9,30 +9,15 @@ import lexer.ScalaTokenTypes
 import com.intellij.psi.util.PsiTreeUtil
 import api.base.types.ScTypeElement
 import psi.types.{ScType, Nothing, Any}
+import psi.types.result.TypeResult
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
-  def lowerBound: ScType = {
-    lowerTypeElement match {
-      case Some(te) => te.cachedType
-      case None => Nothing
-    }
-  }
+  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing) flatMap ( _.cachedType )
 
-  def upperBound: ScType = {
-    upperTypeElement match {
-      case Some(te) => te.cachedType
-      case None => Any
-    }
-  }
+  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any) flatMap ( _.cachedType )
 
-  override def viewBound: Option[ScType] = {
-    viewTypeElement match {
-      case Some(te) => Some(te.cachedType)
-      case None => None
-    }
-  }
-
+  override def viewBound: Option[ScType] = viewTypeElement map (_.cachedType.unwrap(Any))
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)

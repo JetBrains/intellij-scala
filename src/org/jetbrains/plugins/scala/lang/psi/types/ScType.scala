@@ -17,6 +17,7 @@ import api.expr.{ScSuperReference, ScThisReference}
 import com.intellij.openapi.project.{DumbService, Project}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import api.statements.params.ScTypeParam
+import result.{Failure, Success, TypingContext}
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
@@ -189,8 +190,13 @@ object ScType {
             }
           }
         }
-        case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] =>
-          toPsi(res.getElement.asInstanceOf[ScTypeAliasDefinition].aliasedType(Set[ScNamedElement]()).resType, project, scope)
+        case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] => {
+          val elem = res.getElement.asInstanceOf[ScTypeAliasDefinition]
+          elem.aliasedType(TypingContext.empty) match {
+            case Success(t, _) => toPsi(t, project, scope)
+            case Failure(_, _) => javaObj
+          }
+        }
         case _ => javaObj
       }
       case _ => javaObj

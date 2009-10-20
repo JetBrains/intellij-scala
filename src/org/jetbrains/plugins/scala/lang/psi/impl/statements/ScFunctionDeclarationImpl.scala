@@ -12,6 +12,7 @@ import com.intellij.lang.ASTNode
 import psi.ScalaPsiElementImpl
 import api.statements._
 import types.{ScType, ScFunctionType, Nothing}
+import types.result.TypeResult
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -25,12 +26,7 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
 
   override def toString: String = "ScFunctionDeclaration"
 
-  def returnType: ScType = {
-    typeElement match {
-      case Some(te) => te.cachedType
-      case None => Nothing //todo use base function in case one is present
-    }
-  }
+  def returnType: TypeResult[ScType] = wrap(typeElement) flatMap (_.cachedType)
 
   override def calcType = super[ScFunctionImpl].calcType
 }

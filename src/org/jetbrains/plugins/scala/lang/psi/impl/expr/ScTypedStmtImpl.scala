@@ -6,8 +6,8 @@ package expr
 
 import api.expr._
 import psi.ScalaPsiElementImpl
-
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,7 +18,7 @@ class ScTypedStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTy
   override def toString: String = "TypedStatement"
 
   protected override def innerType = typeElement match {
-    case Some(te) => te.cachedType
+    case Some(te) => te.cachedType.unwrap(Any)
     case None => expr.getType
   }
 }

@@ -318,7 +318,7 @@ object ResolveUtils {
             presentation.setTailText(" " + location, true)
           }
           case alias: ScTypeAliasDefinition => {
-            presentation.setTypeText(presentationString(alias.aliasedType.resType, substitutor))
+            presentation.setTypeText(presentationString(alias.aliasedType.unwrap(Any), substitutor))
           }
           case method: PsiMethod => {
             presentation.setTypeText(presentationString(method.getReturnType, substitutor))

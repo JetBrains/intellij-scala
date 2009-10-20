@@ -12,7 +12,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.PsiDocumentManager
 import java.lang.String
 import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.ScTyped
+import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.types.ScType
 import util.MacroUtil
@@ -43,7 +43,7 @@ class ScalaVariableOfTypeMacro extends Macro {
         val variants = MacroUtil.getVariablesForScope(element)
         for (variant <- variants) {
           variant.getElement match {
-            case typed: ScTyped => {
+            case typed: ScTypedDefinition => {
               val t = typed.calcType
               exprs.apply(0) match {
                 case "" => {
@@ -91,7 +91,7 @@ class ScalaVariableOfTypeMacro extends Macro {
         val variants = MacroUtil.getVariablesForScope(element)
         for (variant <- variants) {
           variant.getElement match {
-            case typed: ScTyped => {
+            case typed: ScTypedDefinition => {
               val t = typed.calcType
               exprs.apply(0).calculateResult(context).toString match {
                 case "" => {

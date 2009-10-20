@@ -27,7 +27,7 @@ import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.openapi.util._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTyped
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import formatting.settings.ScalaCodeStyleSettings
@@ -236,7 +236,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
-        new ScFunctionType(s.subst(f.declaredType), f.paramTypes.map{
+        new ScFunctionType(s.subst(f.declaredType.unwrap(Any)), f.paramTypes.map{
           s.subst _
         })
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
@@ -263,9 +263,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
         if (isMethodCall) s.subst(fun.calcType)
-        else s.subst(fun.returnType)
+        else s.subst(fun.returnType.unwrap(Any))
       }
-      case Some(ScalaResolveResult(typed: ScTyped, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.calcType)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
