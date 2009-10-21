@@ -245,52 +245,48 @@ object TypeDefinitionMembers {
   }
 
   import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
-  val valsKey: Key[CachedValue[(VMap, VMap)]] = Key.create("vals key")
-  val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
-  val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
+  @deprecated val valsKey: Key[CachedValue[(VMap, VMap)]] = Key.create("vals key")
+  @deprecated val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
+  @deprecated val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
+  @deprecated val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
 
-  @volatile private var vals: (VMap, VMap) = null
-  @volatile private var methods: (MMap, MMap) = null
-  @volatile private var types: (TMap, TMap) = null
-  @volatile private var signatures: (SMap, SMap) = null
+  //todo: soft references?
+  @volatile private var vals: HashMap[PsiClass, (VMap, VMap)] = new HashMap
+  @volatile private var methods: HashMap[PsiClass, (MMap, MMap)] = new HashMap
+  @volatile private var types: HashMap[PsiClass, (TMap, TMap)] = new HashMap
+  @volatile private var signatures: HashMap[PsiClass, (SMap, SMap)] = new HashMap
 
-  @volatile private var valsModCount: Long = 0
-  @volatile private var methodsModCount: Long = 0
-  @volatile private var typesModCount: Long = 0
-  @volatile private var signaturesModCount: Long = 0
+  @volatile private var modCount: Long = 0
 
-  private def getFromCache[T](getValue: () => T, setValue: T => Unit, getCount: () => Long,
-                              setCount: Long => Unit, calc: () => T, manager: PsiManager): T = {
-    var value: T = getValue()
-    val curCount: Long = manager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (value != null && getCount() == curCount) {
-      return value
+  private def clearCache() {
+    vals.clear
+    methods.clear
+    types.clear
+    signatures.clear
+  }
+  
+  private def getFromCache[U <: PsiElement, T](elem: U, map: HashMap[U, T], calc: () => T): T = {
+    var value: Option[T] = map.get(elem)
+    val curCount: Long = elem.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (value != None && modCount == curCount) {
+      return value.get
     }
-    value = calc()
-    setValue(value)
-    setCount(curCount)
-    return value
+    clearCache
+    value = Some(calc())
+    map += Tuple(elem, value.get)
+    modCount = curCount
+    return value.get
   }
 
-  def getVals(clazz: PsiClass): VMap = /*{
-    getFromCache(vals _, vals_= _, valsModCount _, valsModCount_= _, () => ValueNodes.build(clazz), clazz.getManager)._2
-  }*/get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
+  def getVals(clazz: PsiClass): VMap = getFromCache(clazz, vals, () => ValueNodes.build(clazz))._2
+  def getMethods(clazz: PsiClass): MMap = getFromCache(clazz, methods, () => MethodNodes.build(clazz))._2
+  def getTypes(clazz: PsiClass) = getFromCache(clazz, types, () => TypeNodes.build(clazz))._2
+  def getSignatures(c: PsiClass): SMap = getFromCache(c, signatures, () => SignatureNodes.build(c))._2
+  def getSuperVals(c: PsiClass) = getFromCache(c, vals, () => ValueNodes.build(c))._1
+  def getSuperMethods(c: PsiClass) = getFromCache(c, methods, () => MethodNodes.build(c))._1
+  def getSuperTypes(c: PsiClass) = getFromCache(c, types, () => TypeNodes.build(c))._1
 
-  def getMethods(clazz: PsiClass): MMap = /*{
-    getFromCache(methods _, methods_= _, methodsModCount _, valsModCount_= _, () => MethodNodes.build(clazz), clazz.getManager)._2
-  }*/get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
-
-  def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
-
-  def getSignatures(c: PsiClass): SMap = get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
-
-  def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
-
-  def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
-
-  def getSuperTypes(c: PsiClass) = get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
-
+  @deprecated
   private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
@@ -301,6 +297,7 @@ object TypeDefinitionMembers {
     computed.getValue
   }
 
+  @deprecated
   class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result(builder(e),
       PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
