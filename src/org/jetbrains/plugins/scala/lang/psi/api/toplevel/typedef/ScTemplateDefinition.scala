@@ -17,6 +17,7 @@ import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
 import types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author ven
@@ -78,11 +79,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
+              ProgressManager.getInstance.checkCanceled
               m match {
                 case _var: ScVariable => for (declared <- _var.declaredElements) {
+                  ProgressManager.getInstance.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
                 case _val: ScValue => for (declared <- _val.declaredElements) {
+                  ProgressManager.getInstance.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
               }
