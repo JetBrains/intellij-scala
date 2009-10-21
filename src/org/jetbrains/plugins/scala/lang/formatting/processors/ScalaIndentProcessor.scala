@@ -43,6 +43,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
                 child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) return Indent.getSpaceIndent(1)
 
     node.getPsi match {
+      case expr: ScFunctionExpr => {
+        expr.result match {
+          case Some(e) if e == child.getPsi => Indent.getNormalIndent
+          case _ => Indent.getNoneIndent
+        }
+      }
       case el: ScXmlElement => {
         child.getPsi match {
           case _: ScXmlStartTag | _: ScXmlEndTag => Indent.getNoneIndent

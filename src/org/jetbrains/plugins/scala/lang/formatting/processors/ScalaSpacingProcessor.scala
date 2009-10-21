@@ -53,7 +53,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     def getSpacing(x: Int, y: Int, z: Int) = if (scalaSettings.KEEP_LINE_BREAKS)
       Spacing.createSpacing(y, y, z, true, x)
     else
@@ -395,7 +395,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
 
-    //todo: processing spasing operators
+    //todo: processing spacing operators
 
     //processing right brace
     if (leftString != getText(leftNode, fileText) && rightString != getText(rightNode, fileText) && rightNode.getElementType == ScalaTokenTypes.kELSE) {
@@ -445,6 +445,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
+      rightNode.getElementType match {
+        case ScalaElementTypes.FUNCTION_EXPR => {
+          if (scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
+        }
+        case _ =>
+      }
       leftNode.getTreeParent.getPsi match {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
@@ -477,6 +483,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      case (ScalaTokenTypes.tFUNTYPE, _, ScalaElementTypes.FUNCTION_EXPR, _)
+        if scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE => {
+        if (rightString.startsWith("{")) WITH_SPACING
+        else if (leftNode.getTreeParent.getTextRange.substring(fileText).contains("\n")) ON_NEW_LINE
+        else WITH_SPACING
+      }
       //annotation
       case (_, ScalaElementTypes.ANNOTATIONS, ScalaElementTypes.ANNOT_TYPE, _) => WITHOUT_SPACING
       //case for package statement
