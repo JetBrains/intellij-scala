@@ -65,6 +65,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case Some(set) => {
             val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
             for (selector <- set.selectors) {
+              ProgressManager.getInstance.checkCanceled
               for (result <- selector.reference.multiResolve(false)) { //Resolve the name imported by selector
                 // Collect shadowed elements
                 shadowed += ((selector, result.getElement))

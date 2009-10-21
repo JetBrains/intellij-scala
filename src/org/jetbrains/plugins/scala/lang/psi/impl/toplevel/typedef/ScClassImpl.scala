@@ -13,7 +13,8 @@ import com.intellij.util.ArrayFactory
 import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList};
+import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -75,6 +76,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
 
     for (p <- parameters) {
+      ProgressManager.getInstance.checkCanceled
       if (!processor.execute(p, state)) return false
     }
 
