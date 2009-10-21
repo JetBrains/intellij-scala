@@ -24,6 +24,7 @@ import packaging.ScPackaging
 import com.intellij.psi.scope._
 import types.{ScType, Unit, Nothing, ScFunctionType}
 import types.result.{Success, TypeResult}
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -47,6 +48,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       body match {
         case Some(x) if x == lastParent =>
           for (p <- parameters) {
+            ProgressManager.getInstance.checkCanceled
             if (!processor.execute(p, state)) return false
           }
         case _ =>

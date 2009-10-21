@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 * Date: 20.02.2008
 */
 
-class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition{
+class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
 

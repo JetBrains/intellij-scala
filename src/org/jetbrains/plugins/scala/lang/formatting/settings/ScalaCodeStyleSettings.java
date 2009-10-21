@@ -67,6 +67,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
   public boolean ALIGN_IF_ELSE = false;
 
+  public boolean DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE = false;
   public boolean ELSE_ON_NEW_LINE = false;
   public boolean WHILE_ON_NEW_LINE = false;
   public boolean CATCH_ON_NEW_LINE = false;
