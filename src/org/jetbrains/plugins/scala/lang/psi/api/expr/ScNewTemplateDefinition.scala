@@ -14,4 +14,5 @@ import toplevel.typedef.ScTemplateDefinition
 */
 
 trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
+  override def getTextOffset: Int = extendsBlock.getTextOffset
 }
