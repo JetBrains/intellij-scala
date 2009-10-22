@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import psi.types.result.TypingContext
+import psi.types.{Nothing, ScType}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -31,7 +32,7 @@ object StructureViewUtil {
         }
       } else {
         res.append(param.name + ": ")
-        res.append(ScType.presentableText(param.calcType) + (if (param.isRepeatedParameter) "*" else ""))
+        res.append(ScType.presentableText(param.getType(TypingContext.empty) getOrElse Nothing) + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }
     }

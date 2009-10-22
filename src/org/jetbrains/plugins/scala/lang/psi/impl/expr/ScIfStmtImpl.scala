@@ -11,8 +11,9 @@ import api.expr._
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
+import types.result.{TypingContext, Success, Failure}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
@@ -44,9 +45,12 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
     if (e == null) None else Some(e)
   }
 
-  protected override def innerType = (thenBranch, elseBranch) match {
-    case (Some(t), Some(e)) => Bounds.lub(t.getType, e.getType)
-    case (Some(t), None) => types.Unit
-    case _ => Nothing
+  protected override def innerType(ctx: TypingContext) = (thenBranch, elseBranch) match {
+    case (Some(t), Some(e)) => for (tt <- t.getType(TypingContext.empty); 
+                                    et <- e.getType(TypingContext.empty)) yield {
+      Bounds.lub(tt, et)
+    }
+    case (Some(t), None) => Success(types.Unit, Some(this))
+    case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
   }
 }

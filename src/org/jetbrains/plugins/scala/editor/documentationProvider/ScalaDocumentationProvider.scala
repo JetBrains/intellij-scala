@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Any
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 import lang.psi.types.result.{Failure, Success, TypingContext}
+import lang.psi.types._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -162,8 +163,8 @@ object ScalaDocumentationProvider {
   def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
-      case fun: ScFunction => fun.returnType.unwrap(Any)
-      case _ => elem.calcType
+      case fun: ScFunction => fun.returnType.getOrElse(Any)
+      case _ => elem.getType(TypingContext.empty).getOrElse(Any)
     }
     buffer.append(typeToString(typez))
     return buffer.toString
@@ -223,8 +224,8 @@ object ScalaDocumentationProvider {
     elem.templateParents match {
       case Some(x: ScTemplateParents) => {
         val seq = x.typeElements
-        buffer.append(ScType.urlText(seq(0).calcType) + "\n")
-        for (i <- 1 to seq.length - 1) buffer append " with " + ScType.urlText(seq(i).calcType)
+        buffer.append(ScType.urlText(seq(0).getType(TypingContext.empty).getOrElse(Any)) + "\n")
+        for (i <- 1 to seq.length - 1) buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrElse(Any))
       }
       case None => {
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
@@ -270,7 +271,7 @@ object ScalaDocumentationProvider {
       var s = "@"
       val constr: ScConstructor = elem.constructor
       val attributes = elem.attributes
-      s += typeToString(constr.typeElement.calcType)
+      s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
       if (attributes.length > 0) {
         val array = attributes.map("val " + _.name)
         s += array.mkString("{","; ","}")
@@ -412,7 +413,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.calcType
+            val typez = typed.getType(TypingContext.empty).getOrElse(Any)
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -430,7 +431,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.calcType
+            val typez = typed.getType(TypingContext.empty).getOrElse(Any)
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -473,9 +474,9 @@ object ScalaDocumentationProvider {
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
         clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-                ": " + ScType.presentableText(clParameter.calcType)
+                ": " + ScType.presentableText(clParameter.getType(TypingContext.empty).getOrElse(Any))
       }
-      case _ => parameter.name + ": " + ScType.presentableText(parameter.calcType)
+      case _ => parameter.name + ": " + ScType.presentableText(parameter.getType(TypingContext.empty).getOrElse(Any))
     }) + (if (parameter.isRepeatedParameter) "*" else "")
   }
 }

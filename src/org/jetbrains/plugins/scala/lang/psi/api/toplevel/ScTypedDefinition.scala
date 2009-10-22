@@ -5,14 +5,12 @@ package api
 package toplevel
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import types.result.{TypingContextOwner}
+import types.result.{TypeResult, TypingContextOwner}
 
 /**
  * Member definitions, classes, named patterns which have types
  */
 trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
-
-  def calcType : ScType
 
   /**
    * @return false for variable elements

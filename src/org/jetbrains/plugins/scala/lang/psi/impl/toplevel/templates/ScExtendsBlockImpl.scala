@@ -7,27 +7,21 @@ package templates
 
 
 import _root_.scala.collection.mutable.ListBuffer
-import api.base.ScPrimaryConstructor
-import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement}
-import api.ScalaFile
-import api.statements.{ScValue, ScVariable}
+import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import api.expr.ScNewTemplateDefinition
-import api.toplevel.{ScNamedElement, ScEarlyDefinitions}
+import api.toplevel.{ScEarlyDefinitions}
 import caches.CachesUtil
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiClass}
-import com.intellij.util.{ArrayFactory, IncorrectOperationException}
+import com.intellij.psi.util.{PsiModificationTracker}
+import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiClass}
+import com.intellij.util.{ArrayFactory}
 import parser.ScalaElementTypes
-import psi.ScalaPsiElementImpl
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
-import stubs.elements.wrappers.DummyASTNode
-import stubs.{ScFileStub, ScExtendsBlockStub}
-import typedef.TypeDefinitionMembers
+import result.Success
+import stubs.{ScExtendsBlockStub}
 import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 
 /**
@@ -58,10 +52,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def empty = getNode.getFirstChildNode == null
 
-  def selfType = selfTypeElement flatMap {
-    ste => ste.typeElement map {
-      te => te.cachedType.unwrap(Any)
+  def selfType = (wrap(selfTypeElement) flatMap {
+    ste => wrap(ste.typeElement) flatMap {
+      te => te.cachedType
     }
+  }) match {
+    case Success(t, _) => Some(t)
+    case _ => None
   }
 
   def superTypes: List[ScType] = {
@@ -181,10 +178,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case Some(body) => body.functions
   }
 
-  def selfTypeElement() = templateBody match {
-    case None => None
-    case Some(body) => body.selfTypeElement
-  }
+  def selfTypeElement = templateBody flatMap {body => body.selfTypeElement}
 
   def templateParents: Option[ScTemplateParents] = {
     val stub = getStub

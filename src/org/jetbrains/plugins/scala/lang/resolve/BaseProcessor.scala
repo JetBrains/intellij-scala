@@ -139,7 +139,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = e match {
-    case ta: ScTypeAlias => processType(s.subst(ta.upperBound.unwrap(Any)), place)
+    case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place)
 
     //need to process scala way
     case clazz: PsiClass =>

@@ -23,6 +23,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import impl.PsiManagerEx
 import impl.source.resolve.ResolveCache
+import result.{Success, TypingContext}
 import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -71,10 +72,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(true)
 
   override def getVariants(implicits: Boolean): Array[Object] = {
-    val tp: ScType = qualifier match {
-      case None => psi.types.Nothing
-      case Some(qual: ScExpression) => qual.getType
-    }
+    val tp = wrap(qualifier).flatMap (_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
+
     _resolve(this, new CompletionProcessor(getKinds(true), implicits)).map(r => {
       r match {
         case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
@@ -143,7 +142,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
       ProgressManager.checkCanceled
-      processor.processType(e.getType, e, ResolveState.initial)
+      processor.processType(e.getType(TypingContext.empty).getOrElse(Any), e, ResolveState.initial)
       if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
               processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
         for (t <- e.getImplicitTypes) {
@@ -223,7 +222,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def rightAssoc = refName.endsWith(":")
 
-  protected override def innerType(): ScType = {
+  protected override def innerType(ctx: TypingContext) = {
     def isMethodCall: Boolean = {
       var parent = getParent
       while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
@@ -232,11 +231,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ => false
       }
     }
-    bind match {
+    def inner = bind match {
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
-        new ScFunctionType(s.subst(f.declaredType.unwrap(Any)), f.paramTypes.map{
+        new ScFunctionType(s.subst(f.declaredType.getOrElse(Any)), f.paramTypes.map{
           s.subst _
         })
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
@@ -257,15 +256,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         refPatt.getContext().getContext() match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
           case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
-          case _ => s.subst(refPatt.calcType)
+          case _ => s.subst(refPatt.getType(TypingContext.empty).getOrElse(Any))
         }
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
-        if (isMethodCall) s.subst(fun.calcType)
-        else s.subst(fun.returnType.unwrap(Any))
+        if (isMethodCall) s.subst(fun.getType(TypingContext.empty).getOrElse(Any))
+        else s.subst(fun.returnType.getOrElse(Any))
       }
-      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.calcType)
+      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.getType(TypingContext.empty).getOrElse(Any))
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
@@ -281,5 +280,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => Nothing
     }
+
+    // todo rework me!
+    Success(inner, Some(this))
   }
 }

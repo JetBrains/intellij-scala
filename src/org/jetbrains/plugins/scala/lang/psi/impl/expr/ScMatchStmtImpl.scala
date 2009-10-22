@@ -4,19 +4,11 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import types.{Bounds, ScType};
-import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-
+import types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.Any
+import types.{Nothing, Bounds, ScType};
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -27,5 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMatchStmt {
   override def toString: String = "MatchStatement"
 
-  protected override def innerType(): ScType = getBranches.foldLeft(types.Nothing: ScType)((t, b) => Bounds.lub(t, b.getType))
+  protected override def innerType(ctx: TypingContext) = {
+    val branchTypes = getBranches.map(_.getType(ctx))
+    collectFailures(branchTypes, Any)(_.foldLeft(Nothing : ScType)((t, b) => Bounds.lub(t, b)))
+  }
 }

@@ -16,20 +16,17 @@ import scala.Some
 import psi.types.result.{Failure, Success, TypingContext}
 
 /**
-* @author Alexander Podkhalyuzin
-*/
+ * @author Alexander Podkhalyuzin
+ */
 
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   override def toString: String = "CompoundType"
 
   override def getType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))
-
-    val unwrapped = comps.map(_.unwrap(Any))
-    val result = Success(refinement match {
-      case None => new ScCompoundType(unwrapped, Seq.empty, Seq.empty)
-      case Some(r) => new ScCompoundType(unwrapped, r.holders.toList, r.types.toList)
-    }, Some(this))
-    (for (f@Failure(_, _) <- comps) yield f).foldLeft(result)(_.apply(_))
+    refinement match {
+      case None => collectFailures(comps, Any)(new ScCompoundType(_, Seq.empty, Seq.empty))
+      case Some(r) => collectFailures(comps, Any)(new ScCompoundType(_, r.holders.toList, r.types.toList))
+    }
   }
 }

@@ -17,10 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.lang.Language
 import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 07.09.2009
  */
 
 class FakePsiMethod(
@@ -36,7 +37,7 @@ class FakePsiMethod(
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod{
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
-    this(value, value.getName, Array.empty, value.calcType, hasModifier)
+    this(value, value.getName, Array.empty, value.getType(TypingContext.empty).getOrElse(Any), hasModifier)
   }
   override def toString: String = name + "()"
 

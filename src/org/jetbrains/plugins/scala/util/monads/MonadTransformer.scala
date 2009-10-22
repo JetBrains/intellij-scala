@@ -38,4 +38,18 @@ trait MonadTransformer { self : PsiElement =>
       case None       => Success(default, None)
     }
   }
+
+  /**
+   * The combinator, taking a list of result and default element for conversion.
+   * @return A function, taking a mapping from the Seq[T] to the result and returning the result
+   * @see ScTupleTypeElementImpl for example
+   */
+  def collectFailures[T](seq: Seq[TypeResult[T]], default: T) : (Seq[T] => T) => Success[T] =
+    (succ: (Seq[T]) => T) => {
+      val defaults = seq.map {
+        case Success(t, _) => t
+        case Failure(_, _) => default
+      }
+      (for (f@Failure(_, _) <- seq) yield f).foldLeft(Success(succ(defaults), Some(self)))(_.apply(_))
+    }
 }

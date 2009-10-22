@@ -4,26 +4,15 @@ package psi
 package impl
 package statements
 
-import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.psi.stubs.StubElement
 import lexer.ScalaTokenTypes
-import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import _root_.scala.collection.mutable._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import typedef._
-import packaging.ScPackaging
 import com.intellij.psi.scope._
-import types.{ScType, Unit, Nothing, ScFunctionType}
-import types.result.{Success, TypeResult}
+import types.{ScType, Unit}
+import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 
 /**
@@ -43,7 +32,6 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     //process function's type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
-    import org.jetbrains.plugins.scala.lang.resolve._
     if (getStub == null) {
       body match {
         case Some(x) if x == lastParent =>
@@ -62,7 +50,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def returnType: TypeResult[ScType] = returnTypeElement match {
     case None if !hasAssign => Success(Unit, Some(this))
     case None => body match {
-      case Some(b) => Success(b.getType, Some(b))
+      case Some(b) => b.getType(TypingContext.empty)
       case _ => Success(Unit, Some(this))
     }
     case Some(rte) => rte.cachedType

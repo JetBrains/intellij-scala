@@ -32,6 +32,8 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
+import result.TypingContext
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 18.01.2009
@@ -136,13 +138,14 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType: ScType = expr.getType
-                  val getIt = used.indexOf(false)
-                  used(getIt) = true
-                  val param: ScParameter = parameters(getIt)
-                  val paramType = param.calcType
-                  if (!exprType.conforms(paramType)) isGrey = true
-                  buffer.append(paramText(param))
+                  for (exprType <- expr.getType(TypingContext.empty)) {
+                    val getIt = used.indexOf(false)
+                    used(getIt) = true
+                    val param: ScParameter = parameters(getIt)
+                    val paramType = param.getType(TypingContext.empty) getOrElse Nothing
+                    if (!exprType.conforms(paramType)) isGrey = true
+                    buffer.append(paramText(param))
+                  }
                 }
               }
               if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
@@ -167,9 +170,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         buffer.append(namedPrefix).append(paramText(param)).append(namedPostfix)
                         assign.getRExpression match {
                           case Some(expr: ScExpression) => {
-                            val exprType = expr.getType
-                            val paramType = param.calcType
-                            if (!exprType.conforms(paramType)) isGrey = true
+                            for (exprType <- expr.getType(TypingContext.empty)) {
+                              val paramType = param.getType(TypingContext.empty).getOrElse(Nothing)
+                              if (!exprType.conforms(paramType)) isGrey = true
+                            }
                           }
                           case _ => isGrey = true
                         }
@@ -209,11 +213,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             }
             if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
               if (!namedMode && parameters(parameters.length - 1).isRepeatedParameter) {
-                val paramType = parameters(parameters.length - 1).calcType
+                val paramType = parameters(parameters.length - 1).getType(TypingContext.empty).getOrElse(Nothing)
                 while (!isGrey && k < exprs.length.min(index)) {
                   if (k < index) {
-                    val exprType = exprs(k).getType
+                    for (exprType <- exprs(k).getType(TypingContext.empty)) {
                     if (!exprType.conforms(paramType)) isGrey = true
+                    }
                   }
                   k = k + 1
                 }
@@ -284,7 +289,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
                 override def name(): String = "v" + (i + 1)
 
-                override def calcType: ScType = params(i)
+//                override def calcType: ScType = params(i)
 
                 override def annotations: Seq[ScAnnotation] = Seq.empty
 
@@ -410,8 +415,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           return
                         }
                         case _ => {
-                          val typez = call.getInvokedExpr.getType //todo: implicit conversions
-                          collectForType(typez)
+                          for (typez <- call.getInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
+                          {collectForType(typez)}
                         }
                       }
                     } else {
@@ -433,8 +438,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             }
                           }
                           case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) => {
-                            val typez = subst.subst(typed.calcType) //todo: implicit conversions
-                            collectForType(typez)
+                            val typez = subst.subst(typed.getType(TypingContext.empty).getOrElse(Nothing)) //todo: implicit conversions
+                              collectForType(typez)
                           }
                           case _ =>
                         }
@@ -442,8 +447,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                   }
                   case None => {
-                    val typez = call.getInvokedExpr.getType //todo: implicit conversions
-                    collectForType(typez)
+                    for (typez <- call.getInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
+                      collectForType(typez)
+                    }
                   }
                 }
               }

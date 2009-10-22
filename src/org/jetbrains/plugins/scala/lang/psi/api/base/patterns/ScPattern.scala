@@ -8,17 +8,17 @@ package patterns
 import collection.mutable.ArrayBuffer
 import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._
+import result.{Failure, TypeResult, TypingContext}
 import statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ */
 
 trait ScPattern extends ScalaPsiElement {
-  def calcType : ScType = Nothing //todo implement
+  def getType(ctx: TypingContext) : TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
   def bindings : Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
@@ -44,8 +44,8 @@ trait ScPattern extends ScalaPsiElement {
 
   def expectedType: Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
-      case _var : ScVariable => Some(_var.getType)
-      case _val : ScValue => Some(_val.getType)
+      case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(Any))
+      case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(Any))
     }
     case argList : ScPatternArgumentList => {
       argList.getParent match {
@@ -72,7 +72,7 @@ trait ScPattern extends ScalaPsiElement {
     }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
       case matchStat : ScMatchStmt => matchStat.expr match {
-        case Some(e) => Some(e.getType)
+        case Some(e) => Some(e.getType(TypingContext.empty).getOrElse(Any))
         case _ => None
       }
       case _ : ScCatchBlock => {

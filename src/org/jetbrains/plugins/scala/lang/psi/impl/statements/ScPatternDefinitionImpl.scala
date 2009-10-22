@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import psi.types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -41,9 +42,9 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
 
   def declaredElements = bindings
 
-  def getType = typeElement match {
-    case Some(te) => te.cachedType.unwrap(Any)
-    case None => expr.getType
+  def getType(ctx: TypingContext) = typeElement match {
+    case Some(te) => te.cachedType
+    case None => expr.getType(ctx)
   }
 
   def typeElement: Option[ScTypeElement] = {

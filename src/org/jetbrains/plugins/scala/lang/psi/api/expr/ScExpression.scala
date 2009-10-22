@@ -7,7 +7,8 @@ package expr
 import com.intellij.psi.{PsiInvalidElementAccessException}
 import impl.ScalaPsiElementFactory
 import implicits.{ScImplicitlyConvertible}
-import types.{ScFunctionType, ScType, Nothing}
+import types._
+import types.result.{Success, Failure, TypingContext, TypeResult}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ import types.{ScFunctionType, ScType, Nothing}
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
 
-  def getType: ScType = {
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && modCount == curModCount) {
@@ -29,31 +30,36 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   @volatile
-  private var exprType: ScType = null
+  private var exprType: TypeResult[ScType] = null
 
   @volatile
   private var modCount: Long = 0
 
-  private def typeWithUnderscore: ScType = {
+  private def typeWithUnderscore: TypeResult[ScType] = {
     getText.indexOf("_") match {
-      case -1 => innerType //optimization
+      case -1 => innerType(TypingContext.empty) //optimization
       case _ => {
         val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) innerType
+        if (unders.length == 0) innerType(TypingContext.empty)
         else {
-          new ScFunctionType(innerType, unders.map(_.getType))
-        }
+          new Success(ScFunctionType(innerType(TypingContext.empty).getOrElse(Any),
+            unders.map(_.getType(TypingContext.empty).getOrElse(Any))), Some(this)
+)        }
       }
     }
   }
 
-  protected def innerType: ScType = Nothing
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] =
+    Failure(ScalaBundle.message("no.type.inferred", getText()), Some(this))
 
   /**
    * Returns all types in respect of implicit conversions (defined and default)
    */
   def allTypes: Seq[ScType] = {
-    getType :: getImplicitTypes
+    (getType(TypingContext.empty) match {
+      case Success(t, _) => t :: getImplicitTypes
+      case _ => getImplicitTypes
+    })
   }
 
   /**

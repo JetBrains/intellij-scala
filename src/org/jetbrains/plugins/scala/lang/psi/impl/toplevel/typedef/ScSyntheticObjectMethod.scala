@@ -9,33 +9,18 @@ import api.expr.ScNewTemplateDefinition
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.navigation.ItemPresentation
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.util.IncorrectOperationException
 import java.lang.String
-import javax.swing.Icon
-import com.intellij.openapi.vcs.FileStatus
-import java.util.List
 import com.intellij.psi._
-import com.intellij.psi.scope.processor.MethodResolverProcessor
-import com.intellij.psi.scope.PsiScopeProcessor
-import psi.stubs.elements.wrappers.DummyASTNode
-import psi.stubs.ScTypeDefinitionStub
-import com.intellij.psi.stubs.IStubElementType
-import com.intellij.psi.tree.IElementType
-import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import synthetic.{PsiMethodFake, SyntheticNamedElement}
 import types.{ScFunctionType, ScType}
 import util.{PsiTreeUtil, MethodSignatureBackedByPsiMethod}
+import types.result.TypingContext
+
 /**
  * @author ilyas
  */
@@ -86,7 +71,7 @@ class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, membe
   override def hasModifierProperty(name: String): Boolean = member.hasModifierProperty(name)
 
   def getReturnType: PsiType = field match {
-    case t: ScTypedDefinition => t.calcType match {
+    case t: ScTypedDefinition => t.getType(TypingContext.empty).getOrElse(Any) match {
       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case x => ScType.toPsi(x, getProject, getResolveScope)
     }

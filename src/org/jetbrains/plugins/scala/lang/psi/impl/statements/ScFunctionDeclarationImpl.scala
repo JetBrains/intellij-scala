@@ -4,20 +4,15 @@ package psi
 package impl
 package statements
 
-import com.intellij.psi.stubs.StubElement
-import stubs.elements.wrappers.DummyASTNode
 import stubs.ScFunctionStub
 import com.intellij.lang.ASTNode
 
-import psi.ScalaPsiElementImpl
 import api.statements._
-import types.{ScType, ScFunctionType, Nothing}
+import types.{ScType}
 import types.result.TypeResult
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:49:08
 */
 
 class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaration {
@@ -27,7 +22,5 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
   override def toString: String = "ScFunctionDeclaration"
 
   def returnType: TypeResult[ScType] = wrap(typeElement) flatMap (_.cachedType)
-
-  override def calcType = super[ScFunctionImpl].calcType
 }
 
