@@ -40,7 +40,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     for (importExpr <- importExprs) {
-      ProgressManager.checkCanceled
+      ProgressManager.getInstance.checkCanceled
       if (importExpr == lastParent) return true
       val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] = importExpr.reference match {
         case Some(ref) => (ref.multiResolve(false).map {
@@ -52,7 +52,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         case _ => Array()
       }
       for ((elem, importsUsed) <- elemsAndUsages) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         importExpr.selectorSet match {
           case None =>
             // Update the set of used imports
@@ -65,7 +65,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case Some(set) => {
             val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
             for (selector <- set.selectors) {
-              ProgressManager.checkCanceled
+              ProgressManager.getInstance.checkCanceled
               for (result <- selector.reference.multiResolve(false)) { //Resolve the name imported by selector
                 // Collect shadowed elements
                 shadowed += ((selector, result.getElement))

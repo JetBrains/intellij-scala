@@ -233,7 +233,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
         var current = JavaPsiFacade.getInstance(getProject).findPackage(pName)
         while (current != null) {
-          ProgressManager.checkCanceled
+          ProgressManager.getInstance.checkCanceled
           if (!current.processDeclarations(processor, state, null, place)) return false
           current = current.getParentPackage
 
@@ -249,7 +249,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
 
     for (implObj <- ImplicitlyImported.objects) {
-      ProgressManager.checkCanceled
+      ProgressManager.getInstance.checkCanceled
       val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
     }
@@ -257,19 +257,19 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     import toplevel.synthetic.SyntheticClasses
 
     for (synth <- SyntheticClasses.get(getProject).getAll) {
-      ProgressManager.checkCanceled
+      ProgressManager.getInstance.checkCanceled
       if (!processor.execute(synth, state)) return false
     }
 
     if (isScriptFile) {
       for (syntheticValue <- SyntheticClasses.get(getProject).getScriptSyntheticValues) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(syntheticValue, state)) return false
       }
     }
 
     for (implP <- ImplicitlyImported.packages) {
-      ProgressManager.checkCanceled
+      ProgressManager.getInstance.checkCanceled
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }

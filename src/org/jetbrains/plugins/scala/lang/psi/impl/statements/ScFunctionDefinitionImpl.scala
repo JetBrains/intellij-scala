@@ -36,7 +36,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       body match {
         case Some(x) if x == lastParent =>
           for (p <- parameters) {
-            ProgressManager.checkCanceled
+            ProgressManager.getInstance.checkCanceled
             if (!processor.execute(p, state)) return false
           }
         case _ =>

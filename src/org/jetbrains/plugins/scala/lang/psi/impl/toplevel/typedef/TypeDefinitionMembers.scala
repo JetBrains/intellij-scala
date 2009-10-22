@@ -310,14 +310,14 @@ object TypeDefinitionMembers {
     val subst = if (substK == null) ScSubstitutor.empty else substK
     if (shouldProcessVals(processor)) {
       for ((_, n) <- vals) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //this is for Java: to find methods, which is vals in Scala
     if (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)) {
       for ((_, n) <- vals) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         n.info match {
           case t: ScTypedDefinition => {
             val context = ScalaPsiUtil.nameContext(t)
@@ -374,7 +374,7 @@ object TypeDefinitionMembers {
     }
     if (shouldProcessMethods(processor)) {
       for ((_, n) <- methods) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         val substitutor = n.substitutor followed subst
         if (!processor.execute(n.info.method,
           state.put(ScSubstitutor.key, substitutor))) return false
@@ -382,14 +382,14 @@ object TypeDefinitionMembers {
     }
     if (shouldProcessTypes(processor)) {
       for ((_, n) <- types) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //static inner classes
     if (isObject && shouldProcessJavaInnerClasses(processor)) {
       for ((_, n) <- types if n.info.isInstanceOf[ScTypeDefinition]) {
-        ProgressManager.checkCanceled
+        ProgressManager.getInstance.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
