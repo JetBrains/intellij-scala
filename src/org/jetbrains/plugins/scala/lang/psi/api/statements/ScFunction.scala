@@ -16,7 +16,7 @@ import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
 import types._
-import result.TypeResult
+import result.{TypingContext, TypeResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,10 +49,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(paramClauses) => {
         val cls = paramClauses.clauses
         if (cls.length == 0) Nil
-        else cls.map(cl => cl.parameters.map(_.calcType))
+        else cls.map(cl => cl.parameters.map(_.getType(TypingContext.empty).getOrElse(Nothing)))
       }
     }
-    val rt = returnType.unwrap(Any)
+    val rt = returnType.getOrElse(Any)
     clauseTypes match {
       case Nil => ScFunctionType(rt, Nil)
       case _ => clauseTypes.foldRight(rt)((x, z) => ScFunctionType(z, x)).asInstanceOf[ScFunctionType]
@@ -86,7 +86,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def paramTypes: Seq[ScType] = {
     /*if (paramClauses.clauses.length == 0) return Sequence.empty
     paramClauses.clauses.apply(0).parameters.map{_.calcType}*/
-    parameters.map{_.calcType}
+    parameters.map{_.getType(TypingContext.empty).getOrElse(Nothing)}
   }
 
   def declaredElements = Seq.singleton(this)

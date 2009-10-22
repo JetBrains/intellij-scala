@@ -10,29 +10,29 @@ import psi.ScalaPsiElementImpl
 import api.expr._
 import com.intellij.lang.ASTNode
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import types.result.{TypingContext, Failure, Success}
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ * Date: 06.03.2008
+ */
 
 class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScThisReference {
   override def toString: String = "ThisReference"
 
-  protected override def innerType = refTemplate match {
-    case Some(td) => {
-      val refType = td.getType
+  protected override def innerType(ctx: TypingContext) = refTemplate match {
+    case Some(td) => td.getType(ctx) map { refType =>
       td.selfType match {
         case Some(t) => Bounds.glb(refType, t)
         case None => refType
       }
     }
-    case _ => Nothing
+    case _ => Failure("Cannot infer type", Some(this))
   }
 
   def refTemplate = reference match {
     case Some(ref) => ref.resolve match {
-      case td : ScTypeDefinition => Some(td)
+      case td: ScTypeDefinition => Some(td)
       case _ => None
     }
     case None => {

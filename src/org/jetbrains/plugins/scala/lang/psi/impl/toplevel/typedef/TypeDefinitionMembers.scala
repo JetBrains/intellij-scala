@@ -17,6 +17,7 @@ import synthetic.{SyntheticClasses, ScSyntheticClass}
 import types._
 import api.toplevel.typedef._
 import api.statements._
+import result.TypingContext
 import types.PhysicalSignature
 import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
@@ -217,13 +218,13 @@ object TypeDefinitionMembers {
         member match {
           case _var: ScVariable =>
             for (dcl <- _var.declaredElements) {
-              val t = dcl.calcType
+              val t = dcl.getType(TypingContext.empty).getOrElse(Any)
               addSignature(new Signature(dcl.name, Seq.empty, 0, subst), t, dcl)
               addSignature(new Signature(dcl.name + "_", Seq.singleton(t), 1, subst), Unit, dcl)
             }
           case _val: ScValue =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.calcType, dcl)
+              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
             }
           case constr: ScPrimaryConstructor => {
             val isCase: Boolean = template match {
@@ -232,12 +233,12 @@ object TypeDefinitionMembers {
             }
             val parameters = if (isCase) constr.parameters else constr.valueParameters
             for (param <- parameters) {
-              val t = param.calcType
+              val t = param.getType(TypingContext.empty).getOrElse(Any)
               addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           }
-          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.unwrap(Any)), f)
+          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case _ =>
         }
       }
@@ -355,13 +356,13 @@ object TypeDefinitionMembers {
                     context match {
                       case value: ScValue => {
                         if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.calcType, value.hasModifierProperty _), state)) return false
+                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
                       }
                       case variable: ScVariable => {
                         if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.calcType, variable.hasModifierProperty _), state)) return false
+                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
                         if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                          Array[ScType](t.calcType), Unit, variable.hasModifierProperty _), state)) return false
+                          Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
                       }
                       case _ =>
                     }
@@ -373,13 +374,13 @@ object TypeDefinitionMembers {
                     context match {
                       case value: ScValue => {
                         if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.calcType, value.hasModifierProperty _), state)) return false
+                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
                       }
                       case variable: ScVariable => {
                         if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.calcType, variable.hasModifierProperty _), state)) return false
+                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
                         if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                          Array[ScType](t.calcType), Unit, variable.hasModifierProperty _), state)) return false
+                          Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
                       }
                       case _ =>
                     }

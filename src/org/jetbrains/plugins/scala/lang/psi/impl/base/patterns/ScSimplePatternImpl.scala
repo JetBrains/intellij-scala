@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -29,7 +30,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   def bindParamTypes = ref.bind match {
     case None => None
     case Some(r) => r.element match {
-      case td : ScClass => Some(td.parameters.map {t => t.calcType}) //todo: type inference here
+      case td : ScClass => Some(td.parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}) //todo: type inference here
       case obj : ScObject => { None //todo
         /*val n = args.patterns.length
         for(func <- obj.functionsByName("unapply")) {
@@ -41,11 +42,12 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def calcType = ref.bind match {
-    case None => Nothing
-    case Some(r) => r.element match {
+  override def getType(ctx: TypingContext) = wrap(ref.bind) map { r =>
+    r.element match {
       case td : ScClass => ScParameterizedType.create(td, r.substitutor)
       case obj : ScObject => new ScDesignatorType (obj)
       case _ => Nothing
     }
-  }}
+  }
+
+}

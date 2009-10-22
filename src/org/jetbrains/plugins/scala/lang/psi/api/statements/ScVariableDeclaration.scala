@@ -15,9 +15,4 @@ import org.jetbrains.plugins.scala.lang.psi.types.Any
 trait ScVariableDeclaration extends ScVariable with ScTypedDeclaration {
   def getIdList: ScIdList
   def declaredElements : Seq[ScTypedDefinition]
-
-  def getType = typeElement match {
-    case Some(te) => te.cachedType.unwrap(Any)
-    case None => Nothing
-  }
 }

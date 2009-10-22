@@ -27,7 +27,7 @@ import lexer._
 import types._
 import api.statements._
 import api.statements.params._
-import result.{Success, TypingContext}
+import result.{TypeResult, Success, TypingContext}
 
 /**
  * @author ilyas
@@ -60,10 +60,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   private def getReturnTypeImpl: PsiType = {
-    calcType match {
-      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
-      case x => ScType.toPsi(x, getProject, getResolveScope)
-    }
+     getType(TypingContext.empty).getOrElse(Any) match {
+       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
+       case x => ScType.toPsi(x, getProject, getResolveScope)
+     }
   }
 
   def superMethods = TypeDefinitionMembers.getMethods(getContainingClass).
@@ -76,7 +76,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superSignatures: Seq[FullSignature] = {
     val clazz = getContainingClass
-    val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), returnType.unwrap(Any), this, clazz)
+    val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), returnType.getOrElse(Any), this, clazz)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
     //partial match
@@ -130,23 +130,33 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getParameterList: ScParameters = paramClauses
 
-  def calcType = paramClauses.clauses.toList.foldRight(returnType.unwrap(Any))((cl, t) =>
-          ScFunctionType(t, collection.immutable.Seq(cl.parameters.map({p => p.calcType}).toSeq : _*)))
+  // todo implement to handle errors
+  def getType(ctx: TypingContext) = {
+    returnType flatMap { rt =>
+      paramClauses.clauses.foldRight(Success(rt, None) : TypeResult[ScType]) {
+        (cl, typeRes) =>
+          typeRes flatMap {ret =>
+            val paramTypes = cl.parameters.map(_.getType(ctx))
+            collectFailures(paramTypes, Nothing)(ScFunctionType(ret, _))
+          }
+      }
+    }
+  }
 
   override def getUseScope: SearchScope = {
     getParent match {
-      case _: ScTemplateBody => super.getUseScope
+  case _: ScTemplateBody => super.getUseScope
       case _ => {
         var el: PsiElement = getParent
         while (el != null && !el.isInstanceOf[ScBlock] && !el.isInstanceOf[ScMember]) el = el.getParent
         if (el != null) new LocalSearchScope(el)
-        else super.getUseScope
+  else super.getUseScope
       }
     }
   }
 
   override protected def findSameMemberInSource(m: ScMember) = m match {
-    case f : ScFunction => f.name == name && f.parameters.length == parameters.length
+  case f : ScFunction => f.name == name && f.parameters.length == parameters.length
     case _ => false
   }
 
@@ -156,6 +166,4 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
 
-  // todo implement to handle errors
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
 }

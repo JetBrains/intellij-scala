@@ -16,6 +16,7 @@ import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.types.ScType
 import util.MacroUtil
+import lang.psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,7 +45,7 @@ class ScalaVariableOfTypeMacro extends Macro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition => {
-              val t = typed.calcType
+              for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0) match {
                 case "" => {
                   val item = new LookupItem(variant.getElement, variant.getElement.getName)
@@ -92,7 +93,7 @@ class ScalaVariableOfTypeMacro extends Macro {
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition => {
-              val t = typed.calcType
+              for (t <- typed.getType(TypingContext.empty))
               exprs.apply(0).calculateResult(context).toString match {
                 case "" => {
                   return new TextResult(variant.getElement.getName)

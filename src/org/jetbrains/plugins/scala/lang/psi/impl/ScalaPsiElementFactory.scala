@@ -304,7 +304,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val substitutor = new ScSubstitutor(sign.substitutor.tvMap, Map.empty, sign.substitutor.outerMap)
     method match {
       case method: ScFunction => {
-        body = getStandardValue(substitutor subst method.calcType)
+        body = getStandardValue(substitutor subst method.getType(TypingContext.empty).getOrElse(Any))
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -337,7 +337,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             def get(param: ScParameter): String = {
               var res: String = param.getName
               param.typeElement foreach {
-                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.unwrap(Any)))
+                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.getOrElse(Any)))
               }
               return res
             }
@@ -347,7 +347,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         }
         if (needsInferType) {
           method.returnTypeElement foreach {
-            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.unwrap(Any)))
+            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.getOrElse(Any)))
           }
         }
         res = res + " = "
@@ -422,7 +422,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
       alias match {
         case alias: ScTypeAliasDefinition => {
           return "override type " + alias.getName + " = " +
-                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).unwrap(Any)))
+                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrElse(Any)))
         }
         case alias: ScTypeAliasDeclaration => {
           return "type " + alias.getName + " = " + body
@@ -441,8 +441,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     if (isOverride) res = res + "override "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
-    if (needsInferType && ScType.canonicalText(substitutor.subst(variable.calcType)) != "")
-      res = res + ": " + ScType.canonicalText(substitutor.subst(variable.calcType))
+    if (needsInferType && ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any))) != "")
+      res = res + ": " + ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any)))
     res = res + " = " + body
     return res
   }

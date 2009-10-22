@@ -5,11 +5,11 @@ package surrounders
 package expression
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import psi.api.expr.{ScParenthesisedExpr, ScIfStmt, ScExpression}
+import psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,7 +23,7 @@ class ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
     elements(0) match {
-      case x: ScExpression if x.getType == psi.types.Boolean => return true
+      case x: ScExpression if x.getType(TypingContext.empty).getOrElse(Any) == psi.types.Boolean => return true
       case _ => return false
     }
   }

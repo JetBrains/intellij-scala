@@ -10,6 +10,9 @@ import psi.stubs.ScSelfTypeElementStub
 import psi.types.result.{Success, TypingContext}
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -23,5 +26,13 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
 
   def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
 
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+  def getType(ctx: TypingContext) = typeElement match {
+    case Some(ste) => ste.cachedType
+    case None => {
+      val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
+      assert(parent != null)
+      Success(ScDesignatorType(parent), Some(this))
+    }
+  }
+
 }

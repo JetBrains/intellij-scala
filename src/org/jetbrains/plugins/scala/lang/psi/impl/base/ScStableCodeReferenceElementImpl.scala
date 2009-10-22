@@ -28,6 +28,8 @@ import api.toplevel.ScTypedDefinition
 import api.statements.ScTypeAlias
 import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
+import result.TypingContext
+
 /**
  * @author AlexanderPodkhalyuzin
  * Date: 22.02.2008
@@ -104,7 +106,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(q: ScStableCodeReferenceElement) => {
         q.bind match {
           case None =>
-          case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => processor.processType(s.subst(typed.calcType), this)
+          case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => 
+            processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
           case Some(r@ScalaResolveResult(pack: PsiPackage, _)) => {
 
             // Process synthetic classes for scala._ package
@@ -133,7 +136,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           }
         }
       }
-      case Some(thisQ: ScThisReference) => processor.processType(thisQ.getType, this)
+      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
     processor.candidates.filter(srr => srr.element match {

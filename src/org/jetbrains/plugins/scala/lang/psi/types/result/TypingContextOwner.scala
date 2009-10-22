@@ -29,6 +29,8 @@ trait TypingContext {
    */
   def visited: Set[ScNamedElement]
 
+  def isUndefined = false
+
   def apply(named: ScNamedElement): TypingContext = new TypingContext {
     def visited = HashSet(self.visited.toSeq: _*) + named
   }
@@ -39,4 +41,10 @@ trait TypingContext {
 
 object TypingContext {
   val empty = new TypingContext {def visited = Set()}
+
+  val undefined = new TypingContext {
+    def visited = Set()
+    override def isUndefined = true
+  }
+
 }

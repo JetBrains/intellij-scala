@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiParameter, PsiMethod}
 import api.statements.{ScFun, ScFunction}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
+import result.{Success, TypingContext}
 
 /**
  * @author ven
@@ -36,15 +37,14 @@ object Compatibility {
         if (namedMode) {
           return false
         }
-        else {
-          val exprType: ScType = expr.getType
+        else (for (exprType <- expr.getType(TypingContext.empty)) yield {
           val getIt = used.indexOf(false)
           used(getIt) = true
           val param: Parameter = parameters(getIt)
           val paramType = param.tp()
-          if (!exprType.conforms(paramType)) return false
-          return true
-        }
+          if (!exprType.conforms(paramType)) false
+          else true
+        }).getOrElse(true)
       }
 
       exprs(k) match {
@@ -60,8 +60,8 @@ object Compatibility {
             val param: Parameter = parameters(ind)
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
-                val exprType = expr.getType
-                val paramType = param.tp()
+                for (exprType <- expr.getType(TypingContext.empty);
+                     paramType = param.tp())
                 if (!exprType.conforms(paramType)) return false
               }
               case _ => return false
@@ -80,9 +80,10 @@ object Compatibility {
       if (!parameters.last.isRepeated) return false
       val paramType: ScType = parameters.last.tp()
       while (k < exprs.length) {
-        val exprType: ScType = exprs(k).getType
-        if (!exprType.conforms(paramType)) return false
-        k = k + 1
+        for (exprType <- exprs(k).getType(TypingContext.empty)) {
+          if (!exprType.conforms(paramType)) return false
+          k = k + 1
+        }
       }
     }
     else {
@@ -123,7 +124,7 @@ object Compatibility {
 
 
         checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
-          sign.substitutor.subst(param.calcType)
+          sign.substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
       }
 

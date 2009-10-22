@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.{ScParameterizedType, ScFunctionType, ScType}
 import com.intellij.psi.PsiClass
+import types.result.{Success, TypeResult, Failure, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -17,16 +18,16 @@ import com.intellij.psi.PsiClass
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
   override def toString: String = "UnderscoreSection"
 
-  protected override def innerType(): ScType = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     bindingExpr match {
-      case Some(x) => psi.types.Nothing //todo: implement me
+      case Some(x) => Failure("No type inferred", None) //todo: implement me
       case None => {
         getParent match {
-          case typed: ScTypedStmt => return typed.getType
+          case typed: ScTypedStmt => return typed.getType(ctx)
           case _ =>
         }
         overExpr match {
-          case None => psi.types.Nothing
+          case None => Failure("No type inferred", None)
           case Some(expr: ScExpression) => {
             val unders = ScUnderScoreSectionUtil.underscores(expr)
             val i = unders.findIndexOf(_ == this)
@@ -70,7 +71,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
             }
             if (result == null) result = None
-            result.getOrElse(psi.types.Nothing)
+            result match {
+              case None => Failure("No type inferred", None)
+              case Some(t) => Success(t, None)
+            }
           }
         }
       }

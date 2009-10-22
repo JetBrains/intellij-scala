@@ -13,6 +13,7 @@ import api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.types.Nothing
+import psi.types.result.TypingContext
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,9 +30,8 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
 
   def declaredElements = getIdList.fieldIds
 
-  def getType = typeElement match {
-    case Some(te) => te.cachedType.unwrap(Any)
-    case None => Nothing
+  override def getType(ctx: TypingContext) = wrap(typeElement)(ScalaBundle.message("no.type.element.found", getText)) flatMap {
+    te => te.cachedType
   }
 
   def typeElement: Option[ScTypeElement] = {

@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import api.expr._
 import psi.ScalaPsiElementImpl
 import types.Nothing
+import types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,8 +19,6 @@ import types.Nothing
 class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
   override def toString: String = "ExpressionInParenthesis"
 
-  protected override def innerType = expr match {
-    case Some(e) => e.getType
-    case None => Nothing
-  }
+  protected override def innerType(ctx: TypingContext) = wrap(expr) flatMap (_.getType(ctx))
+
 }

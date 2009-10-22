@@ -12,6 +12,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.scala.collection.mutable.ArrayBuffer
+import result.TypingContext
 import util.{NameValidator, ScalaNamesUtil}
 /**
 * User: Alexander.Podkhalyuz
@@ -26,7 +27,8 @@ object NameSuggester {
   def suggestNames(expr: ScExpression): Array[String] = suggestNames(expr, emptyValidator(expr.getProject))
   def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
     val names = new HashSet[String]
-    generateNamesByType(expr.getType, names, validator)
+
+    for (tpe <- expr.getType(TypingContext.empty)) {generateNamesByType(tpe, names, validator)}
     generateNamesByExpr(expr, names, validator)
     if (names.size == 0) {
       names += validator.validateName("value", true)

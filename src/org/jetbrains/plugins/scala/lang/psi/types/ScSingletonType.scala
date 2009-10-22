@@ -6,22 +6,26 @@ package types
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.{ScReferenceElement, ScPathElement}
 import api.toplevel.ScTypedDefinition
+import result.TypingContext
+
 /**
 * @author ilyas
 */
 
 case class ScSingletonType(path: ScPathElement) extends ScType {
+
+  // todo rewrite me!
   lazy /* to prevent SOE */
   val pathType = path match {
     case ref: ScReferenceElement => ref.bind match {
       case None => Nothing
       case Some(r) => r.element match {
-        case typed: ScTypedDefinition => typed.calcType
+        case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Nothing)
         case e => new ScDesignatorType(e)
       }
     }
     case thisPath: ScThisReference => thisPath.refTemplate match {
-      case Some(tmpl) => tmpl.getType
+      case Some(tmpl) => tmpl.getType(TypingContext.empty).getOrElse(Nothing)
       case _ => Nothing
     }
     case superPath: ScSuperReference => superPath.staticSuper match {
