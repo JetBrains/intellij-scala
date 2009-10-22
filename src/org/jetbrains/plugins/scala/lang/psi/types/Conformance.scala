@@ -28,7 +28,7 @@ object Conformance {
   def conformsSeq(ls: Seq[ScType], rs: Seq[ScType]): Boolean = ls.length == rs.length && ls.zip(rs).foldLeft(true)((z, p) => z && conforms(p._1, p._2, HashSet.empty))
 
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = {
-    ProgressManager.getInstance.checkCanceled
+    ProgressManager.checkCanceled
 
     def scalaCompilerIsTheBestCompilerInTheWorld = l match {
       case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)

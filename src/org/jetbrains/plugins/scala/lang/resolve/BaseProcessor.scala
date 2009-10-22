@@ -65,7 +65,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   def processType(t: ScType, place: ScalaPsiElement): Boolean = processType(t, place, ResolveState.initial)
 
   def processType(t: ScType, place: ScalaPsiElement, state: ResolveState): Boolean = {
-    ProgressManager.getInstance.checkCanceled
+    ProgressManager.checkCanceled
 
     def isInApplyCall = place.getContext match {
       case expr: ScReferenceExpression => expr.nameId.getText == "apply"
