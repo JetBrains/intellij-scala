@@ -84,7 +84,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     if (typez == Nothing) return result
     
     val sigsFound = processor.signatures.filter((sig: Signature) => {
-      ProgressManager.checkCanceled
+      ProgressManager.getInstance().checkCanceled()
       val types = sig.types
       types.length == 1 && typez.conforms(sig.substitutor.subst(types(0)))
     })
