@@ -142,12 +142,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) = {
-      ProgressManager.getInstance.checkCanceled
+      ProgressManager.checkCanceled
       processor.processType(e.getType, e, ResolveState.initial)
       if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
               processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
         for (t <- e.getImplicitTypes) {
-          ProgressManager.getInstance.checkCanceled
+          ProgressManager.checkCanceled
           val importsUsed = e.getImportsForImplicit(t)
           processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, importsUsed))
         }
