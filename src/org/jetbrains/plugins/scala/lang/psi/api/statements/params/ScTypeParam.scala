@@ -5,20 +5,18 @@ package api
 package statements
 package params
 
-import toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner, ScPolymorphicElement}
-import types.ScType
+import toplevel.{ScTypeParametersOwner, ScPolymorphicElement}
 import psi.ScalaPsiElement
 import com.intellij.psi._
-import toplevel.typedef.ScTypeDefinition
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ */
 
 trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter {
-  def isCovariant() : Boolean
-  def isContravariant() : Boolean
+  def isCovariant(): Boolean
 
-  def owner : ScTypeParametersOwner
+  def isContravariant(): Boolean
+
+  def owner: ScTypeParametersOwner
 }
