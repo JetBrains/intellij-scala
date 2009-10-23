@@ -13,7 +13,7 @@ import impl.toplevel.synthetic.ScSyntheticClass
 * @author ilyas
 */
 
-case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ScType {
+case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
   def resolveResult = ref.bind
 
   lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)

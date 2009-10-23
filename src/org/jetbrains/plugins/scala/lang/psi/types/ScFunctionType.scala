@@ -16,7 +16,7 @@ import api.toplevel.typedef.{ScClass, ScTrait}
  * @param shortDef is true for functions defined as follows
  *  def foo : Type = ...
  */
-case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ScType {
+case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ValueType {
 
   override def equiv(that : ScType) = that match {
     case ScFunctionType(rt1, params1) => (returnType equiv rt1) &&
@@ -47,7 +47,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ScTyp
   private def functionTraitName = "scala.Function" + params.length
 }
 
-case class ScTupleType(components: Seq[ScType]) extends ScType {
+case class ScTupleType(components: Seq[ScType]) extends ValueType {
   override def equiv(that : ScType) = that match {
     case ScTupleType(c1) => components.zip(c1) forall {case (x,y)=> x equiv y}
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args)

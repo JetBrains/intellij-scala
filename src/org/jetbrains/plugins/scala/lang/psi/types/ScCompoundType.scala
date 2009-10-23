@@ -9,7 +9,7 @@ import com.intellij.psi.PsiTypeParameter
 import collection.mutable.{ListBuffer, HashSet, HashMap}
 import result.{TypingContext, Failure}
 
-case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder], val typeDecls: Seq[ScTypeAlias]) extends ScType{
+case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder], val typeDecls: Seq[ScTypeAlias]) extends ValueType {
   //compound types are checked by checking the set of signatures in their refinements
   val signatureMap = new HashMap[Signature, ScType] {
     override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
