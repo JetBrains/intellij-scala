@@ -16,23 +16,16 @@ import resolve._
 
 import types._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import impl.PsiManagerEx
-import impl.source.resolve.ResolveCache
 import result.{Success, TypingContext}
 import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.openapi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
-import formatting.settings.ScalaCodeStyleSettings
-import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.psi.{PsiElement}
 import api.base.types.ScTypeElement
 
 /**

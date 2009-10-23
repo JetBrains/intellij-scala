@@ -16,12 +16,11 @@ import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
 import types._
-import result.{TypingContext, TypeResult}
+import nonvalue.ScMethodType
+import result.{Failure, Success, TypingContext, TypeResult}
 
 /**
  * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- * Time: 9:45:38
  */
 
 //some functions are not PsiMethods and are e.g. not visible from java
@@ -34,34 +33,55 @@ trait ScFun extends ScTypeParametersOwner {
   def typeParameters: Seq[ScTypeParam]
 }
 
+
+/**
+ * Represents Scala's internal function definitions and declarations
+ */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder {
-
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
-  def functionType : ScFunctionType = {
-    val clauseTypes : Seq[Seq[ScType]] = clauses match {
+  def methodType: TypeResult[ScMethodType] = {
+    // collect parameter types
+    val clauseTypes: Seq[Seq[TypeResult[ScType]]] = clauses match {
       case None => Nil
       case Some(paramClauses) => {
         val cls = paramClauses.clauses
         if (cls.length == 0) Nil
-        else cls.map(cl => cl.parameters.map(_.getType(TypingContext.empty).getOrElse(Nothing)))
+        else cls.map {
+          cl => {
+            val params = cl.parameters
+            if (params.length == 0) Seq(Success(Unit, Some(cl)))
+            else params.map(_.getType(TypingContext.empty))
+          }
+        }
       }
     }
+
+    // return Type
     val rt = returnType.getOrElse(Any)
-    clauseTypes match {
-      case Nil => ScFunctionType(rt, Nil)
-      case _ => clauseTypes.foldRight(rt)((x, z) => ScFunctionType(z, x)).asInstanceOf[ScFunctionType]
-    }
+    val mtype = Success((clauseTypes match {
+      case Nil => ScMethodType(rt, Nil)
+      case _ => clauseTypes.foldRight(rt) {
+        (clz, tpe) =>
+          collectFailures(clz, Nothing)(ScMethodType(tpe, _)).getOrElse(Any)
+      }
+    }).asInstanceOf[ScMethodType], Some(this))
+
+    
+
+    (for (f@Failure(_, _) <- (returnType :: clauseTypes.flatten.toList)) yield f).foldLeft(mtype)(_.apply(_))
   }
 
 
-  def paramClauses: ScParameters
-
+  /**
+   * Optional Type Element, denotion function's return type
+   * May be omitted for non-recursive functions
+   */
   def returnTypeElement: Option[ScTypeElement] = {
     this match {
       case st: ScalaStubBasedElementImpl[_] => {
@@ -75,6 +95,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     findChild(classOf[ScTypeElement])
   }
 
+  def paramClauses: ScParameters
+
   def returnType: TypeResult[ScType]
 
   def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.cachedType)
@@ -83,7 +105,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter]
 
-  def paramTypes: Seq[ScType] = parameters.map{_.getType(TypingContext.empty).getOrElse(Nothing)}
+  def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
 
   def declaredElements = Seq.singleton(this)
 
@@ -94,7 +116,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def superSignatures: Seq[FullSignature]
 
   def hasParamName(name: String, clausePosition: Int = -1): Boolean = getParamByName(name, clausePosition) != None
-  
+
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 => {
