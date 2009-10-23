@@ -19,5 +19,5 @@ class ScStableReferenceElementPatternImpl(node : ASTNode) extends ScalaPsiElemen
 
   override def toString: String = "StableElementPattern"
 
-  def calcType = wrap(getReferenceExpression) flatMap {e => e.getType(TypingContext.empty)}
+  override def getType(ctx:TypingContext) = wrap(getReferenceExpression) flatMap {e => e.getType(TypingContext.empty)}
 }

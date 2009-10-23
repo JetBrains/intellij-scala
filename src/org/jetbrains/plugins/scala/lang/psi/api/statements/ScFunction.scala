@@ -83,11 +83,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter]
 
-  def paramTypes: Seq[ScType] = {
-    /*if (paramClauses.clauses.length == 0) return Sequence.empty
-    paramClauses.clauses.apply(0).parameters.map{_.calcType}*/
-    parameters.map{_.getType(TypingContext.empty).getOrElse(Nothing)}
-  }
+  def paramTypes: Seq[ScType] = parameters.map{_.getType(TypingContext.empty).getOrElse(Nothing)}
 
   def declaredElements = Seq.singleton(this)
 

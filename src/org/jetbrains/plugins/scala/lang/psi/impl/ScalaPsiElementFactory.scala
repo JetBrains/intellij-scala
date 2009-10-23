@@ -477,7 +477,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createTypeFromText(text: String, context: PsiElement): ScType = {
     val te = createTypeElementFromText(text, context)
     if (te == null) return null
-    else return te.calcType
+    else return te.getType(TypingContext.empty).getOrElse(Any)
   }
 
   def createReferenceFromText(text: String, context: PsiElement): ScStableCodeReferenceElement = {

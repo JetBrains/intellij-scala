@@ -57,8 +57,16 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
   }
 
-  override def getParent() : PsiElement = {
-    getParentByStub()
+  var counter = 0
+
+  override def getParent(): PsiElement = {
+    if (counter > 5) {
+      println("preved")
+    }
+    counter = counter + 1
+    val res = getParentByStub()
+    counter = counter - 1
+    res
   }
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
