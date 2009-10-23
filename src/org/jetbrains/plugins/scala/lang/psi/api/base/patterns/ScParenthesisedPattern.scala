@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
-* Date: 07.03.2008
 */
 
 trait ScParenthesisedPattern extends ScPattern {
-  def subpattern = findChildByClassScala(classOf[ScPattern]) // not null, otherwise it is a tuple pattern
+  def subpattern = findChild(classOf[ScPattern])
 }

@@ -92,7 +92,7 @@ object ScalaPsiUtil {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     val map = new collection.mutable.HashMap[String, ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-      map += Tuple(tp(i), typeArgs(i).calcType)
+      map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
   }
