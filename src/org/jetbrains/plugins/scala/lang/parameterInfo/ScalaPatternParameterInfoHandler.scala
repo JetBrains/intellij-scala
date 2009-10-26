@@ -81,7 +81,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             val subst = sign.substitutor
             val p = sign.method match {
               case method: ScFunction => {
-                subst.subst(method.returnType.unwrap(Any))
+                subst.subst(method.returnType.getOrElse(Any))
               }
               case method: PsiMethod => {
                 subst.subst(ScType.create(method.getReturnType, method.getProject))

@@ -82,7 +82,7 @@ abstract class MixinNodes {
     for (alias <- template.aliases) {
       alias match {
         case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
-          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).unwrap(Any)})
+          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).getOrElse(Any)})
         case _ =>
       }
     }

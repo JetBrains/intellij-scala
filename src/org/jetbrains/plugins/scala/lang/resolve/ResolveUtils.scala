@@ -25,6 +25,7 @@ import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
 import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
 import psi.api.base.types.ScSelfTypeElement
+import result.TypingContext
 
 /**
  * @author ven
@@ -308,17 +309,17 @@ object ResolveUtils {
             presentation.setTailText(fun.paramTypes.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
           }
           case bind: ScBindingPattern => {
-            presentation.setTypeText(presentationString(bind.calcType, substitutor))
+            presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
           }
           case param: ScParameter => {
-            presentation.setTypeText(presentationString(param.calcType, substitutor))
+            presentation.setTypeText(presentationString(param.getType(TypingContext.empty).getOrElse(Any), substitutor))
           }
           case clazz: PsiClass => {
             val location: String = clazz.getPresentation.getLocationString
             presentation.setTailText(" " + location, true)
           }
           case alias: ScTypeAliasDefinition => {
-            presentation.setTypeText(presentationString(alias.aliasedType.unwrap(Any), substitutor))
+            presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
           }
           case method: PsiMethod => {
             presentation.setTypeText(presentationString(method.getReturnType, substitutor))

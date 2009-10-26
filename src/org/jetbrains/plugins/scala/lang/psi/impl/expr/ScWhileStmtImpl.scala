@@ -10,8 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import types.result.{TypingContext, Success}
 
-/** 
+/**
 * @author Alexander.Podkhalyuzin
 */
 
@@ -32,5 +33,5 @@ class ScWhileStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScWh
   }
 
 
-  protected override def innerType(): ScType = types.Unit
+  protected override def innerType(ctx: TypingContext) = Success(types.Unit, Some(this))
 }

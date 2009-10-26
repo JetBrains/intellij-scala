@@ -10,22 +10,20 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import psi.types.result.{Success, TypingContext}
+import psi.types.result.{Failure, Success, TypingContext}
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ */
 
-class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern{
+class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern {
   override def toString: String = "NamingPattern"
-
-  override def calcType = if (named == null) psi.types.Nothing else named.calcType //todo fix parser
 
   def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
 
-  // todo rework it!
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+  override def getType(ctx: TypingContext) =
+    if (named == null) Failure("Cannot infer type", Some(this))
+    else named.getType(ctx)
 }

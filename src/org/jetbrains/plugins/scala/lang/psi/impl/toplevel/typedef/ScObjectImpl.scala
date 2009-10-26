@@ -24,8 +24,6 @@ import types.{ScDesignatorType, ScSubstitutor, ScType}
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def calcType() = new ScDesignatorType(this)
-
   def this(stub: ScTypeDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"

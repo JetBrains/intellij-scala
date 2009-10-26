@@ -19,7 +19,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   val types = new HashMap[String, Bounds]
 
   for (typeDecl <- typeDecls) {
-    types += ((typeDecl.name, (typeDecl.lowerBound.unwrap(Nothing), typeDecl.upperBound.unwrap(Any))))
+    types += ((typeDecl.name, (typeDecl.lowerBound.getOrElse(Nothing), typeDecl.upperBound.getOrElse(Any))))
   }
 
   val problems : ListBuffer[Failure] = new ListBuffer
@@ -27,14 +27,14 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   for (decl <- decls) {
     decl match {
       case fun: ScFunction =>
-        signatureMap += ((new PhysicalSignature(fun, ScSubstitutor.empty), fun.calcType))
+        signatureMap += ((new PhysicalSignature(fun, ScSubstitutor.empty), fun.getType(TypingContext.empty).getOrElse(Any)))
       case varDecl: ScVariable => {
         varDecl.typeElement match {
           case Some(te) => for (e <- varDecl.declaredElements) {
             val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
             varType match {case f@Failure(_, _) => problems += f; case _ =>}
-            signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), varType.unwrap(Any)))
-            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType.unwrap(Any)), 1, ScSubstitutor.empty), Unit)) //setter
+            signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), varType.getOrElse(Any)))
+            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType.getOrElse(Any)), 1, ScSubstitutor.empty), Unit)) //setter
           }
           case None =>
         }
@@ -43,7 +43,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
         case Some(te) => for (e <- valDecl.declaredElements) {
           val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
           valType match {case f@Failure(_, _) => problems += f; case _ =>}
-          signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), valType.unwrap(Any)))
+          signatureMap += ((new Signature(e.name, Seq.empty, 0, ScSubstitutor.empty), valType.getOrElse(Any)))
         }
         case None =>
       }

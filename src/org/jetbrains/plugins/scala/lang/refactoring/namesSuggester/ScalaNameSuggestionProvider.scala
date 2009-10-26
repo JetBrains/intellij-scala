@@ -11,6 +11,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.refactoring.rename.NameSuggestionProvider
 import psi.api.expr.ScExpression
 import psi.api.toplevel.ScTypedDefinition
+import psi.types.result.TypingContext
+import psi.types._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +24,7 @@ class ScalaNameSuggestionProvider extends NameSuggestionProvider {
 
   def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: List[String]): SuggestedNameInfo = {
     val array = element match {
-      case typed: ScTypedDefinition => NameSuggester.suggestNamesByType(typed.calcType)
+      case typed: ScTypedDefinition => NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrElse(Any))
       case expr: ScExpression => NameSuggester.suggestNames(expr)
       case _ => Array[String]()
     }

@@ -21,6 +21,7 @@ import _root_.scala.collection.Set
 import psi.api.expr.ScExpression
 import psi.api.base.types.ScTypeElement
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
+import result.TypingContext
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -191,7 +192,7 @@ class MethodResolveProcessor(ref: PsiElement,
    Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
   def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
-    typeArgElements.map(_.cachedType.unwrap(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
+    typeArgElements.map(_.cachedType.getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
       (subst, pair) =>
               val scType = pair._1
               val typeParameter = pair._2
@@ -215,8 +216,8 @@ class MethodResolveProcessor(ref: PsiElement,
   private def getType(e: PsiNamedElement): ScType = e match {
     case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Seq(fun.paramTypes.toSeq: _*))
     case f: ScFunction => if (PsiTreeUtil.isAncestor(f, ref, true))
-      new ScFunctionType(f.declaredType.unwrap(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*))
-    else f.calcType
+      new ScFunctionType(f.declaredType.getOrElse(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*))
+    else f.getType(TypingContext.empty).getOrElse(Any)
     case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
 
     case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
@@ -224,10 +225,10 @@ class MethodResolveProcessor(ref: PsiElement,
         pd.declaredType match {case Some(t) => t; case None => Nothing}
       case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, ref, true)) =>
         vd.declaredType match {case Some(t) => t; case None => Nothing}
-      case _ => refPatt.calcType
+      case _ => refPatt.getType(TypingContext.empty).getOrElse(Any)
     }
 
-    case typed: ScTypedDefinition => typed.calcType
+    case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Any)
     case _ => Nothing
   }
 

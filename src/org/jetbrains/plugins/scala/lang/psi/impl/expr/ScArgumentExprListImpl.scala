@@ -16,6 +16,7 @@ import api.statements.params.ScParameter
 import api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi.{PsiParameter, PsiMethod, PsiClass}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import types.result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -159,7 +160,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   case fun: ScFunction => {
                     if (fun.paramClauses.clauses.length > 0) {
                       buffer += fun.paramClauses.clauses.apply(0).parameters.map({p => (p.name,
-                              subst.subst(p.calcType))}).toArray
+                              subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))}).toArray
                     } else buffer += Array.empty
                   }
                 }
@@ -173,7 +174,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case constr: ScConstructor => {
         val res = new ArrayBuffer[Array[(String, ScType)]]
         val i: Int = constr.arguments.indexOf(this)
-        ScType.extractDesignated(constr.typeElement.cachedType.unwrap(Any)) match {
+        ScType.extractDesignated(constr.typeElement.cachedType.getOrElse(Any)) match {
           case Some((clazz: ScClass, subst: ScSubstitutor)) => {
             for (function: ScFunction <- clazz.functions if function.isConstructor) {
               val clauses = function.paramClauses.clauses
@@ -181,7 +182,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                 val clause = clauses(i)
                 for (param: ScParameter <- clause.parameters) {
-                  add += Tuple(param.name, subst.subst(param.calcType))
+                  add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrElse(Any)))
                 }
                 res += add.toArray
               }
@@ -193,7 +194,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                   val clause = clauses(i)
                   for (param: ScParameter <- clause.parameters) {
-                    add += Tuple(param.name, subst.subst(param.calcType))
+                    add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrElse(Any)))
                   }
                   res += add.toArray
                 }

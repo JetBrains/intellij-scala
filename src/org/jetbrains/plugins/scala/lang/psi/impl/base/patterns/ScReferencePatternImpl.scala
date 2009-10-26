@@ -31,10 +31,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
   override def toString: String = "ReferencePattern"
 
-  override def calcType = expectedType match {
-    case Some(t) => t
-    case None => Nothing
-  }
+  override def getType(ctx: TypingContext) = wrap(expectedType) map {x => x}
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     def processClassType(t: ScType) = ScType.extractClassType(t) match {
@@ -44,22 +41,20 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
     lastParent match {
       case _: ScImportStmt => {
-        calcType match {
-          case ScCompoundType(comps, holders, aliases) => {
+        getType(TypingContext.empty) match {
+          case Success(ScCompoundType(comps, holders, aliases), _) => {
             for (t <- comps) if (!processClassType(t)) return false
             for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, state)) return false
             for (a <- aliases) if (!processor.execute(a, state)) return false
             // todo add inner classes!
             true
           }
-          case t => processClassType(t)
+          case Success(t, _) => processClassType(t)
+          case _ => true
         }
       }
       case _ => true
     }
   }
 
-  // todo implement to handle errors
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
-  
 }

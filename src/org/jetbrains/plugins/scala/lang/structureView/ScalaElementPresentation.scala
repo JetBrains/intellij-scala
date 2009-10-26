@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import psi._
 import psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 
@@ -50,7 +49,7 @@ object ScalaElementPresentation {
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short))
 
     presentableText.append(": ")
-    presentableText.append(ScType.presentableText(function.returnType.unwrap(Any)))
+    presentableText.append(ScType.presentableText(function.returnType.getOrElse(Any)))
 
 
     presentableText.toString()

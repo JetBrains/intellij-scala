@@ -24,7 +24,8 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "TypedPattern"
 
-  // todo rework it!
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+  override def getType(ctx: TypingContext) = wrap(typePattern) flatMap {
+    tp => tp.typeElement.cachedType
+  }
 
 }

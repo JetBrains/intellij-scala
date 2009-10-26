@@ -24,15 +24,15 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     paramTypeElement match {
       case tup: ScTupleTypeElement =>
         val comps = tup.components.map(_.getType(ctx))
-        val result = Success(ScFunctionType(returnTypeRes.unwrap(Any), comps.map(_.unwrap(Nothing))), Some(this))
+        val result = Success(ScFunctionType(returnTypeRes.getOrElse(Any), comps.map(_.getOrElse(Nothing))), Some(this))
         (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ comps) yield f).foldLeft(result)(_.apply(_))
       case other: ScTypeElement => {
         val oType = other.getType(ctx)
-        val paramTypes = oType.unwrap(Any) match {
+        val paramTypes = oType.getOrElse(Any) match {
           case Unit => Seq.empty
           case t => Seq(t)
         }
-        val result = Success(ScFunctionType(returnTypeRes.unwrap(Any), paramTypes), Some(this))
+        val result = Success(ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes), Some(this))
         (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
       }
     }

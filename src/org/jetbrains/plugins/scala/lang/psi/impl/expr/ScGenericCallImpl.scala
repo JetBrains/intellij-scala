@@ -11,9 +11,10 @@ import api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import toplevel.synthetic.ScSyntheticFunction
-import types._;
+import types._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import result.{Failure, Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -24,8 +25,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def toString: String = "GenericCall"
 
 
-  protected override def innerType(): ScType = {
-    val refType = referencedExpr.getType
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    val refType = referencedExpr.getType(ctx).getOrElse(Any)
 
     /**
      * Utility method to get generics for apply methods of concrecte class.
@@ -60,7 +61,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       if (methods.length == 1) {
         val method = methods(0).method
         val typez = method match {
-          case fun: ScFunction => fun.calcType
+          case fun: ScFunction => fun.getType(TypingContext.empty).getOrElse(Any)
           case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
             collection.immutable.Seq(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)).toSeq: _*))
         }
@@ -78,32 +79,32 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case Some(ScalaResolveResult(meth: PsiMethod, _)) => meth.getTypeParameters.map(_.getName)
         case Some(ScalaResolveResult(synth: ScSyntheticFunction, _)) => synth.typeParams.map(_.name)
         case Some(ScalaResolveResult(clazz: ScObject, subst)) => {
-          return processClass(clazz, subst)
+          return Success(processClass(clazz, subst), None)
         }
         case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
         }
         case Some(ScalaResolveResult(typed: ScTypedDefinition, subst)) => { //here we must investigate method apply (not update, because can't be generic)
-          val scType = subst.subst(typed.calcType)
+          val scType = subst.subst(typed.getType(TypingContext.empty).getOrElse(Any))
           ScType.extractClassType(scType) match {
             case Some((clazz: PsiClass, subst)) => {
-              return processClass(clazz, subst)
+              return Success(processClass(clazz, subst), None)
             }
-            case _ => return Nothing
+            case _ => return Failure("Cannot infer the type", Some(this))
           }
         }
-        case _ => return Nothing //todo: check Java cases (PsiField for example)
+        case _ => return Failure("Cannot infer the type", Some(this)) //todo: check Java cases (PsiField for example)
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
         ScType.extractClassType(refType) match {
           case Some((clazz: PsiClass, subst)) => {
-            return processClass(clazz, subst)
+            return Success(processClass(clazz, subst), None)
           }
-          case _ => return Nothing
+          case _ => return Failure("Cannot infer the type", Some(this))
         }
       }
     }
     val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, this)
-    substitutor.subst(refType)
+    Success(substitutor.subst(refType), Some(this))
   }
 }

@@ -17,6 +17,7 @@ import resolve.{ScalaResolveResult, ResolveTargets, BaseProcessor}
 
 import types._
 import _root_.scala.collection.Set
+import result.TypingContext
 
 /**
  * @author ilyas
@@ -61,7 +62,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
-    val processor = new CollectImplicitsProcessor(getType)
+    val processor = new CollectImplicitsProcessor(getType(TypingContext.empty).getOrElse(Any))
 
     // Collect implicit conversions from bottom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
@@ -78,12 +79,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    val typez: ScType = getType
+    val typez: ScType = getType(TypingContext.empty).getOrElse(Nothing)
     val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
     if (typez == Nothing) return result
     
     val sigsFound = processor.signatures.filter((sig: Signature) => {
-      ProgressManager.getInstance().checkCanceled()
+      ProgressManager.checkCanceled
       val types = sig.types
       types.length == 1 && typez.conforms(sig.substitutor.subst(types(0)))
     })
@@ -94,7 +95,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     for (sig <- sigsFound if (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => true})) {
       val set = processor.sig2Method(sig)
       for ((imports, fun) <- set) {
-        val rt = sig.substitutor.subst(fun.returnType.unwrap(Any))
+        val rt = sig.substitutor.subst(fun.returnType.getOrElse(Any))
 
         def register(t: ScType) = {
           if (!result.contains(t)) {

@@ -7,6 +7,8 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.refactoring.namesSuggester.NameSuggester
+import lang.psi.types.result.{Success, TypingContext}
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.01.2009
@@ -57,8 +59,8 @@ object SuggestNamesUtil {
                   filter(_.getName == x(1))
           if (items.length == 0) return Array[String]("x")
           items(0) match {
-            case typed: ScTypedDefinition => typed.calcType match {
-              case ScParameterizedType(_, typeArgs) => typeArgs(0)
+            case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {
+              case Success(ScParameterizedType(_, typeArgs), _) => typeArgs(0)
               case _ => return Array[String]("x")
             }
             case _ => return Array[String]("x")

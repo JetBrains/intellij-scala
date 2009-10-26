@@ -11,11 +11,12 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
 import com.intellij.util.PatchedSoftReference
+import types.result.TypingContext
 import psi.impl.ScalaPsiElementFactory
-import types.ScType
+import types._
+
 /**
  * User: Alexander Podkhalyuzin
- * Date: 17.06.2009
  */
 
 class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
@@ -36,11 +37,12 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
 
 
   def getTemplateParentsTypes: Array[ScType] = {
-    if (types != null && types.get != null) return types.get.map((te: ScTypeElement) => te.calcType)
+    if (types != null && types.get != null) return types.get.map((te: ScTypeElement) =>
+      te.getType(TypingContext.empty).getOrElse(Any))
     val res: Array[ScTypeElement] = {
       getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi))
     }
     types = new PatchedSoftReference[Array[ScTypeElement]](res)
-    return res.map((te: ScTypeElement) => te.calcType)
+    return res.map((te: ScTypeElement) => te.getType(TypingContext.empty).getOrElse(Any))
   }
 }
