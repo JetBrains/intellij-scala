@@ -35,7 +35,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
-        ProgressManager.getInstance.checkCanceled
+        ProgressManager.checkCanceled
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)

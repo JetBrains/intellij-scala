@@ -8,16 +8,15 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
 import types._
+import result.{TypingContext, Success}
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+/**
+ * @author ilyas, Alexander Podkhalyuzin
+ */
 class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple {
   override def toString: String = "Tuple"
 
-  protected override def innerType = {
-    if (exprs.length == 0) Unit
-    else new ScTupleType(collection.immutable.Seq(exprs.map({p => p.getType}).toSeq : _*))
-  }
+  protected override def innerType(ctx: TypingContext) =
+    if (exprs.length == 0) Success(Unit, Some(this))
+    else collectFailures(exprs.map(_.getType(ctx)), Any)(ScTupleType(_))
 }

@@ -27,6 +27,7 @@ import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
 import patterns.{ScReferencePattern, ScCaseClause}
+import result.TypingContext
 import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -91,7 +92,7 @@ object ScalaPsiUtil {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     val map = new collection.mutable.HashMap[String, ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-      map += Tuple(tp(i), typeArgs(i).calcType)
+      map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
   }
@@ -107,7 +108,7 @@ object ScalaPsiUtil {
       case _ => return empty
     }
     val clazz = context.asInstanceOf[PsiMember].getContainingClass
-    val s = new FullSignature(namedElementSig(x), typed.calcType,
+    val s = new FullSignature(namedElementSig(x), typed.getType(TypingContext.empty).getOrElse(Any),
       x.asInstanceOf[NavigatablePsiElement], clazz)
     val t = (TypeDefinitionMembers.getSignatures(clazz).get(s): @unchecked) match {
       //partial match
@@ -217,8 +218,8 @@ object ScalaPsiUtil {
                     (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
             for (i <- 0 to args.length - 1) {
               val parameter: ScParameter = methodParams(Math.min(i, length -1))
-              val typez: ScType = subst(sign).subst(parameter.calcType)
-              val argType = args(i).getType
+              val typez: ScType = subst(sign).subst(parameter.getType(TypingContext.empty).getOrElse(Any))
+              val argType = args(i).getType(TypingContext.empty).getOrElse(Any)
               if (!(argType: ScType).conforms(typez)) return false
             }
             return true
@@ -239,7 +240,7 @@ object ScalaPsiUtil {
           for (i <- 0 to args.length - 1) {
             val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
             val typez: ScType = subst(sign).subst(ScType.create(parameter.getType, meth.getProject))
-            if (!(args(i).getType: ScType).conforms(typez)) return false
+            if (!(args(i).getType(TypingContext.empty).getOrElse(Any)).conforms(typez)) return false
           }
           return true
         }

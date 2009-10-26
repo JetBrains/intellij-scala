@@ -18,6 +18,7 @@ import templates.ScExtendsBlock
 import types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.openapi.progress.ProgressManager
+import types.result.{TypingContext, TypeResult}
 
 /**
  * @author ven
@@ -44,7 +45,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     findChildByClassScala(classOf[ScExtendsBlock])
   }
 
-  def getType : ScType
+  def getType(ctx: TypingContext): TypeResult[ScType]
 
   def members(): Seq[ScMember] = extendsBlock.members
   def functions(): Seq[ScFunction] = extendsBlock.functions
@@ -79,14 +80,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
-              ProgressManager.getInstance.checkCanceled
+              ProgressManager.checkCanceled
               m match {
                 case _var: ScVariable => for (declared <- _var.declaredElements) {
-                  ProgressManager.getInstance.checkCanceled
+                  ProgressManager.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
                 case _val: ScValue => for (declared <- _val.declaredElements) {
-                  ProgressManager.getInstance.checkCanceled
+                  ProgressManager.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
               }
@@ -102,7 +103,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
               case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) => ste.typeElement match {
                 case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
                   case (b : BaseProcessor, s: ScalaPsiElement) => {
-                    if (!b.processType(t.cachedType.unwrap(Any), s, state)) return false
+                    if (!b.processType(t.cachedType.getOrElse(Any), s, state)) return false
                   }
                   case _ =>
                 }

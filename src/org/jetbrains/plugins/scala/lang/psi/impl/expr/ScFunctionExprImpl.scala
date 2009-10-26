@@ -11,7 +11,9 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import api.statements.params.{ScParameter, ScParameters}
-import types.{Nothing, ScFunctionType};
+import types.{Nothing, ScFunctionType}
+import types.result.TypingContext;
+import types._
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.annotations._
@@ -51,9 +53,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  protected override def innerType = {
-    val paramTypes = (parameters: Seq[ScParameter]).map((_: ScParameter).calcType)
-    (for (r <- result) yield ScFunctionType(r.getType, paramTypes.toList)) getOrElse Nothing
+  protected override def innerType(ctx: TypingContext) = {
+    val paramTypes = (parameters: Seq[ScParameter]).map(_.getType(ctx))
+    wrap(result)(ScalaBundle.message("no.result.expression.found")) flatMap {r =>
+      collectFailures(paramTypes, Nothing)(ScFunctionType(r.getType(ctx).getOrElse(Any), _))
+    }
   }
 
 }

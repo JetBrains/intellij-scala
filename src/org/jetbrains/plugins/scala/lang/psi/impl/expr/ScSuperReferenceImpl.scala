@@ -17,6 +17,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiReference, PsiClass}
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
+import org.junit.internal.runners.statements.Fail
+import types.result.{TypingContext, Failure}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -122,5 +124,5 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
   }
 
-  protected override def innerType() = Nothing
+  protected override def innerType(ctx: TypingContext) = Failure("Cannot infer type of `super' expression", Some(this))
 }

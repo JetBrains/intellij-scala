@@ -4,13 +4,13 @@ package psi
 package impl
 package base
 
-import api.statements.ScVariable
 import api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import stubs.{ScFieldIdStub}
 import psi.types.result.{Success, TypingContext}
+import api.statements.{ScTypedDeclaration, ScVariable}
 
 /**
  * @author ilyas
@@ -22,7 +22,10 @@ class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with
 
   override def toString: String = "Field identifier"
 
-  def getType(ctx: TypingContext) = Success(calcType, Some(this))
+  def getType(ctx: TypingContext) = getParent/*id list*/.getParent match {
+    case typed : ScTypedDeclaration => typed.getType(ctx)
+    //partial matching
+  }
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 

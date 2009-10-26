@@ -19,6 +19,7 @@ import api.statements._
 import com.intellij.psi.{ResolveResult, PsiClass, PsiMethod, PsiElement}
 import params.ScParameter
 import types._
+import result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,9 +41,9 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           }
           elem match {
             case fun: ScSyntheticFunction => checkType(fun.retType)
-            case fun: ScFunction => checkType(fun.returnType.unwrap(Any))
+            case fun: ScFunction => checkType(fun.returnType.getOrElse(Any))
             case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject))
-            case typed: ScTypedDefinition => checkType(typed.calcType)
+            case typed: ScTypedDefinition => for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
             case _ =>
           }
         }
@@ -103,7 +104,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
       val fun: ScFunction = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
       if (fun == null) return
-      acceptTypes(Seq[ScType](fun.returnType.unwrap(Any)), ref.getVariants, result)
+      acceptTypes(Seq[ScType](fun.returnType.getOrElse(Any)), ref.getVariants, result)
     }
   })
 
@@ -183,20 +184,22 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           if (op.endsWith(":")) {
             attachTypes
           } else {
-            val rOpType = infix.rOp.getType
-            val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
-            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty),
-              types.Any)
-            typez += compoundType
+            for (rOpType <- infix.rOp.getType(TypingContext.empty)) {
+              val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
+              compoundType.signatureMap += Tuple2(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty),
+                types.Any)
+              typez += compoundType
+            }
           }
         } else if (infix.rOp == ref) {
           val op: String = infix.operation.getText
           if (op.endsWith(":")) {
-            val lOpType = infix.lOp.getType
-            val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
-            compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty),
-              types.Any)
-            typez += compoundType
+            for (lOpType <- infix.lOp.getType(TypingContext.empty)) {
+              val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty)
+              compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty),
+                types.Any)
+              typez += compoundType
+            }
           } else {
             attachTypes
           }

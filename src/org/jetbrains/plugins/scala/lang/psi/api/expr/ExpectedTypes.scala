@@ -15,6 +15,7 @@ import base.{ScConstructor, ScReferenceElement}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import types.result.TypingContext
 
 /**
  * @author ilyas
@@ -74,7 +75,7 @@ object ExpectedTypes {
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
-          case Some(_) => Array(t.getType)
+          case Some(_) => Array(t.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }
@@ -85,12 +86,12 @@ object ExpectedTypes {
             ref.bind match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
-                  case v: ScValue => Array(named.asInstanceOf[ScTypedDefinition].calcType)
-                  case v: ScVariable => Array(named.asInstanceOf[ScTypedDefinition].calcType)
+                  case v: ScValue => Array(named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any))
+                  case v: ScVariable => Array(named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any))
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters
-                    Array(subst.subst(p.calcType))
+                    Array(subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))
                   }
                   case _ => Array.empty
                 }
@@ -105,27 +106,27 @@ object ExpectedTypes {
       //SLS[4.1]
       case v: ScPatternDefinition if v.expr == expr => {
         v.typeElement match {
-          case Some(_) => Array(v.getType)
+          case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }
       case v: ScVariableDefinition if v.expr == expr => {
         v.typeElement match {
-          case Some(_) => Array(v.getType)
+          case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.getOrElse(null: ScExpression) == expr => {
         v.returnTypeElement match {
-          case Some(_) => Array(v.returnType.unwrap(Any))
+          case Some(_) => Array(v.returnType.getOrElse(Any))
           case _ => Array.empty
         }
       }
       //default parameters
       case param: ScParameter => {
         param.typeElement match {
-          case Some(_) => Array(param.calcType)
+          case Some(_) => Array(param.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }

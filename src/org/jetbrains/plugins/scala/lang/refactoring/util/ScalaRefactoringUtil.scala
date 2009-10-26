@@ -10,26 +10,20 @@ import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import java.util.{HashMap, Comparator}
-import parser.ScalaElementTypes
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import psi.api.expr._
-import psi.api.ScalaFile
-import psi.api.toplevel.typedef.ScMember
-import psi.api.base.ScStableCodeReferenceElement
 import psi.impl.ScalaPsiElementFactory
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import collection.mutable.ArrayBuffer
-import com.intellij.util.ReflectionCache
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.util.ScalaUtils
-import psi.types.{ScFunctionType, ScType}
-import psi.api.statements.{ScFunction, ScVariable, ScValue, ScFunctionDefinition}
+import psi.types._
+import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import lang.resolve.ScalaResolveResult
 
 /**
@@ -123,7 +117,7 @@ object ScalaRefactoringUtil {
       }
       return None
     }
-    val cachedType = element.getType
+    val cachedType = element.getType(TypingContext.empty).getOrElse(Any)
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression) = refExpr.bind match {

@@ -19,23 +19,23 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import types.result.{TypingContext, TypeResult, Success}
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 21.04.2008
 */
 
 class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlExpr{
   override def toString: String = "XmlExpression"
 
 
-  protected override def innerType(): ScType = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     def getType(s: String): ScType = {
       val nodeType = JavaPsiFacade.getInstance(getProject).findClass(s)
       if (nodeType != null) new ScDesignatorType(nodeType) else types.Nothing
     }
-    getElements.length match {
-      case 0 => types.Nothing
+    Success(getElements.length match {
+      case 0 => types.Any
       case 1 => {
         getElements(0) match {
           case _: ScXmlElement => getType("scala.xml.Elem")
@@ -47,6 +47,6 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
       case _ => {
         getType("scala.xml.NodeBuffer")
       }
-    }
+    }, Some(this))
   }
 }

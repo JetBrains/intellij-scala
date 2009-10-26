@@ -44,7 +44,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
                                   place: PsiElement): Boolean = {
     if (lastParent != null) {
       for (tp <- typeParameters) {
-        ProgressManager.getInstance.checkCanceled
+        ProgressManager.checkCanceled
         if (!processor.execute(tp, state)) return false
       }
     }

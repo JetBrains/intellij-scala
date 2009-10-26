@@ -13,6 +13,7 @@ import toplevel.typedef._
 import base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import icons.Icons
+import types.result.{TypingContext, TypeResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,9 +24,9 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
 
   def typeElement: Option[ScTypeElement]
 
-  def declaredType: Option[ScType] = typeElement map (_.cachedType.unwrap(Any))
+  def declaredType: Option[ScType] = typeElement map (_.cachedType.getOrElse(Any))
 
-  def getType: ScType
+  def getType(ctx: TypingContext): TypeResult[ScType]
 
   override def getIcon(flags: Int): Icon = {
     var parent = getParent

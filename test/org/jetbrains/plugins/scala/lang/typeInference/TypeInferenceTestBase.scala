@@ -13,6 +13,7 @@ import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
 import psi.api.expr.ScExpression
 import psi.api.ScalaFile
+import psi.types.result.{TypingContext, Failure, Success}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,18 +44,24 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val typez = expr.getType
-    val res = ScType.presentableText(typez)
-    println("------------------------ " + scalaFile.getName + " ------------------------")
-    println(res)
-    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
+    val typez = expr.getType(TypingContext.empty)
+    typez match {
+      case Success(ttypez, _) => {
+
+        val res = ScType.presentableText(ttypez)
+        println("------------------------ " + scalaFile.getName + " ------------------------")
+        println(res)
+        val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+        val text = lastPsi.getText
+        val output = lastPsi.getNode.getElementType match {
+          case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
+          case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
+            text.substring(2, text.length - 2).trim
+          case _ => assertTrue("Test result must be in last comment statement.", false)
+        }
+        assertEquals(output, res)
+      }
+      case Failure(msg, elem) => assert(false, msg + " :: " + elem.get.getText)
     }
-    assertEquals(output, res)
   }
 }

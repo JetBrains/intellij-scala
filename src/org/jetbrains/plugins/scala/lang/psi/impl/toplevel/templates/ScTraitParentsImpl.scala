@@ -5,24 +5,12 @@ package impl
 package toplevel
 package templates
 
-import com.intellij.psi.PsiElement
-import types.ScType
-import stubs.ScTemplateParentsStub;
-import com.intellij.psi.tree.IElementType;
+import types._
+import result.TypingContext
+import stubs.ScTemplateParentsStub
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
-
-import com.intellij.psi.tree._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,6 +29,6 @@ class ScTraitParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] wi
     if (stub != null) {
       return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes.toSeq
     }
-    typeElements.map(_.calcType)
+    typeElements.map(_.getType(TypingContext.empty).getOrElse(Any))
   }
 }

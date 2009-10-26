@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import parser.ScalaElementTypes
 import stubs.{ScValueStub, ScVariableStub}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import psi.types.result.TypingContext
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,9 +31,9 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
     if (plist != null) plist.patterns.flatMap((p: ScPattern) => p.bindings) else Seq.empty
   }
 
-  def getType = typeElement match {
-    case Some(te) => te.cachedType.unwrap(Any)
-    case None => expr.getType
+  def getType(ctx: TypingContext) = typeElement match {
+    case Some(te) => te.cachedType
+    case None => expr.getType(TypingContext.empty)
   }
 
   def typeElement: Option[ScTypeElement] = {

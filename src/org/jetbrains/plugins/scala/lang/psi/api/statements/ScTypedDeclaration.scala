@@ -4,16 +4,15 @@ package psi
 package api
 package statements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, Nothing}
 import base.types.ScTypeElement
 import toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.Any
+import types.result.{TypeResult, TypingContext}
+import types.ScType
 
 trait ScTypedDeclaration extends ScDeclaration {
   def typeElement : Option[ScTypeElement]
-  def calcType : ScType = typeElement match {
-    case Some(te) => te.cachedType.unwrap(Any)
-    case None => Nothing
-  }
+
+  def getType(ctx: TypingContext) : TypeResult[ScType]
+
   def declaredElements : Seq[ScTypedDefinition]
 }

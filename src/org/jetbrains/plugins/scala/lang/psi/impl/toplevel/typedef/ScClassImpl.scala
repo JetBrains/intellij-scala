@@ -76,7 +76,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
 
     for (p <- parameters) {
-      ProgressManager.getInstance.checkCanceled
+      ProgressManager.checkCanceled
       if (!processor.execute(p, state)) return false
     }
 

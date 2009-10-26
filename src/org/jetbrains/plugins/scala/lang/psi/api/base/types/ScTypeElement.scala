@@ -9,12 +9,10 @@ import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{TypeResult, TypingContext, TypingContextOwner}
-import toplevel.ScNamedElement
 import com.intellij.psi.util.PsiModificationTracker
 
 /**
 * @author Alexander Podkhalyuzin
-* Date: 14.04.2008
 */
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
@@ -27,5 +25,5 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
     )
   }
 
-  def calcType: ScType = getType(TypingContext.empty).unwrap(Any)
+  def calcType: ScType = getType(TypingContext.empty).getOrElse(Any)
 }

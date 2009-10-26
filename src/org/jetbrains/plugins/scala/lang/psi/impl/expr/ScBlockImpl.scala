@@ -15,6 +15,8 @@ import api.expr._
 import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import collection.Seq
+import result.{Success, TypingContext}
+import scala.Some
 
 /**
 * @author ilyas
@@ -24,46 +26,51 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
   override def toString: String = "BlockOfExpressions"
 
-  protected override def innerType = lastExpr match {
-    case None => Unit
-    case Some(e) => {
-      val m = new HashMap[String, ScExistentialArgument]
-      def existize (t : ScType) : ScType = t match {
-        case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), collection.immutable.Seq(params.map({existize _}).toSeq: _*))
-        case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq : _*))
-        case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
-          case clazz : ScClass => {
-            val t = existize(leastClassType(clazz))
-            val vars = clazz.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList
-            m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
-            new ScTypeVariable(clazz.name)
+  protected override def innerType(ctx: TypingContext) = {
+    val inner = lastExpr match {
+      case None => Unit
+      case Some(e) => {
+        val m = new HashMap[String, ScExistentialArgument]
+        def existize(t: ScType): ScType = t match {
+          case ScFunctionType(ret, params) => new ScFunctionType(existize(ret), collection.immutable.Seq(params.map({existize _}).toSeq: _*))
+          case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))
+          case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
+            case clazz: ScClass => {
+              val t = existize(leastClassType(clazz))
+              val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
+              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
+              new ScTypeVariable(clazz.name)
+            }
+            case obj: ScObject => {
+              val t = existize(leastClassType(obj))
+              m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
+              new ScTypeVariable(obj.name)
+            }
+            case typed: ScTypedDefinition => {
+              val t = existize(typed.getType(TypingContext.empty).getOrElse(Any))
+              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
+              new ScTypeVariable(typed.name)
+            }
           }
-          case obj : ScObject => {
-            val t = existize(leastClassType(obj))
-            m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
-            new ScTypeVariable(obj.name)
+          case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
+          case ScCompoundType(comps, decls, types) => new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types)
+          case ScParameterizedType(des, typeArgs) =>
+            new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
+          case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
+          case ex@ScExistentialType(q, wildcards) => {
+            new ScExistentialType(existize(q), wildcards.map {
+              ex =>
+                new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
+            })
           }
-          case typed : ScTypedDefinition => {
-            val t = existize(typed.calcType)
-            m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-            new ScTypeVariable(typed.name)
-          }
+          case singl: ScSingletonType => existize(singl.pathType)
+          case _ => t
         }
-        case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
-        case ScCompoundType(comps, decls, types) => new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types)
-        case ScParameterizedType (des, typeArgs) =>
-          new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq : _*))
-        case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
-        case ex@ScExistentialType(q, wildcards) => {
-           new ScExistentialType(existize(q), wildcards.map {ex =>
-                   new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))})
-        }
-        case singl : ScSingletonType => existize(singl.pathType)
-        case _ => t
+        val t = existize(e.getType(TypingContext.empty).getOrElse(Any))
+        if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
       }
-      val t = existize(e.getType)
-      if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
     }
+    Success(inner, Some(this))
   }
 
   private def leastClassType(t : ScTypeDefinition) = {

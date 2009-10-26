@@ -16,6 +16,7 @@ import api.expr._
 import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
 import collection.mutable.ArrayBuffer
+import types.result.{Failure, Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,7 +26,7 @@ import collection.mutable.ArrayBuffer
 class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNewTemplateDefinition with PsiClassFake {
   override def toString: String = "NewTemplateDefinition"
 
-  protected override def innerType = {
+  protected override def innerType(ctx: TypingContext) = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
       case Some(b: ScTemplateBody) => (b.holders.toSeq, b.aliases.toSeq)
       case None => (Seq.empty, Seq.empty)
@@ -33,10 +34,10 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 
     val superTypes = extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new ScCompoundType(superTypes, holders.toList, aliases.toList)
+      new Success(ScCompoundType(superTypes, holders.toList, aliases.toList), Some(this))
     } else superTypes.headOption match {
-      case Some(t) => t
-      case None => org.jetbrains.plugins.scala.lang.psi.types.Any
+      case s@Some(t) => Success(t, Some(this))
+      case None => Failure("Cannot infre type", Some(this))
     }
   }
 
