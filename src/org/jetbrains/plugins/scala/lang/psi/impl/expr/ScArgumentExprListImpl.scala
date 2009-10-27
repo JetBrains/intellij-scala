@@ -163,6 +163,10 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                               subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))}).toArray
                     } else buffer += Array.empty
                   }
+                  case method: PsiMethod => {
+                    buffer += method.getParameterList.getParameters.map({p: PsiParameter =>
+                          ("", subst.subst(ScType.create(p.getType, p.getProject)))})
+                  }
                 }
               }
               case _ => //todo: other options
