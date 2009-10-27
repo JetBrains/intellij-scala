@@ -66,9 +66,24 @@
       <maximumStackSize value="2" />
       <properties />
     </buildFile>
+    <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/checkers/checkPrivateAccess/CheckPrivateAccessTestsGenerator.xml">
+      <additionalClassPath />
+      <antReference projectDefault="true" />
+      <customJdkName value="" />
+      <maximumHeapSize value="128" />
+      <maximumStackSize value="2" />
+      <properties />
+    </buildFile>
   </component>
-  <component name="BuildJarProjectSettings">
-    <option name="BUILD_JARS_ON_MAKE" value="false" />
+  <component name="ArtifactManager">
+    <artifact name="Runners:jar">
+      <output-path>$PROJECT_DIR$/Runners</output-path>
+      <root id="root">
+        <element id="archive" name="Runners.jar">
+          <element id="module-output" name="Runners" />
+        </element>
+      </root>
+    </artifact>
   </component>
   <component name="CodeStyleProjectProfileManger">
     <option name="PROJECT_PROFILE" />
@@ -100,10 +115,244 @@
           </value>
         </option>
         <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
-        <ADDITIONAL_INDENT_OPTIONS fileType="clj">
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
-          <option name="TAB_SIZE" value="2" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
           <option name="USE_TAB_CHARACTER" value="false" />
           <option name="SMART_TABS" value="false" />
           <option name="LABEL_INDENT_SIZE" value="0" />
@@ -282,6 +531,133 @@
       <profile version="1.0" is_locked="false">
         <option name="myName" value="Project Default" />
         <option name="myLocal" value="false" />
+        <inspection_tool class="AndroidDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="AnnotationHasWrongMIMEType" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="Annotator" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="AntDuplicateImportedTargetsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="AntDuplicateTargetsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="AntMissingPropertiesFileInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="AppEngineForbiddenCode" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="BindingAnnotationWithoutInject" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="BvConfigDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="BvConstraintMappingsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckDtdRefs" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckEmptyScriptTag" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckImageSize" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckNodeTest" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckTagEmptyBody" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckValidXmlInScriptTagBody" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="CheckXmlFileWithXercesValidator" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ConflictingAnnotations" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ConstraintValidatorCreator" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="Cyclic References" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ELMethodSignatureInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ELSpecValidationInJSP" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ELValidationInJSP" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbClassBasicInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbClassWarningsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbEntityClassInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbEntityHomeInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbEntityInterfaceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbEnvironmentInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbInterceptorInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbInterceptorWarningsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbInterfaceMethodInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbInterfaceSignatureInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbProhibitedPackageUsageInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbQlInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbRemoteRequirementsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbSessionHomeInterfaceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbStaticAccessInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EjbThisExpressionInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="EmptyWebServiceClass" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="FacesModelInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="File Name" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyAssignabilityCheck" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyConstantConditional" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyConstantIfStatement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyDivideByZero" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyDoubleNegation" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyEmptyStatementBody" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyFallthrough" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyImmutableAnnotation" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyInfiniteLoopStatement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyInfiniteRecursion" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyMethodWithInconsistentReturns" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyMissingReturnStatement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyPointlessArithmetic" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyPointlessBoolean" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyResultOfArrayAllocationIgnored" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyResultOfObjectAllocationIgnored" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovySillyAssignment" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovySingletonAnnotation" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyTrivialConditional" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyTrivialIf" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyUncheckedAssignmentOfMemberOfRawType" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyUnnecessaryContinue" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyUnnecessaryReturn" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyUnreachableStatement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyUnusedAssignment" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="GroovyVariableNotAssigned" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HardwiredNamespacePrefix" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HibernateConfigDomFacetInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HibernateConfigDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HibernateMappingDatasourceDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HibernateMappingDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HtmlDeprecatedTag" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HtmlExtraClosingTag" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HtmlFormInputWithoutLabel" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HtmlPresentationalElement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="HtmlUnknownAttribute" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="myValues">
+            <value>
+              <list size="0" />
+            </value>
+          </option>
+          <option name="myCustomValuesEnabled" value="true" />
+        </inspection_tool>
+        <inspection_tool class="HtmlUnknownTag" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="myValues">
+            <value>
+              <list size="4">
+                <item index="0" class="java.lang.String" itemvalue="nobr" />
+                <item index="1" class="java.lang.String" itemvalue="noembed" />
+                <item index="2" class="java.lang.String" itemvalue="comment" />
+                <item index="3" class="java.lang.String" itemvalue="noscript" />
+              </list>
+            </value>
+          </option>
+          <option name="myCustomValuesEnabled" value="true" />
+        </inspection_tool>
+        <inspection_tool class="ImplicitTypeConversion" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="BITS" value="1720" />
+          <option name="FLAG_EXPLICIT_CONVERSION" value="true" />
+          <option name="IGNORE_NODESET_TO_BOOLEAN_VIA_STRING" value="true" />
+        </inspection_tool>
+        <inspection_tool class="ImplicitlyExposedWebServiceMethods" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InconsistentResourceBundle" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="REPORT_MISSING_TRANSLATIONS" value="true" />
+          <option name="REPORT_INCONSISTENT_PROPERTIES" value="true" />
+          <option name="REPORT_DUPLICATED_PROPERTIES" value="true" />
+        </inspection_tool>
+        <inspection_tool class="IndexZeroUsage" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InjectOfNonPublicMember" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InjectionNotApplicable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InterceptionAnnotationWithoutRuntimeRetention" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InvalidImplementedBy" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InvalidProvidedBy" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="InvalidRequestParameters" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JBoss" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSDeprecatedSymbols" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSDuplicatedDeclaration" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSLowercasedConstructorCall" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUndeclaredVariable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnresolvedFunction" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnresolvedVariable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUntypedDeclaration" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSUnusedLocalSymbols" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JSValidateTypes" enabled="false" level="WARNING" enabled_by_default="false" />
         <inspection_tool class="JavaDoc" enabled="true" level="WARNING" enabled_by_default="true">
           <option name="TOP_LEVEL_CLASS_OPTIONS">
             <value>
@@ -311,11 +687,111 @@
           <option name="IGNORE_JAVADOC_PERIOD" value="true" />
           <option name="myAdditionalJavadocTags" value="author:,date:" />
         </inspection_tool>
+        <inspection_tool class="JavaeeApplicationDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaAttributeMemberSignatureInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaAttributeTypeInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaConfigDomFacetInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaDataSourceORMDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaDataSourceORMInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaEntityListenerInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaEntityListenerWarningsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaModelReferenceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaORMDomInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaObjectClassSignatureInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaQlInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JpaQueryApiInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JsfJamExtendsClassInconsistencyInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JsfManagedBeansInconsistencyInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JspDirectiveInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="JspPropertiesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="LanguageMismatch" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="CHECK_NON_ANNOTATED_REFERENCES" value="true" />
+        </inspection_tool>
+        <inspection_tool class="MinMaxValuesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="MissedExecutable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="MultipleBindingAnnotations" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="MultipleInjectedConstructorsForClass" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="NonJaxWsWebServices" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="OneWayWebMethod" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="Package Name" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="PathAnnotation" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="PatternNotApplicable" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="PatternOverriddenByNonAnnotatedMethod" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="PatternValidation" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="CHECK_NON_CONSTANT_VALUES" value="true" />
+        </inspection_tool>
+        <inspection_tool class="PointlessBinding" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="RedundantScopeBinding" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="RedundantToBinding" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="RedundantToProviderBinding" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="RedundantTypeConversion" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="CHECK_ANY" value="true" />
+        </inspection_tool>
+        <inspection_tool class="ReferencesToClassesFromDefaultPackagesInJSPFile" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="RequiredAttributes" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="myAdditionalRequiredHtmlAttributes" value="" />
+        </inspection_tool>
+        <inspection_tool class="SeamAnnotationIncorrectSignatureInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamAnnotationsInconsistencyInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamBijectionIllegalScopeParameterInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamBijectionTypeMismatchInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamBijectionUndefinedContextVariableInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamDomModelInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamDuplicateComponentsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamIllegalComponentScopeInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SeamJamComponentInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SecondUnsafeCall" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SelfIncludingJspFiles" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SessionScopedInjectsRequestScoped" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SingletonInjectsScoped" enabled="false" level="WARNING" enabled_by_default="false" />
         <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
           <option name="processCode" value="true" />
           <option name="processLiterals" value="true" />
           <option name="processComments" value="true" />
         </inspection_tool>
+        <inspection_tool class="Struts2ModelInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="StrutsInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="StrutsTilesInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="StrutsValidatorFormInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="StrutsValidatorInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="SyntaxError" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UnhandledExceptionInJSP" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UninstantiableBinding" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UninstantiableImplementedByClass" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UninstantiableProvidedByClass" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UnknownLanguage" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UnnecessaryStaticInjection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UnresolvedPropertyKey" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="UnusedMessageFormatParameter" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ValidExternallyBoundObject" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ValidatorConfigModelInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="ValidatorModelInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="VoidMethodAnnotatedWithGET" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="W3CssValidation" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="myCssVersion" value="css3" />
+        </inspection_tool>
+        <inspection_tool class="WSReferenceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XmlDuplicatedId" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XmlHighlighting" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XmlUnboundNsPrefix" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XmlWrongRootElement" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XsltDeclarations" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XsltTemplateInvocation" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="XsltUnusedDeclaration" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="dependsOnMethodTestNG" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="groupsTestNG" enabled="false" level="WARNING" enabled_by_default="false">
+          <option name="groups">
+            <value>
+              <list size="0" />
+            </value>
+          </option>
+        </inspection_tool>
+        <inspection_tool class="osmorcClassInDefaultPackage" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="osmorcInvalidImport" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="osmorcMissingFinalNewline" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="osmorcMisspelledHeaderName" enabled="false" level="WARNING" enabled_by_default="false" />
+        <inspection_tool class="osmorcUnregisteredActivator" enabled="false" level="WARNING" enabled_by_default="false" />
       </profile>
     </profiles>
     <option name="PROJECT_PROFILE" value="Project Default" />
@@ -492,7 +968,6 @@
     <option name="projectName" value="Scala" />
   </component>
   <component name="ProjectDictionaryState">
-    <dictionary name="ilya" />
     <dictionary name="Alexander.Podkhalyuz">
       <words>
         <w>Args</w>
@@ -548,6 +1023,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
       <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Scala2.7Runners/Scala2.7Runners.iml" filepath="$PROJECT_DIR$/Scala2.7Runners/Scala2.7Runners.iml" />
       <module fileurl="file://$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" filepath="$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" />
     </modules>
   </component>
@@ -574,6 +1050,7 @@
     <option name="UNCHECKED" value="false" />
     <option name="NO_GENERICS" value="true" />
   </component>
+  <component name="SpellCheckerSettings" BundledDictionaries="0" Folders="0" Dictionaries="0" />
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>
@@ -626,7 +1103,7 @@
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
   <component name="VcsDirectoryMappings">
-    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="com.intellij.jsf.UserDefinedFacesConfigs">
@@ -789,12 +1266,14 @@
     </LanguageOptions>
   </component>
   <component name="libraryTable">
-    <library name="scalatest">
+    <library name="scalatest-0.9-scala-2.7">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-0.9.5.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/../../ScalaTest/scalatest-0.9.5/scalatest-0.9.5/src" />
+      </SOURCES>
     </library>
     <library name="specs">
       <CLASSES>
@@ -803,9 +1282,18 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="scalatest-1.0">
+    <library name="scalatest-1.0-scala-2.8">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0-for-scala-2.8.0-SNAPSHOT.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="file://$PROJECT_DIR$/../../ScalaTest/scalatest-1.0-for-scala-2.8.0-SNAPSHOT/scalatest-1.0-for-scala-2.8.0-SNAPSHOT-sources" />
+      </SOURCES>
+    </library>
+    <library name="scalatest-1.0-scala-2.7">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/SDK/scala-27-lib/scalatest-1.0.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
