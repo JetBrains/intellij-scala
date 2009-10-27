@@ -113,7 +113,7 @@ object ScType {
       new ScSkolemizedType("_", Nil,
         if(wild.isSuper) create(capture.getLowerBound, project) else Nothing,
         if(wild.isExtends) create(capture.getUpperBound, project) else Any)
-    case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
+    case null => Any//new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
 
