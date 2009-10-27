@@ -67,22 +67,23 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   // todo rewrite to handle errors
   def getType(ctx: TypingContext) : TypeResult[ScType] = {
-    val computeType = {
+    val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
         stub.asInstanceOf[ScParameterStub].getTypeText match {
           case "" if stub.getParentStub != null && stub.getParentStub.getParentStub != null &&
                   stub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] => return Failure("Cannot infer type", Some(this))
-          case "" => //shouldn't be
+          case "" => return Failure("Wrong Stub problem", Some(this)) //shouldn't be
           case str: String => ScalaPsiElementFactory.createTypeFromText(str, this)
         }
-      }
-      typeElement match {
-        case None => expectedParamType match {
-          case Some(t) => t
-          case None => lang.psi.types.Nothing
+      } else {
+        typeElement match {
+          case None => expectedParamType match {
+            case Some(t) => t
+            case None => lang.psi.types.Nothing
+          }
+          case Some(e) => e.cachedType getOrElse Any
         }
-        case Some(e) => e.cachedType getOrElse Any
       }
     }
     Success(computeType, Some(this))
