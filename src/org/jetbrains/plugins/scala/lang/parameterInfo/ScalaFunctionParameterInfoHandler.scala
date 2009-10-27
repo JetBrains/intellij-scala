@@ -284,7 +284,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             val parameters: Array[ScParameter] = new Array[ScParameter](params.length)
             for (i <- 0 until params.length) {
-              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: how to avoid NPE?
+              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: replace this buggy ideology
                 override def getName = "v" + (i + 1)
 
                 override def name(): String = "v" + (i + 1)
