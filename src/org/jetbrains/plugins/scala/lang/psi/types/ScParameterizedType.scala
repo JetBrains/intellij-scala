@@ -7,20 +7,14 @@ package types
  * @author ilyas
  */
 
-import _root_.scala.::
-import _root_.scala.::
-import api.toplevel.typedef._
 import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
-import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiTypeParameterListOwner, JavaPsiFacade, PsiElement, PsiNamedElement}
-import resolve.{ResolveProcessor, StdKinds}
+import api.toplevel.{ScTypeParametersOwner}
+import com.intellij.psi.{PsiTypeParameterListOwner, PsiNamedElement}
 import api.statements.params.ScTypeParam
 import psi.impl.ScalaPsiManager
 import result.TypingContext
 
-case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
+case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
   override def equiv(t: ScType) = t match {
     case ScDesignatorType(element1) => element eq element1
     case p : ScProjectionType => p equiv this
@@ -31,7 +25,7 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ScType {
 import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
-case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ScType {
+case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
   def designated = ScType.extractDesignated(designator) match {
     case Some((e, _)) => Some(e)
     case _ => None
@@ -78,7 +72,7 @@ object ScParameterizedType {
 }
 
 abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
-                                     lower : Suspension[ScType], upper : Suspension[ScType]) extends ScType
+                                     lower : Suspension[ScType], upper : Suspension[ScType]) extends ValueType
 
 case class ScTypeConstructorType(alias : ScTypeAliasDefinition, override val args : List[ScTypeParameterType],
                                  aliased : Suspension[ScType])
@@ -169,4 +163,4 @@ private[types] object CyclicHelper {
   }
 }
 
-case class ScTypeVariable(name: String) extends ScType
+case class ScTypeVariable(name: String) extends ValueType

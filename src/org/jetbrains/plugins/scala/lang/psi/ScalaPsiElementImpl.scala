@@ -57,15 +57,15 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
   }
 
-  var counter = 0
+//  var counter = 0
 
   override def getParent(): PsiElement = {
-    if (counter > 5) {
-      println("preved")
-    }
-    counter = counter + 1
+//    if (counter > 5) {
+//      println("test")
+//    }
+//    counter = counter + 1
     val res = getParentByStub()
-    counter = counter - 1
+//    counter = counter - 1
     res
   }
 
