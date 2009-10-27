@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
 import util.ScalaUtils
+import com.intellij.util.IncorrectOperationException
+
 /**
  * Created by IntelliJ IDEA.
  * User: Alexander

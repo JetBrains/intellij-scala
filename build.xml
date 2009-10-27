@@ -209,8 +209,8 @@
 
     <!-- Write plugin version, Since and Until attributes -->
     <replace file="${main.dest}/META-INF/plugin.xml" token="VERSION" value="${plugin.version}"/>
-    <replace file="${main.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>
-    <replace file="${main.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${until.idea.build}"/>
+    <!--<replace file="${main.dest}/META-INF/plugin.xml" token="SINCE_IDEA" value="${since.idea.build}"/>
+    <replace file="${main.dest}/META-INF/plugin.xml" token="UNTIL_IDEA" value="${until.idea.build}"/>-->
 
   </target>
 
