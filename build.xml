@@ -103,7 +103,7 @@
     </fileset>
   </path>
 
-  <path  id="scala.27.runners.path">
+  <path  id="scala.2.7.runners.path">
     <fileset dir="${scala.2.7.lib}">
       <include name="**/*.jar"/>
     </fileset>
@@ -195,7 +195,7 @@
             target="jvm-1.5"
             force="changed">
       <classpath>
-        <path refid="scala.runners.path"/>
+        <path refid="scala.2.7.runners.path"/>
       </classpath>
       <include name="Scala2.7Runners/src/**/*.java"/>
       <include name="Scala2.7Runners/src/**/*.scala"/>
