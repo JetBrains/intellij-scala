@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 trait TypingContextOwner {
 
   /**
-   * This method may be called only in a chain of typing calls between differen entities of
+   * This method may be called only in a chain of typing calls between different entities of
    * typing contexts e.g. ScTypeElement, ScTypedDefinition
    *
    * @param ctx Context (possibly) augmented with informations about duplications

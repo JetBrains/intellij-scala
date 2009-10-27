@@ -31,7 +31,7 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
   def declaredElements = getIdList.fieldIds
 
   override def getType(ctx: TypingContext) = wrap(typeElement)(ScalaBundle.message("no.type.element.found", getText)) flatMap {
-    te => te.cachedType
+    te => te.getType(ctx)
   }
 
   def typeElement: Option[ScTypeElement] = {

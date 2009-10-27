@@ -20,7 +20,7 @@ import parser.ScalaElementTypes
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
-import result.Success
+import result.{TypingContext, Success}
 import stubs.{ScExtendsBlockStub}
 import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 
@@ -54,7 +54,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def selfType = (wrap(selfTypeElement) flatMap {
     ste => wrap(ste.typeElement) flatMap {
-      te => te.cachedType
+      te => te.getType(TypingContext.empty)
     }
   }) match {
     case Success(t, _) => Some(t)

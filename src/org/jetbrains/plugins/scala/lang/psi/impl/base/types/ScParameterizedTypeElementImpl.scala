@@ -23,7 +23,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
 
   def typeElement = findChildByClass(classOf[ScTypeElement])
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     typeElement.getType(ctx) flatMap {
       res => {
         val argTypesWrapped = typeArgList.typeArgs.map {_.getType(ctx)}

@@ -22,7 +22,7 @@ class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] wi
 
   override def toString: String = "ScVariableDeclaration"
 
-  def getType(ctx: TypingContext) = wrap(typeElement) flatMap {_.cachedType}
+  def getType(ctx: TypingContext) = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
 
   def declaredElements = getIdList.fieldIds
 

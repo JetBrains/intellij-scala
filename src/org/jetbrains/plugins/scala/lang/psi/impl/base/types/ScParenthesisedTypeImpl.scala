@@ -18,5 +18,5 @@ import psi.types.result.TypingContext
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScParenthesisedTypeElement{
   override def toString: String = "TypeInParenthesis"
 
-  override def getType(ctx: TypingContext) = wrap(typeElement).flatMap(_.getType(ctx))
+  protected def innerType(ctx: TypingContext) = wrap(typeElement).flatMap(_.getType(ctx))
 }

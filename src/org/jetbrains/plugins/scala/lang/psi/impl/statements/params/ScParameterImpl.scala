@@ -82,7 +82,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             case Some(t) => t
             case None => lang.psi.types.Nothing
           }
-          case Some(e) => e.cachedType getOrElse Any
+          case Some(e) => e.getType(TypingContext.empty) getOrElse Any
         }
       }
     }

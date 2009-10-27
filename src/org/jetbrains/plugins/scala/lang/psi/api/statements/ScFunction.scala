@@ -99,7 +99,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def returnType: TypeResult[ScType]
 
-  def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.cachedType)
+  def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.getType(TypingContext.empty))
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 

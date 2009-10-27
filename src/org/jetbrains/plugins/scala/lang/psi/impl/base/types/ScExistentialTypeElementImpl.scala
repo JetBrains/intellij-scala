@@ -26,7 +26,7 @@ import result.{TypeResult, Success, Failure, TypingContext}
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   override def toString: String = "ExistentialType"
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     val q = quantified.getType(ctx)
     val problems: ListBuffer[TypeResult[ScType]] = new ListBuffer
     problems += q
