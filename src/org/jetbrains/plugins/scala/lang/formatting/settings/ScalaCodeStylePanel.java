@@ -88,7 +88,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
   private JCheckBox showFilesInProjectViewCheckBox;
-  private JCheckBox clojureParametersOnNewCheckBox;
+  private JCheckBox closureParametersOnNewCheckBox;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -229,7 +229,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
     scalaSettings.SHOW_FILES_IN_PROJECT_VIEW = showFilesInProjectViewCheckBox.isSelected();
-    scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE = clojureParametersOnNewCheckBox.isSelected();
+    scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = closureParametersOnNewCheckBox.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -366,7 +366,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
-    if (scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE != clojureParametersOnNewCheckBox.isSelected()) return true;
+    if (scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE != closureParametersOnNewCheckBox.isSelected()) return true;
     return false;
   }
 
@@ -449,7 +449,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
-    setValue(clojureParametersOnNewCheckBox, settings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE);
+    setValue(closureParametersOnNewCheckBox, settings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE);
   }
 
   private static void setValue(JSpinner spinner, int value) {

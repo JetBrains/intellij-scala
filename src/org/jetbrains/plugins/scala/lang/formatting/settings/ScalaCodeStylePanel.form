@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="myPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="625" height="937"/>
+      <xy x="20" y="20" width="653" height="937"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -532,13 +532,13 @@
                       <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                     </constraints>
                   </vspacer>
-                  <component id="f4f23" class="javax.swing.JCheckBox" binding="clojureParametersOnNewCheckBox" default-binding="true">
+                  <component id="f4f23" class="javax.swing.JCheckBox" binding="closureParametersOnNewCheckBox" default-binding="true">
                     <constraints>
                       <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <selected value="false"/>
-                      <text value="Do not place clojure parameters on new line"/>
+                      <selected value="true"/>
+                      <text value="Closure parameters"/>
                     </properties>
                   </component>
                 </children>
