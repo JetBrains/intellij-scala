@@ -26,6 +26,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.kNULL => Null
       case ScalaTokenTypes.tINTEGER => {
         if (child.getText.endsWith("l") || child.getText.endsWith("L")) Long
+        // todo use TypingContext to put context-specific info
         else Int //but a conversion exists to narrower types in case range fits
       }
       case ScalaTokenTypes.tFLOAT => {

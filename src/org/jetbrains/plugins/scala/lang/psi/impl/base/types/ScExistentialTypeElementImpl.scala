@@ -60,8 +60,8 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
       buff.toList
     }
     q flatMap { t =>
-      (for (f@Failure(_, _) <- problems) yield f).
-              foldLeft(Success(ScExistentialTypeReducer.reduce(t, wildcards), Some(this)))(_.apply(_))
+      val failures = for (f@Failure(_, _) <- problems) yield f
+      failures.foldLeft(Success(ScExistentialTypeReducer.reduce(t, wildcards), Some(this)))(_.apply(_))
     }
   }
 

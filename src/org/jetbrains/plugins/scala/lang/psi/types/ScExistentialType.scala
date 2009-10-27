@@ -69,7 +69,7 @@ object ScExistentialTypeReducer {
 }
 
 case class ScExistentialType(val quantified : ScType,
-                             val wildcards : List[ScExistentialArgument]) extends ScType {
+                             val wildcards : List[ScExistentialArgument]) extends ValueType {
   lazy val boundNames = wildcards.map {_.name}
 
   lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p.name, p)}
@@ -89,7 +89,7 @@ case class ScExistentialType(val quantified : ScType,
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
-                                 val lowerBound : ScType, val upperBound : ScType) extends ScType {
+                                 val lowerBound : ScType, val upperBound : ScType) extends ValueType {
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
 
   override def equiv(t : ScType) = t match {
@@ -102,6 +102,6 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
-extends ScType {
+extends ValueType {
   override def equiv(t: ScType) = this eq t
 }

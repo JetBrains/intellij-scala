@@ -12,7 +12,7 @@ import result.TypingContext
 * @author ilyas
 */
 
-case class ScSingletonType(path: ScPathElement) extends ScType {
+case class ScSingletonType(path: ScPathElement) extends ValueType {
 
   // todo rewrite me!
   lazy /* to prevent SOE */
