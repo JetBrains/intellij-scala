@@ -174,7 +174,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case constr: ScConstructor => {
         val res = new ArrayBuffer[Array[(String, ScType)]]
         val i: Int = constr.arguments.indexOf(this)
-        ScType.extractDesignated(constr.typeElement.cachedType.getOrElse(Any)) match {
+        ScType.extractDesignated(constr.typeElement.getType(TypingContext.empty).getOrElse(Any)) match {
           case Some((clazz: ScClass, subst: ScSubstitutor)) => {
             for (function: ScFunction <- clazz.functions if function.isConstructor) {
               val clauses = function.paramClauses.clauses

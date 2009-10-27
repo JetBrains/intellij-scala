@@ -9,9 +9,9 @@ import com.intellij.lang.ASTNode
 
 import api.statements._
 import types.{ScType}
-import types.result.TypeResult
+import types.result.{TypingContext, TypeResult}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 */
 
@@ -21,6 +21,6 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
 
   override def toString: String = "ScFunctionDeclaration"
 
-  def returnType: TypeResult[ScType] = wrap(typeElement) flatMap (_.cachedType)
+  def returnType: TypeResult[ScType] = wrap(typeElement) flatMap (_.getType(TypingContext.empty))
 }
 

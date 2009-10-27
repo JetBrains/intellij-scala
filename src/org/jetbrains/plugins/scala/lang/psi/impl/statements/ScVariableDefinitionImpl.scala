@@ -32,7 +32,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   }
 
   def getType(ctx: TypingContext) = typeElement match {
-    case Some(te) => te.cachedType
+    case Some(te) => te.getType(ctx)
     case None => expr.getType(TypingContext.empty)
   }
 

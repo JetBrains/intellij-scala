@@ -18,7 +18,7 @@ import result.{Failure, Success, TypingContext}
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
   override def toString: String = "FunctionalType"
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     val returnTypeRes = wrap(returnTypeElement).flatMap(_.getType(ctx))
 
     paramTypeElement match {

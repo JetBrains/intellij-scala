@@ -10,7 +10,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import stubs.ScTypeAliasStub
-import types.result.Success;
+import types.result.{TypingContext, Success}
+
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -42,12 +43,12 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   override def toString: String = "ScTypeAliasDeclaration"
 
   def lowerBound = lowerTypeElement match {
-      case Some(te) => te.cachedType
+      case Some(te) => te.getType(TypingContext.empty)
       case None => Success(Nothing, Some(this))
   }
 
   def upperBound = upperTypeElement match {
-      case Some(te) => te.cachedType
+      case Some(te) => te.getType(TypingContext.empty)
       case None => Success(Any, Some(this))
   }
 

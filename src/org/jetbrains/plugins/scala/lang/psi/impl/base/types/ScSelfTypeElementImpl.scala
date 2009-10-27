@@ -27,7 +27,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
   def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
 
   def getType(ctx: TypingContext) = typeElement match {
-    case Some(ste) => ste.cachedType
+    case Some(ste) => ste.getType(ctx)
     case None => {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
       assert(parent != null)
