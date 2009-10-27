@@ -182,6 +182,16 @@
       <include name="ScalaRunners/src/**/*.scala"/>
     </scalac>
 
+    <javac2 srcdir="${base.dir}"
+            destdir="${runners.dest}"
+            target="1.5"
+            debug="true">
+      <classpath>
+        <path refid="scala.runners.path"/>
+      </classpath>
+      <include name="ScalaRunners/src/**/*.java"/>
+    </javac2>
+
     <!--Scalac 2.7 taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
@@ -206,9 +216,9 @@
             target="1.5"
             debug="true">
       <classpath>
-        <path refid="scala.runners.path"/>
+        <path refid="scala.2.7.runners.path"/>
       </classpath>
-      <include name="ScalaRunners/src/**/*.java"/>
+      <include name="Scala2.7Runners/src/**/*.java"/>
     </javac2>
 
     <!--Scalac 2.8 taskdef-->
