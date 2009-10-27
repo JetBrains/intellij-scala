@@ -32,7 +32,7 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
-import result.TypingContext
+import result.{Success, TypeResult, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -289,7 +289,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
                 override def name(): String = "v" + (i + 1)
 
-//                override def calcType: ScType = params(i)
+                override def getType(ctx: TypingContext): TypeResult[ScType] = {
+                  return Success(params(i), None)
+                }
 
                 override def annotations: Seq[ScAnnotation] = Seq.empty
 

@@ -3,11 +3,11 @@ package lang
 package psi
 
 import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
-import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import stubs.elements.wrappers.DummyASTNode
+import com.intellij.psi.impl.source.tree.{SharedImplUtil, CompositeElement}
 
 /**
 @author ven
@@ -57,16 +57,13 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
   }
 
-//  var counter = 0
-
   override def getParent(): PsiElement = {
-//    if (counter > 5) {
-//      println("test")
-//    }
-//    counter = counter + 1
-    val res = getParentByStub()
-//    counter = counter - 1
-    res
+    val stub = getStub
+    if (stub != null) {
+      return stub.getParentStub.getPsi
+    }
+
+    SharedImplUtil.getParent(getNode)
   }
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
