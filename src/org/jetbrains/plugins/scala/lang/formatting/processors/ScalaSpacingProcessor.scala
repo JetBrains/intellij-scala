@@ -447,7 +447,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
       rightNode.getElementType match {
         case ScalaElementTypes.FUNCTION_EXPR => {
-          if (scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
+          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
         }
         case _ =>
       }
@@ -484,7 +484,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     (leftNode.getElementType, rightNode.getElementType,
             leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (ScalaTokenTypes.tFUNTYPE, _, ScalaElementTypes.FUNCTION_EXPR, _)
-        if scalaSettings.DO_NOT_PLACE_CLOJURE_PARAMETERS_ON_NEW_LINE => {
+        if !scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE => {
         if (rightString.startsWith("{")) WITH_SPACING
         else if (leftNode.getTreeParent.getTextRange.substring(fileText).contains("\n")) ON_NEW_LINE
         else WITH_SPACING
