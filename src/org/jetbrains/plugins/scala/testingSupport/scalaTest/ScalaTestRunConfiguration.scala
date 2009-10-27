@@ -39,6 +39,8 @@ import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfiguration
+import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUtil}
+import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,11 +52,14 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
-  val SCALA_MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestScalaRunner"
+  def mainClass(scalaTestVersion: String = "10", scalaVersion: String = "28") = {
+    "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTest" + scalaTestVersion + "Scala" + scalaVersion + "Runner"
+  }
+  def reporterClass(scalaTestVersion: String = "10", scalaVersion: String = "28") = {
+    "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTest" + scalaTestVersion + "Scala" + scalaVersion + "Reporter"
+  }
   val SUITE_PATH = "org.scalatest.Suite"
-  val REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
-  val SCALA_REPORTER = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestScalaReporter"
+
   private var testClassPath = ""
   private var testPackagePath = ""
   private var testArgs = ""
@@ -139,13 +144,26 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
     if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
 
+
+    //versions detection for scala compiler and for ScalaTest
     val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
-    var isScala_2_8 = true
+    var scalaVersion: String = "27"
     try {
       val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      isScala_2_8 = vers > 2.75
+      if (vers > 2.75) scalaVersion = "28"
     } catch {
       case e: Exception => //nothing to do
+    }
+    val scalaTestVersion: String = {
+      val lib: Library = LibraryUtil.findLibraryByClass(SUITE_PATH, suiteClass.getProject)
+      val jar = LibrariesHelper.getInstance.findJarByClass(lib, SUITE_PATH)
+      val path = jar.getPresentableName
+      val s: String = "scalatest-"
+      if (path.startsWith(s)) {
+        if (path.substring(s.length).startsWith("0")) "09"
+        else "10"
+      }
+      else "10"
     }
 
     val rootManager = ModuleRootManager.getInstance(module)
@@ -163,12 +181,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
-        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
+        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTestScalaRunner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTest10Scala28Runner])
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)
@@ -184,13 +202,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(if (isScala_2_8) SCALA_MAIN_CLASS else MAIN_CLASS)
+        params.setMainClass(mainClass(scalaTestVersion, scalaVersion))
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
 
-        params.getProgramParametersList.add(if (isScala_2_8) "-r" else "-rYZTFGUPBISAR")
-        params.getProgramParametersList.add(if (isScala_2_8) SCALA_REPORTER else REPORTER)
+        params.getProgramParametersList.add(if (scalaTestVersion == "10") "-r" else "-rYZTFGUPBISAR")
+        params.getProgramParametersList.add(reporterClass(scalaTestVersion, scalaVersion))
         params.getProgramParametersList.addParametersString(testArgs)
         return params
       }
