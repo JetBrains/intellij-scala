@@ -31,7 +31,12 @@ import lang.psi.types._
 class ScalaDocumentationProvider extends DocumentationProvider {
   import ScalaDocumentationProvider._
   def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object, element: PsiElement): PsiElement = {
-    null
+    `object` match {
+      case (_, element: PsiElement, _) => element
+      case Tuple1(element: PsiElement) => element
+      case element: PsiElement => element
+      case _ => null
+    }
   }
 
   def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = {
