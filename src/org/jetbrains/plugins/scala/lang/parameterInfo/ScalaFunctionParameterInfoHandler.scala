@@ -32,7 +32,7 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
-import result.TypingContext
+import result.{Success, TypeResult, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -284,12 +284,14 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             val parameters: Array[ScParameter] = new Array[ScParameter](params.length)
             for (i <- 0 until params.length) {
-              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: how to avoid NPE?
+              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: replace this buggy ideology
                 override def getName = "v" + (i + 1)
 
                 override def name(): String = "v" + (i + 1)
 
-//                override def calcType: ScType = params(i)
+                override def getType(ctx: TypingContext): TypeResult[ScType] = {
+                  return Success(params(i), None)
+                }
 
                 override def annotations: Seq[ScAnnotation] = Seq.empty
 

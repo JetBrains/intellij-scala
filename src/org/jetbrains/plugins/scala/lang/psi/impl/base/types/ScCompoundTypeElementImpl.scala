@@ -22,7 +22,7 @@ import psi.types.result.{Failure, Success, TypingContext}
 class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScCompoundTypeElement {
   override def toString: String = "CompoundType"
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))
     refinement match {
       case None => collectFailures(comps, Any)(new ScCompoundType(_, Seq.empty, Seq.empty))

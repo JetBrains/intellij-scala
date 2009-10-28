@@ -43,7 +43,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   def declaredElements = bindings
 
   def getType(ctx: TypingContext) = typeElement match {
-    case Some(te) => te.cachedType
+    case Some(te) => te.getType(ctx)
     case None => expr.getType(ctx)
   }
 

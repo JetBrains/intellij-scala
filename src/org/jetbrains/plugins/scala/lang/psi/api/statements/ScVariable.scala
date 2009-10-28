@@ -24,7 +24,7 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
 
   def typeElement: Option[ScTypeElement]
 
-  def declaredType: Option[ScType] = typeElement map (_.cachedType.getOrElse(Any))
+  def declaredType: Option[ScType] = typeElement map (_.getType(TypingContext.empty).getOrElse(Any))
 
   def getType(ctx: TypingContext): TypeResult[ScType]
 

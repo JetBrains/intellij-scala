@@ -17,13 +17,26 @@ import com.intellij.psi.util.PsiModificationTracker
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
-  def cachedType: TypeResult[ScType] = {
-    CachesUtil.get(
-      this, CachesUtil.TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScTypeElement => ic.getType(TypingContext.empty)})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+  @volatile
+  private var elementType: TypeResult[ScType] = null
+
+  @volatile
+  private var modCount: Long = 0
+
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
+    if (ctx.visited.size != 0) return innerType(ctx)
+    var tp = elementType
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && modCount == curModCount) {
+      return tp
+    }
+    tp = innerType(ctx)
+    elementType = tp
+    modCount = curModCount
+    return tp
   }
+
+  protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
   def calcType: ScType = getType(TypingContext.empty).getOrElse(Any)
 }

@@ -53,7 +53,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       case Some(b) => b.getType(TypingContext.empty)
       case _ => Success(Unit, Some(this))
     }
-    case Some(rte) => rte.cachedType
+    case Some(rte) => rte.getType(TypingContext.empty)
   }
 
   def body: Option[ScExpression] = {
