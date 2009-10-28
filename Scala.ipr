@@ -114,6 +114,7 @@
             <option name="LABEL_INDENT_ABSOLUTE" value="false" />
           </value>
         </option>
+        <option name="LINE_SEPARATOR" value="&#10;" />
         <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
         <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
           <option name="INDENT_SIZE" value="2" />
