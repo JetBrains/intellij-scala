@@ -30,7 +30,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     val lift : (ScType) => Success[ScType] = Success(_, Some(this))
 
     if (singleton) Success(ScSingletonType(pathElement), Some(this))

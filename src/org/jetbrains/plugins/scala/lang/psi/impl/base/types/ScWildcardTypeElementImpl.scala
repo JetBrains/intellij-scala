@@ -23,7 +23,7 @@ import psi.types.result.{Success, TypingContext}
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
   override def toString: String = "WildcardType"
 
-  def getType(ctx: TypingContext) = for (
+  protected def innerType(ctx: TypingContext) = for (
     lb <- lowerBound;
     ub <- upperBound
   ) yield new ScExistentialArgument("_", Nil, lb, ub)

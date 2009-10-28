@@ -30,7 +30,7 @@ import result.{Success, TypingContext}
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
   override def toString: String = "TypeProjection"
 
-  override def getType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext) = {
     def lift(t: ScType) = Success(t, Some(this))
     wrap(bind) flatMap {
       case ScalaResolveResult(alias: ScTypeAliasDefinition, s) =>
@@ -67,7 +67,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   private def _resolve(proc : BaseProcessor) = {
-    val projected = typeElement.cachedType.getOrElse(Any)
+    val projected = typeElement.getType(TypingContext.empty).getOrElse(Any)
     proc.processType(projected, this)
     proc.candidates.map {r : ScalaResolveResult =>
       r.element match {

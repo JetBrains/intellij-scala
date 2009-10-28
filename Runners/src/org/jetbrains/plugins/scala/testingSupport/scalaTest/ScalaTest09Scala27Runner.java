@@ -4,7 +4,7 @@ import org.scalatest.tools.Runner;
 
 import java.util.ArrayList;
 
-public class ScalaTestRunner {
+public class ScalaTest09Scala27Runner {
   public static void main(String[] args) {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();

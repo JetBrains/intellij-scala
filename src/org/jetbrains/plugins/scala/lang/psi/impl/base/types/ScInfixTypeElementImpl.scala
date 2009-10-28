@@ -23,7 +23,7 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     case _ => None
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = for {
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = for {
     rop <- wrap(rOp)(ScalaBundle.message("no.right.operand.found"))
     element <- wrap(ref.bind.map(_.element))("cannot.resolve.infix.operator")
     rType <- rop.getType(ctx)

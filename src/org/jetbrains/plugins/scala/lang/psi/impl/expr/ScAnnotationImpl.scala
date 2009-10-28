@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.stubs.ScAnnotationStub
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import types.result.TypingContext
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
 
   def getParameterList: PsiAnnotationParameterList = this
 
-  def getQualifiedName: String = ScType.extractClassType(annotationExpr.constr.typeElement.cachedType.getOrElse(Any)) match {
+  def getQualifiedName: String = ScType.extractClassType(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrElse(Any)) match {
     case None => null
     case Some((c: PsiClass, _)) => c.getQualifiedName
   }

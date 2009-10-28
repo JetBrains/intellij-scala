@@ -6,10 +6,10 @@ import java.io.{PrintWriter, StringWriter}
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 29.09.2009
+ * Date: 27.10.2009
  */
 
-class ScalaTestScalaReporter extends Reporter {
+class ScalaTest10Scala27Reporter extends Reporter {
   def apply(event: Event): Unit = {
     event match {
       case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) => {
@@ -20,7 +20,7 @@ class ScalaTestScalaReporter extends Reporter {
             "' captureStandardOutput='true']")
       }
       case TestSucceeded(ordinal, suiteName, suiteClassName, testName, duration, formatter, rerunnable, payload, threadName, timeStamp) => {
-        println("\n##teamcity[testFinished name='" + escapeString(testName) + "' duration='"+ duration +"']")
+        println("\n##teamcity[testFinished name='" + escapeString(testName) + "' duration='"+ duration.getOrElse(0) +"']")
       }
       case TestFailed(ordinal, message, suiteName, suiteClassName, testName, throwable,
                       duration, formatter, rerunnable, payload, threadName, timeStamp) => {
@@ -39,16 +39,18 @@ class ScalaTestScalaReporter extends Reporter {
         if (error) res += "error = '" + error + "'";
         res += "timestamp='" + escapeString("" + timeStamp) + "']"
         println(res)
-        println("\n##teamcity[testFinished name='" + escapeString(testName) + "' duration='"+ duration +"']")
+        println("\n##teamcity[testFinished name='" + escapeString(testName) + "' duration='"+ duration.getOrElse(0) +"']")
       }
       case TestIgnored(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) => {
         println("\n##teamcity[testIgnored name='" + escapeString(testName) + "' message='" + escapeString("") + "']")
       }
       case TestPending(ordinal, suiteName, suiteClassName, testName, formatter, payload, threadName, timeStamp) =>
       case SuiteStarting(ordinal, suiteName, suiteClassName, formatter, rerunnable, payload, threadName, timeStamp) => {
+        println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "']")
+      }
+      case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) => {
         println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "']")
       }
-      case SuiteCompleted(ordinal, suiteName, suiteClassName, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
       case SuiteAborted(ordinal, message, suiteName, suiteClassName, throwable, duration, formatter, rerunnable, payload, threadName, timeStamp) =>
       case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload, threadName, timeStamp) =>
       case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>

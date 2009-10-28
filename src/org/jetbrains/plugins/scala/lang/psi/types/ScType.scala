@@ -5,7 +5,6 @@ package types
 
 import api.base.{ScStableCodeReferenceElement}
 import api.statements.{ScTypeAliasDefinition}
-import api.toplevel.ScNamedElement
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
@@ -14,9 +13,8 @@ import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import api.expr.{ScSuperReference, ScThisReference}
-import com.intellij.openapi.project.{DumbService, Project}
-import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
-import api.statements.params.ScTypeParam
+import com.intellij.openapi.project.{Project}
+import api.toplevel.typedef.{ScClass, ScObject}
 import result.{Failure, Success, TypingContext}
 
 trait ScType {
@@ -26,10 +24,14 @@ trait ScType {
 
   override def toString = ScType.presentableText(this)
 
-  def parts: Seq[ScType] = Seq(this)
+  def isValue: Boolean
 }
 
-abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ScType {
+trait ValueType extends ScType{
+  def isValue = true
+}
+
+abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ValueType {
   def asClass(project : Project) = SyntheticClasses.get(project).byName(name).get
 }
 
@@ -111,7 +113,7 @@ object ScType {
       new ScSkolemizedType("_", Nil,
         if(wild.isSuper) create(capture.getLowerBound, project) else Nothing,
         if(wild.isExtends) create(capture.getUpperBound, project) else Any)
-    case null => new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
+    case null => Any//new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }
 

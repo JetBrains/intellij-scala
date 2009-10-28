@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 
-public class ScalaTestReporter implements Reporter {
+public class ScalaTest09Scala27Reporter implements Reporter {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
   public void testSucceeded(Report r) {

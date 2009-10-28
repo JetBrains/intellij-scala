@@ -192,7 +192,7 @@ class MethodResolveProcessor(ref: PsiElement,
    Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
   def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
-    typeArgElements.map(_.cachedType.getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
+    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
       (subst, pair) =>
               val scType = pair._1
               val typeParameter = pair._2

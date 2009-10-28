@@ -337,7 +337,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             def get(param: ScParameter): String = {
               var res: String = param.getName
               param.typeElement foreach {
-                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.getOrElse(Any)))
+                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
               }
               return res
             }
@@ -347,7 +347,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
         }
         if (needsInferType) {
           method.returnTypeElement foreach {
-            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.cachedType.getOrElse(Any)))
+            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
           }
         }
         res = res + " = "
