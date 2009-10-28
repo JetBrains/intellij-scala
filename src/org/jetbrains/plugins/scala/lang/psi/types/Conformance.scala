@@ -44,12 +44,16 @@ object Conformance {
       case Any => true
       case Nothing => false
       case Null => r == Nothing
+      //if itis class type => it's inherited from AnyRef
       case AnyRef => r match {
         case Null => true
-        case _: ScParameterizedType => true
-        case _: ScDesignatorType => true
-        case _: ScSingletonType => true
-        case _ => false
+        case _: StdType => false
+        case _ => {
+          ScType.extractClassType(r) match {
+            case Some((clazz: PsiClass, _)) => true
+            case _ => false
+          }
+        }
       }
       case Singleton => r match {
         case _: ScSingletonType => true
@@ -157,7 +161,7 @@ object Conformance {
       case proj: ScProjectionType => {
         proj.element match {
           case Some(clazz: ScSyntheticClass) => conforms(clazz.t, r, visited + clazz)
-          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
+          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(t, r, visited + clazz)}
           //todo should this immediate return false?
           case _ => rightRec(l, r, visited)
         }
