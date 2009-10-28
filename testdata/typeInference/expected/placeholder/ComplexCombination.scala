@@ -1,4 +1,4 @@
 object ComplexCombination {
-  val x: String => Int => String = x => _
+  val x: String => Int => String = /*start*/x => _/*end*/
 }
 //(String) => (Int) => String

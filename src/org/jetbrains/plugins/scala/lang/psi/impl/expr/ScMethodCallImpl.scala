@@ -17,6 +17,7 @@ import api.base.types.ScTypeElement
 import types._
 import com.intellij.psi._
 import result.{Failure, Success, TypingContext}
+import api.statements.params.ScParameters
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,7 +30,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   protected override def innerType(ctx: TypingContext) = {
 
     // todo rewrite me!
-    def inner : ScType = {
+    val inner: ScType = {
       /**
        * Utility method to get type for apply (and update) methods of concrecte class.
        */
@@ -67,7 +68,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         //add implicit types check
       }
-      getInvokedExpr.getType(TypingContext.empty) match {
+      val res = getInvokedExpr.getType(TypingContext.empty) match {
         case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => {
           retType
         }
@@ -84,7 +85,14 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         case x => x.getOrElse(Any)
       }
+      //conversion for implicit clause
+      res match {
+        case tp: ScFunctionType if tp.isImplicit && !(getParent.isInstanceOf[ScMethodCall] ||
+                getParent.isInstanceOf[ScUnderscoreSection]) => tp.returnType
+        case tp => tp
+      }
     }
+
     Success(inner, Some(this))
   }
 }

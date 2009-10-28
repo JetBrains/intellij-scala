@@ -38,7 +38,7 @@ trait ScPattern extends ScalaPsiElement {
   }
 
   def subpatterns : Seq[ScPattern] = {
-    if (this.isInstanceOf[ScReferencePattern]) return Sequence.empty
+    if (this.isInstanceOf[ScReferencePattern]) return Seq.empty
     findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 

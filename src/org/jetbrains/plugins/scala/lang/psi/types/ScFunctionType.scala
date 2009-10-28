@@ -45,6 +45,15 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
   }
 
   private def functionTraitName = "scala.Function" + params.length
+
+  private var Implicit: Boolean = false
+
+  def isImplicit: Boolean = Implicit
+
+  def this(returnType: ScType, params: Seq[ScType], isImplicit: Boolean) = {
+    this(returnType, params)
+    Implicit = isImplicit
+  }
 }
 
 case class ScTupleType(components: Seq[ScType]) extends ValueType {

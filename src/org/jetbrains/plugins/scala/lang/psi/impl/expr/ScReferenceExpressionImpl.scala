@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import result.{Success, TypingContext}
+import result.{TypeResult, Failure, Success, TypingContext}
 import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -215,7 +215,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def rightAssoc = refName.endsWith(":")
 
-  protected override def innerType(ctx: TypingContext) = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     def isMethodCall: Boolean = {
       var parent = getParent
       while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
@@ -224,13 +224,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ => false
       }
     }
-    def inner = bind match {
+    val inner: ScType = bind match {
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s))
-        if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) =>
-        new ScFunctionType(s.subst(f.declaredType.getOrElse(Any)), f.paramTypes.map{
+        if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) => {
+        val result = f.declaredType
+        new ScFunctionType(s.subst(result.getOrElse(return result)), f.paramTypes.map{
           s.subst _
         })
+      }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
           collection.immutable.Seq(fun.paramTypes.map({
@@ -247,17 +249,30 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
 
         refPatt.getContext().getContext() match {
-          case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => substIfSome(pd.declaredType)
-          case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => substIfSome(vd.declaredType)
-          case _ => s.subst(refPatt.getType(TypingContext.empty).getOrElse(Any))
+          case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => pd.declaredType match {
+            case Some(t) => t
+            case None => return Failure("No declared type found", Some(this))
+          }
+          case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => vd.declaredType match {
+            case Some(t) => t
+            case None => return Failure("No declared type found", Some(this))
+          }
+          case _ => {
+            val result = refPatt.getType(TypingContext.empty)
+            s.subst(result.getOrElse(return result))
+          }
         }
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
-        if (isMethodCall) s.subst(fun.getType(TypingContext.empty).getOrElse(Any))
-        else s.subst(fun.returnType.getOrElse(Any))
+        val result = if (isMethodCall) fun.getType(TypingContext.empty)
+        else fun.returnType
+        s.subst(result.getOrElse(return result))
       }
-      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => s.subst(typed.getType(TypingContext.empty).getOrElse(Any))
+      case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
+        val result = typed.getType(TypingContext.empty)
+        s.subst(result.getOrElse(return result))
+      }
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
@@ -271,10 +286,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (isMethodCall) ResolveUtils.methodType(method, s)
         else s.subst(ScType.create(method.getReturnType, getProject))
       }
-      case _ => Nothing
+      case _ => return Failure("Cannot resolve expression", Some(this))
     }
 
-    // todo rework me!
     Success(inner, Some(this))
   }
 }
