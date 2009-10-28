@@ -80,14 +80,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
-              ProgressManager.getInstance.checkCanceled
+              ProgressManager.checkCanceled
               m match {
                 case _var: ScVariable => for (declared <- _var.declaredElements) {
-                  ProgressManager.getInstance.checkCanceled
+                  ProgressManager.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
                 case _val: ScValue => for (declared <- _val.declaredElements) {
-                  ProgressManager.getInstance.checkCanceled
+                  ProgressManager.checkCanceled
                   if (!processor.execute(declared, state)) return false
                 }
               }
