@@ -18,7 +18,6 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.annotation._
 
 import lang.psi.ScalaPsiUtil
-import lang.psi.types.{FullSignature}
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -37,6 +36,8 @@ import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, FullSignature}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -282,19 +283,18 @@ class ScalaAnnotator extends Annotator {
       }
       case _ => fun.returnTypeElement match {
         case Some(x: ScTypeElement) => {
-          /*import org.jetbrains.plugins.scala.lang.psi.types._
+          import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
-          val exprType = ret.expr match {
-            case Some(e: ScExpression) => e.cachedType
-            case None => Unit
+          val exprType: TypeResult[ScType] = ret.expr match {
+            case Some(e: ScExpression) => e.getType(TypingContext.empty)
+            case None => Success(Unit, None)
           }
-          if (funType.equiv(Nothing)) return //do not check if type inference don't work properly
-          else if (!exprType.conforms(funType)) {
-            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType))
+          if (!ScalaAnnotator.smartCheckConformance(funType, exprType)) {
+            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
             val annotation: Annotation = holder.createErrorAnnotation(ret, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             //todo: add fix to change function return type
-          } else return*/
+          } else return
         }
         case _ => {
           val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
@@ -319,4 +319,16 @@ class ScalaAnnotator extends Annotator {
 
 object ScalaAnnotator {
   val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
+
+  /**
+   * This method will return checked conformance if it's possible to check it.
+   * In other way it will return true to avoid red code.
+   * Check conformance in case l = r.
+   */
+  private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
+    for (leftType <- l; rightType <- r) {
+      return Conformance.conforms(leftType, rightType)
+    }
+    return true
+  }
 }

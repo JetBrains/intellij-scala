@@ -132,7 +132,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   // todo implement to handle errors
   def getType(ctx: TypingContext) = {
-    returnType flatMap { rt =>
+    /*returnType flatMap { rt =>
       paramClauses.clauses.foldRight(Success(rt, None) : TypeResult[ScType]) {
         (cl, typeRes) =>
           typeRes flatMap {ret =>
@@ -140,6 +140,26 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
             collectFailures(paramTypes, Nothing)(ScFunctionType(ret, _))
           }
       }
+    }*/
+    returnType match {
+      case Success(tp: ScType, _) => {
+        var res: TypeResult[ScType] = Success(tp, None)
+        var i = paramClauses.clauses.length - 1
+        while (i >= 0) {
+          val cl = paramClauses.clauses.apply(i)
+          val paramTypes = cl.parameters.map(_.getType(ctx))
+          res match {
+            case Success(t: ScType, _) => {
+              val b = cl.isImplicit
+              res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _, b))
+            }
+            case _ =>
+          }
+          i = i - 1
+        }
+        res
+      }
+      case x => x
     }
   }
 

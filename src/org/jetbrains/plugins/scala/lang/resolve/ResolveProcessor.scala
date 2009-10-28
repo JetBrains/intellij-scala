@@ -131,10 +131,16 @@ class MethodResolveProcessor(ref: PsiElement,
       (c: ScalaResolveResult) => {
         val substitutor: ScSubstitutor = c.substitutor
         c.element match {
-          case synthetic: ScSyntheticFunction => {
+          case synthetic: ScSyntheticFunction if typeArgElements.length == 0 ||
+                  typeArgElements.length == synthetic.typeParameters.length => {
             Compatibility.compatible(synthetic, substitutor, argumentClauses)
           }
-          case method: PsiMethod => {
+          case function: ScFunction if typeArgElements.length == 0 ||
+                  typeArgElements.length == function.typeParameters.length => {
+            Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)
+          }
+          case method: PsiMethod if typeArgElements.length == 0 ||
+                  method.getTypeParameters.length == typeArgElements.length => {
             Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)
           }
           case _ =>  false /*{ //todo: for types you can use named parameters too

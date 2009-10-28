@@ -144,7 +144,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
     if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
 
-
     //versions detection for scala compiler and for ScalaTest
     val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
     var scalaVersion: String = "27"

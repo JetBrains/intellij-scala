@@ -87,6 +87,7 @@ object Compatibility {
       }
     }
     else {
+      if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated) return true
       for ((parameter: Parameter, b) <- parameters.zip(used)) {
         if (!b && !parameter.isDefault) {
           return false
