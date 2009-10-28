@@ -72,7 +72,7 @@ class ScalaLineMarkerProvider extends LineMarkerProvider {
 
     val members = new ArrayBuffer[PsiMember]
     for (element <- elements.toArray) {
-      ProgressManager.getInstance.checkCanceled
+      ProgressManager.checkCanceled
 
       element match {
         case clazz: ScTypeDefinition => {
@@ -107,7 +107,7 @@ private object GutterUtil {
 
   def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members) {
-      ProgressManager.getInstance.checkCanceled
+      ProgressManager.checkCanceled
       val offset = member.getTextOffset
       val members = member match {
         case memb: ScFunction => Array[PsiNamedElement](memb)
