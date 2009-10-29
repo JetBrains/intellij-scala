@@ -80,7 +80,7 @@ public class TestUtils {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
       try {
-        TEST_DATA_PATH = "/Users/jason/code/scala-idea-plugin/testdata";
+        TEST_DATA_PATH = new File(".", "testdata").getAbsolutePath();
         if (resource != null) {
           TEST_DATA_PATH = new File(resource.toURI()).getPath().replace(File.separatorChar, '/');
         }
