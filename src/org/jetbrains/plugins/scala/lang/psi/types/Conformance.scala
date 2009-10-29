@@ -69,7 +69,9 @@ object Conformance {
 
       case ScParameterizedType(owner: ScType, args1) => r match { //Parametrized type can have not only designators (projection)
         case ScParameterizedType(owner1, args2) => {
-          if (!(owner equiv owner1)) return false
+          if (!(owner equiv owner1)) {
+            return rightRec(l, r, visited)
+          }
           if (args1.length != args2.length) return false
           ScType.extractDesignated(owner) match {
             case Some((owner: PsiClass, _)) => {
