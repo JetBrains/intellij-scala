@@ -5,7 +5,7 @@ package types
 
 
 import api.base.ScReferenceElement
-import com.intellij.psi.{PsiNamedElement, PsiMember}
+import com.intellij.psi.{PsiNamedElement}
 import resolve._
 import impl.toplevel.synthetic.ScSyntheticClass
 

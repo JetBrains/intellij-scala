@@ -326,9 +326,9 @@ object ScalaAnnotator {
    * Check conformance in case l = r.
    */
   private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
-    for (leftType <- l; rightType <- r) {
+    /*for (leftType <- l; rightType <- r) {
       return Conformance.conforms(leftType, rightType)
-    }
+    }*/
     return true
   }
 }
