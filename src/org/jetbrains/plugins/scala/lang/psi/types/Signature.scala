@@ -22,6 +22,8 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
 
   def substitutedTypes = typesEval.v.map(substitutor.subst(_))
 
+  private val typesHashCode = substitutedTypes.map(ScType.canonicalText(_)).hashCode
+
   def equiv(other: Signature): Boolean = {
     name == other.name &&
             typeParams.length == other.typeParams.length &&
@@ -49,7 +51,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
   }
 
   override def hashCode: Int = {
-    name.hashCode * 31 + substitutedTypes.map(ScType.canonicalText(_)).hashCode
+    name.hashCode * 31 + typesHashCode
   }
 }
 

@@ -36,7 +36,6 @@ import psi.stubs.ScTypeDefinitionStub
 import stubs.StubElement
 import synthetic.JavaIdentifier
 import Misc._
-import util.{PsiUtil, PsiTreeUtil}
 import source.PsiFileImpl
 import types._
 import fake.FakePsiMethod
@@ -45,6 +44,7 @@ import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
 import result.{Success, TypingContext}
+import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
