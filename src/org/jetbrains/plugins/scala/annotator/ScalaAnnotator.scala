@@ -37,7 +37,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, FullSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, FullSignature}
 
 /**
  *    User: Alexander Podkhalyuzin
