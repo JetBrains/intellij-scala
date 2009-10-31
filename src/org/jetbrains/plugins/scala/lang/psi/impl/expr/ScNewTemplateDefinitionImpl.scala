@@ -8,7 +8,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import toplevel.PsiClassFake
-import types.ScCompoundType
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
@@ -17,6 +16,9 @@ import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
 import collection.mutable.ArrayBuffer
 import types.result.{Failure, Success, TypingContext}
+import com.intellij.openapi.project.DumbService
+import types.{ScType, ScCompoundType}
+import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTrait, ScTypeDefinition}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -61,5 +63,34 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     res.filter(_ != this).toArray
   }
 
-
+  //todo: it's copy for ScTypeDefinitionImpl
+  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
+    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
+      implicit def option2boolean[T](x: Option[T]): Boolean = x match {case Some(_) => true case _ => false}
+      if (visited.contains(drv)) false
+      else drv match {
+        case drg: ScTemplateDefinition => drg.superTypes.find {
+          t => ScType.extractClassType(t) match {
+            case Some((c, _)) => {
+              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
+                case _: ScTrait if c.isInstanceOf[ScTrait] => true
+                case _: ScClass if c.isInstanceOf[ScClass] => true
+                case _ if !c.isInstanceOf[ScTypeDefinition] => true
+                case _ => false
+              }
+              (c.getQualifiedName == baseClass.getQualifiedName && value) || (deep && isInheritorInner(base, c, deep, visited + drg))
+            }
+            case _ => false
+          }
+        }
+        case _ => drv.getSuperTypes.find{
+          psiT =>
+                  val c = psiT.resolveGenerics.getElement
+                  if (c == null) false else c == baseClass || (deep && isInheritorInner(base, c, deep, visited + drv))
+        }
+      }
+    }
+    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indecies
+    isInheritorInner(baseClass, this, deep, Set.empty)
+  }
 }
