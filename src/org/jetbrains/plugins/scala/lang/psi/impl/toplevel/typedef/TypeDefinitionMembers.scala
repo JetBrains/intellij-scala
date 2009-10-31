@@ -279,13 +279,27 @@ object TypeDefinitionMembers {
     return value.get
   }
 
-  def getVals(clazz: PsiClass): VMap = getFromCache(clazz, vals, () => ValueNodes.build(clazz))._2
+  /*def getVals(clazz: PsiClass): VMap = getFromCache(clazz, vals, () => ValueNodes.build(clazz))._2
   def getMethods(clazz: PsiClass): MMap = getFromCache(clazz, methods, () => MethodNodes.build(clazz))._2
   def getTypes(clazz: PsiClass) = getFromCache(clazz, types, () => TypeNodes.build(clazz))._2
   def getSignatures(c: PsiClass): SMap = getFromCache(c, signatures, () => SignatureNodes.build(c))._2
   def getSuperVals(c: PsiClass) = getFromCache(c, vals, () => ValueNodes.build(c))._1
   def getSuperMethods(c: PsiClass) = getFromCache(c, methods, () => MethodNodes.build(c))._1
-  def getSuperTypes(c: PsiClass) = getFromCache(c, types, () => TypeNodes.build(c))._1
+  def getSuperTypes(c: PsiClass) = getFromCache(c, types, () => TypeNodes.build(c))._1*/
+
+  def getVals(clazz: PsiClass): VMap = get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
+
+  def getMethods(clazz: PsiClass): MMap = get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+
+  def getTypes(clazz: PsiClass) = get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
+
+  def getSignatures(c: PsiClass): SMap = get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
+
+  def getSuperVals(c: PsiClass) = get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
+
+  def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
+
+  def getSuperTypes(c: PsiClass) = get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
 
   @deprecated
   private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
