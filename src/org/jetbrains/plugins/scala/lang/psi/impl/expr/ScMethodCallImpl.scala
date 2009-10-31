@@ -16,8 +16,8 @@ import lang.resolve.{MethodResolveProcessor, ScalaResolveResult}
 import api.base.types.ScTypeElement
 import types._
 import com.intellij.psi._
-import result.{Failure, Success, TypingContext}
 import api.statements.params.ScParameters
+import result.{TypeResult, Failure, Success, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -27,7 +27,7 @@ import api.statements.params.ScParameters
 class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMethodCall {
   override def toString: String = "MethodCall"
 
-  protected override def innerType(ctx: TypingContext) = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
 
     // todo rewrite me!
     val inner: ScType = {
@@ -80,10 +80,10 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
                 case _ => processType(tp)
               }
             }
-            case _ => Nothing
+            case _ => tp
           }
         }
-        case x => x.getOrElse(Any)
+        case x => x.getOrElse(return x)
       }
       //conversion for implicit clause
       res match {
