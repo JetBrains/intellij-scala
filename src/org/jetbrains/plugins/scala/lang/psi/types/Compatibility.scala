@@ -82,8 +82,8 @@ object Compatibility {
       while (k < exprs.length) {
         for (exprType <- exprs(k).getType(TypingContext.empty)) {
           if (!exprType.conforms(paramType)) return false
-          k = k + 1
         }
+        k = k + 1
       }
     }
     else {
