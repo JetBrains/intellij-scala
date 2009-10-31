@@ -35,7 +35,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
     if (singleton) Success(ScSingletonType(pathElement), Some(this))
     wrap(reference) flatMap { ref => ref.qualifier match {
-        case Some(q) => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+        case Some(q) => wrap(ref.bind) flatMap {
+          case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
+            if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
+            else {
+              //todo work with recursive aliases
+              lift(new ScTypeConstructorType(aliasDef, s))
+            }
+          }
+          case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+        }//Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
         case None => wrap(ref.bind) flatMap {
           case ScalaResolveResult(e, s) => e match {
             case aliasDef: ScTypeAliasDefinition =>
