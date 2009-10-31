@@ -37,7 +37,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, FullSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, FullSignature}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -50,17 +50,15 @@ class ScalaAnnotator extends Annotator {
       val sFile = element.getContainingFile.asInstanceOf[ScalaFile]
       ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
     }
+
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        // todo uncomment when lineariztion problems will be fixed
-        //        checkImplementedMethods(x, holder)
-      }
-      case x: ScBlock => {
-        //this is not necessary now: checkResultExpression(x, holder)
+        //todo uncomment when lineariztion problems will be fixed
+        //checkImplementedMethods(x, holder)
       }
       case ref: ScReferenceElement => {
         ref.qualifier match {
@@ -87,12 +85,7 @@ class ScalaAnnotator extends Annotator {
     }
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {
-//    sTypeParam.viewTypeElement match {
-//      case Some(vb: ScTypeElement) => vb.getPrevSibling
-//      case _ =>
-//    }
-  }
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
@@ -326,9 +319,9 @@ object ScalaAnnotator {
    * Check conformance in case l = r.
    */
   private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
-    /*for (leftType <- l; rightType <- r) {
+    for (leftType <- l; rightType <- r) {
       return Conformance.conforms(leftType, rightType)
-    }*/
+    }
     return true
   }
 }
