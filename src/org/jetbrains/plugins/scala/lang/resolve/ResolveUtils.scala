@@ -301,7 +301,7 @@ object ResolveUtils {
         element match {
           //scala
           case fun: ScFunction => {
-            presentation.setTypeText(presentationString(fun.returnType, substitutor))
+            presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
             presentation.setTailText(presentationString(fun.paramClauses, substitutor))
           }
           case fun: ScFun => {
