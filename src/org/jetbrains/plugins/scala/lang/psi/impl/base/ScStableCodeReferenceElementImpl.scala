@@ -14,7 +14,6 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import psi.api.base._
 import psi.types._
-import psi.api.base.types.ScSimpleTypeElement
 import psi.impl.ScalaPsiElementFactory
 import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
@@ -29,6 +28,7 @@ import api.statements.ScTypeAlias
 import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
 import result.TypingContext
+import api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -73,6 +73,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScConstructorPattern => classOrObjectOrValues
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
+      case _: ScInfixTypeElement => stableClass
       case _ => stableQualRef
     }
   }
