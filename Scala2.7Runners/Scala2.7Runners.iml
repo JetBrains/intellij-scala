@@ -3,7 +3,6 @@
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
       <configuration>
-        <option name="takeFromSettings" value="true" />
         <option name="myScalaCompilerJarPath" value="C:\work\scala_plugin_on_git\scala-plugin\SDK\scala-27-lib\scala-compiler.jar" />
         <option name="myScalaSdkJarPath" value="C:\work\scala_plugin_on_git\scala-plugin\SDK\scala-27-lib\scala-library.jar" />
       </configuration>
