@@ -27,6 +27,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
 import result.Success
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -184,8 +185,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       val stringType = new ScDesignatorType(stringClass)
       any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
     }
-    any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton("T")))
-    any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton("T")) {
+    any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)))
+    any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
       override val retType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 

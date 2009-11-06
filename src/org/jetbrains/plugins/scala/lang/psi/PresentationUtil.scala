@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,21 +15,21 @@ import com.intellij.psi._
 
 object PresentationUtil {
   def presentationString(obj: Any, substitutor: ScSubstitutor = ScSubstitutor.empty): String = {
-    obj match {
-      case clauses: ScParameters => return clauses.clauses.map(presentationString(_, substitutor)).mkString("")
+    val res: String = obj match {
+      case clauses: ScParameters => clauses.clauses.map(presentationString(_, substitutor)).mkString("")
       case clause: ScParameterClause => {
         val buffer = new StringBuilder("")
         buffer.append("(")
         if (clause.isImplicit) buffer.append("implicit ")
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
-        return buffer.toString
+        buffer.toString
       }
-      case param: ScParameter => return ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
-      case tp: ScType => return ScType.presentableText(substitutor.subst(tp))
-      case tp: PsiType => return presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
+      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
+      case tp: ScType => ScType.presentableText(substitutor.subst(tp))
+      case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
       case tp: ScTypeParamClause => {
-        return tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
+        tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
       }
       case param: ScTypeParam => {
         var paramText = param.getName
@@ -45,7 +46,7 @@ object PresentationUtil {
         param.viewBound foreach {
           (tp: ScType) => paramText = paramText + " <% " + presentationString(tp, substitutor)
         }
-        return paramText
+        paramText
       }
       case params: PsiParameterList => {
         params.getParameters.map(presentationString(_, substitutor)).mkString("(", ", ", ")")
@@ -71,9 +72,10 @@ object PresentationUtil {
         buffer.append(presentationString(param.getType, substitutor))
         buffer.toString
       }
-      case elem: PsiElement => return elem.getText
+      case elem: PsiElement => elem.getText
       case null => ""
-      case _ => return obj.toString
+      case _ => obj.toString
     }
+    return res.replace(ScalaUtils.typeParameter, "T")
   }
 }
