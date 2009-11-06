@@ -43,8 +43,8 @@ object Bounds {
           val set = new HashSet[ScType]
           appendBaseTypes(t2, c1, s1, set, depth)
           set.toArray match {
-            case Array() => Any
-//            case Array(only) => only    // unreachable code
+            case a: Array[ScType] if a.length == 0 => Any
+            case a: Array[ScType] if a.length == 1 => a(0)
             case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty)
           }
         }
