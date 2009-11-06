@@ -158,6 +158,4 @@ class ScalaInlineHandler extends InlineHandler {
       case _ => return null
     }
   }
-
-  def removeDefinition(p1: PsiElement, p2: InlineHandler.Settings): Unit = {/*do nothing yet*/}
 }
