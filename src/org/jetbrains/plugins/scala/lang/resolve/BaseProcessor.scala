@@ -132,7 +132,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         true
       }
-      case singl: ScSingletonType => processType(singl.pathType, place)
+      case singl: ScSingletonType => {
+        // See test ThisTypeCompound.
+        val qual = place match {
+          case ref: ScReferenceExpression => ref.qualifier
+          case _ => None
+        }
+        processType(singl.pathTypeInContext(qual), place)
+      }
       case ex: ScExistentialType => processType(ex.skolem, place)
       case _ => true
     }
