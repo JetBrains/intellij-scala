@@ -15,6 +15,8 @@ import expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import icons.Icons
 import types.result.{TypeResult, TypingContext, Success}
+import com.intellij.psi.PsiElement
+import lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -42,5 +44,7 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
     }
     null
   }
+
+  def getValToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAL)
 
 }

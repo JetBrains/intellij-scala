@@ -81,11 +81,29 @@ class ScalaAnnotator extends Annotator {
       case sTypeParam: ScTypeBoundsOwner => {
         checkTypeParamBounds(sTypeParam, holder)
       }
+      case value: ScPatternDefinition => {
+        checkValueDefinitionType(value, holder)
+      }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
+
+  private def checkValueDefinitionType(value: ScPatternDefinition, holder: AnnotationHolder): Unit = {
+    val valueType = value.typeElement match {
+      case Some(te: ScTypeElement) => te.getType(TypingContext.empty)
+      case _ => return //nothing good to check
+    }
+    val exprType = value.expr.getType(TypingContext.empty)
+    if (!ScalaAnnotator.smartCheckConformance(valueType, exprType)) {
+      import org.jetbrains.plugins.scala.lang.psi.types._
+      val error = ScalaBundle.message("expr.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
+      val annotation: Annotation = holder.createErrorAnnotation(value.typeElement.getOrElse(value.getValToken), error)
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+      //todo: add fix to change value return type
+    }
+  }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
