@@ -35,7 +35,7 @@ import com.intellij.usageView.UsageInfo
  */
 
 class ScalaInlineHandler extends InlineHandler {
-  def removeDefinition(element: PsiElement): Unit = {
+  def removeDefinition(element: PsiElement, settings: InlineHandler.Settings): Unit = {
     element match {
       case rp: ScBindingPattern => {
         PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {

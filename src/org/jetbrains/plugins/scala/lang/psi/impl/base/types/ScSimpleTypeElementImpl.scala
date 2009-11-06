@@ -33,8 +33,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   protected def innerType(ctx: TypingContext) = {
     val lift : (ScType) => Success[ScType] = Success(_, Some(this))
 
-    if (singleton) Success(ScSingletonType(pathElement), Some(this))
-    wrap(reference) flatMap { ref => ref.qualifier match {
+    if (singleton)
+       Success(ScSingletonType(pathElement), Some(this))
+    else
+       wrap(reference) flatMap { ref => ref.qualifier match {
         case Some(q) => wrap(ref.bind) flatMap {
           case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
             if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
