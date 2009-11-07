@@ -41,4 +41,9 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("defInAnonymous.scala");
     assertNotNull(ref.resolve());
   }
+
+  public void testInfixType() throws Exception {
+    PsiReference ref = configureByFile("infixType.scala");
+    assertNotNull(ref.resolve());
+  }
 }

@@ -32,7 +32,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
         case o: ScObject if o.isPackageObject => true
         case _ => {
           candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-          return false //todo
+          false //todo
         }
       }
     }
@@ -244,23 +244,24 @@ class MethodResolveProcessor(ref: PsiElement,
 import ResolveTargets._
 
 object StdKinds {
-  val stableQualRef = HashSet.empty + PACKAGE + OBJECT + VAL
+  
+  val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL)
   val stableQualOrClass = stableQualRef + CLASS
-  val noPackagesClassCompletion = HashSet.empty + OBJECT + VAL + CLASS
-  val stableImportSelector = HashSet.empty + OBJECT + VAL + VAR + METHOD + PACKAGE + CLASS
-  val stableClass = HashSet.empty + CLASS
+  val noPackagesClassCompletion = ValueSet(OBJECT, VAL, CLASS)
+  val stableImportSelector = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
+  val stableClass = ValueSet(CLASS)
 
-  val stableClassOrObject = HashSet.empty + CLASS + OBJECT
+  val stableClassOrObject = ValueSet(CLASS, OBJECT)
   val classOrObjectOrValues = stableClassOrObject + VAL + VAR
 
-  val refExprLastRef = HashSet.empty + OBJECT + VAL + VAR + METHOD
+  val refExprLastRef = ValueSet(OBJECT, VAL, VAR, METHOD)
   val refExprQualRef = refExprLastRef + PACKAGE
 
-  val methodRef = HashSet.empty + VAL + VAR + METHOD
+  val methodRef = ValueSet(VAL, VAR, METHOD)
 
-  val valuesRef = HashSet.empty + VAL + VAR
+  val valuesRef = ValueSet(VAL, VAR)
 
-  val packageRef = HashSet.empty + PACKAGE
+  val packageRef = ValueSet(PACKAGE)
 }
 
 object ResolverEnv {

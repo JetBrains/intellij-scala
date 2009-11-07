@@ -115,7 +115,6 @@
           </value>
         </option>
         <option name="LINE_SEPARATOR" value="&#10;" />
-        <option name="OPTIMIZE_IMPORTS_ON_THE_FLY" value="true" />
         <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
@@ -219,7 +218,6 @@
   </component>
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
-    <option name="DEPLOY_AFTER_MAKE" value="0" />
     <resourceExtensions>
       <entry name=".+\.(properties|xml|html|dtd|tld)" />
       <entry name=".+\.(gif|png|jpeg|jpg)" />
@@ -844,7 +842,6 @@
     <option name="UNCHECKED" value="false" />
     <option name="NO_GENERICS" value="true" />
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" Folders="0" Dictionaries="0" />
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>

@@ -6,17 +6,24 @@ package types
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.{ScReferenceElement, ScPathElement}
 import api.toplevel.ScTypedDefinition
-import result.TypingContext
+import com.intellij.psi.PsiElement
+import result.{TypeResult, TypingContext}
 
 /**
-* @author ilyas
-*/
+ * @author ilyas
+ */
 
 case class ScSingletonType(path: ScPathElement) extends ValueType {
 
   // todo rewrite me!
   lazy /* to prevent SOE */
-  val pathType = path match {
+  val pathType = pathTypeInContext(None)
+
+  type HasType = {
+    def getType(ctx: TypingContext): TypeResult[ScType]
+  }
+
+  def pathTypeInContext(qualifier: Option[PsiElement]): ScType = path match {
     case ref: ScReferenceElement => ref.bind match {
       case None => Nothing
       case Some(r) => r.element match {
@@ -24,9 +31,14 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
         case e => new ScDesignatorType(e)
       }
     }
-    case thisPath: ScThisReference => thisPath.refTemplate match {
-      case Some(tmpl) => tmpl.getType(TypingContext.empty).getOrElse(Nothing)
-      case _ => Nothing
+    case thisPath: ScThisReference => qualifier match {
+      case Some(tc: HasType) => tc.getType(TypingContext.empty).getOrElse(Nothing)
+      case _ => {
+        thisPath.refTemplate match {
+          case Some(tmpl) => tmpl.getType(TypingContext.empty).getOrElse(Nothing)
+          case _ => Nothing
+        }
+      }
     }
     case superPath: ScSuperReference => superPath.staticSuper match {
       case Some(t) => t
@@ -43,7 +55,7 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
         (e1, e2) match {
           case (r1: ScReferenceElement, r2: ScReferenceElement) =>
             r1.bind == r2.bind && ((r1.qualifier, r2.qualifier) match {
-              case (Some(q1 : ScPathElement), Some(q2 : ScPathElement)) => equiv(q1, q2)
+              case (Some(q1: ScPathElement), Some(q2: ScPathElement)) => equiv(q1, q2)
               case (None, None) => true
               case _ => false
             })
