@@ -18,7 +18,8 @@ import lang.resolve.ScalaResolveResult
 import psi.types._
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import collection.Set
-import result.{Success, TypingContext}
+import result.{TypeResult, Success, TypingContext}
+import scala.None
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,10 +32,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   protected def innerType(ctx: TypingContext) = {
-    val lift : (ScType) => Success[ScType] = Success(_, Some(this))
+    val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
-    if (singleton) Success(ScSingletonType(pathElement), Some(this))
-    wrap(reference) flatMap { ref => ref.qualifier match {
+    val result: TypeResult[ScType] = wrap(reference) flatMap {
+      ref => ref.qualifier match {
         case Some(q) => wrap(ref.bind) flatMap {
           case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
             if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
@@ -61,6 +62,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
         }
       }
+    }
+    if (result.isEmpty && singleton) {
+      Success(ScSingletonType(pathElement), Some(this))
+    } else {
+      result
     }
   }
 }
