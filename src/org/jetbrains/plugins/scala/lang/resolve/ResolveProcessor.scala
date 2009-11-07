@@ -32,7 +32,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
         case o: ScObject if o.isPackageObject => true
         case _ => {
           candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-          return false //todo
+          false //todo
         }
       }
     }
