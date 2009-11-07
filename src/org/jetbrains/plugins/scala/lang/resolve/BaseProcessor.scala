@@ -14,7 +14,6 @@ import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
-import psi.impl.toplevel.synthetic.ScSyntheticClass
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)

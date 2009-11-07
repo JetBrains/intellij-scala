@@ -96,7 +96,7 @@ class ScalaAnnotator extends Annotator {
       case _ => return //nothing good to check
     }
     val exprType = value.expr.getType(TypingContext.empty)
-    if (!ScalaAnnotator.smartCheckConformance(valueType, exprType)) {
+    if (!ScalaAnnotator.smartCheckConformance(valueType, exprType, () => {value.expr.allTypes})) {
       import org.jetbrains.plugins.scala.lang.psi.types._
       val error = ScalaBundle.message("expr.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
       val annotation: Annotation = holder.createErrorAnnotation(value.typeElement.getOrElse(value.getValToken), error)
@@ -300,7 +300,12 @@ class ScalaAnnotator extends Annotator {
             case Some(e: ScExpression) => e.getType(TypingContext.empty)
             case None => Success(Unit, None)
           }
-          if (!ScalaAnnotator.smartCheckConformance(funType, exprType)) {
+          if (!ScalaAnnotator.smartCheckConformance(funType, exprType, () => {
+            ret.expr match {
+              case Some(e: ScExpression) => e.allTypes
+              case _ => Seq.empty
+            }
+          })) {
             val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
             val annotation: Annotation = holder.createErrorAnnotation(ret, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -336,9 +341,15 @@ object ScalaAnnotator {
    * In other way it will return true to avoid red code.
    * Check conformance in case l = r.
    */
-  private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
+  private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
+                                    allTypes: () => Seq[ScType] = () => {Seq[ScType]()}): Boolean = {
     for (leftType <- l; rightType <- r) {
-      return Conformance.conforms(leftType, rightType)
+      if (!Conformance.conforms(leftType, rightType)) {
+        for (tp <- allTypes()) {
+          if (Conformance.conforms(leftType, tp)) return true
+        }
+        return false
+      } else return true
     }
     return true
   }
