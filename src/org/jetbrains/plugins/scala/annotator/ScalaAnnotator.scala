@@ -86,6 +86,9 @@ class ScalaAnnotator extends Annotator {
       case value: ScPatternDefinition => {
         checkValueDefinitionType(value, holder)
       }
+      case expr: ScExpression if (Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])).exists(_.getNode.getLastChildNode == expr.getNode)) => {
+        checkExplicitTypeForReturnExpression(expr, holder)
+      }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
   }
@@ -283,6 +286,47 @@ class ScalaAnnotator extends Annotator {
           error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
+    }
+  }
+
+  private def checkExplicitTypeForReturnExpression(expr: ScExpression, holder: AnnotationHolder) {
+    def _checkExplicitTypeForReturnExpression(expr: ScExpression) {
+      var fun: ScFunction = PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])
+      fun match {
+        case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => {
+          return //can return anything
+        }
+        case _ => fun.returnTypeElement match {
+          case Some(x: ScTypeElement) => {
+            import org.jetbrains.plugins.scala.lang.psi.types._
+            val funType = fun.returnType
+            val exprType: TypeResult[ScType] = expr.getType(TypingContext.empty)
+            val conformance: (Boolean, Set[ImportUsed]) = ScalaAnnotator.smartCheckConformance(funType, exprType, () => expr.allTypesAndImports)
+            if (!conformance._1) {
+              val error = ScalaBundle.message("return.expression.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
+              val annotation: Annotation = holder.createErrorAnnotation(expr, error)
+              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+              //todo: add fix to change function return type
+            } else {
+              ImportTracker.getInstance(expr.getProject).registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
+              return
+            }
+          }
+          case _ => {
+            return
+          }
+        }
+      }
+    }
+
+    expr match {
+      case be: ScBlockExpr => {
+        be.lastStatement match {
+              case Some(e: ScExpression) => checkExplicitTypeForReturnExpression(e, holder)
+          case _ => _checkExplicitTypeForReturnExpression(expr)
+        }
+      }
+      case _ => _checkExplicitTypeForReturnExpression(expr) 
     }
   }
 
