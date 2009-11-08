@@ -37,9 +37,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, FullSignature}
 import scala.collection.Set
 import scala.Some
+import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, FullSignature}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -293,10 +293,10 @@ class ScalaAnnotator extends Annotator {
     def _checkExplicitTypeForReturnExpression(expr: ScExpression) {
       var fun: ScFunction = PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])
       fun match {
-        case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => {
+        case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
           return //can return anything
         }
-        case _ => fun.returnTypeElement match {
+        case _ => fun.returnTypeElement match {          
           case Some(x: ScTypeElement) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val funType = fun.returnType
@@ -322,7 +322,7 @@ class ScalaAnnotator extends Annotator {
     expr match {
       case be: ScBlockExpr => {
         be.lastStatement match {
-              case Some(e: ScExpression) => checkExplicitTypeForReturnExpression(e, holder)
+          case Some(e: ScExpression) => checkExplicitTypeForReturnExpression(e, holder)
           case _ => _checkExplicitTypeForReturnExpression(expr)
         }
       }
@@ -338,7 +338,7 @@ class ScalaAnnotator extends Annotator {
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       }
-      case _ if fun.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size == 0 => {
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
         return //can return anything
         //todo: add warning to not return something except nothing
       }
