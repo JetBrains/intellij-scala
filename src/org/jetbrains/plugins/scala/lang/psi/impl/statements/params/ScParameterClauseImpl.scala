@@ -38,4 +38,11 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
       def create(count: Int): Array[ScParameter] = new Array[ScParameter](count)
     })
   }
+
+  def isImplicit: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScParamClauseStub].isImplicit
+    } else getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
+  }
 }
