@@ -407,7 +407,7 @@ object ScalaAnnotator {
    */
   def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
                                     allTypes: () => List[(ScType, Set[ImportUsed])] = () => {List[(ScType, Set[ImportUsed])]()}): (Boolean, Set[ImportUsed]) = {
-    for (leftType <- l; rightType <- r) {
+    /*for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
         for (tp: (ScType, Set[ImportUsed]) <- allTypes()) {
           if (Conformance.conforms(leftType, tp._1)) {
@@ -416,7 +416,7 @@ object ScalaAnnotator {
         }
         return (false, Set.empty)
       } else return (true, Set.empty)
-    }
+    }*/
     return (true, Set.empty)
   }
 }
