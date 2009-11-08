@@ -30,23 +30,30 @@ object Conformance {
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = {
     ProgressManager.checkCanceled
 
-    def scalaCompilerIsTheBestCompilerInTheWorld = l match {
+    /*def scalaCompilerIsTheBestCompilerInTheWorld = l match {
       case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)
-    }
+    }*/
 
-    if (l.isInstanceOf[ScTypeParameterType]) return scalaCompilerIsTheBestCompilerInTheWorld
+    //if T is Type Parameter then it's called undefined and for any type U U <: T and T <: U
+    if (l.isInstanceOf[ScTypeParameterType] || r.isInstanceOf[ScTypeParameterType]) return true
+
+    //if (l.isInstanceOf[ScTypeParameterType]) return scalaCompilerIsTheBestCompilerInTheWorld
     if (r == Nothing) true
     else if (l equiv r) true
     else l match {
       case Any => true
       case Nothing => false
       case Null => r == Nothing
+      //if itis class type => it's inherited from AnyRef
       case AnyRef => r match {
         case Null => true
-        case _: ScParameterizedType => true
-        case _: ScDesignatorType => true
-        case _: ScSingletonType => true
-        case _ => false
+        case _: StdType => false
+        case _ => {
+          ScType.extractClassType(r) match {
+            case Some((clazz: PsiClass, _)) => true
+            case _ => false
+          }
+        }
       }
       case Singleton => r match {
         case _: ScSingletonType => true
@@ -62,7 +69,9 @@ object Conformance {
 
       case ScParameterizedType(owner: ScType, args1) => r match { //Parametrized type can have not only designators (projection)
         case ScParameterizedType(owner1, args2) => {
-          if (!(owner equiv owner1)) return false
+          if (!(owner equiv owner1)) {
+            return rightRec(l, r, visited)
+          }
           if (args1.length != args2.length) return false
           ScType.extractDesignated(owner) match {
             case Some((owner: PsiClass, _)) => {
@@ -70,7 +79,9 @@ object Conformance {
                 case (tp, argsPair) => tp match {
                   case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
                   case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
-                  case _ => argsPair._1 match {
+                  //this case filter out such cases like undefined type
+                  case _ => if (!argsPair._1.isInstanceOf[ScTypeParameterType] &&
+                                !argsPair._2.isInstanceOf[ScTypeParameterType]) argsPair._1 match {
                     case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
                     case _ => if (!argsPair._1.equiv(argsPair._2)) return false
                   }
@@ -152,7 +163,7 @@ object Conformance {
       case proj: ScProjectionType => {
         proj.element match {
           case Some(clazz: ScSyntheticClass) => conforms(clazz.t, r, visited + clazz)
-          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(l, t, visited + clazz)}
+          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(t, r, visited + clazz)}
           //todo should this immediate return false?
           case _ => rightRec(l, r, visited)
         }
@@ -162,6 +173,22 @@ object Conformance {
   }
 
   private def rightRec(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = r match {
+    /*
+      this case for checking: val x: T = null
+      This is good if T class type: T <: AnyRef and !(T <: NotNull)
+     */
+    case Null => {
+      if (!conforms(AnyRef, l)) return false
+      ScType.extractClassType(l) match {
+        case Some((cl: PsiClass, _)) => {
+          val notNullClass = JavaPsiFacade.getInstance(cl.getProject).findClass("scala.NotNull")
+          if (notNullClass == null) return false
+          if (cl.isInheritor(notNullClass, true)) return false
+          true
+        }
+        case _ => false
+      }
+    }
     case sin: ScSingletonType => conforms(l, sin.pathType)
 
     case ScDesignatorType(td: ScTypeDefinition) => if (visited.contains(td)) false else td.superTypes.find {t => conforms(l, t, visited + td)}
