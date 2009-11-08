@@ -5,13 +5,13 @@ package stubs
 
 
 import api.base.types.ScSelfTypeElement
-import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.stubs.{NamedStub, StubElement}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 19.06.2009
  */
 
-trait ScSelfTypeElementStub extends StubElement[ScSelfTypeElement]{
+trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement]{
 
 }

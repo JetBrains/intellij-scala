@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import java.lang.String
 
 /** 
 * @author Alexander Podkhalyuzin
