@@ -64,7 +64,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     findChild(classOf[ScExpression])
   }
 
-  def hasAssign: Boolean = {
+  override def hasAssign: Boolean = {
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScFunctionStub].hasAssign

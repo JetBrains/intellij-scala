@@ -24,6 +24,7 @@ import com.intellij.psi._
 import com.intellij.psi.util._
 import icons._
 import lexer._
+import tree.TokenSet
 import types._
 import api.statements._
 import api.statements.params._
@@ -185,5 +186,5 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
   }
 
-
+  def hasAssign = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size > 0
 }

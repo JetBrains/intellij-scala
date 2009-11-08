@@ -132,4 +132,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
     }
   }
+
+  /**
+   * Does the function have `=` between the signature and the implementation?
+   */
+  def hasAssign: Boolean
 }
