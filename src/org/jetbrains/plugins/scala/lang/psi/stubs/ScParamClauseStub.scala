@@ -12,5 +12,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScParamClauseStub  extends StubElement[ScParameterClause]{
-
+  def isImplicit: Boolean
 }

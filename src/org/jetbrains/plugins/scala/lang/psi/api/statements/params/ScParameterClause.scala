@@ -19,6 +19,6 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]
   def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrElse(Any))
-  def isImplicit: Boolean = getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
+  def isImplicit: Boolean
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
 }
