@@ -14,6 +14,8 @@ import base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import icons.Icons
 import types.result.{TypingContext, TypeResult}
+import com.intellij.psi.PsiElement
+import lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -40,5 +42,5 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
     null
   }
 
-
+  def getVarToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAR)
 }

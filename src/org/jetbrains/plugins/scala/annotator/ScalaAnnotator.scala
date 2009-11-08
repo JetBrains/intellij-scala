@@ -84,7 +84,10 @@ class ScalaAnnotator extends Annotator {
         checkTypeParamBounds(sTypeParam, holder)
       }
       case value: ScPatternDefinition => {
-        checkValueDefinitionType(value, holder)
+        checkDefinitionType(value, holder, value.getValToken)
+      }
+      case value: ScVariableDefinition => {
+        checkDefinitionType(value, holder, value.getVarToken)
       }
       case expr: ScExpression if (Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])).exists(_.getNode.getLastChildNode == expr.getNode)) => {
         checkExplicitTypeForReturnExpression(expr, holder)
@@ -95,7 +98,8 @@ class ScalaAnnotator extends Annotator {
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
 
-  private def checkValueDefinitionType(value: ScPatternDefinition, holder: AnnotationHolder): Unit = {
+  private def checkDefinitionType(value: ScalaAnnotator.TypedExpression, holder: AnnotationHolder,
+                                  valOrVarToken: PsiElement): Unit = {
     val valueType = value.typeElement match {
       case Some(te: ScTypeElement) => te.getType(TypingContext.empty)
       case _ => return //nothing good to check
@@ -105,7 +109,7 @@ class ScalaAnnotator extends Annotator {
     if (!conformance._1) {
       import org.jetbrains.plugins.scala.lang.psi.types._
       val error = ScalaBundle.message("expr.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
-      val annotation: Annotation = holder.createErrorAnnotation(value.typeElement.getOrElse(value.getValToken), error)
+      val annotation: Annotation = holder.createErrorAnnotation(value.typeElement.getOrElse(valOrVarToken), error)
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       //todo: add fix to change value return type
     } else {
@@ -390,12 +394,18 @@ class ScalaAnnotator extends Annotator {
 object ScalaAnnotator {
   val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
 
+  // todo Add this as a parent trait to ScPatternDefinition, ScVariableDefinition, (and others?)
+  type TypedExpression = PsiElement {
+    def typeElement: Option[ScTypeElement]
+    def expr: ScExpression
+  }
+
   /**
    * This method will return checked conformance if it's possible to check it.
    * In other way it will return true to avoid red code.
    * Check conformance in case l = r.
    */
-  private def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
+  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
                                     allTypes: () => List[(ScType, Set[ImportUsed])] = () => {List[(ScType, Set[ImportUsed])]()}): (Boolean, Set[ImportUsed]) = {
     for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
