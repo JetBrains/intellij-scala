@@ -18,16 +18,19 @@ import impl.ScParamClauseStubImpl
 
 class ScParamClauseElementType
 extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
-  def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {}
+  def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {
+    dataStream.writeBoolean(stub.isImplicit)
+  }
 
   def indexStub(stub: ScParamClauseStub, sink: IndexSink) {}
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParamClauseStub = {
-    new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val implic = dataStream.readBoolean
+    new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, implic)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]) = {
-    new ScParamClauseStubImpl(parentStub, this)     
+    new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)     
   }
 
   def createPsi(stub: ScParamClauseStub): ScParameterClause = {

@@ -19,6 +19,7 @@ import com.intellij.psi.PsiElement
 class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
         extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
   def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeName(stub.getName)
   }
 
   def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = {
@@ -26,11 +27,12 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScSelfTypeElement, parentStub: StubElement[ParentPsi]): ScSelfTypeElementStub = {
-    new ScSelfTypeElementStubImpl(parentStub, this)
+    new ScSelfTypeElementStubImpl(parentStub, this, psi.name)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScSelfTypeElementStub = {
-    new ScSelfTypeElementStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val name = dataStream.readName
+    new ScSelfTypeElementStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name.toString)
   }
 
   def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {}
