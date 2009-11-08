@@ -9,6 +9,7 @@ import impl.ScalaPsiElementFactory
 import implicits.{ScImplicitlyConvertible}
 import types._
 import types.result.{Success, Failure, TypingContext, TypeResult}
+import toplevel.imports.usages.ImportUsed
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -59,6 +60,16 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     (getType(TypingContext.empty) match {
       case Success(t, _) => t :: getImplicitTypes
       case _ => getImplicitTypes
+    })
+  }
+
+  def allTypesAndImports: List[(ScType, scala.collection.Set[ImportUsed])] = {
+    def implicitTypesAndImports = {
+      (for (t <- getImplicitTypes) yield (t, getImportsForImplicit(t)))
+    }
+    (getType(TypingContext.empty) match {
+      case Success(t, _) => (t, Set[ImportUsed]()) :: implicitTypesAndImports
+      case _ => implicitTypesAndImports
     })
   }
 
