@@ -48,7 +48,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
           override def visitElement(element: PsiElement) = {
             // todo Duplication between these checks and ScalaAnnotator.
-            val imports = element match {
+            /*val imports = element match {
               case ret: ScReturnStmt => {
                 checkExplicitTypeForReturnStatement(ret)
               }
@@ -63,7 +63,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
               case _ => ScalaImportOptimizer.NO_IMPORT_USED
             }
-            usedImports ++= imports
+            usedImports ++= imports*/
             super.visitElement(element)
           }
         })
@@ -193,7 +193,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
   }
 
-  private def checkDefinitionType(value: ScalaAnnotator.TypedExpression): Set[ImportUsed] = {
+  /*private def checkDefinitionType(value: ScalaAnnotator.TypedExpression): Set[ImportUsed] = {
     value.typeElement match {
       case Some(te: ScTypeElement) => {
         val valueType: TypeResult[ScType] = te.getType(TypingContext.empty)
@@ -202,7 +202,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       case _ => ScalaImportOptimizer.NO_IMPORT_USED
     }
-  }
+  }*/
 
 
   def supports(file: PsiFile): Boolean = {
