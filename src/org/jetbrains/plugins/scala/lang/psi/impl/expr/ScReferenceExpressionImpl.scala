@@ -226,7 +226,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
     val inner: ScType = bind match {
     //prevent infinite recursion for recursive method invocation
-      case Some(ScalaResolveResult(f: ScFunction, s))
+      case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) => {
         val result: TypeResult[ScType] = f.declaredType match {
           case s: Success[ScType] => s
@@ -237,9 +237,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => fail
           }
         }
-        new ScFunctionType(s.subst(result.getOrElse(return result)), f.paramTypes.map{
-          s.subst _
-        })
+        if (isMethodCall) new ScFunctionType(s.subst(result.getOrElse(return result)),
+          f.paramTypes.map{s.subst _})
+        else s.subst(result.getOrElse(return result))
       }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
