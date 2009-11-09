@@ -30,208 +30,159 @@ object Conformance {
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = {
     ProgressManager.checkCanceled
 
-    /*def scalaCompilerIsTheBestCompilerInTheWorld = l match {
-      case ScTypeParameterType(_, _, lower, upper, ptp) => conforms(upper.v, r) && conforms(r, lower.v)
-    }*/
-
-    //if T is Type Parameter then it's called undefined and for any type U U <: T and T <: U
-    if (l.isInstanceOf[ScTypeParameterType] || r.isInstanceOf[ScTypeParameterType]) return true
-
-    //if (l.isInstanceOf[ScTypeParameterType]) return scalaCompilerIsTheBestCompilerInTheWorld
-    if (r == Nothing) true
-    else if (l equiv r) true
-    else l match {
-      case Any => true
-      case Nothing => false
-      case Null => r == Nothing
-      //if itis class type => it's inherited from AnyRef
-      case AnyRef => r match {
-        case Null => true
-        case _: StdType => false
-        case _ => {
-          ScType.extractClassType(r) match {
-            case Some((clazz: PsiClass, _)) => true
-            case _ => false
+    (l, r) match {
+      case _ if l equiv r => return true
+      case (Any, _) => return true
+      case (_, Nothing) => return true
+      /*
+        this case for checking: val x: T = null
+        This is good if T class type: T <: AnyRef and !(T <: NotNull)
+       */
+      case (_, Null) => {
+        if (!conforms(AnyRef, l)) return false
+        ScType.extractDesignated(l) match {
+          case Some((el, _)) => {
+            val notNullClass = JavaPsiFacade.getInstance(el.getProject).findClass("scala.NotNull")
+            val notNullType = ScDesignatorType(notNullClass)
+            return !conforms(l, notNullType)
           }
+          case _ => return true
         }
       }
-      case Singleton => r match {
-        case _: ScSingletonType => true
-        case _ => false
-      }
-      case AnyVal => r match {
-        case _: ValType => true
-        case _ => false
-      }
-
-      case ScSkolemizedType(_, _, lower, _) => conforms(lower, r)
-      case ScPolymorphicType(_, _, lower, _) => conforms(lower.v, r) //todo implement me
-
-      case ScParameterizedType(owner: ScType, args1) => r match { //Parametrized type can have not only designators (projection)
-        case ScParameterizedType(owner1, args2) => {
-          if (!(owner equiv owner1)) {
-            return rightRec(l, r, visited)
-          }
-          if (args1.length != args2.length) return false
-          ScType.extractDesignated(owner) match {
-            case Some((owner: PsiClass, _)) => {
-              owner.getTypeParameters.zip(args1 zip args2) forall {
-                case (tp, argsPair) => tp match {
-                  case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
-                  case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
-                  //this case filter out such cases like undefined type
-                  case _ => if (!argsPair._1.isInstanceOf[ScTypeParameterType] &&
-                                !argsPair._2.isInstanceOf[ScTypeParameterType]) argsPair._1 match {
-                    case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
-                    case _ => if (!argsPair._1.equiv(argsPair._2)) return false
-                  }
+      case (tpt: ScTypeParameterType, _) => return true //todo: conforms(tpt.lower.v, r)  it's possible after Undefined type creation
+      case (_, tpt: ScTypeParameterType) => return true //todo: conforms(l, tpt.upper.v)
+      case (Null, _) => return r == Nothing
+      case (AnyRef, _: ValType) => return false
+      case (AnyRef, _) => return true
+      case (Singleton, _: ScSingletonType) => return true
+      case (Singleton, _) => return false
+      case (AnyVal, _: ValType) => return true
+      case (AnyVal, _) => return false
+      case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
+        if owner equiv owner1 => {
+        if (args1.length != args2.length) return false
+        ScType.extractClassType(owner) match {
+          case Some((owner: PsiClass, _)) => {
+            owner.getTypeParameters.zip(args1 zip args2) forall {
+              case (tp, argsPair) => tp match {
+                case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
+                case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
+                //this case filter out such cases like undefined type
+                case _ => if (!argsPair._1.isInstanceOf[ScTypeParameterType] &&
+                              !argsPair._2.isInstanceOf[ScTypeParameterType]) argsPair._1 match {
+                  case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return false
+                  case _ => if (!argsPair._1.equiv(argsPair._2)) return false
                 }
-                true
               }
+              return true
             }
-            case _ => rightRec(l, r, visited)
           }
+          case _ => return false
         }
-        case _ => rightRec(l, r, visited)
       }
-
-      case c@ScCompoundType(comps, decls, types) => comps.forall(_ conforms r) && (ScType.extractClassType(r) match {
-        case Some((clazz, subst)) => {
-          if (!decls.isEmpty || (comps.isEmpty && decls.isEmpty && types.isEmpty)) { //if decls not empty or it's synthetic created
-            val sigs = getSignatureMap(clazz)
-            for ((sig, t) <- c.signatureMap) {
-              sigs.get(sig) match {
-                case None => return false
-                case Some(t1) => if (!subst.subst(t1).conforms(t)) return false
+      case (c@ScCompoundType(comps, decls, types), _) => {
+        return comps.forall(_ conforms r) && (ScType.extractClassType(r) match {
+          case Some((clazz, subst)) => {
+            if (!decls.isEmpty || (comps.isEmpty && decls.isEmpty && types.isEmpty)) { //if decls not empty or it's synthetic created
+              val sigs = getSignatureMap(clazz)
+              for ((sig, t) <- c.signatureMap) {
+                sigs.get(sig) match {
+                  case None => return false
+                  case Some(t1) => if (!subst.subst(t1).conforms(t)) return false
+                }
               }
             }
-          }
-          if (!types.isEmpty) {
-            val hisTypes = TypeDefinitionMembers.getTypes(clazz)
-            for (t <- types) {
-              hisTypes.get(t) match {
-                case None => return false
-                case Some(n) => {
-                  val subst1 = n.substitutor
-                  n.info match {
-                    case ta: ScTypeAlias => {
-                      val s = subst1 followed subst
-                      if (!s.subst(ta.upperBound.getOrElse(Any)).conforms(t.upperBound.getOrElse(Any)) ||
-                              !t.lowerBound.getOrElse(Nothing).conforms(s.subst(ta.lowerBound.getOrElse(Nothing)))) return false
-                    }
-                    case inner: PsiClass => {
-                      val des = ScParameterizedType.create(inner, subst1 followed subst)
-                      if (!subst.subst(des).conforms(t.upperBound.getOrElse(Any)) || !t.lowerBound.getOrElse(Nothing).conforms(des)) return false
+            if (!types.isEmpty) {
+              val hisTypes = TypeDefinitionMembers.getTypes(clazz)
+              for (t <- types) {
+                hisTypes.get(t) match {
+                  case None => false
+                  case Some(n) => {
+                    val subst1 = n.substitutor
+                    n.info match {
+                      case ta: ScTypeAlias => {
+                        val s = subst1 followed subst
+                        if (!s.subst(ta.upperBound.getOrElse(Any)).conforms(t.upperBound.getOrElse(Any)) ||
+                                !t.lowerBound.getOrElse(Nothing).conforms(s.subst(ta.lowerBound.getOrElse(Nothing)))) return false
+                      }
+                      case inner: PsiClass => {
+                        val des = ScParameterizedType.create(inner, subst1 followed subst)
+                        if (!subst.subst(des).conforms(t.upperBound.getOrElse(Any)) || !t.lowerBound.getOrElse(Nothing).conforms(des)) return false
+                      }
                     }
                   }
                 }
               }
             }
+            true
           }
-          true
-        }
-        case None => r match {
-          case c1@ScCompoundType(comps1, _, _) => comps1.forall(c conforms _) && (
-                  c1.signatureMap.forall {
-                    p => {
-                      val s1 = p._1
-                      val rt1 = p._2
-                      c.signatureMap.get(s1) match {
-                        case None => comps.find {
-                          t => ScType.extractClassType(t) match {
-                            case None => false
-                            case Some((clazz, subst)) => {
-                              val classSigs = getSignatureMap(clazz)
-                              classSigs.get(s1) match {
-                                case None => false
-                                case Some(rt) => rt1.conforms(subst.subst(rt))
+          case None => r match {
+            case c1@ScCompoundType(comps1, _, _) => comps1.forall(c conforms _) && (
+                    c1.signatureMap.forall {
+                      p => {
+                        val s1 = p._1
+                        val rt1 = p._2
+                        c.signatureMap.get(s1) match {
+                          case None => comps.find {
+                            t => ScType.extractClassType(t) match {
+                              case None => false
+                              case Some((clazz, subst)) => {
+                                val classSigs = getSignatureMap(clazz)
+                                classSigs.get(s1) match {
+                                  case None => false
+                                  case Some(rt) => rt1.conforms(subst.subst(rt))
+                                }
                               }
                             }
                           }
+                          case Some(rt) => rt1.conforms(rt)
                         }
-                        case Some(rt) => rt1.conforms(rt)
+                        //todo check for refinement's type decls
                       }
-                      //todo check for refinement's type decls
-                    }
-                  })
-          case _ => false
-        }
-      })
+                    })
+            case _ => false
+          }
+        })
+      }
 
-      case ScExistentialArgument(_, params, lower, upper) if params.isEmpty => conforms(upper, r)
-      case ex@ScExistentialType(q, wilds) => conforms(ex.substitutor.subst(q), r)
-      case proj: ScProjectionType => {
+      case (ScSkolemizedType(_, _, lower, _), _) => return conforms(lower, r)
+      case (ScPolymorphicType(_, _, lower, _), _) => return conforms(lower.v, r) //todo implement me
+      case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conforms(upper, r)
+      case (ex@ScExistentialType(q, wilds), _) => return conforms(ex.substitutor.subst(q), r)
+      case (_, s: ScSingletonType) => {
+        ScType.extractClassType(l) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Singleton" => return true
+          case _ => if (conforms(l, s.pathType)) return true
+        }
+      }
+      case (_, ScSkolemizedType(_, _, _, upper)) => return conforms(l, upper)
+      case (_, ScCompoundType(comps, _, _)) => return comps.find(conforms(l, _))
+      case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty => return conforms(l, upper)
+      case (_, ex: ScExistentialType) => return conforms(l, ex.skolem)
+      case (_, proj: ScProjectionType) => {
         proj.element match {
-          case Some(clazz: ScSyntheticClass) => conforms(clazz.t, r, visited + clazz)
-          case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(proj).find {t => conforms(t, r, visited + clazz)}
-          //todo should this immediate return false?
-          case _ => rightRec(l, r, visited)
+          case Some(syntheticClass: ScSyntheticClass) => return conforms(l, syntheticClass.t)
+          case _ =>
         }
       }
-      case _ => rightRec(l, r, visited)
-    }
-  }
-
-  private def rightRec(l: ScType, r: ScType, visited: Set[PsiClass]): Boolean = r match {
-    /*
-      this case for checking: val x: T = null
-      This is good if T class type: T <: AnyRef and !(T <: NotNull)
-     */
-    case Null => {
-      if (!conforms(AnyRef, l)) return false
-      ScType.extractClassType(l) match {
-        case Some((cl: PsiClass, _)) => {
-          val notNullClass = JavaPsiFacade.getInstance(cl.getProject).findClass("scala.NotNull")
-          if (notNullClass == null) return false
-          if (cl.isInheritor(notNullClass, true)) return false
-          true
+      case (_, ScPolymorphicType(_, _, _, upper)) => {
+        val uBound = upper.v
+        ScType.extractClassType(uBound) match {
+          case Some((pc, _)) if visited.contains(pc) => conforms(l, ScDesignatorType(pc), visited + pc)
+          case Some((pc, _)) => conforms(l, uBound, visited + pc)
+          case None => conforms(l, uBound, visited)
         }
-        case _ => false
       }
+      case _ =>
     }
-    case sin: ScSingletonType => conforms(l, sin.pathType)
-
-    case ScDesignatorType(td: ScTypeDefinition) => if (visited.contains(td)) false else td.superTypes.find {t => conforms(l, t, visited + td)}
-    case ScDesignatorType(clazz: PsiClass) =>
-      clazz.getSuperTypes.find {t => conforms(l, ScType.create(t, clazz.getProject), visited + clazz)}
-
-    case projectionType: ScProjectionType => {
-      projectionType.element match {
-        case Some(syntheticClass: ScSyntheticClass) => conforms(l, syntheticClass.t)
-        case Some(clazz: PsiClass) if !visited.contains(clazz) => BaseTypes.get(projectionType).find {t => conforms(l, t, visited + clazz)}
-        case _ => false
+    ScType.extractClassType(r) match {
+      case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return false
+      case Some((clazz: PsiClass, _)) => {
+        return BaseTypes.get(r).find {t => conforms(l, t, visited + clazz)}
       }
+      case _ => return BaseTypes.get(r).find {t => conforms(l, t, visited)}
     }
-
-    case ScPolymorphicType(_, _, _, upper) => {
-      val uBound = upper.v
-      ScType.extractClassType(uBound) match {
-        case Some((pc, _)) if visited.contains(pc) => conforms(l, ScDesignatorType(pc), visited + pc)
-        case Some((pc, _)) => conforms(l, uBound, visited + pc)
-        case None => conforms(l, uBound, visited)
-      }
-    }
-    case ScSkolemizedType(_, _, _, upper) => conforms(l, upper)
-
-    case p: ScParameterizedType => {
-      ScType.extractClassType(p) match {
-        case Some((td: ScTypeDefinition, s)) => {
-          if (!visited.contains(td)) td.superTypes.find {t => conforms(l, s.subst(t), visited + td)} else false
-        }
-        case Some((clazz, s)) => {
-          clazz.getSuperTypes.find {t => conforms(l, s.subst(ScType.create(t, clazz.getProject)), visited + clazz)}
-        }
-        case _ => false
-      }
-    }
-
-    case ScCompoundType(comps, _, _) => comps.find(conforms(l, _))
-
-    case ScExistentialArgument(_, params, _, upper) if params.isEmpty => conforms(l, upper)
-
-    case ex: ScExistentialType => conforms(l, ex.skolem)
-
-    case _ => false //todo
+    return true
   }
 
   def getSignatureMapInner(clazz: PsiClass): HashMap[Signature, ScType] = {

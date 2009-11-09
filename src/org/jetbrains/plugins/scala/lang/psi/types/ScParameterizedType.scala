@@ -26,7 +26,7 @@ import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
-  def designated = ScType.extractDesignated(designator) match {
+  def designated: Option[PsiNamedElement] = ScType.extractDesignated(designator) match {
     case Some((e, _)) => Some(e)
     case _ => None
   }

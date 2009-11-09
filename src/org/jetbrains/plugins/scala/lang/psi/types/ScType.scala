@@ -71,7 +71,7 @@ object ScType {
           tps match {
             case Array() => des
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
-                      ({tp => create(result.getSubstitutor.substitute(tp), project)}).toSeq : _*))
+                      ({tp => ScalaPsiManager.typeVariable(tp)}).toSeq : _*))
           }
         }
         case _ => Nothing

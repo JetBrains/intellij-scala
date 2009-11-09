@@ -53,6 +53,10 @@ class ScalaAnnotator extends Annotator {
       ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
     }
 
+    if (element.isInstanceOf[ScExpression]) {
+      checkExpressionType(element.asInstanceOf[ScExpression], holder)
+    }
+
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -83,40 +87,11 @@ class ScalaAnnotator extends Annotator {
       case sTypeParam: ScTypeBoundsOwner => {
         checkTypeParamBounds(sTypeParam, holder)
       }
-      case value: ScPatternDefinition => {
-        checkDefinitionType(value, holder, value.getValToken)
-      }
-      case value: ScVariableDefinition => {
-        checkDefinitionType(value, holder, value.getVarToken)
-      }
-      case expr: ScExpression if (Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])).exists(_.getNode.getLastChildNode == expr.getNode)) => {
-        checkExplicitTypeForReturnExpression(expr, holder)
-      }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
-
-  private def checkDefinitionType(value: ScalaAnnotator.TypedExpression, holder: AnnotationHolder,
-                                  valOrVarToken: PsiElement): Unit = {
-    val valueType = value.typeElement match {
-      case Some(te: ScTypeElement) => te.getType(TypingContext.empty)
-      case _ => return //nothing good to check
-    }
-    val exprType = value.expr.getType(TypingContext.empty)
-    val conformance: (Boolean, Set[ImportUsed]) = ScalaAnnotator.smartCheckConformance(valueType, exprType, () => {value.expr.allTypesAndImports})
-    if (!conformance._1) {
-      import org.jetbrains.plugins.scala.lang.psi.types._
-      val error = ScalaBundle.message("expr.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
-      val annotation: Annotation = holder.createErrorAnnotation(value.typeElement.getOrElse(valOrVarToken), error)
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-      //todo: add fix to change value return type
-    } else {
-      ImportTracker.getInstance(value.getProject).
-              registerUsedImports(value.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
-    }
-  }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
@@ -273,64 +248,31 @@ class ScalaAnnotator extends Annotator {
     }
   }
 
-  private def checkResultExpression(block: ScBlock, holder: AnnotationHolder) {
-    var last = block.getNode.getLastChildNode
-    while (last != null && (last.getElementType == ScalaTokenTypes.tRBRACE ||
-            (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET contains last.getElementType) ||
-            (ScalaTokenTypes.COMMENTS_TOKEN_SET contains last.getElementType))) last = last.getTreePrev
-    if (last == null || last.getElementType == ScalaTokenTypes.tSEMICOLON) return //last can be null for xml blocks - they can be empty
-
-    val stat = block.lastStatement match {case None => return case Some(x) => x}
-    stat match {
-      case _: ScExpression =>
+  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder) {
+    expr match {
+      case m: ScMatchStmt =>
+      case bl: ScBlock if bl.lastStatement != None =>
+      case i: ScIfStmt if i.elseBranch != None =>
+      case tr: ScTryStmt =>
+      case an: ScFunctionExpr => //todo: remove it if possible
       case _ => {
-        val error = ScalaBundle.message("block.must.end.result.expression")
-        val annotation: Annotation = holder.createErrorAnnotation(
-          new TextRange(stat.getTextRange.getStartOffset, stat.getTextRange.getStartOffset + 3),
-          error)
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-      }
-    }
-  }
-
-  private def checkExplicitTypeForReturnExpression(expr: ScExpression, holder: AnnotationHolder) {
-    def _checkExplicitTypeForReturnExpression(expr: ScExpression) {
-      var fun: ScFunction = PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])
-      fun match {
-        case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
-          return //can return anything
-        }
-        case _ => fun.returnTypeElement match {          
-          case Some(x: ScTypeElement) => {
+        if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
+        val tp = expr.expectedType match {
+          case Some(tp: ScType) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
-            val funType = fun.returnType
-            val exprType: TypeResult[ScType] = expr.getType(TypingContext.empty)
-            val conformance: (Boolean, Set[ImportUsed]) = ScalaAnnotator.smartCheckConformance(funType, exprType, () => expr.allTypesAndImports)
+            val expectedType = Success(tp, None)
+            val exprType = expr.getType(TypingContext.empty)
+            val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType, () => expr.allTypesAndImports)
             if (!conformance._1) {
-              val error = ScalaBundle.message("return.expression.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
+              val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing))) //todo: rewrite
               val annotation: Annotation = holder.createErrorAnnotation(expr, error)
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-              //todo: add fix to change function return type
-            } else {
-              ImportTracker.getInstance(expr.getProject).registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
-              return
-            }
+            } else ImportTracker.getInstance(expr.getProject).
+                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
           }
-          case _ => {
-            return
-          }
+          case _ => //do nothing
         }
       }
-    }
-
-    expr match {
-      case be: ScBlockExpr => {
-        be.lastStatement match {
-          case Some(e: ScExpression) => checkExplicitTypeForReturnExpression(e, holder)
-          case _ => _checkExplicitTypeForReturnExpression(expr)
-        }
-      }
-      case _ => _checkExplicitTypeForReturnExpression(expr) 
     }
   }
 
@@ -394,12 +336,6 @@ class ScalaAnnotator extends Annotator {
 object ScalaAnnotator {
   val usedImportsKey: Key[HashSet[ImportUsed]] = Key.create("used.imports.key")
 
-  // todo Add this as a parent trait to ScPatternDefinition, ScVariableDefinition, (and others?)
-  type TypedExpression = PsiElement {
-    def typeElement: Option[ScTypeElement]
-    def expr: ScExpression
-  }
-
   /**
    * This method will return checked conformance if it's possible to check it.
    * In other way it will return true to avoid red code.
@@ -407,7 +343,7 @@ object ScalaAnnotator {
    */
   def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
                                     allTypes: () => List[(ScType, Set[ImportUsed])] = () => {List[(ScType, Set[ImportUsed])]()}): (Boolean, Set[ImportUsed]) = {
-    /*for (leftType <- l; rightType <- r) {
+    for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
         for (tp: (ScType, Set[ImportUsed]) <- allTypes()) {
           if (Conformance.conforms(leftType, tp._1)) {
@@ -416,7 +352,7 @@ object ScalaAnnotator {
         }
         return (false, Set.empty)
       } else return (true, Set.empty)
-    }*/
+    }
     return (true, Set.empty)
   }
 }
