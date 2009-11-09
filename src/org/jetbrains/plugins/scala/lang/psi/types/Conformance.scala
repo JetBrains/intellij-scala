@@ -34,6 +34,7 @@ object Conformance {
       case _ if l equiv r => return true
       case (Any, _) => return true
       case (_, Nothing) => return true
+      case (Unit, _) => return true
       /*
         this case for checking: val x: T = null
         This is good if T class type: T <: AnyRef and !(T <: NotNull)
@@ -168,9 +169,9 @@ object Conformance {
       case (_, ScPolymorphicType(_, _, _, upper)) => {
         val uBound = upper.v
         ScType.extractClassType(uBound) match {
-          case Some((pc, _)) if visited.contains(pc) => conforms(l, ScDesignatorType(pc), visited + pc)
-          case Some((pc, _)) => conforms(l, uBound, visited + pc)
-          case None => conforms(l, uBound, visited)
+          case Some((pc, _)) if visited.contains(pc) => return conforms(l, ScDesignatorType(pc), visited + pc)
+          case Some((pc, _)) => return conforms(l, uBound, visited + pc)
+          case None => return conforms(l, uBound, visited)
         }
       }
       case _ =>

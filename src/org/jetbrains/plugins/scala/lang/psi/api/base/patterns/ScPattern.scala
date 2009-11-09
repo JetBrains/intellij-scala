@@ -44,8 +44,8 @@ trait ScPattern extends ScalaPsiElement {
 
   def expectedType: Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
-      case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(Any))
-      case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(Any))
+      case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(return None))
+      case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(return None))
     }
     case argList : ScPatternArgumentList => {
       argList.getParent match {
