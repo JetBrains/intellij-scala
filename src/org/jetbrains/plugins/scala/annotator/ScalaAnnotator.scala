@@ -253,8 +253,8 @@ class ScalaAnnotator extends Annotator {
       case m: ScMatchStmt =>
       case bl: ScBlock if bl.lastStatement != None =>
       case i: ScIfStmt if i.elseBranch != None =>
+      case fun: ScFunctionExpr =>
       case tr: ScTryStmt =>
-      case an: ScFunctionExpr => //todo: remove it if possible
       case _ => {
         if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
         val tp = expr.expectedType match {
@@ -264,7 +264,8 @@ class ScalaAnnotator extends Annotator {
             val exprType = expr.getType(TypingContext.empty)
             val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType, () => expr.allTypesAndImports)
             if (!conformance._1) {
-              val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing))) //todo: rewrite
+              val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
+                ScType.presentableText(exprType.getOrElse(Nothing)), ScType.presentableText(expectedType.get))
               val annotation: Annotation = holder.createErrorAnnotation(expr, error)
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             } else ImportTracker.getInstance(expr.getProject).

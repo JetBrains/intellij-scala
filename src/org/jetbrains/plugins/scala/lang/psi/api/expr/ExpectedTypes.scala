@@ -8,14 +8,13 @@ import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
 import toplevel.ScTypedDefinition
-import types.{ScSubstitutor, ScType, ScFunctionType}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import types.result.TypingContext
+import types._
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
 
 /**
  * @author ilyas
@@ -41,6 +40,12 @@ object ExpectedTypes {
           for (tp <- expectedExprTypes(expr)) {
             tp match {
               case ScFunctionType(rt: ScType, _) => res += rt
+              case ScParameterizedType(des, args) => {
+                ScType.extractClassType(des) match {
+                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => res += args(args.length - 1)
+                  case _ =>
+                }
+              }
               case _ =>
             }
           }
@@ -70,7 +75,16 @@ object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => finalize(f)
+      case f: ScFunctionExpr => finalize(f).flatMap(_ match {
+        case ScFunctionType(retType, _) => Array[ScType](retType)
+        case ScParameterizedType(des, args) => {
+          ScType.extractClassType(des) match {
+            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => Array[ScType](args(args.length - 1))
+            case _ => Array[ScType]()
+          }
+        }
+        case _ => Array[ScType]()
+      })
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
