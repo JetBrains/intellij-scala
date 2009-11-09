@@ -66,8 +66,8 @@ object Conformance {
           case Some((owner: PsiClass, _)) => {
             owner.getTypeParameters.zip(args1 zip args2) forall {
               case (tp, argsPair) => tp match {
-                case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._1.conforms(argsPair._2)) return false
-                case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._2.conforms(argsPair._1)) return false
+                case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._1.conforms(argsPair._2)) return false
+                case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._2.conforms(argsPair._1)) return false
                 //this case filter out such cases like undefined type
                 case _ => if (!argsPair._1.isInstanceOf[ScTypeParameterType] &&
                               !argsPair._2.isInstanceOf[ScTypeParameterType]) argsPair._1 match {
@@ -179,7 +179,8 @@ object Conformance {
     ScType.extractClassType(r) match {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return false
       case Some((clazz: PsiClass, _)) => {
-        return BaseTypes.get(r).find {t => conforms(l, t, visited + clazz)}
+        val seq = BaseTypes.get(r)
+        return seq.find {t => conforms(l, t, visited + clazz)}
       }
       case _ => return BaseTypes.get(r).find {t => conforms(l, t, visited)}
     }
