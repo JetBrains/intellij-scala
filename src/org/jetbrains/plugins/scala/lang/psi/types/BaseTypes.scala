@@ -16,13 +16,15 @@ object BaseTypes {
     case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})
     case ScPolymorphicType(_, Nil, _, upper) => get(upper.v)
     case ScSkolemizedType(_, Nil, _, upper) => get(upper)
-    case p : ScParameterizedType => p.designated match {
-      case td : ScTypeDefinition => td.superTypes.map {p.substitutor.subst _}
-      case clazz: PsiClass => {
-        val s = p.substitutor
-        clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}
+    case p : ScParameterizedType => {
+      p.designated match {
+        case Some(td: ScTypeDefinition) => td.superTypes.map {p.substitutor.subst _}
+        case Some(clazz: PsiClass) => {
+          val s = p.substitutor
+          clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}
+        }
+        case None => Seq.empty
       }
-      case _ => Seq.empty
     }
     case sin : ScSingletonType => get(sin.pathType)
     case ScExistentialType(q, wilds) => get(q).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}

@@ -57,7 +57,6 @@ object ExpectedTypes {
       //see SLS[6.16]
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Array(types.Boolean)
       case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
-      case cond: ScIfStmt => Array(types.Unit)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => finalize(tb.getParent.asInstanceOf[ScTryStmt])

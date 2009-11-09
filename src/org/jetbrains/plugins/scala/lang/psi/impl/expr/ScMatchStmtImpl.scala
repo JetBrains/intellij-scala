@@ -7,7 +7,6 @@ package expr
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import types.{Nothing, Bounds, ScType};
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -21,6 +20,6 @@ class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMa
 
   protected override def innerType(ctx: TypingContext) = {
     val branchTypes = getBranches.map(_.getType(ctx))
-    collectFailures(branchTypes, Any)(_.foldLeft(Nothing : ScType)((t, b) => Bounds.lub(t, b)))
+    collectFailures(branchTypes, Nothing)(_.foldLeft(Nothing : ScType)((t, b) => Bounds.lub(t, b)))
   }
 }

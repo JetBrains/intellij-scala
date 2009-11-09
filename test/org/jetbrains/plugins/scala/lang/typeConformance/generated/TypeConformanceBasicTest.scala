@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package typeConformance
+package org.jetbrains.plugins.scala.lang.typeConformance
 package generated
 
 class TypeConformanceBasicTest extends TypeConformanceTestBase {
