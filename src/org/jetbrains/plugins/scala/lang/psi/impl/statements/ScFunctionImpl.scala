@@ -166,12 +166,12 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override def getUseScope: SearchScope = {
     getParent match {
-  case _: ScTemplateBody => super.getUseScope
+      case _: ScTemplateBody => super.getUseScope
       case _ => {
         var el: PsiElement = getParent
         while (el != null && !el.isInstanceOf[ScBlock] && !el.isInstanceOf[ScMember]) el = el.getParent
         if (el != null) new LocalSearchScope(el)
-  else super.getUseScope
+        else super.getUseScope
       }
     }
   }
