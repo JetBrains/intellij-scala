@@ -6,4 +6,4 @@ trait K[T <: H] {
 
 val x: K[_] = new K[Int]
 val a: H = x.get
-//True
+//False
