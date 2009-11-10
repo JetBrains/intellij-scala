@@ -75,6 +75,7 @@ object Conformance {
         return true
       }
       case (ScParameterizedType(owner: ScType, args), _) if (ScType.extractClassType(owner) match {
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == null => false
         case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
         case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
         case _ => false
@@ -89,6 +90,7 @@ object Conformance {
         }
       }
       case (_, ScParameterizedType(owner: ScType, args)) if (ScType.extractClassType(owner) match {
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == null => false
         case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
         case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
         case _ => false
