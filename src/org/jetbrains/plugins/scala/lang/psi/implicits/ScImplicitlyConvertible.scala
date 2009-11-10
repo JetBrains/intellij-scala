@@ -129,14 +129,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     def execute(element: PsiElement, state: ResolveState) = {
 
-      val implicitSubstitutor = new ScSubstitutor {
+      /*val implicitSubstitutor = new ScSubstitutor {
         override protected def substInternal(t: ScType): ScType = {
           t match {
             case tpt: ScTypeParameterType => eType
             case _ => super.substInternal(t)
           }
         }
-      }
+      }*/
 
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
@@ -144,7 +144,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             // Collect implicit conversions only
             if f.hasModifierProperty("implicit") &&
                     f.getParameterList.getParametersCount == 1 => {
-            val sign = new PhysicalSignature(f, implicitSubstitutor)
+            val sign = new PhysicalSignature(f, /*implicitSubstitutor*/ScSubstitutor.empty)
             if (!signatures2ImplicitMethods.contains(sign)) {
               val newFSet = Set((getImports(state), f))
               signatures2ImplicitMethods += ((sign -> newFSet))
