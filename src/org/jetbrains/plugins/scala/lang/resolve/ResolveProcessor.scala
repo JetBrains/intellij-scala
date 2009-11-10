@@ -114,8 +114,10 @@ class MethodResolveProcessor(ref: PsiElement,
           true
         }
         case o: ScObject => {
-          for (m <- o.findMethodsByName("apply", true)) {
-            candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getImports(state))
+          for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
+            val m = sign.method
+            val subst = sign.substitutor
+            candidatesSet += new ScalaResolveResult(m, s.followed(subst).incl(inferMethodTypesArgs(m, s)), getImports(state))
           }
           true
         }
