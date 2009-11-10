@@ -103,7 +103,8 @@ object Conformance {
         }
       }
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
-        if owner equiv owner1 => {
+        if owner.equiv(owner1) || owner.isInstanceOf[ScTypeParameterType] || //todo: replace to undefined type!
+                owner1.isInstanceOf[ScTypeParameterType] => {
         if (args1.length != args2.length) return false
         ScType.extractClassType(owner) match {
           case Some((owner: PsiClass, _)) => {
