@@ -14,6 +14,7 @@ import com.intellij.psi.scope._
 import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
+import api.base.types.ScTypeElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,7 +54,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       case Some(b) => b.getType(TypingContext.empty)
       case _ => Success(Unit, Some(this))
     }
-    case Some(rte) => rte.getType(TypingContext.empty)
+    case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
 
   def body: Option[ScExpression] = {

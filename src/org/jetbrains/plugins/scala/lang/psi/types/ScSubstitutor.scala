@@ -83,6 +83,21 @@ ScSubstitutor(val tvMap: Map[String, ScType],
         new ScTypeAliasType(alias, args, () => substInternal(lower.v), () => substInternal(upper.v))
       }
     }
+    case ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
+      tvMap.get(tpt.name) match {
+        case Some(param: ScParameterizedType) => substInternal(param) //to prevent types like T[A][A]
+        case _ => {
+          val args = typeArgs map {substInternal _}
+          substInternal(tpt) match {
+            case ScTypeConstructorType(_, tcArgs, aliased) => {
+              val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+              s1.subst(aliased.v)
+            }
+            case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
+          }
+        }
+      }
+    }
     case ScParameterizedType (des, typeArgs) => {
       val args = typeArgs map {substInternal _}
       substInternal(des) match {

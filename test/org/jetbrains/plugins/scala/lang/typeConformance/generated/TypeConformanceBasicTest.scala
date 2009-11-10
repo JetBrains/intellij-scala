@@ -8,4 +8,16 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
   def testBasicConformance = doTest
 
   def testBasicNonConformance = doTest
+
+  def testFunctionFalseConformance = doTest
+
+  def testFunctionPlaceholderMatch = doTest
+
+  def testFunctionRightConformance = doTest
+
+  def testNullConformance = doTest
+
+  def testTupleConformance = doTest
+
+  def testTupleRightConformance = doTest
 }

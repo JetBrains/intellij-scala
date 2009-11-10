@@ -69,6 +69,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       //if type parameters ommited, we should to infer them manually, but this is Parameterized Type.
       if (getParent.isInstanceOf[ScParameterizedTypeElement]) return result
       result match {
+        case Success(p: ScParameterizedType, _) => result
         case Success(tp: ScType, _) => {
           ScType.extractClassType(tp) match {
             case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
