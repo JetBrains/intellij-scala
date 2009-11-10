@@ -7,7 +7,17 @@ class TypeConformanceGenericTest extends TypeConformanceTestBase {
 
   def testArrayFilter = doTest
 
+  def testArrayToSeq = doTest
+
+  def testGenericPlaceholder = doTest
+
   def testNothing1 = doTest
+
+  def testOmmitedGenerics = doTest
+
+  def testSeqApply = doTest
+
+  def testSeqEmpty = doTest
 
   def testTypeBounds = doTest
 
