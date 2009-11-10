@@ -109,8 +109,8 @@ class MethodResolveProcessor(ref: PsiElement,
           candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getImports(state))
           true
         }
-        case cc: ScClass if (cc.isCase) => {
-          candidatesSet += new ScalaResolveResult(cc, s, getImports(state)) //todo add all constructors
+        case cc: ScClass if cc.isCase => {
+          candidatesSet += new ScalaResolveResult(cc, s, getImports(state)) //todo add local type inference
           true
         }
         case o: ScObject => {
