@@ -59,6 +59,49 @@ object Conformance {
       case (Singleton, _) => return false
       case (AnyVal, _: ValType) => return true
       case (AnyVal, _) => return false
+      case (ScTupleType(comps1: Seq[ScType]), ScTupleType(comps2: Seq[ScType])) => {
+        if (comps1.length != comps2.length) return false
+        for ((comp1, comp2) <- comps1.zip(comps2)) {
+          if (!comp2.conforms(comp1)) return false
+        }
+        return true
+      }
+      case (ScFunctionType(retType1, params1), ScFunctionType(retType2, params2)) => {
+        if (params1.length != params1.length) return false
+        if (!retType2.conforms(retType1)) return false
+        for ((param1, param2) <- params1.zip(params2)) {
+          if (!param1.conforms(param2)) return false
+        }
+        return true
+      }
+      case (ScParameterizedType(owner: ScType, args), _) if (ScType.extractClassType(owner) match {
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+        case _ => false
+      }) => {
+        ScType.extractClassType(owner) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
+            return conforms(ScTupleType(args), r, visited)
+          }
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            return conforms(ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), r, visited)
+          }
+        }
+      }
+      case (_, ScParameterizedType(owner: ScType, args)) if (ScType.extractClassType(owner) match {
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
+        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+        case _ => false
+      }) => {
+        ScType.extractClassType(owner) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
+            return conforms(l, ScTupleType(args), visited)
+          }
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            return conforms(l, ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), visited)
+          }
+        }
+      }
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
         if owner equiv owner1 => {
         if (args1.length != args2.length) return false
