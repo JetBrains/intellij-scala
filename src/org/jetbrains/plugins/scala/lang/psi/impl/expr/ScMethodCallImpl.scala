@@ -85,10 +85,17 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         case x => x.getOrElse(return x)
       }
+      def isOneMoreCall(elem: PsiElement): Boolean = {
+        elem.getParent match {
+          case _: ScMethodCall => true
+          case _: ScUnderscoreSection => true
+          case _: ScParenthesisedExpr => isOneMoreCall(elem.getParent)
+          case _ => false
+        }
+      }
       //conversion for implicit clause
       res match {
-        case tp: ScFunctionType if tp.isImplicit && !(getParent.isInstanceOf[ScMethodCall] ||
-                getParent.isInstanceOf[ScUnderscoreSection]) => tp.returnType
+        case tp: ScFunctionType if tp.isImplicit && !isOneMoreCall(this) => tp.returnType
         case tp => tp
       }
     }
