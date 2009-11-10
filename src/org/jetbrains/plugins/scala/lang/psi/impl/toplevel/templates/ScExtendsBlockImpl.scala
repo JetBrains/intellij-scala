@@ -87,7 +87,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
           }
         }
       }
-      case Some(parents) => {
+      case Some(parents: ScTemplateParents) => {
         parents.superTypes foreach {t => addType(t)}//typeElements foreach {typeElement => addType(typeElement.cachedType)}
       }
     }

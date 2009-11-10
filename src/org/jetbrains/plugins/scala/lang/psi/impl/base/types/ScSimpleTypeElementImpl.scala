@@ -31,7 +31,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  protected def innerType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
     val result: TypeResult[ScType] = wrap(reference) flatMap {
@@ -66,7 +66,21 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     if (result.isEmpty && singleton) {
       Success(ScSingletonType(pathElement), Some(this))
     } else {
-      result
+      //if type parameters ommited, we should to infer them manually, but this is Parameterized Type.
+      if (getParent.isInstanceOf[ScParameterizedTypeElement]) return result
+      result match {
+        case Success(tp: ScType, _) => {
+          ScType.extractClassType(tp) match {
+            case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
+              val tps = clazz.getTypeParameters
+              if (tps.length > 0) lift(ScParameterizedType(tp, tps.map(new ScTypeParameterType(_, subst))))
+              else result
+            }
+            case _ => result
+          }
+        }
+        case _ => result
+      }
     }
   }
 }
