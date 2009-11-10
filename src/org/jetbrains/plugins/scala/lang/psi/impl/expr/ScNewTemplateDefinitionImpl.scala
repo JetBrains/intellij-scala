@@ -39,7 +39,7 @@ class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
       new Success(ScCompoundType(superTypes, holders.toList, aliases.toList), Some(this))
     } else superTypes.headOption match {
       case s@Some(t) => Success(t, Some(this))
-      case None => Failure("Cannot infre type", Some(this))
+      case None => Failure("Cannot infer type", Some(this))
     }
   }
 
