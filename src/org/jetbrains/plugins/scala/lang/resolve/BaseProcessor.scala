@@ -157,7 +157,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   protected def getSubst(state: ResolveState) = {
-    val subst = state.get(ScSubstitutor.key)
+    val subst: ScSubstitutor = state.get(ScSubstitutor.key)
     if (subst == null) ScSubstitutor.empty else subst
   }
 

@@ -6,10 +6,10 @@ package toplevel
 package typedef
 
 import statements._
-import types.{ScType, ScSubstitutor}
 import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
+import types.{PhysicalSignature, Signature, ScType, ScSubstitutor}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -29,6 +29,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def getQualifiedNameForDebugger: String
 
   def functionsByName(name: String): Iterable[PsiMethod]
+  
+  def signaturesByName(name: String): Iterable[PhysicalSignature]
 
   def isPackageObject = false
 }

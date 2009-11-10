@@ -45,6 +45,7 @@ import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
 import result.{Success, TypingContext}
 import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
+import collection.Iterable
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -276,6 +277,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   def functionsByName(name: String) =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
 
+  def signaturesByName(name: String): Iterable[PhysicalSignature] =
+    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
+      new PhysicalSignature(n.info.method, n.info.substitutor)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
