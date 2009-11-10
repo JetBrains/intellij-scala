@@ -44,8 +44,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               lift(new ScTypeConstructorType(aliasDef, s))
             }
           }
+          case ScalaResolveResult(synth: ScSyntheticClass, _) => lift(synth.t)
           case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
-        }//Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+        }
         case None => wrap(ref.bind) flatMap {
           case ScalaResolveResult(e, s) => e match {
             case aliasDef: ScTypeAliasDefinition =>
