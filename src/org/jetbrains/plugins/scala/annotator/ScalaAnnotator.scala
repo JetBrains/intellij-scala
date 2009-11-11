@@ -304,7 +304,8 @@ class ScalaAnnotator extends Annotator {
             }
           })
           if (!conformance._1) {
-            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)))
+            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)),
+              ScType.presentableText(funType.getOrElse(Nothing)))
             val annotation: Annotation = holder.createErrorAnnotation(ret, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             //todo: add fix to change function return type
