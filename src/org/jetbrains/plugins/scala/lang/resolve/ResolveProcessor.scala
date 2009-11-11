@@ -6,7 +6,7 @@ import collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
-import psi.api.statements.params.ScParameter
+import params.{ScTypeParam, ScParameter}
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.scope._
@@ -68,7 +68,7 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], overrid
   }
 }
 
-class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
+class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String, typeArgElements: Seq[ScTypeElement])
         extends ResolveProcessor(kinds, name) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -78,14 +78,38 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String)
       }
       named match {
         case fd: ScFunctionDefinition if onlyImplicitParam(fd) => {
-          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state));
+          val s = getSubst(state)
+          candidatesSet += new ScalaResolveResult(named, s.followed(inferMethodTypesArgs(fd, s)), getImports(state));
           false
         }
         case m: PsiMethod if m.getParameterList.getParametersCount > 0 => true
         case fun: ScFun if fun.paramTypes.length > 0 => true
+        case m: PsiMethod => {
+          val s = getSubst(state)
+          new ScalaResolveResult(m, s.followed(inferMethodTypesArgs(m, s)), getImports(state))
+          false
+        }
         case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state)); false //todo
       }
     } else true
+  }
+
+  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
+    if (typeArgElements.length != 0)
+    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty) {
+      (subst, pair) =>
+              val scType = pair._1
+              val typeParameter = pair._2
+              subst.bindT(typeParameter.getName, scType)
+    }
+    else {
+      m.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+        (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+          case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, classSubst)
+          case tp: PsiTypeParameter => new ScTypeParameterType(tp, classSubst)
+        }))
+      }
+    }
   }
 }
 
@@ -106,7 +130,7 @@ class MethodResolveProcessor(ref: PsiElement,
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
-          candidatesSet += new ScalaResolveResult(m, s.incl(inferMethodTypesArgs(m, s)), getImports(state))
+          candidatesSet += new ScalaResolveResult(m, s.followed(inferMethodTypesArgs(m, s)), getImports(state))
           true
         }
         case cc: ScClass if cc.isCase => {
@@ -117,7 +141,7 @@ class MethodResolveProcessor(ref: PsiElement,
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, s.followed(subst).incl(inferMethodTypesArgs(m, s)), getImports(state))
+            candidatesSet += new ScalaResolveResult(m, s.followed(subst).followed(inferMethodTypesArgs(m, s)), getImports(state))
           }
           true
         }
@@ -129,7 +153,7 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    val applicable = candidatesSet.filter {
+    val applicable = candidatesSet.filter({
       (c: ScalaResolveResult) => {
         val substitutor: ScSubstitutor = c.substitutor
         c.element match {
@@ -179,7 +203,7 @@ class MethodResolveProcessor(ref: PsiElement,
           }
 */        }
       }
-    }
+    })
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
@@ -200,11 +224,20 @@ class MethodResolveProcessor(ref: PsiElement,
    Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
   def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
-    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty){
+    if (typeArgElements.length != 0)
+    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty) {
       (subst, pair) =>
               val scType = pair._1
               val typeParameter = pair._2
               subst.bindT(typeParameter.getName, scType)
+    }
+    else {
+      m.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+        (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+          case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, classSubst)
+          case tp: PsiTypeParameter => new ScTypeParameterType(tp, classSubst)
+        }))
+      }
     }
   }
 

@@ -120,7 +120,7 @@ extends ScPolymorphicType(name, args, lower, upper) {
       new Suspension[ScType]({() => s.subst(tp.upperBound.getOrElse(Any))}),
       tp)
 
-  def this(ptp: PsiTypeParameter, s: ScSubstitutor) = 
+  def this(ptp: PsiTypeParameter, s: ScSubstitutor) =
     this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
       new Suspension[ScType]({() =>
               s.subst(
@@ -142,6 +142,12 @@ extends ScPolymorphicType(name, args, lower, upper) {
       })
     case _ => false
   }
+}
+
+case class ScUndefinedType(val tpt: ScTypeParameterType) extends ScType {
+  override def equiv(t: ScType): Boolean = t.equiv(tpt)
+
+  def isValue: Boolean = false
 }
 
 private[types] object CyclicHelper {
