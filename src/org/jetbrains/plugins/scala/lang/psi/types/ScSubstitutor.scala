@@ -22,8 +22,7 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class
-ScSubstitutor(val tvMap: Map[String, ScType],
+class ScSubstitutor(val tvMap: Map[String, ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) {
   def this() = this (Map.empty, Map.empty, Map.empty)
@@ -58,6 +57,10 @@ ScSubstitutor(val tvMap: Map[String, ScType],
 
     case tpt : ScTypeParameterType => tvMap.get(tpt.name) match {
       case None => tpt
+      case Some(v) => v
+    }
+    case u: ScUndefinedType => tvMap.get(u.tpt.name) match {
+      case None => u
       case Some(v) => v
     }
     case tv : ScTypeVariable => tvMap.get(tv.name) match {
@@ -98,6 +101,21 @@ ScSubstitutor(val tvMap: Map[String, ScType],
         }
       }
     }
+    case ScParameterizedType(u: ScUndefinedType, typeArgs) => {
+      tvMap.get(u.tpt.name) match {
+        case Some(param: ScParameterizedType) => substInternal(param) //to prevent types like T[A][A]
+        case _ => {
+          val args = typeArgs map {substInternal _}
+          substInternal(u) match {
+            case ScTypeConstructorType(_, tcArgs, aliased) => {
+              val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+              s1.subst(aliased.v)
+            }
+            case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
+          }
+        }
+      }
+    }
     case ScParameterizedType (des, typeArgs) => {
       val args = typeArgs map {substInternal _}
       substInternal(des) match {
@@ -116,5 +134,60 @@ ScSubstitutor(val tvMap: Map[String, ScType],
       new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap, follower).substInternal(q), wildcards)
     }
     case _ => t
+  }
+}
+
+class ScUndefinedSubstitutor(val upperMap: Map[String, Seq[ScType]], val lowerMap: Map[String, ScType]) {
+  def this() = this(HashMap.empty, HashMap.empty)
+
+  //todo: this is can be rewritten in more fast way
+  def addSubst(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
+    var res: ScUndefinedSubstitutor = this
+    for ((name, seq) <- subst.upperMap) {
+      for (upper <- seq) {
+        res = res.addUpper(name, upper)
+      }
+    }
+    for ((name, lower) <- subst.lowerMap) {
+      res = res.addLower(name, lower)
+    }
+
+    return res
+  }
+
+  def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
+
+  def addLower(name: String, lower: ScType): ScUndefinedSubstitutor = {
+    lowerMap.get(name) match {
+      case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.update(name, Bounds.lub(lower, tp)))
+      case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, lower))
+    }
+  }
+
+  def addUpper(name: String, upper: ScType): ScUndefinedSubstitutor = {
+    upperMap.get(name) match {
+      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.update(name, Seq(upper) ++ seq), lowerMap)
+      case None => new ScUndefinedSubstitutor(upperMap + Tuple(name, Seq(upper)), lowerMap)
+    }
+  }
+  
+  def getSubstitutor: Option[ScSubstitutor] = {
+    import collection.mutable.HashMap
+    val tvMap = new HashMap[String, ScType]
+    for (tuple <- lowerMap) {
+      tvMap += tuple
+    }
+    for ((name, seq) <- upperMap) {
+      tvMap.get(name) match {
+        case Some(lower: ScType) => {
+          for (upper <- seq) {
+            if (!lower.conforms(upper)) return None
+          }
+        }
+        case None => tvMap += Tuple(name, Nothing)
+      }
+    }
+    Some(new ScSubstitutor(collection.immutable.HashMap.empty[String, ScType] ++ tvMap,
+      collection.immutable.HashMap.empty, collection.immutable.HashMap.empty))
   }
 }

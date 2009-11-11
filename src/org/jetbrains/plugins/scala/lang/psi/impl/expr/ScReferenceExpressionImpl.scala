@@ -124,7 +124,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case pref: ScPrefixExpr if ref == pref.operation =>
           new MethodResolveProcessor(ref, ref.refName, Nil, Nil, expectedType)
 
-        case _ => new RefExprResolveProcessor(getKinds(incomplete), refName)
+        case _ => new RefExprResolveProcessor(getKinds(incomplete), refName, typeArgs)
       }
 
       val res = _resolve(ref, defineProcessor(ref, Nil))

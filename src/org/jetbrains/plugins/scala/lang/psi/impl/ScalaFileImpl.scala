@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import scala.util.control.Breaks._
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.vfs.VirtualFile
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -48,6 +49,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def sourceName = if (isCompiled) sourceFileName else ""
+
+  override def getVirtualFile: VirtualFile = {
+    if (virtualFile != null) virtualFile
+    else super.getVirtualFile
+  }
 
   override def getNavigationElement: PsiElement = {
     if (!isCompiled) this
