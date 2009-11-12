@@ -100,7 +100,11 @@ public abstract class FileSetTestCase extends TestSuite {
 
     protected void tearDown() throws Exception {
       FileSetTestCase.this.tearDown();
-      super.tearDown();
+      try {
+        super.tearDown();
+      }
+      catch (IllegalArgumentException ignore) {
+      }
     }
 
     protected void runTest() throws Throwable {
