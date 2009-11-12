@@ -37,7 +37,22 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   /**
-   * Get all imports used to obtain implicit conversions for given type
+   * returns class which contains function for implicit conversion to type t.
+   */
+  def getClazzForType(t: ScType): Option[PsiClass] = {
+    implicitMap.get(t) match {
+      case Some(set: Set[(ScFunctionDefinition, Set[ImportUsed])]) => return {
+        set.toSeq.apply(0)._1.getContainingClass match {
+          case null => None
+          case x => Some(x)
+        }
+      }
+      case None => None
+    }
+  }
+
+  /**
+   *  Get all imports used to obtain implicit conversions for given type
    */
   def getImportsForImplicit(t: ScType): Set[ImportUsed] = implicitMap.get(t).map(s => s.flatMap(p => p._2.toList)) match {
     case Some(s) => s
@@ -150,7 +165,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             // Collect implicit conversions only
             if f.hasModifierProperty("implicit") &&
                     f.getParameterList.getParametersCount == 1 => {
-            val sign = new PhysicalSignature(f, subst.followed(inferMethodTypesArgs(f, subst)))
+            val sign = new PhysicalSignature(f, inferMethodTypesArgs(f, subst).followed(subst))
             if (!signatures2ImplicitMethods.contains(f)) {
               val newFSet = Set((getImports(state), f))
               signatures2ImplicitMethods += ((f -> newFSet))
@@ -187,5 +202,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 }
 
 object ScImplicitlyConvertible {
+  val IMPLICIT_RESOLUTION_KEY: Key[PsiClass] = Key.create("implicit.resolution.key")
   val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
 }

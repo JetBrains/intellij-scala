@@ -16,7 +16,8 @@ object ScalaResolveResult {
 class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
                          val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
-                         val nameShadow: Option[String] = None) extends ResolveResult {
+                         val nameShadow: Option[String] = None,
+                         val implicitConversionClass: Option[PsiClass] = None) extends ResolveResult {
 
   def getElement() = element
 

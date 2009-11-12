@@ -62,14 +62,6 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def superTypes: List[ScType] = {
-    CachesUtil.get(
-      this, CachesUtil.SUPER_TYPES_KEY,
-      new CachesUtil.MyProvider(this, {eb: ScExtendsBlockImpl => eb.superTypesInner})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-    )
-  }
-
-  private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType): Unit = t match {
       case ScCompoundType(comps, _, _) => comps.foreach{addType _}

@@ -18,10 +18,11 @@ import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
-import psi.api.expr.ScExpression
 import psi.api.base.types.ScTypeElement
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import result.TypingContext
+import psi.implicits.ScImplicitlyConvertible
+import psi.api.expr.{ScMethodCall, ScGenericCall, ScExpression}
+import result.{Success, TypingContext}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -79,17 +80,20 @@ class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String, ty
       named match {
         case fd: ScFunctionDefinition if onlyImplicitParam(fd) => {
           val s = getSubst(state)
-          candidatesSet += new ScalaResolveResult(named, s.followed(inferMethodTypesArgs(fd, s)), getImports(state));
+          candidatesSet += new ScalaResolveResult(named, inferMethodTypesArgs(fd, s).followed(s), getImports(state));
           false
         }
         case m: PsiMethod if m.getParameterList.getParametersCount > 0 => true
         case fun: ScFun if fun.paramTypes.length > 0 => true
         case m: PsiMethod => {
           val s = getSubst(state)
-          new ScalaResolveResult(m, s.followed(inferMethodTypesArgs(m, s)), getImports(state))
+          candidatesSet += new ScalaResolveResult(m, inferMethodTypesArgs(m, s).followed(s), getImports(state))
           false
         }
-        case _ => candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state)); false //todo
+        case _ => {
+          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+          false //todo
+        }
       }
     } else true
   }
@@ -118,7 +122,9 @@ class MethodResolveProcessor(ref: PsiElement,
                              argumentClauses: List[Seq[ScExpression]],
                              typeArgElements: Seq[ScTypeElement],
                              expected: Option[ScType],
-                             section : Boolean = false) extends ResolveProcessor(StdKinds.methodRef, refName) {
+                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
+                             noParentheses: Boolean = false,
+                             section : Boolean = false) extends ResolveProcessor(kinds, refName) {
 
   // Return RAW types to not cycle while evaluating Parameter expected type
   // i.e. for functions return the most common type (Any, ..., Any) => Nothing
@@ -126,27 +132,35 @@ class MethodResolveProcessor(ref: PsiElement,
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
+    val implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY) match {
+      case null => None
+      case x => Some(x)
+    }
     if (nameAndKindMatch(named, state)) {
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
-          candidatesSet += new ScalaResolveResult(m, s.followed(inferMethodTypesArgs(m, s)), getImports(state))
+          val subst = inferMethodTypesArgs(m, s)
+          candidatesSet += new ScalaResolveResult(m, subst.followed(s), getImports(state), None, implicitConversionClass)
           true
         }
         case cc: ScClass if cc.isCase => {
-          candidatesSet += new ScalaResolveResult(cc, s, getImports(state)) //todo add local type inference
+          candidatesSet += new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass) //todo add local type inference
           true
         }
-        case o: ScObject => {
+        case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, s.followed(subst).followed(inferMethodTypesArgs(m, s)), getImports(state))
+            candidatesSet += new ScalaResolveResult(m, inferMethodTypesArgs(m, s).followed(s.followed(subst)),
+              getImports(state), None, implicitConversionClass)
           }
           true
         }
-        case _ => candidatesSet += new ScalaResolveResult(named, s, getImports(state));
-        true
+        case _ => {
+          candidatesSet += new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass)
+          true
+        }
       }
     }
     return true
@@ -159,15 +173,18 @@ class MethodResolveProcessor(ref: PsiElement,
         c.element match {
           case synthetic: ScSyntheticFunction if typeArgElements.length == 0 ||
                   typeArgElements.length == synthetic.typeParameters.length => {
-            Compatibility.compatible(synthetic, substitutor, argumentClauses)
+            Compatibility.compatible(synthetic, substitutor, argumentClauses)._1
           }
+          case function: ScFunction if noParentheses && (typeArgElements.length == 0 ||
+                  typeArgElements.length == function.typeParameters.length) &&
+                  function.paramClauses.clauses.length == 1 && function.paramClauses.clauses.apply(0).isImplicit => true
           case function: ScFunction if typeArgElements.length == 0 ||
                   typeArgElements.length == function.typeParameters.length => {
-            Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)
+            Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._1
           }
           case method: PsiMethod if typeArgElements.length == 0 ||
                   method.getTypeParameters.length == typeArgElements.length => {
-            Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)
+            Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._1
           }
           case _ =>  false /*{ //todo: for types you can use named parameters too
             val t = getType(c.element)
@@ -203,13 +220,68 @@ class MethodResolveProcessor(ref: PsiElement,
           }
 */        }
       }
+    }).map((c: ScalaResolveResult) => {
+      val substitutor: ScSubstitutor = c.substitutor
+      c.element match {
+        case synthetic: ScSyntheticFunction => {
+          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses)._2.getSubstitutor
+          s match {
+            case Some(s) => new ScalaResolveResult(synthetic, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case None => c
+          }
+        }
+        case function: ScFunction => {
+          var s = if (noParentheses && function.paramClauses.clauses.length == 1 &&
+                  function.paramClauses.clauses.apply(0).isImplicit) new ScUndefinedSubstitutor
+          else Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._2
+          for (tParam <- function.typeParameters) { //todo: think about view type bound
+            s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
+            s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
+          }
+          (function.returnType, expected) match {
+            case (Success(tp: ScType, _), Some(expected: ScType)) => {
+              val rt = substitutor.subst(tp)
+              if (rt.conforms(expected)) {
+                val s2 = Conformance.undefinedSubst(expected, rt)
+                s += s2
+              }
+            }
+            case _ =>
+          }
+          s.getSubstitutor match {
+            case Some(s) => new ScalaResolveResult(function, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case None => c
+          }
+        }
+        case method: PsiMethod => {
+          var s = Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._2
+          for (tParam <- method.getTypeParameters) {
+            s = s.addLower(tParam.getName, Nothing) //todo:
+            s = s.addUpper(tParam.getName, Any) //todo:
+          }
+          (method.getReturnType, expected) match {
+            case (pType: PsiType, Some(expected: ScType)) => {
+              val rt = substitutor.subst(ScType.create(pType, ref.getProject))
+              if (rt.conforms(expected)) {
+                val s2 = Conformance.undefinedSubst(expected, rt)
+                s += s2
+              }
+            }
+            case _ =>
+          }
+          s.getSubstitutor match {
+            case Some(s) => new ScalaResolveResult(method, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case None => c
+          }
+        }
+      }
     })
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
       def existsBetter(r: ScalaResolveResult): Boolean = {
         for (r1 <- applicable if r != r1) {
-          if (isMoreSpecific(r1.element, r.element)) return true
+          if (isMoreSpecific(r1.element, r.element, r1.implicitConversionClass, r.implicitConversionClass)) return true
         }
         false
       }
@@ -241,7 +313,13 @@ class MethodResolveProcessor(ref: PsiElement,
     }
   }
 
-  def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement) = {
+  def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement, t1: Option[PsiClass], t2: Option[PsiClass]): Boolean = {
+    (t1, t2) match {
+      case (Some(t1), Some(t2)) => {
+        if (t1.isInheritor(t2, true)) return true
+      }
+      case _ =>
+    }
     (e1, e2, getType(e1), getType(e2)) match {
       case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
         if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
