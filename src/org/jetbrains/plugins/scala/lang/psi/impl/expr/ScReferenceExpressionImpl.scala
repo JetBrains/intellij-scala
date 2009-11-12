@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.{PsiElement}
 import api.base.types.ScTypeElement
+import implicits.ScImplicitlyConvertible
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -124,7 +125,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case pref: ScPrefixExpr if ref == pref.operation =>
           new MethodResolveProcessor(ref, ref.refName, Nil, Nil, expectedType)
 
-        case _ => new RefExprResolveProcessor(getKinds(incomplete), refName, typeArgs)
+        case _ => new MethodResolveProcessor(ref, ref.refName, Nil, typeArgs, expectedType, getKinds(incomplete), true)
       }
 
       val res = _resolve(ref, defineProcessor(ref, Nil))
@@ -141,7 +142,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         for (t <- e.getImplicitTypes) {
           ProgressManager.checkCanceled
           val importsUsed = e.getImportsForImplicit(t)
-          processor.processType(t, e, ResolveState.initial.put(ImportUsed.key, importsUsed))
+          var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+          e.getClazzForType(t) match {
+            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+            case _ =>
+          }
+          processor.processType(t, e, state)
         }
       }
     }

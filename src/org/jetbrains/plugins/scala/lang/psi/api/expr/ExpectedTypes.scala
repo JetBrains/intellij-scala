@@ -12,9 +12,11 @@ import impl.toplevel.synthetic.ScSyntheticFunction
 import resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
-import types.result.TypingContext
 import types._
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
+import com.intellij.psi.util.PsiTreeUtil
+import base.types.ScTypeElement
+import result.{Success, TypingContext}
 
 /**
  * @author ilyas
@@ -141,6 +143,19 @@ object ExpectedTypes {
         param.typeElement match {
           case Some(_) => Array(param.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
+        }
+      }
+      case ret: ScReturnStmt => {
+        val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
+        if (fun == null) return Array.empty
+        fun.returnTypeElement match {
+          case Some(rte: ScTypeElement) => {
+            fun.returnType match {
+              case Success(rt: ScType, _) => return Array(rt)
+              case _ => Array.empty
+            }
+          }
+          case None => return Array.empty
         }
       }
       case args: ScArgumentExprList => {

@@ -35,8 +35,8 @@ object Conformance {
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
     (l, r) match {
-      case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addUpper(u.tpt.name, tp))
-      case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addLower(u.tpt.name, tp))
+      case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower(u.tpt.name, tp))
+      case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper(u.tpt.name, tp))
       case _ if l equiv r => return (true, undefinedSubst)
       case (Any, _) => return (true, undefinedSubst)
       case (_, Nothing) => return (true, undefinedSubst)
@@ -116,21 +116,47 @@ object Conformance {
           }
         }
       }
+      case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
+        return (true, undefinedSubst.addLower(owner.tpt.name, r))
+      }
+      case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScUndefinedType, args2)) => {
+        return (true, undefinedSubst.addUpper(owner1.tpt.name, l))
+      }
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
-        if owner.equiv(owner1) || owner.isInstanceOf[ScUndefinedType] ||
-                owner1.isInstanceOf[ScUndefinedType] => {
+        if owner.equiv(owner1) => {
         if (args1.length != args2.length) return (false, undefinedSubst)
         ScType.extractClassType(owner) match {
           case Some((owner: PsiClass, _)) => {
             owner.getTypeParameters.zip(args1 zip args2) forall {
               case (tp, argsPair) => tp match {
-                case scp: ScTypeParam if (scp.isContravariant) => if (!argsPair._1.conforms(argsPair._2)) return (false, undefinedSubst)
-                case scp: ScTypeParam if (scp.isCovariant) => if (!argsPair._2.conforms(argsPair._1)) return (false, undefinedSubst)
+                case scp: ScTypeParam if (scp.isContravariant) => {
+                  val y = Conformance.conforms(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
+                  if (!y._1) return (false, undefinedSubst)
+                  else undefinedSubst = y._2
+                }
+                case scp: ScTypeParam if (scp.isCovariant) => {
+                  val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                  if (!y._1) return (false, undefinedSubst)
+                  else undefinedSubst = y._2
+                }
                 //this case filter out such cases like undefined type
-                case _ => if (!argsPair._1.isInstanceOf[ScUndefinedType] &&
-                              !argsPair._2.isInstanceOf[ScUndefinedType]) argsPair._1 match {
-                  case _: ScExistentialArgument => if (!argsPair._2.conforms(argsPair._1)) return (false, undefinedSubst)
-                  case _ => if (!argsPair._1.equiv(argsPair._2)) return (false, undefinedSubst)
+                case _ => {
+                  argsPair match {
+                    case (u: ScUndefinedType, rt) => {
+                      undefinedSubst = undefinedSubst.addLower(u.tpt.name, rt)
+                      undefinedSubst = undefinedSubst.addUpper(u.tpt.name, rt)
+                    }
+                    case (lt, u: ScUndefinedType) => {
+                      undefinedSubst = undefinedSubst.addLower(u.tpt.name, lt)
+                      undefinedSubst = undefinedSubst.addUpper(u.tpt.name, lt)
+                    }
+                    case (_: ScExistentialArgument, _) => {
+                      val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                      if (!y._1) return (false, undefinedSubst)
+                      else undefinedSubst = y._2
+                    }
+                    case _ => if (!argsPair._1.equiv(argsPair._2)) return (false, undefinedSubst)
+                  }
                 }
               }
               return (true, undefinedSubst)
