@@ -8,7 +8,6 @@ import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import params.{ScTypeParam, ScParameter}
 import psi.api.toplevel.typedef.{ScClass, ScObject}
-import psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,6 +23,7 @@ import psi.implicits.ScImplicitlyConvertible
 import psi.api.expr.{ScMethodCall, ScGenericCall, ScExpression}
 import result.{Success, TypingContext}
 import scala._
+import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -147,7 +147,7 @@ class MethodResolveProcessor(ref: PsiElement,
         }
         case cc: ScClass if cc.isCase => {
           val subst = inferMethodTypesArgs(cc, s)
-          candidatesSet += new ScalaResolveResult(cc, subst.fos, getImports(state), None, implicitConversionClass) //todo add local type inference
+          candidatesSet += new ScalaResolveResult(cc, subst.followed(s), getImports(state), None, implicitConversionClass) //todo add local type inference
           true
         }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
@@ -172,20 +172,14 @@ class MethodResolveProcessor(ref: PsiElement,
     def forFilter(c: ScalaResolveResult): Boolean = {
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
-        case synthetic: ScSyntheticFunction if typeArgElements.length == 0 ||
-                typeArgElements.length == synthetic.typeParameters.length => {
-          Compatibility.compatible(synthetic, substitutor, argumentClauses)._1
+        case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
+          typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._1
         }
-        case function: ScFunction if noParentheses && (typeArgElements.length == 0 ||
-                typeArgElements.length == function.typeParameters.length) &&
-                function.paramClauses.clauses.length == 1 && function.paramClauses.clauses.apply(0).isImplicit => true
-        case function: ScFunction if typeArgElements.length == 0 ||
-                typeArgElements.length == function.typeParameters.length => {
-          Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._1
-        }
-        case method: PsiMethod if typeArgElements.length == 0 ||
-                method.getTypeParameters.length == typeArgElements.length => {
-          Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._1
+        case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
+                typeArgElements.length == tp.getTypeParameters.length) &&
+                tp.isInstanceOf[PsiNamedElement] => {
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._1
         }
         case _ => false
       }
@@ -201,53 +195,59 @@ class MethodResolveProcessor(ref: PsiElement,
             case None => c
           }
         }
-        case function: ScFunction => {
-          var s = if (noParentheses && function.paramClauses.clauses.length == 1 &&
-                  function.paramClauses.clauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._2
-          for (tParam <- function.typeParameters) { //todo: think about view type bound
+        case owner: ScTypeParametersOwner => {
+          var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
+                  owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
+          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._2
+          for (tParam <- owner.typeParameters) { //todo: think about view type bound
             s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
             s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
           }
-          (function.returnType, expected) match {
-            case (Success(tp: ScType, _), Some(expected: ScType)) => {
-              val rt = substitutor.subst(tp)
-              if (rt.conforms(expected)) {
-                val s2 = Conformance.undefinedSubst(expected, rt)
-                s += s2
+          owner match {
+            case function: ScFunction => (function.returnType, expected) match {
+              case (Success(tp: ScType, _), Some(expected: ScType)) => {
+                val rt = substitutor.subst(tp)
+                if (rt.conforms(expected)) {
+                  val s2 = Conformance.undefinedSubst(expected, rt)
+                  s += s2
+                }
               }
+              case _ =>
             }
-            case _ =>
+            case _ => //todo: ?
           }
           s.getSubstitutor match {
-            case Some(s) => new ScalaResolveResult(function, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
           }
         }
-        case method: PsiMethod => {
-          var s = Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._2
-          for (tParam <- method.getTypeParameters) {
+        case owner: PsiTypeParameterListOwner => {
+          var s = Compatibility.compatible(owner, substitutor, argumentClauses)._2
+          for (tParam <- owner.getTypeParameters) {
             s = s.addLower(tParam.getName, Nothing) //todo:
             s = s.addUpper(tParam.getName, Any) //todo:
           }
-          (method.getReturnType, expected) match {
-            case (pType: PsiType, Some(expected: ScType)) => {
-              val rt = substitutor.subst(ScType.create(pType, ref.getProject))
-              if (rt.conforms(expected)) {
-                val s2 = Conformance.undefinedSubst(expected, rt)
-                s += s2
+          owner match {
+            case method: PsiMethod => (method.getReturnType, expected) match {
+              case (pType: PsiType, Some(expected: ScType)) => {
+                val rt = substitutor.subst(ScType.create(pType, ref.getProject))
+                if (rt.conforms(expected)) {
+                  val s2 = Conformance.undefinedSubst(expected, rt)
+                  s += s2
+                }
               }
+              case _ =>
             }
-            case _ =>
+            case _ =>  //todo: ?
           }
           s.getSubstitutor match {
-            case Some(s) => new ScalaResolveResult(method, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
           }
         }
       }
     }
-    val applicable: ScalaResolveResult = candidatesSet.filter(forFilter(_)).map(forMap(_))
+    val applicable: Set[ScalaResolveResult] = candidatesSet.filter(forFilter(_)).map(forMap(_))
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
