@@ -61,7 +61,10 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
     }
     case u: ScUndefinedType => tvMap.get(u.tpt.name) match {
       case None => u
-      case Some(v) => v
+      case Some(v) => v match {
+        case tpt: ScTypeParameterType if tpt.name == u.tpt.name => u
+        case _ => v
+      }
     }
     case tv : ScTypeVariable => tvMap.get(tv.name) match {
       case None => tv
