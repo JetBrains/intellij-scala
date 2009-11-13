@@ -51,7 +51,7 @@ object Conformance {
           case Some((el, _)) => {
             val notNullClass = JavaPsiFacade.getInstance(el.getProject).findClass("scala.NotNull")
             val notNullType = ScDesignatorType(notNullClass)
-            return (!conforms(l, notNullType), undefinedSubst) //todo: think about undefinedSubst
+            return (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
           }
           case _ => return (true, undefinedSubst)
         }
