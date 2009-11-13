@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import collection.mutable.{ListBuffer, ArrayBuffer}
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
@@ -23,6 +23,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.expr.{ScMethodCall, ScGenericCall, ScExpression}
 import result.{Success, TypingContext}
+import scala._
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -145,7 +146,8 @@ class MethodResolveProcessor(ref: PsiElement,
           true
         }
         case cc: ScClass if cc.isCase => {
-          candidatesSet += new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass) //todo add local type inference
+          val subst = inferMethodTypesArgs(cc, s)
+          candidatesSet += new ScalaResolveResult(cc, subst.fos, getImports(state), None, implicitConversionClass) //todo add local type inference
           true
         }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
@@ -167,60 +169,29 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    val applicable = candidatesSet.filter({
-      (c: ScalaResolveResult) => {
-        val substitutor: ScSubstitutor = c.substitutor
-        c.element match {
-          case synthetic: ScSyntheticFunction if typeArgElements.length == 0 ||
-                  typeArgElements.length == synthetic.typeParameters.length => {
-            Compatibility.compatible(synthetic, substitutor, argumentClauses)._1
-          }
-          case function: ScFunction if noParentheses && (typeArgElements.length == 0 ||
-                  typeArgElements.length == function.typeParameters.length) &&
-                  function.paramClauses.clauses.length == 1 && function.paramClauses.clauses.apply(0).isImplicit => true
-          case function: ScFunction if typeArgElements.length == 0 ||
-                  typeArgElements.length == function.typeParameters.length => {
-            Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._1
-          }
-          case method: PsiMethod if typeArgElements.length == 0 ||
-                  method.getTypeParameters.length == typeArgElements.length => {
-            Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._1
-          }
-          case _ =>  false /*{ //todo: for types you can use named parameters too
-            val t = getType(c.element)
-            t match {
-              case ScFunctionType(ret, params) => {
-                (expected match {
-                  case None => true
-                  case Some(t) => Compatibility.compatible(substitutor.subst(t), ret)
-                }) && {
-                  def checkCompatibility: Boolean = {
-                    if (args.length < params.length) return false
-                    if (args.length > params.length && !(c.element match {
-                      case fun: ScFunction if fun.paramClauses.clauses.length > 0 => {
-                        fun.paramClauses.clauses.apply(0).hasRepeatedParam
-                      }
-                      case _ => false //synthetic functions always not repeated
-                    })) return false
-                    for (i <- 0 to args.length - 1) {
-                      if (i < params.length) {
-                        if (!Compatibility.compatible(substitutor.subst(params(i)), args(i))) return false
-                      }
-                      else {
-                        if (!Compatibility.compatible(substitutor.subst(params(params.length - 1)), args(i))) return false
-                      }
-                    }
-                    return true
-                  }
-                  checkCompatibility
-                }
-              }
-              case _ => false
-            }
-          }
-*/        }
+    def forFilter(c: ScalaResolveResult): Boolean = {
+      val substitutor: ScSubstitutor = c.substitutor
+      c.element match {
+        case synthetic: ScSyntheticFunction if typeArgElements.length == 0 ||
+                typeArgElements.length == synthetic.typeParameters.length => {
+          Compatibility.compatible(synthetic, substitutor, argumentClauses)._1
+        }
+        case function: ScFunction if noParentheses && (typeArgElements.length == 0 ||
+                typeArgElements.length == function.typeParameters.length) &&
+                function.paramClauses.clauses.length == 1 && function.paramClauses.clauses.apply(0).isImplicit => true
+        case function: ScFunction if typeArgElements.length == 0 ||
+                typeArgElements.length == function.typeParameters.length => {
+          Compatibility.compatible(new PhysicalSignature(function, substitutor), argumentClauses, section)._1
+        }
+        case method: PsiMethod if typeArgElements.length == 0 ||
+                method.getTypeParameters.length == typeArgElements.length => {
+          Compatibility.compatible(new PhysicalSignature(method, substitutor), argumentClauses, section)._1
+        }
+        case _ => false
       }
-    }).map((c: ScalaResolveResult) => {
+    }
+
+    def forMap(c: ScalaResolveResult): ScalaResolveResult = {
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
@@ -275,7 +246,8 @@ class MethodResolveProcessor(ref: PsiElement,
           }
         }
       }
-    })
+    }
+    val applicable: ScalaResolveResult = candidatesSet.filter(forFilter(_)).map(forMap(_))
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
@@ -295,7 +267,7 @@ class MethodResolveProcessor(ref: PsiElement,
   /**
    Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
-  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
+  def inferMethodTypesArgs(m: PsiTypeParameterListOwner, classSubst: ScSubstitutor): ScSubstitutor = {
     if (typeArgElements.length != 0)
     typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty) {
       (subst, pair) =>
