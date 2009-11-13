@@ -4,11 +4,12 @@ package psi
 package types
 
 import api.statements.params.{ScParameters, ScParameter}
-import com.intellij.psi.{PsiParameter, PsiMethod}
 import api.statements.{ScFun, ScFunction}
 import impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
 import result.{Success, TypingContext}
+import com.intellij.psi.{PsiNamedElement, PsiParameter, PsiMethod}
+import api.toplevel.typedef.ScClass
 
 /**
  * @author ven
@@ -103,50 +104,40 @@ object Compatibility {
     return (true, undefSubst)
   }
 
-  def compatible(sign: PhysicalSignature, argClauses: List[Seq[ScExpression]], curried : Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    sign.method match {
+  def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
+                 argClauses: List[Seq[ScExpression]]): (Boolean, ScUndefinedSubstitutor) = {
+    val exprs: Seq[ScExpression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
+    named match {
+      case synthetic: ScSyntheticFunction => {
+        checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", () => substitutor.subst(tp), false, false)}, exprs)
+      }
       case fun: ScFunction => {
-
-        /*def checkClausesConformance(funType: ScType, argCls: List[Seq[ScExpression]]) : Boolean =
-          funType match {
-            case ScFunctionType(rt, params) => argCls match {
-              case h :: t => Conformance.conformsSeq(params.map(sign.substitutor.subst(_)),
-                                                     h.map(_.cachedType))
-              case Nil => curried
-            }
-            case _ =>  false
-        }
-
-        checkClausesConformance(fun.functionType, argClauses)*/
-        val exprs: Seq[ScExpression] = if (argClauses.isEmpty) Nil else argClauses.head
-
-        val parameters: Seq[ScParameter] = fun.clauses match {
-          case Some(params: ScParameters) => {
-            if (params.clauses.length == 0) return (exprs.length == 0, new ScUndefinedSubstitutor)
-            params.clauses.apply(0).parameters
-          }
-          case None => return (exprs.length == 0, new ScUndefinedSubstitutor)
-        }
-
-
-
+        val parameters: Seq[ScParameter] =
+          if (fun.paramClauses.clauses.length == 0) Seq.empty
+          else fun.paramClauses.clauses.apply(0).parameters
         checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
-          sign.substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+          substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
       }
-
-
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
         checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, () => {
-          sign.substitutor.subst(ScType.create(param.getType, method.getProject))
-        }, false, param.isVarArgs)}, if (argClauses.length == 0) Nil else argClauses.head)
+          substitutor.subst(ScType.create(param.getType, method.getProject))
+        }, false, param.isVarArgs)}, exprs)
       }
-    }
-  }
+      case cc: ScClass if cc.isCase => {
+        val parameters: Seq[ScParameter] = {
+          cc.clauses match {
+            case Some(params: ScParameters) if params.clauses.length != 0 => params.clauses.apply(0).parameters
+            case _ => Seq.empty
+          }
+        }
+        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+          substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
+      }
 
-  def compatible(synthetic: ScSyntheticFunction, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]]): (Boolean, ScUndefinedSubstitutor) = {
-    checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", () => subst.subst(tp), false, false)},
-      if (argClauses.length == 0) Nil else argClauses.head)
+      case _ => (false, new ScUndefinedSubstitutor)
+    }
   }
 }
