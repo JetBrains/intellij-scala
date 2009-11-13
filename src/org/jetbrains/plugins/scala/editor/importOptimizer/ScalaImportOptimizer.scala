@@ -154,7 +154,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         ScalaImportOptimizer.NO_IMPORT_USED
       }
       case _ => fun.returnTypeElement match {
-        case Some(x: ScTypeElement) => {
+        /*case Some(x: ScTypeElement) => {
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           val exprType: TypeResult[ScType] = ret.expr match {
@@ -167,7 +167,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               case _ => List()
             }
           })._2
-        }
+        }*/
         case _ => ScalaImportOptimizer.NO_IMPORT_USED
       }
     }
@@ -180,12 +180,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
         ScalaImportOptimizer.NO_IMPORT_USED
       }
       case _ => fun.returnTypeElement match {
-        case Some(x: ScTypeElement) => {
+        /*case Some(x: ScTypeElement) => {
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           val exprType: TypeResult[ScType] = expr.getType(TypingContext.empty)
           ScalaAnnotator.smartCheckConformance(funType, exprType, () => expr.allTypesAndImports)._2
-        }
+        }*/
         case _ => {
           ScalaImportOptimizer.NO_IMPORT_USED
         }

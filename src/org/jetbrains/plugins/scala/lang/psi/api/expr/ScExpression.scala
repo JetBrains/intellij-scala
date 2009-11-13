@@ -18,6 +18,38 @@ import toplevel.imports.usages.ImportUsed
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   self =>
 
+  /**
+   * This method returns real type, after using implicit conversions.
+   * Second parameter to return is used imports for this conversion.
+   */
+  //todo: cache?
+  def getTypeAfterImplicitConversion(expectedOption: Option[ScType] = expectedType): (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+    val tr = getType(TypingContext.empty)
+    val expected = expectedOption.getOrElse(return (tr, Set.empty))
+    val tp = tr.getOrElse(return (tr, Set.empty))
+    if (tp.conforms(expected)) return (tr, Set.empty)
+    val f = for ((typez, imports) <- allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
+    if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
+    else if (f.length == 0) return (tr, Set.empty)
+    else {
+      var res = f(0)
+      if (res._2 == None) return (tr, Set.empty)
+      var i = 1
+      while (i < f.length) {
+        val pr = f(i)
+        if (pr._1.equiv(res._1)) {
+          //todo: there are serious overloading resolutions to implement it
+        }
+        else if (pr._2 != None) {
+          if (pr._2.get.isInheritor(res._2.get, true)) res = pr
+          else return (tr, Set.empty)
+        } else return (tr, Set.empty)
+        i += 1
+      }
+      return (Success(res._1, Some(this)), res._3)
+    }
+  }
+
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount

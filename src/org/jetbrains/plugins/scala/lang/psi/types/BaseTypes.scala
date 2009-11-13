@@ -35,6 +35,10 @@ object BaseTypes {
         c.getSuperTypes.map{st => s.subst(ScType.create(st, c.getProject))}
       case _ => Seq.empty
     }
+    case t: ScTupleType => t.resolveTupleTrait match {
+      case Some(t: ScType) => get(t)
+      case _ => Seq.empty
+    }
     case _ => Seq.empty
   }
 

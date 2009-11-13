@@ -41,13 +41,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
     implicitMap.get(t) match {
-      case Some(set: Set[(ScFunctionDefinition, Set[ImportUsed])]) => return {
+      case Some(set: Set[(ScFunctionDefinition, Set[ImportUsed])]) if set.size == 1 => return {
         set.toSeq.apply(0)._1.getContainingClass match {
           case null => None
           case x => Some(x)
         }
       }
-      case None => None
+      case _ => None
     }
   }
 

@@ -19,6 +19,6 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] =
     if (exprs.length == 0) Success(Unit, Some(this))
     else {
-      Success(ScTupleType(exprs.map(_.getType(ctx).getOrElse(return Failure("Some components Failed to infer", Some(this))))), Some(this))
+      Success(new ScTupleType(exprs.map(_.getType(ctx).getOrElse(return Failure("Some components Failed to infer", Some(this)))), getProject), Some(this))
     }
 }

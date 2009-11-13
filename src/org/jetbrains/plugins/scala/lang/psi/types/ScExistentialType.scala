@@ -42,7 +42,7 @@ object ScExistentialTypeReducer {
   private def noVariantWildcards(t : ScType, wilds : List[ScExistentialArgument]) : ScType = t match {
     case ScFunctionType(ret, params) =>
       new ScFunctionType(noVariantWildcards(ret, wilds), params.map {noVariantWildcards(_, wilds)})
-    case ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)})
+    case t1@ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)}, t1.getProject)
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
         val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({case (tp, ta) => ta match {
