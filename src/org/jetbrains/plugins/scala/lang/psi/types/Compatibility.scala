@@ -135,9 +135,20 @@ object Compatibility {
         val parameters: Seq[ScParameter] =
           if (fun.paramClauses.clauses.length == 0) Seq.empty
           else fun.paramClauses.clauses.apply(0).parameters
-        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs)
+        var undefinedSubst = res._2
+        if (!res._1) return res
+        var i = 1
+        while (i < argClauses.length.min(fun.paramClauses.clauses.length)) {
+          val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, () => {
+            substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i))
+          undefinedSubst += t._2
+          i += 1
+        }
+        return (true, undefinedSubst)
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
