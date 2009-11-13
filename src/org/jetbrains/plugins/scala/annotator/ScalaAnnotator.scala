@@ -261,15 +261,15 @@ class ScalaAnnotator extends Annotator {
           case Some(tp: ScType) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
-            val exprType = expr.getType(TypingContext.empty)
-            val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType, () => expr.allTypesAndImports)
-            if (!conformance._1) {
+            val (exprType, importUsed) = expr.getTypeAfterImplicitConversion()
+            val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
+            if (!conformance) {
               val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
                 ScType.presentableText(exprType.getOrElse(Nothing)), ScType.presentableText(expectedType.get))
               val annotation: Annotation = holder.createErrorAnnotation(expr, error)
               annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             } else ImportTracker.getInstance(expr.getProject).
-                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
+                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
           }
           case _ => //do nothing
         }
@@ -293,24 +293,19 @@ class ScalaAnnotator extends Annotator {
         case Some(x: ScTypeElement) => {
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
-          val exprType: TypeResult[ScType] = ret.expr match {
-            case Some(e: ScExpression) => e.getType(TypingContext.empty)
-            case None => Success(Unit, None)
+          val (exprType, importUsed): (TypeResult[ScType], Set[ImportUsed]) = ret.expr match {
+            case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
+            case None => (Success(Unit, None), Set.empty)
           }
-          val conformance: (Boolean, Set[ImportUsed]) = ScalaAnnotator.smartCheckConformance(funType, exprType, () => {
-            ret.expr match {
-              case Some(e: ScExpression) => e.allTypesAndImports
-              case _ => List()
-            }
-          })
-          if (!conformance._1) {
+          val conformance: Boolean = ScalaAnnotator.smartCheckConformance(funType, exprType)
+          if (!conformance) {
             val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)),
               ScType.presentableText(funType.getOrElse(Nothing)))
             val annotation: Annotation = holder.createErrorAnnotation(ret, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             //todo: add fix to change function return type
           } else {
-            ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], conformance._2)
+            ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
             return
           }
         }
@@ -343,18 +338,12 @@ object ScalaAnnotator {
    * In other way it will return true to avoid red code.
    * Check conformance in case l = r.
    */
-  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType],
-                                    allTypes: () => List[(ScType, Set[ImportUsed])] = () => {List[(ScType, Set[ImportUsed])]()}): (Boolean, Set[ImportUsed]) = {
+  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
     for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
-        for (tp: (ScType, Set[ImportUsed]) <- allTypes()) {
-          if (Conformance.conforms(leftType, tp._1)) {
-            return (true, tp._2)
-          }
-        }
-        return (false, Set.empty)
-      } else return (true, Set.empty)
+        return false
+      } else return true
     }
-    return (true, Set.empty)
+    return true
   }
 }

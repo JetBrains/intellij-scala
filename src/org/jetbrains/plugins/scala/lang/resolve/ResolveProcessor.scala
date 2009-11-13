@@ -70,54 +70,6 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], overrid
   }
 }
 
-class RefExprResolveProcessor(kinds: Set[ResolveTargets.Value], name: String, typeArgElements: Seq[ScTypeElement])
-        extends ResolveProcessor(kinds, name) {
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      def onlyImplicitParam(fd: ScFunctionDefinition) = {
-        fd.allClauses.headOption.map(_.isImplicit) getOrElse false
-      }
-      named match {
-        case fd: ScFunctionDefinition if onlyImplicitParam(fd) => {
-          val s = getSubst(state)
-          candidatesSet += new ScalaResolveResult(named, inferMethodTypesArgs(fd, s).followed(s), getImports(state));
-          false
-        }
-        case m: PsiMethod if m.getParameterList.getParametersCount > 0 => true
-        case fun: ScFun if fun.paramTypes.length > 0 => true
-        case m: PsiMethod => {
-          val s = getSubst(state)
-          candidatesSet += new ScalaResolveResult(m, inferMethodTypesArgs(m, s).followed(s), getImports(state))
-          false
-        }
-        case _ => {
-          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-          false //todo
-        }
-      }
-    } else true
-  }
-
-  def inferMethodTypesArgs(m: PsiMethod, classSubst: ScSubstitutor) = {
-    if (typeArgElements.length != 0)
-    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.getTypeParameters).foldLeft(ScSubstitutor.empty) {
-      (subst, pair) =>
-              val scType = pair._1
-              val typeParameter = pair._2
-              subst.bindT(typeParameter.getName, scType)
-    }
-    else {
-      m.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-        (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
-          case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, classSubst)
-          case tp: PsiTypeParameter => new ScTypeParameterType(tp, classSubst)
-        }))
-      }
-    }
-  }
-}
-
 class MethodResolveProcessor(ref: PsiElement,
                              refName: String,
                              argumentClauses: List[Seq[ScExpression]],

@@ -19,5 +19,5 @@ import org.jetbrains.plugins.scala.lang.psi.types.Any
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
   override def toString: String = "TupleType"
 
-  protected def innerType(ctx: TypingContext) = collectFailures(components.map(_.getType(ctx)), Any)(ScTupleType(_))
+  protected def innerType(ctx: TypingContext) = collectFailures(components.map(_.getType(ctx)), Any)(new ScTupleType(_, getProject))
 }

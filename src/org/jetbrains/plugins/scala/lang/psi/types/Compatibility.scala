@@ -5,11 +5,12 @@ package types
 
 import api.statements.params.{ScParameters, ScParameter}
 import api.statements.{ScFun, ScFunction}
-import impl.toplevel.synthetic.ScSyntheticFunction
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
 import result.{Success, TypingContext}
-import com.intellij.psi.{PsiNamedElement, PsiParameter, PsiMethod}
 import api.toplevel.typedef.ScClass
+import api.base.types.ScSequenceArg
+import com.intellij.psi._
 
 /**
  * @author ven
@@ -39,20 +40,39 @@ object Compatibility {
         if (namedMode) {
           return false
         }
-        else (for (exprType <- expr.getType(TypingContext.empty)) yield {
+        else {
           val getIt = used.indexOf(false)
           used(getIt) = true
           val param: Parameter = parameters(getIt)
           val paramType = param.tp()
-          if (!Conformance.conforms(paramType, exprType)) false
-          else {
-            undefSubst += Conformance.undefinedSubst(paramType, exprType)
-            true
-          }
-        }).getOrElse(true)
+          (for (exprType <- expr.getTypeAfterImplicitConversion(Some(paramType))._1) yield {
+            if (!Conformance.conforms(paramType, exprType)) false
+            else {
+              undefSubst += Conformance.undefinedSubst(paramType, exprType)
+              true
+            }
+          }).getOrElse(true)
+        }
       }
 
       exprs(k) match {
+        case expr: ScTypedStmt if expr.getLastChild.isInstanceOf[ScSequenceArg] => {
+          val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+          if (seqClass != null) {
+            val getIt = used.indexOf(false)
+            used(getIt) = true
+            val param: Parameter = parameters(getIt)
+            if (!param.isRepeated) return (false, undefSubst)
+            val paramType = param.tp()
+            val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
+            for (exprType <- expr.getTypeAfterImplicitConversion(Some(tp))._1) yield {
+              if (!Conformance.conforms(tp, exprType)) return (false, undefSubst)
+              else {
+                undefSubst += Conformance.undefinedSubst(tp, exprType)
+              }
+            }
+          } else if (!doNoNamed(expr)) return (false, undefSubst)
+        }
         case assign@NamedAssignStmt(name) => {
           val ind = parameters.findIndexOf(_.name == name)
           if (ind == -1 || used(ind) == true) {
@@ -65,8 +85,8 @@ object Compatibility {
             val param: Parameter = parameters(ind)
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
-                for (exprType <- expr.getType(TypingContext.empty);
-                     paramType = param.tp())
+                val paramType = param.tp()
+                for (exprType <- expr.getTypeAfterImplicitConversion(Some(paramType))._1)
                 if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
                 else undefSubst += Conformance.undefinedSubst(paramType, exprType)
               }
@@ -86,7 +106,7 @@ object Compatibility {
       if (!parameters.last.isRepeated) return (false, undefSubst)
       val paramType: ScType = parameters.last.tp()
       while (k < exprs.length) {
-        for (exprType <- exprs(k).getType(TypingContext.empty)) {
+        for (exprType <- exprs(k).getTypeAfterImplicitConversion(Some(paramType))._1) {
           if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
           else undefSubst = Conformance.undefinedSubst(paramType, exprType)
         }

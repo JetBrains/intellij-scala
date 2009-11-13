@@ -8,15 +8,15 @@ import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
 import toplevel.ScTypedDefinition
-import impl.toplevel.synthetic.ScSyntheticFunction
-import resolve.ScalaResolveResult
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
+import lang.resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
 import types._
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiNamedElement}
 import com.intellij.psi.util.PsiTreeUtil
-import base.types.ScTypeElement
 import result.{Success, TypingContext}
+import base.types.{ScSequenceArg, ScTypeElement}
+import com.intellij.psi._
 
 /**
  * @author ilyas
@@ -87,6 +87,10 @@ object ExpectedTypes {
         }
         case _ => Array[ScType]()
       })
+
+      case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
+        expectedExprTypes(t)
+      }
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
@@ -161,6 +165,19 @@ object ExpectedTypes {
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
         expr match {
+          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] &&
+                  args.exprs.lastOption == Some(expr) => {
+            for (application: Array[(String, ScType)] <- args.possibleApplications) {
+              if (application.length == args.exprs.length) {
+                //todo: add possibility to check if last param is repeated
+                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+                if (seqClass != null) {
+                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
+                  res += tp
+                }
+              }
+            }
+          }
           case _ => {
             val i: Int = args.exprs.findIndexOf(_ == expr)
             for (application: Array[(String, ScType)] <- args.possibleApplications) {

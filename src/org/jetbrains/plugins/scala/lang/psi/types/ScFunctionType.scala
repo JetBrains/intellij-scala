@@ -7,6 +7,7 @@ import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.{ScClass, ScTrait}
+import decompiler.DecompilerUtil
 
 /**
 * @author ilyas
@@ -57,6 +58,16 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
 }
 
 case class ScTupleType(components: Seq[ScType]) extends ValueType {
+  private var project: Project = null
+  def getProject: Project = {
+    if (project != null) project else DecompilerUtil.obtainProject
+  }
+
+  def this(components: Seq[ScType], project: Project) = {
+    this(components)
+    this.project = project
+  }
+
   override def equiv(that : ScType) = that match {
     case ScTupleType(c1) => components.zip(c1) forall {case (x,y)=> x equiv y}
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
@@ -65,6 +76,8 @@ case class ScTupleType(components: Seq[ScType]) extends ValueType {
     }
     case _ => false
   }
+
+  def resolveTupleTrait: Option[ScParameterizedType] = resolveTupleTrait(getProject)
 
   def resolveTupleTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {

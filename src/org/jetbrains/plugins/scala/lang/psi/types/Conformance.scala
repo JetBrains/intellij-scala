@@ -94,7 +94,7 @@ object Conformance {
       }) => {
         ScType.extractClassType(owner) match {
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
-            return conforms(ScTupleType(args), r, visited, undefinedSubst)
+            return conforms(new ScTupleType(args, clazz.getProject), r, visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
             return conforms(ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), r, visited, undefinedSubst)
@@ -109,7 +109,7 @@ object Conformance {
       }) => {
         ScType.extractClassType(owner) match {
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
-            return conforms(l, ScTupleType(args), visited, undefinedSubst)
+            return conforms(l, new ScTupleType(args, clazz.getProject), visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
             return conforms(l, ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), visited, undefinedSubst)
