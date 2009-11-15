@@ -157,7 +157,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     def execute(element: PsiElement, state: ResolveState) = {
 
-      val subst: ScSubstitutor = state.get(ScSubstitutor.key)
+      val subst: ScSubstitutor = state.get(ScSubstitutor.key) match {
+        case null => ScSubstitutor.empty
+        case s => s
+      }
 
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
