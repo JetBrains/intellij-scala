@@ -94,19 +94,19 @@ class MethodResolveProcessor(ref: PsiElement,
       element match {
         case m: PsiMethod => {
           val subst = inferMethodTypesArgs(m, s)
-          candidatesSet += new ScalaResolveResult(m, subst.followed(s), getImports(state), None, implicitConversionClass)
+          candidatesSet += new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass)
           true
         }
         case cc: ScClass if cc.isCase => {
           val subst = inferMethodTypesArgs(cc, s)
-          candidatesSet += new ScalaResolveResult(cc, subst.followed(s), getImports(state), None, implicitConversionClass) //todo add local type inference
+          candidatesSet += new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass) //todo add local type inference
           true
         }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, inferMethodTypesArgs(m, s).followed(s.followed(subst)),
+            candidatesSet += new ScalaResolveResult(m, s.followed(subst.followed(inferMethodTypesArgs(m, s))),
               getImports(state), None, implicitConversionClass)
           }
           true
@@ -138,6 +138,7 @@ class MethodResolveProcessor(ref: PsiElement,
     }
 
     def forMap(c: ScalaResolveResult): ScalaResolveResult = {
+      if (typeArgElements.length != 0) return c
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
