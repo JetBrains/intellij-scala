@@ -4,8 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import api.statements.{ScFunction}
 import api.toplevel.ScTypedDefinition
 import api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
@@ -15,6 +13,9 @@ import types._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import result.{Failure, Success, TypeResult, TypingContext}
+import api.statements.{ScFun, ScFunction}
+import api.base.types.ScTypeElement
+import lang.resolve.{ResolveUtils, MethodResolveProcessor, ScalaResolveResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,45 +33,42 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     /**
      * Utility method to get generics for apply methods of concrecte class.
      */
-    def processClass(clazz: PsiClass, subst: ScSubstitutor): ScType = {
-      //ugly method for appling it to methods chooser (to substitute types for every method)
-      def createSubst(method: PhysicalSignature): ScSubstitutor = {
-        val tp: Seq[String] = method.method match {
-          case fun: ScFunction => fun.typeParameters.map(_.name)
-          case meth: PsiMethod => meth.getTypeParameters.map(_.getName)
+    def processType(tp: ScType): ScType = {
+      val curr = getParent match {case call: ScMethodCall => call case _ => this}
+      val isUpdate = curr.getContext.isInstanceOf[ScAssignStmt] &&
+              curr.getContext.asInstanceOf[ScAssignStmt].getLExpression == curr
+      val methodName = if (isUpdate) "update" else "apply"
+      val args: Seq[ScExpression] = (curr match {case call: ScMethodCall => call.args.exprs
+        case _ => Seq.empty[ScExpression]}) ++ (
+              if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
+                case Some(x) => Seq[ScExpression](x)
+                case None =>
+                  Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
+                    getManager)) //we can't to not add something => add Nothing expression
+              }
+              else Seq.empty)
+      val typeArgs: Seq[ScTypeElement] = this.arguments
+      val processor = new MethodResolveProcessor(referencedExpr, methodName, args :: Nil,
+        typeArgs, curr.expectedType)
+      processor.processType(tp, referencedExpr, ResolveState.initial)
+      val candidates = processor.candidates
+      if (candidates.length != 1) Nothing
+      else {
+        candidates(0) match {
+          case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
+            fun match {
+              case fun: ScFun => new ScFunctionType(s.subst(fun.retType),
+                collection.immutable.Seq(fun.paramTypes.map({
+                  s.subst _
+                }).toSeq: _*))
+              case fun: ScFunction => s.subst(fun.getType(TypingContext.empty).getOrElse(Nothing))
+              case meth: PsiMethod => ResolveUtils.methodType(meth, s)
+            }
+          }
+          case _ => Nothing
         }
-        ScalaPsiUtil.genericCallSubstitutor(tp, this).followed(method.substitutor).followed(subst)
       }
-      val parent: PsiElement = getContext
-      var isPlaceholder = false
-      val args: Seq[ScExpression] = parent match {
-        case call: ScMethodCall => call.args.exprs
-        case placeholder: ScUnderscoreSection => {
-          isPlaceholder = true
-          Seq.empty
-        }
-        case _ => return Nothing
-      }
-      val applyMethods = ScalaPsiUtil.getApplyMethods(clazz).filter((sign: PhysicalSignature) => sign.method match {
-        case fun: ScFunction => fun.typeParameters.length == arguments.length
-        case meth: PsiMethod => meth.getTypeParameters.length == arguments.length
-      })
-      val methods = (if (!isPlaceholder)
-        ScalaPsiUtil.getMethodsConformingToMethodCall(applyMethods, args, createSubst(_))
-      else
-        applyMethods)
-      if (methods.length == 1) {
-        val method = methods(0).method
-        val typez = method match {
-          case fun: ScFunction => fun.getType(TypingContext.empty).getOrElse(Any)
-          case meth: PsiMethod => ScFunctionType(ScType.create(meth.getReturnType, meth.getProject),
-            collection.immutable.Seq(meth.getParameterList.getParameters.map(param => ScType.create(param.getType, meth.getProject)).toSeq: _*))
-        }
-        return createSubst(methods(0)).subst(typez)
-      } else {
-        return Nothing
-        //todo: according to expected type choose appropriate method if it's possible, else => Nothing
-      }
+      //todo: add implicit types check
     }
 
     // here we get generic names to replace with appropriate substitutor to appropriate types
@@ -80,29 +78,19 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case Some(ScalaResolveResult(meth: PsiMethod, _)) => meth.getTypeParameters.map(_.getName)
         case Some(ScalaResolveResult(synth: ScSyntheticFunction, _)) => synth.typeParams.map(_.name)
         case Some(ScalaResolveResult(clazz: ScObject, subst)) => {
-          return Success(processClass(clazz, subst), None)
+          return Success(processType(ScDesignatorType(clazz)), None)
         }
         case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.hasModifierProperty("case") => {
           clazz.typeParameters.map(_.name)
         }
         case Some(ScalaResolveResult(typed: ScTypedDefinition, subst)) => { //here we must investigate method apply (not update, because can't be generic)
           val scType = subst.subst(typed.getType(TypingContext.empty).getOrElse(Any))
-          ScType.extractClassType(scType) match {
-            case Some((clazz: PsiClass, subst)) => {
-              return Success(processClass(clazz, subst), None)
-            }
-            case _ => return Failure("Cannot infer the type", Some(this))
-          }
+          return Success(processType(scType), Some(this))
         }
         case _ => return Failure("Cannot infer the type", Some(this)) //todo: check Java cases (PsiField for example)
       }
       case _ => { //here we must investigate method apply (not update, because can't be generic)
-        ScType.extractClassType(refType) match {
-          case Some((clazz: PsiClass, subst)) => {
-            return Success(processClass(clazz, subst), None)
-          }
-          case _ => return Failure("Cannot infer the type", Some(this))
-        }
+        return Success(processType(refType), Some(this))
       }
     }
     val substitutor = ScalaPsiUtil.genericCallSubstitutor(tp, this)
