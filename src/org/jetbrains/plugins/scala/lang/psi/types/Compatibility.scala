@@ -153,7 +153,12 @@ object Compatibility {
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
         checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, () => {
-          substitutor.subst(ScType.create(param.getType, method.getProject))
+          val tp = substitutor.subst(ScType.create(param.getType, method.getProject))
+          if (param.isVarArgs) tp match {
+            case ScParameterizedType(_, args) if args.length == 1 => args(0)
+            case _ => tp
+          }
+          else tp
         }, false, param.isVarArgs)}, exprs)
       }
       case cc: ScClass if cc.isCase => {

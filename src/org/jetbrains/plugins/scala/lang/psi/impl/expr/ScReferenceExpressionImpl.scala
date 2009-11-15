@@ -12,6 +12,7 @@ import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.IncorrectOperationException
+import params.ScParameter
 import resolve._
 
 import types._
@@ -283,6 +284,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         else fun.returnType
         s.subst(result.getOrElse(return result))
       }
+      case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
+        val seqClass = JavaPsiFacade.getInstance(getProject).
+                findClass("scala.collection.Seq", getResolveScope)
+        val result = param.getType(TypingContext.empty)
+        val computeType = s.subst(result.getOrElse(return result))
+        if (seqClass != null) {
+          ScParameterizedType(ScDesignatorType(seqClass), Seq(computeType))
+        } else computeType
+      }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
         val result = typed.getType(TypingContext.empty)
         s.subst(result.getOrElse(return result))
@@ -292,7 +302,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
           collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz), 
+        s.subst(ScParameterizedType(ScDesignatorType(clazz),
           collection.immutable.Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
