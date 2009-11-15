@@ -94,7 +94,21 @@ class MethodResolveProcessor(ref: PsiElement,
       element match {
         case m: PsiMethod => {
           val subst = inferMethodTypesArgs(m, s)
-          candidatesSet += new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass)
+          //all this code for implicit overloading reesolution
+          val res = new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass)
+          (candidatesSet.find(p => p.hashCode == res.hashCode), implicitConversionClass) match {
+            case (Some(oldRes: ScalaResolveResult), Some(newClass)) => {
+              val oldClass = oldRes.implicitConversionClass
+              oldClass match {
+                case Some(clazz: PsiClass) if clazz.isInheritor(newClass, true) =>
+                case _ => {
+                  candidatesSet.remove(oldRes)
+                  candidatesSet += res
+                }
+              }
+            }
+            case _ => candidatesSet += res
+          }
           true
         }
         case cc: ScClass if cc.isCase => {
