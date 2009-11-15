@@ -66,7 +66,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
             case _ => Nothing
           }
         }
-        //add implicit types check
+        //todo: add implicit types check
       }
       val res = getInvokedExpr.getType(TypingContext.empty) match {
         case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => {

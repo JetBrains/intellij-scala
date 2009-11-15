@@ -20,10 +20,10 @@ import _root_.scala.collection.Set
 import psi.api.base.types.ScTypeElement
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.implicits.ScImplicitlyConvertible
-import psi.api.expr.{ScMethodCall, ScGenericCall, ScExpression}
 import result.{Success, TypingContext}
 import scala._
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
