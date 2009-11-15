@@ -122,6 +122,19 @@ object ExpectedTypes {
           case _ => Array.empty
         }
       }
+      case tuple: ScTuple => {
+        val buffer = new ArrayBuffer[ScType]
+        val index = tuple.exprs.indexOf(expr)
+        for (tp: ScType <- expectedExprTypes(tuple)) {
+          tp match {
+            case ScTupleType(comps) if comps.length == tuple.exprs.length => {
+              buffer += comps(index)
+            }
+            case _ =>
+          }
+        }
+        buffer.toArray
+      }
       //SLS[4.1]
       case v: ScPatternDefinition if v.expr == expr => {
         v.typeElement match {

@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import resolve.ScalaResolveResult
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScClass}
-import api.statements.params.ScParameter
 import api.base.{ScPrimaryConstructor, ScConstructor}
-import com.intellij.psi.{PsiParameter, PsiMethod, PsiClass}
 import types.result.TypingContext
-import types.{ScParameterizedType, ScSubstitutor, ScType, Any}
+import types._
+import api.statements.params.{ScTypeParam, ScParameter}
+import com.intellij.psi.{PsiTypeParameter, PsiParameter, PsiMethod, PsiClass}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -152,6 +152,15 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                       }
                     }
                     s.followed(ScalaPsiUtil.genericCallSubstitutor(tp, gen))
+                  }
+                  case _ if method.getTypeParameters.length != 0 => {
+                    val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+                      (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+                        case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
+                        case tp: PsiTypeParameter => new ScTypeParameterType(tp, s)
+                      }))
+                    }
+                    s.followed(subst)
                   }
                   case _ => s
                 }
