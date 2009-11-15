@@ -165,7 +165,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             // Collect implicit conversions only
             if f.hasModifierProperty("implicit") &&
                     f.getParameterList.getParametersCount == 1 => {
-            val sign = new PhysicalSignature(f, inferMethodTypesArgs(f, subst).followed(subst))
+            val sign = new PhysicalSignature(f, subst.followed(inferMethodTypesArgs(f, subst)))
             if (!signatures2ImplicitMethods.contains(f)) {
               val newFSet = Set((getImports(state), f))
               signatures2ImplicitMethods += ((f -> newFSet))
