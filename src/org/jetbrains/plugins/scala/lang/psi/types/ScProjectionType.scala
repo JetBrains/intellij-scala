@@ -13,7 +13,8 @@ import impl.toplevel.synthetic.ScSyntheticClass
 * @author ilyas
 */
 
-case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
+case class
+ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
   def resolveResult = ref.bind
 
   lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)
@@ -30,6 +31,10 @@ case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends 
           res
         }
         else false
+      }
+      case ScDesignatorType(_) => resolveResult match {
+        case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == des
+        case _ => false
       }
       case _ => false
     }
