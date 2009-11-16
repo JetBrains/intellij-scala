@@ -72,14 +72,7 @@ object ScType {
           tps match {
             case Array() => des
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
-                      (tp => {
-              val psiType = substitutor.substitute(tp)
-              if (psiType != null) psiType match {
-                case classType: PsiClassType if classType.resolveGenerics.getElement.isInstanceOf[PsiTypeParameter] => ScalaPsiManager.typeVariable(tp)
-                case _ =>ScType.create(psiType, project)
-              }
-              else ScalaPsiManager.typeVariable(tp)
-            }).toSeq : _*))
+                      (tp => ScalaPsiManager.typeVariable(tp)).toSeq : _*))
           }
         }
         case _ => Nothing
