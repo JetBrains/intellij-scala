@@ -124,7 +124,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           new MethodResolveProcessor(ref, ref.refName,  Nil, Nil, postf.expectedType)
 
         case pref: ScPrefixExpr if ref == pref.operation =>
-          new MethodResolveProcessor(ref, ref.refName, Nil, Nil, pref.expectedType)
+          new MethodResolveProcessor(ref, "unary_" + ref.refName, Nil, Nil, pref.expectedType)
 
         case _ => new MethodResolveProcessor(ref, ref.refName, Nil, typeArgs, e.expectedType, getKinds(incomplete), true)
       }
@@ -135,9 +135,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
-    def processTypes(e: ScExpression) = {
+    def processTypes(e: ScExpression) {
       ProgressManager.checkCanceled
-      processor.processType(e.getType(TypingContext.empty).getOrElse(Any), e, ResolveState.initial)
+      val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
+      processor.processType(result, e, ResolveState.initial)
       if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
               processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
         for (t <- e.getImplicitTypes) {
