@@ -61,7 +61,7 @@ abstract class TypeInferenceTestBase extends ScalaPsiTestCase {
         }
         assertEquals(output, res)
       }
-      case Failure(msg, elem) => assert(false, msg + " :: " + elem.get.getText)
+      case Failure(msg, elem) => assert(false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
     }
   }
 }

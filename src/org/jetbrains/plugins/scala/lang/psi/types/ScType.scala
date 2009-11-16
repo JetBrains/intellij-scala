@@ -74,10 +74,7 @@ object ScType {
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
                       (tp => {
               val psiType = substitutor.substitute(tp)
-              if (psiType != null) psiType match {
-                case classType: PsiClassType if classType.resolveGenerics.getElement.isInstanceOf[PsiTypeParameter] => ScalaPsiManager.typeVariable(tp)
-                case _ => ScType.create(psiType, project)
-              }
+              if (psiType != null) ScType.create(psiType, project)
               else ScalaPsiManager.typeVariable(tp)
             }).toSeq : _*))
           }
@@ -311,7 +308,7 @@ object ScType {
         } //todo: another shorthands for ScSingletonType
         case _ => inner(p); buffer.append("#").append(ref.refName)
       }
-      case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ","); buffer.append("]")
+      case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
       case ScUndefinedType(tpt: ScTypeParameterType) => buffer.append("NotInfered").append(tpt.name)
