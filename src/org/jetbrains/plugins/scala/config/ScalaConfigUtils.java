@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.List;
@@ -194,7 +195,19 @@ public class ScalaConfigUtils {
     final ScalaFacetConfiguration configuration = facet.getConfiguration();
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
     if (libConf.takeFromSettings) {
-      return libConf.myScalaSdkJarPath;
+      final String path = libConf.myScalaSdkJarPath;
+      final List<String> paths = StringUtil.split(path, " ");
+      final VirtualFile baseDir = module.getProject().getBaseDir();
+      if (libConf.isRelativeToProjectPath && baseDir != null) {
+        final String url = baseDir.getPath();
+        final String result = StringUtil.join(paths, new Function<String, String>() {
+          public String fun(String elem) {
+            return url + File.separator + elem.trim();
+          }
+        }, File.pathSeparator);
+        return result;
+      }
+      return path;
     } else {
       Library[] libraries = getScalaSdkLibrariesByModule(module);
       if (libraries.length == 0) return "";

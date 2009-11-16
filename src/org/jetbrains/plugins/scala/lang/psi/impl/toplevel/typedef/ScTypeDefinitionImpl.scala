@@ -46,6 +46,7 @@ import com.intellij.openapi.project.DumbService
 import result.{Success, TypingContext}
 import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
 import collection.Iterable
+import com.intellij.openapi.progress.ProgressManager
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -286,6 +287,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
   override def getIcon(flags: Int) = {
     val icon = getIconInner
     val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
+    ProgressManager.checkCanceled
     val rowIcon = ElementBase.createLayeredIcon(icon, ElementPresentationUtil.getFlags(this, isLocked))
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
       val accessLevel = {

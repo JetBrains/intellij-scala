@@ -115,6 +115,15 @@
           </value>
         </option>
         <option name="LINE_SEPARATOR" value="&#10;" />
+        <ADDITIONAL_INDENT_OPTIONS fileType="clj">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="2" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
@@ -771,7 +780,6 @@
         <w>unapply</w>
       </words>
     </dictionary>
-    <dictionary name="jason" />
   </component>
   <component name="ProjectKey">
     <option name="state" value="http://svn.jetbrains.org/idea/Trunk/scala/Scala.ipr" />
@@ -784,7 +792,7 @@
       <module fileurl="file://$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" filepath="$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA SDK" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IU-90.162" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="ProjectRunConfigurationManager">
@@ -1086,6 +1094,13 @@
     <library name="scalatest-1.0-scala-2.7">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/scala-27-lib/scalatest-1.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="scala-2.7">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/SDK/scala-27-lib/scala-library.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

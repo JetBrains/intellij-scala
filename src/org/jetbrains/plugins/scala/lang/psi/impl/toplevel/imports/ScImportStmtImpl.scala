@@ -82,6 +82,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             if (set.hasWildcard) {
               processor match {
                 case bp: BaseProcessor => {
+                  ProgressManager.checkCanceled
                   val p1 = new BaseProcessor(bp.kinds) {
                     override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
