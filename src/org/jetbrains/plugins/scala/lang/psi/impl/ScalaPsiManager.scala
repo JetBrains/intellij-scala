@@ -57,6 +57,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
       val tv = tp match {
         case stp: ScTypeParam => {
+          typeVariables.put(tp, new ScTypeParameterType(stp.name, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
           val lower = () => stp.lowerBound.getOrElse(Nothing)
           val upper = () => stp.upperBound.getOrElse(Any)
@@ -66,6 +67,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           res
         }
         case _ => {
+          typeVariables.put(tp, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val lower = () => Nothing
           val scType = tp.getSuperTypes match {
             case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
