@@ -24,7 +24,9 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
                                (params.zip(params1) forall {case (x,y) => x equiv y})
     case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
       if args.length > 0 && c.getQualifiedName == functionTraitName => {
-      val (otherArgsTypes, List(otherReturnType)) = args.splitAt(args.length - 1)
+      //to prevent MatchError, here used clear definition
+      val otherArgsTypes = args.slice(0, args.length - 1)
+      val otherReturnType = args.apply(args.length - 1)
       (returnType equiv otherReturnType) && otherArgsTypes.zip(params.toArray[ScType]).forall{case (t1, t2) => t1 equiv t2}
     }
     case _ => false
