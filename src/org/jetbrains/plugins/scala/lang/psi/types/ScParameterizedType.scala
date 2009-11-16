@@ -13,11 +13,22 @@ import com.intellij.psi.{PsiTypeParameterListOwner, PsiNamedElement}
 import api.statements.params.ScTypeParam
 import psi.impl.ScalaPsiManager
 import result.TypingContext
+import api.base.{ScStableCodeReferenceElement, ScPathElement}
+import resolve.ScalaResolveResult
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
   override def equiv(t: ScType) = t match {
     case ScDesignatorType(element1) => element eq element1
     case p : ScProjectionType => p equiv this
+    case ScSingletonType(path: ScPathElement) => path match {
+      case ref: ScStableCodeReferenceElement => {
+        ref.bind match {
+          case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == element
+          case _ => false
+        }
+      }
+      case _ => false
+    }
     case _ => false
   }
 }
