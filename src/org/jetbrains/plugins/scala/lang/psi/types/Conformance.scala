@@ -56,8 +56,8 @@ object Conformance {
           case _ => return (true, undefinedSubst)
         }
       }
-      case (tpt: ScTypeParameterType, _) => conforms(tpt.lower.v, r, HashSet.empty, undefinedSubst)
-      case (_, tpt: ScTypeParameterType) => conforms(l, tpt.upper.v, HashSet.empty, undefinedSubst)
+      case (tpt: ScTypeParameterType, _) => return conforms(tpt.lower.v, r, HashSet.empty, undefinedSubst)
+      case (_, tpt: ScTypeParameterType) => return conforms(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       case (Null, _) => return (r == Nothing, undefinedSubst)
       case (AnyRef, _: ValType) => return (false, undefinedSubst)
       case (AnyRef, _) => return (true, undefinedSubst)

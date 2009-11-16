@@ -68,10 +68,15 @@ object ScType {
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
           val des = new ScDesignatorType(clazz)
+          val substitutor = result.getSubstitutor
           tps match {
             case Array() => des
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
-                      ({tp => ScalaPsiManager.typeVariable(tp)}).toSeq : _*))
+                      (tp => {
+              val psiType = substitutor.substitute(tp)
+              if (psiType != null) ScType.create(psiType, project)
+              else ScalaPsiManager.typeVariable(tp)
+            }).toSeq : _*))
           }
         }
         case _ => Nothing
