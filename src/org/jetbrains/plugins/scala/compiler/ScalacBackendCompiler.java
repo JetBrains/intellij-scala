@@ -333,6 +333,10 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     commandLine.add(classPathBuilder.toString());
     commandLine.add(ScalacRunner.class.getName());
 
+    for (String s : commandLine) {
+      System.out.print(s);
+      System.out.print(" ");
+    }
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
@@ -349,6 +353,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
+//    PrintStream printer = System.out;
 
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
     StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");

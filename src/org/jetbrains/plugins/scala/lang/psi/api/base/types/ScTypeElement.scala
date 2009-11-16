@@ -5,11 +5,10 @@ package api
 package base
 package types
 
-import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{TypeResult, TypingContext, TypingContextOwner}
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.openapi.progress.ProgressManager
 
 /**
 * @author Alexander Podkhalyuzin
@@ -30,6 +29,7 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
     if (tp != null && modCount == curModCount) {
       return tp
     }
+    ProgressManager.checkCanceled
     tp = innerType(ctx)
     elementType = tp
     modCount = curModCount

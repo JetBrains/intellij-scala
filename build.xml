@@ -18,7 +18,7 @@
   <property name="base.dir" value="."/>
   
   <property file="${base.dir}/scala.properties"/>
-
+  <property name="jdk.home" value="${java.home}"/>
   <property name="runners.dir" value="${base.dir}/Runners"/>
 
   <property name="compiled.dest" value="${base.dir}/classes/"/>

@@ -16,6 +16,7 @@ public class ScalaLibrariesConfiguration {
   }
 
   public boolean takeFromSettings = false;
+  public boolean isRelativeToProjectPath = false;
   public boolean myExcludeCompilerFromModuleScope = false;
   public boolean myExcludeSdkFromModuleScope = false;
 
