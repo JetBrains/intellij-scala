@@ -7,12 +7,12 @@ import javax.swing.Icon
 import com.intellij.ide.IconProvider
 import lang.psi.api.ScalaFile
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.progress.ProgressManager
 
 class ScalaIconProvider extends IconProvider {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
-
+    ProgressManager.checkCanceled
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
       if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO

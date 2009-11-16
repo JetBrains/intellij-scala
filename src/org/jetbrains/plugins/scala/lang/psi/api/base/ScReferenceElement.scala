@@ -9,14 +9,13 @@ import _root_.scala.collection.Set
 import codeInspection.{ScalaElementVisitor}
 
 import impl.ScalaPsiElementFactory
-import impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import com.intellij.psi.PsiPolyVariantReference
-import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.util.TextRange
 import toplevel.typedef.ScTypeDefinition
-import statements.{ScFunction, ScTypeAlias}
+import statements.{ScFunction}
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,6 +25,7 @@ import statements.{ScFunction, ScTypeAlias}
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def bind(): Option[ScalaResolveResult] = {
     var res: Option[ScalaResolveResult] = None
+    ProgressManager.checkCanceled
     val results = multiResolve(false)
     res = results.length match {
       case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
