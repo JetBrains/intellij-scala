@@ -47,23 +47,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
           }
 
           override def visitElement(element: PsiElement) = {
-            // todo Duplication between these checks and ScalaAnnotator.
-            /*val imports = element match {
-              case ret: ScReturnStmt => {
-                checkExplicitTypeForReturnStatement(ret)
-              }
-              case value: ScPatternDefinition => {
-                checkDefinitionType(value)
-              }
-              case value: ScVariableDefinition => {
-                checkDefinitionType(value)
-              }
-              case expr: ScExpression if (Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])).exists(_.getNode.getLastChildNode == expr.getNode)) => {
-                checkExplicitTypeForReturnExpression(expr)
+            val imports = element match {
+              case expression: ScExpression => {
+                checkTypeForExpression(expression)
               }
               case _ => ScalaImportOptimizer.NO_IMPORT_USED
             }
-            usedImports ++= imports*/
+            usedImports ++= imports
             super.visitElement(element)
           }
         })
@@ -144,65 +134,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
   }
 
-  private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt): Set[ImportUsed] = {
-    var fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
-    fun match {
-      case null => {
-        ScalaImportOptimizer.NO_IMPORT_USED
-      }
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
-        ScalaImportOptimizer.NO_IMPORT_USED
-      }
-      case _ => fun.returnTypeElement match {
-        /*case Some(x: ScTypeElement) => {
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          val funType = fun.returnType
-          val exprType: TypeResult[ScType] = ret.expr match {
-            case Some(e: ScExpression) => e.getType(TypingContext.empty)
-            case None => Success(Unit, None)
-          }
-          ScalaAnnotator.smartCheckConformance(funType, exprType, () => {
-            ret.expr match {
-              case Some(e: ScExpression) => e.allTypesAndImports
-              case _ => List()
-            }
-          })._2
-        }*/
-        case _ => ScalaImportOptimizer.NO_IMPORT_USED
-      }
-    }
+  private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
+    expr.getTypeAfterImplicitConversion()._2
   }
-
-  private def checkExplicitTypeForReturnExpression(expr: ScExpression): Set[ImportUsed] = {
-    var fun: ScFunction = PsiTreeUtil.getParentOfType(expr, classOf[ScFunction])
-    fun match {
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
-        ScalaImportOptimizer.NO_IMPORT_USED
-      }
-      case _ => fun.returnTypeElement match {
-        /*case Some(x: ScTypeElement) => {
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          val funType = fun.returnType
-          val exprType: TypeResult[ScType] = expr.getType(TypingContext.empty)
-          ScalaAnnotator.smartCheckConformance(funType, exprType, () => expr.allTypesAndImports)._2
-        }*/
-        case _ => {
-          ScalaImportOptimizer.NO_IMPORT_USED
-        }
-      }
-    }
-  }
-
-  /*private def checkDefinitionType(value: ScalaAnnotator.TypedExpression): Set[ImportUsed] = {
-    value.typeElement match {
-      case Some(te: ScTypeElement) => {
-        val valueType: TypeResult[ScType] = te.getType(TypingContext.empty)
-        val exprType = value.expr.getType(TypingContext.empty)
-        ScalaAnnotator.smartCheckConformance(valueType, exprType, () => {value.expr.allTypesAndImports})._2
-      }
-      case _ => ScalaImportOptimizer.NO_IMPORT_USED
-    }
-  }*/
 
 
   def supports(file: PsiFile): Boolean = {
