@@ -205,7 +205,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     val boolc = registerClass(Boolean, "Boolean")
     for (op <- bool_bin_ops)
       boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(Boolean)))
-    boolc.addMethod(new ScSyntheticFunction(manager, "!", Boolean, Seq.empty))
+    boolc.addMethod(new ScSyntheticFunction(manager, "unary_!", Boolean, Seq.empty))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
     registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
@@ -229,7 +229,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     for (ic <- integer) {
       for (ic1 <- integer; op <- bitwise_bin_ops)
         ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
-      ic.addMethod(new ScSyntheticFunction(manager, "~", ic.t, Seq.empty))
+      ic.addMethod(new ScSyntheticFunction(manager, "unary_~", ic.t, Seq.empty))
 
       val ret = ic.t match {
         case Long => Long
