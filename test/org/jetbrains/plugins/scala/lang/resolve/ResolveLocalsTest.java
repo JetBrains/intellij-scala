@@ -43,7 +43,7 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
   }
 
   public void testInfixType() throws Exception {
-    PsiReference ref = configureByFile("infixType.scala");
+    PsiReference ref = configureByFile("InfixType.scala");
     assertNotNull(ref.resolve());
   }
 }
