@@ -22,6 +22,7 @@ import com.intellij.facet.ui.FacetValidatorsManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -42,9 +43,11 @@ public class ScalaFacetTab extends FacetEditorTab {
   private JPanel myPanel;
   private JCheckBox myCompilerExcludeCb;
   private JCheckBox myLibraryExcludeCb;
-  private JTextField myCompilerJarPath;
-  private JTextField mySDKJarPath;
+  private RawCommandLineEditor myCompilerJarPath;
+  private RawCommandLineEditor mySDKJarPath;
   private JCheckBox myUseSettingsChb;
+  private JCheckBox myIsRealtivePath;
+  private JLabel myHintLabel;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ScalaLibrariesConfiguration myConfiguration;
@@ -59,6 +62,10 @@ public class ScalaFacetTab extends FacetEditorTab {
     myUseSettingsChb.setEnabled(true);
     myUseSettingsChb.setSelected(myConfiguration.takeFromSettings);
 
+    myIsRealtivePath.setEnabled(myUseSettingsChb.isSelected());
+    myIsRealtivePath.setSelected(myConfiguration.isRelativeToProjectPath);
+    myHintLabel.setEnabled(myUseSettingsChb.isSelected());
+
     myCompilerJarPath.setEnabled(myConfiguration.takeFromSettings);
     myCompilerJarPath.setText(myConfiguration.myScalaCompilerJarPath);
     mySDKJarPath.setEnabled(myConfiguration.takeFromSettings);
@@ -70,8 +77,11 @@ public class ScalaFacetTab extends FacetEditorTab {
 
     myUseSettingsChb.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        myCompilerJarPath.setEnabled(myUseSettingsChb.isSelected());
-        mySDKJarPath.setEnabled(myUseSettingsChb.isSelected());
+        final boolean b = myUseSettingsChb.isSelected();
+        myCompilerJarPath.setEnabled(b);
+        mySDKJarPath.setEnabled(b);
+        myIsRealtivePath.setEnabled(b);
+        myHintLabel.setEnabled(b);
       }
     });
     reset();
@@ -90,8 +100,9 @@ public class ScalaFacetTab extends FacetEditorTab {
     return !(myConfiguration.myExcludeCompilerFromModuleScope == myCompilerExcludeCb.isSelected() &&
         myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected() &&
         myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
+        myConfiguration.isRelativeToProjectPath == myIsRealtivePath.isSelected() &&
         myConfiguration.myScalaCompilerJarPath.equals(getCompilerPath()) &&
-        myConfiguration.myScalaCompilerJarPath.equals(getSdkPath()));
+        myConfiguration.myScalaSdkJarPath.equals(getSdkPath()));
   }
 
   private String getSdkPath() {
@@ -116,6 +127,7 @@ public class ScalaFacetTab extends FacetEditorTab {
     myConfiguration.myScalaCompilerJarPath = getCompilerPath();
     myConfiguration.myScalaSdkJarPath = getSdkPath();
     myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
+    myConfiguration.isRelativeToProjectPath = myIsRealtivePath.isSelected();
   }
 
   public void reset() {

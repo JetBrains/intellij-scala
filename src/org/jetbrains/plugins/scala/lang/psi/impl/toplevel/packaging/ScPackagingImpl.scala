@@ -17,6 +17,7 @@ import psi.ScalaPsiElementImpl
 import api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 import psi.stubs.elements.wrappers.DummyASTNode
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -87,7 +88,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
-
+    ProgressManager.checkCanceled
     var p = JavaPsiFacade.getInstance(getProject).findPackage(pName)
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false
