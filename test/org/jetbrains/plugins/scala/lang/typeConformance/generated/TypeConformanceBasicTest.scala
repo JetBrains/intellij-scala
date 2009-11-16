@@ -15,6 +15,8 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
 
   def testFunctionRightConformance = doTest
 
+  def testImplicitInixParamClause = doTest
+
   def testNullConformance = doTest
 
   def testTupleConformance = doTest
