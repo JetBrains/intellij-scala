@@ -7,11 +7,11 @@ import api.statements.params.ScTypeParam
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.{PsiManager, PsiTypeParameter}
 import com.intellij.util.containers.WeakValueHashMap
 import java.util.WeakHashMap
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
+import com.intellij.psi.{PsiClassType, PsiManager, PsiTypeParameter}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   def projectOpened {}
@@ -67,10 +67,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         }
         case _ => {
           val lower = () => Nothing
-          val upper = () => tp.getSuperTypes match {
-            case Array(single) => ScType.create(single, project)
+          val scType = tp.getSuperTypes match {
+            case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
             case many => new ScCompoundType(collection.immutable.Seq(many.map{ScType.create(_, project)}.toSeq: _*), Seq.empty, Seq.empty)
           }
+          val upper = () => scType
           val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
           typeVariables.put(tp, res)
           res
