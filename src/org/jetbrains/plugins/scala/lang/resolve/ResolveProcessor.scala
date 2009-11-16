@@ -135,17 +135,17 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    def forFilter(c: ScalaResolveResult): Boolean = {
+    def forFilter(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
           typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
-          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._1
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits)._1
         }
         case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
                 typeArgElements.length == tp.getTypeParameters.length) &&
                 tp.isInstanceOf[PsiNamedElement] => {
-          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._1
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits)._1
         }
         case _ => false
       }
@@ -156,7 +156,7 @@ class MethodResolveProcessor(ref: PsiElement,
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
-          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses)._2.getSubstitutor
+          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, true)._2.getSubstitutor
           s match {
             case Some(s) => new ScalaResolveResult(synthetic, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
@@ -165,7 +165,7 @@ class MethodResolveProcessor(ref: PsiElement,
         case owner: ScTypeParametersOwner => {
           var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses)._2
+          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, true)._2
           for (tParam <- owner.typeParameters) { //todo: think about view type bound
             s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
             s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
@@ -189,7 +189,7 @@ class MethodResolveProcessor(ref: PsiElement,
           }
         }
         case owner: PsiTypeParameterListOwner => {
-          var s = Compatibility.compatible(owner, substitutor, argumentClauses)._2
+          var s = Compatibility.compatible(owner, substitutor, argumentClauses, true)._2
           for (tParam <- owner.getTypeParameters) {
             s = s.addLower(tParam.getName, Nothing) //todo:
             s = s.addUpper(tParam.getName, Any) //todo:
@@ -214,7 +214,9 @@ class MethodResolveProcessor(ref: PsiElement,
         }
       }
     }
-    val applicable: Set[ScalaResolveResult] = candidatesSet.filter(forFilter(_)).map(forMap(_))
+    var filtered = candidatesSet.filter(forFilter(_, false))
+    if (filtered.isEmpty) filtered = candidatesSet.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
+    val applicable: Set[ScalaResolveResult] = filtered.map(forMap(_))
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
