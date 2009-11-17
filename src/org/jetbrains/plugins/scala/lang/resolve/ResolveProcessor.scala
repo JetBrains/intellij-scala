@@ -151,12 +151,12 @@ class MethodResolveProcessor(ref: PsiElement,
       }
     }
 
-    def forMap(c: ScalaResolveResult): ScalaResolveResult = {
+    def forMap(c: ScalaResolveResult, withImplicits: Boolean): ScalaResolveResult = {
       if (typeArgElements.length != 0) return c
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
-          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, true)._2.getSubstitutor
+          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, withImplicits)._2.getSubstitutor
           s match {
             case Some(s) => new ScalaResolveResult(synthetic, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
@@ -165,7 +165,7 @@ class MethodResolveProcessor(ref: PsiElement,
         case owner: ScTypeParametersOwner => {
           var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, true)._2
+          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, withImplicits)._2
           for (tParam <- owner.typeParameters) { //todo: think about view type bound
             s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
             s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
@@ -189,7 +189,7 @@ class MethodResolveProcessor(ref: PsiElement,
           }
         }
         case owner: PsiTypeParameterListOwner => {
-          var s = Compatibility.compatible(owner, substitutor, argumentClauses, true)._2
+          var s = Compatibility.compatible(owner, substitutor, argumentClauses, withImplicits)._2
           for (tParam <- owner.getTypeParameters) {
             s = s.addLower(tParam.getName, Nothing) //todo:
             s = s.addUpper(tParam.getName, Any) //todo:
@@ -215,8 +215,9 @@ class MethodResolveProcessor(ref: PsiElement,
       }
     }
     var filtered = candidatesSet.filter(forFilter(_, false))
+    val withImplicit = filtered.isEmpty
     if (filtered.isEmpty) filtered = candidatesSet.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
-    val applicable: Set[ScalaResolveResult] = filtered.map(forMap(_))
+    val applicable: Set[ScalaResolveResult] = filtered.map(forMap(_, withImplicit))
 
     if (applicable.isEmpty) candidatesSet.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
