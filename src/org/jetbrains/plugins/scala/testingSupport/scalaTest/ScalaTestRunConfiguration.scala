@@ -156,6 +156,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val scalaTestVersion: String = {
       val lib: Library = LibraryUtil.findLibraryByClass(SUITE_PATH, suiteClass.getProject)
       val jar = LibrariesHelper.getInstance.findJarByClass(lib, SUITE_PATH)
+      if (jar == null) throw new ExecutionException("Jar for ScalaTest is not specified")
       val path = jar.getPresentableName
       val s: String = "scalatest-"
       if (path.startsWith(s)) {

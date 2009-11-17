@@ -13,7 +13,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scalatest-0.9-scala-2.7" level="project" />
-    <orderEntry type="library" name="specs" level="project" />
     <orderEntry type="library" name="Scala SDK" level="application" />
   </component>
 </module>
