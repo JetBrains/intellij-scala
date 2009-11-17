@@ -1,0 +1,4 @@
+trait ReplyableReactor extends Replyable[Any, Any] {
+  _: ReplyReactor =>
+}
+------
