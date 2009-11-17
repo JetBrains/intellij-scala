@@ -185,7 +185,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
           val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
           val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-          Compatibility.compatible(ret1, ret2) && compt && params1.length == params2.length
+          compt && params1.length == params2.length
       }
       case (_, e2: PsiMethod, _, _) => true
       case _ => Compatibility.compatible(getType(e1), getType(e2))
