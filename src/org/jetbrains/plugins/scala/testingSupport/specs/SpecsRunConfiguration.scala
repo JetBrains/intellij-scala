@@ -166,8 +166,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
 
-        val jarPathForClass = PathUtil.getJarPathForClass(classOf[SpecsRunConfiguration])
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner]).replace("scala-plugin-runners", "specs-runner")
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)
