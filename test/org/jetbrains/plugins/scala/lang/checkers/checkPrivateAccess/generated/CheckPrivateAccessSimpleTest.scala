@@ -7,6 +7,8 @@ class CheckPrivateAccessSimpleTest extends CheckPrivateAccessTestBase {
 
   def testCompanionAccess = doTest
 
+  def testCompanionForTrait = doTest
+
   def testPrivateEnclosing = doTest
 
   def testPrivateThisAccess = doTest

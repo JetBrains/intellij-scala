@@ -276,7 +276,8 @@ object ScalaPsiUtil {
     val name: String = td.getName
     val scope: PsiElement = td.getParent
     val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] => stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
+      case stub: StubBasedPsiElement[_] if stub.getStub != null => 
+        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
         new ArrayFactory[PsiElement] {
           def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
         })
@@ -295,7 +296,8 @@ object ScalaPsiUtil {
           case td: ScTypeDefinition => td
           case _ => null: ScTypeDefinition
         }).find((child: ScTypeDefinition) =>
-                child.isInstanceOf[ScClass] && child.asInstanceOf[ScClass].getName == name)
+                (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
+                        && child.asInstanceOf[ScTypeDefinition].getName == name)
       }
       case _ => None
     }
