@@ -1,11 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.specs;
+package org.jetbrains.plugins.scala.testingSupport.specs
+
 
 import org.specs.Specification
-import org.specs.runner.NotifierRunner
 import org.specs.util.Classes
 import collection.mutable.ArrayBuffer
+import org.specs.runner.{RunnerMain, NotifierRunner}
+import java.lang.String
 
-class SpecsRunner {
+object SpecsRunner {
   def main(args: Array[String]) {
     if (args.length == 0) {
       println("The first argument should be the specification class name")
@@ -33,15 +35,16 @@ class SpecsRunner {
       }
     }
 
-    val finalSysFilter: String = sysFilter
-    val finalExFilter: String = exFilter
-
     for (clazz <- classes) {
       val option: Option[Specification] = Classes.createObject(clazz)
       option match {
         case Some(s: Specification) => {
           try {
-            new NotifierRunner(s, new SpecsNotifier)
+            (new NotifierRunner(s, new SpecsNotifier) {
+              override def susFilterPattern: String = sysFilter
+
+              override def exampleFilterPattern: String = exFilter
+            }).reportSpecs
           } catch {
             case e: Exception => e.printStackTrace
           }
@@ -51,7 +54,11 @@ class SpecsRunner {
           option match {
             case Some(s: Specification) => {
               try {
-                new NotifierRunner(s, new SpecsNotifier)
+                (new NotifierRunner(s, new SpecsNotifier) {
+                  override def susFilterPattern: String = sysFilter
+
+                  override def exampleFilterPattern: String = exFilter
+                }).reportSpecs
               } catch {
                 case e: Exception => e.printStackTrace
               }
