@@ -21,7 +21,6 @@
     <orderEntry type="library" name="scalatest-0.9-scala-2.7" level="project" />
     <orderEntry type="module" module-name="ScalaRunners" />
     <orderEntry type="library" name="Scala SDK" level="application" />
-    <orderEntry type="module" module-name="Scala2.7Runners" />
   </component>
 </module>
 

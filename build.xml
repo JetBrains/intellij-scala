@@ -289,12 +289,6 @@
     </jar>
 
     <copy todir="${temp.jar.dir}/Scala/lib">
-      <fileset dir="${scala.aux.lib}">
-        <include name="**/specs-runner.jar"/>
-      </fileset>
-    </copy>
-
-    <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
         <include name="**/scala-compiler.jar"/>
