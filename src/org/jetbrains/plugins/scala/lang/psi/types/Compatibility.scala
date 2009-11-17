@@ -11,6 +11,7 @@ import result.{Success, TypingContext}
 import api.toplevel.typedef.ScClass
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
+import api.base.ScPrimaryConstructor
 
 /**
  * @author ven
@@ -144,6 +145,25 @@ object Compatibility {
         var i = 1
         while (i < argClauses.length.min(fun.paramClauses.clauses.length)) {
           val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, () => {
+            substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
+          undefinedSubst += t._2
+          i += 1
+        }
+        return (true, undefinedSubst)
+      }
+      case constructor: ScPrimaryConstructor => {
+        val parameters: Seq[ScParameter] =
+          if (constructor.parameterList.clauses.length == 0) Seq.empty
+          else constructor.parameterList.clauses.apply(0).parameters
+        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+          substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
+        var undefinedSubst = res._2
+        if (!res._1) return res
+        var i = 1
+        while (i < argClauses.length.min(constructor.parameterList.clauses.length)) {
+          val t = checkConformance(true, constructor.parameterList.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, () => {
             substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
           }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
           undefinedSubst += t._2
