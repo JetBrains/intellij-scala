@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
-class SpecsNotifier implements Notifier {
+public class SpecsNotifier implements Notifier {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
   public void runStarting(int i) {
