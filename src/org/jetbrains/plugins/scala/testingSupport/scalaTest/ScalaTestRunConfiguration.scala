@@ -153,7 +153,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     var scalaVersion: String = "27"
     try {
       val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      if (vers > 2.75) scalaVersion = "28"
+      if (vers > 2.79) scalaVersion = "28"
     } catch {
       case e: Exception => //nothing to do
     }
