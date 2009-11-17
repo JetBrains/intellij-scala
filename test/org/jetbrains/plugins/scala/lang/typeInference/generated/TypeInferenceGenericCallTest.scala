@@ -18,4 +18,6 @@ class TypeInferenceGenericCallTest extends TypeInferenceTestBase {
   def testJavaGenericFunction = doTest
 
   def testObjectGenericApply = doTest
+
+  def testToArray = doTest
 }

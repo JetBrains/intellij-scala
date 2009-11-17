@@ -15,6 +15,8 @@ class TypeConformanceGenericTest extends TypeConformanceTestBase {
 
   def testOmmitedGenerics = doTest
 
+  def testPartialFunction = doTest
+
   def testSeqApply = doTest
 
   def testSeqEmpty = doTest
