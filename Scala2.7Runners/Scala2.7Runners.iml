@@ -19,7 +19,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="scalatest-1.0-scala-2.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="scala-2.7" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.1-scala-2.7" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.0-scala-2.7" level="project" />
   </component>
 </module>
 

@@ -14,7 +14,7 @@ import com.intellij.psi._
 import lang.lexer._
 import psi.stubs.ScReferencePatternStub
 import psi.types.{ScCompoundType, ScType, Nothing}
-import psi.types.result.{TypingContext, Success}
+import psi.types.result.{Failure, TypingContext, Success}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,7 +31,13 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
 
   override def toString: String = "ReferencePattern"
 
-  override def getType(ctx: TypingContext) = wrap(expectedType) map {x => x}
+  override def getType(ctx: TypingContext) = {
+    //rewrited because of Scala Compiler bugs (NPE was here)
+    expectedType match {
+      case Some(x) => Success(x, Some(this))
+      case None => Failure("cannot define expected type", Some(this))
+    }
+  }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     def processClassType(t: ScType) = ScType.extractClassType(t) match {
