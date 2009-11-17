@@ -34,6 +34,7 @@ public class ScalaTestRunConfigurationForm {
   private JLabel testClassLabel;
   private JLabel testPackageLabel;
   private JComboBox moduleComboBox;
+  private JCheckBox scalaTestVersion;
 
   private ConfigurationModuleSelector myModuleSelector;
 
@@ -100,6 +101,7 @@ public class ScalaTestRunConfigurationForm {
     else {
       setClassEnabled();
     }
+    setScalaTestVersion(configuration.getScalaTestVersion());
     myModuleSelector.applyTo(configuration);
   }
 
@@ -137,6 +139,14 @@ public class ScalaTestRunConfigurationForm {
 
   public void setTestPackagePath(String s) {
     testPackageTextField.setText(s);
+  }
+
+  public boolean getScalaTestVersion() {
+    return scalaTestVersion.isSelected();
+  }
+
+  public void setScalaTestVersion(boolean b) {
+    scalaTestVersion.setSelected(b);
   }
 
   public JPanel getPanel() {

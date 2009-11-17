@@ -64,15 +64,18 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
+  private var scalaTestVersion = false
 
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
+  def getScalaTestVersion: Boolean = scalaTestVersion
   def setTestClassPath(s: String): Unit = testClassPath = s
   def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
+  def setScalaTestVersion(b: Boolean): Unit = scalaTestVersion = b
 
   def apply(configuration: ScalaTestRunConfigurationForm) {
     if (configuration.isClassSelected) {
@@ -85,6 +88,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
+    setScalaTestVersion(configuration.getScalaTestVersion)
     setModule(configuration.getModule)
   }
 
@@ -153,18 +157,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     } catch {
       case e: Exception => //nothing to do
     }
-    val scalaTestVersion: String = {
-      val lib: Library = LibraryUtil.findLibraryByClass(SUITE_PATH, suiteClass.getProject)
-      val jar = LibrariesHelper.getInstance.findJarByClass(lib, SUITE_PATH)
-      if (jar == null) throw new ExecutionException("Jar for ScalaTest is not specified")
-      val path = jar.getPresentableName
-      val s: String = "scalatest-"
-      if (path.startsWith(s)) {
-        if (path.substring(s.length).startsWith("0")) "09"
-        else "10"
-      }
-      else "10"
-    }
+    val scalaTestVersion: String = if (this.scalaTestVersion) "09" else "10"
 
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
@@ -258,6 +251,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "package", getTestPackagePath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
+    JDOMExternalizer.write(element, "version", scalaTestVersion)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -267,6 +261,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     testPackagePath = JDOMExternalizer.readString(element, "package")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
+    scalaTestVersion = JDOMExternalizer.readBoolean(element, "version")
   }
 
   private def getClassPath(module: Module): String = {
