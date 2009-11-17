@@ -59,6 +59,8 @@ object TokenSets {
   val STABLE_ID_BIT_SET = TokenSet.create(STABLE_ID,
       tIDENTIFIER)
 
+  val TYPE_DEFINITIONS_SET: TokenSet = TokenSet.create(CLASS_DEF, TRAIT_DEF, OBJECT_DEF)
+
   val TYPE_BIT_SET: TokenSet = TokenSet.orSet(STABLE_ID_BIT_SET,
       TokenSet.create(SIMPLE_TYPE,
           COMPOUND_TYPE,

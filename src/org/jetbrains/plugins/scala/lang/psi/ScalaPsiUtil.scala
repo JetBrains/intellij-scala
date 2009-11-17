@@ -6,13 +6,13 @@ import api.base._
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.packaging.{ScPackaging}
 import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
+import api.toplevel.typedef._
 import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
 import api.ScalaFile
-import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition, ScClass, ScObject}
 import com.intellij.openapi.project.Project
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
@@ -31,6 +31,9 @@ import result.TypingContext
 import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import com.intellij.psi.stubs.StubElement
+import com.intellij.util.ArrayFactory
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 06.10.2008
@@ -269,18 +272,26 @@ object ScalaPsiUtil {
   }
 
   def getCompanionModule(td: ScTemplateDefinition): Option[ScTypeDefinition] = {
-    val name = td.getName
-    val scope = td.getParent
+    if (!td.isInstanceOf[ScTypeDefinition]) return None
+    val name: String = td.getName
+    val scope: PsiElement = td.getParent
+    val arrayOfElements: Array[PsiElement] = scope match {
+      case stub: StubBasedPsiElement[_] => stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
+        new ArrayFactory[PsiElement] {
+          def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
+        })
+      case _ => scope.getChildren
+    }
     td match {
-      case _: ScClass => {
-        scope.getChildren.map((child: PsiElement) => child match {
+      case _: ScClass | _: ScTrait => {
+        arrayOfElements.map((child: PsiElement) => child match {
           case td: ScTypeDefinition => td
           case _ => null: ScTypeDefinition
         }).find((child: ScTypeDefinition) =>
                 child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name)
       }
       case _: ScObject => {
-        scope.getChildren.map((child: PsiElement) => child match {
+        arrayOfElements.map((child: PsiElement) => child match {
           case td: ScTypeDefinition => td
           case _ => null: ScTypeDefinition
         }).find((child: ScTypeDefinition) =>
