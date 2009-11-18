@@ -258,6 +258,7 @@ class ScalaAnnotator extends Annotator {
       case _ => {
         if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
         val tp = expr.expectedType match {
+          case Some(Unit) => //do nothing
           case Some(tp: ScType) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
