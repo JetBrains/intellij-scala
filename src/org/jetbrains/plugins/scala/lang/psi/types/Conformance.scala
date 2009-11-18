@@ -96,6 +96,7 @@ object Conformance {
             return conforms(new ScTupleType(args, clazz.getProject), r, visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            if (args.length == 0) return (false, undefinedSubst)
             return conforms(ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), r, visited, undefinedSubst)
           }
         }
@@ -111,6 +112,7 @@ object Conformance {
             return conforms(l, new ScTupleType(args, clazz.getProject), visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            if (args.length == 0) return (false, undefinedSubst)
             return conforms(l, ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), visited, undefinedSubst)
           }
         }
