@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import api.base.patterns.ScCaseClauses;
 import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -29,6 +30,6 @@ class ScBlockExprImpl(node: ASTNode) extends ScBlockImpl(node) with ScBlockExpr 
 
   override def toString: String = "BlockExpression"
 
-  
-  
+
+  override def isAnonymousFunction: Boolean = findChild(classOf[ScCaseClauses]) != None
 }
