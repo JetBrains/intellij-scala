@@ -54,6 +54,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
         case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
 
+        case constr: ScConstructorPattern => new ExtractorResolveProcessor(ref, refName, kinds, constr.expectedType,
+          constr.args.patterns.length, false /*todo*/)
         case _ => new ResolveProcessor(kinds, refName)
       }
       _resolve(ref, proc)

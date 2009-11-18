@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
@@ -22,6 +21,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.implicits.ScImplicitlyConvertible
 import result.{Success, TypingContext}
 import scala._
+import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
 
@@ -57,6 +57,74 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
       val stateName = state.get(ResolverEnv.nameKey)
       if (stateName == null) name else stateName
     }
+  }
+}
+
+class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
+                                expected: Option[ScType], patternsCount: Int, lastSeq: Boolean)
+        extends ResolveProcessor(kinds, refName) {
+  override def execute(element: PsiElement, state: ResolveState): Boolean = {
+    val named = element.asInstanceOf[PsiNamedElement]
+    if (nameAndKindMatch(named, state)) {
+      named match {
+        case o: ScObject if o.isPackageObject => return true
+        case clazz: ScClass if clazz.isCase => {
+          candidatesSet.clear
+          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+          return false
+        }
+        case obj: ScObject => {
+          for (sign: PhysicalSignature <- obj.signaturesByName("unapply")) {
+            val m = sign.method
+            val subst = sign.substitutor
+            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
+          }
+          if (candidatesSet.isEmpty)
+          for (sign: PhysicalSignature <- obj.signaturesByName("unapplySeq")) {
+            val m = sign.method
+            val subst = sign.substitutor
+            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
+          }
+          return true
+        }
+        case _ => return true
+      }
+    }
+    return true
+  }
+
+  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
+    def forFilter(c: ScalaResolveResult): Boolean = {
+      val subst = c.substitutor
+      c.element match {
+        case c: ScClass => true
+        case f: ScFunction if f.getName == "unapply" => {
+          if (f.paramClauses.clauses.length == 0 || f.paramClauses.clauses.apply(0).parameters.length != 1) return false
+          f.returnType match {
+            case Success(tp: ScType, _) if tp.equiv(lang.psi.types.Boolean) => patternsCount == 0
+            case Success(ScParameterizedType(tp, args), _) if args.length == 1 && (ScType.extractClassType(tp) match {
+              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" => true
+              case _ => false
+            }) => {
+              args(0) match {
+                case ScTupleType(args) => patternsCount == args.length
+                case ScParameterizedType(tp, args) if (ScType.extractClassType(tp) match {
+                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
+                  case _ => false
+                }) => return patternsCount == args.length
+                case tp => return patternsCount == 0
+              }
+            }
+            case _ => return false
+          }
+        }
+        //todo: unapplySeq
+        case _ => false
+      }
+    }
+    val applicable = candidatesSet.filter(forFilter(_))
+    if (applicable.isEmpty) return candidatesSet.toArray
+    else return applicable.toArray
   }
 }
 
