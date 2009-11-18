@@ -265,9 +265,16 @@ class MethodResolveProcessor(ref: PsiElement,
     (e1, e2, getType(e1), getType(e2)) match {
       case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
         if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
-          val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
+          /*val px = params1.zip(params2).map(p => Compatibility.compatible(p._2, p._1))
           val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-          compt && params1.length == params2.length
+          compt && params1.length == params2.length*/
+        import Compatibility.Expression
+        val res = Compatibility.compatible(e2, e2 match {case m: PsiTypeParameterListOwner => inferMethodTypesArgs(m, ScSubstitutor.empty)
+        case _ => ScSubstitutor.empty},
+          List(params1.map(new Expression(_)) ++ Seq.fill(if (argumentClauses.length > 0 && params1.length > 0)
+            0.max(argumentClauses.apply(0).length - params1.length) else 0)(new Expression(if (params1.length > 0) params1.last else Nothing))), 
+          false, true)._1
+        res
       }
       case (_, e2: PsiMethod, _, _) => true
       case _ => Compatibility.compatible(getType(e1), getType(e2))

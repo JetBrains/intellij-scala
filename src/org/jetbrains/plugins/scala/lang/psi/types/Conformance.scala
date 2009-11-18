@@ -40,7 +40,6 @@ object Conformance {
       case _ if l equiv r => return (true, undefinedSubst)
       case (Any, _) => return (true, undefinedSubst)
       case (_, Nothing) => return (true, undefinedSubst)
-      case (Unit, _) => return (true, undefinedSubst)
       /*
         this case for checking: val x: T = null
         This is good if T class type: T <: AnyRef and !(T <: NotNull)
