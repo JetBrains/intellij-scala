@@ -80,27 +80,19 @@ trait ScPattern extends ScalaPsiElement {
         if (thr != null) Some(new ScDesignatorType(thr)) else None
       }
       case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
-        case Some(tp: ScType) => {
-          (BaseTypes.get(tp) ++ Seq(tp)).find(x => x match {
-            case ScFunctionType(ret, params) => true
-            case ScParameterizedType(tp, _) if (ScType.extractClassType(tp) match {
-              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
-              case _ => false
-            }) => true
-            case _ => false
-          }) match {
-            case Some(tp: ScType) => tp match {
-              case ScFunctionType(ret, params) => if (params.length == 1) Some(params(0))
-               else Some(new ScTupleType(params, getProject))
-              case ScParameterizedType(tp, params) => {
-                if (params.length == 0) None
-                else if (params.length == 1) Some(Unit)
-                else if (params.length == 2) Some(params(0))
-                else Some(new ScTupleType(params.slice(0, params.length - 1), getProject))
-              }
-            }
-            case _ => None
-          }
+        case Some(ScFunctionType(ret, params)) => {
+          if (params.length == 0) Some(Unit)
+          else if (params.length == 1) Some(params(0))
+          else Some(new ScTupleType(params, getProject))
+        }
+        case Some(ScParameterizedType(des, args)) if (ScType.extractClassType(des) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => true
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+          case _ => false
+        }) => {
+          if (args.length == 1) Some(Unit)
+          else if (args.length == 2) Some(args(0))
+          else Some(new ScTupleType(args.slice(0, args.length - 1), getProject))
         }
         case _ => None
       }
