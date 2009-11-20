@@ -33,12 +33,12 @@ object Generator {
         builder error ErrMsg("choose.expected")
       }
     }
+    genMarker.done(ScalaElementTypes.GENERATOR)
     if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => Guard parse builder
       case _ => {}
     }
-    genMarker.done(ScalaElementTypes.GENERATOR)
     return true
   }
 }
