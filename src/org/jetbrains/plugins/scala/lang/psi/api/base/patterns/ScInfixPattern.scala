@@ -13,5 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScInfixPattern extends ScPattern {
-
+  def leftPattern: ScPattern = findChildByClassScala(classOf[ScPattern])
+  def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
+  def refernece: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }
