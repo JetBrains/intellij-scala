@@ -344,11 +344,11 @@ object ScalaAnnotator {
    * Check conformance in case l = r.
    */
   def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
-    /*for (leftType <- l; rightType <- r) {
+    for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
         return false
       } else return true
-    }*/
+    }
     return true
   }
 }
