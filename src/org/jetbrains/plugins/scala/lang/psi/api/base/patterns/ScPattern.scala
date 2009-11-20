@@ -9,11 +9,11 @@ import collection.mutable.ArrayBuffer
 import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._
 import result.{Failure, TypeResult, TypingContext}
-import statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import lang.resolve.ScalaResolveResult
 import toplevel.typedef.ScClass
+import statements.{ScFunction, ScValue, ScVariable}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -107,7 +107,73 @@ trait ScPattern extends ScalaPsiElement {
                 case _ => None
               }
             }
-            case _ => None //todo: extractor patterns
+            case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapply" => {
+              for (rt <- fun.returnType) {
+                if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
+                subst.subst(rt) match {
+                  case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                    case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+                      clazz.getQualifiedName == "scala.Some" => true
+                    case _ => false
+                  }) => {
+                    if (args.length != 1) return None
+                    args(0) match {
+                      case ScTupleType(args) => {
+                        val i = constr.args.patterns.findIndexOf(_ == this)
+                        if (i < args.length) return Some(args(i))
+                        else return None
+                      }
+                      case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Tuple" => true
+                        case _ => false
+                      }) => {
+                        val i = constr.args.patterns.findIndexOf(_ == this)
+                        if (i < args.length) return Some(args(i))
+                        else return None
+                      }
+                      case tp => {
+                        val i = constr.args.patterns.findIndexOf(_ == this)
+                        if (i == 0) return Some(tp)
+                        else return None
+                      }
+                    }
+                  }
+                  case _ => return None
+                }
+              }
+              None
+            }
+            case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapplySeq" => {
+              for (rt <- fun.returnType) {
+                subst.subst(rt) match {
+                  case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                    case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+                      clazz.getQualifiedName == "scala.Some" => true
+                    case _ => false
+                  }) => {
+                    if (args.length != 1) return None
+                    (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
+                      case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClassType(des) match {
+                        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                        case _ => false
+                      }) => true
+                      case _ => false
+                    }) match {
+                      case Some(seq@ScParameterizedType(des, args)) => {
+                        this match {
+                          case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(seq)
+                          case _ => return Some(args(0))
+                        }
+                      }
+                      case _ => return None
+                    }
+                  }
+                  case _ => return None
+                }
+              }
+              None
+            }
+            case _ => None
           }
         }
       }
