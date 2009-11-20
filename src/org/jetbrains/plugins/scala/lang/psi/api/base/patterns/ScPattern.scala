@@ -178,8 +178,10 @@ trait ScPattern extends ScalaPsiElement {
           resolveReferenceToExtractor(constr.ref, constr.args.patterns.findIndexOf(_ == this), constr.expectedType,
             argList.patterns.length)
         }
+        case _ => None
       }
     }
+    case composite: ScCompositePattern => composite.expectedType
     case infix: ScInfixPattern => {
       val i = if (infix.leftPattern == this) 0 else {
         if (this.isInstanceOf[ScTuplePattern]) return None
