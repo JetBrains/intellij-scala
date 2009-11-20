@@ -57,7 +57,9 @@ object Pattern3 {
           exit = true
         }
       }
+      val idMarker = builder.mark
       builder.advanceLexer //Ate id
+      idMarker.done(ScalaElementTypes.REFERENCE)
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
