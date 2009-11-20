@@ -61,7 +61,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
 }
 
 class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
-                                expected: Option[ScType], patternsCount: Int, lastSeq: Boolean)
+                                expected: Option[ScType]/*, patternsCount: Int, lastSeq: Boolean*/)
         extends ResolveProcessor(kinds, refName) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -71,7 +71,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
         case clazz: ScClass if clazz.isCase => {
           candidatesSet.clear
           candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-          return false
+          return false //find error  about existing unapply in companion during annotation under case class
         }
         case obj: ScObject => {
           for (sign: PhysicalSignature <- obj.signaturesByName("unapply")) {
@@ -79,6 +79,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
             val subst = sign.substitutor
             candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
           }
+          //unapply has bigger priority then unapplySeq
           if (candidatesSet.isEmpty)
           for (sign: PhysicalSignature <- obj.signaturesByName("unapplySeq")) {
             val m = sign.method
@@ -94,7 +95,8 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    def forFilter(c: ScalaResolveResult): Boolean = {
+    //keep this in case if them want to do something about resolving to unapply methods
+    /*def forFilter(c: ScalaResolveResult): Boolean = {
       val subst = c.substitutor
       c.element match {
         case c: ScClass => true
@@ -112,19 +114,60 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
                   case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
                   case _ => false
                 }) => return patternsCount == args.length
-                case tp => return patternsCount == 0
+                case tp => return patternsCount == 1
               }
             }
             case _ => return false
           }
         }
-        //todo: unapplySeq
+        case f: ScFunction if f.getName == "unapplySeq" => {
+          if (f.paramClauses.clauses.length == 0 || f.paramClauses.clauses.apply(0).parameters.length != 1) return false
+          f.returnType match {
+            case Success(tp: ScType, _) if tp.equiv(lang.psi.types.Boolean) => patternsCount == 0
+            case Success(ScParameterizedType(tp, args), _) if args.length == 1 && (ScType.extractClassType(tp) match {
+              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" => true
+              case _ => false
+            }) => {
+              (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
+                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClassType(des) match {
+                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                  case _ => false
+                }) => true
+                case _ => false
+              }) match {
+                case Some(ScParameterizedType(des, args)) => return true
+                case _ => return false
+              }
+            }
+            case _ => return false
+          }
+        }
         case _ => false
       }
+    }*/
+    //val applicable = candidatesSet.filter(forFilter(_))
+    //if (applicable.isEmpty) return candidatesSet.toArray
+    expected match {
+      case Some(tp) => {
+          for (applicable <- candidatesSet) {
+            applicable.element match {
+              case fun: ScFunction => {
+                val clauses = fun.paramClauses.clauses
+                if (clauses.length != 0) {
+                  if (clauses.apply(0).parameters.length == 1) {
+                    for (paramType <- clauses(0).parameters.apply(0).getType(TypingContext.empty)) {
+                      if (tp equiv applicable.substitutor.subst(paramType)) return Array(applicable)
+                    }
+                  }
+                }
+              }
+              case _ =>
+            }
+          }
+      }
+      case _ =>
     }
-    val applicable = candidatesSet.filter(forFilter(_))
-    if (applicable.isEmpty) return candidatesSet.toArray
-    else return applicable.toArray
+    return candidatesSet.toArray
   }
 }
 
