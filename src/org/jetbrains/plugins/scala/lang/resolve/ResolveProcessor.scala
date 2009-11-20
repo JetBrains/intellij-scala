@@ -147,6 +147,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
     }*/
     //val applicable = candidatesSet.filter(forFilter(_))
     //if (applicable.isEmpty) return candidatesSet.toArray
+    //todo: Local type inference
     expected match {
       case Some(tp) => {
           for (applicable <- candidatesSet) {

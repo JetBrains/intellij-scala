@@ -333,10 +333,10 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     commandLine.add(classPathBuilder.toString());
     commandLine.add(ScalacRunner.class.getName());
 
-    for (String s : commandLine) {
+    /*for (String s : commandLine) {
       System.out.print(s);
       System.out.print(" ");
-    }
+    }*/
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
