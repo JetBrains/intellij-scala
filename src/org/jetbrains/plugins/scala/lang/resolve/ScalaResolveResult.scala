@@ -10,7 +10,7 @@ import psi.api.toplevel.imports.usages.ImportUsed
 object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
 
-  def unapply(r: ScalaResolveResult) = Some(r.element, r.substitutor)
+  def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
 }
 
 class ScalaResolveResult(val element: PsiNamedElement,

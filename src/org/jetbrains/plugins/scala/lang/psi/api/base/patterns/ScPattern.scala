@@ -20,6 +20,8 @@ import statements.{ScFunction, ScValue, ScVariable}
  */
 
 trait ScPattern extends ScalaPsiElement {
+  def isIrrefutableFor(t: Option[ScType]): Boolean = false
+
   def getType(ctx: TypingContext) : TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
   def bindings : Seq[ScBindingPattern] = {

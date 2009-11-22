@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import result.TypingContext
+import lang.resolve.ScalaResolveResult
+import api.base.ScPrimaryConstructor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -39,6 +41,44 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
         //todo unapplySeq
       }
       case _ => None
+    }
+  }
+
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
+    if (t == None) return false
+    ref.bind match {
+      case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase => {
+        ScType.extractClassType(t.get) match {
+          case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz => {
+            clazz.constructor match {
+              case Some(constr: ScPrimaryConstructor) => {
+                val clauses = constr.parameterList.clauses
+                if (clauses.length == 0) subpatterns.length == 0
+                else {
+                  val params = clauses(0).parameters
+                  if (params.length == 0) return subpatterns.length == 0
+                  if (params.length != subpatterns.length) return false  //todo: repeated parameters?
+                  var i = 0
+                  while (i < subpatterns.length) {
+                    val tp = {
+                      substitutor.subst(params(i).getType(TypingContext.empty).
+                              getOrElse(return false))
+                    }
+                    if (!subpatterns.apply(i).isIrrefutableFor(Some(tp))) {
+                      return false
+                    }
+                    i = i + 1
+                  }
+                  true
+                }
+              }
+              case _ => subpatterns.length == 0
+            }
+          }
+          case _ => false
+        }
+      }
+      case _ => false
     }
   }
 
