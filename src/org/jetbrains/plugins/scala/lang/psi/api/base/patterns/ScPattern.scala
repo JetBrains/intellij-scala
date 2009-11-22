@@ -6,14 +6,17 @@ package base
 package patterns
 
 import collection.mutable.ArrayBuffer
-import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._
 import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
-import lang.resolve.ScalaResolveResult
 import toplevel.typedef.ScClass
 import statements.{ScFunction, ScValue, ScVariable}
+import expr._
+import implicits.ScImplicitlyConvertible
+import com.intellij.openapi.progress.ProgressManager
+import toplevel.imports.usages.ImportUsed
+import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -245,6 +248,72 @@ trait ScPattern extends ScalaPsiElement {
       }
     }
     case named: ScNamingPattern => named.expectedType
+    case gen: ScGenerator => {
+      val isYield = gen.getParent.getParent.asInstanceOf[ScForStatement].isYield
+      var next = gen.getNextSibling
+      if (gen.rvalue == null) return null
+      //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used
+      while (next != null && !next.isInstanceOf[ScGenerator]) {
+        next match {
+          case g: ScGuard => //todo: replace type tp to appropriate after this operation
+          case e: ScEnumerator => //todo:
+          case _ =>
+        }
+        next = next.getNextSibling
+      }
+      val nextGen = next != null
+      val refName = {
+        (nextGen, isYield) match {
+          case (true, true) => "flatMap"
+          case (true, false) => "foreach"
+          case (false, true) => "map"
+          case (false, false) => "foreach"
+        }
+      }
+      import Compatibility.Expression
+      val processor = new MethodResolveProcessor(gen.rvalue, refName, List(Seq(new Expression(Nothing))) /*todo*/, Seq.empty/*todo*/, None)
+      def processTypes(e: ScExpression) {
+        ProgressManager.checkCanceled
+        val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
+        processor.processType(result, e, ResolveState.initial)
+        if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
+                processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+          for (t <- e.getImplicitTypes) {
+            ProgressManager.checkCanceled
+            val importsUsed = e.getImportsForImplicit(t)
+            var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+            e.getClazzForType(t) match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            processor.processType(t, e, state)
+          }
+        }
+      }
+      processTypes(gen.rvalue)
+      if (processor.candidates.length != 1) return None
+      else {
+        val res = processor.candidates.apply(0)
+        res match {
+          case ScalaResolveResult(method: ScFunction, subst) => {
+            if (method.paramClauses.clauses.length == 0) return None
+            val clause = method.paramClauses.clauses.apply(0)
+            if (clause.parameters.length != 1) return None
+            val param = clause.parameters.apply(0)
+            val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return None))
+            tp match {
+              case ScFunctionType(_, params) if params.length == 1 => Some(params(0))
+              case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                case Some((clazz: PsiClass, _)) => clazz.getQualifiedName == "scala.Function1"
+                case _ => false
+              }) => Some(args(0))
+              case _ => None
+            }
+          }
+          case _ => return None
+        }
+      }
+    }
     case _ => None //todo
   }
 }

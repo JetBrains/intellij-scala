@@ -182,9 +182,10 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], overrid
   }
 }
 
+import Compatibility.Expression
 class MethodResolveProcessor(ref: PsiElement,
                              refName: String,
-                             argumentClauses: List[Seq[ScExpression]],
+                             argumentClauses: List[Seq[Expression]],
                              typeArgElements: Seq[ScTypeElement],
                              expected: Option[ScType],
                              kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
@@ -252,12 +253,12 @@ class MethodResolveProcessor(ref: PsiElement,
       c.element match {
         case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
           typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
-          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits)._1
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits, ())._1
         }
         case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
                 typeArgElements.length == tp.getTypeParameters.length) &&
                 tp.isInstanceOf[PsiNamedElement] => {
-          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits)._1
+          Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits, ())._1
         }
         case _ => false
       }
@@ -268,7 +269,7 @@ class MethodResolveProcessor(ref: PsiElement,
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
-          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, withImplicits)._2.getSubstitutor
+          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, withImplicits, ())._2.getSubstitutor
           s match {
             case Some(s) => new ScalaResolveResult(synthetic, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
@@ -277,7 +278,7 @@ class MethodResolveProcessor(ref: PsiElement,
         case owner: ScTypeParametersOwner => {
           var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, withImplicits)._2
+          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, withImplicits, ())._2
           for (tParam <- owner.typeParameters) { //todo: think about view type bound
             s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
             s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
@@ -301,7 +302,7 @@ class MethodResolveProcessor(ref: PsiElement,
           }
         }
         case owner: PsiTypeParameterListOwner => {
-          var s = Compatibility.compatible(owner, substitutor, argumentClauses, withImplicits)._2
+          var s = Compatibility.compatible(owner, substitutor, argumentClauses, withImplicits, ())._2
           for (tParam <- owner.getTypeParameters) {
             s = s.addLower(tParam.getName, Nothing) //todo:
             s = s.addUpper(tParam.getName, Any) //todo:
