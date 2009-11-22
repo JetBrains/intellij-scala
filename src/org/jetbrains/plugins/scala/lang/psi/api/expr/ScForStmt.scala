@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
 trait ScForStatement extends ScExpression {
 
+  def isYield: Boolean
+
   def enumerators: Option[ScEnumerators]
 
   def patterns: Seq[ScPattern]

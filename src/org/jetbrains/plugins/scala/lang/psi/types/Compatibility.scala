@@ -41,6 +41,14 @@ object Compatibility {
     }
   }
 
+  object Expression {
+    implicit def scExpression2Expression(expr: ScExpression): Expression = Expression(expr)
+    implicit def seq2ExpressionSeq(seq: Seq[ScExpression]): Seq[Expression] = seq.map(Expression(_))
+    implicit def args2ExpressionArgs(list: List[Seq[ScExpression]]): List[Seq[Expression]] = {
+      list.map(_.map(Expression(_)))
+    }
+  }
+
   private def checkConformance(checkNames: Boolean,
                                parameters: Seq[Parameter],
                                exprs: Seq[Expression],
@@ -139,13 +147,14 @@ object Compatibility {
     return (true, undefSubst)
   }
 
+  @deprecated
   def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
                  argClauses: List[Seq[ScExpression]], checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     compatible(named, substitutor, argClauses.map(_.map(Expression(_))), checkWithImplicits, ())
   }
 
   def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
-                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, fakeArg: Unit): (Boolean, ScUndefinedSubstitutor) = {
+                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, @deprecated fakeArg: Unit): (Boolean, ScUndefinedSubstitutor) = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {

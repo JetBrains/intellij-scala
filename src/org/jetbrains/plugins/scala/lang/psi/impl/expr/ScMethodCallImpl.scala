@@ -49,6 +49,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case gen: ScGenericCall => gen.arguments
           case _ => Seq.empty
         }
+        import Compatibility.Expression._
         val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil,
           typeArgs, expectedType)
         processor.processType(tp, getInvokedExpr, ResolveState.initial)
