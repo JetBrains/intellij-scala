@@ -15,8 +15,9 @@ import api.expr._
 import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import collection.Seq
-import result.{Success, TypingContext}
+import result.{TypeResult, Failure, Success, TypingContext}
 import scala.Some
+import com.intellij.psi.PsiClass
 
 /**
 * @author ilyas
@@ -26,7 +27,18 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
   override def toString: String = "BlockOfExpressions"
 
-  protected override def innerType(ctx: TypingContext) = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    if (isAnonymousFunction) {
+      return expectedType match {
+        case Some(tp: ScFunctionType) => Success(tp, Some(this))
+        case Some(tp: ScParameterizedType) if (ScType.extractClassType(tp) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => true
+          case _ => false
+        }) => Success(tp, Some(this))
+        case _ => Failure("Cannot infer type without expected type", Some(this))
+      }
+    }
     val inner = lastExpr match {
       case None => Unit
       case Some(e) => {

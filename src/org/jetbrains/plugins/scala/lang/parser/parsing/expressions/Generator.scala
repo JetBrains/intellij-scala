@@ -34,11 +34,11 @@ object Generator {
       }
     }
     if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+    genMarker.done(ScalaElementTypes.GENERATOR)
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => Guard parse builder
       case _ => {}
     }
-    genMarker.done(ScalaElementTypes.GENERATOR)
     return true
   }
 }

@@ -7,11 +7,12 @@ import api.statements.params.{ScParameters, ScParameter}
 import api.statements.{ScFun, ScFunction}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
-import result.{Success, TypingContext}
 import api.toplevel.typedef.ScClass
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
 import api.base.ScPrimaryConstructor
+import result.{TypeResult, Success, TypingContext}
+import api.toplevel.imports.usages.ImportUsed
 
 /**
  * @author ven
@@ -26,11 +27,31 @@ object Compatibility {
     }
   }
 
-  private case class Parameter(name: String, tp: () => ScType, isDefault: Boolean, isRepeated: Boolean)
+  case class Parameter(name: String, tp: () => ScType, isDefault: Boolean, isRepeated: Boolean)
+
+  case class Expression(expr: ScExpression) {
+    var typez: ScType = null
+    def this(tp: ScType) = {
+      this(null: ScExpression)
+      typez = tp
+    }
+    def getTypeAfterImplicitConversion(expected: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
+      if (expr != null) expr.getTypeAfterImplicitConversion(expected)
+      else (Success(typez, None), Set.empty)
+    }
+  }
+
+  object Expression {
+    implicit def scExpression2Expression(expr: ScExpression): Expression = Expression(expr)
+    implicit def seq2ExpressionSeq(seq: Seq[ScExpression]): Seq[Expression] = seq.map(Expression(_))
+    implicit def args2ExpressionArgs(list: List[Seq[ScExpression]]): List[Seq[Expression]] = {
+      list.map(_.map(Expression(_)))
+    }
+  }
 
   private def checkConformance(checkNames: Boolean,
                                parameters: Seq[Parameter],
-                               exprs: Seq[ScExpression],
+                               exprs: Seq[Expression],
                                checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefSubst = new ScUndefinedSubstitutor
     if (parameters.length == 0) return (exprs.length == 0, undefSubst)
@@ -38,7 +59,7 @@ object Compatibility {
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
     val used = new Array[Boolean](parameters.length)
     while (k < parameters.length.min(exprs.length)) {
-      def doNoNamed(expr: ScExpression): Boolean = {
+      def doNoNamed(expr: Expression): Boolean = {
         if (namedMode) {
           return false
         }
@@ -58,7 +79,7 @@ object Compatibility {
       }
 
       exprs(k) match {
-        case expr: ScTypedStmt if expr.getLastChild.isInstanceOf[ScSequenceArg] => {
+        case Expression(expr: ScTypedStmt) if expr.getLastChild.isInstanceOf[ScSequenceArg] => {
           val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
           if (seqClass != null) {
             val getIt = used.indexOf(false)
@@ -73,12 +94,12 @@ object Compatibility {
                 undefSubst += Conformance.undefinedSubst(tp, exprType)
               }
             }
-          } else if (!doNoNamed(expr)) return (false, undefSubst)
+          } else if (!doNoNamed(Expression(expr))) return (false, undefSubst)
         }
-        case assign@NamedAssignStmt(name) => {
+        case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.findIndexOf(_.name == name)
           if (ind == -1 || used(ind) == true) {
-            if (!doNoNamed(assign)) return (false, undefSubst)
+            if (!doNoNamed(Expression(assign))) return (false, undefSubst)
           }
           else {
             if (!checkNames) return (false, undefSubst)
@@ -96,7 +117,7 @@ object Compatibility {
             }
           }
         }
-        case expr: ScExpression => {
+        case expr: Expression => {
           if (!doNoNamed(expr)) return (false, undefSubst)
         }
       }
@@ -126,9 +147,15 @@ object Compatibility {
     return (true, undefSubst)
   }
 
+  @deprecated
   def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
                  argClauses: List[Seq[ScExpression]], checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    val exprs: Seq[ScExpression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
+    compatible(named, substitutor, argClauses.map(_.map(Expression(_))), checkWithImplicits, ())
+  }
+
+  def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
+                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, @deprecated fakeArg: Unit): (Boolean, ScUndefinedSubstitutor) = {
+    val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
         checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", () => substitutor.subst(tp), false, false)}, exprs, checkWithImplicits)

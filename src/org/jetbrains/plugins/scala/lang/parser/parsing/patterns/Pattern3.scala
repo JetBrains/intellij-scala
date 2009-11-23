@@ -24,11 +24,11 @@ object Pattern3 {
     type Stack[X] = _root_.scala.collection.mutable.Stack[X]
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
-    val infixMarker = builder.mark
+    //val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
     if (!SimplePattern.parse(builder)) {
-      infixMarker.drop
+      //infixMarker.drop
       backupMarker.drop
       return false
     }
@@ -57,7 +57,9 @@ object Pattern3 {
           exit = true
         }
       }
+      val idMarker = builder.mark
       builder.advanceLexer //Ate id
+      idMarker.done(ScalaElementTypes.REFERENCE)
       builder.getTokenType match {
         case ScalaTokenTypes.tLINE_TERMINATOR => {
           if (!LineTerminator(builder.getTokenText)) {
@@ -80,13 +82,13 @@ object Pattern3 {
       while (!markerStack.isEmpty) {
         markerStack.pop.done(ScalaElementTypes.INFIX_PATTERN)
       }
-      infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
+      //infixMarker.done(ScalaElementTypes.INFIX_PATTERN)
     }
     else {
       while (!markerStack.isEmpty) {
         markerStack.pop.drop
       }
-      infixMarker.drop
+      //infixMarker.drop
     }
     return true
   }

@@ -40,7 +40,6 @@ object Conformance {
       case _ if l equiv r => return (true, undefinedSubst)
       case (Any, _) => return (true, undefinedSubst)
       case (_, Nothing) => return (true, undefinedSubst)
-      case (Unit, _) => return (true, undefinedSubst)
       /*
         this case for checking: val x: T = null
         This is good if T class type: T <: AnyRef and !(T <: NotNull)
@@ -97,6 +96,7 @@ object Conformance {
             return conforms(new ScTupleType(args, clazz.getProject), r, visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            if (args.length == 0) return (false, undefinedSubst)
             return conforms(ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), r, visited, undefinedSubst)
           }
         }
@@ -112,6 +112,7 @@ object Conformance {
             return conforms(l, new ScTupleType(args, clazz.getProject), visited, undefinedSubst)
           }
           case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+            if (args.length == 0) return (false, undefinedSubst)
             return conforms(l, ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), visited, undefinedSubst)
           }
         }

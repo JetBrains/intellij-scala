@@ -258,6 +258,7 @@ class ScalaAnnotator extends Annotator {
       case _ => {
         if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
         val tp = expr.expectedType match {
+          case Some(tp: ScType) if tp equiv Unit => //do nothing
           case Some(tp: ScType) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
@@ -293,6 +294,10 @@ class ScalaAnnotator extends Annotator {
         case Some(x: ScTypeElement) => {
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
+          funType match {
+            case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
+            case _ =>
+          }
           val (exprType, importUsed): (TypeResult[ScType], Set[ImportUsed]) = ret.expr match {
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
             case None => (Success(Unit, None), Set.empty)

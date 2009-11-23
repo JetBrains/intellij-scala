@@ -25,6 +25,8 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNode(null)}
 
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = true
+
   def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null

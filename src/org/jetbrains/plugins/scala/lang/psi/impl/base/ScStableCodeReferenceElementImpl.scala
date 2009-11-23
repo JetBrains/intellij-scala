@@ -25,10 +25,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
 import api.toplevel.ScTypedDefinition
 import api.statements.ScTypeAlias
-import api.base.patterns.ScConstructorPattern
 import api.expr.{ScSuperReference, ScThisReference}
 import result.TypingContext
 import api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
+import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -54,6 +54,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, refName)
         case _: ScImportSelector => new CollectAllProcessor(kinds, refName)
 
+        case constr: ScConstructorPattern => new ExtractorResolveProcessor(ref, refName, kinds, constr.expectedType)
+        case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, refName, kinds, infix.expectedType)
         case _ => new ResolveProcessor(kinds, refName)
       }
       _resolve(ref, proc)

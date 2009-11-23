@@ -27,6 +27,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   override def toString: String = "ForStatement"
 
+  def isYield: Boolean = findChildByType(ScalaTokenTypes.kYIELD) != null
+
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order

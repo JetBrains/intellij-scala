@@ -15,6 +15,8 @@ import impl.ScalaPsiElementFactory
 
 trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
+  def isAnonymousFunction: Boolean = false
+
   def exprs : Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
 
   def lastExpr = findLastChild(classOf[ScExpression])
