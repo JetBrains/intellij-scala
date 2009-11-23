@@ -314,6 +314,10 @@ trait ScPattern extends ScalaPsiElement {
         }
       }
     }
+    case enum: ScEnumerator => {
+      if (enum.rvalue == null) return None
+      Some(enum.rvalue.getType(TypingContext.empty).getOrElse(return None))
+    }
     case _ => None //todo
   }
 }
