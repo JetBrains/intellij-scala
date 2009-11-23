@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import psi.api.base.patterns.ScReferencePattern
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import params.{ScTypeParam, ScParameter}
@@ -18,12 +17,13 @@ import _root_.scala.collection.immutable.HashSet
 import _root_.scala.collection.Set
 import psi.api.base.types.ScTypeElement
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import psi.implicits.ScImplicitlyConvertible
 import result.{Success, TypingContext}
 import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
+import psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -278,7 +278,48 @@ class MethodResolveProcessor(ref: PsiElement,
         case owner: ScTypeParametersOwner => {
           var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, withImplicits, ())._2
+          else {
+            def argClauses: List[Seq[Expression]] = owner match {
+              case fun: ScFunction => {
+                val clauses = fun.paramClauses.clauses
+                if (clauses.length - 1 != argumentClauses.length) argumentClauses
+                else {
+                  if (!clauses.apply(clauses.length - 1).isImplicit) argumentClauses
+                  else {
+                    //todo: check it's not anonymous function
+                    val res = new ArrayBuffer[Expression]
+                    for (param <- clauses(clauses.length - 1).parameters) {
+                      val paramType = param.getType(TypingContext.empty).getOrElse(return argumentClauses)
+                      val collector = new ImplicitParametersCollector(ref, substitutor.subst(paramType))
+                      val results = collector.collect
+                      if (results.length == 1) {
+                        results(0) match {
+                          case ScalaResolveResult(patt: ScBindingPattern, subst) => {
+                            res += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
+                          }
+                          case ScalaResolveResult(fun: ScFunction, subst) => {
+                            val funType = {
+                              if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                                subst.subst(fun.getType(TypingContext.empty).get) match {
+                                  case ScFunctionType(ret, _) => ret
+                                  case x => x
+                                }
+                              }
+                              else subst.subst(fun.getType(TypingContext.empty).get)
+                            }
+                            res += new Expression(funType)
+                          }
+                        }
+                      } else return argumentClauses
+                    }
+                    argumentClauses ::: res.toSeq :: Nil
+                  }
+                }
+              }
+              case _ => argumentClauses  //todo: constructors
+            }
+            Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argClauses, withImplicits, ())._2
+          }
           for (tParam <- owner.typeParameters) { //todo: think about view type bound
             s = s.addLower(tParam.getName, substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
             s = s.addUpper(tParam.getName, substitutor.subst(tParam.upperBound.getOrElse(Any)))
