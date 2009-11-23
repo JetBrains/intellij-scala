@@ -226,7 +226,7 @@ class MethodResolveProcessor(ref: PsiElement,
         }
         case cc: ScClass if cc.isCase => {
           val subst = inferMethodTypesArgs(cc, s)
-          candidatesSet += new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass) //todo add local type inference
+          candidatesSet += new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass)
           true
         }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
