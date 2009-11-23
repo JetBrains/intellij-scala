@@ -97,7 +97,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
-
+      import Compatibility.Expression._
       def defineProcessor(e : ScExpression, typeArgs: Seq[ScTypeElement]) : ResolveProcessor = e.getContext match {
         case generic : ScGenericCall => defineProcessor(generic, generic.arguments)
 

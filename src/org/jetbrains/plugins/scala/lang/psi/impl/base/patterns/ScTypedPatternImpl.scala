@@ -11,6 +11,7 @@ import com.intellij.lang.ASTNode
 import lang.lexer._
 import com.intellij.psi._
 import psi.types.result.{Success, TypingContext}
+import psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,6 +22,16 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null
+
+  override def isIrrefutableFor(t: Option[ScType]): Boolean = {
+    t match {
+      case Some(t) => getType(TypingContext.empty) match {
+        case Success(tp, _) if t conforms tp => true
+        case _ => false
+      }
+      case _ => false
+    }
+  }
 
   override def toString: String = "TypedPattern"
 

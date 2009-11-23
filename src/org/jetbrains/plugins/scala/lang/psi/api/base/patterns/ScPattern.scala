@@ -6,18 +6,25 @@ package base
 package patterns
 
 import collection.mutable.ArrayBuffer
-import expr.{ScBlockExpr, ScCatchBlock, ScMatchStmt}
 import psi.types._
 import result.{Failure, TypeResult, TypingContext}
-import statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
+import toplevel.typedef.ScClass
+import statements.{ScFunction, ScValue, ScVariable}
+import expr._
+import implicits.ScImplicitlyConvertible
+import com.intellij.openapi.progress.ProgressManager
+import toplevel.imports.usages.ImportUsed
+import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 trait ScPattern extends ScalaPsiElement {
+  def isIrrefutableFor(t: Option[ScType]): Boolean = false
+
   def getType(ctx: TypingContext) : TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
   def bindings : Seq[ScBindingPattern] = {
@@ -42,6 +49,129 @@ trait ScPattern extends ScalaPsiElement {
     findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
 
+  private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
+                                          patternsNumber: Int): Option[ScType] = {
+    ref.bind match {
+      case Some(ScalaResolveResult(clazz: ScClass, substitutor: ScSubstitutor)) if clazz.isCase => {
+        clazz.constructor match {
+          case Some(constructor: ScPrimaryConstructor) => {
+            val clauses = constructor.parameterList.clauses
+            if (clauses.length == 0) None
+            else {
+              val subst = if (clazz.typeParameters.length == 0) substitutor else {
+                expected match {
+                  case Some(ScParameterizedType(des, args)) if (ScType.extractClassType(des) match {
+                    case Some((`clazz`, _)) => true
+                    case _ => false
+                  }) => {
+                    val s = args.zip(clazz.typeParameters).foldLeft(ScSubstitutor.empty) {
+                      (subst, pair) =>
+                        val scType = pair._1
+                        val typeParameter = pair._2
+                        subst.bindT(typeParameter.getName, scType)
+                    }
+                    substitutor.followed(s)
+                  }
+                  case _ => substitutor
+                }
+              }
+              val params = clauses(0).parameters
+              if (params.length == 0) return None
+              def isSeqWildcard: Boolean = {
+                this match {
+                  case naming: ScNamingPattern => {
+                    naming.getLastChild.isInstanceOf[ScSeqWildcard]
+                  }
+                  case _ => false
+                }
+              }
+              if (i != patternsNumber - 1 || !isSeqWildcard) {
+                if (i < params.length) Some(subst.subst(params(i).getType(TypingContext.empty).getOrElse(return None)))
+                else if (params(params.length - 1).isRepeatedParameter) {
+                  Some(subst.subst(params(params.length - 1).getType(TypingContext.empty).getOrElse(return None)))
+                } else None
+              } else {
+                if (params.length > i + 1) None
+                else if (!params(params.length - 1).isRepeatedParameter) None
+                else {
+                  val seqClass = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", getResolveScope)
+                  if (seqClass == null) return None
+                  val tp = subst.subst(params(params.length - 1).getType(TypingContext.empty).getOrElse(return None))
+                  Some(ScParameterizedType(ScDesignatorType(seqClass), Seq(tp)))
+                }
+              }
+            }
+          }
+          case _ => None
+        }
+      }
+      case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapply" => {
+        for (rt <- fun.returnType) {
+          if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
+          subst.subst(rt) match {
+            case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+                      clazz.getQualifiedName == "scala.Some" => true
+              case _ => false
+            }) => {
+              if (args.length != 1) return None
+              args(0) match {
+                case ScTupleType(args) => {
+                  if (i < args.length) return Some(args(i))
+                  else return None
+                }
+                case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Tuple" => true
+                  case _ => false
+                }) => {
+                  if (i < args.length) return Some(args(i))
+                  else return None
+                }
+                case tp => {
+                  if (i == 0) return Some(tp)
+                  else return None
+                }
+              }
+            }
+            case _ => return None
+          }
+        }
+        None
+      }
+      case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapplySeq" => {
+        for (rt <- fun.returnType) {
+          subst.subst(rt) match {
+            case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+                      clazz.getQualifiedName == "scala.Some" => true
+              case _ => false
+            }) => {
+              if (args.length != 1) return None
+              (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
+                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClassType(des) match {
+                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                  case _ => false
+                }) => true
+                case _ => false
+              }) match {
+                case Some(seq@ScParameterizedType(des, args)) => {
+                  this match {
+                    case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(seq)
+                    case _ => return Some(args(0))
+                  }
+                }
+                case _ => return None
+              }
+            }
+            case _ => return None
+          }
+        }
+        None
+      }
+      case _ => None
+    }
+  }
+
   def expectedType: Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
       case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(return None))
@@ -49,25 +179,45 @@ trait ScPattern extends ScalaPsiElement {
     }
     case argList : ScPatternArgumentList => {
       argList.getParent match {
-        case constr : ScConstructorPattern => constr.bindParamTypes match {
-          case Some(ts) =>
-            for ((p, t) <- constr.args.patterns.elements zip ts.elements) {
+        case constr : ScConstructorPattern => {
+          resolveReferenceToExtractor(constr.ref, constr.args.patterns.findIndexOf(_ == this), constr.expectedType,
+            argList.patterns.length)
+        }
+        case _ => None
+      }
+    }
+    case composite: ScCompositePattern => composite.expectedType
+    case infix: ScInfixPattern => {
+      val i = if (infix.leftPattern == this) 0 else {
+        if (this.isInstanceOf[ScTuplePattern]) return None
+        1
+      }
+      resolveReferenceToExtractor(infix.refernece, i, infix.expectedType, 2)
+    }
+    case patternList : ScPatterns => patternList.getParent match {
+      case tuple : ScTuplePattern => {
+        tuple.getParent match {
+          case infix: ScInfixPattern => {
+            if (infix.leftPattern != tuple) {
+              //so it's right pattern
+              val i = tuple.patternList match {
+                case Some(patterns: ScPatterns) => patterns.patterns.findIndexOf(_ == this)
+                case _ => return None
+              }
+              return resolveReferenceToExtractor(infix.refernece, i + 1, infix.expectedType, tuple.patternList.get.patterns.length + 1)
+            }
+          }
+          case _ =>
+        }
+        tuple.expectedType match {
+          case Some(ScTupleType(comps)) => {
+            for ((t, p) <- comps.elements.zip(patternList.patterns.elements)) {
               if (p == this) return Some(t)
             }
             None
+          }
           case _ => None
         }
-      }
-    }
-    case patternList : ScPatterns => patternList.getParent match {
-      case tuple : ScTuplePattern => tuple.expectedType match {
-        case Some(ScTupleType(comps)) => {
-          for((t, p) <- comps.elements.zip(patternList.patterns.elements)) {
-            if (p == this) return Some(t)
-          }
-          None
-        }
-        case _ => None
       }
     }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
@@ -80,9 +230,93 @@ trait ScPattern extends ScalaPsiElement {
         if (thr != null) Some(new ScDesignatorType(thr)) else None
       }
       case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
-        case Some(ScFunctionType(ret, params)) => Some(new ScTupleType(params))
+        case Some(ScFunctionType(ret, params)) => {
+          if (params.length == 0) Some(Unit)
+          else if (params.length == 1) Some(params(0))
+          else Some(new ScTupleType(params, getProject))
+        }
+        case Some(ScParameterizedType(des, args)) if (ScType.extractClassType(des) match {
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => true
+          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+          case _ => false
+        }) => {
+          if (args.length == 1) Some(Unit)
+          else if (args.length == 2) Some(args(0))
+          else Some(new ScTupleType(args.slice(0, args.length - 1), getProject))
+        }
         case _ => None
       }
+    }
+    case named: ScNamingPattern => named.expectedType
+    case gen: ScGenerator => {
+      val isYield = gen.getParent.getParent.asInstanceOf[ScForStatement].isYield
+      var next = gen.getNextSibling
+      if (gen.rvalue == null) return null
+      //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used
+      while (next != null && !next.isInstanceOf[ScGenerator]) {
+        next match {
+          case g: ScGuard => //todo: replace type tp to appropriate after this operation
+          case e: ScEnumerator => //todo:
+          case _ =>
+        }
+        next = next.getNextSibling
+      }
+      val nextGen = next != null
+      val refName = {
+        (nextGen, isYield) match {
+          case (true, true) => "flatMap"
+          case (true, false) => "foreach"
+          case (false, true) => "map"
+          case (false, false) => "foreach"
+        }
+      }
+      import Compatibility.Expression
+      val processor = new MethodResolveProcessor(gen.rvalue, refName, List(Seq(new Expression(Nothing))) /*todo*/, Seq.empty/*todo*/, None)
+      def processTypes(e: ScExpression) {
+        ProgressManager.checkCanceled
+        val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
+        processor.processType(result, e, ResolveState.initial)
+        if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
+                processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+          for (t <- e.getImplicitTypes) {
+            ProgressManager.checkCanceled
+            val importsUsed = e.getImportsForImplicit(t)
+            var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+            e.getClazzForType(t) match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            processor.processType(t, e, state)
+          }
+        }
+      }
+      processTypes(gen.rvalue)
+      if (processor.candidates.length != 1) return None
+      else {
+        val res = processor.candidates.apply(0)
+        res match {
+          case ScalaResolveResult(method: ScFunction, subst) => {
+            if (method.paramClauses.clauses.length == 0) return None
+            val clause = method.paramClauses.clauses.apply(0)
+            if (clause.parameters.length != 1) return None
+            val param = clause.parameters.apply(0)
+            val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return None))
+            tp match {
+              case ScFunctionType(_, params) if params.length == 1 => Some(params(0))
+              case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
+                case Some((clazz: PsiClass, _)) => clazz.getQualifiedName == "scala.Function1"
+                case _ => false
+              }) => Some(args(0))
+              case _ => None
+            }
+          }
+          case _ => return None
+        }
+      }
+    }
+    case enum: ScEnumerator => {
+      if (enum.rvalue == null) return None
+      Some(enum.rvalue.getType(TypingContext.empty).getOrElse(return None))
     }
     case _ => None //todo
   }
