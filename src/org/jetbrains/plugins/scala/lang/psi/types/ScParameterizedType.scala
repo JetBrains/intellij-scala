@@ -155,7 +155,12 @@ extends ScPolymorphicType(name, args, lower, upper) {
   }
 }
 
-case class ScUndefinedType(val tpt: ScTypeParameterType, val level: Int = 0) extends ScType {
+case class ScUndefinedType(val tpt: ScTypeParameterType) extends ScType {
+  var level = 0
+  def this(tpt: ScTypeParameterType, level: Int) {
+    this(tpt)
+    this.level = level
+  }
   override def equiv(t: ScType): Boolean = t.equiv(tpt)
 
   def isValue: Boolean = false
