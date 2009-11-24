@@ -11,6 +11,8 @@ class TypeConformanceGenericTest extends TypeConformanceTestBase {
 
   def testGenericPlaceholder = doTest
 
+  def testNestedParamType = doTest
+
   def testNothing1 = doTest
 
   def testOmmitedGenerics = doTest

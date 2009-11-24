@@ -89,9 +89,9 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
         new ScTypeAliasType(alias, args, () => substInternal(lower.v), () => substInternal(upper.v))
       }
     }
-    case ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
+    case pt@ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
       tvMap.get(tpt.name) match {
-        case Some(param: ScParameterizedType) => substInternal(param) //to prevent types like T[A][A]
+        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
           val args = typeArgs map {substInternal _}
           substInternal(tpt) match {
@@ -104,9 +104,9 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
         }
       }
     }
-    case ScParameterizedType(u: ScUndefinedType, typeArgs) => {
+    case pt@ScParameterizedType(u: ScUndefinedType, typeArgs) => {
       tvMap.get(u.tpt.name) match {
-        case Some(param: ScParameterizedType) => substInternal(param) //to prevent types like T[A][A]
+        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
           val args = typeArgs map {substInternal _}
           substInternal(u) match {
