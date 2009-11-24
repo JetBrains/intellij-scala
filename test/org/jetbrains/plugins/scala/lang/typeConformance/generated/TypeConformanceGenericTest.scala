@@ -23,6 +23,8 @@ class TypeConformanceGenericTest extends TypeConformanceTestBase {
 
   def testSeqEmpty = doTest
 
+  def testThis = doTest
+
   def testTypeBounds = doTest
 
   def testTypeBounds2 = doTest

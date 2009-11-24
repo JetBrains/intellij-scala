@@ -26,4 +26,8 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
   def testTupleConformance = doTest
 
   def testTupleRightConformance = doTest
+
+  def testTupleToConformance = doTest
+
+  def testTupleToProductNoConformance = doTest
 }
