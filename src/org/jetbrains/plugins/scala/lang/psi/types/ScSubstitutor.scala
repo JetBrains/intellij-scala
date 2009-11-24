@@ -187,10 +187,37 @@ class ScUndefinedSubstitutor(val upperMap: Map[String, Seq[ScType]], val lowerMa
             if (!lower.conforms(upper)) return None
           }
         }
-        case None => tvMap += Tuple(name, Nothing)
+        case None if seq.length != 1 => tvMap += Tuple(name, Nothing)
+        case None => tvMap += Tuple(name, seq(0))
       }
     }
-    Some(new ScSubstitutor(collection.immutable.HashMap.empty[String, ScType] ++ tvMap,
-      collection.immutable.HashMap.empty, collection.immutable.HashMap.empty))
+    val subst = new ScSubstitutor(collection.immutable.HashMap.empty[String, ScType] ++ tvMap,
+      collection.immutable.HashMap.empty, collection.immutable.HashMap.empty)
+    Some(subst.followed(subst).followed(subst))
+  }
+}
+
+object ScUndefinedSubstitutor {
+  def removeUndefindes(tp: ScType): ScType = tp match {
+     case f@ScFunctionType(ret, params) => new ScFunctionType(removeUndefindes(ret),
+      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*), f.isImplicit)
+    case t1@ScTupleType(comps) => new ScTupleType(comps map {removeUndefindes _}, t1.getProject)
+    case ScProjectionType(proj, ref) => new ScProjectionType(removeUndefindes(proj), ref)
+    case tpt : ScTypeParameterType => tpt
+    case u: ScUndefinedType => u.tpt
+    case tv : ScTypeVariable => tv
+    case ScDesignatorType(e) => tp
+    case ScTypeAliasType(alias, args, lower, upper) => {
+      import Misc.fun2suspension
+      new ScTypeAliasType(alias, args, () => removeUndefindes(lower.v), () => removeUndefindes(upper.v))
+    }
+    case ScParameterizedType (des, typeArgs) => ScParameterizedType(removeUndefindes(des),
+      collection.immutable.Seq(typeArgs.map(removeUndefindes _).toSeq: _*))
+    case ScExistentialArgument(name, args, lower, upper) =>
+      new ScExistentialArgument(name, args, removeUndefindes(lower), removeUndefindes(upper))
+    case ex@ScExistentialType(q, wildcards) => {
+      new ScExistentialType(removeUndefindes(q), wildcards)
+    }
+    case _ => tp
   }
 }
