@@ -64,6 +64,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       new Runnable {
         def run: Unit = {
+          val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
+          documentManager.commitDocument(documentManager.getDocument(scalaFile)) //before doing changes let's commit document
           //remove unnecessary imports
           val _unusedImports = getUnusedImports
           val unusedImports = new HashSet[ImportUsed]
@@ -122,7 +124,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
             }
           }
-          val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
+
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
           //todo: add deleting unnecessary braces
           //todo: add removing blank lines (last)
