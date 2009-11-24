@@ -56,14 +56,24 @@ public class ScalaCompiler implements TranslatingCompiler {
 
     // Check for compiler existence
     final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-    PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
+    final PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
       public PsiFile compute() {
         return PsiManager.getInstance(myProject).findFile(file);
       }
     });
 
     Module module = context.getModuleByFile(file);
-    return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile(true)) ||
+
+    class BooleanWrapper{public boolean re = false;}
+    final BooleanWrapper b = ApplicationManager.getApplication().runReadAction(new Computable<BooleanWrapper>() {
+      public BooleanWrapper compute() {
+        BooleanWrapper b = new BooleanWrapper();
+        b.re = ((ScalaFile) psi).isScriptFile(true);
+        return b;
+      }
+    });
+    boolean isScript = b.re;
+    return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !isScript) ||
         context.getProject() != null &&
             fileType.equals(StdFileTypes.JAVA) &&
             ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
