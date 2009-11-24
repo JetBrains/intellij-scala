@@ -57,6 +57,14 @@ class ScalaAnnotator extends Annotator {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
     }
 
+    if (element.isInstanceOf[ScTypeElement]) {
+      checkTypeElementForm(element.asInstanceOf[ScTypeElement], holder)
+    }
+
+    if (element.isInstanceOf[ScAnnotation]) {
+      checkAnnotationType(element.asInstanceOf[ScAnnotation], holder)
+    }
+
     element match {
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -332,6 +340,14 @@ class ScalaAnnotator extends Annotator {
           ScalaBundle.message("import.expr.should.be.qualified"))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
+  }
+
+  private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder) {
+    //todo: check bounds conformance for parameterized type
+  }
+
+  private def checkAnnotationType(annotation: ScAnnotation, holder: AnnotationHolder) {
+    //todo: check annotation is inheritor for class scala.Annotation
   }
 }
 
