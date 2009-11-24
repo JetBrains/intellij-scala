@@ -15,5 +15,14 @@ import toplevel.ScNamedElement
 */
 
 trait ScNameValuePair extends ScalaPsiElement with ScNamedElement with PsiNameValuePair  {
-  def nameId(): PsiElement = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER).getPsi
+  override def getName: String = {
+    if (nameId == null) return ""
+    else super.getName
+  }
+
+  def nameId(): PsiElement = {
+    val node = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER)
+    if (node == null) return null
+    node.getPsi
+  }
 }
