@@ -116,4 +116,19 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/lub1.scala");
     assertNotNull(ref.resolve());
   }
+
+  public void testNoShadoing() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/NoShadowing.scala");
+    assertNull(ref.resolve());
+  }
+
+  public void testGood() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/Good.scala");
+    assertNotNull(ref.resolve());
+  }
+
+  public void testTwoImports() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/TwoImports.scala");
+    assertNull(ref.resolve());
+  }
 }
