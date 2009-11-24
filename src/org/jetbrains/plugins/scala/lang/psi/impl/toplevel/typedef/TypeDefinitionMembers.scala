@@ -287,8 +287,8 @@ object TypeDefinitionMembers {
                           place: PsiElement): Boolean =
     processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz),
       clazz.isInstanceOf[ScObject]) &&
-            AnyRef.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(clazz.getProject).processDeclarations(processor, state, lastParent, place)
+            AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place)
 
   def processSuperDeclarations(td: ScTemplateDefinition,
                                processor: PsiScopeProcessor,

@@ -13,9 +13,10 @@ import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import api.expr.{ScSuperReference, ScThisReference}
-import com.intellij.openapi.project.{Project}
 import api.toplevel.typedef.{ScClass, ScObject}
 import result.{Failure, Success, TypingContext}
+import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import org.jetbrains.annotations.Nullable
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
@@ -32,7 +33,17 @@ trait ValueType extends ScType{
 }
 
 abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ValueType {
-  def asClass(project : Project) = SyntheticClasses.get(project).byName(name).get
+  /**
+   * Return wrapped to option appropriate synthetic class.
+   * In dumb mode returns None (or before it ends to register classes).
+   * @param project in which project to find this class
+   * @return If possible class to represent this type.
+   */
+  def asClass(project : Project): Option[ScSyntheticClass] = {
+    if (SyntheticClasses.get(project).isClassesRegistered)
+      Some(SyntheticClasses.get(project).byName(name).get)
+    else None
+  }
 }
 
 case object Any extends StdType("Any", None)
@@ -222,7 +233,7 @@ object ScType {
         case None => None
       }
     }
-    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject), ScSubstitutor.empty))
+    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject).getOrElse(return None), ScSubstitutor.empty))
     /*case ScTupleType(comp) => {
       val tupleClass = JavaPsiFacade.getInstance(DecompilerUtil.obtainProject).
               findClass("scala.Tuple" + comp.length)

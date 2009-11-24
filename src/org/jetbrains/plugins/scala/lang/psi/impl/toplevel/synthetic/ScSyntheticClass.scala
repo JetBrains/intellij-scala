@@ -120,11 +120,12 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
     true
   }
 
-  override def getSuperTypes = {
+  override def getSuperTypes: Array[PsiClassType] = {
     val project = manager.getProject
     t.tSuper match {
       case None => PsiClassType.EMPTY_ARRAY
-      case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(project).getElementFactory.createType(ts.asClass(project)))
+      case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(project).getElementFactory.
+              createType(ts.asClass(project).getOrElse(return PsiClassType.EMPTY_ARRAY)))
     }
   }
 }
@@ -166,9 +167,15 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
   def initComponent() {
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run = registerClasses
+      def run = {
+        registerClasses
+        classesInitialized = true
+      }
     })
   }
+
+  private var classesInitialized: Boolean = false
+  def isClassesRegistered: Boolean = classesInitialized
 
   def registerClasses: Unit = {
     all = new HashMap[String, ScSyntheticClass]
