@@ -50,6 +50,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         return (Success(res._1, Some(this)), res._3)
       }
     }
+    if (expectedOption == None) return inner //to prevent SOE
     if (expectedOption != expectedType) return inner
     var tp = exprAfterImplicitType
     var curModCount = getManager.getModificationTracker.getModificationCount
