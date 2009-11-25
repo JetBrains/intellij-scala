@@ -11,6 +11,7 @@ import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import api.toplevel.{ScTypeParametersOwner}
 import com.intellij.psi.{PsiTypeParameterListOwner, PsiNamedElement}
 import api.statements.params.ScTypeParam
+import nonvalue.NonValueType
 import psi.impl.ScalaPsiManager
 import result.TypingContext
 import api.base.{ScStableCodeReferenceElement, ScPathElement}
@@ -155,7 +156,7 @@ extends ScPolymorphicType(name, args, lower, upper) {
   }
 }
 
-case class ScUndefinedType(val tpt: ScTypeParameterType) extends ScType {
+case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
   var level = 0
   def this(tpt: ScTypeParameterType, level: Int) {
     this(tpt)
@@ -163,7 +164,7 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends ScType {
   }
   override def equiv(t: ScType): Boolean = t.equiv(tpt)
 
-  def isValue: Boolean = false
+  def inferValueType: ValueType = tpt
 }
 
 private[types] object CyclicHelper {

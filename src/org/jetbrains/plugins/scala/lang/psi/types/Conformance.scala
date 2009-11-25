@@ -6,6 +6,7 @@ package types
 import _root_.scala.collection.mutable.HashMap
 import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
+import nonvalue.{ScTypePolymorphicType, NonValueType, ScMethodType}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.Misc._
 import api.statements._
@@ -40,6 +41,38 @@ object Conformance {
       case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower(u.tpt.name, tp))
       case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper(u.tpt.name, tp))
       case _ if l equiv r => return (true, undefinedSubst)
+      case (ScMethodType(returnType1, params1, _), ScMethodType(returnType2, params2, _)) => {
+        if (params1.length != params2.length) return (false, undefinedSubst)
+        val t = conforms(returnType1, returnType2, HashSet.empty, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        for (i <- 0 until params1.length) {
+          if (params1(i).isRepeated != params2(i).isRepeated) return (false, undefinedSubst)
+          if (!params1(i).paramType.equiv(params2(i).paramType)) return (false, undefinedSubst)
+        }
+      }
+      case (ScTypePolymorphicType(internalType1, typeParameters1), ScTypePolymorphicType(internalType2, typeParameters2)) => {
+        if (typeParameters1.length != typeParameters2.length) return (false, undefinedSubst)
+        for (i <- 0 until typeParameters1.length) {
+          var t = conforms(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+          t = conforms(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        import Suspension._
+        val subst = new ScSubstitutor(new collection.immutable.HashMap[String, ScType] ++ typeParameters1.zip(typeParameters2).map({
+          tuple => (tuple._1.name, new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+        }), Map.empty, Map.empty)
+        val t = conforms(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        (true, undefinedSubst)
+      }
+      //todo: ScTypeConstructorType
+      case (_: NonValueType, _) => return (false, undefinedSubst)
+      case (_, _: NonValueType) => return (false, undefinedSubst)
       case (Any, _) => return (true, undefinedSubst)
       case (_, Nothing) => return (true, undefinedSubst)
       /*

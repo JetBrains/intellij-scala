@@ -13,6 +13,7 @@ import com.intellij.psi._
 import api.base.ScPrimaryConstructor
 import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
  * @author ven
@@ -26,8 +27,6 @@ object Compatibility {
       false //todo check view applicability
     }
   }
-
-  case class Parameter(name: String, tp: () => ScType, isDefault: Boolean, isRepeated: Boolean)
 
   case class Expression(expr: ScExpression) {
     var typez: ScType = null
@@ -67,7 +66,7 @@ object Compatibility {
           val getIt = used.indexOf(false)
           used(getIt) = true
           val param: Parameter = parameters(getIt)
-          val paramType = param.tp()
+          val paramType = param.paramType
           (for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(paramType) else None)._1) yield {
             if (!Conformance.conforms(paramType, exprType)) false
             else {
@@ -86,7 +85,7 @@ object Compatibility {
             used(getIt) = true
             val param: Parameter = parameters(getIt)
             if (!param.isRepeated) return (false, undefSubst)
-            val paramType = param.tp()
+            val paramType = param.paramType
             val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
             for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(tp) else None)._1) yield {
               if (!Conformance.conforms(tp, exprType)) return (false, undefSubst)
@@ -108,7 +107,7 @@ object Compatibility {
             val param: Parameter = parameters(ind)
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
-                val paramType = param.tp()
+                val paramType = param.paramType
                 for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(paramType) else None)._1)
                 if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
                 else undefSubst += Conformance.undefinedSubst(paramType, exprType)
@@ -127,7 +126,7 @@ object Compatibility {
     else if (exprs.length > parameters.length) {
       if (namedMode) return (false, undefSubst)
       if (!parameters.last.isRepeated) return (false, undefSubst)
-      val paramType: ScType = parameters.last.tp()
+      val paramType: ScType = parameters.last.paramType
       while (k < exprs.length) {
         for (exprType <- exprs(k).getTypeAfterImplicitConversion(if (checkWithImplicits) Some(paramType) else None)._1) {
           if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
@@ -158,20 +157,20 @@ object Compatibility {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
-        checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", () => substitutor.subst(tp), false, false)}, exprs, checkWithImplicits)
+        checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", substitutor.subst(tp), false, false)}, exprs, checkWithImplicits)
       }
       case fun: ScFunction => {
         val parameters: Seq[ScParameter] =
           if (fun.paramClauses.clauses.length == 0) Seq.empty
           else fun.paramClauses.clauses.apply(0).parameters
-        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
         var undefinedSubst = res._2
         if (!res._1) return res
         var i = 1
         while (i < argClauses.length.min(fun.paramClauses.clauses.length)) {
-          val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, () => {
+          val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, {
             substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
           }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
           undefinedSubst += t._2
@@ -183,14 +182,14 @@ object Compatibility {
         val parameters: Seq[ScParameter] =
           if (constructor.parameterList.clauses.length == 0) Seq.empty
           else constructor.parameterList.clauses.apply(0).parameters
-        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+        val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
         var undefinedSubst = res._2
         if (!res._1) return res
         var i = 1
         while (i < argClauses.length.min(constructor.parameterList.clauses.length)) {
-          val t = checkConformance(true, constructor.parameterList.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, () => {
+          val t = checkConformance(true, constructor.parameterList.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, {
             substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
           }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
           undefinedSubst += t._2
@@ -200,7 +199,7 @@ object Compatibility {
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
-        checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, () => {
+        checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, {
           val tp = substitutor.subst(ScType.create(param.getType, method.getProject))
           if (param.isVarArgs) tp match {
             case ScParameterizedType(_, args) if args.length == 1 => args(0)
@@ -216,7 +215,7 @@ object Compatibility {
             case _ => Seq.empty
           }
         }
-        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, () => {
+        checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
       }

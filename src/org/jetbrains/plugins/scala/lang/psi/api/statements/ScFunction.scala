@@ -16,7 +16,7 @@ import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
 import types._
-import nonvalue.ScMethodType
+import nonvalue.{TypeParameter, ScTypePolymorphicType, NonValueType, ScMethodType}
 import result.{Failure, Success, TypingContext, TypeResult}
 
 /**
@@ -45,38 +45,24 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
-  def methodType: TypeResult[ScMethodType] = {
-    // collect parameter types
-    val clauseTypes: Seq[Seq[TypeResult[ScType]]] = clauses match {
-      case None => Nil
-      case Some(paramClauses) => {
-        val cls = paramClauses.clauses
-        if (cls.length == 0) Nil
-        else cls.map {
-          cl => {
-            val params = cl.parameters
-            if (params.length == 0) Seq(Success(Unit, Some(cl)))
-            else params.map(_.getType(TypingContext.empty))
-          }
-        }
-      }
+  def methodType: ScMethodType = {
+    val parameters: ScParameters = paramClauses
+    val clauses = parameters.clauses
+    if (clauses.length == 0) return ScMethodType(returnType.getOrElse(Any), Seq.empty, false)
+    val res = clauses.foldRight[ScType](returnType.getOrElse(Any)){(clause: ScParameterClause, tp: ScType) =>
+      ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
-
-    // return Type
-    val rt = returnType.getOrElse(Any)
-    val mtype = Success((clauseTypes match {
-      case Nil => ScMethodType(rt, Nil)
-      case _ => clauseTypes.foldRight(rt) {
-        (clz, tpe) =>
-          collectFailures(clz, Nothing)(ScMethodType(tpe, _)).getOrElse(Any)
-      }
-    }).asInstanceOf[ScMethodType], Some(this))
-
-    
-
-    (for (f@Failure(_, _) <- (returnType :: clauseTypes.flatten.toList)) yield f).foldLeft(mtype)(_.apply(_))
+    res.asInstanceOf[ScMethodType]
   }
 
+  /**
+   * Returns internal type with type parameters.
+   */
+  def polymorphicType: ScType = {
+    if (typeParameters.length == 0) return methodType
+    else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
+      TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
+  }
 
   /**
    * Optional Type Element, denotion function's return type
