@@ -21,52 +21,73 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
+   * @param expectedOption to which type we tring to convert
    */
-  //todo: cache?
   def getTypeAfterImplicitConversion(expectedOption: Option[ScType] = expectedType): (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
-    val tr = getType(TypingContext.empty)
-    val expected = expectedOption.getOrElse(return (tr, Set.empty))
-    val tp = tr.getOrElse(return (tr, Set.empty))
-    if (tp.conforms(expected)) return (tr, Set.empty)
-    val f = for ((typez, imports) <- allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
-    if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
-    else if (f.length == 0) return (tr, Set.empty)
-    else {
-      var res = f(0)
-      if (res._2 == None) return (tr, Set.empty)
-      var i = 1
-      while (i < f.length) {
-        val pr = f(i)
-        if (pr._1.equiv(res._1)) {
-          //todo: there are serious overloading resolutions to implement it
+    def inner: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+      val tr = getType(TypingContext.empty)
+      val expected = expectedOption.getOrElse(return (tr, Set.empty))
+      val tp = tr.getOrElse(return (tr, Set.empty))
+      if (tp.conforms(expected)) return (tr, Set.empty)
+      val f = for ((typez, imports) <- allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
+      if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
+      else if (f.length == 0) return (tr, Set.empty)
+      else {
+        var res = f(0)
+        if (res._2 == None) return (tr, Set.empty)
+        var i = 1
+        while (i < f.length) {
+          val pr = f(i)
+          if (pr._1.equiv(res._1)) {
+            //todo: there are serious overloading resolutions to implement it
+          }
+          else if (pr._2 != None) {
+            if (pr._2.get.isInheritor(res._2.get, true)) res = pr
+            else return (tr, Set.empty)
+          } else return (tr, Set.empty)
+          i += 1
         }
-        else if (pr._2 != None) {
-          if (pr._2.get.isInheritor(res._2.get, true)) res = pr
-          else return (tr, Set.empty)
-        } else return (tr, Set.empty)
-        i += 1
+        return (Success(res._1, Some(this)), res._3)
       }
-      return (Success(res._1, Some(this)), res._3)
     }
+    if (expectedOption != expectedType) return inner
+    var tp = exprAfterImplicitType
+    var curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && curModCount == exprTypeAfterImplicitModCount) {
+      return tp
+    }
+    tp = inner
+    exprAfterImplicitType = tp
+    exprTypeAfterImplicitModCount = curModCount
+    return tp
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
+    //todo: typing context can be not empty?
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && modCount == curModCount) {
+    if (tp != null && exprTypeModCount == curModCount) {
       return tp
     }
     tp = typeWithUnderscore
     exprType = tp
-    modCount = curModCount
+    exprTypeModCount = curModCount
     return tp
   }
 
   @volatile
   private var exprType: TypeResult[ScType] = null
+  @volatile
+  private var exprAfterImplicitType: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = null
+  @volatile
+  private var expectedTypeCache: Option[ScType] = null
 
   @volatile
-  private var modCount: Long = 0
+  private var exprTypeModCount: Long = 0
+  @volatile
+  private var expectedTypeModCount: Long = 0
+  @volatile
+  private var exprTypeAfterImplicitModCount: Long = 0
 
   private def typeWithUnderscore: TypeResult[ScType] = {
     getText.indexOf("_") match {
@@ -124,5 +145,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
 
-  def expectedType: Option[ScType] = ExpectedTypes.expectedExprType(this)
+  def expectedType: Option[ScType] = {
+    var tp = expectedTypeCache
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && expectedTypeModCount == curModCount) {
+      return tp
+    }
+    tp = ExpectedTypes.expectedExprType(this)
+    expectedTypeCache = tp
+    expectedTypeModCount = curModCount
+    return tp
+  }
 }
