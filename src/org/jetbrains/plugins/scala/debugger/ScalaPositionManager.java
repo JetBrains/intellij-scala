@@ -113,7 +113,11 @@ public class ScalaPositionManager implements PositionManager {
 
 
   public ClassPrepareRequest createPrepareRequest(final ClassPrepareRequestor requestor, final SourcePosition position) throws NoDataException {
-    ScalaPsiElement sourceImage = findReferenceTypeSourceImage(position);
+    ScalaPsiElement sourceImage = ApplicationManager.getApplication().runReadAction(new Computable<ScalaPsiElement>() {
+      public ScalaPsiElement compute() {
+        return findReferenceTypeSourceImage(position);
+      }
+    });
     String qName = null;
     if (sourceImage instanceof ScTypeDefinition) {
       qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
