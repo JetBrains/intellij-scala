@@ -298,10 +298,10 @@ trait ScImportsHolder extends ScalaPsiElement {
             updateFirst
           }
           case null => {
-            val x = getNode.findChildByType(ScalaElementTypes.REFERENCE).getPsi
-            if (x != null) {
-              val next = x.getNextSibling
-                addImportAfter(importSt, x)
+            val reference = getNode.findChildByType(ScalaElementTypes.REFERENCE)
+            if (reference != null) {
+              val next = reference.getPsi.getNextSibling
+                addImportAfter(importSt, reference.getPsi)
             } else {
               updateFirst
             }
