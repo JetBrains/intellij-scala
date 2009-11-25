@@ -18,8 +18,11 @@ trait ScParameterType extends ScalaPsiElement {
 
   def typeElement: ScTypeElement
 
-  def isRepeatedParameter: Boolean = getLastChild.getNode.getElementType match {
-    case ScalaTokenTypes.tIDENTIFIER if (getLastChild.getText == "*") => true
-    case _ => false
+  def isRepeatedParameter: Boolean = {
+    if (getLastChild == null || getLastChild.getNode == null) return false //todo: how it possible? EA: 16600
+    getLastChild.getNode.getElementType match {
+      case ScalaTokenTypes.tIDENTIFIER if (getLastChild.getText == "*") => true
+      case _ => false
+    }
   }
 }
