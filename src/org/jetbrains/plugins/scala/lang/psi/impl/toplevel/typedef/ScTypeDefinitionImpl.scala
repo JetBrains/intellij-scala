@@ -284,8 +284,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
-  override def getIcon(flags: Int) = {
+  override def getIcon(flags: Int): Icon = {
     val icon = getIconInner
+    if (!this.isValid) return icon //to prevent Invalid access: EA: 13535
     val isLocked = (flags & Iconable.ICON_FLAG_READ_STATUS) != 0 && !isWritable
     val rowIcon = ElementBase.createLayeredIcon(icon, ElementPresentationUtil.getFlags(this, isLocked))
     if ((flags & Iconable.ICON_FLAG_VISIBILITY) != 0) {
