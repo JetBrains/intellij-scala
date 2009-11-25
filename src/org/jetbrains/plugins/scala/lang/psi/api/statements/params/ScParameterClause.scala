@@ -8,6 +8,7 @@ package params
 import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import types._
+import nonvalue.Parameter
 import types.result.TypingContext
 
 /** 
@@ -21,4 +22,8 @@ trait ScParameterClause extends ScalaPsiElement {
   def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrElse(Any))
   def isImplicit: Boolean
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
+  def getSmartParameters: Seq[Parameter] = {
+    parameters.map(param =>
+      Parameter(param.name, param.getType(TypingContext.empty).getOrElse(Nothing),param.isDefaultParam, param.isRepeatedParameter))
+  }
 }

@@ -26,10 +26,14 @@ trait ScType {
   override def toString = ScType.presentableText(this)
 
   def isValue: Boolean
+
+  def inferValueType: ValueType
 }
 
 trait ValueType extends ScType{
   def isValue = true
+
+  def inferValueType: ValueType = this
 }
 
 abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ValueType {
