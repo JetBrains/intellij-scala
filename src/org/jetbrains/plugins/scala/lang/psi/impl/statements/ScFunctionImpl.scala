@@ -16,8 +16,6 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import parser.ScalaElementTypes
 import stubs.ScFunctionStub
-import toplevel.synthetic.JavaIdentifier
-
 import toplevel.typedef.{TypeDefinitionMembers}
 import java.util._
 import com.intellij.psi._
@@ -29,6 +27,8 @@ import types._
 import api.statements._
 import api.statements.params._
 import result.{TypeResult, Success, TypingContext}
+import com.intellij.openapi.project.DumbServiceImpl
+import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
 
 /**
  * @author ilyas
@@ -52,7 +52,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override def getIcon(flags: Int) = Icons.FUNCTION
 
-  def getReturnType = {
+  def getReturnType: PsiType = {
+    if (DumbServiceImpl.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+      return null //no resolve during dumb mode or while synthetic classes is not registered
+    }
     CachesUtil.get(
       this, CachesUtil.PSI_RETURN_TYPE_KEY,
       new CachesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
