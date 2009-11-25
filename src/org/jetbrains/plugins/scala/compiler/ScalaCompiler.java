@@ -68,12 +68,12 @@ public class ScalaCompiler implements TranslatingCompiler {
     final BooleanWrapper b = ApplicationManager.getApplication().runReadAction(new Computable<BooleanWrapper>() {
       public BooleanWrapper compute() {
         BooleanWrapper b = new BooleanWrapper();
-        b.re = ((ScalaFile) psi).isScriptFile(true);
+        b.re = fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile(true);
         return b;
       }
     });
-    boolean isScript = b.re;
-    return (fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !isScript) ||
+    boolean notScript = b.re;
+    return notScript ||
         context.getProject() != null &&
             fileType.equals(StdFileTypes.JAVA) &&
             ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
