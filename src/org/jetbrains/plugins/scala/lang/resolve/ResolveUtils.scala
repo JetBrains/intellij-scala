@@ -85,7 +85,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor): NonValueType = {
     if (m.getTypeParameters.length == 0) return javaMethodType(m, s)
     else {
-      throw new UnsupportedOperationException("todo: Java Polymorphic Type")
+      throw new UnsupportedOperationException("todo: Java Polymorphic Type") //todo:
     }
   }
 
