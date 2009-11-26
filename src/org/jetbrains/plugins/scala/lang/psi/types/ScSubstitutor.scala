@@ -14,6 +14,7 @@ import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import api.statements.ScTypeAlias
 import java.lang.String
+import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.annotations.NotNull
 
 object ScSubstitutor {
@@ -54,7 +55,14 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       collection.immutable.Seq(params.map(substInternal _).toSeq : _*), f.isImplicit)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {substInternal _}, t1.getProject)
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
-
+    case ScMethodType(retType, params, isImplicit) => ScMethodType(substInternal(retType), params.map(p => {
+      Parameter(p.name, substInternal(p.paramType), p.isDefault, p.isRepeated)
+    }), isImplicit)
+    case ScTypePolymorphicType(internalType, typeParameters) => {
+      ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
+        TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
+      }))
+    }
     case tpt : ScTypeParameterType => tvMap.get(tpt.name) match {
       case None => tpt
       case Some(v) => v

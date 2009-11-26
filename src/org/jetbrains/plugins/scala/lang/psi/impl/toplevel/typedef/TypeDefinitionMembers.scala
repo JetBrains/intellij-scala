@@ -84,6 +84,8 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+
+    def cachedBuild(clazz: PsiClass): Map = getMethods(clazz)
   }
 
   import com.intellij.psi.PsiNamedElement
@@ -133,6 +135,8 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+
+    def cachedBuild(clazz: PsiClass): Map = getVals(clazz)
   }
 
   import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -165,6 +169,8 @@ object TypeDefinitionMembers {
         }
       }
     }
+
+    def cachedBuild(clazz: PsiClass): Map = getTypes(clazz)
   }
 
   object SignatureNodes extends MixinNodes {
@@ -243,6 +249,8 @@ object TypeDefinitionMembers {
         }
       }
     }
+
+    def cachedBuild(clazz: PsiClass): Map = getSignatures(clazz)
   }
 
   import ValueNodes.{Map => VMap}, MethodNodes.{Map => MMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}

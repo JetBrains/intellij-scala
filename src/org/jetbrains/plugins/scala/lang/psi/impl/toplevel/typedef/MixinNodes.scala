@@ -90,38 +90,6 @@ abstract class MixinNodes {
   }
 
   def build(clazz : PsiClass) : (Map, Map) = {
-    def inner(clazz: PsiClass, subst: ScSubstitutor, visited: Set[PsiClass]): Map = {
-      val map = new Map
-      if (visited.contains(clazz)) return map
-      visited += clazz
-
-      val (superTypes, s1): (Seq[ScType], ScSubstitutor) = clazz match {
-        case tmp: ScTemplateDefinition => {
-          processScala(tmp, subst, map)
-          (tmp.superTypes: Seq[ScType], putAliases(tmp, subst))
-        }
-        case syn : ScSyntheticClass => {
-          processSyntheticScala(syn, subst, map)
-          ((syn.getSuperTypes.map {psiType => ScType.create(psiType, syn.getProject)}): Seq[ScType], subst)
-        }
-        case _ => {
-          processJava(clazz, subst, map)
-          ((clazz.getSuperTypes.map {psiType => ScType.create(psiType, clazz.getProject)}): Seq[ScType], subst)
-        }
-      }
-
-      val superTypesBuff = new ListBuffer[Map]
-      for (superType <- superTypes) {
-        ScType.extractClassType(superType) match {
-          case Some((superClass, s)) => superTypesBuff += inner(superClass, combine(s, s1, superClass), visited)
-          case _ =>
-        }
-      }
-      mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
-
-      map
-    }
-
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
@@ -144,7 +112,10 @@ abstract class MixinNodes {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
-            superTypesBuff += inner(superClass, combine(s, subst, superClass), new HashSet[PsiClass])
+            var newSubst = combine(s, subst, superClass)
+            val newMap = new Map
+            newMap ++= cachedBuild(superClass).map({case (t, n: Node) => t -> new Node(n.info, n.substitutor.followed(newSubst))})
+            superTypesBuff += newMap
           }
         case _ =>
       }
@@ -179,4 +150,5 @@ abstract class MixinNodes {
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
   def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map)
   def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
+  def cachedBuild(clazz: PsiClass): Map
 }
