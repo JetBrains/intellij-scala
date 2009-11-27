@@ -36,17 +36,17 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('n')
+            PsiWhiteSpace(' ')
+            Guard
+              PsiElement(if)('if')
               PsiWhiteSpace(' ')
-              Guard
-                PsiElement(if)('if')
-                PsiWhiteSpace(' ')
-                InfixExpression
-                  ReferenceExpression
-                    PsiElement(identifier)('i')
-                  ReferenceExpression
-                    PsiElement(identifier)('!=')
-                  Literal
-                    PsiElement(integer)('5')
+              InfixExpression
+                ReferenceExpression
+                  PsiElement(identifier)('i')
+                ReferenceExpression
+                  PsiElement(identifier)('!=')
+                Literal
+                  PsiElement(integer)('5')
           PsiElement())(')')
           PsiWhiteSpace(' ')
           InfixExpression

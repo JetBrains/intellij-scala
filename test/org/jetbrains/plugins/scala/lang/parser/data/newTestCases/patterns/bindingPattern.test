@@ -29,14 +29,14 @@ ScalaFile
                 PsiElement(identifier)('x')
                 PsiElement(@)('@')
                 InfixPattern
-                  InfixPattern
-                    LiteralPattern
-                      Literal
-                        PsiElement(integer)('2')
+                  LiteralPattern
+                    Literal
+                      PsiElement(integer)('2')
+                  CodeReferenceElement
                     PsiElement(identifier)('+')
-                    LiteralPattern
-                      Literal
-                        PsiElement(integer)('2')
+                  LiteralPattern
+                    Literal
+                      PsiElement(integer)('2')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
