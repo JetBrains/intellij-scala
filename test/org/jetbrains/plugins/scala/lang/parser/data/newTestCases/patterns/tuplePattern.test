@@ -50,12 +50,12 @@ ScalaFile
               PatternInParenthesis
                 PsiElement(()('(')
                 InfixPattern
-                  InfixPattern
-                    ReferencePattern
-                      PsiElement(identifier)('a')
+                  ReferencePattern
+                    PsiElement(identifier)('a')
+                  CodeReferenceElement
                     PsiElement(identifier)('+')
-                    ReferencePattern
-                      PsiElement(identifier)('c')
+                  ReferencePattern
+                    PsiElement(identifier)('c')
                 PsiElement())(')')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')

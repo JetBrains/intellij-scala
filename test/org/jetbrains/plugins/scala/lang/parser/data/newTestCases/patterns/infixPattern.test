@@ -27,19 +27,20 @@ ScalaFile
               PsiWhiteSpace(' ')
               InfixPattern
                 InfixPattern
-                  InfixPattern
-                    ReferencePattern
-                      PsiElement(identifier)('f')
-                    PsiWhiteSpace(' ')
-                    PsiElement(identifier)('op')
-                    PsiWhiteSpace(' ')
-                    ReferencePattern
-                      PsiElement(identifier)('f')
+                  ReferencePattern
+                    PsiElement(identifier)('f')
                   PsiWhiteSpace(' ')
-                  PsiElement(identifier)('op')
+                  CodeReferenceElement
+                    PsiElement(identifier)('op')
                   PsiWhiteSpace(' ')
                   ReferencePattern
                     PsiElement(identifier)('f')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement
+                  PsiElement(identifier)('op')
+                PsiWhiteSpace(' ')
+                ReferencePattern
+                  PsiElement(identifier)('f')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
