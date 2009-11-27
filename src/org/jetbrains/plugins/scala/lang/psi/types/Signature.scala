@@ -20,9 +20,9 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
 
   def types = typesEval.v
 
-  def substitutedTypes = typesEval.v.map(substitutor.subst(_))
+  def substitutedTypes = types.map(substitutor.subst(_))
 
-  private val typesHashCode = substitutedTypes.map(ScType.canonicalText(_)).hashCode
+  //private val typesHashCode = substitutedTypes.map(ScType.canonicalText(_)).hashCode
 
   def equiv(other: Signature): Boolean = {
     name == other.name &&
@@ -51,7 +51,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
   }
 
   override def hashCode: Int = {
-    name.hashCode * 31 + typesHashCode
+    name.hashCode * 31/* + typesHashCode*/
   }
 }
 
@@ -65,19 +65,23 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
                      method.getParameterList.getParameters.length,
                      method.getTypeParameters,
                      substitutor) {
-    override def paramTypesEquiv(other: Signature) = other match {
-      case phys1 : PhysicalSignature => {
-        val unified1 = unify(substitutor, typeParams, typeParams)
-        val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-        types.zip(other.types) forall {case (t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
-          case ((Any | AnyRef), ScDesignatorType(c: PsiClass)) if c.getQualifiedName == "java.lang.Object" => true
-          case (ScDesignatorType(c: PsiClass), (Any | AnyRef)) if c.getQualifiedName == "java.lang.Object" => true
-          case (t1, t2) => t1 equiv t2
+    override def paramTypesEquiv(other: Signature): Boolean = {
+      other match {
+        case phys1: PhysicalSignature => {
+          if (phys1.paramLength != paramLength) return false
+          val unified1 = unify(substitutor, typeParams, typeParams)
+          val unified2 = unify(other.substitutor, typeParams, other.typeParams)
+          types.zip(other.types) forall {
+            case (t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
+              case ((Any | AnyRef), ScDesignatorType(c: PsiClass)) if c.getQualifiedName == "java.lang.Object" => true
+              case (ScDesignatorType(c: PsiClass), (Any | AnyRef)) if c.getQualifiedName == "java.lang.Object" => true
+              case (t1, t2) => t1 equiv t2
+            }
+          }
         }
+        case _ => super.paramTypesEquiv(other)
       }
     }
-    case _ => super.paramTypesEquiv(other)
-  }
 }
 
 case class FullSignature(val sig: Signature, val retType: ScType, val element: NavigatablePsiElement, val clazz: PsiClass) {

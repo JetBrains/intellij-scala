@@ -49,7 +49,9 @@ abstract class MixinNodes {
           val newSubst = current._2
           val k = p._1 match {
             case phys: PhysicalSignature => {
-              new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
+              new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)) {
+                override def types = phys.types
+              }.asInstanceOf[T]
             }
             case full: FullSignature => new FullSignature(full.sig match {
               case phys: PhysicalSignature => new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst))

@@ -43,7 +43,7 @@ object TypeDefinitionMembers {
 
     def equiv(s1: PhysicalSignature, s2: PhysicalSignature) = s1 equiv s2
 
-    def computeHashCode(s: PhysicalSignature) = s.hashCode
+    def computeHashCode(s: PhysicalSignature) = s.name.hashCode
 
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
@@ -178,7 +178,7 @@ object TypeDefinitionMembers {
 
     def equiv(s1: FullSignature, s2: FullSignature) = s1.sig equiv s2.sig
 
-    def computeHashCode(s: FullSignature) = s.hashCode
+    def computeHashCode(s: FullSignature) = s.sig.name.hashCode
 
     def isAbstract(s: FullSignature) = s.sig match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
