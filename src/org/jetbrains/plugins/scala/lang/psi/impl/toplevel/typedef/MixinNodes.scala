@@ -114,7 +114,27 @@ abstract class MixinNodes {
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
             var newSubst = combine(s, subst, superClass)
             val newMap = new Map
-            newMap ++= cachedBuild(superClass).map({case (t, n: Node) => t -> new Node(n.info, n.substitutor.followed(newSubst))})
+            newMap ++= cachedBuild(superClass).map(p => (p._1 match {
+              case phys: PhysicalSignature => {
+                new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
+              }
+              case full: FullSignature => new FullSignature(full.sig match {
+                case phys: PhysicalSignature => new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst))
+                case sig: Signature => new Signature(sig.name, sig.typesEval, sig.paramLength, sig.typeParams,
+                  sig.substitutor.followed(newSubst))
+              }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
+              case t => t
+            }) -> new Node(p._2.info match {
+              case phys: PhysicalSignature => {
+                new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
+              }
+              case full: FullSignature => new FullSignature(full.sig match {
+                case phys: PhysicalSignature => new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst))
+                case sig: Signature => new Signature(sig.name, sig.typesEval, sig.paramLength, sig.typeParams,
+                  sig.substitutor.followed(newSubst))
+              }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
+              case t => t
+            }, p._2.substitutor.followed(newSubst)))
             superTypesBuff += newMap
           }
         case _ =>
