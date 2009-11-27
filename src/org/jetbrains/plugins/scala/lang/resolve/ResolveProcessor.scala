@@ -248,6 +248,7 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
+    if (candidatesSet.size == 1) return candidatesSet.toArray //todo: optimization. Check if it's applicable after
     def forFilter(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {

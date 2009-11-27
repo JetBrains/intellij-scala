@@ -39,8 +39,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
-    val result: TypeResult[ScType] = wrap(reference) flatMap {
-      ref => ref.qualifier match {
+    val result: TypeResult[ScType] = reference match {
+      case Some(ref) => ref.qualifier match {
         case Some(q) => wrap(ref.bind) flatMap {
           case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
             if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
@@ -68,6 +68,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
         }
       }
+      case None => Failure("Reference is not defined", Some(this))
     }
     if (result.isEmpty && singleton) {
       Success(ScSingletonType(pathElement), Some(this))

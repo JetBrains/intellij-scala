@@ -316,70 +316,69 @@ object TypeDefinitionMembers {
                                   isObject: Boolean): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
-    if (shouldProcessVals(processor)) {
+    if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
+      val v1 = shouldProcessVals(processor)
+      val v2 = !processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)
       for ((_, n) <- vals) {
         ProgressManager.checkCanceled
-        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-      }
-    }
-    //this is for Java: to find methods, which is vals in Scala
-    if (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)) {
-      for ((_, n) <- vals) {
-        ProgressManager.checkCanceled
-        n.info match {
-          case t: ScTypedDefinition => {
-            val context = ScalaPsiUtil.nameContext(t)
-            if (!processor.execute(new FakePsiMethod(t, context match {
-              case o: PsiModifierListOwner => o.hasModifierProperty _
-              case _ => (s: String) => false
-            }), state)) return false
-            context match {
-              case annotated: ScAnnotationsHolder => {
-                annotated.hasAnnotation("scala.reflect.BeanProperty") match {
-                  case Some(_) => {
-                    context match {
-                      case value: ScValue => {
-                        if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
+        if (v1 && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        //this is for Java: to find methods, which is vals in Scala
+        if (v2) {
+          n.info match {
+            case t: ScTypedDefinition => {
+              val context = ScalaPsiUtil.nameContext(t)
+              if (!processor.execute(new FakePsiMethod(t, context match {
+                case o: PsiModifierListOwner => o.hasModifierProperty _
+                case _ => (s: String) => false
+              }), state)) return false
+              context match {
+                case annotated: ScAnnotationsHolder => {
+                  annotated.hasAnnotation("scala.reflect.BeanProperty") match {
+                    case Some(_) => {
+                      context match {
+                        case value: ScValue => {
+                          if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
+                        }
+                        case variable: ScVariable => {
+                          if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
+                          if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                            Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
+                        }
+                        case _ =>
                       }
-                      case variable: ScVariable => {
-                        if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
-                        if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                          Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
-                      }
-                      case _ =>
                     }
+                    case None =>
                   }
-                  case None =>
-                }
-                annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
-                  case Some(_) => {
-                    context match {
-                      case value: ScValue => {
-                        if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
+                  annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
+                    case Some(_) => {
+                      context match {
+                        case value: ScValue => {
+                          if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
+                        }
+                        case variable: ScVariable => {
+                          if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
+                          if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                            Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
+                        }
+                        case _ =>
                       }
-                      case variable: ScVariable => {
-                        if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                          Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
-                        if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                          Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
-                      }
-                      case _ =>
                     }
+                    case None =>
                   }
-                  case None =>
                 }
+                case _ =>
               }
-              case _ =>
             }
+            case _ =>
           }
-          case _ =>
         }
-
       }
     }
+
     if (shouldProcessMethods(processor)) {
       for ((_, n) <- methods) {
         ProgressManager.checkCanceled
