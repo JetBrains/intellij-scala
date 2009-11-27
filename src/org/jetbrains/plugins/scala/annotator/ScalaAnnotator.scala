@@ -370,3 +370,5 @@ object ScalaAnnotator {
     return true
   }
 }
+
+class A
