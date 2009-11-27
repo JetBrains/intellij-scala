@@ -24,9 +24,9 @@ import com.intellij.psi._
  * Utility object to calculate expected type of any expression
  */
 
-object ExpectedTypes {
+private[expr] object ExpectedTypes {
   def expectedExprType(expr: ScExpression): Option[ScType] = {
-    val types = expectedExprTypes(expr)
+    val types = expr.expectedTypes
     types.length match {
       case 1 => Some(types(0))
       case _ => None

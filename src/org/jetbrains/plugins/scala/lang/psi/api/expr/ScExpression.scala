@@ -81,12 +81,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   @volatile
   private var exprAfterImplicitType: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = null
   @volatile
-  private var expectedTypeCache: Option[ScType] = null
+  private var expectedTypesCache: Array[ScType] = null
 
   @volatile
   private var exprTypeModCount: Long = 0
   @volatile
-  private var expectedTypeModCount: Long = 0
+  private var expectedTypesModCount: Long = 0
   @volatile
   private var exprTypeAfterImplicitModCount: Long = 0
 
@@ -146,15 +146,17 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
 
-  def expectedType: Option[ScType] = {
-    var tp = expectedTypeCache
+  def expectedType: Option[ScType] = ExpectedTypes.expectedExprType(this)
+
+  def expectedTypes: Array[ScType] = {
+    var tp = expectedTypesCache
     val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && expectedTypeModCount == curModCount) {
+    if (tp != null && expectedTypesModCount == curModCount) {
       return tp
     }
-    tp = ExpectedTypes.expectedExprType(this)
-    expectedTypeCache = tp
-    expectedTypeModCount = curModCount
+    tp = ExpectedTypes.expectedExprTypes(this)
+    expectedTypesCache = tp
+    expectedTypesModCount = curModCount
     return tp
   }
 }

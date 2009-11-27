@@ -117,7 +117,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                        result: CompletionResultSet): Unit = {
       val element = parameters.getPosition
       val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(ExpectedTypes.expectedExprTypes(referenceExpression), referenceExpression.getVariants, result)
+      acceptTypes(referenceExpression.expectedTypes, referenceExpression.getVariants, result)
     }
   })
 
