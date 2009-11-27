@@ -33,7 +33,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             val i = unders.findIndexOf(_ == this)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
-            for (tp <- ExpectedTypes.expectedExprTypes(expr) if result != None) {
+            for (tp <- expr.expectedTypes if result != None) {
               tp match {
                 case ScFunctionType(_, params) if params.length >= unders.length => {
                   if (result != null) {
