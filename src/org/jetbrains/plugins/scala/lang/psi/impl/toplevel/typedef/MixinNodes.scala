@@ -47,7 +47,7 @@ abstract class MixinNodes {
       (current, res) => {
         for (p <- current._1) {
           val newSubst = current._2
-          val k = p._1(p._1 match {
+          val k = p._1 match {
             case phys: PhysicalSignature => {
               new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
             }
@@ -57,7 +57,7 @@ abstract class MixinNodes {
                 sig.substitutor.followed(newSubst))
             }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
             case t => t
-          })
+          }
           val node = new Node(p._2.info match {
             case phys: PhysicalSignature => {
               new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
