@@ -257,7 +257,6 @@ class ScalaAnnotator extends Annotator {
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder) {
-    return //todo: remove, when type system will be better and faster
     expr match {
       case m: ScMatchStmt =>
       case bl: ScBlock if bl.lastStatement != None =>
@@ -301,7 +300,6 @@ class ScalaAnnotator extends Annotator {
       }
       case _ => fun.returnTypeElement match {
         case Some(x: ScTypeElement) => {
-          return //todo: remove, when type system will be better and faster
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
