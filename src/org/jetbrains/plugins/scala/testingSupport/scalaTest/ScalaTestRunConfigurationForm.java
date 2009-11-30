@@ -6,9 +6,11 @@ import com.intellij.execution.junit2.configuration.ClassBrowser;
 import com.intellij.execution.junit2.configuration.ConfigurationModuleSelector;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.ide.util.TreeClassChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
@@ -35,6 +37,7 @@ public class ScalaTestRunConfigurationForm {
   private JLabel testPackageLabel;
   private JComboBox moduleComboBox;
   private JCheckBox scalaTestVersion;
+  private TextFieldWithBrowseButton workingDirectoryField;
 
   private ConfigurationModuleSelector myModuleSelector;
 
@@ -42,7 +45,11 @@ public class ScalaTestRunConfigurationForm {
     myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
     myModuleSelector.reset(configuration);
     moduleComboBox.setEnabled(true);
-    addFileChooser("Choose test class", testClassTextField, project);
+    addClassChooser("Choose test class", testClassTextField, project);
+    addFileChooser("Choose Working Directory", workingDirectoryField, project);
+    VirtualFile baseDir = project.getBaseDir();
+    String path = baseDir != null ? baseDir.getPath() : "";
+    workingDirectoryField.setText(path);
     addPackageChooser(testPackageTextField, project);
     VMParamsTextField.setDialogCaption("VM parameters editor");
     testOptionsTextField.setDialogCaption("Additional options editor");
@@ -102,6 +109,7 @@ public class ScalaTestRunConfigurationForm {
       setClassEnabled();
     }
     setScalaTestVersion(configuration.getScalaTestVersion());
+    setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
   }
 
@@ -123,6 +131,10 @@ public class ScalaTestRunConfigurationForm {
 
   public String getTestPackagePath() {
     return testPackageTextField.getText();
+  }
+
+  public String getWorkingDirectory() {
+    return workingDirectoryField.getText();
   }
 
   public void setTestClassPath(String s) {
@@ -149,11 +161,15 @@ public class ScalaTestRunConfigurationForm {
     scalaTestVersion.setSelected(b);
   }
 
+  public void setWorkingDirectory(String s) {
+    workingDirectoryField.setText(s);
+  }
+
   public JPanel getPanel() {
     return myPanel;
   }
 
-  private void addFileChooser(final String title,
+  private void addClassChooser(final String title,
                               final TextFieldWithBrowseButton textField,
                               final Project project) {
      ClassBrowser browser = new ClassBrowser(project, title) {
@@ -175,6 +191,20 @@ public class ScalaTestRunConfigurationForm {
      };
 
     browser.setField(textField);
+  }
+
+  private FileChooserDescriptor addFileChooser(final String title,
+                                               final TextFieldWithBrowseButton textField,
+                                               final Project project) {
+    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, true, false, false, false, false) {
+      @Override
+      public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
+        return super.isFileVisible(file, showHiddenFiles) && file.isDirectory();
+      }
+    };
+    fileChooserDescriptor.setTitle(title);
+    textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
+    return fileChooserDescriptor;
   }
 
   private void addPackageChooser(final TextFieldWithBrowseButton textField, final Project project) {
