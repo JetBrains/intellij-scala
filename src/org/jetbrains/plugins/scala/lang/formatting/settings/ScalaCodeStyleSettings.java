@@ -81,6 +81,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean SHOW_FILES_IN_PROJECT_VIEW = false;
+  public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
+  public boolean DONT_SHOW_CONVERSION_DIALOG = false;
 
   //collapse by default
   public boolean FOLD_FILE_HEADER = true;
