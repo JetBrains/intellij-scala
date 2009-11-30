@@ -89,6 +89,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox beforeMethodBracesCallCheckBox;
   private JCheckBox showFilesInProjectViewCheckBox;
   private JCheckBox closureParametersOnNewCheckBox;
+  private JCheckBox enableConversionOnCopyCheckBox;
+  private JCheckBox donTShowDialogCheckBox;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -218,6 +220,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
 
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
+    scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION = enableConversionOnCopyCheckBox.isSelected();
+    scalaSettings.DONT_SHOW_CONVERSION_DIALOG = donTShowDialogCheckBox.isSelected();
 
     scalaSettings.FOLD_FILE_HEADER = fileHeaderCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_STATEMETS = importStatementsCheckBox.isSelected();
@@ -356,6 +360,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaSettings.SHOW_FILES_IN_PROJECT_VIEW != showFilesInProjectViewCheckBox.isSelected()) return true;
+    if (scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION != enableConversionOnCopyCheckBox.isSelected()) return true;
+    if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG != donTShowDialogCheckBox.isSelected()) return true;
 
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
@@ -439,6 +445,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
     setValue(showFilesInProjectViewCheckBox, settings.SHOW_FILES_IN_PROJECT_VIEW);
+    setValue(enableConversionOnCopyCheckBox, settings.ENABLE_JAVA_TO_SCALA_CONVERSION);
+    setValue(donTShowDialogCheckBox, settings.DONT_SHOW_CONVERSION_DIALOG);
 
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
