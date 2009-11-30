@@ -38,7 +38,7 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
 
   protected void runTest(final File myTestFile) throws Throwable {
 
-    String content = new String(FileUtil.loadFileText(myTestFile));
+    String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
     Assert.assertNotNull(content);
 
     List<String> input = new ArrayList<String>();

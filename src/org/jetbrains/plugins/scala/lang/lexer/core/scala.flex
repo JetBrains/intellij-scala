@@ -252,9 +252,11 @@ special =   \u0021 | \u0023
           | [\u2761-\u2767]
           | "|"
           
-        /*| \u2794
+          | \u2794
           | [\u2798-\u27af]
           | [\u27b1-\u27be]
+
+          /* TODO jzaugg Why are these commented out? I tried to uncomment them, but got many parser test failures. 
           | [\u2800-\u28ff]
           | [\u2b00-\u2b2f]
           | [\u2b45-\u2b46]
@@ -302,7 +304,8 @@ special =   \u0021 | \u0023
           | [\u1d200-\u1d241]
           | \u1d245
           | [\u1d300-\u1d356]
-          | [\u1f000-\u1f02b]*/
+          | [\u1f000-\u1f02b]
+          */
 
 
 // Vertical line

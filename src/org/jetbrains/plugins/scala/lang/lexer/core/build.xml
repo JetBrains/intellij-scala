@@ -31,7 +31,8 @@
     <delete file="${lexer.file}"/>
     <delete file="${lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="512m" >
+    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="1024m" failonerror="true">
+      <jvmarg line="-XX:MaxPermSize=200M"/>
       <arg value="--charat"/>
       <arg value="-skel"/>
       <arg value="${skeleton}"/>
