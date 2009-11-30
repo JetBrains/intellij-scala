@@ -301,6 +301,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition => {
             ScalaPsiUtil.getCompanionModule(td) match {
               case Some(clazz) => map ++= getMethods(clazz)
+              case None =>
             }
           }
         }
@@ -315,6 +316,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition => {
             ScalaPsiUtil.getCompanionModule(td) match {
               case Some(clazz) => map ++= getVals(clazz)
+              case None =>
             }
           }
         }
