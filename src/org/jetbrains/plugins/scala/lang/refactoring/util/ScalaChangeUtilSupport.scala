@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import com.intellij.psi.PsiNamedElement
 import com.intellij.openapi.util.Key
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,6 +20,7 @@ import com.intellij.util.IncorrectOperationException
 
 class ScalaChangeUtilSupport extends TreeCopyHandler {
   def encodeInformation(element: TreeElement, original: ASTNode, encodingState: Map[Object, Object]): Unit = {
+    if (!element.isInstanceOf[ScalaPsiElement]) return
     if (original.isInstanceOf[CompositeElement]) {
       original.getElementType match {
         case ScalaElementTypes.REFERENCE | ScalaElementTypes.REFERENCE_EXPRESSION | ScalaElementTypes.TYPE_PROJECTION => {
@@ -36,6 +38,7 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
   }
 
   def decodeInformation(element: TreeElement, decodingState: Map[Object, Object]): TreeElement = {
+    if (!element.isInstanceOf[ScalaPsiElement]) return null
     if (element.isInstanceOf[CompositeElement]) {
       if (element.getElementType == ScalaElementTypes.REFERENCE || element.getElementType == ScalaElementTypes.REFERENCE_EXPRESSION  ||
           element.getElementType == ScalaElementTypes.TYPE_PROJECTION) {
