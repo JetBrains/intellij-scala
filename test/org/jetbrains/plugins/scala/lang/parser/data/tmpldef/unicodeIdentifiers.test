@@ -1,0 +1,15 @@
+trait ➝:
+
+-----
+ScalaFile
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('➝:')
+    ExtendsBlock
+      <empty list>
+  PsiElement(newline)('\n')
