@@ -206,22 +206,29 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
    */
   override def getMethods: Array[PsiMethod] = {
     val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
-    buffer ++= members.flatMap {
-      p => {
-        import api.statements.{ScVariable, ScFunction, ScValue}
-        import synthetic.PsiMethodFake
-        p match {
-          case primary: ScPrimaryConstructor => Array[PsiMethod](primary)
-          case function: ScFunction => Array[PsiMethod](function)
-          case value: ScValue => {
-            for (binding <- value.declaredElements) yield new FakePsiMethod(binding, value.hasModifierProperty _)
+    def methods(td: ScTemplateDefinition): Seq[PsiMethod] = {
+      td.members.flatMap {
+        p => {
+          import api.statements.{ScVariable, ScFunction, ScValue}
+          import synthetic.PsiMethodFake
+          p match {
+            case primary: ScPrimaryConstructor => Array[PsiMethod](primary)
+            case function: ScFunction => Array[PsiMethod](function)
+            case value: ScValue => {
+              for (binding <- value.declaredElements) yield new FakePsiMethod(binding, value.hasModifierProperty _)
+            }
+            case variable: ScVariable => {
+              for (binding <- variable.declaredElements) yield new FakePsiMethod(binding, variable.hasModifierProperty _)
+            }
+            case _ => Array[PsiMethod]()
           }
-          case variable: ScVariable => {
-            for (binding <- variable.declaredElements) yield new FakePsiMethod(binding, variable.hasModifierProperty _)
-          }
-          case _ => Array[PsiMethod]()
         }
       }
+    }
+    buffer ++= methods(this)
+    ScalaPsiUtil.getCompanionModule(this) match {
+      case Some(td: ScTemplateDefinition) => buffer ++= methods(td) //to see from Java methods from companion modules.
+      case _ =>
     }
     return buffer.toArray
   }
@@ -241,6 +248,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
          case _ =>
        }
     }
+    //todo: methods from companion module?
     return buffer.toArray
   }
 
