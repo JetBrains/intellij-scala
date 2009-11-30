@@ -64,6 +64,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
+  private var workingDirectory = {
+    val base = getProject.getBaseDir
+    if (base != null) base.getPath
+    else ""
+  }
   private var scalaTestVersion = false
 
   def getTestClassPath = testClassPath
@@ -71,11 +76,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
   def getScalaTestVersion: Boolean = scalaTestVersion
+  def getWorkingDirectory: String = workingDirectory
   def setTestClassPath(s: String): Unit = testClassPath = s
   def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
   def setScalaTestVersion(b: Boolean): Unit = scalaTestVersion = b
+  def setWorkingDirectory(s: String): Unit = workingDirectory = s
 
   def apply(configuration: ScalaTestRunConfigurationForm) {
     if (configuration.isClassSelected) {
@@ -90,6 +97,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     setTestArgs(configuration.getTestArgs)
     setScalaTestVersion(configuration.getScalaTestVersion)
     setModule(configuration.getModule)
+    setWorkingDirectory(configuration.getWorkingDirectory)
   }
 
   def getClazz(path: String): PsiClass = {
@@ -174,6 +182,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
+        params.setWorkingDirectory(getWorkingDirectory)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
 
