@@ -36,7 +36,7 @@ object Conformance {
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
     (l, r) match {
-      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level => return (true, undefinedSubst.addUpper(u2.tpt.name, u1))
+      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level => return (true, undefinedSubst.addUpper(u2.tpt.name, u1))  //todo: remove
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level == u1.level => return (true, undefinedSubst)
       case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower(u.tpt.name, tp))
       case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper(u.tpt.name, tp))

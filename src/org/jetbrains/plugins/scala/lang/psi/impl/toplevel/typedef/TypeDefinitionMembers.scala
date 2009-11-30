@@ -292,19 +292,49 @@ object TypeDefinitionMembers {
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
-                          place: PsiElement): Boolean =
-    processDeclarations(processor, state, lastParent, place, getVals(clazz), getMethods(clazz), getTypes(clazz),
+                          place: PsiElement): Boolean = {
+    def methodMap: MethodNodes.Map = {
+      val map: MethodNodes.Map = new MethodNodes.Map
+      map ++= getMethods(clazz)
+      if (!processor.isInstanceOf[BaseProcessor]) {
+        clazz match {
+          case td: ScTypeDefinition => {
+            ScalaPsiUtil.getCompanionModule(td) match {
+              case Some(clazz) => map ++= getMethods(clazz)
+            }
+          }
+        }
+      }
+      map
+    }
+    def valuesMap: ValueNodes.Map = {
+      val map: ValueNodes.Map = new ValueNodes.Map
+      map ++= getVals(clazz)
+      if (!processor.isInstanceOf[BaseProcessor]) {
+        clazz match {
+          case td: ScTypeDefinition => {
+            ScalaPsiUtil.getCompanionModule(td) match {
+              case Some(clazz) => map ++= getVals(clazz)
+            }
+          }
+        }
+      }
+      map
+    }
+    processDeclarations(processor, state, lastParent, place, valuesMap, methodMap, getTypes(clazz),
       clazz.isInstanceOf[ScObject]) &&
             AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place)
+  }
 
   def processSuperDeclarations(td: ScTemplateDefinition,
                                processor: PsiScopeProcessor,
                                state: ResolveState,
                                lastParent: PsiElement,
-                               place: PsiElement): Boolean =
+                               place: PsiElement): Boolean = {
     processDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
       td.isInstanceOf[ScObject])
+   }
 
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
