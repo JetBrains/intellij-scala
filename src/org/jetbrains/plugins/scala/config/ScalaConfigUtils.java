@@ -196,7 +196,7 @@ public class ScalaConfigUtils {
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
     if (libConf.takeFromSettings) {
       final String path = libConf.myScalaSdkJarPath;
-      final List<String> paths = StringUtil.split(path, " ");
+      /*final List<String> paths = StringUtil.split(path, " ");
       final VirtualFile baseDir = module.getProject().getBaseDir();
       if (libConf.isRelativeToProjectPath && baseDir != null) {
         final String url = baseDir.getPath();
@@ -206,7 +206,7 @@ public class ScalaConfigUtils {
           }
         }, File.pathSeparator);
         return result;
-      }
+      }*/
       return path;
     } else {
       Library[] libraries = getScalaSdkLibrariesByModule(module);
