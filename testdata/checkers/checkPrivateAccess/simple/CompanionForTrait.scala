@@ -6,4 +6,4 @@ object CompanionForTrait {
     private val x = 34
   }
 }
-//True
+//true
