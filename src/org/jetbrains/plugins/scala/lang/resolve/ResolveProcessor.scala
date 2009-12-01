@@ -266,7 +266,6 @@ class MethodResolveProcessor(ref: PsiElement,
     }
 
     def forMap(c: ScalaResolveResult, withImplicits: Boolean): ScalaResolveResult = {
-      if (typeArgElements.length != 0) return c
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
