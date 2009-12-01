@@ -25,23 +25,22 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor {
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
     val dialog = new ScalaPasteFromJavaDialog(project)
+    val text = value match {
+      case s: StringTransferableData => s.data
+      case _ => ""
+    }
+    if (text == "") return //copy as usually
     if (!settings.DONT_SHOW_CONVERSION_DIALOG) dialog.show
     if (settings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
-      val text = value match {
-        case s: StringTransferableData => s.data
-        case _ => ""
-      }
-      if (text != "") {
-        ApplicationManager.getApplication.runWriteAction(new Runnable {
-          def run: Unit = {
-            editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
-            editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
-            PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-            val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
-            manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
-          }
-        })
-      }
+      ApplicationManager.getApplication.runWriteAction(new Runnable {
+        def run: Unit = {
+          editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
+          editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+          val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
+          manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
+        }
+      })
     }
   }
 
@@ -55,19 +54,19 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor {
     if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION) return new StringTransferableData("")
     if (!file.isInstanceOf[PsiJavaFile]) return new StringTransferableData("")
     val buffer = new ArrayBuffer[PsiElement]
-    for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-      var elem: PsiElement = file.findElementAt(startOffset)
-      while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-              elem.getParent.getTextRange.getEndOffset <= endOffset) {
-        elem = elem.getParent
-      }
-      buffer += elem
-      while (elem.getTextRange.getEndOffset < endOffset) {
-        elem = elem.getNextSibling
-        buffer += elem
-      }
-    }
     try {
+      for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
+        var elem: PsiElement = file.findElementAt(startOffset)
+        while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+                elem.getParent.getTextRange.getEndOffset <= endOffset) {
+          elem = elem.getParent
+        }
+        buffer += elem
+        while (elem.getTextRange.getEndOffset < endOffset) {
+          elem = elem.getNextSibling
+          buffer += elem
+        }
+      }
       val newText = JavaToScala.convertPsiToText(buffer.toArray)
       new StringTransferableData(newText)
     } catch {
