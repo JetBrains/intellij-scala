@@ -91,6 +91,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox closureParametersOnNewCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
+  private JComboBox classDeclarationComboBox;
+  private JComboBox methodDeclarationComboBox;
+  private JComboBox otherComboBox;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -101,6 +104,12 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     super(settings);
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     installPreviewPanel(previewPanel);
+    classDeclarationComboBox.addItem("End of line");
+    classDeclarationComboBox.addItem("On new line");
+    methodDeclarationComboBox.addItem("End of line");
+    methodDeclarationComboBox.addItem("On new line");
+    otherComboBox.addItem("End of line");
+    otherComboBox.addItem("On new line");
     setSettings(scalaSettings);
     tabbedPane.addMouseListener(new MouseAdapter() {
       @Override
@@ -234,6 +243,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
     scalaSettings.SHOW_FILES_IN_PROJECT_VIEW = showFilesInProjectViewCheckBox.isSelected();
     scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = closureParametersOnNewCheckBox.isSelected();
+
+    scalaSettings.CLASS_DECLARATION_BRACE = classDeclarationComboBox.getSelectedIndex();
+    scalaSettings.METHOD_DECLARATION_BRACE = methodDeclarationComboBox.getSelectedIndex();
+    scalaSettings.OTHER_BRACE = otherComboBox.getSelectedIndex();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -373,6 +386,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
     if (scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE != closureParametersOnNewCheckBox.isSelected()) return true;
+
+    if (scalaSettings.CLASS_DECLARATION_BRACE != classDeclarationComboBox.getSelectedIndex()) return true;
+    if (scalaSettings.METHOD_DECLARATION_BRACE != methodDeclarationComboBox.getSelectedIndex()) return true;
+    if (scalaSettings.OTHER_BRACE != otherComboBox.getSelectedIndex()) return true;
     return false;
   }
 
@@ -458,6 +475,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
     setValue(closureParametersOnNewCheckBox, settings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE);
+    setValue(classDeclarationComboBox, settings.CLASS_DECLARATION_BRACE);
+    setValue(methodDeclarationComboBox, settings.METHOD_DECLARATION_BRACE);
+    setValue(otherComboBox, settings.OTHER_BRACE);
   }
 
   private static void setValue(JSpinner spinner, int value) {
@@ -466,5 +486,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   private static void setValue(final JCheckBox box, final boolean value) {
     box.setSelected(value);
+  }
+
+  private static void setValue(final JComboBox box, final int value) {
+    box.setSelectedIndex(value);
   }
 }

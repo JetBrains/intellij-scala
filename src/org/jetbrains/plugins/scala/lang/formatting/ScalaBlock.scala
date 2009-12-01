@@ -91,10 +91,13 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def getSubBlocks: List[Block] = {
+    import collection.JavaConversions._
     if (mySubBlocks == null && myLastNode == null) {
-      mySubBlocks = getDummyBlocks(myNode, this)
+      mySubBlocks = getDummyBlocks(myNode, this).filterNot(
+        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
     } else if (mySubBlocks == null) {
-      mySubBlocks = getDummyBlocks(myNode, myLastNode, this)
+      mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot(
+        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
     }
     mySubBlocks
   }
