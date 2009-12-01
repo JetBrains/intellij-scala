@@ -36,8 +36,7 @@ import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.util.regex.Pattern;
 
 /**
@@ -165,10 +164,5 @@ public abstract class ScalaUtils {
     VirtualFile f = c.getContainingFile().getVirtualFile();
     if (f == null) return false;
     return rm.getFileIndex().isInTestSourceContent(f);
-  }
-
-  public static String getPluginVersion() {
-    String jarPathForClass = PathUtil.getJarPathForClass(ScalaUtils.class);
-    throw new UnsupportedOperationException("Getting Plugin version is unsupported");
   }
 }
