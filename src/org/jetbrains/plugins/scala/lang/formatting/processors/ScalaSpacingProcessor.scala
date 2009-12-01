@@ -333,7 +333,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //processing before left brace
     if (rightString.length > 0 && rightString(0) == '{' && rightNode.getElementType != ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START) {
-      rightNode.getTreeParent.getPsi match {
+      var parentPsi = rightNode.getTreeParent.getPsi
+      parentPsi match {
+        case _: ScTypeDefinition => if (scalaSettings.CLASS_DECLARATION_BRACE == 1) return ON_NEW_LINE
+        case _: ScExtendsBlock => if (scalaSettings.CLASS_DECLARATION_BRACE == 1) return ON_NEW_LINE
+        case _: ScFunction => if (scalaSettings.METHOD_DECLARATION_BRACE == 1) return ON_NEW_LINE
+        case _ => if (scalaSettings.OTHER_BRACE == 1) return ON_NEW_LINE
+      }
+      
+      parentPsi match {
         case _: ScTypeDefinition => {
           if (scalaSettings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING
           else return WITHOUT_SPACING
