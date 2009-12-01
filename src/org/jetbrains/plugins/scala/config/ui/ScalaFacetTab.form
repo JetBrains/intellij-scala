@@ -34,7 +34,6 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="807eb"/>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.config.compiler.library"/>
         </properties>
       </component>
@@ -43,17 +42,8 @@
           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="88204"/>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.config.sdk.library"/>
         </properties>
-      </component>
-      <component id="88204" class="com.intellij.ui.RawCommandLineEditor" binding="mySDKJarPath" default-binding="true">
-        <constraints>
-          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
       </component>
       <component id="6ac01" class="javax.swing.JCheckBox" binding="myCompilerExcludeCb">
         <constraints>
@@ -63,22 +53,6 @@
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="facet.setting.exclude.compiler.from.cp"/>
         </properties>
       </component>
-      <component id="807eb" class="com.intellij.ui.RawCommandLineEditor" binding="myCompilerJarPath" default-binding="true">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="930b7" class="javax.swing.JCheckBox" binding="myIsRealtivePath">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.config.take.relative.path"/>
-        </properties>
-      </component>
       <component id="d1ec1" class="javax.swing.JLabel" binding="myHintLabel">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -86,6 +60,18 @@
         <properties>
           <text resource-bundle="org/jetbrains/plugins/scala/ScalaBundle" key="scala.config.sdk.space.hint"/>
         </properties>
+      </component>
+      <component id="a7850" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="ComplerLibraryTextField">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+      </component>
+      <component id="63a83" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="SDKLibraryTextField">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>

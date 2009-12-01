@@ -20,8 +20,12 @@ import com.intellij.facet.ui.FacetEditorContext;
 import com.intellij.facet.ui.FacetEditorTab;
 import com.intellij.facet.ui.FacetValidatorsManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -43,11 +47,10 @@ public class ScalaFacetTab extends FacetEditorTab {
   private JPanel myPanel;
   private JCheckBox myCompilerExcludeCb;
   private JCheckBox myLibraryExcludeCb;
-  private RawCommandLineEditor myCompilerJarPath;
-  private RawCommandLineEditor mySDKJarPath;
   private JCheckBox myUseSettingsChb;
-  private JCheckBox myIsRealtivePath;
   private JLabel myHintLabel;
+  private TextFieldWithBrowseButton ComplerLibraryTextField;
+  private TextFieldWithBrowseButton SDKLibraryTextField;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ScalaLibrariesConfiguration myConfiguration;
@@ -62,14 +65,15 @@ public class ScalaFacetTab extends FacetEditorTab {
     myUseSettingsChb.setEnabled(true);
     myUseSettingsChb.setSelected(myConfiguration.takeFromSettings);
 
-    myIsRealtivePath.setEnabled(myUseSettingsChb.isSelected());
-    myIsRealtivePath.setSelected(myConfiguration.isRelativeToProjectPath);
     myHintLabel.setEnabled(myUseSettingsChb.isSelected());
 
-    myCompilerJarPath.setEnabled(myConfiguration.takeFromSettings);
-    myCompilerJarPath.setText(myConfiguration.myScalaCompilerJarPath);
-    mySDKJarPath.setEnabled(myConfiguration.takeFromSettings);
-    mySDKJarPath.setText(myConfiguration.myScalaSdkJarPath);
+    addFileChooser("Choose scala-compiler.jar", ComplerLibraryTextField, myModule.getProject());
+    addFileChooser("Choose scala-library.jar", SDKLibraryTextField, myModule.getProject());
+
+    ComplerLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
+    ComplerLibraryTextField.setText(myConfiguration.myScalaCompilerJarPath);
+    SDKLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
+    SDKLibraryTextField.setText(myConfiguration.myScalaSdkJarPath);
 
     myCompilerExcludeCb.setVisible(false);
     myLibraryExcludeCb.setVisible(false);
@@ -78,9 +82,8 @@ public class ScalaFacetTab extends FacetEditorTab {
     myUseSettingsChb.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         final boolean b = myUseSettingsChb.isSelected();
-        myCompilerJarPath.setEnabled(b);
-        mySDKJarPath.setEnabled(b);
-        myIsRealtivePath.setEnabled(b);
+        ComplerLibraryTextField.setEnabled(b);
+        SDKLibraryTextField.setEnabled(b);
         myHintLabel.setEnabled(b);
       }
     });
@@ -100,17 +103,16 @@ public class ScalaFacetTab extends FacetEditorTab {
     return !(myConfiguration.myExcludeCompilerFromModuleScope == myCompilerExcludeCb.isSelected() &&
         myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected() &&
         myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
-        myConfiguration.isRelativeToProjectPath == myIsRealtivePath.isSelected() &&
         myConfiguration.myScalaCompilerJarPath.equals(getCompilerPath()) &&
         myConfiguration.myScalaSdkJarPath.equals(getSdkPath()));
   }
 
   private String getSdkPath() {
-    return mySDKJarPath.getText();
+    return SDKLibraryTextField.getText();
   }
 
   private String getCompilerPath() {
-    return myCompilerJarPath.getText();
+    return ComplerLibraryTextField.getText();
   }
 
   @Override
@@ -127,7 +129,6 @@ public class ScalaFacetTab extends FacetEditorTab {
     myConfiguration.myScalaCompilerJarPath = getCompilerPath();
     myConfiguration.myScalaSdkJarPath = getSdkPath();
     myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
-    myConfiguration.isRelativeToProjectPath = myIsRealtivePath.isSelected();
   }
 
   public void reset() {
@@ -137,6 +138,15 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   private void createUIComponents() {
+  }
+
+  private FileChooserDescriptor addFileChooser(final String title,
+                                               final TextFieldWithBrowseButton textField,
+                                               final Project project) {
+    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(false, false, true, false, false, false);
+    fileChooserDescriptor.setTitle(title);
+    textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
+    return fileChooserDescriptor;
   }
 
 

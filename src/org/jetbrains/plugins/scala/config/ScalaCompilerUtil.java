@@ -62,7 +62,7 @@ public class ScalaCompilerUtil {
 
     if (libConf.takeFromSettings) {
       final String path = libConf.myScalaCompilerJarPath;
-      final List<String> paths = StringUtil.split(path, " ");
+      /*final List<String> paths = StringUtil.split(path, " ");
       final VirtualFile baseDir = module.getProject().getBaseDir();
       if (libConf.isRelativeToProjectPath && baseDir != null) {
         final String url = baseDir.getPath();
@@ -72,7 +72,7 @@ public class ScalaCompilerUtil {
           }
         }, File.pathSeparator);
         return result;
-      }
+      }*/
       return path;
     } else {
       Library[] libraries = getScalaCompilerLibrariesByModule(module);
