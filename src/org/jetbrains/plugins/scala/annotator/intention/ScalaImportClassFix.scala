@@ -96,6 +96,7 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
     ApplicationManager.getApplication.invokeLater(new Runnable {
       def run {
         if (!ref.isValid) return
+        if (ref.resolve != null) return
 
         if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint()) return
         val action = new ScalaAddImportAction(editor, classes: Array[PsiClass], ref: ScReferenceElement)
