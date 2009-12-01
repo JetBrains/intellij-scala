@@ -48,7 +48,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, Fu
 
 class ScalaAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder) {
-    throw new NullPointerException
     if (element.getNode.getFirstChildNode == null && element.getTextRange.getStartOffset == 0) {
       val sFile = element.getContainingFile.asInstanceOf[ScalaFile]
       ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
