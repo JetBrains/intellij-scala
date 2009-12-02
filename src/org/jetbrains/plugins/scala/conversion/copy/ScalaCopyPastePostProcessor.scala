@@ -57,7 +57,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor {
     try {
       for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
         var elem: PsiElement = file.findElementAt(startOffset)
-        while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+        while (elem != null && elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
                 elem.getParent.getTextRange.getEndOffset <= endOffset) {
           elem = elem.getParent
         }
