@@ -301,7 +301,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     var res = ""
     val method = sign.method
     // do not substitute aliases
-    val substitutor = new ScSubstitutor(sign.substitutor.tvMap, Map.empty, sign.substitutor.outerMap)
+    val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
         body = getStandardValue(substitutor subst method.getType(TypingContext.empty).getOrElse(Any))
