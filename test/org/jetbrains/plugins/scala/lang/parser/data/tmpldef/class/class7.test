@@ -11,6 +11,11 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
     PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
     RequiresBlock
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')

@@ -41,5 +41,10 @@ ScalaFile
           CodeReferenceElement
             PsiElement(identifier)('h')
       PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
     ExtendsBlock
       <empty list>

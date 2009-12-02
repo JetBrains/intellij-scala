@@ -10,6 +10,11 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('ABC')
     PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
     RequiresBlock
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')

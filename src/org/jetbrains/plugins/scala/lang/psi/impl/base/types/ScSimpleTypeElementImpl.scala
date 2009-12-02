@@ -22,9 +22,10 @@ import api.base.patterns.ScReferencePattern
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import util.PsiTreeUtil
 import api.statements._
-import api.expr.ScExpression
 import api.toplevel.{ScTypeParametersOwner, ScTypedDefinition, ScNamedElement, ScPolymorphicElement}
 import params.ScTypeParam
+import api.expr.{ScNewTemplateDefinition, ScExpression}
+import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -105,7 +106,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   var filtered = clazz.getConstructors.filter(forFilter(_, subst.followed(undefSubst), argClauses, false))
                   val withImplicits = filtered.isEmpty
                   if (withImplicits) filtered = clazz.getConstructors.filter(forFilter(_, subst.followed(undefSubst), argClauses, true))
-                  val applicable = filtered.map(forMap(_, subst.followed(undefSubst), argClauses, withImplicits))
+                  val applicable = filtered.map(forMap(_, subst.followed(undefSubst), argClauses, withImplicits, typez))
                   if (applicable.length == 0) return lift(typez)
                   val buff = new ArrayBuffer[ScSubstitutor]
                   def existsBetter(r: PsiMethod): Boolean = {
@@ -143,7 +144,28 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
    * Getting right substitutor after local type inference
    */
   private def forMap(m: PsiMethod, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]],
-                        checkWithImplicits: Boolean): (PsiMethod, ScSubstitutor) = {
+                        checkWithImplicits: Boolean, typez: ScType): (PsiMethod, ScSubstitutor) = {
+    val expected: Option[ScType] = {
+      getParent match {
+        case constr: ScConstructor => {
+          constr.getParent match {
+            case par: ScClassParents => {
+              par.getParent match {
+                case ext: ScExtendsBlock => {
+                  ext.getParent match {
+                    case templ: ScNewTemplateDefinition => templ.expectedType
+                    case _ => None
+                  }
+                }
+                case _ => None
+              }
+            }
+            case _ => None
+          }
+        }
+        case _ => None
+      }
+    }
     val clazz = m.getContainingClass
     clazz match {
       case owner: ScTypeParametersOwner => {
@@ -152,7 +174,15 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           s = s.addLower(tParam.getName, subst.subst(tParam.lowerBound.getOrElse(Nothing)))
           s = s.addUpper(tParam.getName, subst.subst(tParam.upperBound.getOrElse(Any)))
         }
-        //todo: think about return type
+        expected match {
+          case Some(expected) => {
+            if (Conformance.conforms(expected, subst.subst(typez))) {
+              val uS = Conformance.undefinedSubst(expected, subst.subst(typez))
+              s = s.addSubst(uS)
+            }
+          }
+          case _ =>
+        }
         s.getSubstitutor match {
           case Some(s) => (m, s)
           case None => (m, ScSubstitutor.empty)
@@ -164,7 +194,15 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           s = s.addLower(tParam.getName, Nothing) //todo:
           s = s.addUpper(tParam.getName, Any) //todo:
         }
-        //todo: think about return type
+        expected match {
+          case Some(expected) => {
+            if (Conformance.conforms(expected, subst.subst(typez))) {
+              val uS = Conformance.undefinedSubst(expected, subst.subst(typez))
+              s = s.addSubst(uS)
+            }
+          }
+          case _ =>
+        }
         s.getSubstitutor match {
           case Some(s) => (m, s)
           case None => (m, ScSubstitutor.empty)
