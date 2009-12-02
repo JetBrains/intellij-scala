@@ -76,7 +76,7 @@ package util {
       val TEMP_FILE = project.getProjectFilePath() + "temp.scala";
       return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
-        FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
+        ScalaFileType.SCALA_FILE_TYPE,
         text,
         LocalTimeCounter.currentTime(),
         true)
