@@ -16,6 +16,11 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
     PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')

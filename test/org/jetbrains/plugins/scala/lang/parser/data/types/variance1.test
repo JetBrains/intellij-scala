@@ -15,5 +15,10 @@ ScalaFile
         PsiElement(identifier)('+')
         PsiElement(identifier)('T')
       PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
     ExtendsBlock
       <empty list>

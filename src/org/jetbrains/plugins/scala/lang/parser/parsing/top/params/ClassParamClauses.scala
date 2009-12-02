@@ -19,10 +19,9 @@ import com.intellij.lang.PsiBuilder
 object ClassParamClauses {
   def parse(builder: PsiBuilder): Boolean = {
     val classParamClausesMarker = builder.mark
-    var parsed = false
-    while (ClassParamClause parse builder) {parsed = true}
-    if (ImplicitClassParamClause parse builder) parsed = true
+    while (ClassParamClause parse builder) {}
+    ImplicitClassParamClause parse builder
     classParamClausesMarker.done(ScalaElementTypes.PARAM_CLAUSES)
-    return parsed
+    true
   }
 }

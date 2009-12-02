@@ -14,7 +14,8 @@ import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTypeDefinitionStub
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
-import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.ProgressManager
+import collection.mutable.ArrayBuffer;
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -92,5 +93,13 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     }
   }
 
-  override def getConstructors: Array[PsiMethod] = getMethods.filter(_.isConstructor)
+  override def getConstructors: Array[PsiMethod] = {
+    val buffer = new ArrayBuffer[PsiMethod]
+    buffer ++= functions.filter(_.isConstructor)
+    constructor match {
+      case Some(x) => buffer += x
+      case _ =>
+    }
+    return buffer.toArray
+  }
 }
