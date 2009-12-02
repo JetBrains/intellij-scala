@@ -11,6 +11,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testMap = doTest
 
+  def testNoSOE = doTest
+
   def testSome = doTest
 
   def testZipArrays = doTest
