@@ -7,7 +7,7 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testCompositePattern = doTest
 
-  def testmatchUnapply1 = doTest
+  def testMatchUnapply = doTest
 
-  def testpatternUnapply1 = doTest
+  def testPatternUnapply = doTest
 }
