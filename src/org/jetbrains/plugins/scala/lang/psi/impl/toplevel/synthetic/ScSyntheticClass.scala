@@ -180,7 +180,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def registerClasses: Unit = {
     all = new HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
-      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), "")
+      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, "")
 
     val any = registerClass(Any, "Any")
     val manager = any.manager
