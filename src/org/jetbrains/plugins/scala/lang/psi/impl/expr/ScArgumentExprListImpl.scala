@@ -11,11 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import resolve.ScalaResolveResult
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScClass}
-import api.base.{ScPrimaryConstructor, ScConstructor}
 import types.result.TypingContext
 import types._
 import api.statements.params.{ScTypeParam, ScParameter}
 import com.intellij.psi.{PsiTypeParameter, PsiParameter, PsiMethod, PsiClass}
+import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
+import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -191,7 +192,22 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case constr: ScConstructor => {
         val res = new ArrayBuffer[Array[(String, ScType)]]
         val i: Int = constr.arguments.indexOf(this)
-        ScType.extractDesignated(constr.typeElement.getType(TypingContext.empty).getOrElse(Any)) match {
+        val extract: Option[(PsiClass, ScSubstitutor)] = constr.typeElement match {
+          case _: ScParameterizedTypeElement => ScType.extractClassType(constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
+          case simple: ScSimpleTypeElement => simple.reference match {
+            case Some(ref: ScStableCodeReferenceElement) => ref.bind match {
+              case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
+              case _ => None
+            }
+            case _ => None
+          }
+          case proj: ScProjectionType => proj.resolveResult match {
+            case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
+            case _ => None
+          }
+          case _ => None //todo: Singleton type, Tuple type?
+        }
+        extract match {
           case Some((clazz: ScClass, subst: ScSubstitutor)) => {
             for (function: ScFunction <- clazz.functions if function.isConstructor) {
               val clauses = function.paramClauses.clauses
