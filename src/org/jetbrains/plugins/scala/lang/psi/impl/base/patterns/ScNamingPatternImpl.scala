@@ -10,8 +10,8 @@ import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import psi.types.ScType
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
+import psi.types.{Bounds, ScType}
 
 /**
  * @author Alexander Podkhalyuzin

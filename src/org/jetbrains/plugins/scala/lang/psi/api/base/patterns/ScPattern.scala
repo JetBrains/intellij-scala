@@ -194,6 +194,7 @@ trait ScPattern extends ScalaPsiElement {
       }
       resolveReferenceToExtractor(infix.refernece, i, infix.expectedType, 2)
     }
+    case par: ScParenthesisedPattern => par.expectedType
     case patternList : ScPatterns => patternList.getParent match {
       case tuple : ScTuplePattern => {
         tuple.getParent match {
