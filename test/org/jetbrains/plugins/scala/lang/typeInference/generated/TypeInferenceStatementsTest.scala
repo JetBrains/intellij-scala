@@ -13,6 +13,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testMatchStatement = doTest
 
+  def testThisStmt = doTest
+
   def testTryStatement = doTest
 
   def testUnitIfStatement = doTest
