@@ -38,7 +38,7 @@
   <property name="build.vcs.number.scala_svn" value="unknown"/>
   <property name="plugin.revision" value="${build.vcs.number}"/>
   <property name="plugin.build.number" value="${build.number}"/>
-  <property name="plugin.version" value="${scala.plugin.version}.${plugin.build.number}"/>
+  <property name="plugin.version" value="${plugin.build.number}"/>
 
   <property name="scala.2.7.lib" value="${base.dir}/SDK/scala-27-lib"/>
 
