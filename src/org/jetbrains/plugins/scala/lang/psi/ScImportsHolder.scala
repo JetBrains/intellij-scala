@@ -102,9 +102,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportForClass(clazz: PsiClass, ref: PsiElement = null) {
     ref match {
       case ref: ScReferenceElement => {
-        if (ref.resolve == clazz) {
-          return
-        }
+        if (!ref.isValid || ref.resolve == clazz) return
       }
       case _ =>
     }
