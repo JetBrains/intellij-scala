@@ -176,7 +176,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
   def createScalaFile(text: String, manager: PsiManager): ScalaFile =
     PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), text).asInstanceOf[ScalaFile]
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
 
   def createStableReferenceElement(name: String, manager: PsiManager) = {
     val file = createScalaFile("class A extends B with " + name, manager)
