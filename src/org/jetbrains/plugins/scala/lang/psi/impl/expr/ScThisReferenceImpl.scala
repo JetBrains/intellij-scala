@@ -11,6 +11,9 @@ import api.expr._
 import com.intellij.lang.ASTNode
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import types.result.{TypingContext, Failure, Success}
+import api.base.ScConstructor
+import com.intellij.psi.PsiElement
+import api.toplevel.templates.ScTemplateBody
 
 /**
  * @author Alexander Podkhalyuzin
@@ -36,8 +39,8 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       case _ => None
     }
     case None => {
-      val encl = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition], false)
-      if (encl != null) Some(encl) else None
+      val encl = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateBody], false)
+      if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, classOf[ScTemplateDefinition], false)) else None
     }
   }
 }
