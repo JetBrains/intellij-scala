@@ -143,6 +143,7 @@ class ScalaAnnotator extends Annotator {
       registerUsedImports(refElement, scalaResult)
     }
     checkAccessForReference(resolve, refElement, holder)
+    checkForwardReference(resolve, refElement, holder)
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -156,6 +157,10 @@ class ScalaAnnotator extends Annotator {
       registerUsedImports(refElement, scalaResult)
     }
     checkAccessForReference(resolve, refElement, holder)
+  }
+
+  private def checkForwardReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
+    //todo: add check if it's legal to use forward reference
   }
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {

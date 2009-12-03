@@ -26,6 +26,8 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,7 +101,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     PsiClass[] classes = file.getClasses();
     for (PsiClass aClass : classes) {
       if (aClass.isValid()) {
-        result.add(new ClassTreeNode(myProject, aClass, viewSettings));
+        result.add(new ScalaClassTreeNode(myProject, aClass, viewSettings));
       }
     }
   }
@@ -179,6 +181,28 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     @Deprecated
     private boolean typeBelongsInFile(ScTypeDefinition scTypeDefinition) {
       return scalaFile.getName().equals(scTypeDefinition.getName() + ".scala");
+    }
+  }
+
+  private class ScalaClassTreeNode extends ClassTreeNode {
+    public ScalaClassTreeNode(Project project, PsiClass value, ViewSettings viewSettings) {
+      super(project, value, viewSettings);
+    }
+
+    @Override
+    public boolean canRepresent(Object element) {
+      if (super.canRepresent(element)) return true;
+      PsiElement elem = getValue().getParent();
+      while (elem != null && !(elem instanceof PsiFile) && !(elem instanceof PsiClass)) {
+        elem = elem.getParent();
+      }
+      if (elem == null) return false;
+      if (elem instanceof PsiClass) return false;
+      else {
+        PsiFile file = (PsiFile) elem;
+        if (file.getVirtualFile() == element) return true;
+        return file == element;
+      }
     }
   }
 }
