@@ -3,7 +3,10 @@
   <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
-      <configuration />
+      <configuration>
+        <option name="myScalaCompilerJarPath" value="C:\work\scala-2.8\scala-compiler.jar" />
+        <option name="myScalaSdkJarPath" value="C:\work\scala-2.8\scala-library.jar" />
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">

@@ -4,7 +4,6 @@ package parameterInfo
 package functionParameterInfo
 
 import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.runtime.RichString
 import _root_.scala.util.Sorting
 import base.ScalaPsiTestCase
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}

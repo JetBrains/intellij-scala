@@ -2,7 +2,10 @@
 <module relativePaths="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
-      <configuration />
+      <configuration>
+        <option name="myScalaCompilerJarPath" value="C:\work\scala-2.8\scala-compiler.jar" />
+        <option name="myScalaSdkJarPath" value="C:\work\scala-2.8\scala-library.jar" />
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
@@ -12,8 +15,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scalatest-1.0-scala-2.8" level="project" />
     <orderEntry type="library" name="Scala SDK" level="application" />
+    <orderEntry type="library" name="scalatest-1.0.1-scala-2.8" level="project" />
   </component>
 </module>
 
