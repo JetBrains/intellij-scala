@@ -25,8 +25,8 @@ import icons.Icons
 import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
 import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
-import psi.api.base.types.ScSelfTypeElement
-import result.TypingContext
+import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
+import result.{Success, TypingContext}
 
 /**
  * @author ven
@@ -120,7 +120,7 @@ object ResolveUtils {
                       case pack: PsiPackage => {
                         val packageName = pack.getQualifiedName
                         val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
-                        if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                        if (placeEnclosing == null) return false //not Scala
                         val placePackageName = placeEnclosing match {
                           case file: ScalaFile => file.getPackageName
                           case pack: ScPackaging => pack.fqn
@@ -155,7 +155,7 @@ object ResolveUtils {
                     }
                     val placeEnclosing: PsiElement = ScalaPsiUtil.
                             getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
-                    if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                    if (placeEnclosing == null) return false //not Scala
                     val placePackageName = placeEnclosing match {
                       case file: ScalaFile => file.getPackageName
                       case pack: ScPackaging => pack.getPackageName
@@ -183,7 +183,7 @@ object ResolveUtils {
                         val packageName = pack.getQualifiedName
                         val placeEnclosing: PsiElement = ScalaPsiUtil.
                                 getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
-                        if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                        if (placeEnclosing == null) return false //not Scala
                         val placePackageName = placeEnclosing match {
                           case file: ScalaFile => file.getPackageName
                           case pack: ScPackaging => pack.fqn
@@ -208,6 +208,24 @@ object ResolveUtils {
                         getParentOfType(place, classOf[ScTemplateDefinition], true)
                 while (placeTd != null) {
                   if (placeTd.isInheritor(td, true)) return true
+                  placeTd.selfTypeElement match {
+                    case Some(te: ScSelfTypeElement) => te.typeElement match {
+                      case Some(te: ScTypeElement) => {
+                        te.getType(TypingContext.empty) match {
+                          case Success(tp: ScType, _) => ScType.extractClassType(tp) match {
+                            case Some((clazz: PsiClass, _)) => {
+                              if (clazz == td) return true
+                              if (clazz.isInheritor(td, true)) return true
+                            }
+                            case _ =>
+                          }
+                          case _ =>
+                        }
+                      }
+                      case _ =>
+                    }
+                    case _ =>
+                  }
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
@@ -227,7 +245,7 @@ object ResolveUtils {
                 }
                 val placeEnclosing: PsiElement = ScalaPsiUtil.
                         getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
-                if (placeEnclosing == null) return false //todo: not Scala, could be useful to implement
+                if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
                   case pack: ScPackaging => pack.getPackageName
@@ -247,6 +265,24 @@ object ResolveUtils {
                   getParentOfType(place, classOf[ScTemplateDefinition], true)
           while (placeTd != null) {
             if (placeTd.isInheritor(clazz, true)) return true
+            placeTd.selfTypeElement match {
+              case Some(te: ScSelfTypeElement) => te.typeElement match {
+                case Some(te: ScTypeElement) => {
+                  te.getType(TypingContext.empty) match {
+                    case Success(tp: ScType, _) => ScType.extractClassType(tp) match {
+                      case Some((cl: PsiClass, _)) => {
+                        if (cl == clazz) return true
+                        if (cl.isInheritor(clazz, true)) return true
+                      }
+                      case _ =>
+                    }
+                    case _ =>
+                  }
+                }
+                case _ =>
+              }
+              case _ =>
+            }
             val companion: ScTemplateDefinition = ScalaPsiUtil.
                     getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && companion.isInheritor (clazz, true)) return true
