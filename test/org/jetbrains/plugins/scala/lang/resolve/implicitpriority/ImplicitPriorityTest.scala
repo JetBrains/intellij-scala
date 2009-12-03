@@ -20,8 +20,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     println
   }
 
-  // todo SCL-1606
-  def disabledtestLowPriorityImplicits() {
+  def testLowPriorityImplicits() {
     val path = "lowPriorityImplicits.scala"
     configureByFile(path) match {
       case r: PsiPolyVariantReference => {
@@ -43,8 +42,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  // TODO SCL-1606
-  def disabledtestMostSpecificImplicit() {
+  def testMostSpecificImplicit() {
     val path = "mostSpecificImplicit.scala"
     configureByFile(path) match {
       case r: PsiPolyVariantReference => {
