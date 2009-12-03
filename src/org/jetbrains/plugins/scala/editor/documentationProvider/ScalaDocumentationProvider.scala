@@ -7,7 +7,6 @@ import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.base.{ScConstructor, ScAccessModifier, ScPrimaryConstructor}
 import lang.psi.api.expr.{ScAnnotation}
 import lang.psi.api.ScalaFile
@@ -22,6 +21,9 @@ import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import lang.psi.types._
+import util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
+import search.searches.SuperMethodsSearch
+import com.intellij.openapi.project.IndexNotReadyException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -290,18 +292,21 @@ object ScalaDocumentationProvider {
     return buffer.toString
   }
 
-  
-  private def parseDocComment(elem: ScDocCommentOwner): String = {
+
+  private def parseDocComment(elem: PsiDocCommentOwner, withDescription: Boolean = false): String = {
     def getParams(fun: ScFunction): String = {
       fun.parameters.map((param: ScParameter) => "int     " + param.name).mkString("(", ",\n", ")")
     }
-    val comment = elem.docComment
+    val comment = elem.getDocComment match {case null => None case x => Some(x)}
     comment match {
       case Some(x) => {
         val text = elem match {
           case _: ScTypeDefinition => x.getText + "\nclass A"
           case f: ScFunction => {
             "class A {\n" + x.getText + "\npublic int f" + getParams(f) + " {}\n}"
+          }
+          case m: PsiMethod => {
+            "class A {\n" + m.getText + "\n}"
           }
           case _ => x.getText + "\nclass A"
         }
@@ -310,18 +315,52 @@ object ScalaDocumentationProvider {
         val javadoc: String = elem match {
           case _: ScTypeDefinition => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
           case _: ScFunction => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
+          case _: PsiMethod => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
           case _ => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
         }
-        return elem match {
+        val (s1, s2) = elem.getContainingClass match {
+          case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
+                  e.getQualifiedName + "\"><code>" + e.getName + "</code></a><p>", "</p>")
+          case _ => ("", "")
+        }
+        return s1 + (elem match {
           case _: ScTypeDefinition => javadoc.substring(110, javadoc.length - 14)
           case f: ScFunction => {
             val i = javadoc.indexOf("</PRE>")
             javadoc.substring(i + 6, javadoc.length - 14)
           }
+          case m: PsiMethod => {
+            val i = javadoc.indexOf("</PRE>")
+            javadoc.substring(i + 6, javadoc.length - 14)
+          }
           case _ => javadoc.substring(110, javadoc.length - 14)
+        }) + s2
+      }
+      case None => {
+        elem match {
+          case fun: ScFunction => {
+            fun.superMethod match {
+              case Some(fun: PsiMethod) => {
+                return parseDocComment(fun, true)
+              }
+              case _ => return ""
+            }
+          }
+          case method: PsiMethod => {
+            var superSignature: MethodSignatureBackedByPsiMethod = null
+            try {
+              superSignature = SuperMethodsSearch.search(method, null, true, false).findFirst
+            }
+            catch {
+              case e: IndexNotReadyException => {
+              }
+            }
+            if (superSignature == null) return ""
+            return parseDocComment(superSignature.getMethod, true)
+          }
+          case _ => return ""
         }
       }
-      case None => return ""
     }
   }
 

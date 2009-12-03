@@ -277,7 +277,8 @@ object ScType {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       e match {
         case obj: ScObject if withPoint && obj.getQualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName + "</code></a>."
+        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName +
+                "</code></a>" + (if (withPoint) "." else "")
         case pack: PsiPackage if withPoint => ""
         case _ => e.getName + "."
       }
