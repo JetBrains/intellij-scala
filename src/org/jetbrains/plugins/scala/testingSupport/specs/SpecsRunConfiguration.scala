@@ -42,6 +42,7 @@ import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import scalaTest.ScalaTestRunConfigurationForm
 import script.ScalaScriptRunConfiguration
+import reflect.BeanProperty
 
 /**
  * User: Alexander Podkhalyuzin
@@ -60,6 +61,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
+  @BeanProperty
+  var workingDirectory = {
+    val base = getProject.getBaseDir
+    if (base != null) base.getPath
+    else ""
+  }
   var sysFilter = ".*"
   var exampleFilter = ".*"
 
@@ -90,6 +97,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     setModule(configuration.getModule)
     setSystemFilter(configuration.getSystemFilter)
     setExampleFilter(configuration.getExampleFilter)
+    workingDirectory = configuration.getWorkingDirectory
   }
 
   def getClazz(path: String): PsiClass = {
@@ -165,6 +173,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
         val list = new java.util.ArrayList[String]
+        params.setWorkingDirectory(workingDirectory)
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
