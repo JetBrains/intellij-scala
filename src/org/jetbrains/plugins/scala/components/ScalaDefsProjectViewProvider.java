@@ -88,6 +88,8 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
             addTypes(result, scalaFile, viewSettings);
           }
         }
+      } else if (o instanceof ScTypeDefinition) {
+        result.add(new ScalaClassTreeNode(myProject, (PsiClass) o, ((ProjectViewNode) parent).getSettings()));
       } else {
         result.add(treeNode);
       }
