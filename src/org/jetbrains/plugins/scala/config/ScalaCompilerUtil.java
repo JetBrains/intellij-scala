@@ -7,8 +7,6 @@ import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
@@ -37,7 +35,7 @@ public class ScalaCompilerUtil {
   public static final String SCALA_COMPILER_JAR_NAME_PREFIX = "scala-compiler";
 
   public static final String COMPILER_CLASS_PATH = "scala/tools/nsc/Main.class";
-  public static final String LAMP_PATCKAGE_PATH = "ch/epfl/lamp/fjbg";
+  public static final String LAMP_PACKAGE_PATH = "ch/epfl/lamp/fjbg";
 
   /**
    * Checks wheter given IDEA library contaions Scala Compiler classes
@@ -152,10 +150,10 @@ public class ScalaCompilerUtil {
   public static String getFJDBJarPAth(Module module) {
     final Library[] libraries = LibrariesUtil.getLibrariesByCondition(module, new Condition<Library>() {
       public boolean value(Library library) {
-        return library != null && ScalaConfigUtils.checkLibrary(library, FJBG_JAR_PREFIX, LAMP_PATCKAGE_PATH);
+        return library != null && ScalaConfigUtils.checkLibrary(library, FJBG_JAR_PREFIX, LAMP_PACKAGE_PATH);
       }
     });
     final Library library = libraries[0];
-    return ScalaConfigUtils.getSpecificJarForLibrary(library, FJBG_JAR_PREFIX, LAMP_PATCKAGE_PATH);
+    return ScalaConfigUtils.getSpecificJarForLibrary(library, FJBG_JAR_PREFIX, LAMP_PACKAGE_PATH);
   }
 }
