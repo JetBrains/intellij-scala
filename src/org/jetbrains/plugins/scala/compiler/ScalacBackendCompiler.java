@@ -305,7 +305,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     // Special check to compile scala language library
 
-    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PATCKAGE_PATH) || takeCompilerFromFacet) {
+    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PACKAGE_PATH) || takeCompilerFromFacet) {
 
       //Normal scala configuration by module or facet settings
       classPathBuilder.append(scalaCompilerJarPath);
@@ -318,13 +318,14 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         }
       });
 
-      assert module != null;
-
-      final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
-      if (libraries.length > 0) {
-        for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
-          classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
-          classPathBuilder.append(File.pathSeparator);
+      //todo look for convenient solution to compile scala-lang modules
+      if (module != null) {
+        final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
+        if (libraries.length > 0) {
+          for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
+            classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
+            classPathBuilder.append(File.pathSeparator);
+          }
         }
       }
     }
