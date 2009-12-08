@@ -17,6 +17,7 @@ import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
 import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
+import statements.params.ScTypeParam
 
 /**
  * @author Alexander Podkhalyuzin
@@ -59,18 +60,19 @@ trait ScPattern extends ScalaPsiElement {
             if (clauses.length == 0) None
             else {
               val subst = if (clazz.typeParameters.length == 0) substitutor else {
+                val clazzType = ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(tp =>
+                  ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, substitutor)
+                  case _ => new ScTypeParameterType(tp, substitutor)})))
                 expected match {
-                  case Some(ScParameterizedType(des, args)) if (ScType.extractClassType(des) match {
-                    case Some((`clazz`, _)) => true
-                    case _ => false
-                  }) => {
-                    val s = args.zip(clazz.typeParameters).foldLeft(ScSubstitutor.empty) {
-                      (subst, pair) =>
-                        val scType = pair._1
-                        val typeParameter = pair._2
-                        subst.bindT(typeParameter.getName, scType)
-                    }
-                    substitutor.followed(s)
+                  case Some(tp) => {
+                    val t = Conformance.conforms(tp, clazzType)
+                    if (t) {
+                      val undefSubst = Conformance.undefinedSubst(tp, clazzType)
+                      undefSubst.getSubstitutor match {
+                        case Some(newSubst) => substitutor.followed(newSubst)
+                        case _ => substitutor
+                      }
+                    } else substitutor
                   }
                   case _ => substitutor
                 }
