@@ -138,7 +138,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         val buffer = new ArrayBuffer[PsiClass]
         buffer ++= pack.getClasses
         for (p <- pack.getSubPackages) {
-          buffer ++= p.getClasses
+          buffer ++= getClasses(p)
         }
         buffer.toSeq
       }
