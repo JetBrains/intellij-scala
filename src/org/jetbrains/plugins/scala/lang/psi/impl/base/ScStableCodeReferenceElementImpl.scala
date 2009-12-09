@@ -155,11 +155,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }).toArray[ResolveResult]
   }
 
-  object E1 extends Enumeration {
-  val x = Value("x")
-  val y = Value("y")
-}
-
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
   }
