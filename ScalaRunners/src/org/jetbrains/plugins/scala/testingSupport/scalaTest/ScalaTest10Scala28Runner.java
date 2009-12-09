@@ -28,7 +28,7 @@ public class ScalaTest10Scala28Runner {
     String[] arga = argsArray.toArray(new String[argsArray.size()]);
     for (String clazz : classes) {
       arga[classIndex]  = clazz;
-      Runner.main(arga);
+      Runner.run(arga);
     }
   }
 }
