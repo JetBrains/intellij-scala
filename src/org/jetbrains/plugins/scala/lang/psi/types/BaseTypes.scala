@@ -18,7 +18,7 @@ object BaseTypes {
     case ScSkolemizedType(_, Nil, _, upper) => get(upper)
     case p : ScParameterizedType => {
       p.designated match {
-        case Some(td: ScTypeDefinition) => reduce(td.superTypes.flatMap {tp => BaseTypes.get(tp) ++ Seq(p.substitutor.subst(tp))})
+        case Some(td: ScTypeDefinition) => reduce(td.superTypes.flatMap {tp => BaseTypes.get(p.substitutor.subst(tp)) ++ Seq(p.substitutor.subst(tp))})
         case Some(clazz: PsiClass) => {
           val s = p.substitutor
           reduce(clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}) //todo: all base types
