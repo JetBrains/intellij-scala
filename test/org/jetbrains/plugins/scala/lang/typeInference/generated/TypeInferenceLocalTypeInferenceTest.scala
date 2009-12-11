@@ -9,6 +9,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testIntArrayCreation = doTest
 
+  def testListUnion = doTest
+
   def testMap = doTest
 
   def testNoSOE = doTest
