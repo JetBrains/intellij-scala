@@ -12,16 +12,16 @@ import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 
 object BaseTypes {
   def get(t : ScType) : Seq[ScType] = t match {
-    case classT@ScDesignatorType(td : ScTypeDefinition) => reduce(td.superTypes)
-    case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})
+    case classT@ScDesignatorType(td : ScTypeDefinition) => reduce(td.superTypes.flatMap(tp => BaseTypes.get(tp) ++ Seq(tp)))
+    case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})  //todo: all base types
     case ScPolymorphicType(_, Nil, _, upper) => get(upper.v)
     case ScSkolemizedType(_, Nil, _, upper) => get(upper)
     case p : ScParameterizedType => {
       p.designated match {
-        case Some(td: ScTypeDefinition) => td.superTypes.map {p.substitutor.subst _}
+        case Some(td: ScTypeDefinition) => reduce(td.superTypes.flatMap {tp => BaseTypes.get(tp) ++ Seq(p.substitutor.subst(tp))})
         case Some(clazz: PsiClass) => {
           val s = p.substitutor
-          clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}
+          reduce(clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}) //todo: all base types
         }
         case None => Seq.empty
       }

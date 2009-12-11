@@ -42,7 +42,7 @@ abstract class MixinNodes {
 
   object MultiMap {def empty = new MultiMap}
 
-  def mergeSupers (maps : List[(Map, ScSubstitutor)]) : MultiMap = {
+  /*def mergeSupers (maps : List[(Map, ScSubstitutor)]) : MultiMap = {
     maps.foldRight(MultiMap.empty) {
       (current, res) => {
         for (p <- current._1) {
@@ -71,6 +71,19 @@ abstract class MixinNodes {
             }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
             case t => t
           }, p._2.substitutor.followed(newSubst))
+          res.addBinding(k, node)
+        }
+        res
+      }
+    }
+  }*/
+
+  def mergeSupers (maps : List[Map]) : MultiMap = {
+    maps.foldRight(MultiMap.empty) {
+      (current, res) => {
+        for (p <- current) {
+          val k = p._1
+          val node = new Node(p._2.info, p._2.substitutor)
           res.addBinding(k, node)
         }
         res
@@ -116,11 +129,12 @@ abstract class MixinNodes {
 
   def build(clazz : PsiClass) : (Map, Map) = {
     val map = new Map
-    val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
+    val superTypesBuff = new ListBuffer[Map]
+    //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
       case template : ScTemplateDefinition => {
         processScala(template, ScSubstitutor.empty, map)
-        (template.superTypes: Seq[ScType], putAliases(template, ScSubstitutor.empty))
+        (BaseTypes.get(ScDesignatorType(template)): Seq[ScType], putAliases(template, ScSubstitutor.empty))
       }
       case syn: ScSyntheticClass => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -128,7 +142,7 @@ abstract class MixinNodes {
       }
       case _ => {
         processJava(clazz, ScSubstitutor.empty, map)
-        (clazz.getSuperTypes.map{psiType => ScType.create(psiType, clazz.getProject)} : Seq[ScType], ScSubstitutor.empty)
+        (BaseTypes.get(ScDesignatorType(clazz)) : Seq[ScType], ScSubstitutor.empty)
       }
     }
 
@@ -138,8 +152,21 @@ abstract class MixinNodes {
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
             var newSubst = combine(s, subst, superClass)
-            val newMap = (cachedBuild(superClass), newSubst)
+            val newMap = new Map
+            //val newMap = (cachedBuild(superClass), newSubst)
+            superClass match {
+              case template : ScTemplateDefinition => {
+                processScala(template, newSubst, map)
+              }
+              case syn: ScSyntheticClass => {
+                processSyntheticScala(syn, newSubst, map)
+              }
+              case _ => {
+                processJava(superClass, newSubst, map)
+              }
+            }
             superTypesBuff += newMap
+            //superTypesBuff += newMap
           }
         case _ =>
       }
