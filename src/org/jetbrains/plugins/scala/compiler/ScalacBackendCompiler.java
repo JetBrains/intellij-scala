@@ -454,9 +454,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final String firstVersion = ScalaCompilerUtil.getScalaCompilerVersion(ScalaCompilerUtil.getScalaCompilerJarPath(first));
 
     for (Module module : modules) {
-      final String path = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-      final String version = ScalaCompilerUtil.getScalaCompilerVersion(path);
-      if (!version.equals(firstVersion)) return false;
+      final FacetManager manager = FacetManager.getInstance(module);
+      final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
+      if (facet != null) {
+        final String path = ScalaCompilerUtil.getScalaCompilerJarPath(module);
+        final String version = ScalaCompilerUtil.getScalaCompilerVersion(path);
+        if (!version.equals(firstVersion)) return false;
+      }
     }
     return true;
   }
