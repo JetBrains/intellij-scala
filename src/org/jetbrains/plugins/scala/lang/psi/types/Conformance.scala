@@ -334,19 +334,27 @@ object Conformance {
     }
     ScType.extractClassType(r) match {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
-      case Some((clazz: PsiClass, _)) => {
-        for (tp <- BaseTypes.get(r)) {
-          val t = conforms(l, tp, visited + clazz, undefinedSubst)
+      case Some((td: ScTypeDefinition, subst: ScSubstitutor)) => {
+        var bases = td.superTypes.map(subst.subst(_))
+        for (tp <- bases) {
+          val t = conforms(l, tp, visited + td, undefinedSubst)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)
-        //return .find {t => conforms(l, t, visited + clazz)}
       }
-      case _ => {
-        for (tp <- BaseTypes.get(r)) {
-          val t = conforms(l, tp, visited, undefinedSubst)
+      case Some((td: PsiClass, subst: ScSubstitutor)) => {
+        var bases = td.getSuperTypes.map{tp => subst.subst(ScType.create(tp, td.getProject))}
+        for (tp <- bases) {
+          val t = conforms(l, tp, visited + td, undefinedSubst)
           if (t._1) return (true, t._2)
         }
+        return (false, undefinedSubst)
+      }
+      case _ => {
+        /*for (tp <- BaseTypes.get(r)) {
+          val t = conforms(l, tp, visited, undefinedSubst)
+          if (t._1) return (true, t._2)
+        }*/
         return (false, undefinedSubst)
       }//return BaseTypes.get(r).find {t => conforms(l, t, visited)}
     }
