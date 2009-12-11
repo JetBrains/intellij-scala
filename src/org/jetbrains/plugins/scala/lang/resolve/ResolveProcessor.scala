@@ -384,6 +384,7 @@ class MethodResolveProcessor(ref: PsiElement,
       for (r <- applicable if !existsBetter(r)) {
         buff += r
       }
+      if (buff.length == 0) return candidatesSet.toArray
       buff.toArray[T]
     }
   }
