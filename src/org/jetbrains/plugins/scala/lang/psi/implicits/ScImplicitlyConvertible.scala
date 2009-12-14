@@ -106,7 +106,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       types.length == 1 && typez.conforms(sig.substitutor.subst(types(0)))
     }).map((sig: Signature) => sig match {
       case phys: PhysicalSignature => {
-        val uSubst = Conformance.undefinedSubst(sig.substitutor.subst(sig.types.apply(0)), typez)  //todo: add missed types
+        val uSubst = Conformance.undefinedSubst(sig.substitutor.subst(sig.types.apply(0)), typez)  //todo: add missed implicit params
         uSubst.getSubstitutor match {
           case Some(s) =>  new PhysicalSignature(phys.method, phys.substitutor.followed(s))
           case _ => sig
