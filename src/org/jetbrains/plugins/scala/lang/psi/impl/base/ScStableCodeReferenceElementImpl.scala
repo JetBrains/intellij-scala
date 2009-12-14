@@ -73,6 +73,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass
       case _: ScConstructorPattern => classOrObjectOrValues
+      case _: ScInfixPattern => classOrObjectOrValues
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
       case _: ScInfixTypeElement => stableClass

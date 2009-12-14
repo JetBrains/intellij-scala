@@ -73,15 +73,28 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
           candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
           return false //find error  about existing unapply in companion during annotation under case class
         }
+        case ta: ScTypeAliasDefinition => {
+          val alType = ta.aliasedType(TypingContext.empty)
+          for (tp <- alType) {
+            ScType.extractClassType(tp) match {
+              case Some((clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
+                candidatesSet.clear
+                candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+                return false
+              }
+              case _ =>
+            }
+          }
+        }
         case obj: ScObject => {
-          for (sign: PhysicalSignature <- obj.signaturesByName("unapply")) {
+          for (sign <- obj.signaturesByName("unapply")) {
             val m = sign.method
             val subst = sign.substitutor
             candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
           }
           //unapply has bigger priority then unapplySeq
           if (candidatesSet.isEmpty)
-          for (sign: PhysicalSignature <- obj.signaturesByName("unapplySeq")) {
+          for (sign <- obj.signaturesByName("unapplySeq")) {
             val m = sign.method
             val subst = sign.substitutor
             candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
