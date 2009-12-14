@@ -30,7 +30,7 @@ object Conformance {
 
   def conformsSeq(ls: Seq[ScType], rs: Seq[ScType]): Boolean = ls.length == rs.length && ls.zip(rs).foldLeft(true)((z, p) => z && conforms(p._1, p._2))
 
-  private def conforms(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) = {
+  private def conforms(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor, noBaseTypes: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
 
     var undefinedSubst: ScUndefinedSubstitutor = subst
@@ -332,12 +332,13 @@ object Conformance {
       }
       case _ =>
     }
+    if (noBaseTypes) return (false, undefinedSubst)
     ScType.extractClassType(r) match {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
       case Some((td: ScTypeDefinition, subst: ScSubstitutor)) => {
         var bases = td.superTypes.map(subst.subst(_))
         for (tp <- bases) {
-          val t = conforms(l, tp, visited + td, undefinedSubst)
+          val t = conforms(l, tp, visited + td, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)
@@ -345,16 +346,16 @@ object Conformance {
       case Some((td: PsiClass, subst: ScSubstitutor)) => {
         var bases = td.getSuperTypes.map{tp => subst.subst(ScType.create(tp, td.getProject))}
         for (tp <- bases) {
-          val t = conforms(l, tp, visited + td, undefinedSubst)
+          val t = conforms(l, tp, visited + td, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)
       }
       case _ => {
-        /*for (tp <- BaseTypes.get(r)) {
-          val t = conforms(l, tp, visited, undefinedSubst)
+        for (tp <- BaseTypes.get(r)) {
+          val t = conforms(l, tp, visited, undefinedSubst, true)
           if (t._1) return (true, t._2)
-        }*/
+        }
         return (false, undefinedSubst)
       }//return BaseTypes.get(r).find {t => conforms(l, t, visited)}
     }
