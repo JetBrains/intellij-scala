@@ -11,6 +11,7 @@ import psi.impl.ScalaFileImpl
 import scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.openapi.progress.ProgressManager
+import collection.Seq
 
 trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -47,9 +48,12 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   private def processElement(e : PsiElement, processor: PsiScopeProcessor, state : ResolveState) : Boolean = e match {
     case named: ScNamedElement => processor.execute(named, state)
     case holder: ScDeclaredElementsHolder => {
-      for (declared <- holder.declaredElements) {
+      var elements: Seq[PsiNamedElement] = holder.declaredElements
+      var i = 0
+      while (i < elements.length) {
         ProgressManager.checkCanceled
-        if (!processor.execute(declared, state)) return false
+        if (!processor.execute(elements(i), state)) return false
+        i = i + 1
       }
       true
     }
