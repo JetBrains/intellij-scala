@@ -39,7 +39,9 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    for (importExpr <- importExprs) {
+    var i = 0
+    while (i < importExprs.length) {
+      val importExpr = importExprs(i)
       ProgressManager.checkCanceled
       if (importExpr == lastParent) return true
       val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] = importExpr.reference match {
@@ -51,7 +53,9 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         }).toArray
         case _ => Array()
       }
-      for ((elem, importsUsed) <- elemsAndUsages) {
+      var j = 0
+      while (j < elemsAndUsages.length) {
+        val (elem, importsUsed) = elemsAndUsages(j)
         ProgressManager.checkCanceled
         importExpr.selectorSet match {
           case None =>
@@ -64,17 +68,25 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             }
           case Some(set) => {
             val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
-            for (selector <- set.selectors) {
+            var selectors: Array[ScImportSelector] = set.selectors
+            var k = 0
+            while (k < selectors.length) {
+              val selector = selectors(k)
               ProgressManager.checkCanceled
-              for (result <- selector.reference.multiResolve(false)) { //Resolve the name imported by selector
+              var results: Array[ResolveResult] = selector.reference.multiResolve(false)
+              var l = 0
+              while (l < results.length) { //Resolve the name imported by selector
                 // Collect shadowed elements
+                val result = results(l)
                 shadowed += ((selector, result.getElement))
                 if (!processor.execute(result.getElement,
                   (state.put(ResolverEnv.nameKey, selector.importedName).
                           put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))))) {
                   return false
                 }
+                l = l + 1
               }
+              k = k + 1
             }
 
             // There is total import from stable id
@@ -118,7 +130,9 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             }
           }
         }
+        j = j + 1
       }
+      i = i + 1
     }
 
     true
