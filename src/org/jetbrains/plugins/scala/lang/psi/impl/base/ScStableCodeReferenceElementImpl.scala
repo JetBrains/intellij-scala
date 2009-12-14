@@ -184,7 +184,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true))).
-          filter(r => r.getElement.isInstanceOf[PsiNamedElement] &&
-          r.getElement.asInstanceOf[PsiNamedElement].getName == refName)
+  def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true), false, Some(refName)))
 }
