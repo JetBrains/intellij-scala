@@ -43,7 +43,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     case _ => None
   }
 
-  val substitutor : ScSubstitutor = {
+  lazy val substitutor : ScSubstitutor = {
     val (params, initial): (Seq[ScTypeParameterType], ScSubstitutor) = designator match {
       case ScPolymorphicType(_, args, _, _) => (args, ScSubstitutor.empty)
       case _ => ScType.extractDesignated(designator) match {
