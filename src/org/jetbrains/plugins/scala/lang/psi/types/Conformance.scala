@@ -17,6 +17,7 @@ import _root_.scala.collection.immutable.HashSet
 
 import com.intellij.psi._
 import util.PsiModificationTracker
+import collection.Seq
 
 object Conformance {
 
@@ -46,20 +47,24 @@ object Conformance {
         val t = conforms(returnType1, returnType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
-        for (i <- 0 until params1.length) {
+        var i = 0
+        while (i < params1.length) {
           if (params1(i).isRepeated != params2(i).isRepeated) return (false, undefinedSubst)
           if (!params1(i).paramType.equiv(params2(i).paramType)) return (false, undefinedSubst)
+          i = i + 1
         }
       }
       case (ScTypePolymorphicType(internalType1, typeParameters1), ScTypePolymorphicType(internalType2, typeParameters2)) => {
         if (typeParameters1.length != typeParameters2.length) return (false, undefinedSubst)
-        for (i <- 0 until typeParameters1.length) {
+        var i = 0
+        while (i < typeParameters1.length) {
           var t = conforms(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           t = conforms(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
+          i = i + 1
         }
         import Suspension._
         val subst = new ScSubstitutor(new collection.immutable.HashMap[String, ScType] ++ typeParameters1.zip(typeParameters2).map({
@@ -101,10 +106,14 @@ object Conformance {
       case (AnyVal, _) => return (false, undefinedSubst)
       case (ScTupleType(comps1: Seq[ScType]), ScTupleType(comps2: Seq[ScType])) => {
         if (comps1.length != comps2.length) return (false, undefinedSubst)
-        for ((comp1, comp2) <- comps1.zip(comps2)) {
+        var i = 0
+        while (i < comps1.length) {
+          val comp1 = comps1(i)
+          val comp2 = comps2(i)
           val t = conforms(comp1, comp2, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           else undefinedSubst = t._2
+          i = i + 1
         }
         return (true, undefinedSubst)
       }
@@ -113,10 +122,14 @@ object Conformance {
         val t = conforms(retType1, retType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         else undefinedSubst = t._2
-        for ((param1, param2) <- params1.zip(params2)) {
+        var i = 0
+        while (i < params1.length) {
+          val param1 = params1(i)
+          val param2 = params2(i)
           val t = conforms(param2, param1, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           else undefinedSubst = t._2
+          i = i + 1
         }
         return (true, undefinedSubst)
       }
@@ -308,7 +321,9 @@ object Conformance {
       }
       case (_, ScSkolemizedType(_, _, _, upper)) => return conforms(l, upper, HashSet.empty, undefinedSubst)
       case (_, ScCompoundType(comps, _, _)) => {
-        for (comp <- comps) {
+        val iterator = comps.iterator
+        while (iterator.hasNext) {
+          val comp = iterator.next
           val t = conforms(l, comp, HashSet.empty, undefinedSubst)
           if (t._1) return (true, t._2)
         }
@@ -337,7 +352,9 @@ object Conformance {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
       case Some((td: ScTypeDefinition, subst: ScSubstitutor)) => {
         var bases = td.superTypes.map(subst.subst(_))
-        for (tp <- bases) {
+        val iterator = bases.iterator
+        while (iterator.hasNext) {
+          val tp = iterator.next
           val t = conforms(l, tp, visited + td, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
@@ -345,14 +362,19 @@ object Conformance {
       }
       case Some((td: PsiClass, subst: ScSubstitutor)) => {
         var bases = td.getSuperTypes.map{tp => subst.subst(ScType.create(tp, td.getProject))}
-        for (tp <- bases) {
+        val iterator = bases.iterator
+        while (iterator.hasNext) {
+          val tp = iterator.next
           val t = conforms(l, tp, visited + td, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)
       }
       case _ => {
-        for (tp <- BaseTypes.get(r)) {
+        var bases: Seq[ScType] = BaseTypes.get(r)
+        val iterator = bases.iterator
+        while (iterator.hasNext) {
+          val tp = iterator.next
           val t = conforms(l, tp, visited, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }

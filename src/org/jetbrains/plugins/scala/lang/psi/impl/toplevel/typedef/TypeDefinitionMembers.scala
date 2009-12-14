@@ -351,7 +351,9 @@ object TypeDefinitionMembers {
     if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
       val v1 = shouldProcessVals(processor)
       val v2 = !processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)
-      for ((_, n) <- vals) {
+      val iterator = vals.iterator
+      while (iterator.hasNext) {
+        val (_, n) = iterator.next
         ProgressManager.checkCanceled
         if (v1 && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         //this is for Java: to find methods, which is vals in Scala
@@ -412,7 +414,9 @@ object TypeDefinitionMembers {
     }
 
     if (shouldProcessMethods(processor)) {
-      for ((_, n) <- methods) {
+      val iterator = methods.iterator
+      while (iterator.hasNext) {
+        val (_, n) = iterator.next
         ProgressManager.checkCanceled
         val substitutor = n.substitutor followed subst
         if (!processor.execute(n.info.method,
@@ -420,16 +424,20 @@ object TypeDefinitionMembers {
       }
     }
     if (shouldProcessTypes(processor)) {
-      for ((_, n) <- types) {
+      val iterator = types.iterator
+      while (iterator.hasNext) {
+        val (_, n) = iterator.next
         ProgressManager.checkCanceled
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //static inner classes
     if (isObject && shouldProcessJavaInnerClasses(processor)) {
-      for ((_, n) <- types if n.info.isInstanceOf[ScTypeDefinition]) {
+      val iterator = types.iterator
+      while (iterator.hasNext) {
+        val (_, n) = iterator.next
         ProgressManager.checkCanceled
-        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
 
