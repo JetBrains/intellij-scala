@@ -12,11 +12,15 @@ import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
-                          val collectImplicits: Boolean = false) extends BaseProcessor(kinds) {
+                          val collectImplicits: Boolean = false, forName: Option[String] = None) extends BaseProcessor(kinds) {
   private val signatures = new HashSet[Signature]
   private val names = new HashSet[String]
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
+    forName match {
+      case Some(name) if element.isInstanceOf[PsiNamedElement] && element.asInstanceOf[PsiNamedElement].getName != name => return true
+      case _ =>
+    }
     lazy val substitutor: ScSubstitutor = {
       state.get(ScSubstitutor.key) match {
         case null => ScSubstitutor.empty
