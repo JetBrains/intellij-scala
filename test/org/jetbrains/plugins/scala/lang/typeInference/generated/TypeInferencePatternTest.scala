@@ -7,6 +7,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testCompositePattern = doTest
 
+  def testInfixToTypeAlias = doTest
+
   def testMatchUnapply = doTest
 
   def testPatternOption = doTest

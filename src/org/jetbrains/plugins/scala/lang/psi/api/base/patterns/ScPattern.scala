@@ -11,13 +11,13 @@ import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import toplevel.typedef.ScClass
-import statements.{ScFunction, ScValue, ScVariable}
 import expr._
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
 import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 import statements.params.ScTypeParam
+import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -52,7 +52,23 @@ trait ScPattern extends ScalaPsiElement {
 
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
-    ref.bind match {
+    var bind: Option[ScalaResolveResult] = ref.bind match {
+      case Some(ScalaResolveResult(ta: ScTypeAliasDefinition, substitutor)) => {
+        val alType = ta.aliasedType(TypingContext.empty)
+        var res: Option[ScalaResolveResult] = null
+        for (tp <- alType) {
+          ScType.extractClassType(tp) match {
+            case Some((clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
+              res = Some(new ScalaResolveResult(clazz, substitutor.followed(subst)))
+            }
+            case _ => res = None
+          }
+        }
+        res
+      }
+      case m => m
+    }
+    bind match {
       case Some(ScalaResolveResult(clazz: ScClass, substitutor: ScSubstitutor)) if clazz.isCase => {
         clazz.constructor match {
           case Some(constructor: ScPrimaryConstructor) => {
