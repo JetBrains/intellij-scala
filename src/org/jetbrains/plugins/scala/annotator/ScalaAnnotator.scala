@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import patterns.ScBindingPattern
+import patterns.{ScInfixPattern, ScBindingPattern}
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
@@ -129,6 +129,8 @@ class ScalaAnnotator extends Annotator {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
         case e: ScReferenceExpression => processError(false, getFix)
+        case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
+                e.getParent.asInstanceOf[ScInfixPattern].refernece == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case s: ScImportSelector if resolve.length > 0 =>
           case _ => processError(true, getFix)

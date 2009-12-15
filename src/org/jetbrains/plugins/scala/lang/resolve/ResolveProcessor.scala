@@ -5,7 +5,6 @@ package resolve
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import params.{ScTypeParam, ScParameter}
-import psi.api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,6 +23,8 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
 import psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import psi.ScalaPsiUtil
+import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -100,6 +101,33 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
             candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
           }
           return true
+        }
+        case bind: ScBindingPattern => {
+          ScalaPsiUtil.nameContext(bind) match {
+            case v: ScValue => {
+              val parentSubst = getSubst(state)
+              val typez = bind.getType(TypingContext.empty).getOrElse(return true)
+              ScType.extractClassType(typez) match {
+                case Some((clazz: ScTypeDefinition, substitutor: ScSubstitutor)) => {
+                  for (sign <- clazz.signaturesByName("unapply")) {
+                    val m = sign.method
+                    val subst = sign.substitutor
+                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst), getImports(state))
+                  }
+                  //unapply has bigger priority then unapplySeq
+                  if (candidatesSet.isEmpty)
+                  for (sign <- clazz.signaturesByName("unapplySeq")) {
+                    val m = sign.method
+                    val subst = sign.substitutor
+                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst), getImports(state))
+                  }
+                  return true
+                }
+                case _ => return true
+              }
+            }
+            case _ => return true
+          }
         }
         case _ => return true
       }
