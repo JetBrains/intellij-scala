@@ -1,0 +1,1 @@
+val Seq = scala.collection.Seq
