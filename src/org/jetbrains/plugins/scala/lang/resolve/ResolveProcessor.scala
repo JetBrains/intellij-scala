@@ -270,6 +270,10 @@ class MethodResolveProcessor(ref: PsiElement,
           candidatesSet += new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass)
           true
         }
+        case o: ScObject if o.isPackageObject => {
+          candidatesSet += new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass)
+          return true
+        }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method

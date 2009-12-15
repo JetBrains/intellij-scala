@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.{PsiElement}
 import api.base.types.ScTypeElement
 import implicits.ScImplicitlyConvertible
+import collection.mutable.ArrayBuffer
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -142,6 +143,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) {
       ProgressManager.checkCanceled
+      e match {
+        case ref: ScReferenceExpression if ref.multiResolve(false).length > 1 => {
+          for (tp <- ref.multiType) {
+            processor.processType(tp, e, ResolveState.initial)
+          }
+          return
+        }
+        case _ =>
+      }
       val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
       processor.processType(result, e, ResolveState.initial)
       if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
@@ -228,7 +238,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   private def rightAssoc = refName.endsWith(":")
 
+  def multiType: Array[ScType] = {
+    val buffer = new ArrayBuffer[ScType]
+    for (res <- multiResolve(false); if res.isInstanceOf[ScalaResolveResult]; resolve = res.asInstanceOf[ScalaResolveResult]) {
+      convertBindToType(Some(resolve)) match {
+        case Success(tp: ScType, elem) => buffer += tp
+        case _ =>
+      }
+    }
+    return buffer.toArray
+  }
+
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    convertBindToType(bind)
+  }
+
+  protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     def isMethodCall: Boolean = {
       var parent = getParent
       while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
@@ -318,7 +343,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
-
     Success(inner, Some(this))
   }
 }
