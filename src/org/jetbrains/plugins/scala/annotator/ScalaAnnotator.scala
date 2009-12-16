@@ -71,8 +71,7 @@ class ScalaAnnotator extends Annotator {
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        //todo uncomment when lineariztion problems will be fixed
-        //checkImplementedMethods(x, holder)
+        //todo: checkImplementedMethods(x, holder)
       }
       case ref: ScReferenceElement => {
         ref.qualifier match {
