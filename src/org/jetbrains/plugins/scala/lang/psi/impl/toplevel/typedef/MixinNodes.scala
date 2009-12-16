@@ -81,9 +81,7 @@ abstract class MixinNodes {
   def mergeSupers (maps : List[Map]) : MultiMap = {
     maps.foldRight(MultiMap.empty) {
       (current, res) => {
-        for (p <- current) {
-          val k = p._1
-          val node = new Node(p._2.info, p._2.substitutor)
+        for ((k, node) <- current) {
           res.addBinding(k, node)
         }
         res
@@ -156,13 +154,13 @@ abstract class MixinNodes {
             //val newMap = (cachedBuild(superClass), newSubst)
             superClass match {
               case template : ScTemplateDefinition => {
-                processScala(template, newSubst, map)
+                processScala(template, newSubst, newMap)
               }
               case syn: ScSyntheticClass => {
-                processSyntheticScala(syn, newSubst, map)
+                processSyntheticScala(syn, newSubst, newMap)
               }
               case _ => {
-                processJava(superClass, newSubst, map)
+                processJava(superClass, newSubst, newMap)
               }
             }
             superTypesBuff += newMap
