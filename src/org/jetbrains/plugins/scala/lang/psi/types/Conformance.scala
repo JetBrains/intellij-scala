@@ -122,14 +122,14 @@ object Conformance {
         val t = conforms(retType1, retType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         else undefinedSubst = t._2
-        var i = 0
-        while (i < params1.length) {
-          val param1 = params1(i)
-          val param2 = params2(i)
+        val iterator1 = params1.iterator
+        val iterator2 = params2.iterator
+        while (iterator1.hasNext && iterator2.hasNext) {
+          val param1 = iterator1.next
+          val param2 = iterator2.next
           val t = conforms(param2, param1, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           else undefinedSubst = t._2
-          i = i + 1
         }
         return (true, undefinedSubst)
       }
