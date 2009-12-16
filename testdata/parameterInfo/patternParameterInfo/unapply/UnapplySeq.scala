@@ -10,4 +10,4 @@ object UnapplySeq {
     }
   }
 }
-//String, String, MetaData, NamespaceBinding, Sequence[Node]
+//String, String, MetaData, NamespaceBinding, Seq[Node]
