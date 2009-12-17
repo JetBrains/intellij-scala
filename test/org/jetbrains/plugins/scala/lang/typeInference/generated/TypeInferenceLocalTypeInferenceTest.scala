@@ -20,4 +20,6 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
   def testSome = doTest
 
   def testZipArrays = doTest
+
+  def testZipWithIndex = doTest
 }
