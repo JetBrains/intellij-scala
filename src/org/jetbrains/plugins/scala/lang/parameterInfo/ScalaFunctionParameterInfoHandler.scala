@@ -482,6 +482,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             case _ => res += ((constr, subst, i))
                           }
                         }
+                        case Some(constr) if i == 0 => res += ""
                         case None => res += ""
                         case _ =>
                       }
