@@ -31,7 +31,7 @@ trait Scratch[T] {
   useT(T)
   useU[Int](U)
   useV(v = V, s = "")
-  useV("")(W)
+  useW("")(W)
 
   def testUseX {
     import Implicits.XToInt
