@@ -35,7 +35,7 @@ object Compatibility {
       typez = tp
     }
     def getTypeAfterImplicitConversion(expected: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
-      if (expr != null) expr.getTypeAfterImplicitConversion(expected)
+      if (expr != null) expr.getTypeAfterImplicitConversion(expected, false)
       else (Success(typez, None), Set.empty)
     }
   }
@@ -87,7 +87,7 @@ object Compatibility {
             if (!param.isRepeated) return (false, undefSubst)
             val paramType = param.paramType
             val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
-            for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(tp) else None)._1) yield {
+            for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(tp) else None, false)._1) yield {
               if (!Conformance.conforms(tp, exprType)) return (false, undefSubst)
               else {
                 undefSubst += Conformance.undefinedSubst(tp, exprType)
@@ -108,7 +108,7 @@ object Compatibility {
             assign.getRExpression match {
               case Some(expr: ScExpression) => {
                 val paramType = param.paramType
-                for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(paramType) else None)._1)
+                for (exprType <- expr.getTypeAfterImplicitConversion(if (checkWithImplicits) Some(paramType) else None, false)._1)
                 if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
                 else undefSubst += Conformance.undefinedSubst(paramType, exprType)
               }

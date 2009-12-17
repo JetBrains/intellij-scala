@@ -23,7 +23,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
    * Second parameter to return is used imports for this conversion.
    * @param expectedOption to which type we tring to convert
    */
-  def getTypeAfterImplicitConversion(expectedOption: Option[ScType] = expectedType): (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+  def getTypeAfterImplicitConversion(expectedOption: Option[ScType] = expectedType, isExpectedOption: Boolean = true):
+    (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
     def inner: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
       val tr = getType(TypingContext.empty)
       val expected = expectedOption.getOrElse(return (tr, Set.empty))
@@ -51,7 +52,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
     }
     if (expectedOption == None) return inner //to prevent SOE
-    if (expectedOption != expectedType) return inner
+    if (!isExpectedOption || expectedOption != expectedType) return inner
     var tp = exprAfterImplicitType
     var curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && curModCount == exprTypeAfterImplicitModCount) {
