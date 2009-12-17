@@ -28,4 +28,6 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
   def testNamedParams = doTest
 
   def testTypedPlaceholder = doTest
+
+  def testTypedUnderscore = doTest
 }
