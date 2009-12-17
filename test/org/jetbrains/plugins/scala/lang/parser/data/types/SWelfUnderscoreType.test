@@ -2,3 +2,47 @@ trait ReplyableReactor extends Replyable[Any, Any] {
   _: ReplyReactor =>
 }
 ------
+ScalaFile
+  ScTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ReplyableReactor')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TraitParents
+        ParametrizedTypeElement
+          SimpleTypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('Replyable')
+          TypeArgumentsList
+            PsiElement([)('[')
+            SimpleTypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('Any')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            SimpleTypeElement
+              CodeReferenceElement
+                PsiElement(identifier)('Any')
+            PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        SelfType
+          PsiElement(_)('_')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleTypeElement
+            CodeReferenceElement
+              PsiElement(identifier)('ReplyReactor')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

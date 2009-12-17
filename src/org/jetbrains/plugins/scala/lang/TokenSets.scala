@@ -101,7 +101,7 @@ object TokenSets {
 
   val TYPE_PARAMS_SET = TokenSet.create(TYPE_PARAM, VARIANT_TYPE_PARAM)
 
-  val SELF_TYPE_ID = TokenSet.create(ScalaTokenTypes.kTHIS, ScalaTokenTypes.tIDENTIFIER)
+  val SELF_TYPE_ID = TokenSet.create(ScalaTokenTypes.kTHIS, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tUNDER)
 
   val ALIASES_SET = TokenSet.create(ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.TYPE_DEFINITION)
 
