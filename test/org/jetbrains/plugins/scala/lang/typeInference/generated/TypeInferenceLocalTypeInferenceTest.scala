@@ -17,6 +17,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSCL1644 = doTest
 
+  def testSecondClause = doTest
+
   def testSome = doTest
 
   def testZipArrays = doTest
