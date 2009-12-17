@@ -17,6 +17,7 @@ trait Scratch {
   def t: Int = {
     return T
   }
+
   def u: Int = {
     U
   }
