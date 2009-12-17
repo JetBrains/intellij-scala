@@ -1,10 +1,10 @@
 package a {
   package b {
-    class B
+    class BB
   }
-  import b.B
+  import b.BB
 
-  class C extends /*caret*/B
+  class C extends /*caret*/BB
 }
 /*
 package a {
