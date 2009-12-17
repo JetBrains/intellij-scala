@@ -75,10 +75,10 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     return -1
   }
 
-  def invocationCount: Int = {
+  lazy val invocationCount: Int = {
     callExpression match {
-      case call: ScMethodCall => return call.args.invocationCount + 1
-      case _ => return 1
+      case call: ScMethodCall => call.args.invocationCount + 1
+      case _ => 1
     }
   }
 
@@ -124,7 +124,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   def possibleApplications: Array[Array[(String, ScType)]] = {
     getParent match {
       case call: ScMethodCall => {
-        val ref: ScReferenceExpression = call.getInvokedExpr match {
+        val refOpt = callReference /*: ScReferenceExpression = call.getInvokedExpr match {
           case ref: ScReferenceExpression => ref
           case gen: ScGenericCall => {
             gen.referencedExpr match {
@@ -133,17 +133,18 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             }
           }
           case _ => null
-        }
+        }*/
         val buffer = new ArrayBuffer[Array[(String, ScType)]]
-        if (ref == null) {
+        if (refOpt == None) {
           //todo: according to type: apply or update methods, case classes
         } else {
+          val ref = refOpt.get
           val variants = ref.getSameNameVariants
           for (variant <- variants) {
             variant match {
               case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
-                val subst = call.getInvokedExpr match { //needs for generic call => substitutor more complex
-                  case gen: ScGenericCall => {
+                val subst = callGeneric match { //needs for generic call => substitutor more complex
+                  case Some(gen) => {
                     val tp: Seq[String] = method match {
                       case fun: ScFunction => {
                         fun.typeParameters.map(_.name)
@@ -167,12 +168,12 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 }
                 method match {
                   case fun: ScFunction => {
-                    if (fun.paramClauses.clauses.length > 0) {
-                      buffer += fun.paramClauses.clauses.apply(0).parameters.map({p => (p.name,
+                    if (fun.paramClauses.clauses.length >= invocationCount) {
+                      buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({p => (p.name,
                               subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))}).toArray
-                    } else buffer += Array.empty
+                    } else if (invocationCount == 1) buffer += Array.empty
                   }
-                  case method: PsiMethod => {
+                  case method: PsiMethod if invocationCount == 1=> {
                     buffer += method.getParameterList.getParameters.map({p: PsiParameter => {
                             val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject))
                             ("", if (!p.isVarArgs) tp else tp match {
@@ -181,6 +182,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                             })
                           }})
                   }
+                  case _ =>
                 }
               }
               case _ => //todo: other options
