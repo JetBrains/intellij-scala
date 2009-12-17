@@ -71,8 +71,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                                   place: PsiElement) : Boolean = {
     // Process selftype reference
     selfTypeElement match {
-      case Some(se) => if (!processor.execute(se, state)) return false
-      case None =>
+      case Some(se) if se.getName != "_" => if (!processor.execute(se, state)) return false
+      case _ =>
     }
 
     val eb = extendsBlock

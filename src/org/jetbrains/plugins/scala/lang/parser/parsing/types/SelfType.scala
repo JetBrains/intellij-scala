@@ -13,15 +13,15 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 /*
  * SelfType ::= id [':' Type] '=>' |
- *              'this' ':' Type '=>'
+ *              ['this' | '_'] ':' Type '=>'
  */
 
 object SelfType {
   def parse(builder: PsiBuilder) {
     val selfTypeMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kTHIS => {
-        builder.advanceLexer // Ate this
+      case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER => {
+        builder.advanceLexer // Ate this or _
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
