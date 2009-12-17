@@ -36,7 +36,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     val scalaFile: ScalaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(caretMarker) + caretMarker.length + 1
-    assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
+    assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
     val element = scalaFile.findElementAt(offset).getParent
     assert(element.isInstanceOf[ScReferenceElement], "Reference is not specified.")
     val resolve = element.asInstanceOf[ScReferenceElement].resolve
