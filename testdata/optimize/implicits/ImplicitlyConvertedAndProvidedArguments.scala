@@ -82,13 +82,7 @@ trait Scratch[T] {
   useT(T)
   useU[Int](U)
   useV(v = V, s = "")
-  useV("")(W)
-
-  def testUseX {
-    import Implicits.XToInt
-    implicit val x = X
-    useX
-  }
+  useW("")(W)
 
   def testUseXY {
     import Implicits.{x, y}
