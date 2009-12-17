@@ -171,7 +171,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           throw new IncorrectOperationException("class does not match expected kind")
         if (nameId.getText != c.getName) {
           val ref = ScalaPsiElementFactory.createReferenceFromText(c.getName, getManager)
-          getNode.getTreeParent.replaceChild(this.getNode, ref.getNode)
+          nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
           return ref
         }
         val qname = c.getQualifiedName
