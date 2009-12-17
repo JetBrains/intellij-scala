@@ -13,18 +13,19 @@ import com.intellij.openapi.util.Key
 import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
-import _root_.scala.collection.Set
 import psi.api.base.types.ScTypeElement
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import result.{Success, TypingContext}
 import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
+import collection.{Seq, Set}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
 import psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.ScalaPsiUtil
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
+import psi.api.toplevel.imports.usages.ImportUsed
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -321,47 +322,57 @@ class MethodResolveProcessor(ref: PsiElement,
           }
         }
         case owner: ScTypeParametersOwner => {
+          var importUsed: Set[ImportUsed] = c.importsUsed
           var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
           else {
-            def argClauses: List[Seq[Expression]] = owner match {
-              case fun: ScFunction => {
-                val clauses = fun.paramClauses.clauses
-                if (clauses.length - 1 != argumentClauses.length) argumentClauses
-                else {
-                  if (!clauses.apply(clauses.length - 1).isImplicit) argumentClauses
+            def argClauses: List[Seq[Expression]] = {
+              var implicitParameterImportUsed: Set[ImportUsed] = Set.empty
+              owner match {
+                case fun: ScFunction => {
+                  val clauses = fun.paramClauses.clauses
+                  if (clauses.length - 1 != argumentClauses.length) argumentClauses
                   else {
-                    //todo: check it's not anonymous function
-                    val res = new ArrayBuffer[Expression]
-                    for (param <- clauses(clauses.length - 1).parameters) {
-                      val paramType = param.getType(TypingContext.empty).getOrElse(return argumentClauses)
-                      val collector = new ImplicitParametersCollector(ref, substitutor.subst(paramType))
-                      val results = collector.collect
-                      if (results.length == 1) {
-                        results(0) match {
-                          case ScalaResolveResult(patt: ScBindingPattern, subst) => {
-                            res += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
-                          }
-                          case ScalaResolveResult(fun: ScFunction, subst) => {
-                            val funType = {
-                              if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                                subst.subst(fun.getType(TypingContext.empty).get) match {
-                                  case ScFunctionType(ret, _) => ret
-                                  case x => x
-                                }
-                              }
-                              else subst.subst(fun.getType(TypingContext.empty).get)
+                    if (!clauses.apply(clauses.length - 1).isImplicit) argumentClauses
+                    else {
+                      //todo: check it's not anonymous function
+                      val res = new ArrayBuffer[Expression]
+                      var params: Seq[ScParameter] = clauses(clauses.length - 1).parameters
+                      val iterator = params.iterator
+                      while (iterator.hasNext) {
+                        val param = iterator.next
+                        val paramType = param.getType(TypingContext.empty).getOrElse(return argumentClauses)
+                        val collector = new ImplicitParametersCollector(ref, substitutor.subst(paramType))
+                        val results = collector.collect
+                        if (results.length == 1) {
+                          results(0) match {
+                            case r@ScalaResolveResult(patt: ScBindingPattern, subst) => {
+                              res += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
+                              implicitParameterImportUsed = implicitParameterImportUsed ++ r.importsUsed
                             }
-                            res += new Expression(funType)
+                            case r@ScalaResolveResult(fun: ScFunction, subst) => {
+                              val funType = {
+                                if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                                  subst.subst(fun.getType(TypingContext.empty).get) match {
+                                    case ScFunctionType(ret, _) => ret
+                                    case x => x
+                                  }
+                                }
+                                else subst.subst(fun.getType(TypingContext.empty).get)
+                              }
+                              res += new Expression(funType)
+                              implicitParameterImportUsed = implicitParameterImportUsed ++ r.importsUsed
+                            }
                           }
-                        }
-                      } else return argumentClauses
+                        } else return argumentClauses
+                      }
+                      importUsed = importUsed ++ implicitParameterImportUsed
+                      argumentClauses ::: res.toSeq :: Nil
                     }
-                    argumentClauses ::: res.toSeq :: Nil
                   }
                 }
+                case _ => argumentClauses //todo: constructors
               }
-              case _ => argumentClauses  //todo: constructors
             }
             Compatibility.compatible(owner.asInstanceOf[PsiNamedElement], substitutor, argClauses, withImplicits, ())._2
           }
@@ -383,7 +394,7 @@ class MethodResolveProcessor(ref: PsiElement,
             case _ => //todo: ?
           }
           s.getSubstitutor match {
-            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
+            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), importUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
           }
         }

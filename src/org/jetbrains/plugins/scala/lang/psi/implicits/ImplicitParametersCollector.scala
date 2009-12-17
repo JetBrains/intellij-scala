@@ -79,12 +79,12 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         case patt: ScBindingPattern => {
           val memb = ScalaPsiUtil.getParentOfType(patt, classOf[ScValue], classOf[ScVariable])
           memb match {
-            case memb: ScMember if memb.hasModifierProperty("implicit") => candidatesSet += new ScalaResolveResult(named, subst)
+            case memb: ScMember if memb.hasModifierProperty("implicit") => candidatesSet += new ScalaResolveResult(named, subst, getImports(state))
             case _ =>
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
-          candidatesSet += new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)))
+          candidatesSet += new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state))
         }
         case _ =>
       }
