@@ -39,8 +39,18 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
         case td: ScTypeDefinition => {
           children += new ScalaTypeDefinitionStructureViewElement(td)
         }
-        case p: ScPackaging => {
-          children += new ScalaPackagingStructureViewElement(p)
+        case packaging: ScPackaging => {
+          def getChildren(pack: ScPackaging): Array[ScalaStructureViewElement] = {
+            val children = new ArrayBuffer[ScalaStructureViewElement]
+            for (td <- pack.immediateTypeDefinitions) {
+              children += new ScalaTypeDefinitionStructureViewElement(td)
+            }
+            for (p <- pack.packagings) {
+              children ++= getChildren(p)
+            }
+            return children.toArray
+          }
+          children ++= getChildren(packaging)
         }
         case member: ScVariable => {
           for (f <- member.declaredElements)
