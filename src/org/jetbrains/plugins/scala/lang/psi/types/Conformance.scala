@@ -3,7 +3,6 @@ package lang
 package psi
 package types
 
-import _root_.scala.collection.mutable.HashMap
 import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
 import nonvalue.{ScTypePolymorphicType, NonValueType, ScMethodType}
@@ -18,6 +17,8 @@ import _root_.scala.collection.immutable.HashSet
 import com.intellij.psi._
 import util.PsiModificationTracker
 import collection.Seq
+import collection.mutable.{MultiMap, HashMap}
+import lang.resolve.ScalaResolveResult
 
 object Conformance {
 
@@ -350,25 +351,18 @@ object Conformance {
     if (noBaseTypes) return (false, undefinedSubst)
     ScType.extractClassType(r) match {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
-      case Some((td: ScTypeDefinition, subst: ScSubstitutor)) => {
-        var bases = td.superTypes.map(subst.subst(_))
-        val iterator = bases.iterator
-        while (iterator.hasNext) {
-          val tp = iterator.next
-          val t = conforms(l, tp, visited + td, undefinedSubst, true)
-          if (t._1) return (true, t._2)
+      case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
+        ScType.extractClassType(l) match {
+          case Some((lClass: PsiClass, _)) => {
+            val inh = smartIsInheritor(rClass, lClass)
+            if (!inh._1) return (false, undefinedSubst)
+            val tp = subst.subst(inh._2)
+            val t = conforms(l, tp, visited + rClass, undefinedSubst, true)
+            if (t._1) return (true, t._2)
+            else return (false, undefinedSubst)
+          }
+          case _ => return (false, undefinedSubst)
         }
-        return (false, undefinedSubst)
-      }
-      case Some((td: PsiClass, subst: ScSubstitutor)) => {
-        var bases = td.getSuperTypes.map{tp => subst.subst(ScType.create(tp, td.getProject))}
-        val iterator = bases.iterator
-        while (iterator.hasNext) {
-          val tp = iterator.next
-          val t = conforms(l, tp, visited + td, undefinedSubst, true)
-          if (t._1) return (true, t._2)
-        }
-        return (false, undefinedSubst)
       }
       case _ => {
         var bases: Seq[ScType] = BaseTypes.get(r)
@@ -397,5 +391,33 @@ object Conformance {
       new CachesUtil.MyProvider(clazz, {clazz: PsiClass => getSignatureMapInner(clazz)})
         (PsiModificationTracker.MODIFICATION_COUNT)
       )
+  }
+
+  private def smartIsInheritor(leftClass: PsiClass, rightClass: PsiClass): (Boolean, ScType) = {
+    val bases: Seq[ScType] = leftClass match {
+      case td: ScTypeDefinition => td.superTypes
+      case _ => leftClass.getSuperTypes.map(ScType.create(_, leftClass.getProject)).toSeq
+    }
+    val iterator = bases.iterator
+    var res: ScType = null
+    while (iterator.hasNext) {
+      val tp = iterator.next
+      ScType.extractClassType(tp) match {
+        case Some((clazz: PsiClass, subst)) if clazz == rightClass => {
+          if (res == null) res = tp
+          else if (tp.conforms(res)) res = tp
+        }
+        case Some((clazz: PsiClass, subst)) => {
+          val recursive = smartIsInheritor(clazz, rightClass)
+          if (recursive._1) {
+            if (res == null) res = recursive._2
+            else if (recursive._2.conforms(res)) res = recursive._2
+          }
+        }
+        case _ =>
+      }
+    }
+    if (res == null) (false, null)
+    else (true, res)
   }
 }
