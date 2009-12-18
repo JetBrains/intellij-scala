@@ -1,0 +1,6 @@
+var Some(x, y) = Some(42, 239)
+-----
+0(1) element: None
+1(2) VAL x
+2(3) VAL y
+3() element: None

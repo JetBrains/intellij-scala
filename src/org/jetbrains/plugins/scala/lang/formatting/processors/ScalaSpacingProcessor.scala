@@ -34,8 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._;
 import com.intellij.formatting.Spacing;
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
-
-
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
   val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0);
   val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100);
@@ -160,7 +158,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //processing left parenthesis (if it's from right) only Scala cases
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
             leftNode.getTreeParent.getPsi.isInstanceOf[ScPrimaryConstructor]) {
-      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING 
+      if (scalaSettings.SPACE_BEFORE_METHOD_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (rightNode.getPsi.isInstanceOf[ScPrimaryConstructor] &&
@@ -340,7 +338,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _: ScFunction => if (scalaSettings.METHOD_DECLARATION_BRACE == 1) return ON_NEW_LINE
         case _ => if (scalaSettings.OTHER_BRACE == 1) return ON_NEW_LINE
       }
-      
+
       parentPsi match {
         case _: ScTypeDefinition => {
           if (scalaSettings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING
@@ -435,7 +433,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //For class methods
     (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
       case (_, _, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE
-       && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
+              && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
       case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
@@ -603,9 +601,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (_, x, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
+      case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
               && getText(rightNode, fileText).apply(0) == ' ' => return NO_SPACING
-      case (x, _, _, _)  if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
+      case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
               && getText(leftNode, fileText).apply(getText(leftNode, fileText).length - 1) == ' ' => return NO_SPACING
       //Other cases
       case _ => {

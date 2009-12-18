@@ -17,7 +17,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiReference, PsiClass}
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
-import org.junit.internal.runners.statements.Fail
 import types.result.{TypingContext, Failure}
 
 /**

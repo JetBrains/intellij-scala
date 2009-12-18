@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package editor.importOptimizer
 
 
-import codeInspection.ScalaRecursiveElementVisitor
 import collection.mutable.HashSet
 import com.intellij.lang.ImportOptimizer
 import com.intellij.openapi.util.EmptyRunnable
@@ -21,6 +20,7 @@ import lang.psi.api.expr.{ScBlockExpr, ScReturnStmt, ScExpression}
 import annotator.ScalaAnnotator
 import lang.psi.types.{ScType, Unit}
 import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
+import psi.api.ScalaRecursiveElementVisitor
 
 /**
  * User: Alexander Podkhalyuzin

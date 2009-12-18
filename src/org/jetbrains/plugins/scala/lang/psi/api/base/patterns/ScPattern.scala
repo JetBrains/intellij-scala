@@ -18,6 +18,7 @@ import toplevel.imports.usages.ImportUsed
 import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 import statements.params.ScTypeParam
 import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,6 +34,8 @@ trait ScPattern extends ScalaPsiElement {
     _bindings(this, b)
     b
   }
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitPattern(this)
 
   private def _bindings(p : ScPattern, b : ArrayBuffer[ScBindingPattern]) : Unit = {
     p match {
