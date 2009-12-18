@@ -380,6 +380,16 @@ object TypeDefinitionMembers {
                           if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
                             Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
                         }
+                        case param: ScClassParameter if param.isVal => {
+                          if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
+                        }
+                        case param: ScClassParameter if param.isVar => {
+                          if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
+                          if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                            Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _), state)) return false
+                        }
                         case _ =>
                       }
                     }
@@ -397,6 +407,12 @@ object TypeDefinitionMembers {
                             Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
                           if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
                             Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
+                        }
+                        case param: ScClassParameter => {
+                          if ((param.isVal || param.isVar) && !processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                            Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
+                          if (param.isVal && !processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                            Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _), state)) return false
                         }
                         case _ =>
                       }
