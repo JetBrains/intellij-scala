@@ -14,9 +14,9 @@ import com.intellij.util.{ArrayFactory}
 import lexer.ScalaTokenTypes
 import stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
-import api.ScalaFile
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import decompiler.CompiledFileAdjuster
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.icons.Icons
@@ -29,10 +29,14 @@ import api.toplevel.ScToplevelElement
 import scala.util.control.Breaks._
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vfs.VirtualFile
+import api.{ScControlFlowOwner, ScalaFile}
+import psi.controlFlow.impl.ScalaControlFlowBuilder
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
-                with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder with CompiledFileAdjuster {
+                with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder
+                with CompiledFileAdjuster with ScControlFlowOwner{
+
   override def getViewProvider = viewProvider
 
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -121,6 +125,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def isScriptFile: Boolean = isScriptFile(true)
+
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
     import CachesUtil._
@@ -161,6 +166,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
+
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
     } else findChildrenByClass(classOf[ScPackaging])
@@ -186,9 +192,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   private def getPackageNameInner: String = {
     val ps = getPackagings
 
-    def inner(p: ScPackaging, prefix: String) : String = {
+    def inner(p: ScPackaging, prefix: String): String = {
       val subs = p.packagings
-      if (subs.length > 0 && !subs(0).isExplicit) inner (subs(0), prefix + "." + subs(0).getPackageName)
+      if (subs.length > 0 && !subs(0).isExplicit) inner(subs(0), prefix + "." + subs(0).getPackageName)
       else prefix
     }
 
@@ -207,9 +213,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def icon = Icons.FILE_TYPE_LOGO
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
     if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
@@ -295,13 +301,25 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def setContext(context: PsiElement): Unit = this.context = context
+
+  private var myControlFlow : Seq[Instruction] = null
+
+  def getControlFlow = {
+    if (myControlFlow != null) {
+      val builder = new ScalaControlFlowBuilder(null, null)
+      myControlFlow = builder.buildControlflow(this)
+    }
+    myControlFlow
+  }
 }
 
 object ImplicitlyImported {
+
   val packages = Array("scala", "java.lang")
   val objects = Array("scala.Predef", "scala" /* package object*/ )
 }
 
 private object ScalaFileImpl {
+
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
 }

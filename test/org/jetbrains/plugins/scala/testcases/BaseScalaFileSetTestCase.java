@@ -23,7 +23,7 @@ package org.jetbrains.plugins.scala.testcases;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import org.junit.Assert;
+import junit.framework.Assert;
 
 import java.io.File;
 import java.util.ArrayList;
