@@ -21,6 +21,7 @@ import annotator.ScalaAnnotator
 import lang.psi.types.{ScType, Unit}
 import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
 import psi.api.ScalaRecursiveElementVisitor
+import lang.psi.ScalaPsiElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,7 +47,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             super.visitReference(ref)
           }
 
-          override def visitElement(element: PsiElement) = {
+          override def visitElement(element: ScalaPsiElement) = {
             val imports = element match {
               case expression: ScExpression => {
                 checkTypeForExpression(expression)

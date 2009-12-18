@@ -94,7 +94,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def getSameNameVariants: Array[ResolveResult]
 
-  override def accept(visitor: PsiElementVisitor) {
+  override def accept(visitor: ScalaElementVisitor) {
     visitor match {
       case sev: ScalaElementVisitor => sev.visitReference(this)
       case _ => visitor.visitElement(this)
