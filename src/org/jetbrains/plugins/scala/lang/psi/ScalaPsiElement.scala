@@ -5,6 +5,7 @@ package psi
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import util.monads.MonadTransformer
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
@@ -49,4 +50,21 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTr
   }
 
   protected def lock(handler: => Unit): Unit = {}
+
+  /**
+   * Override in inheritors
+   */
+  def accept(visitor: ScalaElementVisitor) {
+    visitor.visitElement(this)
+  }
+
+  /**
+   * Override in inheritors
+   */
+
+  def acceptChildren(visitor: ScalaElementVisitor) {
+    for (c <- getChildren; if c.isInstanceOf[ScalaPsiElement]) {
+      c.asInstanceOf[ScalaPsiElement].accept(visitor)
+    }
+  }
 }

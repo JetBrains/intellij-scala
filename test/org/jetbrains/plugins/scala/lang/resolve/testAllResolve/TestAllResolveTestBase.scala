@@ -4,14 +4,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import java.io.File
-import org.jetbrains.plugins.scala.codeInspection.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 
 /**
  * User: Alexander Podkhalyuzin
