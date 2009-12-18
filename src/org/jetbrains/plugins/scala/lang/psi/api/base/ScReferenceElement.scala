@@ -6,8 +6,7 @@ package base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import _root_.scala.collection.Set
-import codeInspection.{ScalaElementVisitor}
-
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
@@ -16,6 +15,7 @@ import com.intellij.openapi.util.TextRange
 import toplevel.typedef.ScTypeDefinition
 import statements.{ScFunction}
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.psi.api._
 
 /**
  * @author Alexander Podkhalyuzin

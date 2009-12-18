@@ -7,6 +7,7 @@ package imports
 import com.intellij.psi.PsiPolyVariantReference
 import java.lang.String
 import util.TestUtils
+import junit.framework.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
   override def getTestDataPath: String = TestUtils.getTestDataPath() + "/resolve/imports/"
@@ -28,7 +29,7 @@ class HideImportsTest extends ScalaResolveTestCase {
         val res = results(0)
         assert(res.isInstanceOf[ScalaResolveResult])
         val srr = res.asInstanceOf[ScalaResolveResult]
-        org.junit.Assert.assertEquals("def caPitalize: Int", srr.element.getText)
+        Assert.assertEquals("def caPitalize: Int", srr.element.getText)
       }
       case _ => throw new Exception("Wrong reference!")
     }
