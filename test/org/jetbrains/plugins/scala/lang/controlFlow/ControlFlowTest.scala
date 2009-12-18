@@ -18,7 +18,7 @@ import junit.framework.Assert
  */
 
 class ControlFlowTest extends LightCodeInsightFixtureTestCase {
-  protected override def getBasePath = TestUtils.getTestDataPath + "/testdata/controlFlow/"
+  protected override def getBasePath = TestUtils.getTestDataPath + "/controlFlow/"
 
   override def setUp = {
     super.setUp
