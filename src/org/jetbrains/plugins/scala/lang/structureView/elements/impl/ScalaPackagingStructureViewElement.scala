@@ -15,9 +15,10 @@ import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 05.05.2008
-*/
+ * @author Alexander Podkhalyuzin
+ * @deprecated
+ * Date : 05.05.2008
+ */
 
 class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element, false) {
   def getPresentation(): ItemPresentation = {
