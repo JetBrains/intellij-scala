@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 
 import com.intellij.util.io.StringRef
-import impl.{ScExtendsBlockStubImpl, ScTypeDefinitionStubImpl}
+import impl.{ScExtendsBlockStubImpl, ScTemplateDefinitionStubImpl}
 import index.ScalaIndexKeys
 
 /**
