@@ -27,7 +27,7 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
   def inferValueType: ValueType = {
-    return ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
+    return null //todo: ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
   }
 
   override def equiv(t: ScType): Boolean = {

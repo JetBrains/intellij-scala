@@ -237,16 +237,19 @@ object ScType {
         case None => None
       }
     }
+    case tuple@ScTupleType(comp) => {
+      tuple.resolveTupleTrait match {
+        case Some(clazz) => extractClassType(clazz)
+        case _ => None
+      }
+    }
+    case fun: ScFunctionType => {
+      fun.resolveFunctionTrait match {
+        case Some(tp) => extractClassType(tp)
+        case _ => None
+      }
+    }
     case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject).getOrElse(return None), ScSubstitutor.empty))
-    /*case ScTupleType(comp) => {
-      val tupleClass = JavaPsiFacade.getInstance(DecompilerUtil.obtainProject).
-              findClass("scala.Tuple" + comp.length)
-      if (tupleClass == null) return None
-      val substitutor =  tupleClass.asInstanceOf[ScTypeDefinition].typeParameters.zip(comp).foldLeft(
-        ScSubstitutor.empty
-        )({(s: ScSubstitutor, t: (ScTypeParam, ScType)) => s.bindA(t._1.name, t._2)})
-      Some(tupleClass, substitutor)
-    }*/
     case _ => None
   }
 
