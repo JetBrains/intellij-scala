@@ -276,14 +276,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         if (isMethodCall) new ScFunctionType(s.subst(result.getOrElse(return result)),
-          f.paramTypes.map{s.subst _})
+          f.paramTypes.map{s.subst _}, getProject)
         else s.subst(result.getOrElse(return result))
       }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
           collection.immutable.Seq(fun.paramTypes.map({
             s.subst _
-          }).toSeq: _*))
+          }).toSeq: _*), getProject)
         else s.subst(fun.retType)
       }
 

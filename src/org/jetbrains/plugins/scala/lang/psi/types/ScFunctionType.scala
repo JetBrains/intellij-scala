@@ -17,7 +17,16 @@ import decompiler.DecompilerUtil
  * @param shortDef is true for functions defined as follows
  *  def foo : Type = ...
  */
-case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ValueType {
+case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) extends ValueType {
+  private var project: Project = null
+  def getProject: Project = {
+    if (project != null) project else DecompilerUtil.obtainProject
+  }
+
+  def this(returnType: ScType, params: Seq[ScType], project: Project) {
+    this(returnType, params)
+    this.project = project
+  } 
 
   override def equiv(that : ScType) = that match {
     case ScFunctionType(rt1, params1) => (returnType equiv rt1) &&
@@ -31,6 +40,8 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
     }
     case _ => false
   }
+
+  def resolveFunctionTrait: Option[ScParameterizedType] = resolveFunctionTrait(getProject)
 
   def resolveFunctionTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
@@ -59,7 +70,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
   }
 }
 
-case class ScTupleType(components: Seq[ScType]) extends ValueType {
+case class ScTupleType private (components: Seq[ScType]) extends ValueType {
   private var project: Project = null
   def getProject: Project = {
     if (project != null) project else DecompilerUtil.obtainProject

@@ -98,8 +98,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(TypingContext.empty)
         else {
-          new Success(ScFunctionType(innerType(TypingContext.empty).getOrElse(Any),
-            unders.map(_.getType(TypingContext.empty).getOrElse(Any))), Some(this)
+          new Success(new ScFunctionType(innerType(TypingContext.empty).getOrElse(Any),
+            unders.map(_.getType(TypingContext.empty).getOrElse(Any)), getProject), Some(this)
 )        }
       }
     }
