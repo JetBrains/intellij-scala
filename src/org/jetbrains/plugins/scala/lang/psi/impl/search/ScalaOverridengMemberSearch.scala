@@ -76,8 +76,9 @@ object ScalaOverridengMemberSearch {
     }
 
     var break = false
-    for (clazz <- ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY) if !break) {
-      break = process(clazz)
+    val inheritors = ClassInheritorsSearch.search(parentClass, scope, true).toArray(PsiClass.EMPTY_ARRAY)
+    for (clazz <- inheritors if !break) {
+      break = !process(clazz)
     }
 
     buffer.toArray
