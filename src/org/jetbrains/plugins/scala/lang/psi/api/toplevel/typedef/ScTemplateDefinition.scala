@@ -45,6 +45,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     findChildByClassScala(classOf[ScExtendsBlock])
   }
 
+  def showAsInheritor: Boolean = {
+    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody != None
+  }
+
   def getType(ctx: TypingContext): TypeResult[ScType]
 
   def members(): Seq[ScMember] = extendsBlock.members

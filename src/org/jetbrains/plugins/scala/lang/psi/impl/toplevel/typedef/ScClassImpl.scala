@@ -11,7 +11,7 @@ import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.ArrayFactory
 import stubs.elements.wrappers.DummyASTNode
-import stubs.ScTypeDefinitionStub
+import stubs.ScTemplateDefinitionStub
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
 import com.intellij.openapi.progress.ProgressManager
@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScClass"
 

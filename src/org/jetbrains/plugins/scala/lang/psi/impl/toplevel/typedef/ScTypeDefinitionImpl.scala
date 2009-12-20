@@ -32,7 +32,7 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
-import psi.stubs.ScTypeDefinitionStub
+import psi.stubs.ScTemplateDefinitionStub
 import stubs.StubElement
 import synthetic.JavaIdentifier
 import Misc._
@@ -48,7 +48,7 @@ import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
 import collection.Iterable
 import com.intellij.openapi.progress.ProgressManager
 
-abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefinition] with ScTypeDefinition with PsiClassFake {
+abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
     element match {
       case mem: ScMember => addMember(mem, None)
@@ -115,7 +115,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeDefi
 
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeDefinitionStub].qualName
+      stub.asInstanceOf[ScTemplateDefinitionStub].qualName
     } else {
       val packageName = _packageName(this, classSeparator, identity _)
       packageName + name

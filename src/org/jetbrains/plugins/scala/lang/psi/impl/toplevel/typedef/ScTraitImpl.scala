@@ -6,7 +6,7 @@ package toplevel
 package typedef
 
 import stubs.elements.wrappers.DummyASTNode
-import stubs.ScTypeDefinitionStub
+import stubs.ScTemplateDefinitionStub
 import com.intellij.psi.stubs.IStubElementType
 import api.base.ScModifierList
 import com.intellij.psi.{PsiElement, PsiModifierList}
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeDefinitionStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScTrait"
 

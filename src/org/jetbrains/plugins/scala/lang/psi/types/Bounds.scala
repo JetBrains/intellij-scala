@@ -6,8 +6,8 @@ package types
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import _root_.scala.collection.mutable.{Set, HashSet}
 import api.statements.params.ScTypeParam
-import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiClass
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 object Bounds {
 
@@ -100,7 +100,7 @@ object Bounds {
       if (visited.contains(drv)) None else {
         visited += drv
         val superTypes: Seq[ScType] = drv match {
-          case td: ScTypeDefinition => td.superTypes
+          case td: ScTemplateDefinition => td.superTypes
           case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
         }
         for (st <- superTypes) {
