@@ -23,19 +23,45 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
    * Second parameter to return is used imports for this conversion.
    * @param expectedOption to which type we tring to convert
    */
-  def getTypeAfterImplicitConversion(expectedOption: Option[ScType] = expectedType, isExpectedOption: Boolean = true):
+  def getTypeAfterImplicitConversion(exp: Option[Option[ScType]] = None, checkImplicits: Boolean = true):
     (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+    val expectedOption = exp match {
+      case Some(a) => a
+      case _ => expectedType
+    }
     def inner: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
-      val tr = getType(TypingContext.empty)
-      val expected = expectedOption.getOrElse(return (tr, Set.empty))
-      val tp = tr.getOrElse(return (tr, Set.empty))
-      if (tp.conforms(expected)) return (tr, Set.empty)
+      val expected: ScType = expectedOption match {
+        case Some(a) => a
+        case _ => return (getType(TypingContext.empty), Set.empty)
+      }
+      //now we want to change context for this expression, for example
+      //we want to imagine that expected type for this expression is...
+
+      val tr = if (exp != None) { //save data
+        val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
+        expectedTypesCache = expectedOption.toList.toArray
+        expectedTypesModCount = getManager.getModificationTracker.getModificationCount
+        exprType = null
+        val trData = getType(TypingContext.empty)
+        //load data
+        expectedTypesCache = z._1;exprTypeModCount = z._2;exprType = z._3;exprTypeModCount = z._4
+        trData
+      } else getType(TypingContext.empty)
+
+      val defaultResult: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = (tr, Set.empty)
+      val tp = tr.getOrElse(return defaultResult)
+      //if this result is ok, we do not need to think about implicits
+      if (tp.conforms(expected)) return defaultResult
+      if (!checkImplicits) return defaultResult
+
+      //this functionality for checking if this expression can be implicitly changed and then
+      //it will conform to expected type
       val f = for ((typez, imports) <- allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
       if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
-      else if (f.length == 0) return (tr, Set.empty)
+      else if (f.length == 0) return defaultResult
       else {
         var res = f(0)
-        if (res._2 == None) return (tr, Set.empty)
+        if (res._2 == None) return defaultResult
         var i = 1
         while (i < f.length) {
           val pr = f(i)
@@ -44,15 +70,16 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           }
           else if (pr._2 != None) {
             if (pr._2.get.isInheritor(res._2.get, true)) res = pr
-            else return (tr, Set.empty)
-          } else return (tr, Set.empty)
+            else return defaultResult
+          } else return defaultResult
           i += 1
         }
         return (Success(res._1, Some(this)), res._3)
       }
     }
-    if (expectedOption == None) return inner //to prevent SOE
-    if (!isExpectedOption || expectedOption != expectedType) return inner
+    if (exp != None || !checkImplicits) return inner //no cache with strange parameters
+
+    //caching
     var tp = exprAfterImplicitType
     var curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && curModCount == exprTypeAfterImplicitModCount) {
