@@ -297,6 +297,9 @@ class MethodResolveProcessor(ref: PsiElement,
     def forFilter(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
+        case fun: ScFunction  if (typeArgElements.length == 0 ||
+                typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
+            fun.paramClauses.clauses.apply(0).isImplicit && argumentClauses.length == 0 => true //special case for cases like Seq.toArray
         case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
           typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
           Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits, ())._1
