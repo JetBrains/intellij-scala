@@ -17,6 +17,7 @@ import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.lexer.ScalaTokenTypes
 import stubs.StubElement
+import lang.psi.ScalaStubBasedElementImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,7 +34,7 @@ object AnnotatorHighlighter {
 
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
-      case el: StubBasedPsiElement[_] => getParentStub(el)
+      case el: ScalaStubBasedElementImpl[_] => getParentStub(el)
       case _ => x.getParent
     }
   }

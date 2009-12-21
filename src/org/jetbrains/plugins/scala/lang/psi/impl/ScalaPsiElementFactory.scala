@@ -490,7 +490,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScStableCodeReferenceElement]) {
       val referenceElement = psi.asInstanceOf[ScStableCodeReferenceElement]
-      referenceElement.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      referenceElement.asInstanceOf[ScalaPsiElement].setContext(context)
       return referenceElement
     } else return null
   }
@@ -504,7 +504,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScExpression]) {
-      psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      psi.asInstanceOf[ScalaPsiElement].setContext(context)
       return psi.asInstanceOf[ScExpression]
     } else return null
   }
@@ -518,7 +518,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScTypeElement]) {
-      psi.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      psi.asInstanceOf[ScalaPsiElement].setContext(context)
       psi.asInstanceOf[ScTypeElement]
     } else null
   }
@@ -533,7 +533,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScPatternDefinition]) {
       val pList: ScPatternList = psi.asInstanceOf[ScPatternDefinition].pList
-      pList.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      pList.asInstanceOf[ScalaPsiElement].setContext(context)
       pList
     } else null
   }
@@ -548,7 +548,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScPatternDefinition]) {
       val idList: ScIdList = psi.asInstanceOf[ScValueDeclaration].getIdList
-      idList.asInstanceOf[ScalaPsiElementImpl].setContext(context)
+      idList.asInstanceOf[ScalaPsiElement].setContext(context)
       idList
     } else null
   }

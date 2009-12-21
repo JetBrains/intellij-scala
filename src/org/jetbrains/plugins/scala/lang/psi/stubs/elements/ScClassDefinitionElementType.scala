@@ -13,10 +13,10 @@ import com.intellij.psi.PsiElement
  * @author ilyas
  */
 
-class ScClassDefinitionElementType extends ScTypeDefinitionElementType[ScClass]("class definition") {
+class ScClassDefinitionElementType extends ScTemplateDefinitionElementType[ScClass]("class definition") {
 
   def createElement(node: ASTNode): PsiElement = new ScClassImpl(node)
 
-  def createPsi(stub: ScTypeDefinitionStub) = new ScClassImpl(stub)
+  def createPsi(stub: ScTemplateDefinitionStub) = new ScClassImpl(stub)
 
 }

@@ -19,13 +19,17 @@ import types.result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.DumbService
 import types.{ScType, ScCompoundType}
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTrait, ScTypeDefinition}
+import psi.stubs.ScTemplateDefinitionStub
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
-class ScNewTemplateDefinitionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNewTemplateDefinition with PsiClassFake {
+class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScNewTemplateDefinition with PsiClassFake {
+  def this(node: ASTNode) = {this(); setNode(node)}
+  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
+
   override def toString: String = "NewTemplateDefinition"
 
   protected override def innerType(ctx: TypingContext) = {

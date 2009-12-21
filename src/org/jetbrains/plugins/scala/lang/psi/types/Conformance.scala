@@ -118,52 +118,28 @@ object Conformance {
         }
         return (true, undefinedSubst)
       }
-      case (ScFunctionType(retType1, params1), ScFunctionType(retType2, params2)) => {
-        if (params1.length != params1.length) return (false, undefinedSubst)
-        val t = conforms(retType1, retType2, HashSet.empty, undefinedSubst)
-        if (!t._1) return (false, undefinedSubst)
-        else undefinedSubst = t._2
-        val iterator1 = params1.iterator
-        val iterator2 = params2.iterator
-        while (iterator1.hasNext && iterator2.hasNext) {
-          val param1 = iterator1.next
-          val param2 = iterator2.next
-          val t = conforms(param2, param1, HashSet.empty, undefinedSubst)
-          if (!t._1) return (false, undefinedSubst)
-          else undefinedSubst = t._2
-        }
-        return (true, undefinedSubst)
-      }
-      case (ScParameterizedType(owner: ScType, args), _) if (ScType.extractClassType(owner) match {
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == null => false
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
-        case _ => false
-      }) => {
-        ScType.extractClassType(owner) match {
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
-            return conforms(new ScTupleType(args, clazz.getProject), r, visited, undefinedSubst)
-          }
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
-            if (args.length == 0) return (false, undefinedSubst)
-            return conforms(ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), r, visited, undefinedSubst)
-          }
+      case (fun: ScFunctionType, _) => {
+        fun.resolveFunctionTrait match {
+          case Some(tp) => return conforms(tp, r, visited, subst, noBaseTypes)
+          case _ => return (false, undefinedSubst)
         }
       }
-      case (_, ScParameterizedType(owner: ScType, args)) if (ScType.extractClassType(owner) match {
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == null => false
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
-        case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
-        case _ => false
-      }) => {
-        ScType.extractClassType(owner) match {
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => {
-            return conforms(l, new ScTupleType(args, clazz.getProject), visited, undefinedSubst)
-          }
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
-            if (args.length == 0) return (false, undefinedSubst)
-            return conforms(l, ScFunctionType(args(args.length - 1), args.slice(0, args.length - 1)), visited, undefinedSubst)
-          }
+      case (_, fun: ScFunctionType) => {
+        fun.resolveFunctionTrait match {
+          case Some(tp) => return conforms(l, tp, visited, subst, noBaseTypes)
+          case _ => return (false, undefinedSubst)
+        }
+      }
+      case (tuple: ScTupleType, _) => {
+        tuple.resolveTupleTrait match {
+          case Some(tp) => return conforms(tp, r, visited, subst, noBaseTypes)
+          case _ => return (false, undefinedSubst)
+        }
+      }
+      case (_, tuple: ScTupleType) => {
+        tuple.resolveTupleTrait match {
+          case Some(tp) => return conforms(l, tp, visited, subst, noBaseTypes)
+          case _ => return (false, undefinedSubst)
         }
       }
       case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
@@ -354,9 +330,9 @@ object Conformance {
       case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
         ScType.extractClassType(l) match {
           case Some((lClass: PsiClass, _)) => {
-            val inh = smartIsInheritor(rClass, lClass)
+            val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
-            val tp = subst.subst(inh._2)
+            val tp = inh._2
             val t = conforms(l, tp, visited + rClass, undefinedSubst, true)
             if (t._1) return (true, t._2)
             else return (false, undefinedSubst)
@@ -393,10 +369,10 @@ object Conformance {
       )
   }
 
-  private def smartIsInheritor(leftClass: PsiClass, rightClass: PsiClass): (Boolean, ScType) = {
+  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass): (Boolean, ScType) = {
     val bases: Seq[ScType] = leftClass match {
-      case td: ScTypeDefinition => td.superTypes
-      case _ => leftClass.getSuperTypes.map(ScType.create(_, leftClass.getProject)).toSeq
+      case td: ScTypeDefinition => td.superTypes.map(substitutor.subst(_))
+      case _ => leftClass.getSuperTypes.map(tp => substitutor.subst(ScType.create(tp, leftClass.getProject))).toSeq
     }
     val iterator = bases.iterator
     var res: ScType = null
@@ -408,7 +384,7 @@ object Conformance {
           else if (tp.conforms(res)) res = tp
         }
         case Some((clazz: PsiClass, subst)) => {
-          val recursive = smartIsInheritor(clazz, rightClass)
+          val recursive = smartIsInheritor(clazz, subst, rightClass)
           if (recursive._1) {
             if (res == null) res = recursive._2
             else if (recursive._2.conforms(res)) res = recursive._2

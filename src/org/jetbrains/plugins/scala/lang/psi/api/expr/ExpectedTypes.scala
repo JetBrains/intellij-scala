@@ -56,6 +56,7 @@ private[expr] object ExpectedTypes {
       }
     }
     expr.getParent match {
+      case p: ScParenthesisedExpr => p.expectedTypes
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
         case Some(e) if e == expr => finalize(b)
@@ -122,6 +123,34 @@ private[expr] object ExpectedTypes {
           case _ => Array.empty
         }
       }
+      //method application
+      case tuple: ScTuple if tuple.isCall => {
+        val res = new ArrayBuffer[ScType]
+        expr match {
+          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] &&
+                  tuple.exprs.lastOption == Some(expr) => {
+            for (application: Array[(String, ScType)] <- tuple.possibleApplications) {
+              if (application.length == tuple.exprs.length) {
+                //todo: add possibility to check if last param is repeated
+                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+                if (seqClass != null) {
+                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
+                  res += tp
+                }
+              }
+            }
+          }
+          case _ => {
+            val i: Int = tuple.exprs.findIndexOf(_ == expr)
+            for (application: Array[(String, ScType)] <- tuple.possibleApplications) {
+              if (application.length > i && i >=0) {
+                res += application(i)._2
+              }
+            }
+          }
+        }
+        res.toArray
+      }
       case tuple: ScTuple => {
         val buffer = new ArrayBuffer[ScType]
         val index = tuple.exprs.indexOf(expr)
@@ -134,6 +163,38 @@ private[expr] object ExpectedTypes {
           }
         }
         buffer.toArray
+      }
+      case infix: ScInfixExpr if (infix.isLeftAssoc && infix.lOp == expr) ||
+              (!infix.isLeftAssoc && infix.rOp == expr) => {
+        val res = new ArrayBuffer[ScType]
+        val zExpr:ScExpression = expr match {
+          case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
+          case _ => expr
+        }
+        zExpr match {
+          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] => {
+            for (application: Array[(String, ScType)] <- infix.possibleApplications) {
+              if (application.length == 1) {
+                //todo: add possibility to check if last param is repeated
+                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+                if (seqClass != null) {
+                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
+                  res += tp
+                }
+              }
+            }
+          }
+          case _ => {
+            val i: Int = 0
+            for (application: Array[(String, ScType)] <- infix.possibleApplications if expr.
+                    isInstanceOf[ScParenthesisedExpr] || application.length == 1) {
+              if (application.length > i && i >=0) {
+                res += application(i)._2
+              }
+            }
+          }
+        }
+        res.toArray
       }
       //SLS[4.1]
       case v: ScPatternDefinition if v.expr == expr => {

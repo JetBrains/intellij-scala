@@ -7,13 +7,13 @@ import com.intellij.psi.impl.java.stubs.PsiClassStub
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.util.io.StringRef
 import com.intellij.psi.stubs.{StubElement, IStubElementType, NamedStub}
-import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /**
  * @author ilyas
  */
 
-trait ScTypeDefinitionStub extends PsiClassStub[ScTypeDefinition] {
+trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] {
 
   def qualName: String
 

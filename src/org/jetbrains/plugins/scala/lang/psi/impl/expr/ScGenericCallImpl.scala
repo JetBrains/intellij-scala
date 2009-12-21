@@ -61,7 +61,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
               case fun: ScFun => new ScFunctionType(s.subst(fun.retType),
                 collection.immutable.Seq(fun.paramTypes.map({
                   s.subst _
-                }).toSeq: _*))
+                }).toSeq: _*), fun.getProject)
               case fun: ScFunction => s.subst(fun.getType(TypingContext.empty).getOrElse(Nothing))
               case meth: PsiMethod => ResolveUtils.methodType(meth, s)
             }

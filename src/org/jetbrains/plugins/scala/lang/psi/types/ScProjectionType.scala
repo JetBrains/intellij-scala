@@ -5,9 +5,10 @@ package types
 
 
 import api.base.ScReferenceElement
-import com.intellij.psi.{PsiNamedElement}
 import resolve._
 import impl.toplevel.synthetic.ScSyntheticClass
+import com.intellij.psi.{PsiClass, PsiNamedElement}
+import api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScClass}
 
 /**
 * @author ilyas
@@ -19,15 +20,32 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
 
   lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)
   
-  override def equiv(t : ScType) = t match {
+  override def equiv(t : ScType): Boolean = t match {
     case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
     case ScDesignatorType(des) => projected match {
       case ScSingletonType(path) => {
         val processor = new ResolveProcessor(StdKinds.stableClass, ref.refName)
         processor.processType(projected, path)
         if (processor.candidates.size == 1) {
-          val a1 = processor.candidates.apply(0).element
-          val res = a1 eq des
+          val namedElement = processor.candidates.apply(0).element
+          //todo: fix for case, when sources are attached, fix this case and remove this quickfix.
+          namedElement match {
+            case clazz: ScClass => {
+              if (!des.isInstanceOf[ScClass]) return false
+              return clazz.getQualifiedName == des.asInstanceOf[ScClass].getQualifiedName
+            }
+            case clazz: ScTrait => {
+              if (!des.isInstanceOf[ScTrait]) return false
+              return clazz.getQualifiedName == des.asInstanceOf[ScTrait].getQualifiedName
+            }
+            case td: ScTypeDefinition => return false
+            case p: PsiClass => {
+              if (des.isInstanceOf[ScTypeDefinition] || !des.isInstanceOf[PsiClass]) return false
+              return p.getQualifiedName == des.asInstanceOf[PsiClass].getQualifiedName
+            }
+            case _ =>
+          }
+          val res = namedElement eq des
           res
         }
         else false

@@ -7,11 +7,15 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testArrayCreation = doTest
 
+  def testInfixMap = doTest
+
   def testIntArrayCreation = doTest
 
   def testListUnion = doTest
 
   def testMap = doTest
+
+  def testMapAsFunction = doTest
 
   def testNoSOE = doTest
 
@@ -20,6 +24,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
   def testSecondClause = doTest
 
   def testSome = doTest
+
+  def testToArray = doTest
 
   def testZipArrays = doTest
 

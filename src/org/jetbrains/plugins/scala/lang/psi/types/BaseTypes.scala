@@ -6,13 +6,13 @@ package types
 import api.expr.ScThisReference
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 import api.statements.params.ScTypeParam
-import api.toplevel.typedef.ScTypeDefinition
 import resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 object BaseTypes {
   def get(t : ScType) : Seq[ScType] = t match {
-    case classT@ScDesignatorType(td : ScTypeDefinition) => reduce(td.superTypes.flatMap(tp => BaseTypes.get(tp) ++ Seq(tp)))
+    case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => BaseTypes.get(tp) ++ Seq(tp)))
     case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})  //todo: all base types
     case ScPolymorphicType(_, Nil, _, upper) => get(upper.v)
     case ScSkolemizedType(_, Nil, _, upper) => get(upper)

@@ -9,7 +9,7 @@ import api.toplevel.ScTypedDefinition
 import java.lang.String
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import psi.stubs.ScTypeDefinitionStub
+import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -24,7 +24,7 @@ import types.{ScDesignatorType, ScSubstitutor, ScType}
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScTypeDefinitionStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString: String = if (isPackageObject) "ScPackageObject" else "ScObject"
 
@@ -39,7 +39,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   override def isPackageObject: Boolean = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeDefinitionStub].isPackageObject
+      stub.asInstanceOf[ScTemplateDefinitionStub].isPackageObject
     } else findChildByType(ScalaTokenTypes.kPACKAGE) != null
   }
 
