@@ -72,6 +72,14 @@ object ScalaPsiUtil {
     }
   }
 
+  def isLValue(elem: ScalaPsiElement) = elem match {
+    case e: ScExpression => e.getParent match {
+      case as: ScAssignStmt => as.getLExpression eq e 
+      case _ => false
+    }
+    case _ => false
+  }
+
   def getNextStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
@@ -114,8 +122,8 @@ object ScalaPsiUtil {
     val s = new FullSignature(namedElementSig(x), typed.getType(TypingContext.empty).getOrElse(Any),
       x.asInstanceOf[NavigatablePsiElement], clazz)
     val t = (TypeDefinitionMembers.getSignatures(clazz).get(s): @unchecked) match {
-      //partial match
-      case Some(x) => x.supers.map{_.info}
+    //partial match
+      case Some(x) => x.supers.map {_.info}
     }
     return t
   }
@@ -139,7 +147,7 @@ object ScalaPsiUtil {
         case x: ScStableCodeReferenceElement => x.resolve match {
           case clazz: PsiClass =>
             x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
-                asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
+                    asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
           case _ =>
         }
         case _ => adjustTypes(child)
@@ -178,20 +186,20 @@ object ScalaPsiUtil {
 
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-              if n.method.getName == "apply" &&
-                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+          if n.method.getName == "apply" &&
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-              if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
-                    (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq
+          if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
+                  (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
-              if n.method.getName == "update" &&
-                    (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+          if n.method.getName == "update" &&
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   /**
@@ -220,7 +228,7 @@ object ScalaPsiUtil {
             if (!(length == args.length ||
                     (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
             for (i <- 0 to args.length - 1) {
-              val parameter: ScParameter = methodParams(Math.min(i, length -1))
+              val parameter: ScParameter = methodParams(Math.min(i, length - 1))
               val typez: ScType = subst(sign).subst(parameter.getType(TypingContext.empty).getOrElse(Any))
               val argType = args(i).getType(TypingContext.empty).getOrElse(Any)
               if (!(argType: ScType).conforms(typez)) return false
@@ -276,28 +284,30 @@ object ScalaPsiUtil {
     val name: String = td.getName
     val scope: PsiElement = td.getParent
     val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] if stub.getStub != null => 
+      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
-        new ArrayFactory[PsiElement] {
-          def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
-        })
+          new ArrayFactory[PsiElement] {
+            def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
+          })
       case _ => scope.getChildren
     }
     td match {
       case _: ScClass | _: ScTrait => {
-        arrayOfElements.map((child: PsiElement) => child match {
-          case td: ScTypeDefinition => td
-          case _ => null: ScTypeDefinition
-        }).find((child: ScTypeDefinition) =>
-                child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name)
+        arrayOfElements.map((child: PsiElement) =>
+          child match {
+            case td: ScTypeDefinition => td
+            case _ => null: ScTypeDefinition
+          }).find((child: ScTypeDefinition) =>
+          child.isInstanceOf[ScObject] && child.asInstanceOf[ScObject].getName == name)
       }
       case _: ScObject => {
-        arrayOfElements.map((child: PsiElement) => child match {
-          case td: ScTypeDefinition => td
-          case _ => null: ScTypeDefinition
-        }).find((child: ScTypeDefinition) =>
-                (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
-                        && child.asInstanceOf[ScTypeDefinition].getName == name)
+        arrayOfElements.map((child: PsiElement) =>
+          child match {
+            case td: ScTypeDefinition => td
+            case _ => null: ScTypeDefinition
+          }).find((child: ScTypeDefinition) =>
+          (child.isInstanceOf[ScClass] || child.isInstanceOf[ScTrait])
+                  && child.asInstanceOf[ScTypeDefinition].getName == name)
       }
       case _ => None
     }
@@ -331,7 +341,7 @@ object ScalaPsiUtil {
     PseudoPsiSubstitutor(subst)
   }
 
-    def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
+  def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
     val parent = from.getParent
     (parent, expr) match { //true only for other cases
       case _ if !parent.isInstanceOf[ScExpression] => false

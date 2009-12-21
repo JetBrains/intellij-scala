@@ -1,0 +1,8 @@
+var a = 42
+var b = a
+if (true)
+  a = b
+else
+  b = 239
+println(b)
+-----

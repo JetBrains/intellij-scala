@@ -7,6 +7,7 @@ package statements
 import base.patterns.ScBindingPattern
 import base.ScPatternList
 import expr.ScExpression
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,4 +18,5 @@ trait ScPatternDefinition extends ScValue {
   def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
   def expr: ScExpression = findChildByClassScala(classOf[ScExpression]) //not null, otherwise it is a different syntactic category
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitPatternDefinition(this)
 }

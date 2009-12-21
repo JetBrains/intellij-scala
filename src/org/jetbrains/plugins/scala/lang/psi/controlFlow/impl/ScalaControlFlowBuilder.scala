@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import collection.mutable.ArrayBuffer
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScIfStmt, ScReferenceExpression}
+import scala.collection.mutable.ListBuffer
 
 /**
  * @author ilyas
@@ -69,11 +70,16 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   private def checkPendingInstructions(instruction: InstructionImpl) {
     instruction.element match {
       case Some(elem) => {
-        val pendingInstructions = myPending.reverse.filter {case (_, e) => e != null && !PsiTreeUtil.isAncestor(e, elem, false)}
-        for ((instr, _) <- pendingInstructions) {
-          addEdge(instr, instruction)
+        val ab = new ArrayBuffer[Int]
+        for (i <- 0 until myPending.size) {
+          val (inst, scope) = myPending(i)
+          if (scope != null &&
+          !PsiTreeUtil.isAncestor(scope, elem, false)) {
+            addEdge(inst, instruction)
+            ab += i
+          }
         }
-        myPending.dropRight(pendingInstructions.length)
+        for (k <- ab) myPending.remove(k)
       }
       case None => {
         for ((from, _) <- myPending) addEdge(from, instruction)
@@ -88,7 +94,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (scopeWhenAdded != null) {
       index = myPending.findIndexOf {case (_, e) => !PsiTreeUtil.isAncestor(e, scopeWhenAdded, true)}
     }
-    myPending.insert(index, (instruction, scopeWhenAdded))
+    myPending.insert(Math.max(index, 0), (instruction, scopeWhenAdded))
   }
 
 
@@ -96,9 +102,75 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
    * VISITOR METHODS
    **************************************/
 
-  override def visitPattern(pattern: ScPattern) {
+  override def visitPatternDefinition(pattern: ScPatternDefinition) {
+    super.visitPatternDefinition(pattern)
     for (b <- pattern.bindings) {
-      addNode(new DefineValueInstruction(inc, b))
+      val instr = new DefineValueInstruction(inc, b, false)
+      checkPendingInstructions(instr)
+      addNode(instr)
+    }
+  }
+
+  override def visitVariableDefinition(variable: ScVariableDefinition) {
+    super.visitVariableDefinition(variable)
+    for (b <- variable.bindings) {
+      val instr = new DefineValueInstruction(inc, b, true)
+      checkPendingInstructions(instr)
+      addNode(instr)
+    }
+  }
+
+  override def visitReferenceExpression(ref: ScReferenceExpression) = {
+    ref.qualifier match {
+      case None => {
+        val instr = new ReadWriteVariableInstruction(inc, ref, ScalaPsiUtil.isLValue(ref))
+        addNode(instr)
+        checkPendingInstructions(instr)
+      }
+      case _ =>
+    }
+  }
+
+  override def visitAssignmentStatement(stmt: ScAssignStmt) {
+    val lValue = stmt.getLExpression
+    stmt.getRExpression match {
+      case Some(rv) => {
+        rv.accept(this)
+        lValue.accept(this)
+      }
+      case _ =>
+    }
+  }
+
+  override def visitIfStatement(stmt: ScIfStmt) = {
+    startNode(Some(stmt)) {instr =>
+      val head = myHead
+      stmt.thenBranch match {
+        case Some(tb) => {
+          stmt.condition match {
+            case Some(cond) => {
+              cond.accept(this)
+            }
+            case None =>
+          }
+          tb.accept(this)
+          // the context will be refined later
+          addPendingEdge(stmt, myHead)
+        }
+        case None =>
+      }
+      myHead = head
+      stmt.elseBranch match {
+        case Some(eb) => {
+          stmt.condition match {
+            case Some(c) => c.accept(this)
+            case _ =>
+          }
+          eb.accept(this)
+          addPendingEdge(stmt, myHead)
+        }
+        case _ =>
+      }
     }
   }
 }
