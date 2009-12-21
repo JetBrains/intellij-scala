@@ -30,6 +30,7 @@ import com.intellij.psi.{PsiElement}
 import api.base.types.ScTypeElement
 import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -40,6 +41,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def toString: String = "ReferenceExpression"
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitReferenceExpression(this)
 
   def bindToElement(element: PsiElement): PsiElement = {
     if (isReferenceTo(element)) return this

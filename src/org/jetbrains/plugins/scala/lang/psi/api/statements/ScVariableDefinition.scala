@@ -8,6 +8,7 @@ package statements
 import base.ScPatternList
 import expr.ScExpression
 import base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,4 +20,5 @@ trait ScVariableDefinition extends ScVariable {
   def bindings: Seq[ScBindingPattern]
   def declaredElements = bindings
   def expr = findChildByClassScala(classOf[ScExpression])
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitVariableDefinition(this)
 }

@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * @author ilyas
@@ -30,7 +31,7 @@ sealed class InstructionImpl(override val num: Int,
     builder.append(num)
     builder.append("(")
     for (i <- 0 until mySucc.size) {
-      if (i < 0) builder.append(", ")
+      if (i > 0) builder.append(",")
       builder.append(mySucc(i).num)
     }
     builder.append(") ").append(getPresentation)
@@ -44,11 +45,21 @@ sealed class InstructionImpl(override val num: Int,
 }
 
 case class DefineValueInstruction(override val num: Int,
-                                  namedElement: ScNamedElement)
+                                  namedElement: ScNamedElement,
+                                  mutable: Boolean)
         extends InstructionImpl(num, Some(namedElement)) {
   private val myName = namedElement.getName
 
   def getName = myName
 
-  override protected def getPresentation = "VAL " + getName
+  override protected def getPresentation = (if (mutable) "VAR " else "VAL") + getName
+}
+
+case class ReadWriteVariableInstruction(override val num: Int,
+                                    ref: ScReferenceExpression,
+                                    write: Boolean)
+        extends InstructionImpl(num, Some(ref)) {
+  private val myName = ref.getText
+  def getName = myName
+  override protected def getPresentation = (if (write) "WRITE " else "READ ") + getName
 }

@@ -4,7 +4,6 @@ package org.jetbrains.plugins.scala.lang.controlFlow
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScControlFlowOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -12,6 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
 import org.jetbrains.plugins.scala.util.TestUtils
 import junit.framework.Assert
+import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl
+import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, JavaTestFixtureFactory, IdeaTestFixtureFactory, LightCodeInsightFixtureTestCase}
+import com.intellij.openapi.module.Module
 
 /**
  * @author ilyas
@@ -26,7 +29,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   }
 
   def doTest {
-    val input: java.util.List[String] = TestUtils.readInput(getTestDataPath + getTestName(true) + ".test")
+    val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
     myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
     val model: SelectionModel = myFixture.getEditor.getSelectionModel
@@ -47,8 +50,25 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
     return builder.toString
   }
 
-  @throws(classOf[Throwable])
+//  protected var myFixture: JavaCodeInsightTestFixture = _
+//  protected var myModule: Module = _
+//
+//  override def setUp : Unit = {
+//  super.setUp
+//    val factory = IdeaTestFixtureFactory.getFixtureFactory
+//    val builder = factory.createLightFixtureBuilder(getProjectDecriptor)
+//    val fixture = builder.getFixture
+//    myFixture = JavaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixture, new LightTempDirTestFixtureImpl(true))
+//    myFixture.setUp
+//    myFixture.setTestDataPath(getBasePath)
+//    myModule = myFixture.getModule
+//  }
+
+
+
+
   def testAssignment = doTest
+  def testIfStatement = doTest
 
 }
 

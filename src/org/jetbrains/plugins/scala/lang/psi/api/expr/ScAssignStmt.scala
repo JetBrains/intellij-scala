@@ -4,6 +4,8 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -22,6 +24,8 @@ trait ScAssignStmt extends ScExpression {
       case _ => None
     }
   }
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitAssignmentStatement(this)
 }
 
 object NamedAssignStmt {
