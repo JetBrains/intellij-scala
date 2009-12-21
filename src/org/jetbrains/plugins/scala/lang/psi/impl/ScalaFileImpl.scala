@@ -292,7 +292,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
 
-  private var context: PsiElement = null
+  /*private var context: PsiElement = null
 
 
   override def getContext: PsiElement = {
@@ -300,7 +300,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     else super.getContext
   }
 
-  def setContext(context: PsiElement): Unit = this.context = context
+  def setContext(context: PsiElement): Unit = this.context = context*/
 
   private var myControlFlow : Seq[Instruction] = null
 
