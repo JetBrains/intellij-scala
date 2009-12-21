@@ -8,6 +8,17 @@ import util.monads.MonadTransformer
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
+  private var context: PsiElement = null
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
+  def setContext(element: PsiElement) {
+    context = element
+  }
+
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
