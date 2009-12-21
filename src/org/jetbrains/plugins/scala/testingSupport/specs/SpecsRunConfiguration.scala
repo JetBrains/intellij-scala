@@ -56,6 +56,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
+  val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.Specs16Scala28Runner"
   val SUITE_PATH = "org.specs.Specification"
    private var testClassPath = ""
   private var testPackagePath = ""
@@ -155,6 +156,15 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
     val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
     if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+    //versions detection for scala compiler and for ScalaTest
+    val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
+    var scalaVersion: String = "27"
+    try {
+      val vers = java.lang.Double.parseDouble(version.substring(0,3))
+      if (vers > 2.79) scalaVersion = "28"
+    } catch {
+      case e: Exception => //nothing to do
+    }
 
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
@@ -191,7 +201,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(MAIN_CLASS)
+        params.setMainClass(if (scalaVersion == "27") MAIN_CLASS else MAIN_CLASS_28)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)

@@ -8,16 +8,16 @@ package util
 import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScAnnotatedMemberIndex}
 import _root_.scala.collection.mutable.ArrayBuffer
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.{PsiElement, PsiClass}
-import elements.ScTypeDefinitionElementType
+import elements.ScTemplateDefinitionElementType
 import java.util.ArrayList
 import psi.impl.toplevel.templates.ScExtendsBlockImpl
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.psi.util.{PsiUtilBase, PsiUtil}
 import com.intellij.openapi.diagnostic.Logger
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScMember}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,10 +25,10 @@ import com.intellij.openapi.diagnostic.Logger
  */
 
 object ScalaStubsUtil {
-  def getClassInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTypeDefinition] = {
+  def getClassInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.getName()
     if (name == null) return Seq.empty
-    val inheritors = new ArrayBuffer[ScTypeDefinition]
+    val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[PsiElement] =
       StubIndex.getInstance().get(ScDirectInheritorsIndex.KEY, name, clazz.getProject(), scope).iterator.
               asInstanceOf[java.util.Iterator[PsiElement]]
@@ -37,13 +37,13 @@ object ScalaStubsUtil {
       if (checkPsiForExtendsBlock(extendsBlock)) {
         val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
         if (stub != null) {
-          if (stub.getParentStub.getStubType.isInstanceOf[ScTypeDefinitionElementType[_ <: ScTypeDefinition]]) {
-            inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTypeDefinition]
+          if (stub.getParentStub.getStubType.isInstanceOf[ScTemplateDefinitionElementType[_ <: ScTemplateDefinition]]) {
+            inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTemplateDefinition]
           }
         }
         else {
           extendsBlock.getParent match {
-            case tp: ScTypeDefinition => inheritors += tp
+            case tp: ScTemplateDefinition => inheritors += tp
             case _ =>
           }
         }

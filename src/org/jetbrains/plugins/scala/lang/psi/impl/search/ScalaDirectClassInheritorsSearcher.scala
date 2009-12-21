@@ -12,6 +12,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.util.{QueryExecutor, Processor}
 import stubs.util.ScalaStubsUtil
+import api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,8 +25,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     val scope: GlobalSearchScope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
     ApplicationManager.getApplication().runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
-          val candidates = ScalaStubsUtil.getClassInheritors(clazz, scope)
-          for (candidate <- candidates) {
+          val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
+          for (candidate <- candidates if candidate.showAsInheritor) {
             if (candidate.isInheritor(clazz, false)) {
               if (!consumer.process(candidate)) {
                 return false

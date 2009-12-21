@@ -6,6 +6,7 @@ import org.specs.util.Classes
 import collection.mutable.ArrayBuffer
 import org.specs.runner.{RunnerMain, NotifierRunner}
 import java.lang.String
+import reflect.Manifest
 
 object SpecsRunner {
   def main(args: Array[String]) {
@@ -36,7 +37,7 @@ object SpecsRunner {
     }
 
     for (clazz <- classes) {
-      val option: Option[Specification] = Classes.createObject(clazz)
+      val option: Option[Specification] = createObject(clazz, true, true)
       option match {
         case Some(s: Specification) => {
           try {
@@ -50,7 +51,7 @@ object SpecsRunner {
           }
         }
         case _ => {
-          val option: Option[Specification] = Classes.createObject(clazz + "$")
+          val option: Option[Specification] = createObject(clazz + "$", true, true)
           option match {
             case Some(s: Specification) => {
               try {
@@ -68,5 +69,48 @@ object SpecsRunner {
         }
       }
     }
+  }
+
+  //todo: this is copy from Specs library. Should be removed (althougth this class will be removed, after stopping support for scala 2.7)
+  def createObject[T <: AnyRef](className: String, printMessage: Boolean, printStackTrace: Boolean)(implicit m: Manifest[T]): Option[T] = {
+    try {
+      val c = loadClass[T](className, printMessage, printStackTrace)
+      return createInstanceOf[T](c)
+    } catch {
+      case e => {
+        if (printMessage || System.getProperty("debugCreateObject") != null) println("Could not instantiate class " + className + ": " + e.getMessage)
+        if (printStackTrace || System.getProperty("debugCreateObject") != null) e.printStackTrace()
+      }
+    }
+    return None
+  }
+  /**
+   * create an instance of a given class, checking that the created instance typechecks as expected
+   */
+  private def createInstanceOf[T <: AnyRef](c: Option[Class[T]])(implicit m: Manifest[T]) = {
+    c match {
+      case Some(klass) => {
+    	val constructor = klass.getDeclaredConstructors()(0)
+    	constructor.setAccessible(true)
+        val instance: AnyRef = constructor.newInstance().asInstanceOf[AnyRef]
+        //if (!m.erasure.isInstance(instance)) error(instance + " is not an instance of " + m.erasure.getName)
+        Some(instance.asInstanceOf[T])
+      }
+      case None => None
+    }
+  }
+  /**
+   * Load a class, given the class name
+   */
+  private def loadClass[T <: AnyRef](className: String, printMessage: Boolean, printStackTrace: Boolean): Option[Class[T]] = {
+    try {
+      return Some(getClass.getClassLoader.loadClass(className).asInstanceOf[Class[T]])
+    } catch {
+      case e => {
+        if (printMessage || System.getProperty("debugLoadClass") != null) println("Could not load class " + className)
+        if (printStackTrace || System.getProperty("debugLoadClass") != null) e.printStackTrace()
+      }
+    }
+    return None
   }
 }

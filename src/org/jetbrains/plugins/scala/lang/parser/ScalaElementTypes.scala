@@ -39,7 +39,7 @@ object ScalaElementTypes {
 
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block")
-  val NEW_TEMPLATE = new ScalaElementType("new template")
+  val NEW_TEMPLATE = new ScNewTemplateDefinitionStubElementType
 
 
   /** ***********************************************************************************/

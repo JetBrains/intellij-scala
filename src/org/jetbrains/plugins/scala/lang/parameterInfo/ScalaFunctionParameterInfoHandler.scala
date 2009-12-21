@@ -280,7 +280,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
           }
-          case ScFunctionType(_, params: Seq[ScType]) => {
+          //this case is redundant because we have extract class type for it
+          /*case ScFunctionType(_, params: Seq[ScType]) => {
             if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             val parameters: Array[ScParameter] = new Array[ScParameter](params.length)
             for (i <- 0 until params.length) {
@@ -301,7 +302,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
             applyToParameters(collection.immutable.Seq(parameters.toSeq: _*), ScSubstitutor.empty, true)
-          }
+          }*/
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
             val clauses = constructor.parameterList.clauses
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -369,10 +370,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
                 }
                 def collectForType(typez: ScType) {
-                  typez match {
-                    case ft: ScFunctionType => res += ft
-                    case _ =>
-                  }
                   ScType.extractClassType(typez) match {
                     case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
                       for{

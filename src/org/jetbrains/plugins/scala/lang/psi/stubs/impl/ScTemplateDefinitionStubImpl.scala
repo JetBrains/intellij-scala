@@ -9,15 +9,15 @@ import com.intellij.psi.impl.java.stubs.PsiClassStub
 import com.intellij.psi.{PsiElement, PsiClass}
 import com.intellij.util.io.StringRef
 import com.intellij.psi.stubs.{StubElement, IStubElementType, StubBase}
-import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /**
  * @author ilyas
  */
 
-class ScTypeDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
+class ScTemplateDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                         elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScTypeDefinition](parent, elemType) with ScTypeDefinitionStub {
+extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateDefinitionStub {
 
   var myName: StringRef = _
   var myQualName: StringRef = _

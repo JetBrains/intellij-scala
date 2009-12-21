@@ -183,10 +183,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     }
 
     private def getType(e: PsiNamedElement): ScType = e match {
-      case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Seq(fun.paramTypes.toSeq: _*))
+      case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Seq(fun.paramTypes.toSeq: _*), fun.getProject)
       case f: ScFunction => {
         val p = if (PsiTreeUtil.isAncestor(f, place, true))
-          new ScFunctionType(f.declaredType.getOrElse(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*))
+          new ScFunctionType(f.declaredType.getOrElse(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*), f.getProject)
         else f.getType(TypingContext.empty).getOrElse(Any)
         if (f.parameters.length == 0 || f.paramClauses.clauses.apply(0).isImplicit) {
           p match {

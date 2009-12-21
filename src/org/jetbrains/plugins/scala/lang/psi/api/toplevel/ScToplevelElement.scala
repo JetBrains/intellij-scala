@@ -15,6 +15,7 @@ import com.intellij.psi._
 import stubs.StubElement
 import impl.source.PsiFileImpl
 import collection.mutable.ArrayBuffer
+import psi.impl.toplevel.packaging.ScPackagingImpl
 
 /**
  * Trait that implements logic by some type definitions aggregation
@@ -33,7 +34,7 @@ trait ScToplevelElement extends ScalaPsiElement {
   def immediateTypeDefinitions: Seq[ScTypeDefinition] = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
-      case st: StubBasedPsiElement[_] => st.getStub
+      case st: ScPackagingImpl => st.getStub
       case _ => null
     }
     if (stub != null) {
@@ -46,7 +47,7 @@ trait ScToplevelElement extends ScalaPsiElement {
   def packagings: Seq[ScPackaging] = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
-      case st: StubBasedPsiElement[_] => st.getStub
+      case st: ScPackagingImpl => st.getStub
       case _ => null
     }
     if (stub != null) {

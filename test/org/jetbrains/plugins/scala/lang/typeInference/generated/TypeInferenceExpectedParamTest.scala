@@ -17,6 +17,8 @@ class TypeInferenceExpectedParamTest extends TypeInferenceTestBase {
 
   def testGenericMethod = doTest
 
+  def testInfixInvocation = doTest
+
   def testNamingParam = doTest
 
   def testParam = doTest

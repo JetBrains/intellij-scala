@@ -17,6 +17,13 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     override def initialValue: Boolean = false
   }
 
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
+
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
@@ -35,19 +42,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     newElement
   }
 
-  private var context: PsiElement = null
 
-
-  override def getContext: PsiElement = {
-    context match {
-      case null => super.getContext
-      case _ => context
-    }
-  }
-
-  def setContext(element: PsiElement) {
-    context = element
-  }
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement]
@@ -55,6 +50,13 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
   override def getElementType(): IStubElementType[StubElement[T], T] = {
     if (getNode != DummyASTNode && getNode != null) getNode.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
+  }
+
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
   }
 
   override def getParent(): PsiElement = {
