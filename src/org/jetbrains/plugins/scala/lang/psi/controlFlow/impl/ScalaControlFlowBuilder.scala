@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
 
 /**
  * @author ilyas
@@ -107,7 +107,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
    **************************************/
 
   override def visitPatternDefinition(pattern: ScPatternDefinition) {
-    super.visitPatternDefinition(pattern)
+    pattern.expr.accept(this)
     for (b <- pattern.bindings) {
       val instr = new DefineValueInstruction(inc, b, false)
       checkPendingEdges(instr)
@@ -116,7 +116,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitVariableDefinition(variable: ScVariableDefinition) {
-    super.visitVariableDefinition(variable)
+    val rv = variable.expr
+    if (rv != null) rv.accept(this)
     for (b <- variable.bindings) {
       val instr = new DefineValueInstruction(inc, b, true)
       checkPendingEdges(instr)
@@ -204,6 +205,46 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (receiver != null) {
       receiver.accept(this)
     }
+  }
+
+  override def visitGenerator(gen: ScGenerator) = {
+    val rv = gen.rvalue
+    if (rv != null) rv.accept(this)
+    val pat = gen.pattern
+    if (pat != null) pat.accept(this)
+  }
+
+  override def visitGuard(guard: ScGuard) = guard.expr match {
+    case Some(e) => e.accept(this)
+    case _ =>
+  }
+
+  override def visitPattern(pat: ScPattern) = pat match {
+    case b: ScBindingPattern => {
+      val instr = new DefineValueInstruction(inc, b, false)
+      checkPendingEdges(instr)
+      addNode(instr)
+    }
+    case _ => super.visitPattern(pat)
+  }
+
+  override def visitEnumerator(enum: ScEnumerator) = {
+    val rv = enum.rvalue
+    if (rv != null) rv.accept(this)
+    val pat = enum.pattern
+    if (pat != null) pat.accept(this)
+  }
+
+  override def visitForExpression(expr: ScForStatement) = {
+    expr.enumerators match {
+      case Some(enum) => enum.accept(this)
+      case _ =>
+    }
+    expr.body match {
+      case Some(e) => e.accept(this)
+      case _ =>
+    }
+    addPendingEdge(expr, myHead)
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {

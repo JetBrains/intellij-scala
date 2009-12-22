@@ -4,9 +4,8 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,10 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 trait ScForStatement extends ScExpression {
 
   def isYield: Boolean
-
   def enumerators: Option[ScEnumerators]
-
   def patterns: Seq[ScPattern]
-
-  def expression: Option[ScExpression] = findChild(classOf[ScExpression])
+  def body: Option[ScExpression] = findChild(classOf[ScExpression])
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitForExpression(this)
 }

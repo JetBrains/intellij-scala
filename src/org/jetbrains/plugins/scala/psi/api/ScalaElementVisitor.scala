@@ -5,10 +5,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiFile, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScCallExprImpl
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
-
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -41,4 +39,9 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitReturnStatement(ret: ScReturnStmt) { visitElement(ret) }
   def visitMatchStatement(ms: ScMatchStmt) { visitElement(ms) }
   def visitCaseClause(cc: ScCaseClause) { visitElement(cc) }
+  def visitForExpression(expr: ScForStatement) { visitElement(expr) }
+  def visitPattern(pat: ScPattern) { visitElement(pat) }
+  def visitEnumerator(enum: ScEnumerator) { visitElement(enum) }
+  def visitGenerator(gen: ScGenerator) { visitElement(gen) }
+  def visitGuard(guard: ScGuard) { visitElement(guard) }
 }
