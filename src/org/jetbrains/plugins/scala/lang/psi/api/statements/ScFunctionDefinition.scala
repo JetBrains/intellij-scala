@@ -22,4 +22,6 @@ trait ScFunctionDefinition extends ScFunction {
   def parameters: Seq[ScParameter]
 
   def hasAssign: Boolean
+
+  def getReturnUsages: Array[PsiElement]
 }
