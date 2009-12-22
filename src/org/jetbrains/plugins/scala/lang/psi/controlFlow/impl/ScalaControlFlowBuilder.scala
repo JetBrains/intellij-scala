@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import scala.collection.mutable.ListBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScAssignStmt, ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * @author ilyas
@@ -25,8 +25,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   def buildControlflow(scope: ScalaPsiElement): Seq[Instruction] = {
     // initial node
-    startNode(None) {instr =>
-      scope.accept(this)
+    startNode(None) {
+      instr =>
+        scope.accept(this)
     }
     // final node
     emptyNode()
@@ -74,7 +75,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         for (i <- myPending.size - 1 to (0, -1)) {
           val (inst, scope) = myPending(i)
           if (scope != null &&
-          !PsiTreeUtil.isAncestor(scope, elem, false)) {
+                  !PsiTreeUtil.isAncestor(scope, elem, false)) {
             addEdge(inst, instruction)
             ab += i
           }
@@ -98,6 +99,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myPending.insert(Math.max(index, 0), (instruction, scopeWhenAdded))
   }
 
+  private def flowInterrupted = myHead = null
 
   /**************************************
    * VISITOR METHODS
@@ -144,44 +146,58 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
 
+  override def visitWhileStatement(ws: ScWhileStmt) = {
+    startNode(Some(ws)) {instr =>
+      addPendingEdge(ws, myHead)
+      ws.condition.map(_.accept(this))
+      ws.body.map {b =>
+        b.accept(this)
+      }
+      checkPendingInstructions(instr)
+      // add backwards edge
+      if (myHead != null) addEdge(myHead, instr)
+      flowInterrupted
+    }
+  }
+
   override def visitMethodCallExpression(call: ScMethodCall) = {
     for (arg <- call.argumentExpressions) arg.accept(this)
     val receiver = call.getInvokedExpr
     if (receiver != null) {
       receiver.accept(this)
     }
-    
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {
-    startNode(Some(stmt)) {instr =>
-      val head = myHead
-      stmt.thenBranch match {
-        case Some(tb) => {
-          stmt.condition match {
-            case Some(cond) => {
-              cond.accept(this)
+    startNode(Some(stmt)) {
+      instr =>
+        val head = myHead
+        stmt.thenBranch match {
+          case Some(tb) => {
+            stmt.condition match {
+              case Some(cond) => {
+                cond.accept(this)
+              }
+              case None =>
             }
-            case None =>
+            tb.accept(this)
+            // the context will be refined later
+            addPendingEdge(stmt, myHead)
           }
-          tb.accept(this)
-          // the context will be refined later
-          addPendingEdge(stmt, myHead)
+          case None =>
         }
-        case None =>
-      }
-      myHead = head
-      stmt.elseBranch match {
-        case Some(eb) => {
-          stmt.condition match {
-            case Some(c) => c.accept(this)
-            case _ =>
+        myHead = head
+        stmt.elseBranch match {
+          case Some(eb) => {
+            stmt.condition match {
+              case Some(c) => c.accept(this)
+              case _ =>
+            }
+            eb.accept(this)
+            addPendingEdge(stmt, myHead)
           }
-          eb.accept(this)
-          addPendingEdge(stmt, myHead)
+          case _ =>
         }
-        case _ =>
-      }
     }
   }
 }
