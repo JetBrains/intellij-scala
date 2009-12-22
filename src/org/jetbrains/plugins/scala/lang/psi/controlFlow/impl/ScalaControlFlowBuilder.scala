@@ -147,6 +147,22 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
+  override def visitDoStatement(stmt: ScDoStmt) = {
+    startNode(Some(stmt)) {i =>
+      stmt.getExprBody map {e =>
+        e.accept(this)
+        addPendingEdge(stmt, myHead)
+      }
+      stmt.condition map { c =>
+        c.accept(this)
+        if (myHead != null) {
+          addEdge(myHead, i)
+        }
+      }
+      flowInterrupted
+    }
+  }
+
   override def visitCaseClause(cc: ScCaseClause) = {
     cc.pattern match {
       case Some(p) => for (b <- p.bindings) {

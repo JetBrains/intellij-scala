@@ -41,4 +41,5 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitEnumerator(enum: ScEnumerator) { visitElement(enum) }
   def visitGenerator(gen: ScGenerator) { visitElement(gen) }
   def visitGuard(guard: ScGuard) { visitElement(guard) }
+  def visitDoStatement(stmt: ScDoStmt) { visitElement(stmt) }
 }
