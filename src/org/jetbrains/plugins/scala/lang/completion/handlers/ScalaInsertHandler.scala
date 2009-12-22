@@ -7,9 +7,9 @@ import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
-import psi.api.statements.ScFun
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScPostfixExpr}
+import psi.api.statements.{ScFunction, ScFun}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,6 +27,12 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     item.getObject match {
       case Tuple1(_: PsiMethod) | Tuple1(_: ScFun) => {
         val (count, methodName) = item.getObject match {
+          case Tuple1(fun: ScFunction) => {
+            val clauses = fun.paramClauses.clauses
+            if (clauses.length == 0) return
+            if (clauses.apply(0).isImplicit) return
+            (clauses(0).parameters.length, fun.getName)
+          }
           case Tuple1(method: PsiMethod) => (method.getParameterList.getParametersCount, method.getName)
           case Tuple1(fun: ScFun) => (fun.paramTypes.length, fun.asInstanceOf[ScSyntheticFunction].name)
         }
