@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -71,9 +72,9 @@ public class ScalaFacetTab extends FacetEditorTab {
     addFileChooser("Choose scala-library.jar", SDKLibraryTextField, myModule.getProject());
 
     ComplerLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
-    ComplerLibraryTextField.setText(myConfiguration.myScalaCompilerJarPath);
+    ComplerLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaCompilerJarPath));
     SDKLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
-    SDKLibraryTextField.setText(myConfiguration.myScalaSdkJarPath);
+    SDKLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaSdkJarPath));
 
     myCompilerExcludeCb.setVisible(false);
     myLibraryExcludeCb.setVisible(false);
@@ -108,11 +109,11 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   private String getSdkPath() {
-    return SDKLibraryTextField.getText();
+    return PathUtil.getCanonicalPath(SDKLibraryTextField.getText());
   }
 
   private String getCompilerPath() {
-    return ComplerLibraryTextField.getText();
+    return PathUtil.getCanonicalPath(ComplerLibraryTextField.getText());
   }
 
   @Override
