@@ -11,11 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBuilder
 import org.jetbrains.plugins.scala.util.TestUtils
 import junit.framework.Assert
-import com.intellij.testFramework.UsefulTestCase
-import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl
-import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, JavaTestFixtureFactory, IdeaTestFixtureFactory, LightCodeInsightFixtureTestCase}
-import com.intellij.openapi.module.Module
-
+import com.intellij.testFramework.fixtures.{LightCodeInsightFixtureTestCase}
 /**
  * @author ilyas
  */
@@ -53,6 +49,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testAssignment = doTest
   def testIfStatement = doTest
   def testWhile = doTest
+  def testMatch1 = doTest
 
 }
 
