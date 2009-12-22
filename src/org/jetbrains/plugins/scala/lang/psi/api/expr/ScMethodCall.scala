@@ -6,6 +6,7 @@ package expr
 
 import statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -28,4 +29,5 @@ trait ScMethodCall extends ScExpression {
 
   def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
 
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitMethodCallExpression(this)
 }

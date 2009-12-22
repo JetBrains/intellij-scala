@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScIfStmt, ScReferenceExpression}
 import scala.collection.mutable.ListBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScAssignStmt, ScIfStmt, ScReferenceExpression}
 
 /**
  * @author ilyas
@@ -71,7 +71,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     instruction.element match {
       case Some(elem) => {
         val ab = new ArrayBuffer[Int]
-        for (i <- 0 until myPending.size) {
+        for (i <- myPending.size - 1 to (0, -1)) {
           val (inst, scope) = myPending(i)
           if (scope != null &&
           !PsiTreeUtil.isAncestor(scope, elem, false)) {
@@ -79,6 +79,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
             ab += i
           }
         }
+        // remove registered pending edges
         for (k <- ab) myPending.remove(k)
       }
       case None => {
@@ -140,6 +141,16 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       }
       case _ =>
     }
+  }
+
+
+  override def visitMethodCallExpression(call: ScMethodCall) = {
+    for (arg <- call.argumentExpressions) arg.accept(this)
+    val receiver = call.getInvokedExpr
+    if (receiver != null) {
+      receiver.accept(this)
+    }
+    
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {

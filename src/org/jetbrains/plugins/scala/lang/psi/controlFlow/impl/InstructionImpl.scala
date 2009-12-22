@@ -17,9 +17,9 @@ sealed class InstructionImpl(override val num: Int,
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
 
-  def pred() = mySucc
+  def pred() = myPred
 
-  def succ() = myPred
+  def succ() = mySucc
 
   def addPred(p: Instruction) = myPred + p
 
