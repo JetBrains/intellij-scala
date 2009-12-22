@@ -72,22 +72,22 @@ public class ScalaFacetTab extends FacetEditorTab {
 
     ComplerLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
     String res = "";
-    for (String text : myConfiguration.myScalaCompilerJarPaths) {
+    for (String text : myConfiguration.getCompilerPaths()) {
       res += PathUtil.getLocalPath(text);
       res += File.pathSeparator;
     }
     if (res.endsWith(File.pathSeparator)) res = res.substring(0, res.lastIndexOf(File.pathSeparator));
     CompilerAddTextField.setText(res);
-    ComplerLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaCompilerJarPaths[0]));
+    ComplerLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.getCompilerPaths()[0]));
     res = "";
-    for (String text : myConfiguration.myScalaSdkJarPaths) {
+    for (String text : myConfiguration.getSdkPaths()) {
       res += PathUtil.getLocalPath(text);
       res += File.pathSeparator;
     }
     if (res.endsWith(File.pathSeparator)) res = res.substring(0, res.lastIndexOf(File.pathSeparator));
     SDKAddTextField.setText(res);
-    SDKLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaSdkJarPaths[0]));
-    useAdditionalJarsForCheckBox.setSelected(myConfiguration.myScalaSdkJarPaths.length != 1 || myConfiguration.myScalaCompilerJarPaths.length != 1);
+    SDKLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.getSdkPaths()[0]));
+    useAdditionalJarsForCheckBox.setSelected(myConfiguration.getSdkPaths().length != 1 || myConfiguration.getCompilerPaths().length != 1);
     setEnables();
 
 
@@ -127,8 +127,10 @@ public class ScalaFacetTab extends FacetEditorTab {
   public boolean isModified() {
     return !(
         myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
-        Arrays.equals(myConfiguration.myScalaCompilerJarPaths, getCompilerPath().split(File.pathSeparator)) &&
-        Arrays.equals(myConfiguration.myScalaSdkJarPaths, getSdkPath().split(File.pathSeparator)));
+        Arrays.equals(myConfiguration.getCompilerPaths(), getCompilerPaths()) &&
+        Arrays.equals(myConfiguration.getSdkPaths(), getSdkPaths())) ||
+        !myConfiguration.myScalaCompilerJarPath.equals("") ||
+        !myConfiguration.myScalaSdkJarPath.equals("");
   }
 
   private String getSdkPath() {
@@ -141,6 +143,22 @@ public class ScalaFacetTab extends FacetEditorTab {
     return ComplerLibraryTextField.getText();
   }
 
+  private String[] getSdkPaths() {
+    String[] strings = getSdkPath().split(File.pathSeparator);
+    for (int i = 0; i < strings.length; ++i) {
+      strings[i] = PathUtil.getCanonicalPath(strings[i]);
+    }
+    return strings.length == 0 ? new String[]{""} : strings;
+  }
+
+  private String[] getCompilerPaths() {
+    String[] strings = getCompilerPath().split(File.pathSeparator);
+    for (int i = 0; i < strings.length; ++i) {
+      strings[i] = PathUtil.getCanonicalPath(strings[i]);
+    }
+    return strings.length == 0 ? new String[]{""} : strings;
+  }
+
   @Override
   public String getHelpTopic() {
     return super.getHelpTopic();
@@ -150,17 +168,11 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   public void apply() throws ConfigurationException {
-    String[] strings = getCompilerPath().split(File.pathSeparator);
-    for (int i = 0; i < strings.length; ++i) {
-      strings[i] = PathUtil.getCanonicalPath(strings[i]);
-    }
-    myConfiguration.myScalaCompilerJarPaths = strings.length == 0 ? new String[]{""} : strings;
-    strings = getSdkPath().split(File.pathSeparator);
-    for (int i = 0; i < strings.length; ++i) {
-      strings[i] = PathUtil.getCanonicalPath(strings[i]);
-    }
-    myConfiguration.myScalaSdkJarPaths = strings.length == 0 ? new String[]{""} : strings;
+    myConfiguration.myScalaCompilerJarPaths = getCompilerPaths();
+    myConfiguration.myScalaSdkJarPaths = getSdkPaths();
     myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
+    myConfiguration.myScalaSdkJarPath = "";
+    myConfiguration.myScalaCompilerJarPath = "";
   }
 
   public void reset() {
