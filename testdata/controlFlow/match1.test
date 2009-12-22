@@ -1,0 +1,19 @@
+var a = 0
+var c = a match {
+  case 3 => a
+  case 4 => a
+  case b => b
+}
+c
+-----
+0(1) element: None
+1(2) VAR a
+2(3) element: MatchStatement
+3(4,5,6) READ a
+4(8) READ a
+5(8) READ a
+6(7) VAL b
+7(8) READ b
+8(9) VAR c
+9(10) READ c
+10() element: None

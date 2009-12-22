@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 
 /**
  * @author ilyas
@@ -54,7 +55,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     val instr = new InstructionImpl(inc, element)
     addNode(instr)
     body(instr)
-    if (checkPending) checkPendingInstructions(instr)
+    if (checkPending) checkPendingEdges(instr)
   }
 
   private def addNode(instr: InstructionImpl) {
@@ -68,7 +69,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if (!to.pred.contains(from)) to.addPred(from)
   }
 
-  private def checkPendingInstructions(instruction: InstructionImpl) {
+  private def checkPendingEdges(instruction: InstructionImpl) {
     instruction.element match {
       case Some(elem) => {
         val ab = new ArrayBuffer[Int]
@@ -109,7 +110,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     super.visitPatternDefinition(pattern)
     for (b <- pattern.bindings) {
       val instr = new DefineValueInstruction(inc, b, false)
-      checkPendingInstructions(instr)
+      checkPendingEdges(instr)
       addNode(instr)
     }
   }
@@ -118,7 +119,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     super.visitVariableDefinition(variable)
     for (b <- variable.bindings) {
       val instr = new DefineValueInstruction(inc, b, true)
-      checkPendingInstructions(instr)
+      checkPendingEdges(instr)
       addNode(instr)
     }
   }
@@ -128,7 +129,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case None => {
         val instr = new ReadWriteVariableInstruction(inc, ref, ScalaPsiUtil.isLValue(ref))
         addNode(instr)
-        checkPendingInstructions(instr)
+        checkPendingEdges(instr)
       }
       case _ =>
     }
@@ -145,16 +146,53 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
   }
 
+  override def visitCaseClause(cc: ScCaseClause) = {
+    cc.pattern match {
+      case Some(p) => for (b <- p.bindings) {
+        val instr = new DefineValueInstruction(inc, b, false)
+        checkPendingEdges(instr)
+        addNode(instr)
+      }
+      case None =>
+    }
+
+    cc.guard match {
+      case Some(g) => g.accept(this) // todo implement Guard PSI
+      case _ =>
+    }
+
+    cc.expr match {
+      case Some(e) => e.accept(this)
+      case _ =>
+    }
+  }
+
+  override def visitMatchStatement(ms: ScMatchStmt) = {
+    startNode(Some(ms)) {instr =>
+      ms.expr match {
+        case Some(e) => e.accept(this)
+        case _ =>
+      }
+      val head = myHead
+      for (cc <- ms.caseClauses) {
+        myHead = head
+        cc.accept(this)
+        addPendingEdge(ms, myHead)
+        myHead = null
+      }
+    }
+  }
 
   override def visitWhileStatement(ws: ScWhileStmt) = {
     startNode(Some(ws)) {instr =>
+    // for breaks
       addPendingEdge(ws, myHead)
       ws.condition.map(_.accept(this))
       ws.body.map {b =>
         b.accept(this)
       }
-      checkPendingInstructions(instr)
-      // add backwards edge
+      checkPendingEdges(instr)
+      // add backward edge
       if (myHead != null) addEdge(myHead, instr)
       flowInterrupted
     }
@@ -171,15 +209,15 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitIfStatement(stmt: ScIfStmt) = {
     startNode(Some(stmt)) {
       instr =>
+        stmt.condition match {
+          case Some(cond) => {
+            cond.accept(this)
+          }
+          case None =>
+        }
         val head = myHead
         stmt.thenBranch match {
           case Some(tb) => {
-            stmt.condition match {
-              case Some(cond) => {
-                cond.accept(this)
-              }
-              case None =>
-            }
             tb.accept(this)
             // the context will be refined later
             addPendingEdge(stmt, myHead)
@@ -189,10 +227,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         myHead = head
         stmt.elseBranch match {
           case Some(eb) => {
-            stmt.condition match {
-              case Some(c) => c.accept(this)
-              case _ =>
-            }
             eb.accept(this)
             addPendingEdge(stmt, myHead)
           }

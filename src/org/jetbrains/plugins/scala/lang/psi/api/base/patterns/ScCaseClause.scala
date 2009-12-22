@@ -7,6 +7,7 @@ package patterns
 
 import psi.ScalaPsiElement
 import expr.{ScExpression, ScGuard}
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -17,4 +18,5 @@ trait ScCaseClause extends ScalaPsiElement {
   def pattern = findChild(classOf[ScPattern])
   def expr = findChild(classOf[ScExpression])
   def guard = findChild(classOf[ScGuard])
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitCaseClause(this)
 }
