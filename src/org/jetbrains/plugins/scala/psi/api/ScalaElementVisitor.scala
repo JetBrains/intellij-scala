@@ -18,9 +18,6 @@ class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
 }
 
 class ScalaElementVisitor extends PsiElementVisitor {
-  def visitReference(ref: ScReferenceElement) {
-    visitElement(ref)
-  }
 
   override def visitFile(file: PsiFile) = file match {
     case sf: ScalaFile => visitElement(sf)
@@ -28,10 +25,10 @@ class ScalaElementVisitor extends PsiElementVisitor {
   }
 
   def visitElement(element: ScalaPsiElement) = super.visitElement(element)
-
+  def visitReference(ref: ScReferenceElement) { visitElement(ref) }
   def visitPatternDefinition(pat: ScPatternDefinition) { visitElement(pat) }
   def visitVariableDefinition(varr: ScVariableDefinition) { visitElement(varr) }
-  def visitReferenceExpression(ref: ScReferenceExpression) { visitElement(ref) }
+  def visitReferenceExpression(ref: ScReferenceExpression) { visitReference(ref) }
   def visitIfStatement(stmt: ScIfStmt) { visitElement(stmt) }
   def visitAssignmentStatement(stmt: ScAssignStmt) { visitElement(stmt) }
   def visitMethodCallExpression(call: ScMethodCall) { visitElement(call) }
