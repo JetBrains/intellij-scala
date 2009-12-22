@@ -6,6 +6,7 @@ package expr
 
 import psi.ScalaPsiElement
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,4 +27,7 @@ trait ScDoStmt extends ScExpression {
    *  @return has loop expression
    */
   def hasExprBody: Boolean
+
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitDoStatement(this)
 }
