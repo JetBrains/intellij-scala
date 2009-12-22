@@ -187,7 +187,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
           introduceEnumeratorForStmt = prev.getParent.getParent.asInstanceOf[ScForStatement]
           introduceEnumerator = true
         }
-        case whSt: ScWhileStmt if whSt.expression.getOrElse(null) == parExpr => needBraces = true
+        case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => needBraces = true
         case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
         case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
         case fE: ScFunctionExpr => needBraces = true
@@ -284,7 +284,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
                 case vr: ScVariableDefinition => vr.expr
                 case ifSt: ScIfStmt if elseBranch => ifSt.elseBranch.getOrElse(null)
                 case ifSt: ScIfStmt => ifSt.thenBranch.getOrElse(null)
-                case whSt: ScWhileStmt => whSt.expression.getOrElse(null)
+                case whSt: ScWhileStmt => whSt.body.getOrElse(null)
                 case doSt: ScDoStmt => doSt.getExprBody.getOrElse(null)
                 case fE: ScFunctionExpr => fE.result.getOrElse(null)
                 case forSt: ScForStatement => forSt.expression.getOrElse(null)

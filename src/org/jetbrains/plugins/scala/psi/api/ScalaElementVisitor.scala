@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiFile, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScCallExprImpl
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScAssignStmt, ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -37,4 +37,6 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitIfStatement(stmt: ScIfStmt) { visitElement(stmt) }
   def visitAssignmentStatement(stmt: ScAssignStmt) { visitElement(stmt) }
   def visitMethodCallExpression(call: ScMethodCall) { visitElement(call) }
+  def visitWhileStatement(ws: ScWhileStmt) { visitElement(ws) }
+  def visitReturnStatement(ret: ScReturnStmt) { visitElement(ret) }
 }

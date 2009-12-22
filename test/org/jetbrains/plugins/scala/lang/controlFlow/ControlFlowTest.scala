@@ -50,25 +50,9 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
     return builder.toString
   }
 
-//  protected var myFixture: JavaCodeInsightTestFixture = _
-//  protected var myModule: Module = _
-//
-//  override def setUp : Unit = {
-//  super.setUp
-//    val factory = IdeaTestFixtureFactory.getFixtureFactory
-//    val builder = factory.createLightFixtureBuilder(getProjectDecriptor)
-//    val fixture = builder.getFixture
-//    myFixture = JavaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixture, new LightTempDirTestFixtureImpl(true))
-//    myFixture.setUp
-//    myFixture.setTestDataPath(getBasePath)
-//    myModule = myFixture.getModule
-//  }
-
-
-
-
   def testAssignment = doTest
   def testIfStatement = doTest
+  def testWhile = doTest
 
 }
 

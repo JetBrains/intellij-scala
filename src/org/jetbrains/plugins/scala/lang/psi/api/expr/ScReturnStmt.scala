@@ -6,6 +6,7 @@ package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,4 +17,6 @@ trait ScReturnStmt extends ScExpression {
   def expr = findChild(classOf[ScExpression])
 
   def returnKeyword: PsiElement
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitReturnStatement(this)
 }

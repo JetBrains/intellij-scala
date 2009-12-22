@@ -1,0 +1,22 @@
+var i = 5
+var j = 0
+while (i > 0) {
+  i = i - 1
+  j = j + 1
+}
+j
+-----
+0(1) element: None
+1(2) VAR i
+2(3) VAR j
+3(4,12) element: WhileStatement
+4(5) READ i
+5(6) READ >
+6(7) READ i
+7(8) READ -
+8(9) WRITE i
+9(10) READ j
+10(11) READ +
+11(3) WRITE j
+12(13) READ j
+13() element: None
