@@ -52,7 +52,7 @@ case class DefineValueInstruction(override val num: Int,
 
   def getName = myName
 
-  override protected def getPresentation = (if (mutable) "VAR " else "VAL") + getName
+  override protected def getPresentation = (if (mutable) "VAR " else "VAL ") + getName
 }
 
 case class ReadWriteVariableInstruction(override val num: Int,

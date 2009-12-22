@@ -6,8 +6,7 @@ package expr
 
 import base.patterns.{ScCaseClause, ScCaseClauses}
 import impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import parser.ScalaPsiCreator
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -27,4 +26,12 @@ trait ScMatchStmt extends ScExpression {
   }
 
   def getCaseClauses: ScCaseClauses = findChildByClassScala(classOf[ScCaseClauses])
+
+  def caseClauses: Seq[ScCaseClause] = {
+    val cc = getCaseClauses
+    if (cc == null) Nil
+    else cc.caseClauses
+  }
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitMatchStatement(this)
 }

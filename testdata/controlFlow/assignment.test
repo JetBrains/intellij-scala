@@ -1,6 +1,7 @@
 var Some(x, y) = Some(42, 239)
 -----
 0(1) element: None
-1(2) VAR x
-2(3) VAR y
-3() element: None
+1(2) READ Some
+2(3) VAR x
+3(4) VAR y
+4() element: None
