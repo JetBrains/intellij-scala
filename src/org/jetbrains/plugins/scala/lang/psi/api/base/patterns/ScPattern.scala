@@ -35,6 +35,8 @@ trait ScPattern extends ScalaPsiElement {
     b
   }
 
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitPattern(this)
+
   private def _bindings(p : ScPattern, b : ArrayBuffer[ScBindingPattern]) : Unit = {
     p match {
       case binding: ScBindingPattern => b += binding

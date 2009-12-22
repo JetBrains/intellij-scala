@@ -5,15 +5,14 @@ package api
 package expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace, ResolveState}
-import lexer.ScalaTokenTypes
+import com.intellij.psi.{PsiElement, ResolveState}
 import toplevel.typedef.ScMember
 import impl.ScalaPsiElementFactory
 /**
  * @author ilyas
  */
 
-trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
+trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder with ScControlFlowOwner {
 
   def isAnonymousFunction: Boolean = false
 
