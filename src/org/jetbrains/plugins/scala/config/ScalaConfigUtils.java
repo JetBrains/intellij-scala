@@ -187,7 +187,7 @@ public class ScalaConfigUtils {
     final ScalaFacetConfiguration configuration = facet.getConfiguration();
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
     if (libConf.takeFromSettings) {
-      return StringUtil.join(libConf.myScalaSdkJarPaths, File.pathSeparator);
+      return StringUtil.join(libConf.getSdkPaths(), File.pathSeparator);
     } else {
       Library[] libraries = getScalaSdkLibrariesByModule(module);
       if (libraries.length == 0) return "";

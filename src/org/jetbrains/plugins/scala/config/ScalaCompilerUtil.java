@@ -60,7 +60,7 @@ public class ScalaCompilerUtil {
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
 
     if (libConf.takeFromSettings) {
-      return StringUtil.join(libConf.myScalaCompilerJarPaths, File.pathSeparator);
+      return StringUtil.join(libConf.getCompilerPaths(), File.pathSeparator);
     } else {
       Library[] libraries = getScalaCompilerLibrariesByModule(module);
       if (libraries.length == 0) return "";
