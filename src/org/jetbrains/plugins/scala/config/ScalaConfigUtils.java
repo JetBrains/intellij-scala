@@ -24,27 +24,19 @@ import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import com.intellij.util.Function;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.facet.FacetManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.LibrariesUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Properties;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import scala.tools.nsc.Global;
 
 /**
  * @author ilyas
@@ -195,19 +187,7 @@ public class ScalaConfigUtils {
     final ScalaFacetConfiguration configuration = facet.getConfiguration();
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
     if (libConf.takeFromSettings) {
-      final String path = libConf.myScalaSdkJarPath;
-      /*final List<String> paths = StringUtil.split(path, " ");
-      final VirtualFile baseDir = module.getProject().getBaseDir();
-      if (libConf.isRelativeToProjectPath && baseDir != null) {
-        final String url = baseDir.getPath();
-        final String result = StringUtil.join(paths, new Function<String, String>() {
-          public String fun(String elem) {
-            return url + File.separator + elem.trim();
-          }
-        }, File.pathSeparator);
-        return result;
-      }*/
-      return path;
+      return StringUtil.join(libConf.myScalaSdkJarPaths, File.pathSeparator);
     } else {
       Library[] libraries = getScalaSdkLibrariesByModule(module);
       if (libraries.length == 0) return "";

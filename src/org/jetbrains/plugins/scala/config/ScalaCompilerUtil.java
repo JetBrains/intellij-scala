@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.impl.libraries.LibraryImpl;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
@@ -59,19 +60,7 @@ public class ScalaCompilerUtil {
     final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
 
     if (libConf.takeFromSettings) {
-      final String path = libConf.myScalaCompilerJarPath;
-      /*final List<String> paths = StringUtil.split(path, " ");
-      final VirtualFile baseDir = module.getProject().getBaseDir();
-      if (libConf.isRelativeToProjectPath && baseDir != null) {
-        final String url = baseDir.getPath();
-        final String result = StringUtil.join(paths, new Function<String, String>() {
-          public String fun(String elem) {
-            return url + File.separator + elem.trim();
-          }
-        }, File.pathSeparator);
-        return result;
-      }*/
-      return path;
+      return StringUtil.join(libConf.myScalaCompilerJarPaths, File.pathSeparator);
     } else {
       Library[] libraries = getScalaCompilerLibrariesByModule(module);
       if (libraries.length == 0) return "";

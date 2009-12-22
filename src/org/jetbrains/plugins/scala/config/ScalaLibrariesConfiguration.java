@@ -7,19 +7,17 @@ import com.intellij.util.PathUtil;
  */
 public class ScalaLibrariesConfiguration {
   public ScalaLibrariesConfiguration() {
-    if (myScalaSdkJarPath == null ||"".equals(myScalaSdkJarPath)) {
-      myScalaSdkJarPath = PathUtil.getJarPathForClass(scala.Predef.class);
+    if (myScalaSdkJarPaths == null ||"".equals(myScalaSdkJarPaths[0])) {
+      myScalaSdkJarPaths = new String[] {PathUtil.getJarPathForClass(scala.Predef.class)};
     }
-    if (myScalaCompilerJarPath == null || "".equals(myScalaCompilerJarPath)) {
-      myScalaCompilerJarPath = PathUtil.getJarPathForClass(scala.tools.nsc.Global.class);
+    if (myScalaCompilerJarPaths == null || "".equals(myScalaCompilerJarPaths[0])) {
+      myScalaCompilerJarPaths = new String[] {PathUtil.getJarPathForClass(scala.tools.nsc.Global.class)};
     }
   }
 
   public boolean takeFromSettings = false;
-  public boolean myExcludeCompilerFromModuleScope = false;
-  public boolean myExcludeSdkFromModuleScope = false;
 
-  public String myScalaCompilerJarPath = "";
-  public String myScalaSdkJarPath = "";
+  public String[] myScalaCompilerJarPaths = {""};
+  public String[] myScalaSdkJarPaths = {""};
 
 }
