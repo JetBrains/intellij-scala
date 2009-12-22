@@ -25,8 +25,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +34,8 @@ import org.jetbrains.plugins.scala.config.ScalaLibrariesConfiguration;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * @author ilyas
@@ -46,12 +46,13 @@ public class ScalaFacetTab extends FacetEditorTab {
 
   private Module myModule;
   private JPanel myPanel;
-  private JCheckBox myCompilerExcludeCb;
-  private JCheckBox myLibraryExcludeCb;
   private JCheckBox myUseSettingsChb;
   private JLabel myHintLabel;
   private TextFieldWithBrowseButton ComplerLibraryTextField;
   private TextFieldWithBrowseButton SDKLibraryTextField;
+  private JCheckBox useAdditionalJarsForCheckBox;
+  private JTextField CompilerAddTextField;
+  private JTextField SDKAddTextField;
   private FacetEditorContext myEditorContext;
   private FacetValidatorsManager myValidatorsManager;
   private final ScalaLibrariesConfiguration myConfiguration;
@@ -66,29 +67,52 @@ public class ScalaFacetTab extends FacetEditorTab {
     myUseSettingsChb.setEnabled(true);
     myUseSettingsChb.setSelected(myConfiguration.takeFromSettings);
 
-    myHintLabel.setEnabled(myUseSettingsChb.isSelected());
-
     addFileChooser("Choose scala-compiler.jar", ComplerLibraryTextField, myModule.getProject());
     addFileChooser("Choose scala-library.jar", SDKLibraryTextField, myModule.getProject());
 
     ComplerLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
-    ComplerLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaCompilerJarPath));
-    SDKLibraryTextField.setEnabled(myConfiguration.takeFromSettings);
-    SDKLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaSdkJarPath));
-
-    myCompilerExcludeCb.setVisible(false);
-    myLibraryExcludeCb.setVisible(false);
+    String res = "";
+    for (String text : myConfiguration.myScalaCompilerJarPaths) {
+      res += PathUtil.getLocalPath(text);
+      res += File.pathSeparator;
+    }
+    if (res.endsWith(File.pathSeparator)) res = res.substring(0, res.lastIndexOf(File.pathSeparator));
+    CompilerAddTextField.setText(res);
+    ComplerLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaCompilerJarPaths[0]));
+    res = "";
+    for (String text : myConfiguration.myScalaSdkJarPaths) {
+      res += PathUtil.getLocalPath(text);
+      res += File.pathSeparator;
+    }
+    if (res.endsWith(File.pathSeparator)) res = res.substring(0, res.lastIndexOf(File.pathSeparator));
+    SDKAddTextField.setText(res);
+    SDKLibraryTextField.setText(PathUtil.getLocalPath(myConfiguration.myScalaSdkJarPaths[0]));
+    useAdditionalJarsForCheckBox.setSelected(myConfiguration.myScalaSdkJarPaths.length != 1 || myConfiguration.myScalaCompilerJarPaths.length != 1);
+    setEnables();
 
 
     myUseSettingsChb.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        final boolean b = myUseSettingsChb.isSelected();
-        ComplerLibraryTextField.setEnabled(b);
-        SDKLibraryTextField.setEnabled(b);
-        myHintLabel.setEnabled(b);
+        setEnables();
+      }
+    });
+    useAdditionalJarsForCheckBox.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        setEnables();
       }
     });
     reset();
+  }
+
+  public void setEnables() {
+    boolean b1 = myUseSettingsChb.isSelected();
+    boolean b2 = useAdditionalJarsForCheckBox.isSelected();
+    ComplerLibraryTextField.setEnabled(b1 && !b2);
+    SDKLibraryTextField.setEnabled(b1 && !b2);
+    myHintLabel.setEnabled(b1 && b2);
+    CompilerAddTextField.setEnabled(b1 && b2);
+    SDKAddTextField.setEnabled(b1 && b2);
+
   }
 
   @Nls
@@ -101,19 +125,20 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   public boolean isModified() {
-    return !(myConfiguration.myExcludeCompilerFromModuleScope == myCompilerExcludeCb.isSelected() &&
-        myConfiguration.myExcludeSdkFromModuleScope == myLibraryExcludeCb.isSelected() &&
+    return !(
         myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
-        myConfiguration.myScalaCompilerJarPath.equals(getCompilerPath()) &&
-        myConfiguration.myScalaSdkJarPath.equals(getSdkPath()));
+        Arrays.equals(myConfiguration.myScalaCompilerJarPaths, getCompilerPath().split(File.pathSeparator)) &&
+        Arrays.equals(myConfiguration.myScalaSdkJarPaths, getSdkPath().split(File.pathSeparator)));
   }
 
   private String getSdkPath() {
-    return PathUtil.getCanonicalPath(SDKLibraryTextField.getText());
+    if (useAdditionalJarsForCheckBox.isSelected()) return SDKAddTextField.getText();
+    return SDKLibraryTextField.getText();
   }
 
   private String getCompilerPath() {
-    return PathUtil.getCanonicalPath(ComplerLibraryTextField.getText());
+    if (useAdditionalJarsForCheckBox.isSelected()) return CompilerAddTextField.getText();
+    return ComplerLibraryTextField.getText();
   }
 
   @Override
@@ -125,10 +150,16 @@ public class ScalaFacetTab extends FacetEditorTab {
   }
 
   public void apply() throws ConfigurationException {
-    myConfiguration.myExcludeCompilerFromModuleScope = myCompilerExcludeCb.isSelected();
-    myConfiguration.myExcludeSdkFromModuleScope = myLibraryExcludeCb.isSelected();
-    myConfiguration.myScalaCompilerJarPath = getCompilerPath();
-    myConfiguration.myScalaSdkJarPath = getSdkPath();
+    String[] strings = getCompilerPath().split(File.pathSeparator);
+    for (int i = 0; i < strings.length; ++i) {
+      strings[i] = PathUtil.getCanonicalPath(strings[i]);
+    }
+    myConfiguration.myScalaCompilerJarPaths = strings.length == 0 ? new String[]{""} : strings;
+    strings = getSdkPath().split(File.pathSeparator);
+    for (int i = 0; i < strings.length; ++i) {
+      strings[i] = PathUtil.getCanonicalPath(strings[i]);
+    }
+    myConfiguration.myScalaSdkJarPaths = strings.length == 0 ? new String[]{""} : strings;
     myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
   }
 
