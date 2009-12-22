@@ -20,4 +20,7 @@ public class ScalaLibrariesConfiguration {
   public String[] myScalaCompilerJarPaths = {""};
   public String[] myScalaSdkJarPaths = {""};
 
+  public String myScalaCompilerJarPath = ""; //for compatibility
+  public String myScalaSdkJarPath = ""; //for compatibility
+
 }
