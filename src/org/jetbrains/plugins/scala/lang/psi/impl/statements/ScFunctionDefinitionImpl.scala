@@ -15,6 +15,7 @@ import types.{ScType, Unit}
 import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -71,5 +72,14 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       return stub.asInstanceOf[ScFunctionStub].hasAssign
     }
     findChildByType(ScalaTokenTypes.tASSIGN) != null
+  }
+
+  def getReturnUsages: Array[PsiElement] = {
+    val res = new ArrayBuffer[PsiElement]
+    /*val visitor = new ScalaRecursiveElementVisitor {
+      override def visitReturnStatement(ret: ScReturnStmt) = res += ret
+    }
+    accept(visitor)*/
+    res.toArray
   }
 }
