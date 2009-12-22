@@ -16,6 +16,7 @@ import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -76,10 +77,40 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   def getReturnUsages: Array[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
-    /*val visitor = new ScalaRecursiveElementVisitor {
+    val visitor = new ScalaRecursiveElementVisitor {
       override def visitReturnStatement(ret: ScReturnStmt) = res += ret
     }
-    accept(visitor)*/
+    accept(visitor)
+    def calculateReturns(expr: ScExpression): Unit = {
+      expr match {
+        case block: ScBlock => {
+          block.lastExpr match {
+            case Some(expr) => calculateReturns(expr)
+            case _ => res += block
+          }
+        }
+        case m: ScMatchStmt => {
+          m.getBranches.foreach(calculateReturns(_))
+        }
+        case i: ScIfStmt => {
+          i.elseBranch match {
+            case Some(e) => {
+              calculateReturns(e)
+              i.thenBranch match {
+                case Some(e) => calculateReturns(e)
+                case _ =>
+              }
+            }
+            case _ => res += i
+          }
+        }
+        case _ => res += expr
+      }
+    }
+    body match {
+      case Some(expr) => calculateReturns(expr)
+      case _ =>
+    }
     res.toArray
   }
 }
