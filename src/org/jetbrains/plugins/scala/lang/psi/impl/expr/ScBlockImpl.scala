@@ -18,6 +18,8 @@ import collection.Seq
 import result.{TypeResult, Failure, Success, TypingContext}
 import scala.Some
 import com.intellij.psi.PsiClass
+import controlFlow.impl.ScalaControlFlowBuilder
+import controlFlow.Instruction
 
 /**
 * @author ilyas
@@ -26,6 +28,16 @@ import com.intellij.psi.PsiClass
 class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock {
 
   override def toString: String = "BlockOfExpressions"
+
+  private var myControlFlow : Seq[Instruction] = null
+
+  def getControlFlow = {
+    if (myControlFlow != null) {
+      val builder = new ScalaControlFlowBuilder(null, null)
+      myControlFlow = builder.buildControlflow(this)
+    }
+    myControlFlow
+  }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     if (isAnonymousFunction) {

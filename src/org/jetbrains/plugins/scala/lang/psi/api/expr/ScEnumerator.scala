@@ -6,6 +6,7 @@ package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -18,4 +19,5 @@ trait ScEnumerator extends ScalaPsiElement {
 
   def rvalue: ScExpression
 
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitEnumerator(this)
 }
