@@ -31,9 +31,9 @@
     <delete file="${lexer.file}"/>
     <delete file="${lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="1024m" failonerror="true">
+    <java classname="JFlex.Main" output="jflexCore.log" fork="true" maxmemory="1024m" failonerror="true">
       <jvmarg line="-XX:MaxPermSize=200M"/>
-      <arg value="--charat"/>
+      <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
       <arg value="${skeleton}"/>
       <arg value="${lexer.source}"/>
@@ -44,8 +44,8 @@
     <delete file="${split.lexer.file}"/>
     <delete file="${split.lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="512m" >
-      <arg value="--charat"/>
+    <java jar="JFlex.jar" output="jflexSplitting.log" fork="true" maxmemory="512m" >
+      <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
       <arg value="${splitting.skeleton}"/>
       <arg value="${split.lexer.source}"/>
@@ -56,8 +56,8 @@
     <delete file="${scaladoc.lexer.file}"/>
     <delete file="${scaladoc.lexer.log}"/>
 
-    <java jar="JFlex.jar" output="jflex.log" fork="true" maxmemory="512m" >
-      <arg value="--charat"/>
+    <java jar="JFlex.jar" output="jflexDoc.log" fork="true" maxmemory="512m" >
+      <arg value="-sliceandcharat"/>
       <arg value="-skel"/>
       <arg value="${scaladoc.skeleton}"/>
       <arg value="${scaladoc.lexer.source}"/>

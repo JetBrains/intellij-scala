@@ -1,7 +1,7 @@
-Reading skeleton file "../../scaladoc/lexer/scaladoc.skeleton".
-Reading "../../scaladoc/lexer/scaladoc.flex"
+Reading skeleton file "..\..\scaladoc\lexer\scaladoc.skeleton".
+Reading "..\..\scaladoc\lexer\scaladoc.flex"
 Constructing NFA : 113 states in NFA
 Converting NFA to DFA : 
 ..........................................................
 76 states before minimization, 41 states in minimized DFA
-Writing code to "../../scaladoc/lexer/_ScalaDocLexer.java"
+Writing code to "..\..\scaladoc\lexer\_ScalaDocLexer.java"

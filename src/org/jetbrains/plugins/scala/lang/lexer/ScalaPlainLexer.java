@@ -101,8 +101,8 @@ public class ScalaPlainLexer extends Lexer {
   public int getState() {
     final int splitState = mySplittingLexer.getState();
     final int scalaState = myScalaLexer.getState();
-    assert splitState == (splitState & SPLIT_MASK);
-    assert scalaState == (scalaState & (SCALA_CORE_MASK >> SCALA_CORE_SHIFT));
+    //assert splitState == (splitState & SPLIT_MASK);
+    //assert scalaState == (scalaState & (SCALA_CORE_MASK >> SCALA_CORE_SHIFT));
     return splitState | (scalaState << SCALA_CORE_SHIFT);
   }
 
