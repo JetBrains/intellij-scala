@@ -48,6 +48,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
 
   def testAssignment = doTest
   def testIfStatement = doTest
+  def testIfStatement2 = doTest
   def testWhile = doTest
   def testMatch1 = doTest
   def testFor1 = doTest
