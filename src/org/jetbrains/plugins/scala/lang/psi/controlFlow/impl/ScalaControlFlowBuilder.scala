@@ -202,7 +202,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitWhileStatement(ws: ScWhileStmt) = {
     startNode(Some(ws)) {instr =>
-    // for breaks
+      checkPendingEdges(instr)
+      // for breaks
       addPendingEdge(ws, myHead)
       ws.condition.map(_.accept(this))
       ws.body.map {b =>
@@ -264,14 +265,20 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {
-    startNode(Some(stmt)) {
-      instr =>
+    startNode(Some(stmt)) { instr =>
         stmt.condition match {
           case Some(cond) => {
             cond.accept(this)
           }
           case None =>
         }
+
+        // reduced if-then expression (without `else`)
+        stmt.elseBranch match {
+          case None => addPendingEdge(stmt, myHead)
+          case _ =>
+        }
+
         val head = myHead
         stmt.thenBranch match {
           case Some(tb) => {
@@ -281,9 +288,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
           }
           case None =>
         }
-        myHead = head
         stmt.elseBranch match {
           case Some(eb) => {
+            myHead = head
             eb.accept(this)
             addPendingEdge(stmt, myHead)
           }

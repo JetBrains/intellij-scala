@@ -19,7 +19,7 @@ import collection.mutable.Map
  * @author ilyas
  */
 
-class ReachingDefsTeset extends LightCodeInsightFixtureTestCase {
+class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 
   override def setUp = {
@@ -62,6 +62,7 @@ class ReachingDefsTeset extends LightCodeInsightFixtureTestCase {
   }
 
   def testFirst = doTest
+  def testSecond = doTest
 
 
 }
