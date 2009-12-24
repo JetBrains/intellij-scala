@@ -4,8 +4,16 @@
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
       <configuration>
-        <option name="myScalaCompilerJarPath" value="C:\work\scala-2.8\scala-compiler.jar" />
-        <option name="myScalaSdkJarPath" value="C:\work\scala-2.8\scala-library.jar" />
+        <option name="myScalaCompilerJarPaths">
+          <array>
+            <option value="C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-compiler.jar" />
+          </array>
+        </option>
+        <option name="myScalaSdkJarPaths">
+          <array>
+            <option value="C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-library.jar" />
+          </array>
+        </option>
       </configuration>
     </facet>
   </component>

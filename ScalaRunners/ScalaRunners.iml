@@ -2,10 +2,7 @@
 <module relativePaths="true" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Scala" name="Scala">
-      <configuration>
-        <option name="myScalaCompilerJarPath" value="C:\work\scala-2.8\scala-compiler.jar" />
-        <option name="myScalaSdkJarPath" value="C:\work\scala-2.8\scala-library.jar" />
-      </configuration>
+      <configuration />
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
