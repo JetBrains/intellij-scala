@@ -33,23 +33,19 @@ g
   2(3) VAR g
   4(5) VAR m
 10(11) WRITE g
-  2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
 11(12) READ a
-  2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-12(14) WRITE m
-  2(3) VAR g
-  4(5) VAR m
+12(13) WRITE m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
 13(14,23) element: WhileStatement
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -57,7 +53,7 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -65,7 +61,7 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -73,7 +69,7 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -81,47 +77,35 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
 18(19) WRITE g
-  2(3) VAR g
   4(5) VAR m
-  10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
 19(20) READ s
-  2(3) VAR g
   4(5) VAR m
-  10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
 20(21) READ %
-  2(3) VAR g
   4(5) VAR m
-  10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
 21(22) READ m
-  2(3) VAR g
   4(5) VAR m
-  10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
 22(13) WRITE m
-  2(3) VAR g
-  4(5) VAR m
-  10(11) WRITE g
-  12(14) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -129,7 +113,7 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m
@@ -137,7 +121,7 @@ g
   2(3) VAR g
   4(5) VAR m
   10(11) WRITE g
-  12(14) WRITE m
+  12(13) WRITE m
   16(17) VAR s
   18(19) WRITE g
   22(13) WRITE m

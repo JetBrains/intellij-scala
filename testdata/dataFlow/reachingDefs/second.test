@@ -1,0 +1,13 @@
+var a = 5
+a = 6
+a = 7
+-----
+0(1) element: None
+1(2) VAR a
+  1(2) VAR a
+2(3) WRITE a
+  2(3) WRITE a
+3(4) WRITE a
+  3(4) WRITE a
+4() element: None
+  3(4) WRITE a
