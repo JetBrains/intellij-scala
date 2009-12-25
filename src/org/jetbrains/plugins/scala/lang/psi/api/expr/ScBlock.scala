@@ -12,7 +12,7 @@ import impl.ScalaPsiElementFactory
  * @author ilyas
  */
 
-trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder with ScControlFlowOwner {
+trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
   def isAnonymousFunction: Boolean = false
 

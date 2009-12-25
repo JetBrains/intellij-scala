@@ -1,0 +1,10 @@
+def foo(cond: Boolean, a: Int) =
+  <selection>if (cond) cond else  {a = 42; a}</selection>
+-----
+0(1) element: None
+1(2) element: IfStatement
+2(3,4) READ cond
+3(6) READ cond
+4(5) WRITE a
+5(6) READ a
+6() element: None
