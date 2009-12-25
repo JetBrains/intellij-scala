@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 * Time: 9:49:36
 */
 
-trait ScFunctionDefinition extends ScFunction {
+trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def body: Option[ScExpression]
 

@@ -5,11 +5,11 @@ import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import scala.collection.mutable.ListBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction, ScVariableDefinition, ScPatternDefinition}
 
 /**
  * @author ilyas
@@ -125,6 +125,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitReferenceExpression(ref: ScReferenceExpression) = {
+    visitExpression(ref)
     ref.qualifier match {
       case None => {
         val instr = new ReadWriteVariableInstruction(inc, ref, ScalaPsiUtil.isLValue(ref))
@@ -136,6 +137,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitAssignmentStatement(stmt: ScAssignStmt) {
+    visitExpression(stmt)
     val lValue = stmt.getLExpression
     stmt.getRExpression match {
       case Some(rv) => {
@@ -147,12 +149,13 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitDoStatement(stmt: ScDoStmt) = {
+    visitExpression(stmt)
     startNode(Some(stmt)) {i =>
       stmt.getExprBody map {e =>
         e.accept(this)
         addPendingEdge(stmt, myHead)
       }
-      stmt.condition map { c =>
+      stmt.condition map {c =>
         c.accept(this)
         if (myHead != null) {
           addEdge(myHead, i)
@@ -200,6 +203,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitWhileStatement(ws: ScWhileStmt) = {
+    visitExpression(ws)
     startNode(Some(ws)) {instr =>
       checkPendingEdges(instr)
       // for breaks
@@ -216,6 +220,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitMethodCallExpression(call: ScMethodCall) = {
+    visitExpression(call)
     for (arg <- call.argumentExpressions) arg.accept(this)
     val receiver = call.getInvokedExpr
     if (receiver != null) {
@@ -252,6 +257,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitForExpression(expr: ScForStatement) = {
+    visitExpression(expr)
     expr.enumerators match {
       case Some(enum) => enum.accept(this)
       case _ =>
@@ -264,41 +270,43 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {
-    startNode(Some(stmt)) { instr =>
-        stmt.condition match {
-          case Some(cond) => {
-            cond.accept(this)
-          }
-          case None =>
+    visitExpression(stmt)
+    startNode(Some(stmt)) {instr =>
+      stmt.condition match {
+        case Some(cond) => {
+          cond.accept(this)
         }
+        case None =>
+      }
 
-        // reduced if-then expression (without `else`)
-        stmt.elseBranch match {
-          case None => addPendingEdge(stmt, myHead)
-          case _ =>
-        }
+      // reduced if-then expression (without `else`)
+      stmt.elseBranch match {
+        case None => addPendingEdge(stmt, myHead)
+        case _ =>
+      }
 
-        val head = myHead
-        stmt.thenBranch match {
-          case Some(tb) => {
-            tb.accept(this)
-            // the context will be refined later
-            addPendingEdge(stmt, myHead)
-          }
-          case None =>
+      val head = myHead
+      stmt.thenBranch match {
+        case Some(tb) => {
+          tb.accept(this)
+          // the context will be refined later
+          addPendingEdge(stmt, myHead)
         }
-        stmt.elseBranch match {
-          case Some(eb) => {
-            myHead = head
-            eb.accept(this)
-            addPendingEdge(stmt, myHead)
-          }
-          case _ =>
+        case None =>
+      }
+      stmt.elseBranch match {
+        case Some(eb) => {
+          myHead = head
+          eb.accept(this)
+          addPendingEdge(stmt, myHead)
         }
+        case _ =>
+      }
     }
   }
 
   override def visitReturnStatement(ret: ScReturnStmt) {
+    visitExpression(ret)
     val isNodeNeeded = myHead == null || (myHead.element match {
       case Some(e) => e != ret
       case None => false
@@ -313,4 +321,22 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     else addPendingEdge(null, myHead)
     interruptFlow
   }
+
+  override def visitExpression(expr: ScExpression) {
+    // Handle methods and functions' parameters
+/*
+    expr.getParent match {
+    // Function definition body
+      case fe: ScFunctionDefinition => for (p <- fe.parameters)
+        addNode(new DefineValueInstruction(inc, p, false))
+      case _ =>
+    }
+*/
+  }
+
+  override def visitFunctionExpression(stmt: ScFunctionExpr) = { /* Do not visit closures */ }
+  override def visitTypeDefintion(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
+  override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
+
+
 }

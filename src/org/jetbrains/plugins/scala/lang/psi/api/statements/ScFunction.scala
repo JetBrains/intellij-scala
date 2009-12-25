@@ -18,6 +18,7 @@ import psi.stubs.ScFunctionStub
 import types._
 import nonvalue.{TypeParameter, ScTypePolymorphicType, NonValueType, ScMethodType}
 import result.{Failure, Success, TypingContext, TypeResult}
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -123,4 +124,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Does the function have `=` between the signature and the implementation?
    */
   def hasAssign: Boolean
+
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitFunction(this)
 }

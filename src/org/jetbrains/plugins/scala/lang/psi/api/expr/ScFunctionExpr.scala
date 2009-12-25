@@ -4,15 +4,14 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
-* Date: 06.03.2008
 */
 
-trait ScFunctionExpr extends ScExpression {
+trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
   def parameters: Seq[ScParameter]
 
@@ -20,4 +19,5 @@ trait ScFunctionExpr extends ScExpression {
 
   def result: Option[ScExpression]
 
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitFunctionExpression(this)
 }

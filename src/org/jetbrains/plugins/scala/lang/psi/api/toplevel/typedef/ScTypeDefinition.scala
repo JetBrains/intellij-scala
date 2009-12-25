@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import types.{PhysicalSignature, Signature, ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -33,4 +34,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def signaturesByName(name: String): Iterable[PhysicalSignature]
 
   def isPackageObject = false
+
+  override def accept(visitor: ScalaElementVisitor) = visitor.visitTypeDefintion(this)
 }

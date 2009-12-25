@@ -29,16 +29,6 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
   override def toString: String = "BlockOfExpressions"
 
-  private var myControlFlow : Seq[Instruction] = null
-
-  def getControlFlow = {
-    if (myControlFlow != null) {
-      val builder = new ScalaControlFlowBuilder(null, null)
-      myControlFlow = builder.buildControlflow(this)
-    }
-    myControlFlow
-  }
-
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     if (isAnonymousFunction) {
       return expectedType match {
