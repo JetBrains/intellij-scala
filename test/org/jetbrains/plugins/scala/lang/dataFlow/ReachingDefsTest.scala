@@ -40,7 +40,7 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
 
     import ReachingDefinitions._
 
-    val engine = new DfaEngine(instructions, new ReachingDefinitionsInstance, new ReachingDefinitionsLattice)
+    val engine = new DfaEngine(instructions, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val markup: Map[Instruction, Set[Instruction]] = engine.performDFA
 
     val cf: String = dumpDataFlow(markup)

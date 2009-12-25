@@ -17,7 +17,7 @@ object ReachingDefinitions {
    */
   type A = Set[Instruction]
 
-  class ReachingDefinitionsInstance extends DfaInstance[A] {
+  object ReachingDefinitionsInstance extends DfaInstance[A] {
     def isForward = true
     val fun = (i: Instruction) => (a: A) => i match {
       case dv: DefineValueInstruction => a + dv
@@ -36,7 +36,7 @@ object ReachingDefinitions {
     }
   }
 
-  class ReachingDefinitionsLattice extends Semilattice[A] {
+  object ReachingDefinitionsLattice extends Semilattice[A] {
     val bottom: A = Set()
 
     def join(ins: Iterable[A]) = ins.foldLeft(bottom)(_ ++ _)
