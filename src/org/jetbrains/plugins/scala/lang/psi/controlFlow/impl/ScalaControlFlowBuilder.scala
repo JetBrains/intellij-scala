@@ -26,10 +26,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   def buildControlflow(scope: ScalaPsiElement): Seq[Instruction] = {
     // initial node
-    startNode(None) {
-      instr =>
-        scope.accept(this)
-    }
+    val instr = new InstructionImpl(inc, None)
+    addNode(instr)
+    scope.accept(this)
     // final node
     emptyNode()
     myInstructions.toSeq
@@ -100,7 +99,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myPending.insert(Math.max(index, 0), (instruction, scopeWhenAdded))
   }
 
-  private def flowInterrupted = myHead = null
+  private def interruptFlow = myHead = null
 
   /**************************************
    * VISITOR METHODS
@@ -159,7 +158,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
           addEdge(myHead, i)
         }
       }
-      flowInterrupted
+      interruptFlow
     }
   }
 
@@ -212,7 +211,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       checkPendingEdges(instr)
       // add backward edge
       if (myHead != null) addEdge(myHead, instr)
-      flowInterrupted
+      interruptFlow
     }
   }
 
@@ -297,5 +296,21 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
           case _ =>
         }
     }
+  }
+
+  override def visitReturnStatement(ret: ScReturnStmt) {
+    val isNodeNeeded = myHead == null || (myHead.element match {
+      case Some(e) => e != ret
+      case None => false
+    })
+    ret.expr match {
+      case Some(e) => e.accept(this)
+      case None =>
+    }
+    if (isNodeNeeded) startNode(Some(ret)) {rs =>
+      addPendingEdge(null, myHead)
+    }
+    else addPendingEdge(null, myHead)
+    interruptFlow
   }
 }
