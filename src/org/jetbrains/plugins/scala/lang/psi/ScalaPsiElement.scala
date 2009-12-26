@@ -38,6 +38,16 @@ trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTr
     if (node == null) null else node.getPsi
   }
 
+  def findChildrenByType(t: IElementType): List[PsiElement] = {
+    val buffer = new collection.mutable.ArrayBuffer[PsiElement]
+    var node = getNode.getFirstChildNode
+    while (node != null) {
+      if (node.getElementType == t) buffer += node.getPsi
+      node = node.getTreeNext
+    }
+    buffer.toList
+  }
+
   def findLastChildByType(set: TokenSet) = {
     var node = getNode.getLastChildNode
     while (node != null && !set.contains(node.getElementType)) {

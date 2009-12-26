@@ -91,6 +91,9 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                     param.viewBound foreach {
                       (tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
                     }
+                    param.contextBound foreach {
+                      (tp: ScType) => paramText = paramText + " : " + ScType.presentableText(substitutor.subst(tp))
+                    }
                     if (isBold) "<b>" + paramText + "</b>" else paramText
                   }).mkString(", "))
                 }

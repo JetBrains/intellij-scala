@@ -1,0 +1,55 @@
+class MultipleBounds[M <: A <% B <% C : D : E]
+
+-----
+ScalaFile
+  ScClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MultipleBounds')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter
+        PsiElement(identifier)('M')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<%)('<%')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('B')
+        PsiWhiteSpace(' ')
+        PsiElement(<%)('<%')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('D')
+        PsiWhiteSpace(' ')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleTypeElement
+          CodeReferenceElement
+            PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiElement(newline)('\n')

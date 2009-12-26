@@ -9,12 +9,12 @@ import lexer.ScalaTokenTypes
 import types.Type
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 06.03.2008
+ */
 
 /*
- * TypeParam ::= (id | '_') [TypeParamClause] ['>:' Type] ['<:' Type] ['<%' Type]
+ * TypeParam ::= (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
  */
 
 object TypeParam {
@@ -41,28 +41,25 @@ object TypeParam {
       }
       case _ =>
     }
-    builder.getTokenText match {
-      case ">:" => {
-        builder.advanceLexer
-        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
-      }
-      case _ =>
-    }
-    builder.getTokenText match {
-      case "<:" => {
-        builder.advanceLexer
-        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
-      }
-      case _ =>
-    }
-    builder.getTokenText match {
-      case "<%" | ":" => {
-        builder.advanceLexer
-        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
-      }
-      case _ =>
-    }
+
+    val boundParser = parseBound(builder) _
+    boundParser(">:")
+    boundParser("<:")
+    while (boundParser("<%")) {}
+    while (boundParser(":")) {}
+
     paramMarker.done(ScalaElementTypes.TYPE_PARAM)
     return true
+  }
+
+  def parseBound(builder: PsiBuilder)(bound: String): Boolean = {
+    builder.getTokenText match {
+      case x if x == bound => {
+        builder.advanceLexer
+        if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
+        true
+      }
+      case _ => false
+    }
   }
 }

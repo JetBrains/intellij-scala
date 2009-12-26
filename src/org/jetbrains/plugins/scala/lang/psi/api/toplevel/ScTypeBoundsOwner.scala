@@ -12,9 +12,11 @@ import types.result.TypeResult
 trait ScTypeBoundsOwner extends ScalaPsiElement {
   def lowerBound: TypeResult[ScType]
   def upperBound: TypeResult[ScType]
-  def viewBound: Option[ScType] = None
+  def viewBound: List[ScType] = Nil
+  def contextBound: List[ScType] = Nil
 
   def upperTypeElement: Option[ScTypeElement] = None
   def lowerTypeElement: Option[ScTypeElement] = None
-  def viewTypeElement: Option[ScTypeElement] = None
+  def viewTypeElement: List[ScTypeElement] = Nil
+  def contextBoundTypeElement: List[ScTypeElement] = Nil
 }

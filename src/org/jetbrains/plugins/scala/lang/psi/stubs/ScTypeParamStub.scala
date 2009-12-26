@@ -17,8 +17,10 @@ import types.ScType
 trait ScTypeParamStub extends NamedStub[ScTypeParam]{
   def getUpperText: String
   def getLowerText: String
-  def getViewText: String
+  def getViewText: Array[String]
+  def getContextBoundText: Array[String]
   def getUpperTypeElement: Option[ScTypeElement]
   def getLowerTypeElement: Option[ScTypeElement]
-  def getViewTypeElement: Option[ScTypeElement] 
+  def getViewTypeElement: Array[ScTypeElement]
+  def getContextBoundTypeElement: Array[ScTypeElement]
 }

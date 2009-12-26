@@ -3,10 +3,11 @@ package psi
 
 import api.statements.params._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import types.{ScParameterizedType, ScType, ScSubstitutor}
+import refactoring.util.ScTypeUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -46,6 +47,9 @@ object PresentationUtil {
         param.viewBound foreach {
           (tp: ScType) => paramText = paramText + " <% " + presentationString(tp, substitutor)
         }
+        param.contextBound foreach {
+          (tp: ScType) => paramText = paramText + " : " + presentationString(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)), substitutor)
+        }        
         paramText
       }
       case params: PsiParameterList => {
