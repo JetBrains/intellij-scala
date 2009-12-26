@@ -25,21 +25,24 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   private var name: StringRef = _
   private var upperText: StringRef = _
   private var lowerText: StringRef = _
-  private var viewText: StringRef = _
+  private var viewText: Array[StringRef] = _
+  private var contextBoundText: Array[StringRef] = _
   private var upperElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var lowerElement: PatchedSoftReference[Option[ScTypeElement]] = null
-  private var viewElement: PatchedSoftReference[Option[ScTypeElement]] = null
+  private var viewElement: Array[PatchedSoftReference[ScTypeElement]] = null
+  private var contextBoundElement: Array[PatchedSoftReference[ScTypeElement]] = null
 
   def getName: String = StringRef.toString(name)
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, upperText: String, lowerText: String, viewText: String) {
+          name: String, upperText: String, lowerText: String, viewText: Array[String], contextBoundText: Array[String]) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.upperText = StringRef.fromString(upperText)
     this.lowerText = StringRef.fromString(lowerText)
-    this.viewText = StringRef.fromString(viewText)
+    this.viewText = viewText.map(StringRef.fromString(_))
+    this.contextBoundText = contextBoundText.map(StringRef.fromString(_))
   }
 
   def getUpperText: String = upperText.toString
@@ -68,16 +71,21 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   def getLowerText: String = lowerText.toString
 
-  def getViewText: String = viewText.toString
+  def getViewText: Array[String] = viewText.map(_.toString)
 
-  def getViewTypeElement: Option[ScTypeElement] = {
-    if (viewElement != null && viewElement.get != null) return viewElement.get
-    val res: Option[ScTypeElement] = {
-      if (getViewText != "")
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getViewText, getPsi))
-      else None
-    }
-    viewElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+  def getContextBoundText: Array[String] = contextBoundText.map(_.toString)
+
+  def getViewTypeElement: Array[ScTypeElement] = {
+    if (viewElement != null && viewElement.forall(_.get ne null)) return viewElement.map(_.get)
+    val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi))
+    viewElement = res.map(new PatchedSoftReference[ScTypeElement](_))
+    return res
+  }
+
+  def getContextBoundTypeElement: Array[ScTypeElement] = {
+    if (contextBoundElement != null && contextBoundElement.forall(_.get ne null)) return contextBoundElement.map(_.get)
+    val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi))
+    contextBoundElement = res.map(new PatchedSoftReference[ScTypeElement](_))
     return res
   }
 }

@@ -16,14 +16,16 @@ import lang.psi.api.toplevel._
 import lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 
-import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import lang.psi.types._
 import util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import search.searches.SuperMethodsSearch
 import com.intellij.openapi.project.IndexNotReadyException
+import lang.psi.{PresentationUtil, ScalaPsiUtil}
+import org.apache.commons.lang.StringEscapeUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -73,7 +75,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           if (lastIndexOf >= 0) qualName.substring(0, lastIndexOf) else ""
         }
 
-        if (pack != "") buffer.append("<font size=\"-1\"><b>" + pack + "</b></font>")
+        if (pack != "") buffer.append("<font size=\"-1\"><b>" + escapeHtml(pack) + "</b></font>")
 
 
         buffer.append("<PRE>")
@@ -85,7 +87,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           case _: ScObject => "object "
           case _: ScTrait => "trait "
         })
-        buffer.append("<b>" + clazz.name + "</b>")
+        buffer.append("<b>" + escapeHtml(clazz.name) + "</b>")
         buffer.append(parseTypeParameters(clazz))
         val end = buffer.length
         clazz match {
@@ -107,7 +109,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         val start = buffer.length
         buffer.append(parseModifiers(fun))
         buffer.append("def ")
-        buffer.append("<b>" + fun.name + "</b>")
+        buffer.append("<b>" + escapeHtml(fun.name) + "</b>")
         buffer.append(parseTypeParameters(fun))
         val end = buffer.length
         buffer.append(parseParameters(fun, ScType.urlText(_), end - start - 7))
@@ -123,7 +125,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         decl match {case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an, ScType.urlText(_))) case _ =>}
         decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
         buffer.append(decl match {case _: ScValue => "val " case _: ScVariable => "var " case _ => ""})
-        buffer.append("<b>" + (element match {case named: ScNamedElement => named.name case _ => "unknown"}) + "</b>")
+        buffer.append("<b>" + (element match {case named: ScNamedElement => escapeHtml(named.name) case _ => "unknown"}) + "</b>")
         buffer.append(element match {case typed: ScTypedDefinition => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"} )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
@@ -139,7 +141,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
           case c: ScClassParameter if c.isVar => "var "
           case _ => ""
         })
-        buffer.append("<b>" + param.name + "</b>")
+        buffer.append("<b>" + escapeHtml(param.name) + "</b>")
         buffer.append(parseType(param, ScType.urlText(_)))
         return "<html><body>" + buffer.toString + "</body></html>"
       }
@@ -150,7 +152,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         buffer.append("<PRE>")
         buffer.append(parseAnnotations(typez, ScType.urlText(_)))
         buffer.append(parseModifiers(typez))
-        buffer.append("type <b>" + typez.name + "</b>")
+        buffer.append("type <b>" + escapeHtml(typez.name) + "</b>")
         typez match {
           case definition: ScTypeAliasDefinition =>
             buffer.append(" = " +
@@ -180,7 +182,7 @@ object ScalaDocumentationProvider {
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
     if (clazz == null) return ""
-    return "<a href=\"psi_element://" + clazz.getQualifiedName + "\"><code>" + clazz.getQualifiedName + "</code></a>"
+    return "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" + escapeHtml(clazz.getQualifiedName) + "</code></a>"
   }
 
   private def parseParameters(elem: ScParameterOwner, typeToString: ScType => String, spaces: Int): String = {
@@ -203,7 +205,7 @@ object ScalaDocumentationProvider {
       case c: ScClassParameter if c.isVar => "var "
       case _ => ""
     })
-    buffer.append(param.name)
+    buffer.append(escapeHtml(param.name))
     buffer.append(parseType(param, typeToString))
     if (param.isRepeatedParameter) buffer.append("*")
     if (param.isDefaultParam) {
@@ -223,7 +225,8 @@ object ScalaDocumentationProvider {
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
     val typeParameters = elems.typeParameters
-    if (typeParameters.length > 0)typeParameters.map(_.name).mkString("[", ", ", "]")
+    // todo hyperlink identifiers in type bounds
+    if (typeParameters.length > 0) escapeHtml(typeParameters.map(PresentationUtil.presentationString(_)).mkString("[", ", ", "]"))
     else ""
   }
 
@@ -252,9 +255,9 @@ object ScalaDocumentationProvider {
       case null => ""
       case ref => ref.resolve match {
         case clazz: PsiClass => "[<a href=\"psi_element://" +
-                clazz.getQualifiedName + "\"><code>" +
+                escapeHtml(clazz.getQualifiedName) + "\"><code>" +
                 (x.id match {case Some(x) => x.getText case None => ""}) + "</code></a>]"
-        case pack: PsiPackage => "[" + pack.getQualifiedName + "]"
+        case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
         case _ => x.id match {case Some(x) => "[" + x.getText + "]" case None => ""}
       }
     }) + " "
@@ -281,7 +284,9 @@ object ScalaDocumentationProvider {
       val attributes = elem.attributes
       s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
       if (attributes.length > 0) {
-        val array = attributes.map("val " + _.name)
+        val array = attributes.map {
+          ne: ScNamedElement => "val " + escapeHtml(ne.name)
+        }
         s += array.mkString("{","; ","}")
       }
       return s
@@ -295,7 +300,7 @@ object ScalaDocumentationProvider {
 
   private def parseDocComment(elem: PsiDocCommentOwner, withDescription: Boolean = false): String = {
     def getParams(fun: ScFunction): String = {
-      fun.parameters.map((param: ScParameter) => "int     " + param.name).mkString("(", ",\n", ")")
+      fun.parameters.map((param: ScParameter) => "int     " + escapeHtml(param.name)).mkString("(", ",\n", ")")
     }
     val comment = elem.getDocComment match {case null => None case x => Some(x)}
     comment match {
@@ -320,7 +325,7 @@ object ScalaDocumentationProvider {
         }
         val (s1, s2) = elem.getContainingClass match {
           case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
-                  e.getQualifiedName + "\"><code>" + e.getName + "</code></a><p>", "</p>")
+                  escapeHtml(e.getQualifiedName) + "\"><code>" + escapeHtml(e.getName) + "</code></a><p>", "</p>")
           case _ => ("", "")
         }
         return s1 + (elem match {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.result
 
 import com.intellij.psi.PsiElement
+import scala.None
 
 /**
  * @author ilyas
@@ -15,6 +16,7 @@ sealed abstract class TypeResult[+T] {
   def get: T
   def isEmpty : Boolean
   def getOrElse[U >: T](default: => U): U = if (isEmpty) default else this.get
+  def toOption: Option[T] = if (isEmpty) None else Some(this.get)
 
   def apply(fail: Failure): TypeResult[T]
   def isCyclic: Boolean

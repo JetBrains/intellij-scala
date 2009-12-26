@@ -8,7 +8,8 @@ import psi.api.ScalaFile
 import scaladoc.psi.api.ScDocComment
 import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
-import com.intellij.formatting._;
+import com.intellij.formatting._
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
@@ -91,6 +92,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
+      }
+      val tp = PsiTreeUtil.getParentOfType(left.getPsi, classOf[ScTypeParam])
+      if (tp ne null) {          
+          return if (tp.nameId.getNode eq left) WITHOUT_SPACING else WITH_SPACING
       }
       return if (left.getElementType == ScalaTokenTypes.tIDENTIFIER &&
               !getText(left, fileText).matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
