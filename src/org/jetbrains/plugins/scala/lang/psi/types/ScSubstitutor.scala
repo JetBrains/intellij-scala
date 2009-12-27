@@ -48,7 +48,12 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
   def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap,
     if (follower != null) follower followed s else s)
 
-  def subst(t: ScType): ScType = if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
+  def subst(t: ScType): ScType = try {
+    if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
+  }
+  catch {
+    case s: StackOverflowError => throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
+  }
 
   protected def substInternal(t: ScType) : ScType = t match {
     case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), 
