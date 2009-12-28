@@ -3,11 +3,12 @@ def foo(i: Int) = {
   var k = 7
   <selection>
   println(i + k)
+  val r = 6
   val a = 5
   k = 8
   println(k + a)
   </selection>
-  println(k)
+  println(k + r)
 }
 -----
 INPUT:
@@ -15,3 +16,4 @@ Parameter : i
 ReferencePattern : k
 OUTPUT:
 ReferencePattern : k
+ReferencePattern : r
