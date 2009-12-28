@@ -64,5 +64,4 @@ class ReachingDefsTest extends LightCodeInsightFixtureTestCase {
   def testFirst = doTest
   def testSecond = doTest
 
-
 }

@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScControlFlowOwner
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ReadWriteVariableInstruction
-import com.incors.plaf.alloy.ch
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * @author ilyas
@@ -23,31 +22,30 @@ object ReachingDefintionsCollector {
    * @param scope since Extract Method refactoring is in fact RDC's main client, it should define a scope
    *              where to look for captured variables 
    */
-  def collectVariableInfo(elements: Seq[ScalaPsiElement], scope: ScalaPsiElement): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], scope: ScalaPsiElement): FragmentVariableInfos = {
     import PsiTreeUtil._
     val commonParent = findCommonParent(elements: _*)
     val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
     val cfg = cfowner.getControlFlow
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfa = engine.performDFA
-    val isInFragment = elementToScopeMapper(elements)
+    val isInFragment = elementToFragmentMapper(elements)
+    val isInScope = elementToScopeMapper(scope)
 
-    // for every READ, define is it's definition in scope
-    val fragmentNodes = filterByFragment(cfg, isInFragment)
-    val inputInfos = getInputInfo(fragmentNodes, scope, isInFragment)
+    // for every reference element, define is it's definition in scope
+    val inputInfos = getInputInfo(elements, isInFragment, isInScope)
+    val fragmentInstructions = filterByFragment(cfg, isInFragment)
 
     // for every WRITE or VAL define, if it escapes `elements' or not
+    val outputInfos = Nil
+
     // take into account scope
     // todo implement
 
-
-    new FragmentVariableInfos {
-      def inputVariables = inputInfos
-      def outputVariables: Iterable[VariableInfo] = null // todo implement me!
-    }
+    FragmentVariableInfos(inputInfos, outputInfos)
   }
 
-  def elementToScopeMapper(elements: Seq[ScalaPsiElement]) = new ((PsiElement) => Boolean) {
+  private def elementToFragmentMapper(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
     import collection.mutable._
     def elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
 
@@ -60,44 +58,59 @@ object ReachingDefintionsCollector {
             return true
           }
         }
+        elem2Outer + (elem -> false)
         false
       }
     })
   }
 
-  def filterByFragment(cfg: Seq[Instruction], checker: (PsiElement) => Boolean) = cfg.filter(i =>
+  private def elementToScopeMapper(scope: ScalaPsiElement) = new ((PsiElement) => Boolean) {
+    import collection.mutable._
+    def elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
+
+    def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
+      case Some(b) => b
+      case None => {
+        val b = PsiTreeUtil.findCommonParent(elem, scope) eq scope
+        elem2Outer + (elem -> b)
+        b
+      }
+    })
+  }
+
+  private def filterByFragment(cfg: Seq[Instruction], checker: (PsiElement) => Boolean) = cfg.filter(i =>
     i.element match {
       case None => false
       case Some(e) => checker(e)
     })
 
-  def getInputInfo(cfg: Seq[Instruction],
-                   scope: ScalaPsiElement, 
-                   checker: (PsiElement) => Boolean): Iterable[VariableInfo] = {
-    val infos = new ArrayBuffer[VariableInfo]
-    cfg.foreach(i => i match {
-        case ReadWriteVariableInstruction(_, ref, _) => {
-          ref.resolve match {
-            case elem: PsiNamedElement => if (checker(elem) && (PsiTreeUtil.findCommonParent(elem, scope) eq scope)) {
-              infos + new VariableInfo { def element = elem }
-            }
-            case _ =>
-          }
+  private def getInputInfo(elements: Seq[PsiElement],
+                           isInFragment: (PsiElement) => Boolean,
+                           isInScope: (PsiElement) => Boolean): Iterable[VariableInfo] = {
+    val inputDefs = new ArrayBuffer[VariableInfo]
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitReference(ref: ScReferenceElement) {
+        val element = ref.resolve
+        element match {
+          case named: PsiNamedElement
+            if !isInFragment(named) && isInScope(named) && !inputDefs.contains(VariableInfo(named)) =>
+            inputDefs + VariableInfo(named)
+          case _ =>
         }
-        case _ =>
-      })
-    infos
+      }
+    }
+    for (e <- elements if e.isInstanceOf[ScalaPsiElement]) e.asInstanceOf[ScalaPsiElement].accept(visitor)
+    inputDefs.toSeq
   }
 
 
 }
 
-trait FragmentVariableInfos {
-  def inputVariables: Iterable[VariableInfo]
+case class FragmentVariableInfos(inputVariables: Iterable[VariableInfo],
+                                 outputVariables: Iterable[VariableInfo])
 
-  def outputVariables: Iterable[VariableInfo]
+object FragmentVariableInfos {
+  def empty = FragmentVariableInfos(Nil, Nil)
 }
 
-trait VariableInfo {
-  def element: PsiNamedElement
-}
+case class VariableInfo(element: PsiNamedElement)
