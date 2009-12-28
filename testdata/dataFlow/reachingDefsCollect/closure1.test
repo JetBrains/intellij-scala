@@ -1,0 +1,24 @@
+def foo(i: Int) {
+  println(i)
+  var k = 5
+  var j = 7
+  <selection>
+  def bar(j: Int) = {
+    println(i + j)
+    if (j > 0) {
+     k = 6
+    } else {}
+    println(k)
+  }
+  j = 9
+  print(bar(7))
+  </selection>
+  println(k + j)
+}
+-----
+INPUT:
+Parameter : i
+ReferencePattern : k
+ReferencePattern : j
+OUTPUT:
+ReferencePattern : j

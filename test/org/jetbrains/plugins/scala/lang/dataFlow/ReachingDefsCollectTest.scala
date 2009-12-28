@@ -9,7 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.{LightScalaTestCase, ScalaFileType}
 
 /**
@@ -58,6 +57,7 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
   }
 
   def testSimpleFragment = doTest
+  def testClosure1 = doTest
 
 
 }
