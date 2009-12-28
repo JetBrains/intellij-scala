@@ -304,8 +304,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   private var myControlFlow : Seq[Instruction] = null
 
-  def getControlFlow = {
-    if (myControlFlow == null) {
+  def getControlFlow(cached: Boolean) = {
+    if (!cached || myControlFlow == null) {
       val builder = new ScalaControlFlowBuilder(null, null)
       myControlFlow = builder.buildControlflow(this)
     }
