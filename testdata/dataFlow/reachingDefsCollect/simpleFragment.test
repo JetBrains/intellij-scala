@@ -1,0 +1,17 @@
+def foo(i: Int) = {
+  val j = 5
+  var k = 7
+  <selection>
+  println(i + k)
+  val a = 5
+  k = 8
+  println(k + a)
+  </selection>
+  println(k)
+}
+-----
+INPUT:
+Parameter : i
+ReferencePattern : k
+OUTPUT:
+ReferencePattern : k
