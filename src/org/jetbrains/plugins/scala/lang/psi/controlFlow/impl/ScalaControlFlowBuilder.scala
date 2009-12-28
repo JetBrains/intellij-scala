@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction, ScVariableDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition}
 
 /**
  * @author ilyas
@@ -351,5 +351,10 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     }
     else addPendingEdge(null, myHead)
     interruptFlow
+  }
+
+
+  override def visitTryExpression(tryStmt: ScTryStmt) = {
+    //todo implement me!
   }
 }

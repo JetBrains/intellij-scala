@@ -118,8 +118,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
   private var myControlFlow: Seq[Instruction] = null
 
-  def getControlFlow = {
-    if (myControlFlow == null) body match {
+  def getControlFlow(cached: Boolean) = {
+    if (!cached || myControlFlow == null) body match {
       case Some(e) => {
         val builder = new ScalaControlFlowBuilder(null, null)
         myControlFlow = builder.buildControlflow(e)

@@ -33,7 +33,7 @@ object ReachingDefintionsCollector {
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
     val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
-    val cfg = cfowner.getControlFlow
+    val cfg = cfowner.getControlFlow(true)
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 

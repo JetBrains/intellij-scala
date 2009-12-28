@@ -52,8 +52,8 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   private var myControlFlow: Seq[Instruction] = null
 
-  def getControlFlow = {
-    if (myControlFlow == null) result match {
+  def getControlFlow(cached: Boolean) = {
+    if (!cached || myControlFlow == null) result match {
       case Some(e) => {
         val builder = new ScalaControlFlowBuilder(null, null)
         myControlFlow = builder.buildControlflow(e)

@@ -5,6 +5,7 @@ import collection.mutable.{HashSet, HashMap}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.util.{PsiTreeUtil}
+import controlFlow.ControlFlowInspections
 import highlighter.{AnnotatorHighlighter}
 import importsTracker._
 import lang.lexer.ScalaTokenTypes
@@ -46,8 +47,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, Fu
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator {
-  def annotate(element: PsiElement, holder: AnnotationHolder) {
+class ScalaAnnotator extends Annotator
+        with ControlFlowInspections {
+  override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.getNode.getFirstChildNode == null && element.getTextRange.getStartOffset == 0) {
       val sFile = element.getContainingFile.asInstanceOf[ScalaFile]
       ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
@@ -96,6 +98,8 @@ class ScalaAnnotator extends Annotator {
       }
       case _ => AnnotatorHighlighter.highlightElement(element, holder)
     }
+
+    super[ControlFlowInspections].annotate(element, holder)
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
