@@ -9,13 +9,14 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
 
 /**
  * @author ilyas
  */
 
 object ReachingDefintionsCollector {
-  import ReachingDefinitions._
+  import ReachingDefinitions.{A => RDSet, _}
 
   /**
    * @param elements a fragment to analyze
@@ -24,20 +25,26 @@ object ReachingDefintionsCollector {
    */
   def collectVariableInfo(elements: Seq[PsiElement], scope: ScalaPsiElement): FragmentVariableInfos = {
     import PsiTreeUtil._
+    val isInFragment = elementToFragmentMapper(elements)
+    val isInScope = elementToScopeMapper(scope)
+    // for every reference element, define is it's definition in scope
+    val inputInfos = getInputInfo(elements, isInFragment, isInScope)
+
+    // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
     val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
     val cfg = cfowner.getControlFlow
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
-    val dfa = engine.performDFA
-    val isInFragment = elementToFragmentMapper(elements)
-    val isInScope = elementToScopeMapper(scope)
+    val dfaResult = engine.performDFA
 
-    // for every reference element, define is it's definition in scope
-    val inputInfos = getInputInfo(elements, isInFragment, isInScope)
+    // instructions in given fragment
     val fragmentInstructions = filterByFragment(cfg, isInFragment)
 
     // for every WRITE or VAL define, if it escapes `elements' or not
-    val outputInfos = Nil
+    // i.e. if there instructions with greater numbers, which are "reached" by WRITE
+    // instructions from the fragment
+
+    val outputInfos = computeOutputVariables(fragmentInstructions, dfaResult)
 
     // take into account scope
     // todo implement
@@ -87,20 +94,40 @@ object ReachingDefintionsCollector {
   private def getInputInfo(elements: Seq[PsiElement],
                            isInFragment: (PsiElement) => Boolean,
                            isInScope: (PsiElement) => Boolean): Iterable[VariableInfo] = {
-    val inputDefs = new ArrayBuffer[VariableInfo]
+    val inputDefs = new ArrayBuffer[PsiNamedElement]
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
         val element = ref.resolve
         element match {
           case named: PsiNamedElement
-            if !isInFragment(named) && isInScope(named) && !inputDefs.contains(VariableInfo(named)) =>
-            inputDefs + VariableInfo(named)
+            if !isInFragment(named) && isInScope(named) && !inputDefs.contains(named) =>
+            inputDefs + named
           case _ =>
         }
       }
     }
     for (e <- elements if e.isInstanceOf[ScalaPsiElement]) e.asInstanceOf[ScalaPsiElement].accept(visitor)
-    inputDefs.toSeq
+    inputDefs.map(VariableInfo(_))
+  }
+
+  def computeOutputVariables(innerInstructions: Seq[Instruction],
+                             dfaResult: scala.collection.mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
+    val buffer = new ArrayBuffer[PsiNamedElement]
+    for ((i@ReadWriteVariableInstruction(_, readRef, false), rdset) <- dfaResult if !innerInstructions.contains(i);
+         reaching <- rdset if innerInstructions.contains(reaching)) {
+      val definitionToRead = readRef.resolve
+      reaching match {
+        case DefineValueInstruction(_, named, _)
+          if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
+        case ReadWriteVariableInstruction(_, ref, true) => ref.resolve match {
+          case named: PsiNamedElement
+            if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
+          case _ =>
+        }
+        case _ =>
+      }
+    }
+    buffer.map(VariableInfo(_))
   }
 
 
