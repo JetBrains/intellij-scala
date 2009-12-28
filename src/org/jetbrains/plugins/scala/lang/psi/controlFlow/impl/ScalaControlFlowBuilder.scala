@@ -339,4 +339,17 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
 
 
+  override def visitThrowExpression(throwStmt: ScThrowStmt) = {
+    visitExpression(throwStmt)
+    val isNodeNeeded = myHead == null || (myHead.element match {
+      case Some(e) => e != throwStmt
+      case None => false
+    })
+    throwStmt.body.map(_.accept(this))
+    if (isNodeNeeded) startNode(Some(throwStmt)) {rs =>
+      addPendingEdge(null, myHead)
+    }
+    else addPendingEdge(null, myHead)
+    interruptFlow
+  }
 }

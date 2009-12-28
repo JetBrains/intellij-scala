@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
+ * @author ilyas
  * @author Alexander Podkhalyuzin
  */
 
@@ -51,4 +52,5 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitForExpression(expr: ScForStatement) { visitExpression(expr) }
   def visitDoStatement(stmt: ScDoStmt) { visitExpression(stmt) }
   def visitFunctionExpression(stmt: ScFunctionExpr) { visitExpression(stmt) }
+  def visitThrowExpression(throwStmt: ScThrowStmt) { visitExpression(throwStmt) }
 }
