@@ -56,6 +56,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testDoWhile1 = doTest
   def testReturn1 = doTest
   def testMethod1 = doTest
+  def testThrow1 = doTest
 
 }
 

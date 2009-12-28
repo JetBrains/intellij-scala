@@ -1,9 +1,15 @@
-if (true) return a else return b
+if (true) return a
+else {
+  return b
+  println(b)
+}
 -----
 0(1) element: None
 1(2,4) element: IfStatement
 2(3) READ a
-3(6) element: ReturnStatement
+3(8) element: ReturnStatement
 4(5) READ b
-5(6) element: ReturnStatement
-6() element: None
+5(8) element: ReturnStatement
+6(7) READ b
+7(8) READ println
+8() element: None
