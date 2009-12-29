@@ -4,23 +4,18 @@ package psi
 
 import api.base._
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
-import api.toplevel.packaging.{ScPackaging}
-import api.toplevel.templates.{ScExtendsBlock, ScTemplateParents, ScTemplateBody}
+import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef._
-import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import api.toplevel.{ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
-import api.ScalaFile
 import com.intellij.openapi.project.Project
 import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import api.statements._
 import com.intellij.psi._
-import com.intellij.psi.util.PsiFormatUtil
-import com.intellij.psi.util.PsiFormatUtilBase
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import params._
@@ -30,16 +25,56 @@ import patterns.{ScReferencePattern, ScCaseClause}
 import result.TypingContext
 import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import com.intellij.psi.stubs.StubElement
 import com.intellij.util.ArrayFactory
+import collection.mutable.ArrayBuffer
+import util.{PsiFormatUtil, PsiFormatUtilBase}
 
 /**
  * User: Alexander Podkhalyuzin
- * Date: 06.10.2008
  */
 
 object ScalaPsiUtil {
+  def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
+    val file = start.getContainingFile
+    if (file == null || file != end.getContainingFile) return Nil
+
+    val parents1 = getParents(start, file)
+    val parents2 = getParents(end, file)
+
+    def drop(l1: List[PsiElement], l2: List[PsiElement]): Option[(PsiElement, PsiElement)] =
+      (l1, l2) match {
+        case (h1 :: t1, h2 :: t2) if h1 eq h2 => drop(t1, t2)
+        case (h1 :: _, h2 :: _) => Some((h1, h2))
+        case _ => None
+      }
+
+    drop(parents1, parents2) match {
+      case Some((h1, h2)) => {
+        val buffer = new ArrayBuffer[PsiElement]
+        buffer + h1
+        var curr = h1.getNextSibling
+        while (curr != h2 && curr != null) {
+          buffer + curr
+          curr = curr.getNextSibling
+        }
+        if ((curr eq h2) && curr != null) {
+          buffer + h2
+        }
+        buffer.toSeq
+      }
+      case _ => Nil
+    }
+  }
+
+  def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {
+    def inner(parent: PsiElement, k: List[PsiElement] => List[PsiElement]): List[PsiElement] = {
+      if (parent != topLevel && parent != null)
+        inner(parent.getParent, {l => parent :: k(l)})
+      else k(Nil)
+    }
+    inner(elem, (l: List[PsiElement]) => l)
+  }
+
   def shouldCreateStub(elem: PsiElement): Boolean = {
     elem match {
       case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
@@ -74,7 +109,7 @@ object ScalaPsiUtil {
 
   def isLValue(elem: ScalaPsiElement) = elem match {
     case e: ScExpression => e.getParent match {
-      case as: ScAssignStmt => as.getLExpression eq e 
+      case as: ScAssignStmt => as.getLExpression eq e
       case _ => false
     }
     case _ => false

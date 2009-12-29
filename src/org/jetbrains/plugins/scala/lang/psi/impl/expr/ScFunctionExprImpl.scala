@@ -4,30 +4,22 @@ package psi
 package impl
 package expr
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import api.statements.params.{ScParameter, ScParameters}
-import types.{Nothing, ScFunctionType}
-import types.result.TypingContext;
+import types.result.TypingContext
+import psi.controlFlow.impl.ScalaControlFlowBuilder
+import psi.controlFlow.Instruction;
 import types._
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
+ * @author Alexander Podkhalyuzin
+ */
 
 class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionExpr {
-
   override def toString: String = "FunctionExpression"
 
   def parameters = params.params
@@ -37,11 +29,9 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def result = findChild(classOf[ScExpression])
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     result match {
       case Some(x) if x == lastParent => {
         for (p <- parameters) {
@@ -58,6 +48,19 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     wrap(result)(ScalaBundle.message("no.result.expression.found")) flatMap {r =>
       collectFailures(paramTypes, Nothing)(new ScFunctionType(r.getType(ctx).getOrElse(Any), _, getProject))
     }
+  }
+
+  private var myControlFlow: Seq[Instruction] = null
+
+  def getControlFlow(cached: Boolean) = {
+    if (!cached || myControlFlow == null) result match {
+      case Some(e) => {
+        val builder = new ScalaControlFlowBuilder(null, null)
+        myControlFlow = builder.buildControlflow(e)
+      }
+      case None =>
+    }
+    myControlFlow
   }
 
 }
