@@ -10,15 +10,16 @@ import psi.types._
 import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
-import toplevel.typedef.ScClass
 import expr._
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
-import lang.resolve.{StdKinds, MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 import statements.params.ScTypeParam
 import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
+import toplevel.typedef.{ScTypeDefinition, ScClass}
+import psi.impl.base.ScStableCodeReferenceElementImpl
+import lang.resolve._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,6 +69,21 @@ trait ScPattern extends ScalaPsiElement {
           }
         }
         res
+      }
+      case Some(ScalaResolveResult(_: ScBindingPattern, _)) => {
+        val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
+        val resolve = refImpl._resolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(false), ref.getContext match {
+          case inf: ScInfixPattern => inf.expectedType
+          case constr: ScConstructorPattern => constr.expectedType
+          case _ => None
+        }))
+        if (resolve.length != 1) None
+        else {
+          resolve(0) match {
+            case s: ScalaResolveResult => Some(s)
+            case _ => None
+          }
+        }
       }
       case m => m
     }
