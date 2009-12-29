@@ -376,6 +376,7 @@ object ScalaPsiUtil {
     PseudoPsiSubstitutor(subst)
   }
 
+  //todo: rewrite this!
   def needParentheses(from: ScExpression, expr: ScExpression): Boolean = {
     val parent = from.getParent
     (parent, expr) match { //true only for other cases
