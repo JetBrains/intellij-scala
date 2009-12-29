@@ -104,31 +104,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
           return true
         }
         case bind: ScBindingPattern => {
-          ScalaPsiUtil.nameContext(bind) match {
-            case v: ScValue => {
-              val parentSubst = getSubst(state)
-              val typez = bind.getType(TypingContext.empty).getOrElse(return true)
-              ScType.extractClassType(typez) match {
-                case Some((clazz: ScTypeDefinition, substitutor: ScSubstitutor)) => {
-                  for (sign <- clazz.signaturesByName("unapply")) {
-                    val m = sign.method
-                    val subst = sign.substitutor
-                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst), getImports(state))
-                  }
-                  //unapply has bigger priority then unapplySeq
-                  if (candidatesSet.isEmpty)
-                  for (sign <- clazz.signaturesByName("unapplySeq")) {
-                    val m = sign.method
-                    val subst = sign.substitutor
-                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst), getImports(state))
-                  }
-                  return true
-                }
-                case _ => return true
-              }
-            }
-            case _ => return true
-          }
+          candidatesSet += new ScalaResolveResult(bind, getSubst(state), getImports(state))
         }
         case _ => return true
       }
@@ -137,58 +113,6 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    //keep this in case if them want to do something about resolving to unapply methods
-    /*def forFilter(c: ScalaResolveResult): Boolean = {
-      val subst = c.substitutor
-      c.element match {
-        case c: ScClass => true
-        case f: ScFunction if f.getName == "unapply" => {
-          if (f.paramClauses.clauses.length == 0 || f.paramClauses.clauses.apply(0).parameters.length != 1) return false
-          f.returnType match {
-            case Success(tp: ScType, _) if tp.equiv(lang.psi.types.Boolean) => patternsCount == 0
-            case Success(ScParameterizedType(tp, args), _) if args.length == 1 && (ScType.extractClassType(tp) match {
-              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" => true
-              case _ => false
-            }) => {
-              args(0) match {
-                case ScTupleType(args) => patternsCount == args.length
-                case ScParameterizedType(tp, args) if (ScType.extractClassType(tp) match {
-                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
-                  case _ => false
-                }) => return patternsCount == args.length
-                case tp => return patternsCount == 1
-              }
-            }
-            case _ => return false
-          }
-        }
-        case f: ScFunction if f.getName == "unapplySeq" => {
-          if (f.paramClauses.clauses.length == 0 || f.paramClauses.clauses.apply(0).parameters.length != 1) return false
-          f.returnType match {
-            case Success(tp: ScType, _) if tp.equiv(lang.psi.types.Boolean) => patternsCount == 0
-            case Success(ScParameterizedType(tp, args), _) if args.length == 1 && (ScType.extractClassType(tp) match {
-              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" => true
-              case _ => false
-            }) => {
-              (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
-                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClassType(des) match {
-                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.collection.Seq" => true
-                  case _ => false
-                }) => true
-                case _ => false
-              }) match {
-                case Some(ScParameterizedType(des, args)) => return true
-                case _ => return false
-              }
-            }
-            case _ => return false
-          }
-        }
-        case _ => false
-      }
-    }*/
-    //val applicable = candidatesSet.filter(forFilter(_))
-    //if (applicable.isEmpty) return candidatesSet.toArray
     //todo: Local type inference
     expected match {
       case Some(tp) => {
@@ -211,6 +135,59 @@ class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds:
       case _ =>
     }
     return candidatesSet.toArray
+  }
+}
+
+/**
+ * This class is useful for finding actual methods for unapply or unapplySeq, in case for values:
+ * <code>
+ *   val a: Regex
+ *   z match {
+ *     case a() =>
+ *   }
+ * </code>
+ * This class cannot be used for actual resolve, because reference to value should work to this value, not to
+ * invoked unapply method.
+ */
+class ExpandedExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
+        expected: Option[ScType]) extends ExtractorResolveProcessor(ref, refName, kinds, expected) {
+  override def execute(element: PsiElement, state: ResolveState): Boolean = {
+    val named = element.asInstanceOf[PsiNamedElement]
+    if (nameAndKindMatch(named, state)) {
+      named match {
+        case bind: ScBindingPattern => {
+          ScalaPsiUtil.nameContext(bind) match {
+            case v: ScValue => {
+              val parentSubst = getSubst(state)
+              val typez = bind.getType(TypingContext.empty).getOrElse(return true)
+              ScType.extractClassType(typez) match {
+                case Some((clazz: ScTypeDefinition, substitutor: ScSubstitutor)) => {
+                  for (sign <- clazz.signaturesByName("unapply")) {
+                    val m = sign.method
+                    val subst = sign.substitutor
+                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
+                      getImports(state))
+                  }
+                  //unapply has bigger priority then unapplySeq
+                  if (candidatesSet.isEmpty)
+                  for (sign <- clazz.signaturesByName("unapplySeq")) {
+                    val m = sign.method
+                    val subst = sign.substitutor
+                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
+                      getImports(state))
+                  }
+                  return true
+                }
+                case _ => return true
+              }
+            }
+            case _ => return true
+          }
+        }
+        case _ => return super.execute(element, state)
+      }
+    }
+    true
   }
 }
 
