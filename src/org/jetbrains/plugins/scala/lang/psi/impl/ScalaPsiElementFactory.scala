@@ -29,10 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
-import refactoring.util.ScalaNamesUtil
 import types._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -322,10 +322,13 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             }
             typeParam.upperBound foreach {
               case psi.types.Any =>
-              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x)) 
+              case x => res = res + " <: " + ScType.canonicalText(substitutor.subst(x))
             }
             typeParam.viewBound foreach {
               x => res = res + " <% " + ScType.canonicalText(substitutor.subst(x))
+            }
+            typeParam.contextBound foreach {
+              (tp: ScType) => res = res + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
             }
             return res
           }

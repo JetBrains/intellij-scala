@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
  */
 
 trait ScControlFlowOwner extends ScalaPsiElement {
-  def getControlFlow: Seq[Instruction]
+  def getControlFlow(cached: Boolean): Seq[Instruction]
 }

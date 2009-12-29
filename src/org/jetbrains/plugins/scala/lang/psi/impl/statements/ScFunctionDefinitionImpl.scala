@@ -17,6 +17,8 @@ import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
+import psi.controlFlow.Instruction
+import psi.controlFlow.impl.ScalaControlFlowBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -113,4 +115,18 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     }
     res.toArray
   }
+
+  private var myControlFlow: Seq[Instruction] = null
+
+  def getControlFlow(cached: Boolean) = {
+    if (!cached || myControlFlow == null) body match {
+      case Some(e) => {
+        val builder = new ScalaControlFlowBuilder(null, null)
+        myControlFlow = builder.buildControlflow(e)
+      }
+      case _ =>
+    }
+    myControlFlow
+  }
+
 }

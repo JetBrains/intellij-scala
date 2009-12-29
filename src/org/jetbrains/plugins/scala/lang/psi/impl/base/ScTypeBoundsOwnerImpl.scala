@@ -17,10 +17,9 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
 
   def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any) flatMap ( _.getType(TypingContext.empty) )
 
-  override def viewBound: Option[ScType] = viewTypeElement flatMap (_.getType(TypingContext.empty) match {
-    case Success(t, _) => Some(t)
-    case _ => None
-  })
+  override def viewBound: List[ScType] = viewTypeElement flatMap (_.getType(TypingContext.empty).toOption.toList)
+
+  override def contextBound: List[ScType] = contextBoundTypeElement flatMap (_.getType(TypingContext.empty).toOption.toList)
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
@@ -43,13 +42,17 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   }
 
 
-  override def viewTypeElement: Option[ScTypeElement] = {
-    val tView = findLastChildByType(ScalaTokenTypes.tVIEW)
-    if (tView != null) {
-      PsiTreeUtil.getNextSiblingOfType(tView, classOf[ScTypeElement]) match {
-        case null => None
-        case te => Some(te)
-      }
-    } else None
+  override def viewTypeElement: List[ScTypeElement] = {
+    for {v <- findChildrenByType(ScalaTokenTypes.tVIEW)
+        t <- {
+          val e = PsiTreeUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
+          Option(e)}.toList
+    } yield t
+  }
+
+  override def contextBoundTypeElement: List[ScTypeElement] = {
+    for {v <- findChildrenByType(ScalaTokenTypes.tCOLON)
+        t <- Option(PsiTreeUtil.getNextSiblingOfType(v, classOf[ScTypeElement])).toList
+    } yield t
   }
 }
