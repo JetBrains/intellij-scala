@@ -1739,7 +1739,7 @@
     </library>
     <library name="specs-1.6.1-scala-2.8">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/specs-1.6.1-2.8.0.Beta1-RC2.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/specs-1.6.1-2.8.0.Beta1-RC5.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
