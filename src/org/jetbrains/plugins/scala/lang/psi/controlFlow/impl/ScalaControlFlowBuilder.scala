@@ -151,6 +151,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitDoStatement(stmt: ScDoStmt) = {
     visitExpression(stmt)
     startNode(Some(stmt)) {i =>
+      checkPendingEdges(i)
       stmt.getExprBody map {e =>
         e.accept(this)
         addPendingEdge(stmt, myHead)
@@ -188,6 +189,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitMatchStatement(ms: ScMatchStmt) = {
     startNode(Some(ms)) {instr =>
+      checkPendingEdges(instr)
       ms.expr match {
         case Some(e) => e.accept(this)
         case _ =>
@@ -272,6 +274,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitIfStatement(stmt: ScIfStmt) = {
     visitExpression(stmt)
     startNode(Some(stmt)) {instr =>
+      checkPendingEdges(instr)
       stmt.condition match {
         case Some(cond) => {
           cond.accept(this)
@@ -324,18 +327,20 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitExpression(expr: ScExpression) {
     // Handle methods and functions' parameters
-/*
-    expr.getParent match {
-    // Function definition body
-      case fe: ScFunctionDefinition => for (p <- fe.parameters)
-        addNode(new DefineValueInstruction(inc, p, false))
-      case _ =>
-    }
-*/
+    /*
+        expr.getParent match {
+        // Function definition body
+          case fe: ScFunctionDefinition => for (p <- fe.parameters)
+            addNode(new DefineValueInstruction(inc, p, false))
+          case _ =>
+        }
+    */
   }
 
   override def visitFunctionExpression(stmt: ScFunctionExpr) = { /* Do not visit closures */ }
+
   override def visitTypeDefintion(typedef: ScTypeDefinition) { /* Do not visit inner classes either */ }
+
   override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
 
 

@@ -1,0 +1,33 @@
+def process(exchange: Exchange) {
+  <selection>  
+  val event = exchange.getIn.getBody.asInstanceOf[F]
+  eventFacts.get(keyExtractor(event)) match {
+    case Some(fact) => session update (fact, event)
+    case None => eventFacts update (keyExtractor(event), session insert event)
+  }
+  if (fireOnUpdate) session fireAllRules
+  </selection>
+}
+-----
+0(1) element: None
+1(2) VAL event
+2(3) element: MatchStatement
+3(4) READ event
+4(5,10) READ keyExtractor
+5(6) VAL fact
+6(7) READ session
+7(8) READ update
+8(9) READ fact
+9(17) READ event
+10(11) READ eventFacts
+11(12) READ update
+12(13) READ event
+13(14) READ keyExtractor
+14(15) READ session
+15(16) READ insert
+16(17) READ event
+17(18) element: IfStatement
+18(19,21) READ fireOnUpdate
+19(20) READ session
+20(21) READ fireAllRules
+21() element: None
