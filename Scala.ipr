@@ -1730,11 +1730,11 @@
     </library>
     <library name="scalatest-1.0.1-scala-2.8">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-RC1-with-test-interfaces-0.2-SNAPSHOT.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-RC5-with-test-interfaces-0.2-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="jar://$PROJECT_DIR$/../../ScalaTest/scalatest-1.0.1-for-scala-2.8.0.Beta1-RC3-with-test-interfaces-0.2-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-RC5-with-test-interfaces-0.2-SNAPSHOT-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="specs-1.6.1-scala-2.8">
@@ -1743,7 +1743,7 @@
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="jar://$PROJECT_DIR$/../../ScalaSpecs/specs-1.6.1-scala-2.8/specs-1.6.1-2.8.0.Beta1-RC2-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/specs-1.6.1-2.8.0.Beta1-RC5-sources.jar!/" />
       </SOURCES>
     </library>
   </component>

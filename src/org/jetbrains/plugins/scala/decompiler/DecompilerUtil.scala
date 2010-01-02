@@ -19,7 +19,7 @@ import tools.scalap.scalax.rules.scalasig._
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 82
+  val DECOMPILER_VERSION = 83
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
@@ -106,7 +106,16 @@ object DecompilerUtil {
         case _ =>
       }
       // Print classes
-      val printer = new ScalaSigPrinter(stream, true)
+      val printer = new ScalaSigPrinter(stream, true) {
+        override def printClass(level: Int, c: ClassSymbol) = {
+          // todo patch scalap to support fix this.
+          if (c.name != "<local child>"/*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/) {
+            super.printClass(level, c)
+          } else {
+            stream.print("\n")
+          }
+        }
+      }
       for (c <- syms) {
         printer.printSymbol(c)
       }
