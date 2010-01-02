@@ -26,9 +26,9 @@ trait ControlFlowInspections {
     val cfg = method.getControlFlow(false);
     val components = ControlFlowUtil.detectConnectedComponents(cfg)
     if (components.length > 1) {
-      for (comp <- components.tail) {
+      for (comp <- components.tail.headOption) {
         comp.toSeq.sortBy(_.num).headOption.flatMap(_.element) match {
-          case Some(elem) => {
+          case Some(elem) =>  {
             holder.createErrorAnnotation(elem, ScalaBundle.message("unreachable.expression"))
           }
           case None =>

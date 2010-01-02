@@ -1,0 +1,37 @@
+def process(exchange: Exchange) {
+      <selection>
+      val events = exchange.getIn.getHeader(Exchange.GROUPED_EXCHANGE).asInstanceOf[juList]
+      events.foreach { _ match {
+        case event: MTCEvent => println("foo")
+      }}
+      eventFacts.get(key(event)) match {
+        case Some(factHandle) => session update (factHandle, event)
+        case None => eventFacts update (key(event), session insert event)
+      }
+      session fireAllRules
+      </selection>
+}
+-----
+0(1) element: None
+1(2) VAL events
+2(3) element: MatchStatement
+3(4) VAL event
+4(5) READ println
+5(6) element: MatchStatement
+6(7) READ event
+7(8,13) READ key
+8(9) VAL factHandle
+9(10) READ session
+10(11) READ update
+11(12) READ factHandle
+12(20) READ event
+13(14) READ eventFacts
+14(15) READ update
+15(16) READ event
+16(17) READ key
+17(18) READ session
+18(19) READ insert
+19(20) READ event
+20(21) READ session
+21(22) READ fireAllRules
+22() element: None
