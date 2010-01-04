@@ -11,6 +11,9 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
 import tools.scalap.scalax.rules.scalasig._
+import java.lang.String
+import scala.util.NameTransformer
+import collection.Seq
 
 /**
  * @author ilyas
@@ -19,7 +22,7 @@ import tools.scalap.scalax.rules.scalasig._
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 83
+  val DECOMPILER_VERSION = 84
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
@@ -83,7 +86,7 @@ object DecompilerUtil {
       val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get
 
       val baos = new ByteArrayOutputStream
-      val stream = new PrintStream(baos)
+      val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
       syms.first.parent match {
@@ -115,7 +118,18 @@ object DecompilerUtil {
             stream.print("\n")
           }
         }
+
+        // todo if the decoded name is not a valid Scala identifier (e.g. 'type' 'a b c'), then
+        // enclose it in backticks. If backticks are used, resolve won't work correctly
+        // unless http://youtrack.jetbrains.net/issue/SCL-1707 is fixed.
+        override def processName(name: String) = NameTransformer.decode(super.processName(name))
+
+        override def typeParamString(params: Seq[Symbol]) =
+          super.typeParamString(params)
+                  .replace(" >: scala.Nothing", "")
+                  .replace(" <: scala.Any", "")
       }
+
       for (c <- syms) {
         printer.printSymbol(c)
       }
