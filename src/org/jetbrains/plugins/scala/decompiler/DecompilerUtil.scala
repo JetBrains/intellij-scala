@@ -119,10 +119,11 @@ object DecompilerUtil {
           }
         }
 
-        // todo if the decoded name is not a valid Scala identifier (e.g. 'type' 'a b c'), then
-        // enclose it in backticks. If backticks are used, resolve won't work correctly
-        // unless http://youtrack.jetbrains.net/issue/SCL-1707 is fixed.
-        override def processName(name: String) = NameTransformer.decode(super.processName(name))
+        override def processName(name: String) = {
+          import lang.refactoring.util.ScalaNamesUtil._
+          val decoded = NameTransformer.decode(super.processName(name))
+          if (isIdentifier(name)) name else "`" + name + "`"
+        }
 
         override def typeParamString(params: Seq[Symbol]) =
           super.typeParamString(params)
