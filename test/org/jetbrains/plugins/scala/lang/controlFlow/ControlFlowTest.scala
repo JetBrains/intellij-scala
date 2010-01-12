@@ -39,11 +39,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   }
 
   protected  def dumpControlFlow(instructions: Seq[Instruction]): String = {
-    var builder: StringBuilder = new StringBuilder
-    for (instruction <- instructions) {
-      builder.append(instruction.toString).append("\n")
-    }
-    return builder.toString
+    instructions.mkString("\n")
   }
 
   def testAssignment = doTest
@@ -53,6 +49,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testWhile2 = doTest
   def testMatch1 = doTest
   def testFor1 = doTest
+  def testFor2 = doTest
   def testDoWhile1 = doTest
   def testReturn1 = doTest
   def testMethod1 = doTest
