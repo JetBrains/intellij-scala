@@ -45,7 +45,7 @@ abstract class CheckPrivateAccessTestBase extends ScalaPsiTestCase {
     val elem = scalaFile.findElementAt(offset).getParent
     if (!elem.isInstanceOf[ScReferenceElement]) assert(true, "Ref marker should point on reference")
     val ref = elem.asInstanceOf[ScReferenceElement]
-    val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve, classOf[PsiMember])
+    val resolve: PsiMember = PsiTreeUtil.getParentOfType(ref.resolve, classOf[PsiMember], false)
 
 
     val res = "" + ResolveUtils.isAccessible(resolve, elem)
