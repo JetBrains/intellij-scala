@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
-import y.option.EditorFactory;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

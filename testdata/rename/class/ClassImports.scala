@@ -15,4 +15,4 @@ package a {
 
   class C extends /*caret*/NameAfterRename
 }
- */
+*/
