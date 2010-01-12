@@ -15,7 +15,7 @@ import java.io.File
  * @author ilyas
  */
 
-class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
+abstract class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
   override def getProjectDescriptor = LightScalaTestCase.SCALA_DESCRIPTOR
 
 
