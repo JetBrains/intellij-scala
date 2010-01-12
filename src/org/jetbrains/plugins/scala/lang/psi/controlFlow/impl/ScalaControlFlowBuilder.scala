@@ -210,8 +210,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       checkPendingEdges(instr)
       // for breaks
       addPendingEdge(ws, myHead)
-      ws.condition.map(_.accept(this))
-      ws.body.map {b =>
+      ws.condition.foreach(_.accept(this))
+      ws.body.foreach {b =>
         b.accept(this)
       }
       checkPendingEdges(instr)
@@ -260,15 +260,19 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitForExpression(expr: ScForStatement) = {
     visitExpression(expr)
-    expr.enumerators match {
-      case Some(enum) => enum.accept(this)
-      case _ =>
+    startNode(Some(expr)) {instr =>
+      checkPendingEdges(instr)
+      addPendingEdge(expr, myHead)
+      expr.enumerators match {
+        case Some(enum) => enum.accept(this)
+        case _ =>
+      }
+      expr.body match {
+        case Some(e) => e.accept(this)
+        case _ =>
+      }
+      addPendingEdge(expr, myHead)
     }
-    expr.body match {
-      case Some(e) => e.accept(this)
-      case _ =>
-    }
-    addPendingEdge(expr, myHead)
   }
 
   override def visitIfStatement(stmt: ScIfStmt) = {
