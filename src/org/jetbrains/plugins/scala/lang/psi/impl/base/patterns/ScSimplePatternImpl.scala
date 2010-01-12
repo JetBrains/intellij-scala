@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import result.TypingContext
 import lang.resolve.ScalaResolveResult
 import api.base.ScPrimaryConstructor
+import api.statements.ScFunction
+import result.{TypeResult, TypingContext}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -82,10 +83,13 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def getType(ctx: TypingContext) = wrap(ref.bind) map { r =>
+  override def getType(ctx: TypingContext): TypeResult[ScType] = wrap(ref.bind) map { r =>
     r.element match {
       case td : ScClass => ScParameterizedType.create(td, r.substitutor)
       case obj : ScObject => new ScDesignatorType (obj)
+      case fun: ScFunction /*It's unapply method*/ if (fun.getName == "unapply" || fun.getName == "unapplySeq") && fun.parameters.length == 1 => {
+        return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty)
+      }
       case _ => Nothing
     }
   }
