@@ -54,6 +54,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     dummyFile.getLastChild.getLastChild.getLastChild.getNode
   }
 
+  def createMethodFromText(text: String, manager: PsiManager): ScFunction = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    dummyFile.getFirstChild.asInstanceOf[ScFunction]
+  }
+
   def createExpressionFromText(buffer: String, manager: PsiManager): ScExpression = {
     val text = "class a {val b = (" + buffer + ")}"
 
