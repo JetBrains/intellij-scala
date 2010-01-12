@@ -20,6 +20,7 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
         extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
   def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
+    dataStream.writeName(stub.getTypeElementText)
   }
 
   def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = {
@@ -27,12 +28,13 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScSelfTypeElement, parentStub: StubElement[ParentPsi]): ScSelfTypeElementStub = {
-    new ScSelfTypeElementStubImpl(parentStub, this, psi.name)
+    new ScSelfTypeElementStubImpl(parentStub, this, psi.name, psi.typeElement match {case None => "" case Some(x) => x.getText})
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScSelfTypeElementStub = {
     val name = dataStream.readName
-    new ScSelfTypeElementStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name.toString)
+    val typeElementText = dataStream.readName
+    new ScSelfTypeElementStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name.toString, typeElementText.toString)
   }
 
   def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {}

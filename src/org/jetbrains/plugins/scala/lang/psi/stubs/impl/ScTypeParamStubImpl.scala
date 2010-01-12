@@ -31,19 +31,28 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   private var lowerElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var viewElement: Array[PatchedSoftReference[ScTypeElement]] = null
   private var contextBoundElement: Array[PatchedSoftReference[ScTypeElement]] = null
+  private var covariant: Boolean = _
+  private var contravariant: Boolean = _
 
   def getName: String = StringRef.toString(name)
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, upperText: String, lowerText: String, viewText: Array[String], contextBoundText: Array[String]) {
+          name: String, upperText: String, lowerText: String, viewText: Array[String], contextBoundText: Array[String],
+          covariant: Boolean, contravariant: Boolean) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.upperText = StringRef.fromString(upperText)
     this.lowerText = StringRef.fromString(lowerText)
     this.viewText = viewText.map(StringRef.fromString(_))
     this.contextBoundText = contextBoundText.map(StringRef.fromString(_))
+    this.covariant = covariant
+    this.contravariant = contravariant
   }
+
+  def isCovariant: Boolean = covariant
+
+  def isContravariant: Boolean = contravariant
 
   def getUpperText: String = upperText.toString
 
