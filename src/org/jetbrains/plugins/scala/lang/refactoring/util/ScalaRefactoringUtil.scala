@@ -32,15 +32,15 @@ import lang.resolve.ScalaResolveResult
  */
 
 object ScalaRefactoringUtil {      
-  def trimSpacesAndComments(editor: Editor, file: PsiFile) {
+  def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true) {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-            file.findElementAt(start).isInstanceOf[PsiComment] ||
+            (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
             file.getText.charAt(start) == '\n' ||
             file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-            file.findElementAt(end - 1).isInstanceOf[PsiComment] ||
+            (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
            file.getText.charAt(end - 1) == '\n' ||
            file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)

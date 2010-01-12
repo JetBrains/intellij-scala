@@ -6,9 +6,11 @@ package refactoring
 import com.intellij.lang.refactoring.DefaultRefactoringSupportProvider
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringActionHandler
+import extractMethod.ScalaExtractMethodHandler
 import introduceVariable.ScalaIntroduceVariableHandler
 import psi.api.toplevel.typedef.ScTypeDefinition
 import rename.ScalaInplaceVariableRenamer
+import com.intellij.refactoring.extractMethod.ExtractMethodHandler
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,5 +31,5 @@ class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider 
 
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 
-  override def getExtractMethodHandler: RefactoringActionHandler = null
+  override def getExtractMethodHandler: RefactoringActionHandler = new ScalaExtractMethodHandler
 }

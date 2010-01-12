@@ -75,6 +75,7 @@ object ScalaPsiUtil {
     inner(elem, (l: List[PsiElement]) => l)
   }
 
+  //todo: always returns true?!
   def shouldCreateStub(elem: PsiElement): Boolean = {
     elem match {
       case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
