@@ -4,8 +4,8 @@ package psi
 package stubs
 
 
-import api.base.types.ScSelfTypeElement
 import com.intellij.psi.stubs.{NamedStub, StubElement}
+import api.base.types.{ScTypeElement, ScSelfTypeElement}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,5 +13,5 @@ import com.intellij.psi.stubs.{NamedStub, StubElement}
  */
 
 trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement]{
-
+  def getTypeElementText: String
 }

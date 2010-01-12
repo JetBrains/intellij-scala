@@ -37,14 +37,26 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   override def getContainingClass() = null
 
-  def isCovariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => false
-    case x => x.getText == "+"
+  def isCovariant: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeParamStub].isCovariant
+    }
+    findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+      case null => false
+      case x => x.getText == "+"
+    }
   }
 
-  def isContravariant = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => false
-    case x => x.getText == "-"
+  def isContravariant: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeParamStub].isContravariant
+    }
+    findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+      case null => false
+      case x => x.getText == "-"
+    }
   }
 
   def owner  = getParent.getParent.asInstanceOf[ScTypeParametersOwner]

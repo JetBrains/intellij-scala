@@ -23,4 +23,6 @@ trait ScTypeParamStub extends NamedStub[ScTypeParam]{
   def getLowerTypeElement: Option[ScTypeElement]
   def getViewTypeElement: Array[ScTypeElement]
   def getContextBoundTypeElement: Array[ScTypeElement]
+  def isCovariant: Boolean
+  def isContravariant: Boolean
 }

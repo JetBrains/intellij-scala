@@ -23,6 +23,8 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getUpperText)
     dataStream.writeName(stub.getLowerText)
+    dataStream.writeBoolean(stub.isContravariant)
+    dataStream.writeBoolean(stub.isCovariant)
     serialiseArray(dataStream, stub.getViewText)
     serialiseArray(dataStream, stub.getContextBoundText)
   }
@@ -45,17 +47,19 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     val viewText = psi.viewTypeElement.toArray.map(_.getText)
     val contextText = psi.contextBoundTypeElement.toArray.map(_.getText)
     new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getName,
-      upperText, lowerText, viewText, contextText)
+      upperText, lowerText, viewText, contextText, psi.isCovariant, psi.isContravariant)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamStub = {
     val name = StringRef.toString(dataStream.readName)
     val upperText = StringRef.toString(dataStream.readName)
     val lowerText = StringRef.toString(dataStream.readName)
+    val contravariant = dataStream.readBoolean
+    val covariant = dataStream.readBoolean
     val viewText = deserialiseArray(dataStream)
     val contextBoundText = deserialiseArray(dataStream)
     new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name,
-      upperText, lowerText, viewText, contextBoundText)
+      upperText, lowerText, viewText, contextBoundText, covariant, contravariant)
   }
 
   def deserialiseArray(dataStream: StubInputStream): Array[String] = {
