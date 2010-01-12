@@ -4,5 +4,4 @@ class SmartValueInitializerCompletion {
 /*
 readLine
 readLine
-richString2String
 */
