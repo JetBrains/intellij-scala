@@ -11,6 +11,7 @@ import api.toplevel.typedef.ScClass
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
 import api.base.ScPrimaryConstructor
+import impl.compiled.ClsParameterImpl
 import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -199,7 +200,7 @@ object Compatibility {
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
-        checkConformance(false, parameters.map {param: PsiParameter => Parameter(param.getName, {
+        checkConformance(false, parameters.map {param: PsiParameter => Parameter("", {
           val tp = substitutor.subst(ScType.create(param.getType, method.getProject))
           if (param.isVarArgs) tp match {
             case ScParameterizedType(_, args) if args.length == 1 => args(0)
