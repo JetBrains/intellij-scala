@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
  * Date: 24.11.2009
  */
 
-class TestAllResolveTestBase extends ScalaPsiTestCase {
+abstract class TestAllResolveTestBase extends ScalaPsiTestCase {
   override def rootPath: String = super.rootPath + "resolve/testAllResolve/"
 
   protected def doTest = {
