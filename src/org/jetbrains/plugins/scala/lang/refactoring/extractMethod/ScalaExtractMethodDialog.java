@@ -1,12 +1,29 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.impl.EditorFactoryImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.uiDesigner.core.GridConstraints;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import y.option.EditorFactory;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.EventListener;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -17,18 +34,34 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private String REFACTORING_NAME = ScalaBundle.message("extract.method.title");
   private JPanel contentPane;
+  private JTextField methodNameTextField;
+  private JRadioButton publicRadioButton;
+  private JRadioButton protectedRadioButton;
+  private JRadioButton privateRadioButton;
+  private JTextField protectedTextField;
+  private JTextField privateTextField;
+  private JButton biggerScopeButton;
+  private JButton smallerScopeButton;
+  private JPanel scopePanel;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
-  private PsiElement myScope;
   private PsiElement[] myElements;
   private boolean myHasReturn;
+  private Editor myScopeEditor;
 
-  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, PsiElement owner, boolean hasReturn) {
+  @Override
+  protected void dispose() {
+    EditorFactoryImpl.getInstance().releaseEditor(myScopeEditor);
+    super.dispose();
+  }
+
+  private ScDeclarationSequenceHolder myScope;
+
+  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn) {
     super(project, true);
 
     myElements = elements;
-    myScope = owner;
     myProject = project;
     myHasReturn = hasReturn;
 
@@ -36,6 +69,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
+    myScope = PsiTreeUtil.getParentOfType(myElements[0], ScDeclarationSequenceHolder.class);
+    myScopeEditor = EditorFactoryImpl.getInstance().createEditor(EditorFactoryImpl.getInstance().createDocument(myScope.getText()), project, ScalaFileType.SCALA_FILE_TYPE, true);
     setUpDialog();
     updateOkStatus();
   }
@@ -51,15 +86,71 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    //todo:
+    setOKActionEnabled(ScalaNamesUtil.isIdentifier(getMethodName()) &&
+        (getProtectedEncloser().equals("") || ScalaNamesUtil.isIdentifier(getProtectedEncloser())) &&
+        (getPrivateEncloser().equals("") || ScalaNamesUtil.isIdentifier(getPrivateEncloser()))
+    );
+  }
+
+  private String getProtectedEncloser() {
+    return protectedTextField.getText();
+  }
+
+  private String getPrivateEncloser() {
+    return privateTextField.getText();
   }
 
   private void setUpDialog() {
-    //todo:
+    methodNameTextField.addKeyListener(new KeyListener() {
+      public void keyTyped(KeyEvent e) {
+        updateOkStatus();
+      }
+
+      public void keyPressed(KeyEvent e) {
+        updateOkStatus();
+      }
+
+      public void keyReleased(KeyEvent e) {
+        updateOkStatus();
+      }
+    });
+
+    ButtonGroup visibilityGroup = new ButtonGroup();
+    visibilityGroup.add(privateRadioButton);
+    visibilityGroup.add(protectedRadioButton);
+    visibilityGroup.add(publicRadioButton);
+    publicRadioButton.setSelected(true); //todo: ApplicationSettings?
+    privateTextField.setEnabled(false);
+    protectedTextField.setEnabled(false);
+
+    privateRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (privateRadioButton.isSelected()) {
+          privateTextField.setEnabled(true);
+        } else privateTextField.setEnabled(false);
+      }
+    });
+
+    protectedRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (protectedRadioButton.isSelected()) {
+          protectedTextField.setEnabled(true);
+        } else protectedTextField.setEnabled(false);
+      }
+    });
+
+    scopePanel.add(myScopeEditor.getComponent(), new GridConstraints()); //todo: params for GridConstraints
   }
 
   private String getVisibility() {
-    return ""; //todo:
+    if (publicRadioButton.isSelected()) return "";
+    else if (privateRadioButton.isSelected()) {
+      if (getPrivateEncloser().equals("")) return "private ";
+      else return "private[" + getPrivateEncloser() + "] ";
+    } else {
+      if (getProtectedEncloser().equals("")) return "protected ";
+      else return "protected[" + getProtectedEncloser() + "] ";
+    }
   }
 
   private String[] getParamNames() {
@@ -68,8 +159,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   @Override
   protected void doOKAction() {
-    settings = new ScalaExtractMethodSettings("testName", getParamNames(), getParamTypes(), getReturnTypes(),
-        getVisibility(), myScope, getSibling(), myElements, myHasReturn);
+    settings = new ScalaExtractMethodSettings(getMethodName(), getParamNames(), getParamTypes(), getReturnTypes(),
+        getVisibility(), getScope(), getSibling(), myElements, myHasReturn);
     super.doOKAction();
   }
 
@@ -81,9 +172,17 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     return new ScType[0]; //todo:
   }
 
+  private String getMethodName() {
+    return methodNameTextField.getText();
+  }
+
+  private PsiElement getScope() {
+    return myScope;
+  }
+
   private PsiElement getSibling() {
     PsiElement result = myElements[0];
-    while (result.getParent() != null && result.getParent() != myScope) result = result.getParent();
+    while (result.getParent() != null && result.getParent() != getScope()) result = result.getParent();
     return result;
   }
 

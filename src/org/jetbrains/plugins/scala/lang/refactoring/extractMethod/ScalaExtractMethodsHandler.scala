@@ -60,15 +60,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         }
       })
     }
-    val owner = PsiTreeUtil.getParentOfType(elements(0), classOf[ScDeclarationSequenceHolder])
-    if (owner == null) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.in.current.context"), project)
-      return
-    }
-    val varInfo = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, owner)
-    
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val dialog = new ScalaExtractMethodDialog(project, elements, owner, hasReturn)
+      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn)
       dialog.show
       if (!dialog.isOK) {
         return
