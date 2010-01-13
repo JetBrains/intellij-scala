@@ -25,7 +25,7 @@ import psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.ScalaPsiUtil
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
-import psi.api.toplevel.imports.usages.ImportUsed
+import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -215,6 +215,58 @@ class MethodResolveProcessor(ref: PsiElement,
   // i.e. for functions return the most common type (Any, ..., Any) => Nothing
   private val args: Seq[ScType] = Nil //argumentClauses.map(_.cachedType)
 
+  /**
+   * Contains highest precedence of all resolve results.
+   * 1 - import a._
+   * 2 - import a.x
+   * 3 - definition or declaration
+   */
+  private var precedence: Int = 0
+
+  private val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
+
+  /**
+   * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
+   */
+  private def addResult(result: ScalaResolveResult): Boolean = {
+    val currentPrecedence = getPrecendence(result)
+    if (currentPrecedence < precedence) return false
+    else if (currentPrecedence == precedence && levelSet.isEmpty) return false
+    precedence = currentPrecedence
+    val newSet = levelSet.filterNot(res => getPrecendence(res) < precedence)
+    levelSet.clear
+    levelSet ++= newSet
+    levelSet += result
+    true
+  }
+
+  private def getPrecendence(result: ScalaResolveResult): Int = {
+    if (result.importsUsed.size == 0) return 3
+    val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
+    importUsed match {
+      case _: ImportWildcardSelectorUsed => return 1
+      case _: ImportSelectorUsed => return 2
+      case ImportExprUsed(expr) => {
+        if (expr.singleWildcard) return 1
+        else return 2
+      }
+    }
+  }
+
+  override def changedLevel = {
+    if (levelSet.isEmpty) true
+    else if (precedence == 3) {
+      candidatesSet ++= levelSet
+      levelSet.clear
+      false
+    }
+    else {
+      candidatesSet ++= levelSet
+      levelSet.clear
+      true
+    }
+  }
+
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY) match {
@@ -227,42 +279,44 @@ class MethodResolveProcessor(ref: PsiElement,
         case m: PsiMethod => {
           val subst = inferMethodTypesArgs(m, s)
           //all this code for implicit overloading reesolution
+          //todo: this is bad code, should be rewrited
           val res = new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass)
-          (candidatesSet.find(p => p.hashCode == res.hashCode), implicitConversionClass) match {
+          ((candidatesSet ++ levelSet).find(p => p.hashCode == res.hashCode), implicitConversionClass) match {
             case (Some(oldRes: ScalaResolveResult), Some(newClass)) => {
               val oldClass = oldRes.implicitConversionClass
               oldClass match {
                 case Some(clazz: PsiClass) if clazz.isInheritor(newClass, true) =>
                 case _ => {
                   candidatesSet.remove(oldRes)
-                  candidatesSet += res
+                  levelSet.remove(oldRes)
+                  levelSet += res
                 }
               }
             }
-            case _ => candidatesSet += res
+            case _ => addResult(res)
           }
           true
         }
         case cc: ScClass if cc.isCase => {
           val subst = inferMethodTypesArgs(cc, s)
-          candidatesSet += new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass)
+          addResult(new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass))
           true
         }
         case o: ScObject if o.isPackageObject => {
-          candidatesSet += new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass)
+          addResult(new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass))
           return true
         }
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, s.followed(subst.followed(inferMethodTypesArgs(m, s))),
-              getImports(state), None, implicitConversionClass)
+            addResult(new ScalaResolveResult(m, s.followed(subst.followed(inferMethodTypesArgs(m, s))),
+              getImports(state), None, implicitConversionClass))
           }
           true
         }
         case _ => {
-          candidatesSet += new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass)
+          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
           true
         }
       }
@@ -303,9 +357,7 @@ class MethodResolveProcessor(ref: PsiElement,
         }
         case owner: ScTypeParametersOwner => {
           var importUsed: Set[ImportUsed] = c.importsUsed
-          var s: ScUndefinedSubstitutor = /*if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
-                  owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else */{
+          var s: ScUndefinedSubstitutor = {
             def argClauses: List[Seq[Expression]] = {
               var implicitParameterImportUsed: Set[ImportUsed] = Set.empty
               owner match {
@@ -404,12 +456,13 @@ class MethodResolveProcessor(ref: PsiElement,
         }
       }
     }
-    var filtered = candidatesSet.filter(forFilter(_, false))
+    val set = candidatesSet ++ levelSet
+    var filtered = set.filter(forFilter(_, false))
     val withImplicit = filtered.isEmpty
-    if (filtered.isEmpty) filtered = candidatesSet.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
+    if (filtered.isEmpty) filtered = set.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
     val applicable: Set[ScalaResolveResult] = filtered.map(forMap(_, withImplicit))
 
-    if (applicable.isEmpty) candidatesSet.toArray else {
+    if (applicable.isEmpty) set.toArray else {
       val buff = new ArrayBuffer[ScalaResolveResult]
       def existsBetter(r: ScalaResolveResult): Boolean = {
         for (r1 <- applicable if r != r1) {
@@ -420,7 +473,7 @@ class MethodResolveProcessor(ref: PsiElement,
       for (r <- applicable if !existsBetter(r)) {
         buff += r
       }
-      if (buff.length == 0) return candidatesSet.toArray
+      if (buff.length == 0) return set.toArray
       buff.toArray[T]
     }
   }
@@ -488,8 +541,6 @@ class MethodResolveProcessor(ref: PsiElement,
     case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Any)
     case _ => Nothing
   }
-
-  override def changedLevel = candidatesSet.isEmpty //if there are any candidates, do not go upwards
 }
 
 import ResolveTargets._
