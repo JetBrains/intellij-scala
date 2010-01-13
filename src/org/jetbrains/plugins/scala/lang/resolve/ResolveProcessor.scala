@@ -303,9 +303,9 @@ class MethodResolveProcessor(ref: PsiElement,
         }
         case owner: ScTypeParametersOwner => {
           var importUsed: Set[ImportUsed] = c.importsUsed
-          var s = if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
+          var s: ScUndefinedSubstitutor = /*if (noParentheses && owner.isInstanceOf[ScParameterOwner] && owner.asInstanceOf[ScParameterOwner].allClauses.length == 1 &&
                   owner.asInstanceOf[ScParameterOwner].allClauses.apply(0).isImplicit) new ScUndefinedSubstitutor
-          else {
+          else */{
             def argClauses: List[Seq[Expression]] = {
               var implicitParameterImportUsed: Set[ImportUsed] = Set.empty
               owner match {
