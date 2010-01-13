@@ -88,7 +88,8 @@ object InfixType {
         infixTypeMarker.drop
       }
       else {
-        for (x: PsiBuilder.Marker <- markerList) x.done(ScalaElementTypes.INFIX_TYPE)
+        for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementTypes.INFIX_TYPE)
+        markerList.head.drop
       }
     }
     else {
