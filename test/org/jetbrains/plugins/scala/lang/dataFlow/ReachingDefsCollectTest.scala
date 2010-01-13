@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.{LightScalaTestCase, ScalaFileType}
+import scala.util.Sorting
 
 /**
  * @author ilyas
@@ -43,16 +44,12 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
 
   protected def dumpDefInfos(infos: FragmentVariableInfos): String = {
     var builder: StringBuilder = new StringBuilder
-    builder.append("INPUT:")
-    for (vi <- infos.inputVariables) {
-      val el = vi.element
-      builder.append("\n").append(el.toString).append(" : ").append(el.getName)
-    }
-    builder.append("\nOUTPUT:")
-    for (vi <- infos.outputVariables) {
-      val el = vi.element
-      builder.append("\n").append(el.toString).append(" : ").append(el.getName)
-    }
+    builder.append("INPUT:\n")
+    builder.append(Sorting.stableSort(infos.inputVariables.
+            map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
+    builder.append("\nOUTPUT:\n")
+    builder.append(Sorting.stableSort(infos.outputVariables.
+            map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
     return builder.toString
   }
 
