@@ -7,7 +7,6 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
-import collection.mutable.{HashMap, HashSet}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.PsiManagerEx
@@ -19,6 +18,7 @@ import _root_.scala.collection.Set
 import result.TypingContext
 import api.statements.params.ScTypeParam
 import com.intellij.psi._
+import collection.mutable.{ArrayBuffer, HashMap, HashSet}
 
 /**
  * @author ilyas
