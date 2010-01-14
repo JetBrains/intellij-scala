@@ -17,7 +17,7 @@ trait ControlFlowInspections {
 
   def annotate(element: PsiElement, holder: AnnotationHolder) {
     element match {
-      case f: ScFunctionDefinition => checkBodyForUnreachableStatements(f, holder)
+      case f: ScFunctionDefinition => //todo: checkBodyForUnreachableStatements(f, holder)
       case _ =>
     }
   }
