@@ -1,8 +1,9 @@
-package ddd {
+object ddd {
 object Nnn
 }
 
-package aaa.bbb {
+object aaa {
+object bbb {
 object Foo {
   val bar = 42
 }
@@ -11,9 +12,10 @@ object Alex
 
 object Tom
 }
+}
 
 
-package ccc {
+object ccc {
 class Test {
   def m = {
     import ddd._
