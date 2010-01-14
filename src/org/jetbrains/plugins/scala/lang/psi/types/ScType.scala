@@ -334,6 +334,8 @@ object ScType {
         } //todo: another shorthands for ScSingletonType
         case _ => inner(p); buffer.append("#").append(ref.refName)
       }
+      case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get)
+      case p: ScParameterizedType if p.getFunctionType != None => inner(p.getFunctionType.get)
       case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)

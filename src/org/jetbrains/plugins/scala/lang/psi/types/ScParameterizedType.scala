@@ -75,6 +75,24 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     case tuple : ScTupleType => tuple equiv this
     case _ => false
   }
+
+  def getTupleType: Option[ScTupleType] = {
+    ScType.extractClassType(designator) match {
+      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") && typeArgs.length > 0 => {
+        Some(new ScTupleType(typeArgs, clazz.getProject))
+      }
+      case _ => None
+    }
+  }
+
+  def getFunctionType: Option[ScFunctionType] = {
+    ScType.extractClassType(designator) match {
+      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") && typeArgs.length > 0 => {
+        Some(new ScFunctionType(typeArgs.apply(typeArgs.length - 1), typeArgs.slice(0, typeArgs.length - 1), clazz.getProject))
+      }
+      case _ => None
+    }
+  }
 }
 
 object ScParameterizedType {
