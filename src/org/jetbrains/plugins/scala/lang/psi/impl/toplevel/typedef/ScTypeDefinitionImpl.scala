@@ -56,7 +56,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     }
   }
 
-  def getType(ctx: TypingContext)  = Success(new ScDesignatorType(this), Some(this))
+  def getType(ctx: TypingContext)  = {
+    if (typeParameters.length == 0)
+      Success(ScDesignatorType(this), Some(this))
+    else {
+      Success(ScParameterizedType(ScDesignatorType(this), typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+    }
+  }
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
 

@@ -33,7 +33,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     case _ => Failure("Cannot infer type", Some(this))
   }
 
-  def refTemplate = reference match {
+  def refTemplate: Option[ScTemplateDefinition] = reference match {
     case Some(ref) => ref.resolve match {
       case td: ScTypeDefinition => Some(td)
       case _ => None
