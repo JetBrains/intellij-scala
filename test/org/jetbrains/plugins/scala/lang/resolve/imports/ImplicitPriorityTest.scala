@@ -42,7 +42,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     }
   }
 
-  def testMostSpecificImplicit() {
+  /*def testMostSpecificImplicit() {
     val path = "mostSpecificImplicit.scala"
     configureByFile(path) match {
       case r: PsiPolyVariantReference => {
@@ -51,5 +51,5 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
       }
       case x => throw new Exception("Wrong reference!" + x)
     }
-  }
+  }*/
 }

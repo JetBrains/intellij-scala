@@ -6,6 +6,4 @@ class TestAllResolveComplexTest extends TestAllResolveTestBase {
   override def rootPath: String = super.rootPath + "complex/"
 
   def testExistential = doTest
-
-  def testPackageNotPackageObject = doTest
 }
