@@ -30,6 +30,7 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
       }
       case _ => false
     }
+    case AnyRef => t.equiv(this)
     case _ => false
   }
 }
