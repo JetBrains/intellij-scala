@@ -54,7 +54,14 @@ case object Any extends StdType("Any", None)
 
 case object Null extends StdType("Null", Some(AnyRef))
 
-case object AnyRef extends StdType("AnyRef", Some(Any))
+case object AnyRef extends StdType("AnyRef", Some(Any)) {
+  override def equiv(t: ScType): Boolean = {
+    ScType.extractClassType(t) match {
+      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "java.lang.Object" => true
+      case _ => super.equiv(t)
+    }
+  }
+}
 
 case object Nothing extends StdType("Nothing", None)
 

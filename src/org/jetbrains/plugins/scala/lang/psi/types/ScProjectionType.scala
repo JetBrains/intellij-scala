@@ -56,6 +56,7 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
       }
       case _ => false
     }
+    case AnyRef => AnyRef.equiv(this)
     case t: StdType => {
       element match {
         case Some(synth: ScSyntheticClass) => synth.t equiv t

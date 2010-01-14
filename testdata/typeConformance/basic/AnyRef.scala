@@ -1,2 +1,2 @@
-val a: Seq[Object] = Array[AnyRef]()
+val a: Array[Object] = Array[AnyRef]()
 //True
