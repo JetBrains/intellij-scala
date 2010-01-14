@@ -1,4 +1,4 @@
-import collection.mutable.ListBuffer
+class ListBuffer[A]
 
 val a: ListBuffer[Int] = new ListBuffer
 //True
