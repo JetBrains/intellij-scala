@@ -11,9 +11,9 @@ import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import base.ScTypeBoundsOwnerImpl
-import psi.types.ScExistentialArgument
 import collection.Set
 import psi.types.result.{Success, TypingContext}
+import psi.types.{ScDesignatorType, ScExistentialType, ScExistentialArgument}
 
 /**
 * @author Alexander Podkhalyuzin

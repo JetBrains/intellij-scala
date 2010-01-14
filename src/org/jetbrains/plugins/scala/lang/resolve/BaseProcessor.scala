@@ -141,6 +141,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processType(singl.pathTypeInContext(qual), place)
       }
       case ex: ScExistentialType => processType(ex.skolem, place)
+      case z: ScExistentialArgument => processType(z.upperBound, place); processType(z.lowerBound, place)
       case _ => true
     }
   }
