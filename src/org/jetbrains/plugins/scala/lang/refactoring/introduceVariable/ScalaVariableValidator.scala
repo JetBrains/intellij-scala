@@ -66,14 +66,17 @@ class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandle
         case x: ScTypeDefinition => {
           for (member <- x.members) {
             member match {
-              case x: ScVariable => for (el <- x.declaredElements if el.name == name) buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", el.name)
-              case x: ScValue => for (el <- x.declaredElements if el.name == name) buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", el.name)
+              case x: ScVariable => for (el <- x.declaredElements if el.name == name)
+                buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", el.name)
+              case x: ScValue => for (el <- x.declaredElements if el.name == name)
+                buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", el.name)
               case _ =>
             }
           }
           for (function <- x.functions) {
             function match {
-              case x: ScFunction if x.name == name && x.parameters.size == 0 => buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", x.name)
+              case x: ScFunction if x.name == name && x.parameters.size == 0 =>
+                buf += ScalaBundle.message("introduced.variable.will.conflict.with.field", x.name)
               case _ =>
             }
           }

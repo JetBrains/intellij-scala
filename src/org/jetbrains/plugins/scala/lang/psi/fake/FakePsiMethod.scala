@@ -145,7 +145,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
   def copy: PsiElement = new FakePsiTypeElement(manager, language, tp)
 }
 
-class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScType)
+class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScType, name: String)
         extends LightElement(manager, language) with PsiParameter {
   def getDeclarationScope: PsiElement = null
 
@@ -169,9 +169,9 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
   def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def getName: String = "param"
+  def getName: String = name
 
-  def copy: PsiElement = new FakePsiParameter(manager, language, paramType)
+  def copy: PsiElement = new FakePsiParameter(manager, language, paramType, name)
 
   def accept(visitor: PsiElementVisitor): Unit = {}
 
@@ -188,7 +188,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
 class FakePsiParameterList(manager: PsiManager, language: Language, params: Array[ScType])
         extends LightElement(manager, language) with PsiParameterList {
-  def getParameters: Array[PsiParameter] = params.map(new FakePsiParameter(manager, language, _))
+  def getParameters: Array[PsiParameter] = params.map(new FakePsiParameter(manager, language, _, "param"))
 
   def getParametersCount: Int = params.length
 

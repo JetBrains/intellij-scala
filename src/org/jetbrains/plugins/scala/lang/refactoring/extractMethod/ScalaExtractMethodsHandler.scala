@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.command.CommandProcessor
@@ -21,6 +20,7 @@ import com.intellij.openapi.util.Pass
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScDeclarationSequenceHolder, ScalaPsiUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -115,9 +115,14 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     return res.toArray.reverse
   }
 
-  private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Boolean, sibling: PsiElement, scope: PsiElement) {
+  private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Boolean,
+                           sibling: PsiElement, scope: PsiElement) {
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, sibling, scope)
+      val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      val input = info.inputVariables
+      val output = info.outputVariables
+      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, sibling, scope, 
+        input.toArray, output.toArray)
       dialog.show
       if (!dialog.isOK) {
         return

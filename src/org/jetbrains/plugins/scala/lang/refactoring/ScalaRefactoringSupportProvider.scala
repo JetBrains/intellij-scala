@@ -31,5 +31,5 @@ class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider 
 
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 
-  override def getExtractMethodHandler: RefactoringActionHandler = null//todo: new ScalaExtractMethodHandler
+  override def getExtractMethodHandler: RefactoringActionHandler = null //todo: new ScalaExtractMethodHandler
 }
