@@ -31,6 +31,9 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import psi.api.toplevel.typedef.ScMember
 import refactoring.util.ScalaRefactoringUtil
+import extractMethod.ScalaExtractMethodUtils
+import collection.mutable.ArrayBuffer
+
 /**
 * User: Alexander Podkhalyuzin
 * Date: 23.06.2008
@@ -54,13 +57,46 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    if (!editor.getSelectionModel.hasSelection) editor.getSelectionModel.selectLineAtCaret
-
-    val lineText = getLineText(editor)
-    if (editor.getSelectionModel.getSelectedText != null &&
-            lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
-    ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
-    invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+    def invokes() {
+      val lineText = getLineText(editor)
+      if (editor.getSelectionModel.getSelectedText != null &&
+                lineText != null && editor.getSelectionModel.getSelectedText.trim == lineText.trim) deleteOccurrence = true
+      ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+      invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+    }
+    if (!editor.getSelectionModel.hasSelection) {
+      val offset = editor.getCaretModel.getOffset
+      val element: PsiElement = file.findElementAt(offset)
+      def getExpressions: Array[ScExpression] = {
+        val res = new ArrayBuffer[ScExpression]
+        var parent = element
+        while (parent != null && !parent.getText.contains("\n")) {
+          parent match {
+            case expr: ScExpression => res += expr
+            case _ =>
+          }
+          parent = parent.getParent
+        }
+        res.toArray
+      }
+      val expressions = getExpressions
+      def chooseExpression(expr: ScExpression) {
+        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
+          expr.getTextRange.getEndOffset)
+        invokes
+      }
+      if (expressions.length == 0)
+        editor.getSelectionModel.selectLineAtCaret
+      else if (expressions.length == 1) {
+        chooseExpression(expressions(0))
+        return
+      } else {
+        ScalaExtractMethodUtils.showChooser(editor, expressions, elem =>
+          chooseExpression(elem.asInstanceOf[ScExpression]), "Choose Expression for Introduce Variable", (expr: ScExpression) => expr.toString)
+        return
+      }
+    }
+    invokes
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {

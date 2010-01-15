@@ -87,10 +87,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
     if (scope == null) return
     if (siblings.length > 1) {
-      ScalaExtractMethodUtils.showChooser(editor, siblings, new Pass[PsiElement] {
-        def pass(selectedValue: PsiElement): Unit = {
-          invokeDialog(project, editor, elements, hasReturn, selectedValue, scope)
-        }
+      ScalaExtractMethodUtils.showChooser(editor, siblings, {selectedValue =>
+        invokeDialog(project, editor, elements, hasReturn, selectedValue, scope)
       }, "Choose level for Extract Method", getTextForElement _)
       return
     }

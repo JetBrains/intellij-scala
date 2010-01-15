@@ -39,7 +39,7 @@ object ScalaExtractMethodUtils {
     ScalaPsiElementFactory.createMethodFromText(builder.toString, settings.elements.apply(0).getManager)
   }
 
-  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], callback: Pass[T], title: String, elementName: T => String): Unit = {
+  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String, elementName: T => String): Unit = {
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel = new DefaultListModel
     for (element <- elements) {
@@ -70,7 +70,7 @@ object ScalaExtractMethodUtils {
     })
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
       def run: Unit = {
-        callback.pass(list.getSelectedValue.asInstanceOf[T])
+        pass(list.getSelectedValue.asInstanceOf[T])
       }
     }).addListener(new JBPopupAdapter {
       override def onClosed(event: LightweightWindowEvent): Unit = {
