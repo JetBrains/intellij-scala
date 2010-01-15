@@ -1,16 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.impl.EditorFactoryImpl;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
-import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
@@ -18,11 +15,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.EventListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,45 +27,44 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private String REFACTORING_NAME = ScalaBundle.message("extract.method.title");
   private JPanel contentPane;
-  private JTextField methodNameTextField;
   private JRadioButton publicRadioButton;
   private JRadioButton protectedRadioButton;
   private JRadioButton privateRadioButton;
   private JTextField protectedTextField;
   private JTextField privateTextField;
-  private JButton biggerScopeButton;
-  private JButton smallerScopeButton;
-  private JPanel scopePanel;
+  private JPanel methodNamePanel;
+  private EditorTextField editorTextField;
+  private JPanel visibilityPanel;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
   private PsiElement[] myElements;
   private boolean myHasReturn;
-  private Editor myScopeEditor;
 
-  @Override
-  protected void dispose() {
-    EditorFactoryImpl.getInstance().releaseEditor(myScopeEditor);
-    super.dispose();
-  }
+  private PsiElement mySibling;
 
-  private ScDeclarationSequenceHolder myScope;
+  private PsiElement myScope;
 
-  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn) {
+  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn, PsiElement sibling, PsiElement scope) {
     super(project, true);
 
     myElements = elements;
     myProject = project;
     myHasReturn = hasReturn;
+    myScope = scope;
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
-    myScope = PsiTreeUtil.getParentOfType(myElements[0], ScDeclarationSequenceHolder.class);
-    myScopeEditor = EditorFactoryImpl.getInstance().createEditor(EditorFactoryImpl.getInstance().createDocument(myScope.getText()), project, ScalaFileType.SCALA_FILE_TYPE, true);
+    mySibling = sibling;
     setUpDialog();
     updateOkStatus();
+  }
+
+  @Override
+   public JComponent getPreferredFocusedComponent() {
+    return editorTextField;
   }
 
   @Override
@@ -100,16 +93,11 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void setUpDialog() {
-    methodNameTextField.addKeyListener(new KeyListener() {
-      public void keyTyped(KeyEvent e) {
-        updateOkStatus();
+    editorTextField.addDocumentListener(new DocumentListener() {
+      public void beforeDocumentChange(DocumentEvent event) {
       }
 
-      public void keyPressed(KeyEvent e) {
-        updateOkStatus();
-      }
-
-      public void keyReleased(KeyEvent e) {
+      public void documentChanged(DocumentEvent event) {
         updateOkStatus();
       }
     });
@@ -137,11 +125,15 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         } else protectedTextField.setEnabled(false);
       }
     });
+    visibilityPanel.setVisible(isVisibilitySectionAvailable());
+  }
 
-    scopePanel.add(myScopeEditor.getComponent(), new GridConstraints()); //todo: params for GridConstraints
+  private boolean isVisibilitySectionAvailable() {
+    return mySibling.getParent() instanceof ScTemplateBody;
   }
 
   private String getVisibility() {
+    if (!isVisibilitySectionAvailable()) return "";
     if (publicRadioButton.isSelected()) return "";
     else if (privateRadioButton.isSelected()) {
       if (getPrivateEncloser().equals("")) return "private ";
@@ -159,7 +151,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   @Override
   protected void doOKAction() {
     settings = new ScalaExtractMethodSettings(getMethodName(), getParamNames(), getParamTypes(), getReturnTypes(),
-        getVisibility(), getScope(), getSibling(), myElements, myHasReturn);
+        getVisibility(), myScope, mySibling, myElements, myHasReturn);
     super.doOKAction();
   }
 
@@ -172,16 +164,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private String getMethodName() {
-    return methodNameTextField.getText();
-  }
-
-  private PsiElement getScope() {
-    return myScope;
+    return editorTextField.getText();
   }
 
   private PsiElement getSibling() {
     PsiElement result = myElements[0];
-    while (result.getParent() != null && result.getParent() != getScope()) result = result.getParent();
+    while (result.getParent() != null && result.getParent() != mySibling) result = result.getParent();
     return result;
   }
 

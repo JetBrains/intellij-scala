@@ -9,7 +9,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReturnStmt, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import com.intellij.psi.util.PsiTreeUtil
@@ -17,7 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.psi.{PsiExpression, PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.openapi.util.Pass
+import collection.mutable.ArrayBuffer
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,13 +33,15 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+    if (!file.isInstanceOf[ScalaFile]) return
     if (!editor.getSelectionModel.hasSelection) {
       editor.getSelectionModel.selectLineAtCaret
     }
-    invokeOnEditor(project, editor, file, dataContext)
+
+    invokeOnEditor(project, editor, file.asInstanceOf[ScalaFile], dataContext)
   }
 
-  def invokeOnEditor(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
+  private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext): Unit = {
     if (!editor.getSelectionModel.hasSelection) return
     ScalaRefactoringUtil.trimSpacesAndComments(editor, file, false)
     val startElement: PsiElement = file.findElementAt(editor.getSelectionModel.getSelectionStart)
@@ -60,8 +65,61 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         }
       })
     }
+    val siblings: Array[PsiElement] = getSiblings(elements(0))
+    val scope: PsiElement = {
+      if (file.isScriptFile()) {
+        file
+      } else if (siblings.length > 0) {
+        val lastSibling = siblings(0)
+        val element = elements(0)
+        var parent = element.getParent
+        var res: PsiElement = null
+        while (parent != lastSibling) {
+          parent match {
+            case bl: ScBlock => res = bl
+            case _ =>
+          }
+
+          parent = parent.getParent
+        }
+        res
+      } else null
+    }
+    if (scope == null) return
+    if (siblings.length > 1) {
+      ScalaExtractMethodUtils.showChooser(editor, siblings, new Pass[PsiElement] {
+        def pass(selectedValue: PsiElement): Unit = {
+          invokeDialog(project, editor, elements, hasReturn, selectedValue, scope)
+        }
+      }, "Choose level for Extract Method", getTextForElement _)
+      return
+    }
+    else if (siblings.length == 1) {
+      invokeDialog(project, editor, elements, hasReturn, siblings(0), scope)
+    } else return
+  }
+
+  private def getSiblings(element: PsiElement): Array[PsiElement] = {
+    val res = new ArrayBuffer[PsiElement]
+    var prev = element
+    var parent = element.getParent
+    while (parent != null) {
+      parent match {
+        case file: ScalaFile if file.isScriptFile() => res += prev
+        case block: ScBlockExpr => res += prev
+        case tryBlcok: ScTryBlock => res += prev
+        case templ: ScTemplateBody => res += prev
+        case _ =>
+      }
+      prev = parent
+      parent = parent.getParent
+    }
+    return res.toArray.reverse
+  }
+
+  private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Boolean, sibling: PsiElement, scope: PsiElement) {
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn)
+      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, sibling, scope)
       dialog.show
       if (!dialog.isOK) {
         return
@@ -70,11 +128,19 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     } else {
       return //todo: unit tests is not supported yet
     }
-
     performRefactoring(settings, editor)
   }
 
-  def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
+  private def getTextForElement(element: PsiElement): String = {
+    element.getParent match {
+      case _: ScTemplateBody => "Extract class method"
+      case _: ScBlock => "Extract local method"
+      case _: ScalaFile => "Extract file method"
+      case _ => "Unknown extraction"
+    }
+  }
+
+  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
     if (method == null) return
     val runnable = new Runnable {
@@ -82,8 +148,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
         val scope = settings.scope
         val sibling = settings.nextSibling
-        scope.getNode.addChild(method.getNode, sibling.getNode)
-        scope.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), sibling.getNode)
+        sibling.getParent.getNode.addChild(method.getNode, sibling.getNode)
+        sibling.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), sibling.getNode)
         val methodName = settings.methodName
         val call = ScalaPsiElementFactory.createExpressionFromText(methodName /*todo*/, settings.elements.apply(0).getManager)
         settings.elements.apply(0).replace(call)
@@ -102,7 +168,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }, REFACTORING_NAME, null)
   }
 
-  def showErrorMessage(text: String, project: Project): Unit = {
+  private def showErrorMessage(text: String, project: Project): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
     val dialog = new RefactoringMessageDialog(REFACTORING_NAME, text,
             HelpID.EXTRACT_METHOD, "OptionPane.errorIcon", false, project)
