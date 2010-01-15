@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupAdapter, LightweightWindowEvent}
 import com.intellij.openapi.editor.Editor
@@ -10,8 +9,17 @@ import javax.swing.{DefaultListModel, DefaultListCellRenderer, JList}
 import java.awt.Component
 import javax.swing.event.{ListSelectionListener, ListSelectionEvent}
 import java.util.ArrayList
-import com.intellij.psi.{PsiElement, PsiExpression}
 import com.intellij.openapi.util.Pass
+import com.intellij.refactoring.util.ParameterTablePanel
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
+import com.intellij.psi.impl.source.PsiClassReferenceType
+import java.lang.String
+import com.intellij.psi.{PsiAnnotation, PsiPrimitiveType, PsiElement, PsiExpression}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,6 +47,7 @@ object ScalaExtractMethodUtils {
     ScalaPsiElementFactory.createMethodFromText(builder.toString, settings.elements.apply(0).getManager)
   }
 
+  //todo: Move to refactoring utils.
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String, elementName: T => String): Unit = {
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel = new DefaultListModel
@@ -77,5 +86,14 @@ object ScalaExtractMethodUtils {
         highlighter.dropHighlight
       }
     }).createPopup.showInBestPositionFor(editor)
+  }
+
+  def convertVariableData(variable: VariableInfo): ParameterTablePanel.VariableData = {
+    val tp = variable.element.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).
+            getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
+    new ParameterTablePanel.VariableData(new FakePsiParameter(variable.element.getManager, ScalaFileType.SCALA_LANGUAGE,
+      tp, variable.element.getName), new PsiPrimitiveType("fake", PsiAnnotation.EMPTY_ARRAY) {
+      override def getPresentableText: String = ScType.presentableText(tp)
+    })
   }
 }

@@ -6,10 +6,17 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiElement;
+import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
+import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import javax.swing.*;
@@ -35,6 +42,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JPanel methodNamePanel;
   private EditorTextField editorTextField;
   private JPanel visibilityPanel;
+  private JPanel inputParametersPanel;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
@@ -44,14 +52,19 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private PsiElement mySibling;
 
   private PsiElement myScope;
+  private VariableInfo[] myInput;
+  private VariableInfo[] myOutput;
 
-  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn, PsiElement sibling, PsiElement scope) {
+  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn, PsiElement sibling,
+                                  PsiElement scope, VariableInfo[] input, VariableInfo[] output) {
     super(project, true);
 
     myElements = elements;
     myProject = project;
     myHasReturn = hasReturn;
     myScope = scope;
+    myInput = input;
+    myOutput = output;
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -126,6 +139,15 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
     });
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
+    setupParametersPanel();
+  }
+
+  private void setupParametersPanel() {
+    ParameterTablePanel.VariableData[] data = new ParameterTablePanel.VariableData[myInput.length];
+    for (int i = 0; i < myInput.length; ++i) {
+      data[i] = ScalaExtractMethodUtils.convertVariableData(myInput[i]);
+    }
+    inputParametersPanel.add(new ScalaParameterTablePanel(myProject, data));
   }
 
   private boolean isVisibilitySectionAvailable() {
@@ -175,5 +197,28 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   public ScalaExtractMethodSettings getSettings() {
     return settings;
+  }
+
+  //todo: make it more general in Java and remove it from here
+  private class ScalaParameterTablePanel extends ParameterTablePanel {
+    public ScalaParameterTablePanel(Project project, VariableData[] variableData) {
+      super(project, variableData);
+      //todo: replace choosing types
+    }
+
+    @Override
+    protected void updateSignature() {
+      //todo:
+    }
+
+    @Override
+    protected void doEnterAction() {
+      //todo:
+    }
+
+    @Override
+    protected void doCancelAction() {
+      //todo:
+    }
   }
 }
