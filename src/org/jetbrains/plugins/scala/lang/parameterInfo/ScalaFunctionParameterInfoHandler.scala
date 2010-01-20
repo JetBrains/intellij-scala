@@ -81,6 +81,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
   def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = {
+    if (!item.isInstanceOf[LookupItem[_]]) return null
     val allElements = JavaCompletionUtil.getAllPsiElements(item.asInstanceOf[LookupItem[_]])
 
     if (allElements != null &&
