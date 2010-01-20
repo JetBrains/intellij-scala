@@ -65,7 +65,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         this
       }
-      case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+      case _ => throw new IncorrectOperationException("Cannot bind to anything but class: " + element)
     }
   }
 
