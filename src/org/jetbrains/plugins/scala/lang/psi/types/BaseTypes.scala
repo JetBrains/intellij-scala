@@ -13,17 +13,21 @@ import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 object BaseTypes {
   def get(t : ScType) : Seq[ScType] = t match {
     case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => BaseTypes.get(tp) ++ Seq(tp)))
-    case classT@ScDesignatorType(c : PsiClass) => reduce(c.getSuperTypes.map{ScType.create(_, c.getProject)})  //todo: all base types
+    case classT@ScDesignatorType(c : PsiClass) =>
+      reduce(c.getSuperTypes.flatMap{p => BaseTypes.get(ScType.create(p, c.getProject)) ++
+              Seq(ScType.create(p, c.getProject))})
     case ScPolymorphicType(_, Nil, _, upper) => get(upper.v)
     case ScSkolemizedType(_, Nil, _, upper) => get(upper)
     case p : ScParameterizedType => {
-      p.designated match {
-        case Some(td: ScTypeDefinition) => reduce(td.superTypes.flatMap {tp => BaseTypes.get(p.substitutor.subst(tp)) ++ Seq(p.substitutor.subst(tp))})
-        case Some(clazz: PsiClass) => {
+      ScType.extractClassType(p.designator) match {
+        case Some((td: ScTypeDefinition, _)) =>
+          reduce(td.superTypes.flatMap {tp => BaseTypes.get(p.substitutor.subst(tp)) ++ Seq(p.substitutor.subst(tp))})
+        case Some((clazz: PsiClass, _)) => {
           val s = p.substitutor
-          reduce(clazz.getSuperTypes.map {t => s.subst(ScType.create(t, clazz.getProject))}) //todo: all base types
+          reduce(clazz.getSuperTypes.flatMap {t => BaseTypes.get(s.subst(ScType.create(t, clazz.getProject))) ++
+                  Seq(s.subst(ScType.create(t, clazz.getProject)))})
         }
-        case None => Seq.empty
+        case _ => Seq.empty
       }
     }
     case sin : ScSingletonType => get(sin.pathType)
