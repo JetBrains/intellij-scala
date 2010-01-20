@@ -304,6 +304,7 @@ object TypeDefinitionMembers {
               case None =>
             }
           }
+          case _ =>
         }
       }
       map
@@ -319,6 +320,7 @@ object TypeDefinitionMembers {
               case None =>
             }
           }
+          case _ =>
         }
       }
       map
