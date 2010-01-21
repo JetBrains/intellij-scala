@@ -257,7 +257,7 @@ trait ScPattern extends ScalaPsiElement {
           case _ => None
         }
       }
-      case _ => //todo: XmlPattern
+      case _ => None//todo: XmlPattern
     }
     case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
       case matchStat : ScMatchStmt => matchStat.expr match {
