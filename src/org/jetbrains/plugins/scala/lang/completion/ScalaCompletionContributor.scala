@@ -12,10 +12,12 @@ import com.intellij.patterns.{PlatformPatterns}
 import lexer.ScalaTokenTypes
 import scala.util.Random
 import resolve.ResolveUtils
-import com.intellij.psi.{PsiMember, PsiElement}
 import psi.api.statements.ScFun
 import psi.api.base.patterns.ScBindingPattern
-import psi.ScalaPsiUtil;
+import psi.ScalaPsiUtil
+import com.intellij.psi.{PsiClass, PsiMember, PsiElement}
+import com.intellij.openapi.util.Computable
+import com.intellij.openapi.application.ApplicationManager;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,6 +35,17 @@ class ScalaCompletionContributor extends CompletionContributor {
               case (el: LookupElement, elem: PsiElement, _) => {
                 elem match {
                   case fun: ScFun => result.addElement(el)
+                  case clazz: PsiClass => {
+                    val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
+                      def compute: Boolean = {
+                        return JavaCompletionUtil.isInExcludedPackage(clazz)
+                      }
+                    }).booleanValue
+
+                    if (!isExcluded) {
+                      result.addElement(el)
+                    }
+                  }
                   case memb: PsiMember => {
                     if (parameters.getInvocationCount > 1 ||
                             ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
