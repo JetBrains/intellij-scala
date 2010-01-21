@@ -11,7 +11,6 @@ import com.intellij.codeInsight.CodeInsightUtilBase
 import com.intellij.ide.util.FQNameCellRenderer
 import com.intellij.openapi.editor.{LogicalPosition, Editor}
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.ui.popup.PopupChooserBuilder
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi._
 import lang.psi.api.expr.ScMethodCall
@@ -20,7 +19,6 @@ import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import lang.resolve.ResolveUtils
 import java.awt.Point
-import javax.swing.JList
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.ScImportsHolder
 import scala.util.ScalaUtils
@@ -31,12 +29,20 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.ScalaFile
+import com.intellij.codeInsight.completion.JavaCompletionUtil
+import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.codeInsight.daemon.QuickFixBundle
+import com.intellij.util.ObjectUtils
+import javax.swing.{Icon, JList}
+import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
+import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep, PopupChooserBuilder}
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.07.2009
  */
 
-class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) extends {
+class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReferenceElement) extends {
     val project = ref.getProject
   } with  HintAction {
   def getText = ScalaBundle.message("import.with", classes(0).getQualifiedName)
@@ -48,6 +54,7 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
   def invoke(project: Project, editor: Editor, file: PsiFile) = {
     CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
       def run() {
+        classes = ScalaImportClassFix.getClasses(ref, project)
         new ScalaAddImportAction(editor, classes, ref).execute()
       }
     })
@@ -58,6 +65,7 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
     ref.qualifier match {
       case Some(_) => return false
       case None => {
+        classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
           case 0 => return false
           case 1 if scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY  &&
@@ -138,7 +146,7 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
     def chooseClass {
       val list = new JList(classes.asInstanceOf[Array[Object]])
       list.setCellRenderer(new FQNameCellRenderer())
-      new PopupChooserBuilder(list).setTitle(ScalaBundle.message("class.import.title")).
+      /*new PopupChooserBuilder(list).setTitle(ScalaBundle.message("class.import.title")).
               setItemChoosenCallback(new Runnable {
         def run {
           val index = list.getSelectedIndex()
@@ -146,7 +154,49 @@ class ScalaImportClassFix(classes: Array[PsiClass], ref: ScReferenceElement) ext
           PsiDocumentManager.getInstance(project).commitAllDocuments()
           addImport(classes(index))
         }
-      }).createPopup().showInBestPositionFor(editor)
+      }).createPopup().showInBestPositionFor(editor)*/
+
+      val popup = new BaseListPopupStep[PsiClass](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
+        override def getIconFor(aValue: PsiClass): Icon = {
+          return aValue.getIcon(0)
+        }
+
+        override def getTextFor(value: PsiClass): String = {
+          return ObjectUtils.assertNotNull(value.getQualifiedName)
+        }
+
+        import PopupStep.FINAL_CHOICE
+        override def onChosen(selectedValue: PsiClass, finalChoice: Boolean): PopupStep[_] = {
+          if (selectedValue == null) {
+            return FINAL_CHOICE
+          }
+          if (finalChoice) {
+            PsiDocumentManager.getInstance(project).commitAllDocuments
+            addImport(selectedValue)
+            return FINAL_CHOICE
+          }
+          var qname: String = selectedValue.getQualifiedName
+          if (qname == null) return FINAL_CHOICE
+          var toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
+          return new BaseListPopupStep[String](null, toExclude) {
+            override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
+              if (finalChoice) {
+                AddImportAction.excludeFromImport(project, selectedValue)
+              }
+              return super.onChosen(selectedValue, finalChoice)
+            }
+
+            override def getTextFor(value: String): String = {
+              return "Exclude '" + value + "' from auto-import"
+            }
+          }
+        }
+
+        override def hasSubstep(selectedValue: PsiClass): Boolean = {
+          return true
+        }
+      }
+      JBPopupFactory.getInstance.createListPopup(popup).showInBestPositionFor(editor)
     }
 
     def execute: Boolean = {
@@ -202,7 +252,8 @@ object ScalaImportClassFix {
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
       clazz => clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
-              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref)
+              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
+              !JavaCompletionUtil.isInExcludedPackage(clazz)
     }
     if (ref.getParent.isInstanceOf[ScMethodCall]) {
       classes.filter((clazz: PsiClass) => (clazz.isInstanceOf[ScClass] && clazz.hasModifierProperty("case")) ||
