@@ -151,7 +151,6 @@ abstract class MixinNodes {
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
             var newSubst = combine(s, subst, superClass)
             val newMap = new Map
-            //val newMap = (cachedBuild(superClass), newSubst)
             superClass match {
               case template : ScTemplateDefinition => {
                 processScala(template, newSubst, newMap)
@@ -164,7 +163,6 @@ abstract class MixinNodes {
               }
             }
             superTypesBuff += newMap
-            //superTypesBuff += newMap
           }
         case _ =>
       }
@@ -199,5 +197,4 @@ abstract class MixinNodes {
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
   def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map)
   def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
-  def cachedBuild(clazz: PsiClass): Map
 }
