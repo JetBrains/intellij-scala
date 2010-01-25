@@ -14,4 +14,6 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
   def testLowerUpperBouns = doTest
 
   def testToExistential = doTest
+
+  def testToExistentialSimple = doTest
 }
