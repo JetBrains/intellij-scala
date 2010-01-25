@@ -1,0 +1,12 @@
+class A {
+  def foo = {
+  }
+}
+
+class B extends A { // -
+  def bar = {
+  }
+
+  override def foo = { // -
+  }
+}

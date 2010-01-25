@@ -1,0 +1,6 @@
+trait T {
+  import scala.collection.immutable.List
+
+  def f = {
+  }
+}
