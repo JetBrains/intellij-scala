@@ -132,7 +132,7 @@ abstract class MixinNodes {
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
       case template : ScTemplateDefinition => {
         processScala(template, ScSubstitutor.empty, map)
-        (BaseTypes.get(ScDesignatorType(template)): Seq[ScType], putAliases(template, ScSubstitutor.empty))
+        (BaseTypes.get(ScDesignatorType(template)) ++ Seq[ScType](AnyRef, Any), putAliases(template, ScSubstitutor.empty))
       }
       case syn: ScSyntheticClass => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -140,7 +140,7 @@ abstract class MixinNodes {
       }
       case _ => {
         processJava(clazz, ScSubstitutor.empty, map)
-        (BaseTypes.get(ScDesignatorType(clazz)) : Seq[ScType], ScSubstitutor.empty)
+        (BaseTypes.get(ScDesignatorType(clazz)) ++ Seq[ScType](AnyRef, Any), ScSubstitutor.empty)
       }
     }
 
