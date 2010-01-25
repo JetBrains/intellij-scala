@@ -1,0 +1,15 @@
+try {
+  prinltn(a)
+} catch {
+  case n: NPE => b
+  case _ => c
+}
+-----
+0(1) element: None
+1(2) element: TryStatement
+2(3) READ a
+3(4,6) READ prinltn
+4(5) VAL n
+5(7) READ b
+6(7) READ c
+7() element: None
