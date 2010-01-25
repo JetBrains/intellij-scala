@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScControlFlowOwner
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
@@ -10,6 +9,9 @@ import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{ReadWriteVariableInstruction, DefineValueInstruction}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
  * @author ilyas
@@ -94,20 +96,29 @@ object ReachingDefintionsCollector {
   private def getInputInfo(elements: Seq[PsiElement],
                            isInFragment: (PsiElement) => Boolean,
                            isInScope: (PsiElement) => Boolean): Iterable[VariableInfo] = {
-    val inputDefs = new ArrayBuffer[PsiNamedElement]
+    val inputDefs = new ArrayBuffer[VariableInfo]
+
+    def isInClosure(elem: PsiElement) = {
+      val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionExpr], classOf[ScFunction])
+      parent != null && isInFragment(parent)
+    }
+
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
         val element = ref.resolve
         element match {
           case named: PsiNamedElement
-            if !isInFragment(named) && isInScope(named) && !inputDefs.contains(named) =>
-            inputDefs + named
+            if !isInFragment(named) && isInScope(named) &&
+                    !inputDefs.map(_.element).contains(named) =>
+            val isReferenceParameter = isInClosure(ref) && ScalaPsiUtil.isLValue(ref)
+            inputDefs + VariableInfo(named, isReferenceParameter)
           case _ =>
         }
       }
     }
+
     for (e <- elements if e.isInstanceOf[ScalaPsiElement]) e.asInstanceOf[ScalaPsiElement].accept(visitor)
-    inputDefs.map(VariableInfo(_))
+    inputDefs
   }
 
   def computeOutputVariables(innerInstructions: Seq[Instruction],
@@ -127,7 +138,7 @@ object ReachingDefintionsCollector {
         case _ =>
       }
     }
-    buffer.map(VariableInfo(_))
+    buffer.map(VariableInfo(_, false))
   }
 
 
@@ -140,4 +151,7 @@ object FragmentVariableInfos {
   def empty = FragmentVariableInfos(Nil, Nil)
 }
 
-case class VariableInfo(element: PsiNamedElement)
+/**
+ * @param isRef local variable must be treated as reference parameter
+ */
+case class VariableInfo(element: PsiNamedElement, isRef: Boolean)
