@@ -108,7 +108,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def isLValue(elem: ScalaPsiElement) = elem match {
+  def isLValue(elem: PsiElement) = elem match {
     case e: ScExpression => e.getParent match {
       case as: ScAssignStmt => as.getLExpression eq e
       case _ => false

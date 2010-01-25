@@ -46,7 +46,7 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     var builder: StringBuilder = new StringBuilder
     builder.append("INPUT:\n")
     builder.append(Sorting.stableSort(infos.inputVariables.
-            map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
+            map(p => p.element.toString + " : " + p.element.getName + (if (p.isRef) " [ref]" else "")).toSeq).mkString("\n"))
     builder.append("\nOUTPUT:\n")
     builder.append(Sorting.stableSort(infos.outputVariables.
             map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
