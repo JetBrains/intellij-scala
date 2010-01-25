@@ -21,6 +21,7 @@ import java.util._
 import com.intellij.psi._
 import com.intellij.psi.util._
 import icons._
+import impl.source.HierarchicalMethodSignatureImpl
 import lexer._
 import tree.TokenSet
 import types._
@@ -190,4 +191,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def hasAssign = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size > 0
+  
+  def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
+    new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
+  }
 }
