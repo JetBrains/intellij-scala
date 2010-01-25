@@ -38,9 +38,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
     Assert.assertEquals(input.get(1).trim, cf.trim)
   }
 
-  protected  def dumpControlFlow(instructions: Seq[Instruction]): String = {
-    instructions.mkString("\n")
-  }
+  protected def dumpControlFlow(instructions: Seq[Instruction]) = instructions.mkString("\n")
 
   def testAssignment = doTest
   def testIfStatement = doTest
@@ -56,6 +54,9 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
   def testThrow1 = doTest
   def testKaplan_1703 = doTest
   def testKaplan_1703_2 = doTest
+  def testTry1 = doTest
+  def testTry2 = doTest
+  def testTry3 = doTest
 
 }
 
