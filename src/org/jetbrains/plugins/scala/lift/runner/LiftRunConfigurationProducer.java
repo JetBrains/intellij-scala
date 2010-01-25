@@ -26,6 +26,7 @@ import org.jetbrains.idea.maven.execution.MavenRunnerSettings;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -77,7 +78,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
 
     mySourceElement = element;
 
-    List<String> profiles = MavenProjectsManager.getInstance(project).getActiveProfiles();
+    Collection<String> profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
     List<String> goals = new ArrayList<String>();
 
     goals.add(JETTY_RUN);
