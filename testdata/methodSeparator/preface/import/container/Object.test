@@ -1,0 +1,6 @@
+object O {
+  import scala.collection.immutable.List
+
+  def f = {
+  }
+}

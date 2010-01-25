@@ -1,0 +1,15 @@
+try {
+}
+catch {
+  case _ =>
+}
+finally {
+}
+
+try {
+}
+catch {
+  case _ =>
+}
+finally {
+}

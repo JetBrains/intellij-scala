@@ -1,0 +1,5 @@
+def f1(implicit s: String) = {
+}
+
+def f2(implicit s: String) = { // -
+}

@@ -6,9 +6,7 @@ package gutter
 import _root_.scala.collection.mutable.HashSet
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeHighlighting.Pass
-import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -19,16 +17,49 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
 import lang.psi.api.toplevel.{ScNamedElement}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
-import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
+import com.intellij.util.NullableFunction
+import lang.psi.{ScalaPsiUtil}
+import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, CodeInsightColors}
+import com.intellij.openapi.editor.markup.{SeparatorPlacement, GutterIconRenderer}
+import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
+
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.10.2008
  */
 
-class ScalaLineMarkerProvider extends LineMarkerProvider {
+class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colorsManager: EditorColorsManager)
+        extends LineMarkerProvider with ScalaSeparatorProvider {
+
   def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
+    val gator = getGatorInfo(element)
+    if(daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
+      if(gator == null) {
+        return addSeparatorInfo(createMarkerInfo(element))
+      } else {
+        return addSeparatorInfo(gator)
+      }
+    } else {
+      return gator
+    }
+  }
+
+  def createMarkerInfo(element: PsiElement) = {
+    new LineMarkerInfo[PsiElement](
+            element, element.getTextRange, null, Pass.UPDATE_ALL,
+            NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
+            null,GutterIconRenderer.Alignment.RIGHT)
+  }
+
+  def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]) = {
+    info.separatorColor = colorsManager.getGlobalScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
+    info.separatorPlacement = SeparatorPlacement.TOP
+    info
+  }
+
+  def getGatorInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       val offset = element.getTextRange.getStartOffset
       def getParent: PsiElement = {
