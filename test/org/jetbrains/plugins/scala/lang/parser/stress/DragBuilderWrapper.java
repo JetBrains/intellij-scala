@@ -107,4 +107,8 @@ public class DragBuilderWrapper implements PsiBuilder {
   public <T> void putUserData(Key<T> key, T value) {
     myBuilder.putUserData(key, value);
   }
+
+  public LighterASTNode getLatestDoneMarker() {
+    return myBuilder.getLatestDoneMarker();
+  }
 }
