@@ -95,8 +95,6 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getReturnTypeElement = null
 
-  def getHierarchicalMethodSignature = null
-
   def findSuperMethods(parentClass: PsiClass) = PsiMethod.EMPTY_ARRAY
 
   def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
