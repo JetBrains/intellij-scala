@@ -87,12 +87,23 @@ object ScType {
       val result = classType.resolveGenerics
       result.getElement match {
         case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => Any
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
           val des = new ScDesignatorType(clazz)
           val substitutor = result.getSubstitutor
           tps match {
             case Array() => des
+            case _ if classType.isRaw => {
+              new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
+                new ScExistentialArgument("_", Nil, Nothing,
+                  tp.getSuperTypes.length match {
+                    case 0 => Any
+                    case 1 => create(tp.getSuperTypes.apply(0), project)
+                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project)), Seq.empty, Seq.empty)
+                  })
+              }}): _*))
+            }
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
                       (tp => {
               val psiType = substitutor.substitute(tp)
