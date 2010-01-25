@@ -1,0 +1,16 @@
+if (
+  true
+) {
+  def f1 = {
+  }
+
+  def f2 = {
+  }
+}
+else {
+  def f1 = {
+  }
+
+  def f2 = {
+  }
+}
