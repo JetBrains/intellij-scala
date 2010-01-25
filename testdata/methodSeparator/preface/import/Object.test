@@ -1,0 +1,4 @@
+import scala.collection.immutable.List
+
+object O {
+}

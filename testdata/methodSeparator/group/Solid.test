@@ -1,0 +1,18 @@
+package p
+package p2 {}
+val vl1 = null
+var vr1
+var vr2 = null
+def f1
+def f2 = {}
+type t1 = Int
+import scala.collection.immutable.List
+class C {}
+trait T {}
+object O {}
+{}
+println
+new Runnable {
+  def run = {
+  }
+}

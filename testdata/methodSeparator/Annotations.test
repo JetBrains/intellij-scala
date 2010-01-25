@@ -1,0 +1,41 @@
+import annotation.target.beanSetter
+
+def f = {
+}
+
+@beanSetter // -
+def f1 = {
+}
+
+@beanSetter def f1 = {// -
+}
+
+@beanSetter // -
+val v1 = null
+
+@beanSetter // -
+class C {
+}
+
+@beanSetter class C { // -
+}
+
+@beanSetter // -
+var v2 = null
+
+@beanSetter // -
+object O {
+}
+
+@beanSetter object O { // -
+}
+
+@beanSetter // -
+type t1 = Int
+
+@beanSetter // -
+trait T {
+}
+
+@beanSetter trait T { // -
+}
