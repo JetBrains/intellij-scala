@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Arrays;
 
@@ -29,6 +31,11 @@ public class ScalacConfigurable implements Configurable {
   private JCheckBox optimizeCheckBox;
   private JCheckBox scalacBeforeCheckBox;
   private JCheckBox myNoGenerics;
+  private JCheckBox useFscFastScalacCheckBox;
+  private JTextField serverPortTextField;
+  private JCheckBox resetFscServerCheckBox;
+  private JCheckBox shutdownFscServerCheckBox;
+  private JLabel serverPortLabel;
   private ScalacSettings mySettings;
   private Project myProject;
 
@@ -36,6 +43,15 @@ public class ScalacConfigurable implements Configurable {
     myProject = project;
     mySettings = settings;
     additionalCommandLineParameters.setDialogCaption(ScalaBundle.message("scala.compiler.option.additional.command.line.parameters"));
+    useFscFastScalacCheckBox.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        boolean enabled = useFscFastScalacCheckBox.isSelected();
+        serverPortTextField.setEnabled(enabled);
+        resetFscServerCheckBox.setEnabled(enabled);
+        shutdownFscServerCheckBox.setEnabled(enabled);
+        serverPortLabel.setEnabled(enabled);
+      }
+    });
   }
 
   @Nls
@@ -66,6 +82,11 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.GENERATE_NO_WARNINGS != noWarningsCheckBox.isSelected()) return true;
     if (mySettings.OPTIMISE != optimizeCheckBox.isSelected()) return true;
     if (mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) return true;
+    if (mySettings.SERVER_RESET != resetFscServerCheckBox.isSelected()) return true;
+    if (mySettings.SERVER_SHUTDOWN != shutdownFscServerCheckBox.isSelected()) return true;
+    if (mySettings.USE_FSC != useFscFastScalacCheckBox.isSelected()) return true;
+    if (!mySettings.SERVER_PORT.equals(serverPortTextField.getText())) return true;
+
     return false;
   }
 
@@ -83,6 +104,10 @@ public class ScalacConfigurable implements Configurable {
     mySettings.NO_GENERICS = myNoGenerics.isSelected();
     mySettings.DEPRECATION = deprecationCheckBox.isSelected();
     mySettings.OPTIMISE = optimizeCheckBox.isSelected();
+    mySettings.USE_FSC = useFscFastScalacCheckBox.isSelected();
+    mySettings.SERVER_PORT = serverPortTextField.getText();
+    mySettings.SERVER_RESET = resetFscServerCheckBox.isSelected();
+    mySettings.SERVER_SHUTDOWN = shutdownFscServerCheckBox.isSelected();
     if (scalacBeforeCheckBox.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) {
       for (ScalaCompiler compiler: CompilerManager.getInstance(myProject).getCompilers(ScalaCompiler.class)) {
         CompilerManager.getInstance(myProject).removeCompiler(compiler);
@@ -108,6 +133,10 @@ public class ScalacConfigurable implements Configurable {
     deprecationCheckBox.setSelected(mySettings.DEPRECATION);
     optimizeCheckBox.setSelected(mySettings.OPTIMISE);
     scalacBeforeCheckBox.setSelected(mySettings.SCALAC_BEFORE);
+    shutdownFscServerCheckBox.setSelected(mySettings.SERVER_SHUTDOWN);
+    resetFscServerCheckBox.setSelected(mySettings.SERVER_RESET);
+    serverPortTextField.setText(mySettings.SERVER_PORT);
+    useFscFastScalacCheckBox.setSelected(mySettings.USE_FSC);
   }
 
   public void disposeUIResources() {
