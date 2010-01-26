@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 
 import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
-import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
@@ -10,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
+import collection.mutable.{Stack, ArrayBuffer}
 
 /**
  * @author ilyas
@@ -20,6 +21,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         extends ScalaRecursiveElementVisitor {
   private val myInstructions = new ArrayBuffer[InstructionImpl]
   private val myPending = new ArrayBuffer[(InstructionImpl, ScalaPsiElement)]
+  private val myTransitionInstructions = new ArrayBuffer[(InstructionImpl, HandleInfo)]
+  private val myCatchedExnStack = new Stack[HandleInfo]
   private var myInstructionNum = 0
   private var myHead: InstructionImpl = null
 
@@ -326,6 +329,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       addPendingEdge(null, myHead)
     }
     else addPendingEdge(null, myHead)
+
+    // add edge to finally block
+    getClosestFinallyInfo.map {finfo => myTransitionInstructions += ((myHead, finfo))}
     interruptFlow
   }
 
@@ -347,7 +353,6 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   override def visitFunction(fun: ScFunction) { /* Yep, do not visit functions as well :) */ }
 
-
   override def visitThrowExpression(throwStmt: ScThrowStmt) = {
     visitExpression(throwStmt)
     val isNodeNeeded = myHead == null || (myHead.element match {
@@ -362,8 +367,69 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     interruptFlow
   }
 
+  private def getClosestFinallyInfo = myCatchedExnStack.find(_.isInstanceOf[FinallyInfo]).asInstanceOf[Option[FinallyInfo]]
+
+  sealed abstract class HandleInfo(val elem: ScalaPsiElement)
+  case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
+  case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
   override def visitTryExpression(tryStmt: ScTryStmt) = {
-    //todo implement me!
+    visitExpression(tryStmt)
+
+    val handledExnTypes = tryStmt.catchBlock match {
+      case None => Nil
+      case Some(cb) => for (cl <- cb.caseClauses) yield CatchInfo(cl)
+    }
+    myCatchedExnStack pushAll handledExnTypes
+    var catchedExnCount = handledExnTypes.size
+
+    val fBlock = tryStmt.finallyBlock match {
+      case None => null
+      case Some(x) => x
+    }
+    if (fBlock != null) {
+      myCatchedExnStack push FinallyInfo(fBlock)
+      catchedExnCount += 1
+    }
+
+    startNode(Some(tryStmt)) {instr =>
+      checkPendingEdges(instr)
+      // process try block
+      val tb = tryStmt.tryBlock
+      if (tb != null) {
+        tb.accept(this)
+      }
+
+      // remove exceptions
+      for (_ <- 1 to catchedExnCount) {myCatchedExnStack.pop}
+
+      val headAfterTry = myHead
+      def processCatch(fin: InstructionImpl) = tryStmt.catchBlock.map {cb =>
+        for (cc <- cb.caseClauses) {
+          myHead = headAfterTry
+          cc.accept(this)
+          if (fin == null) {
+            addPendingEdge(tryStmt, myHead)
+          } else {
+            addEdge(myHead, fin)
+          }
+          myHead = null
+        }
+      }
+
+      if (fBlock == null) {
+        processCatch(null)
+      } else {
+        startNode(Some(fBlock)) {finInstr =>
+          for (p@(instr, info) <- myTransitionInstructions; if info.elem eq fBlock) {
+            addEdge(instr, finInstr)
+            myTransitionInstructions -= p
+          }
+          processCatch(finInstr)
+          myHead = finInstr
+          fBlock.accept(this)
+        }
+      }
+    }
   }
 }

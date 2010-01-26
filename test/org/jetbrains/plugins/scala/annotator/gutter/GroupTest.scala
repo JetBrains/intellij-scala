@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.annotator.gutter
  * Pavel.Fatin, 21.01.2010
  */
 
-class GroupTest extends AbstractLineMarkerTest {
+class GroupTest extends LineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/group/"
 
   def testSolid = doTest

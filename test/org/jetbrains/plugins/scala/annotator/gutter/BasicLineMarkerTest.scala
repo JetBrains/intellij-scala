@@ -6,7 +6,7 @@ import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
  * Pavel.Fatin, 21.01.2010
  */
 
-class BasicLineMarkerTest extends AbstractLineMarkerTest {
+class BasicLineMarkerTest extends LineMarkerTestBase {
 
   // TODO enable annotations test
 //  def testAnnotations = doTest
