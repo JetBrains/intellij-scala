@@ -18,7 +18,7 @@ import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerIn
  * Pavel.Fatin, 14.01.2010
  */
 
-abstract class AbstractLineMarkerTest extends LightCodeInsightFixtureTestCase {
+abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   val marker = "// -"
 
   protected override def getBasePath = TestUtils.getTestDataPath + "/methodSeparator/"

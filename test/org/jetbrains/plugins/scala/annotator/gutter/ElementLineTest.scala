@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.annotator.gutter
  * Pavel.Fatin, 21.01.2010
  */
 
-class ElementLineTest extends AbstractLineMarkerTest {
+class ElementLineTest extends LineMarkerTestBase {
   protected override def getBasePath = super.getBasePath + "/element/line/"
 
   def testAnonymousClass = doTest
