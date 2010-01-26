@@ -35,6 +35,10 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
   public boolean OPTIMISE = false;
   public boolean NO_GENERICS = false;
   public boolean SCALAC_BEFORE = true;
+  public boolean USE_FSC = false;
+  public String SERVER_PORT = "";
+  public boolean SERVER_RESET = false;
+  public boolean SERVER_SHUTDOWN = false;
 
   public ScalacSettings getState() {
     return this;
@@ -82,6 +86,15 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     if(OPTIMISE) {
       options.append("-optimise ");
     }
+    if (SERVER_RESET) {
+      options.append("-reset ");
+    }
+    if (SERVER_SHUTDOWN) {
+      options.append("-shutdown ");
+    }
+    if (!SERVER_PORT.equals("")) {
+      options.append("-server:").append(SERVER_PORT).append(" ");
+    }
     boolean isEncodingSet = false;
     final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
     while(tokenizer.hasMoreTokens()) {
@@ -96,6 +109,15 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
         continue;
       }
       if("-optimise".equals(token)) {
+        continue;
+      }
+      if ("-reset".equals(token)) {
+        continue;
+      }
+      if ("-shutdown".equals(token)) {
+        continue;
+      }
+      if (token.startsWith("-server")) {
         continue;
       }
       options.append(token);

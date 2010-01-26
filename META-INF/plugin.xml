@@ -34,7 +34,7 @@
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
-    <treeStructureProvider language="Scala" implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
+    <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider"/>
     <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
     <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
     <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
@@ -105,6 +105,7 @@
     <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaScriptConsoleConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationType"/>
+    <configurationType implementation="org.jetbrains.plugins.scala.compiler.server.ScalaCompilationServerConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationProducer"/>
 
