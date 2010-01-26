@@ -186,7 +186,8 @@ object AnnotatorHighlighter {
           }
           case x: ScBindingPattern => {
             var parent: PsiElement = x
-            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable])) parent = getParentByStub(parent)
+            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable]))
+              parent = getParentByStub(parent)
             parent match {
               case r@(_: ScValue | _: ScVariable) => {
                 getParentByStub(parent) match {
