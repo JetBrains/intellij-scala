@@ -131,7 +131,7 @@ abstract class MixinNodes {
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
       case template : ScTemplateDefinition => {
-        processScala(template, ScSubstitutor.empty, map)
+        processScala(template, ScSubstitutor.empty, map, false)
         (BaseTypes.get(ScDesignatorType(template)), putAliases(template, ScSubstitutor.empty))
       }
       case syn: ScSyntheticClass => {
@@ -139,7 +139,7 @@ abstract class MixinNodes {
         (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType], ScSubstitutor.empty)
       }
       case _ => {
-        processJava(clazz, ScSubstitutor.empty, map)
+        processJava(clazz, ScSubstitutor.empty, map, false)
         (BaseTypes.get(ScDesignatorType(clazz)), ScSubstitutor.empty)
       }
     }
@@ -154,13 +154,13 @@ abstract class MixinNodes {
               val newMap = new Map
               superClass match {
                 case template : ScTemplateDefinition => {
-                  processScala(template, newSubst, newMap)
+                  processScala(template, newSubst, newMap, true)
                 }
                 case syn: ScSyntheticClass => {
                   processSyntheticScala(syn, newSubst, newMap)
                 }
                 case _ => {
-                  processJava(superClass, newSubst, newMap)
+                  processJava(superClass, newSubst, newMap, true)
                 }
               }
               superTypesBuff += newMap
@@ -197,7 +197,7 @@ abstract class MixinNodes {
     res
   }
 
-  def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map)
-  def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map)
+  def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
+  def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
   def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
 }
