@@ -203,6 +203,9 @@
       <add-to-group group-id="RunContextPopupGroup" anchor="last"/>
       <keyboard-shortcut first-keystroke="control shift D" keymap="$default"/>
     </action>
+    <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.EnableErrorHighlightingAction">
+      <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
+    </action>
     <!--<action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
             text="Convert Java File To Scala" description="Rename Java File To Scala">
       <add-to-group group-id="RefactoringMenu" anchor="last"/>
