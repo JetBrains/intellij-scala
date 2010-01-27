@@ -132,7 +132,7 @@ abstract class MixinNodes {
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
       case template : ScTemplateDefinition => {
         processScala(template, ScSubstitutor.empty, map)
-        (BaseTypes.get(ScDesignatorType(template)) ++ Seq[ScType](AnyRef, Any), putAliases(template, ScSubstitutor.empty))
+        (BaseTypes.get(ScDesignatorType(template)), putAliases(template, ScSubstitutor.empty))
       }
       case syn: ScSyntheticClass => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -140,32 +140,35 @@ abstract class MixinNodes {
       }
       case _ => {
         processJava(clazz, ScSubstitutor.empty, map)
-        (BaseTypes.get(ScDesignatorType(clazz)) ++ Seq[ScType](AnyRef, Any), ScSubstitutor.empty)
+        (BaseTypes.get(ScDesignatorType(clazz)), ScSubstitutor.empty)
       }
     }
 
     for (superType <- superTypes) {
-      ScType.extractClassType(superType) match {
-        case Some((superClass, s)) =>
-          // Do not include scala.ScalaObject to Predef's base types to prevent SOE
-          if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
-            var newSubst = combine(s, subst, superClass)
-            val newMap = new Map
-            superClass match {
-              case template : ScTemplateDefinition => {
-                processScala(template, newSubst, newMap)
+      def workWithType(superType: ScType) {
+        ScType.extractClassType(superType) match {
+          case Some((superClass, s)) =>
+            // Do not include scala.ScalaObject to Predef's base types to prevent SOE
+            if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
+              var newSubst = combine(s, subst, superClass)
+              val newMap = new Map
+              superClass match {
+                case template : ScTemplateDefinition => {
+                  processScala(template, newSubst, newMap)
+                }
+                case syn: ScSyntheticClass => {
+                  processSyntheticScala(syn, newSubst, newMap)
+                }
+                case _ => {
+                  processJava(superClass, newSubst, newMap)
+                }
               }
-              case syn: ScSyntheticClass => {
-                processSyntheticScala(syn, newSubst, newMap)
-              }
-              case _ => {
-                processJava(superClass, newSubst, newMap)
-              }
+              superTypesBuff += newMap
             }
-            superTypesBuff += newMap
-          }
-        case _ =>
+          case _ =>
+        }
       }
+      workWithType(superType)
     }
     val superMap = mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
 
