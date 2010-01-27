@@ -245,6 +245,7 @@ class MethodResolveProcessor(ref: PsiElement,
       result.getElement match {
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
+          if (qualifier == null) return 5
           val index = qualifier.lastIndexOf('.')
           if (index == -1) return 5
           val q = qualifier.substring(0, index)
