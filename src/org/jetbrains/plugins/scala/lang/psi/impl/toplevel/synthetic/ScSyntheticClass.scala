@@ -113,7 +113,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
       }
       case _ =>
         //method toString and hashCode exists in java.lang.Object
-        for(p <- methods; if p._1 != "toString" && p._1 != "hashCode"; method <- p._2) {
+        for(p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
           if (!processor.execute(method, state)) return false
         }
     }
