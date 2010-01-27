@@ -7,7 +7,6 @@ package expr
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import api.ScalaFile
 import api.statements._
-import api.base.patterns.ScReferencePattern
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.openapi.progress.ProgressManager
@@ -31,6 +30,7 @@ import api.base.types.ScTypeElement
 import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
+import api.base.patterns.{ScBindingPattern, ScReferencePattern}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -106,7 +106,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   import com.intellij.psi.impl.source.resolve.ResolveCache
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
-    def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean) = {
+    def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean): Array[ResolveResult] = {
       import Compatibility.Expression._
       def defineProcessor(e : ScExpression, typeArgs: Seq[ScTypeElement]) : ResolveProcessor = e.getContext match {
         case generic : ScGenericCall => defineProcessor(generic, generic.arguments)
@@ -140,6 +140,39 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
 
       val res = _resolve(ref, defineProcessor(ref, Nil))
+      if (refName.endsWith("=") && refName.length > 1 && res.length == 0) {
+        //we should check if it's infix method like +=
+        ref.getContext match {
+          case inf: ScInfixExpr => {
+            inf.lOp match {
+              case referenceExpression: ScReferenceExpression => {
+                referenceExpression.resolve match {
+                  case patt: ScBindingPattern => {
+                    ScalaPsiUtil.nameContext(patt) match {
+                      case _var: ScVariable => {
+                        val args = inf.rOp match {
+                          case tuple: ScTuple => tuple.exprs
+                          case rOp => Seq.singleton(rOp)
+                        }
+                        val processor = new MethodResolveProcessor(ref, refName.substring(0, refName.length - 1),
+                          List(args), Nil, patt.getType(TypingContext.empty) match {
+                            case Success(tp, _) => Some(tp)
+                            case _ => None
+                          })
+                        return _resolve(ref, processor)
+                      }
+                      case _ => return res
+                    }
+                  }
+                  case _ => 
+                }
+              }
+              case _ => return res
+            }
+          }
+          case _ => return res
+        }
+      }
       res
     }
   }
