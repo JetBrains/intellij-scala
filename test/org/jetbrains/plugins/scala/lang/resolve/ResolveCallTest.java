@@ -23,6 +23,13 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     assertTrue(resolved instanceof ScSyntheticFunction);
   }
 
+  public void testImplicitConversionOfPrivate() throws Exception {
+    PsiReference ref = configureByFile("call/ImplicitConversionOfPrivate.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScFunction); //this is not Java PsiMethod, which has private access
+  }
+
   public void testObjectApply() throws Exception {
     PsiReference ref = configureByFile("call/objectApply.scala");
     PsiElement resolved = ref.resolve();
