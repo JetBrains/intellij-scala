@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId;
@@ -17,6 +19,27 @@ public class ResolveClassTest extends ScalaResolveTestCase {
 
   public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/class/";
+  }
+
+  public void testCaseClass() throws Exception {
+    PsiReference ref = configureByFile("companion/CaseClass.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScObject);
+  }
+
+  public void testApplyToCase() throws Exception {
+    PsiReference ref = configureByFile("companion/ApplyToCase.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScClass);
+  }
+
+  public void testApplyToObjectApply() throws Exception {
+    PsiReference ref = configureByFile("companion/ApplyToObjectApply.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScFunction);
   }
 
   public void testEmptySelfReference() throws Exception {
