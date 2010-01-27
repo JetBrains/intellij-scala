@@ -371,6 +371,9 @@ object ScType {
             inner(upper)
         }
       }
+      case ScCompoundType(comps, decls, typeDecls) => {
+        buffer.append(comps.map(inner(_)).mkString(" with "))
+      }
       case ScExistentialType(q, wilds) => {
         inner(q)
         buffer.append(" forSome{");
