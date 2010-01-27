@@ -34,9 +34,11 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.compiler.rt.FastScalacRunner;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
 import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
+import scala.tools.nsc.CompileServer;
 
 import java.io.*;
 import java.util.*;
@@ -185,15 +187,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   }
 
   public OutputParser createOutputParser(@NotNull String outputDir) {
-    return new OutputParser() {
-      @Override
-      public boolean processMessageLine(final Callback callback) {
-        if (super.processMessageLine(callback)) {
-          return true;
-        }
-        return callback.getCurrentLine() != null;
-      }
-    };
+    return new ScalacOutputParser();
   }
 
   @NotNull
@@ -258,7 +252,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
 
     //For debug
-    //commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
+     //commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
 
 
     commandLine.add(XSS_COMPILER_PROPERTY);
@@ -332,7 +326,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
 
     commandLine.add(classPathBuilder.toString());
-    commandLine.add(ScalacRunner.class.getName());
+    if (!settings.USE_FSC) commandLine.add(ScalacRunner.class.getName());
+    else commandLine.add(FastScalacRunner.class.getName());
 
     /*for (String s : commandLine) {
       System.out.print(s);
