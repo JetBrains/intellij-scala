@@ -149,6 +149,13 @@ class ScalaAnnotator extends Annotator
     }
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
+
+    if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
+      ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+    }
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -162,6 +169,13 @@ class ScalaAnnotator extends Annotator
       registerUsedImports(refElement, scalaResult)
     }
     checkAccessForReference(resolve, refElement, holder)
+
+    if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
+      ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+      val error = ScalaBundle.message("cannot.resolve", refElement.refName)
+      val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+    }
   }
 
   private def checkForwardReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
