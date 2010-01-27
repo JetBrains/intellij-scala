@@ -47,8 +47,8 @@ object TypeDefinitionMembers {
 
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
-      for (method <- clazz.getMethods) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
+      for (method <- clazz.getMethods if !noPrivates || (!method.isConstructor && !method.hasModifierProperty("private"))) {
         val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
@@ -70,14 +70,15 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
       for (member <- template.members) {
         member match {
-          case primary: ScPrimaryConstructor => {
+          case primary: ScPrimaryConstructor if !noPrivates => {
             val sig = new PhysicalSignature(primary, subst)
             map += ((sig, new Node(sig, subst)))
           }
-          case method: ScFunction => {
+          case method: ScFunction if !noPrivates || (!method.isConstructor &&
+                  !method.hasModifierProperty("private")) => {
             val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
@@ -103,20 +104,20 @@ object TypeDefinitionMembers {
 
     def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
-      for (field <- clazz.getFields) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
+      for (field <- clazz.getFields if !noPrivates || !field.hasModifierProperty("private")) {
         map += ((field, new Node(field, subst)))
       }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map) =
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
       for (member <- template.members) {
         member match {
-          case obj: ScObject => map += ((obj, new Node(obj, subst)))
-          case _var: ScVariable =>
+          case obj: ScObject if !noPrivates || !obj.hasModifierProperty("private") => map += ((obj, new Node(obj, subst)))
+          case _var: ScVariable if !noPrivates || !_var.hasModifierProperty("private") =>
             for (dcl <- _var.declaredElements) {
               map += ((dcl, new Node(dcl, subst)))
             }
-          case _val: ScValue =>
+          case _val: ScValue if !noPrivates || !_val.hasModifierProperty("private") =>
             for (dcl <- _val.declaredElements) {
               map += ((dcl, new Node(dcl, subst)))
             }
@@ -126,7 +127,7 @@ object TypeDefinitionMembers {
               case _ => false
             }
             val parameters = if (isCase) constr.parameters else constr.valueParameters
-            for (param <- parameters) {
+            for (param <- parameters if !noPrivates || !param.hasModifierProperty("private")) {
               map += ((param, new Node(param, subst)))
             }
           }
@@ -148,19 +149,19 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
-      for (inner <- clazz.getInnerClasses) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
+      for (inner <- clazz.getInnerClasses if !noPrivates || !inner.hasModifierProperty("private")) {
         map += ((inner, new Node(inner, subst)))
       }
 
     def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean) = {
       for (member <- template.members) {
         member match {
-          case alias: ScTypeAlias => map += ((alias, new Node(alias, subst)))
+          case alias: ScTypeAlias if !noPrivates || !alias.hasModifierProperty("private") => map += ((alias, new Node(alias, subst)))
           case _: ScObject =>
-          case td: ScTypeDefinition => map += ((td, new Node(td, subst)))
+          case td: ScTypeDefinition if !noPrivates || !td.hasModifierProperty("private") => map += ((td, new Node(td, subst)))
           case _ =>
         }
       }
@@ -179,8 +180,9 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map) =
-      for (method <- clazz.getMethods) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
+      for (method <- clazz.getMethods if !noPrivates || (!method.isConstructor &&
+              !method.hasModifierProperty("private"))) {
         val phys = new PhysicalSignature(method, subst)
         val psiRet = method.getReturnType
         val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
@@ -208,7 +210,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map) = {
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean) = {
       def addSignature(s: Signature, ret: ScType, elem: NavigatablePsiElement) {
         val full = new FullSignature(s, ret, elem, template)
         map += ((full, new Node(full, subst)))
@@ -216,13 +218,13 @@ object TypeDefinitionMembers {
 
       for (member <- template.members) {
         member match {
-          case _var: ScVariable =>
+          case _var: ScVariable if !noPrivates || !_var.hasModifierProperty("private") =>
             for (dcl <- _var.declaredElements) {
               val t = dcl.getType(TypingContext.empty).getOrElse(Any)
               addSignature(new Signature(dcl.name, Seq.empty, 0, subst), t, dcl)
               addSignature(new Signature(dcl.name + "_", Seq.singleton(t), 1, subst), Unit, dcl)
             }
-          case _val: ScValue =>
+          case _val: ScValue if !noPrivates || !_val.hasModifierProperty("private") =>
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
             }
@@ -232,13 +234,14 @@ object TypeDefinitionMembers {
               case _ => false
             }
             val parameters = if (isCase) constr.parameters else constr.valueParameters
-            for (param <- parameters) {
+            for (param <- parameters if !noPrivates || !param.hasModifierProperty("private")) {
               val t = param.getType(TypingContext.empty).getOrElse(Any)
               addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
               if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
             }
           }
-          case f: ScFunction => addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
+          case f: ScFunction if !noPrivates || (!f.isConstructor && !f.hasModifierProperty("private")) => 
+            addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case _ =>
         }
       }
