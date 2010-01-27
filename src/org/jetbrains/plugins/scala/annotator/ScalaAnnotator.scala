@@ -152,6 +152,10 @@ class ScalaAnnotator extends Annotator
 
     if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
       ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+      refElement.getParent match {
+        case s: ScImportSelector if resolve.length > 0 => return
+        case _ =>
+      }
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
@@ -172,6 +176,10 @@ class ScalaAnnotator extends Annotator
 
     if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
       ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+      refElement.getParent match {
+        case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return 
+        case _ =>
+      }
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
