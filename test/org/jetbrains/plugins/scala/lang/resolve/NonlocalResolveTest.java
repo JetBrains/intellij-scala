@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
@@ -19,6 +20,22 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
 
   public String getTestDataPath() {
     return TestUtils.getTestDataPath() + "/resolve/";
+  }
+
+  public void testMathSimple() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/MathSimple.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof PsiClass);
+    assertEquals("scala.Math", ((PsiClass) resolved).getQualifiedName());
+  }
+
+  public void testMathImported() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/MathImported.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof PsiClass);
+    assertEquals("java.lang.Math", ((PsiClass) resolved).getQualifiedName());
   }
 
   public void testTypeDecl() throws Exception {
