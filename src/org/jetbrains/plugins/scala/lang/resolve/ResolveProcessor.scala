@@ -297,11 +297,12 @@ class MethodResolveProcessor(ref: PsiElement,
           }
           true
         }
-        case cc: ScClass if cc.isCase => {
+        case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] => {
           val subst = inferMethodTypesArgs(cc, s)
           addResult(new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass))
           true
         }
+        case cc: ScClass => true
         case o: ScObject if o.isPackageObject => {
           addResult(new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass))
           return true
