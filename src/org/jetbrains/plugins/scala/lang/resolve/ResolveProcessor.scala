@@ -241,21 +241,35 @@ class MethodResolveProcessor(ref: PsiElement,
   }
 
   private def getPrecendence(result: ScalaResolveResult): Int = {
-    if (result.importsUsed.size == 0) return 3
+    if (result.importsUsed.size == 0) {
+      result.getElement match {
+        case clazz: PsiClass => {
+          val qualifier = clazz.getQualifiedName
+          val index = qualifier.lastIndexOf('.')
+          if (index == -1) return 5
+          val q = qualifier.substring(0, index)
+          if (q == "java.lang") return 1
+          else if (q == "scala") return 2
+          else return 5
+        }
+        case _ => 
+      }
+      return 5
+    }
     val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
     importUsed match {
-      case _: ImportWildcardSelectorUsed => return 1
-      case _: ImportSelectorUsed => return 2
+      case _: ImportWildcardSelectorUsed => return 3
+      case _: ImportSelectorUsed => return 4
       case ImportExprUsed(expr) => {
-        if (expr.singleWildcard) return 1
-        else return 2
+        if (expr.singleWildcard) return 3
+        else return 4
       }
     }
   }
 
   override def changedLevel = {
     if (levelSet.isEmpty) true
-    else if (precedence == 3) {
+    else if (precedence == 5) {
       candidatesSet ++= levelSet
       levelSet.clear
       false
@@ -297,7 +311,8 @@ class MethodResolveProcessor(ref: PsiElement,
           }
           true
         }
-        case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] => {
+        case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
+                ref.getParent.isInstanceOf[ScGenericCall] => {
           val subst = inferMethodTypesArgs(cc, s)
           addResult(new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass))
           true

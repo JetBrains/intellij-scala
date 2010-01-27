@@ -1,0 +1,1 @@
+<ref>Math.abs(2)
