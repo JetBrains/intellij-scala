@@ -66,7 +66,8 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
   def getIndex = -1
   def getOwner = null
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass(clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+    findChildrenByClass(clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass(clazz)
 }
@@ -104,6 +105,10 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
       case p : ResolveProcessor => {
         val nameSet = state.get(ResolverEnv.nameKey)
         val name = if (nameSet == null) p.name else nameSet
+        name match {
+          case "toString" | "hashCode" | "equals" => return true
+          case _ =>
+        }
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {
             if (!processor.execute(method, state)) return false
@@ -113,7 +118,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
       }
       case _ =>
         //method toString and hashCode exists in java.lang.Object
-        for(p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
+        for (p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
           if (!processor.execute(method, state)) return false
         }
     }
