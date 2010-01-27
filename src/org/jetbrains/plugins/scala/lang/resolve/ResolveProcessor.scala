@@ -288,6 +288,8 @@ class MethodResolveProcessor(ref: PsiElement,
       case x => Some(x)
     }
     if (nameAndKindMatch(named, state)) {
+      if (named.isInstanceOf[PsiMember] &&
+              !ResolveUtils.isAccessible(named.asInstanceOf[PsiMember], ref)) return true
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
