@@ -23,7 +23,6 @@ import com.intellij.openapi.progress.ProgressManager
 import api.toplevel.imports.usages.ImportUsed
 import lang.resolve.{MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
 import types.{Compatibility, ScParameterizedType, ScFunctionType, ScType}
-import org.junit.internal.runners.statements.Fail
 import types.result.{Success, Failure, TypeResult, TypingContext}
 
 /** 
