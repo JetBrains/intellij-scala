@@ -24,6 +24,13 @@ public class ResolveLocalsTest extends ScalaResolveTestCase{
     assertEquals(((ScReferencePattern) resolved).name(), "aaa");
   }
 
+  public void testScalaKeyword() throws Exception {
+    PsiReference ref = configureByFile("ScalaKeyword.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScParameter);
+  }
+
   public void testGillesThis() throws Exception {
     PsiReference ref = configureByFile("this/gilles.scala");
     PsiElement resolved = ref.resolve();
