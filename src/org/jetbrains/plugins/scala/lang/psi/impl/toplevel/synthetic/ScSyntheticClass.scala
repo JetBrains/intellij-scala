@@ -236,7 +236,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       for (nc1 <- numeric if nc1 ne nc)
         nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
-        nc.addMethod(new ScSyntheticFunction(manager, un_op, nc.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(manager, "unary_" + un_op, nc.t, Seq.empty))
     }
 
     for (ic <- integer) {
