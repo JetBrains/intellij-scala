@@ -68,13 +68,14 @@ object ResolveUtils {
             case _ => false
           })
 
-  def methodType(m : PsiMethod, s : ScSubstitutor) = new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject)),
-                                                              collection.immutable.Seq(m.getParameterList.getParameters.map({
-                                                                p => val pt = p.getType
-                                                                     //scala hack: Objects in java are modelled as Any in scala
-                                                                     if (pt.equalsToText("java.lang.Object")) Any
-                                                                     else s.subst(ScType.create(pt, m.getProject))
-                                                              }).toSeq: _*), m.getProject)
+  def methodType(m : PsiMethod, s : ScSubstitutor) =
+    new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject)),
+      collection.immutable.Seq(m.getParameterList.getParameters.map({
+        p => val pt = p.getType
+        //scala hack: Objects in java are modelled as Any in scala
+        if (pt.equalsToText("java.lang.Object")) Any
+        else s.subst(ScType.create(pt, m.getProject))
+      }).toSeq: _*), m.getProject)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
     ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
