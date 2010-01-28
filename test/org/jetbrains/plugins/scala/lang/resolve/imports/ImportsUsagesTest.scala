@@ -56,6 +56,17 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     }
   }
 
+  def testPredefPriority(): Unit = {
+    val path = "dependent/PredefPriority.scala"
+    configureByFile(path) match {
+      case r: PsiReference => {
+        val resolve = r.resolve
+        assert(resolve != null)
+        assert(resolve.isInstanceOf[ScObject])
+      }
+    }
+  }
+
   def testDependent(): Unit = {
     val path = "dependent/aaa.scala"
     configureByFile(path) match {
