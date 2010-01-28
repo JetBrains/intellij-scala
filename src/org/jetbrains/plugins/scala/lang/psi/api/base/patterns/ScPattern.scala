@@ -254,6 +254,12 @@ trait ScPattern extends ScalaPsiElement {
             }
             None
           }
+          case Some(par@ScParameterizedType(des, typeArgs)) if par.getTupleType != None => {
+            for ((t, p) <- par.getTupleType.get.components.elements.zip(patternList.patterns.elements)) {
+              if (p == this) return Some(t)
+            }
+            None
+          }
           case _ => None
         }
       }
