@@ -10,7 +10,7 @@ import com.intellij.openapi.editor.markup.SeparatorPlacement
 import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import scala.collection.JavaConversions._
-import org.junit.Assert._
+import junit.framework.Assert._
 import io.Source
 
 /**
