@@ -4,9 +4,10 @@ package resolve
 package imports
 
 
-import com.intellij.psi.PsiPolyVariantReference
 import java.lang.String
 import util.TestUtils
+import com.intellij.psi.{PsiMethod, PsiField, PsiReference, PsiPolyVariantReference}
+import psi.api.toplevel.typedef.ScObject
 
 /**
  * @author ilyas
@@ -20,6 +21,39 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     println("------------------------------------------------")
     println(imports)
     println
+  }
+
+  def testStaticJava(): Unit = {
+    val path = "simple/StaticJava.scala"
+    configureByFile(path) match {
+      case r: PsiReference => {
+        val resolve = r.resolve
+        assert(resolve != null)
+        assert(resolve.isInstanceOf[PsiField])
+      }
+    }
+  }
+
+  def testStaticJavaMethod(): Unit = {
+    val path = "simple/StaticJavaMethod.scala"
+    configureByFile(path) match {
+      case r: PsiReference => {
+        val resolve = r.resolve
+        assert(resolve != null)
+        assert(resolve.isInstanceOf[PsiMethod])
+      }
+    }
+  }
+
+  def testSynthticClassesPriority(): Unit = {
+    val path = "dependent/SynthticClassesPriority.scala"
+    configureByFile(path) match {
+      case r: PsiReference => {
+        val resolve = r.resolve
+        assert(resolve != null)
+        assert(resolve.isInstanceOf[ScObject])
+      }
+    }
   }
 
   def testDependent(): Unit = {

@@ -14,7 +14,6 @@ import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
 import psi.api.base.types.ScTypeElement
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import result.{Success, TypingContext}
 import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
@@ -26,6 +25,7 @@ import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.ScalaPsiUtil
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
+import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
 {
@@ -243,6 +243,7 @@ class MethodResolveProcessor(ref: PsiElement,
   private def getPrecendence(result: ScalaResolveResult): Int = {
     if (result.importsUsed.size == 0) {
       result.getElement match {
+        case synthetic: ScSyntheticClass => return 1
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
           if (qualifier == null) return 5
