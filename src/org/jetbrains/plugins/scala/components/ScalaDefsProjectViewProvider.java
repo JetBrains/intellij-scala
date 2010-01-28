@@ -16,23 +16,17 @@
 package org.jetbrains.plugins.scala.components;
 
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.TreeStructureProvider;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
-import com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.icons.Icons;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 
@@ -67,64 +61,39 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
   public void projectClosed() {
   }
 
+  private static boolean hasNameOfFile(ScTypeDefinition type) {
+    ScalaFile scalaFile = getFile(type);
+    VirtualFile virtualFile = scalaFile == null ? null : scalaFile.getVirtualFile();
+    if (virtualFile == null) {
+      return true;
+    } else {
+      String fileName = virtualFile.getNameWithoutExtension();
+      String className = type.getNameIdentifier().getText();
+      return fileName.equals(className);
+    }
+  }
+
+  private static ScalaFile getFile(ScTypeDefinition type) {
+    return (ScalaFile) type.getContainingFile();
+  }
+
   public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
     List<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
+    
+    for (AbstractTreeNode child : children) {
+      Object childValue = child.getValue();
+      Object parentValue = parent.getValue();
 
-    for (final AbstractTreeNode child : children) {
-      ProjectViewNode treeNode = (ProjectViewNode) child;
-      Object o = treeNode.getValue();
-      if (o instanceof ScalaFile) {
-        final ScalaFile scalaFile = (ScalaFile) o;
+      boolean insertFile = childValue instanceof ScTypeDefinition
+          && !(parentValue instanceof ScalaFile)
+          && !hasNameOfFile((ScTypeDefinition) childValue);
 
-        final ViewSettings viewSettings = ((ProjectViewNode) parent).getSettings();
-        ScalaCodeStyleSettings styleSettings = CodeStyleSettingsManager.getSettings(myProject).getCustomSettings(ScalaCodeStyleSettings.class);
-        
-        if (styleSettings.SHOW_FILES_IN_PROJECT_VIEW && getUltimateParent(parent) instanceof ProjectViewProjectNode) {
-          showTypesIfSimpleFileOtherwiseShowFile(settings, result, scalaFile, viewSettings);
-        } else {
-          if (scalaFile.typeDefinitions().length == 0 || scalaFile.isScriptFile(true)) {
-            result.add(child);
-          } else {
-            addTypes(result, scalaFile, viewSettings);
-          }
-        }
-      } else if (o instanceof ScTypeDefinition) {
-        result.add(new ScalaClassTreeNode(myProject, (PsiClass) o, ((ProjectViewNode) parent).getSettings()));
-      } else {
-        result.add(treeNode);
-      }
+      result.add(insertFile
+          ? new MyClassOwnerTreeNode(getFile((ScTypeDefinition) childValue), settings)
+          : child);
     }
+    
     return result;
-  }
-
-
-
-  private void addTypes(List<AbstractTreeNode> result, ScalaFile file, ViewSettings viewSettings) {
-    PsiClass[] classes = file.getClasses();
-    for (PsiClass aClass : classes) {
-      if (aClass.isValid()) {
-        result.add(new ScalaClassTreeNode(myProject, aClass, viewSettings));
-      }
-    }
-  }
-
-  private void showTypesIfSimpleFileOtherwiseShowFile(ViewSettings settings, List<AbstractTreeNode> result, ScalaFile scalaFile, ViewSettings viewSettings) {
-    final List<AbstractTreeNode> fileSubElements = new ArrayList<AbstractTreeNode>();
-    addTypes(fileSubElements, scalaFile, viewSettings);
-    MyPsiFileNode myPsiFileNode = new MyPsiFileNode(scalaFile, viewSettings, ScalaDefsProjectViewProvider.this.myProject);
-    if (myPsiFileNode.onlyOneTypeDefinition()) {
-      result.addAll(fileSubElements);
-    } else {
-      result.add(myPsiFileNode);
-    }
-  }
-
-  private AbstractTreeNode getUltimateParent(AbstractTreeNode node) {
-    AbstractTreeNode ultimateParent = node;
-    while (ultimateParent.getParent() != null) {
-      ultimateParent = ultimateParent.getParent();
-    }
-    return ultimateParent;
   }
 
   @Nullable
@@ -132,79 +101,28 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
     return null;
   }
 
-  private class MyPsiFileNode extends PsiFileNode {
-    private final ScalaFile scalaFile;
-    private final ViewSettings viewSettings;
 
-    public MyPsiFileNode(ScalaFile scalaFile, ViewSettings viewSettings, Project myProject) {
-      super(myProject, scalaFile, viewSettings);
-      this.scalaFile = scalaFile;
-      this.viewSettings = viewSettings;
+  private static class MyClassOwnerTreeNode extends PsiFileNode {
+    public MyClassOwnerTreeNode(PsiClassOwner classOwner, ViewSettings settings) {
+      super(classOwner.getProject(), classOwner, settings);
     }
 
     @Override
     public Collection<AbstractTreeNode> getChildrenImpl() {
-      final List<AbstractTreeNode> fileSubElements = new ArrayList<AbstractTreeNode>();
-      addTypes(fileSubElements, scalaFile, viewSettings);
-      return fileSubElements;
-    }
-
-    @Override
-    protected void updateImpl(PresentationData presentationData) {
-      super.updateImpl(presentationData);
-      presentationData.setIcons(Icons.FILE_TYPE_LOGO);
-    }
-
-    public boolean onlyOneTypeDefinition() {
-      return scalaFile.typeDefinitions().length == 1;
-    }
-
-    @Override
-     public boolean isAlwaysExpand() {
-      return false;
-    }
-
-    @Deprecated
-    public boolean onlyTypesWithSameNameAsFile() {
-      Collection<AbstractTreeNode> impl = getChildrenImpl();
-      for (AbstractTreeNode abstractTreeNode : impl) {
-        Object anObject = abstractTreeNode.getValue();
-        if (anObject instanceof ScTypeDefinition) {
-          if (!typeBelongsInFile((ScTypeDefinition) anObject)) {
-            return false;
-          }
-        } else {
-          return false;
+      final ViewSettings settings = getSettings();
+      final ArrayList<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
+      for (PsiClass aClass : ((PsiClassOwner) getValue()).getClasses()) {
+        if (!(aClass instanceof SyntheticElement)) {
+          result.add(new ClassTreeNode(myProject, aClass, settings));
         }
       }
-      return true;
+      return result;
     }
-
-    @Deprecated
-    private boolean typeBelongsInFile(ScTypeDefinition scTypeDefinition) {
-      return scalaFile.getName().equals(scTypeDefinition.getName() + ".scala");
-    }
-  }
-
-  private class ScalaClassTreeNode extends ClassTreeNode {
-    public ScalaClassTreeNode(Project project, PsiClass value, ViewSettings viewSettings) {
-      super(project, value, viewSettings);
-    }
-
-    @Override
-    public boolean canRepresent(Object element) {
-      if (super.canRepresent(element)) return true;
-      PsiElement elem = getValue().getParent();
-      while (elem != null && !(elem instanceof PsiFile) && !(elem instanceof PsiClass)) {
-        elem = elem.getParent();
-      }
-      if (elem == null) return false;
-      if (elem instanceof PsiClass) return false;
-      else {
-        PsiFile file = (PsiFile) elem;
-        if (file.getVirtualFile() == element) return true;
-        return file == element;
-      }
+   
+    protected void updateImpl(PresentationData data) {
+      super.updateImpl(data);
+      data.setPresentableText(getValue().getName());
+      data.setIcons(getValue().getViewProvider().getVirtualFile().getIcon());
     }
   }
 }

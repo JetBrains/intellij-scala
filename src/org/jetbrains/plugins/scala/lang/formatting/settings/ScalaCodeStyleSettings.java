@@ -85,7 +85,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
 
   public boolean SEARCH_ALL_SYMBOLS = false;
-  public boolean SHOW_FILES_IN_PROJECT_VIEW = false;
   public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
   public boolean DONT_SHOW_CONVERSION_DIALOG = false;
 

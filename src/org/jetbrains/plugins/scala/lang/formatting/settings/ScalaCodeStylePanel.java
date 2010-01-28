@@ -87,7 +87,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox packagingsCheckBox;
   private JCheckBox headerImportStatementsCheckBox;
   private JCheckBox beforeMethodBracesCallCheckBox;
-  private JCheckBox showFilesInProjectViewCheckBox;
   private JCheckBox closureParametersOnNewCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
@@ -241,7 +240,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
-    scalaSettings.SHOW_FILES_IN_PROJECT_VIEW = showFilesInProjectViewCheckBox.isSelected();
     scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = closureParametersOnNewCheckBox.isSelected();
 
     scalaSettings.CLASS_DECLARATION_BRACE = classDeclarationComboBox.getSelectedIndex();
@@ -372,7 +370,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
-    if (scalaSettings.SHOW_FILES_IN_PROJECT_VIEW != showFilesInProjectViewCheckBox.isSelected()) return true;
     if (scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION != enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG != donTShowDialogCheckBox.isSelected()) return true;
 
@@ -461,7 +458,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
 
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
-    setValue(showFilesInProjectViewCheckBox, settings.SHOW_FILES_IN_PROJECT_VIEW);
     setValue(enableConversionOnCopyCheckBox, settings.ENABLE_JAVA_TO_SCALA_CONVERSION);
     setValue(donTShowDialogCheckBox, settings.DONT_SHOW_CONVERSION_DIALOG);
 
