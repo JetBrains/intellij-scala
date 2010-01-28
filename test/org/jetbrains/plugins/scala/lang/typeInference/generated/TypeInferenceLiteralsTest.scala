@@ -22,4 +22,6 @@ class TypeInferenceLiteralsTest extends TypeInferenceTestBase {
   def testString = doTest
 
   def testSymbol = doTest
+
+  def testUnaryInt = doTest
 }
