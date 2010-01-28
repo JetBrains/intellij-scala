@@ -7,6 +7,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testArrayCreation = doTest
 
+  def testAsInstanceOfOmittedGenerics = doTest
+
   def testInfixMap = doTest
 
   def testIntArrayCreation = doTest
@@ -25,9 +27,13 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSome = doTest
 
+  def testSynchronizedWithGenerics = doTest
+
   def testToArray = doTest
 
   def testZipArrays = doTest
 
   def testZipWithIndex = doTest
+
+  def testsyncronized = doTest
 }

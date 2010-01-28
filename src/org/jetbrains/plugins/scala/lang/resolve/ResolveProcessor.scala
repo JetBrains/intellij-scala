@@ -246,7 +246,7 @@ class MethodResolveProcessor(ref: PsiElement,
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
           if (qualifier == null) return 5
-          val index = qualifier.lastIndexOf('.')
+          val index: Int = qualifier.lastIndexOf('.')
           if (index == -1) return 5
           val q = qualifier.substring(0, index)
           if (q == "java.lang") return 1
@@ -334,6 +334,10 @@ class MethodResolveProcessor(ref: PsiElement,
           }
           true
         }
+        case synthetic: ScSyntheticFunction => {
+          addResult(new ScalaResolveResult(synthetic,
+            s.followed(inferMethodTypesArgs(synthetic, s)), getImports(state), None, implicitConversionClass))
+        }
         case _ => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
           true
@@ -368,8 +372,18 @@ class MethodResolveProcessor(ref: PsiElement,
       val substitutor: ScSubstitutor = c.substitutor
       c.element match {
         case synthetic: ScSyntheticFunction => {
-          val s = Compatibility.compatible(synthetic, substitutor, argumentClauses, withImplicits, ())._2.getSubstitutor
-          s match {
+          var s = Compatibility.compatible(synthetic, substitutor, argumentClauses, withImplicits, ())._2
+          (synthetic.retType, expected) match {
+            case (tp: ScType, Some(expected: ScType)) => {
+              val rt = substitutor.subst(tp)
+              if (rt.conforms(expected)) {
+                val s2 = Conformance.undefinedSubst(expected, rt)
+                s += s2
+              }
+            }
+            case _ =>
+          }
+          s.getSubstitutor match {
             case Some(s) => new ScalaResolveResult(synthetic, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
             case None => c
           }
@@ -513,6 +527,23 @@ class MethodResolveProcessor(ref: PsiElement,
         (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
           case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, classSubst)
           case tp: PsiTypeParameter => new ScTypeParameterType(tp, classSubst)
+        }))
+      }
+    }
+  }
+
+  def inferMethodTypesArgs(m: ScFun, classSubst: ScSubstitutor): ScSubstitutor = {
+    if (typeArgElements.length != 0)
+    typeArgElements.map(_.getType(TypingContext.empty).getOrElse(Any)).zip(m.typeParameters).foldLeft(ScSubstitutor.empty) {
+      (subst, pair) =>
+              val scType = pair._1
+              val typeParameter = pair._2
+              subst.bindT(typeParameter.getName, scType)
+    }
+    else {
+      m.typeParameters.foldLeft(ScSubstitutor.empty) {
+        (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+          case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, classSubst)
         }))
       }
     }
