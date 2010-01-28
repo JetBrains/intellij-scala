@@ -39,6 +39,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         case DeclaractionKind.CLASS => (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
                 (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
         case DeclaractionKind.VARIABLE => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
+        case DeclaractionKind.FIELD => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
         case DeclaractionKind.METHOD => kinds contains (ResolveTargets.METHOD)
         case _ => false
       }
