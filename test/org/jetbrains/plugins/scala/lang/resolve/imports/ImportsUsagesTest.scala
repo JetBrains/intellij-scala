@@ -7,6 +7,7 @@ package imports
 import java.lang.String
 import util.TestUtils
 import com.intellij.psi.{PsiMethod, PsiField, PsiReference, PsiPolyVariantReference}
+import psi.api.toplevel.typedef.ScObject
 
 /**
  * @author ilyas
@@ -40,6 +41,17 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
         val resolve = r.resolve
         assert(resolve != null)
         assert(resolve.isInstanceOf[PsiMethod])
+      }
+    }
+  }
+
+  def testSynthticClassesPriority(): Unit = {
+    val path = "dependent/SynthticClassesPriority.scala"
+    configureByFile(path) match {
+      case r: PsiReference => {
+        val resolve = r.resolve
+        assert(resolve != null)
+        assert(resolve.isInstanceOf[ScObject])
       }
     }
   }
