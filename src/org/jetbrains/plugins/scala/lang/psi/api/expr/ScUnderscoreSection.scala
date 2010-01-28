@@ -39,13 +39,9 @@ trait ScUnderscoreSection extends ScExpression {
             case _ => None
           }
         }
-        case inf: ScInfixExpr => {
-          var par = inf
-          while (par.getParent != null && par.getParent.isInstanceOf[ScInfixExpr]) {
-            par = par.getParent.asInstanceOf[ScInfixExpr]
-          }
-          Some(par)
-        }
+        case inf: ScInfixExpr => go(inf, false)
+        case pre: ScPrefixExpr => go(pre, false)
+        case post: ScPostfixExpr => go(post, false)
         case ref: ScReferenceExpression => go(ref, false)
         case call: ScMethodCall => go(call, false)
         case gen: ScGenericCall => go(gen, false)
