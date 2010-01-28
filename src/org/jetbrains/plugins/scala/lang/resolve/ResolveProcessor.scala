@@ -254,6 +254,17 @@ class MethodResolveProcessor(ref: PsiElement,
           else if (q == "scala") return 2
           else return 5
         }
+        case _: ScBindingPattern | _: PsiMember => {
+          val clazz = PsiTreeUtil.getParentOfType(result.getElement, classOf[PsiClass])
+          if (clazz == null) return 5
+          else {
+            clazz.getQualifiedName match {
+              case "scala.Predef" => return 2
+              case "scala.LowPriorityImplicits" => return 2
+              case _ => return 5
+            }
+          }
+        }
         case _ => 
       }
       return 5
