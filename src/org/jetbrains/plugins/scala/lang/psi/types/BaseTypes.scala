@@ -11,27 +11,27 @@ import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 object BaseTypes {
-  def get(t : ScType) : Seq[ScType] = t match {
-    case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => BaseTypes.get(tp) ++ Seq(tp)))
+  def get(t : ScType, notAll: Boolean = false) : Seq[ScType] = t match {
+    case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
     case classT@ScDesignatorType(c : PsiClass) =>
-      reduce(c.getSuperTypes.flatMap{p => BaseTypes.get(ScType.create(p, c.getProject)) ++
-              Seq(ScType.create(p, c.getProject))})
-    case ScPolymorphicType(_, Nil, _, upper) => get(upper.v)
-    case ScSkolemizedType(_, Nil, _, upper) => get(upper)
+      reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll) ++
+              Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
+    case ScPolymorphicType(_, Nil, _, upper) => get(upper.v, notAll)
+    case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
     case p : ScParameterizedType => {
       ScType.extractClassType(p.designator) match {
         case Some((td: ScTypeDefinition, _)) =>
-          reduce(td.superTypes.flatMap {tp => BaseTypes.get(p.substitutor.subst(tp)) ++ Seq(p.substitutor.subst(tp))})
+          reduce(td.superTypes.flatMap {tp => if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll) ++ Seq(p.substitutor.subst(tp)) else Seq(p.substitutor.subst(tp))})
         case Some((clazz: PsiClass, _)) => {
           val s = p.substitutor
-          reduce(clazz.getSuperTypes.flatMap {t => BaseTypes.get(s.subst(ScType.create(t, clazz.getProject))) ++
-                  Seq(s.subst(ScType.create(t, clazz.getProject)))})
+          reduce(clazz.getSuperTypes.flatMap {t => if (!notAll) BaseTypes.get(s.subst(ScType.create(t, clazz.getProject)), notAll) ++
+                  Seq(s.subst(ScType.create(t, clazz.getProject))) else Seq(s.subst(ScType.create(t, clazz.getProject)))})
         }
         case _ => Seq.empty
       }
     }
-    case sin : ScSingletonType => get(sin.pathType)
-    case ScExistentialType(q, wilds) => get(q).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
+    case sin : ScSingletonType => get(sin.pathType, notAll)
+    case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
     case ScCompoundType(comps, _, _) => reduce(comps)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => td.superTypes.map{s.subst _}
@@ -40,7 +40,7 @@ object BaseTypes {
       case _ => Seq.empty
     }
     case t: ScTupleType => t.resolveTupleTrait match {
-      case Some(t: ScType) => get(t)
+      case Some(t: ScType) => get(t, notAll)
       case _ => Seq.empty
     }
     case _ => Seq.empty
