@@ -56,6 +56,8 @@ object Bounds {
   private def appendBaseTypes(t1 : ScType, clazz2 : PsiClass, s2 : ScSubstitutor, set : Set[ScType], depth : Int) {
     for (base <- BaseTypes.get(t1, true)) {
       ScType.extractClassType(base) match {
+        case Some((cbase, sbase)) if cbase.getQualifiedName != null && (cbase.getQualifiedName == "java.lang.Object" ||
+                cbase.getQualifiedName == "scala.ScalaObject" || cbase.getQualifiedName == "scala.Product") => 
         case Some((cbase, sbase)) => {
           superSubstitutor(cbase, clazz2, s2, new HashSet[PsiClass]) match {
             case Some(superSubst) => {
