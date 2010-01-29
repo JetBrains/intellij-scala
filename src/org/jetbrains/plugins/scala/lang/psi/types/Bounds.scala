@@ -54,8 +54,10 @@ object Bounds {
   }
 
   private def appendBaseTypes(t1 : ScType, clazz2 : PsiClass, s2 : ScSubstitutor, set : Set[ScType], depth : Int) {
-    for (base <- BaseTypes.get(t1)) {
+    for (base <- BaseTypes.get(t1, true)) {
       ScType.extractClassType(base) match {
+        case Some((cbase, sbase)) if cbase.getQualifiedName != null && (cbase.getQualifiedName == "java.lang.Object" ||
+                cbase.getQualifiedName == "scala.ScalaObject" || cbase.getQualifiedName == "scala.Product") => 
         case Some((cbase, sbase)) => {
           superSubstitutor(cbase, clazz2, s2, new HashSet[PsiClass]) match {
             case Some(superSubst) => {
@@ -70,7 +72,7 @@ object Bounds {
                       case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
                       case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
                       case _ => if (substed1 equiv substed2) substed1 else {
-                        //appendBaseTypes(base, clazz2, s2, set, 0)
+                        appendBaseTypes(base, clazz2, s2, set, 0)
                         return
                       }
                     }
@@ -83,7 +85,7 @@ object Bounds {
                 set += new ScDesignatorType(cbase)
               }
             }
-            case None => //appendBaseTypes(base, clazz2, s2, set, 0)
+            case None => appendBaseTypes(base, clazz2, s2, set, 0)
           }
         }
         case None =>
