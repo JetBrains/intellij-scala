@@ -113,7 +113,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
       }
 
-      case ScCompoundType(components, declarations, types) => {
+      case comp@ScCompoundType(components, declarations, types) => {
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
           for (declaration <- declarations) {
             for (declared <- declaration.declaredElements) {
@@ -128,9 +128,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
 
-        for (c <- components) {
-          if (!processType(c, place)) return false
-        }
+        if (!TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)) return false
         true
       }
       case singl: ScSingletonType => {

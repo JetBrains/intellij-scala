@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -28,6 +29,16 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     assertNotNull(resolved);
     assertTrue(resolved instanceof PsiClass);
     assertEquals("scala.Math", ((PsiClass) resolved).getQualifiedName());
+  }
+
+  public void testCompoundTypesOverriding() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/CompoundTypesOverriding.scala");
+    PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assertTrue(resolved instanceof ScFunction);
+    ScFunction fun = (ScFunction) resolved;
+    ScTemplateDefinition clazz = fun.getContainingClass();
+    assertTrue(clazz.getName().equals("C"));    
   }
 
   public void testMathImported() throws Exception {
