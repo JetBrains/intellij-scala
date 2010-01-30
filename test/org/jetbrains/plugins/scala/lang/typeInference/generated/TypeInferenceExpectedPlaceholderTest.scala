@@ -31,5 +31,7 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
   
   def testTypeConstructor2 = doTest
 
+  def testTypeConstructor3 = doTest
+
   def testTypedPlaceholder = doTest
 }
