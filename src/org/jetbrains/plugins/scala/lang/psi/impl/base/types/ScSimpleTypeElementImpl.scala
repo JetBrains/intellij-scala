@@ -74,8 +74,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     if (result.isEmpty && singleton) {
       Success(ScSingletonType(pathElement), Some(this))
     } else {
-      //if type parameters ommited, we should to infer them manually, but this is Parameterized Type.
-      if (getParent.isInstanceOf[ScParameterizedTypeElement]) return result
+      //if type parameters ommited, we should to infer them manually, but this is Parameterized or TypeArgs Type.
+      getParent match {
+        case _: ScParameterizedTypeElement | _: ScTypeArgs => return result
+        case _ =>
+      }
       result match {
         case Success(p: ScParameterizedType, _) => result
         case Success(tp: ScType, _) => {
@@ -90,7 +93,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               //if tps.length == 0 => this is SimpleType without Parameterizations.
               if (tps.length > 0) {
                 val typez = ScParameterizedType(tp, tps.map({tp => new ScTypeParameterType(tp, subst)}))
-                val undefSubst: ScSubstitutor = tps.foldLeft(ScSubstitutor.empty) {
+                val undefSubst: ScSubstitutor = tps.foldLeft[ScSubstitutor](ScSubstitutor.empty) {
                   (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
                     case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, subst)
                     case tp: PsiTypeParameter => new ScTypeParameterType(tp, subst)
