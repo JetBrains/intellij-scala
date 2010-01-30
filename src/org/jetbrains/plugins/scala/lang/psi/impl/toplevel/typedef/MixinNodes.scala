@@ -125,23 +125,31 @@ abstract class MixinNodes {
     run
   }
 
-  def build(clazz : PsiClass) : (Map, Map) = {
+  def build(clazz: PsiClass) : (Map, Map) = build(ScDesignatorType(clazz))
+
+  def build(tp : ScType) : (Map, Map) = {
+    var isPredef = false
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
-    val (superTypes, subst): (Seq[ScType], ScSubstitutor) = clazz match {
-      case template : ScTemplateDefinition => {
+    val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
+      case ScDesignatorType(template : ScTemplateDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
         (BaseTypes.get(ScDesignatorType(template)), putAliases(template, ScSubstitutor.empty))
       }
-      case syn: ScSyntheticClass => {
+      case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
         (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType], ScSubstitutor.empty)
       }
-      case _ => {
+      case ScDesignatorType(clazz: PsiClass) => {
         processJava(clazz, ScSubstitutor.empty, map, false)
         (BaseTypes.get(ScDesignatorType(clazz)), ScSubstitutor.empty)
       }
+      case _: ScCompoundType => {
+        //todo: add processing comp refinement
+        (BaseTypes.get(tp), ScSubstitutor.empty)
+      }
+      case _ => (Seq.empty, ScSubstitutor.empty)
     }
 
     for (superType <- superTypes) {
@@ -149,7 +157,7 @@ abstract class MixinNodes {
         ScType.extractClassType(superType) match {
           case Some((superClass, s)) =>
             // Do not include scala.ScalaObject to Predef's base types to prevent SOE
-            if (!(superClass.getQualifiedName == "scala.ScalaObject" && clazz.getQualifiedName == "scala.Predef")) {
+            if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
               var newSubst = combine(s, subst, superClass)
               val newMap = new Map
               superClass match {

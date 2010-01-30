@@ -335,6 +335,14 @@ object TypeDefinitionMembers {
       td.isInstanceOf[ScObject])
    }
 
+  def processDeclarations(comp: ScCompoundType,
+                          processor: PsiScopeProcessor,
+                          state: ResolveState,
+                          lastParent: PsiElement, 
+                          place: PsiElement): Boolean = {
+    processDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, MethodNodes.build(comp)._2, TypeNodes.build(comp)._2, false)
+  }
+
   private def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
