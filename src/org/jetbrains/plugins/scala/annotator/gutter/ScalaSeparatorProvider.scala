@@ -19,7 +19,7 @@ trait ScalaSeparatorProvider {
   def isSeparatorNeeded(element: PsiElement): Boolean = {
     if (isKnown(element) && !hasUpperComment(element)) {
       if (element.isInstanceOf[PsiComment]) {
-        if(!isLineTail(element)) {
+        if (!isLineTail(element)) {
           val e = getCommentedElement(element)
           if (e.isDefined) doIfSeparatorNeeded(e.get) else false
         } else false
@@ -107,21 +107,17 @@ trait ScalaSeparatorProvider {
 
   def groupOf(element: PsiElement): Option[Int] = {
     element match {
-      case it: ScValue => Some(DEFAULT_GROUP)
-      case it: ScVariable => Some(DEFAULT_GROUP)
-      case it: ScTypeAlias => Some(DEFAULT_GROUP)
-      case it: ScFunction => Some(DEFAULT_GROUP)
-      case it: ScImportStmt => Some(DEFAULT_GROUP)
-      case it: ScPackageContainer => Some(DEFAULT_GROUP)
-      case it: ScClass => Some(DEFAULT_GROUP)
-      case it: ScObject => Some(DEFAULT_GROUP)
-      case it: ScTrait => Some(DEFAULT_GROUP)
-      case it: ScBlock => Some(DEFAULT_GROUP)
-
-      case it: ScNewTemplateDefinition => {
-        if (it.extendsBlock != null) Some(DEFAULT_GROUP) else None
-      }
-
+      case _: ScValue |
+              _: ScVariable |
+              _: ScTypeAlias |
+              _: ScFunction |
+              _: ScImportStmt |
+              _: ScPackageContainer |
+              _: ScClass |
+              _: ScObject |
+              _: ScTrait |
+              _: ScBlock => Some(DEFAULT_GROUP)
+      case it: ScNewTemplateDefinition if (it.extendsBlock != null) => Some(DEFAULT_GROUP)
       case _ => None
     }
   }
@@ -144,9 +140,8 @@ trait ScalaSeparatorProvider {
 
   def isSeparationBlocker(element: PsiElement) = {
     element match {
-      case f: ScBlock => true
-      case f: ScIfStmt => true
-      case a: ScNewTemplateDefinition => a.extendsBlock != null
+      case _: ScBlock | _: ScIfStmt => true
+      case it: ScNewTemplateDefinition if(it.extendsBlock != null) => true
       case _ => false
     }
   }
