@@ -78,7 +78,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   def getTupleType: Option[ScTupleType] = {
     ScType.extractClassType(designator) match {
-      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Tuple") && typeArgs.length > 0 => {
+      case Some((clazz: PsiClass, _)) if Option(clazz.getQualifiedName).exists(_.startsWith("scala.Tuple")) && typeArgs.length > 0 => {
         Some(new ScTupleType(typeArgs, clazz.getProject))
       }
       case _ => None
