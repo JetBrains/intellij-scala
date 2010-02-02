@@ -11,7 +11,8 @@ import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 object BaseTypes {
-  def get(t : ScType, notAll: Boolean = false) : Seq[ScType] = t match {
+  def get(t : ScType, notAll: Boolean = false) : Seq[ScType] =
+    t match {
     case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
     case classT@ScDesignatorType(c : PsiClass) =>
       reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll) ++
@@ -34,12 +35,25 @@ object BaseTypes {
     case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
     case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
-      case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => td.superTypes.map{s.subst _}
+      case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => reduce(td.superTypes.flatMap{tp =>
+        if (!notAll) BaseTypes.get(s.subst(tp)) ++ Seq(s.subst(tp))
+        else Seq(s.subst(tp))
+      })
       case Some(ScalaResolveResult(c : PsiClass, s)) =>
-        c.getSuperTypes.map{st => s.subst(ScType.create(st, c.getProject))}
+        reduce(c.getSuperTypes.flatMap {st =>
+          {
+            val proj = c.getProject
+            if (!notAll) BaseTypes.get(s.subst(ScType.create(st, proj))) ++ Seq(s.subst(ScType.create(st, proj)))
+            else Seq(s.subst(ScType.create(st, proj)))
+          }
+        })
       case _ => Seq.empty
     }
     case t: ScTupleType => t.resolveTupleTrait match {
+      case Some(t: ScType) => get(t, notAll)
+      case _ => Seq.empty
+    }
+    case f: ScFunctionType => f.resolveFunctionTrait match {
       case Some(t: ScType) => get(t, notAll)
       case _ => Seq.empty
     }

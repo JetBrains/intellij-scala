@@ -18,4 +18,6 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
   def testPatternOption = doTest
 
   def testPatternUnapply = doTest
+
+  def testRangeMapping = doTest
 }
