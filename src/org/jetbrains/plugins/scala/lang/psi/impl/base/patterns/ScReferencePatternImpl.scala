@@ -13,8 +13,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import lang.lexer._
 import psi.stubs.ScReferencePatternStub
-import psi.types.{ScCompoundType, ScType, Nothing}
 import psi.types.result.{Failure, TypingContext, Success}
+import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -50,10 +50,12 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
     lastParent match {
       case _: ScImportStmt => {
         getType(TypingContext.empty) match {
-          case Success(ScCompoundType(comps, holders, aliases), _) => {
+          case Success(ScCompoundType(comps, holders, aliases, substitutor), _) => {
             for (t <- comps) if (!processClassType(t)) return false
-            for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, state)) return false
-            for (a <- aliases) if (!processor.execute(a, state)) return false
+            val currentSubst = state.get(ScSubstitutor.key)
+            val newState = state.put(ScSubstitutor.key, substitutor.followed(currentSubst))
+            for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, newState)) return false
+            for (a <- aliases) if (!processor.execute(a, newState)) return false
             // todo add inner classes!
             true
           }

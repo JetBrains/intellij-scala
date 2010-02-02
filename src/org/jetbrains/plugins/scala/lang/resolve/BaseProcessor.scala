@@ -113,22 +113,25 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
       }
 
-      case comp@ScCompoundType(components, declarations, types) => {
+      case comp@ScCompoundType(components, declarations, types, substitutor) => {
+        val oldSubst = state.get(ScSubstitutor.key)
+        val newState = state.put(ScSubstitutor.key, substitutor.followed(oldSubst))
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
           for (declaration <- declarations) {
             for (declared <- declaration.declaredElements) {
-              if (!execute(declared, state)) return false
+              if (!execute(declared, newState)) return false
             }
           }
         }
 
         if (kinds.contains(CLASS)) {
           for (t <- types) {
-            if (!execute(t, state)) return false
+            if (!execute(t, newState)) return false
           }
         }
 
-        if (!TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)) return false
+        //todo: comps already substituted
+        if (!TypeDefinitionMembers.processDeclarations(comp, this, newState, null, place)) return false
         true
       }
       case singl: ScSingletonType => {

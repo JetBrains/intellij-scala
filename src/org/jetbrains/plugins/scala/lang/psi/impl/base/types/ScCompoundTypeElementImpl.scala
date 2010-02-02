@@ -10,10 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import collection.Set
 import com.intellij.lang.ASTNode
 import api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import scala.Some
 import psi.types.result.{Failure, Success, TypingContext}
+import psi.types.{ScSubstitutor, ScCompoundType, Any}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -25,8 +24,8 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   protected def innerType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))
     refinement match {
-      case None => collectFailures(comps, Any)(new ScCompoundType(_, Seq.empty, Seq.empty))
-      case Some(r) => collectFailures(comps, Any)(new ScCompoundType(_, r.holders.toList, r.types.toList))
+      case None => collectFailures(comps, Any)(new ScCompoundType(_, Seq.empty, Seq.empty, ScSubstitutor.empty))
+      case Some(r) => collectFailures(comps, Any)(new ScCompoundType(_, r.holders.toList, r.types.toList, ScSubstitutor.empty))
     }
   }
 }

@@ -14,7 +14,7 @@ object Bounds {
   def glb(t1: ScType, t2: ScType) = {
     if (t1.conforms(t2)) t1
     else if (t2.conforms(t1)) t2
-    else new ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty)
+    else new ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
   }
 
   def lub(t1: ScType, t2: ScType): ScType = lub(t1, t2, 0)
@@ -45,7 +45,7 @@ object Bounds {
           set.toArray match {
             case a: Array[ScType] if a.length == 0 => Any
             case a: Array[ScType] if a.length == 1 => a(0)
-            case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty)
+            case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
           }
         }
         case None => Any //todo compound types

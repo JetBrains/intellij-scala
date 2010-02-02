@@ -100,7 +100,7 @@ object ScType {
                   tp.getSuperTypes.length match {
                     case 0 => Any
                     case 1 => create(tp.getSuperTypes.apply(0), project)
-                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project)), Seq.empty, Seq.empty)
+                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project)), Seq.empty, Seq.empty, ScSubstitutor.empty)
                   })
               }}): _*))
             }
@@ -197,7 +197,7 @@ object ScType {
         }
         facade.getElementFactory.createType(c, subst)
       }
-      case ScCompoundType(Seq(t, _*), _, _) => toPsi(t, project, scope)
+      case ScCompoundType(Seq(t, _*), _, _, _) => toPsi(t, project, scope)
       case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
       case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.getQualifiedName == "scala.Array" && args.length == 1)
@@ -371,7 +371,7 @@ object ScType {
             inner(upper)
         }
       }
-      case ScCompoundType(comps, decls, typeDecls) => {
+      case ScCompoundType(comps, decls, typeDecls, substitutor) => {
         buffer.append(comps.map(typeText(_, nameFun, nameWithPointFun)).mkString(" with "))
       }
       case ScExistentialType(q, wilds) => {

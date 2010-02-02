@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import java.lang.String
-import psi.types.{ScType, ScCompoundType, ScDesignatorType}
 import psi.types.result.{TypeResult, Success, TypingContext}
+import psi.types.{ScSubstitutor, ScType, ScCompoundType, ScDesignatorType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,7 +31,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
       val self = ste.getType(ctx)
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
       assert(parent != null)
-      Success(ScCompoundType(Seq(ScDesignatorType(parent), self.getOrElse(return self)), Seq.empty, Seq.empty),
+      Success(ScCompoundType(Seq(ScDesignatorType(parent), self.getOrElse(return self)), Seq.empty, Seq.empty, ScSubstitutor.empty),
         Some(this))
     }
     case None => {

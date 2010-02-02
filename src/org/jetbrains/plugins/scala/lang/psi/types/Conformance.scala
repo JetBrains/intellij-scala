@@ -192,7 +192,7 @@ object Conformance {
           case _ => return (false, undefinedSubst)
         }
       }
-      case (c@ScCompoundType(comps, decls, types), _) => {
+      case (c@ScCompoundType(comps, decls, types, _), _) => {
         return (comps.forall(tp => {
           val t = conforms(r, tp, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
@@ -246,7 +246,7 @@ object Conformance {
             true
           }
           case None => r match {
-            case c1@ScCompoundType(comps1, _, _) => comps1.forall(tp => {
+            case c1@ScCompoundType(comps1, _, _, _) => comps1.forall(tp => {
               val t = conforms(tp, c, HashSet.empty, undefinedSubst)
               undefinedSubst = t._2
               t._1
@@ -297,7 +297,7 @@ object Conformance {
         }
       }
       case (_, ScSkolemizedType(_, _, _, upper)) => return conforms(l, upper, HashSet.empty, undefinedSubst)
-      case (_, ScCompoundType(comps, _, _)) => {
+      case (_, ScCompoundType(comps, _, _, _)) => {
         val iterator = comps.iterator
         while (iterator.hasNext) {
           val comp = iterator.next

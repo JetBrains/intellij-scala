@@ -17,9 +17,9 @@ import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
 import collection.mutable.ArrayBuffer
 import types.result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.DumbService
-import types.{ScType, ScCompoundType}
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTrait, ScTypeDefinition}
 import psi.stubs.ScTemplateDefinitionStub
+import types.{ScSubstitutor, ScType, ScCompoundType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -40,7 +40,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
 
     val superTypes = extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new Success(ScCompoundType(superTypes, holders.toList, aliases.toList), Some(this))
+      new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else superTypes.headOption match {
       case s@Some(t) => Success(t, Some(this))
       case None => Failure("Cannot infer type", Some(this))

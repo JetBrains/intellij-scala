@@ -16,6 +16,7 @@ import api.statements.ScTypeAlias
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.annotations.NotNull
+import types.ScCompoundType
 
 object ScSubstitutor {
   val empty = new ScSubstitutor()
@@ -148,6 +149,11 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       //remove bound names
       val trunc = aliasesMap -- ex.boundNames
       new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap, follower).substInternal(q), wildcards)
+    }
+    case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
+      ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
+        new ScSubstitutor(tvMap, aliasesMap, outerMap)
+        ))
     }
     case _ => t
   }
