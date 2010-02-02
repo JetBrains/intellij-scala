@@ -18,6 +18,9 @@ import types._
 import com.intellij.psi._
 import api.statements.params.ScParameters
 import result.{TypeResult, Failure, Success, TypingContext}
+import implicits.ScImplicitlyConvertible
+import api.toplevel.imports.usages.ImportUsed
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,7 +56,23 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil,
           typeArgs, expectedType)
         processor.processType(tp, getInvokedExpr, ResolveState.initial)
-        val candidates = processor.candidates
+        var candidates = processor.candidates
+        if (candidates.length == 0) {
+          //should think about implicit conversions
+          for (t <- getInvokedExpr.getImplicitTypes) {
+            ProgressManager.checkCanceled
+            val importsUsed = getInvokedExpr.getImportsForImplicit(t)
+            var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+            getInvokedExpr.getClazzForType(t) match {
+              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+              case _ =>
+            }
+            processor.processType(t, getInvokedExpr, state)
+          }
+        }
+
+        candidates = processor.candidates
+        //now we will check canidate
         if (candidates.length != 1) Nothing
         else {
           candidates(0) match {

@@ -4,11 +4,11 @@ package psi
 package types
 
 
-import api.base.ScReferenceElement
 import resolve._
 import impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScClass}
+import api.base.{ScPathElement, ScStableCodeReferenceElement, ScReferenceElement}
 
 /**
 * @author ilyas
@@ -53,6 +53,20 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
       case ScDesignatorType(_) => resolveResult match {
         case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == des
         case _ => false
+      }
+      case _ => false
+    }
+    case ScSingletonType(path: ScPathElement) => path match {
+      case ref: ScStableCodeReferenceElement => {
+        ref.bind match {
+          case Some(ScalaResolveResult(el, _)) => {
+            this.resolveResult match {
+              case Some(ScalaResolveResult(el2, _)) => el2 == el
+              case _ => false
+            }
+          }
+          case _ => false
+        }
       }
       case _ => false
     }

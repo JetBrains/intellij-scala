@@ -78,6 +78,7 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
       equiv(path, path1)
     }
     case des: ScDesignatorType => des equiv this
+    case proj: ScProjectionType => proj equiv this
     case _ => false
   }
 }

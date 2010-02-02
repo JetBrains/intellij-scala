@@ -15,6 +15,10 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testCaseClassCall = doTest
 
+  def testCharAt = doTest
+
+  def testExplicitStringCharAt = doTest
+
   def testFunctionApply = doTest
 
   def testFunctionApplyReturnTypeAlsoHasApplyMethod = doTest
@@ -27,6 +31,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testFunctionLiteralCall = doTest
 
+  def testImplicitApply = doTest
+
   def testLibraryList = doTest
 
   def testMapApply = doTest
@@ -38,6 +44,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
   def testSimpleCall = doTest
 
   def testSimpleCall2 = doTest
+
+  def testSimpleStringCharAt = doTest
 
   def testStaticCall = doTest
 
