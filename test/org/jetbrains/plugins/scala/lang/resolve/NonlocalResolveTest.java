@@ -23,6 +23,14 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     return TestUtils.getTestDataPath() + "/resolve/";
   }
 
+  public void testArrayBufferAdd() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/ArrayBufferAdd.scala");
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunction);
+    ScFunction function = (ScFunction) resolved;
+    assertEquals(function.getContainingClass().getName(), "ArrayBuffer");
+  }
+
   public void testMathSimple() throws Exception {
     PsiReference ref = configureByFile("nonlocal/MathSimple.scala");
     PsiElement resolved = ref.resolve();

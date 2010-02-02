@@ -330,6 +330,11 @@ object Conformance {
       case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
         ScType.extractClassType(l) match {
           case Some((lClass: PsiClass, _)) => {
+            if (rClass.getQualifiedName == "java.lang.Object" ) {
+              return conforms(l, AnyRef, visited, undefinedSubst, noBaseTypes)
+            } else if (lClass.getQualifiedName == "java.lang.Object") {
+              return conforms(AnyRef, r, visited, undefinedSubst, noBaseTypes)
+            }
             val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2
