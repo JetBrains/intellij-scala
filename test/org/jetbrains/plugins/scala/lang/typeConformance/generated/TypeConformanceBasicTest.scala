@@ -21,6 +21,8 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
 
   def testNullConformance = doTest
 
+  def testStringLiteralToObject = doTest
+
   def testTupleConformance = doTest
 
   def testTupleRightConformance = doTest
