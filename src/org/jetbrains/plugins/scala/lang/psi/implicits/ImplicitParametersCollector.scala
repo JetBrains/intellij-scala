@@ -21,7 +21,7 @@ import util.PsiTreeUtil
 class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
   def collectImplicitClasses(tp: ScType): Seq[(PsiClass, ScSubstitutor)] = {
     tp match {
-      case ScCompoundType(comps, _, _) => {
+      case ScCompoundType(comps, _, _, _) => {
         comps.flatMap(collectImplicitClasses(_))
       }
       case p@ScParameterizedType(des, args) => {

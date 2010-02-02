@@ -23,7 +23,7 @@ class ScalaGotoTypeDeclarationProvider extends TypeDeclarationProvider {
         }
         val tp = res.getOrElse(return null)
         tp match {
-          case ScCompoundType(comps, _, _) => comps.flatMap(getForType(_)).toArray
+          case ScCompoundType(comps, _, _, _) => comps.flatMap(getForType(_)).toArray
           case _ => getForType(tp).toArray
         }
       }

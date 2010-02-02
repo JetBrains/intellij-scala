@@ -114,7 +114,7 @@ object NameSuggester {
       case ScParameterizedType(des, typeArgs) => {
         generateNamesByType(des, names, validator)
       }
-      case ScCompoundType(comps, _, _) => {
+      case ScCompoundType(comps, _, _, _) => {
         if (comps.size > 0) generateNamesByType(comps(0), names, validator)
       }
       case _ =>

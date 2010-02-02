@@ -33,7 +33,7 @@ object BaseTypes {
     }
     case sin : ScSingletonType => get(sin.pathType, notAll)
     case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
-    case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
+    case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => reduce(td.superTypes.flatMap{tp =>
         if (!notAll) BaseTypes.get(s.subst(tp)) ++ Seq(s.subst(tp))

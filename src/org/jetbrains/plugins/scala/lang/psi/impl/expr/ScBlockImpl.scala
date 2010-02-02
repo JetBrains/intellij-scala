@@ -67,7 +67,8 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
             }
           }
           case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
-          case ScCompoundType(comps, decls, types) => new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types)
+          case ScCompoundType(comps, decls, types, s) =>
+            new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
           case ScParameterizedType(des, typeArgs) =>
             new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
           case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
@@ -98,7 +99,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
     val superTypes = t.extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      new ScCompoundType(superTypes, holders.toList, aliases.toList)
+      new ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
     } else superTypes(0)
   }
 }
