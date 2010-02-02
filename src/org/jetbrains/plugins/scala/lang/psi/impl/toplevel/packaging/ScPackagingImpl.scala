@@ -18,6 +18,7 @@ import api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 import psi.stubs.elements.wrappers.DummyASTNode
 import com.intellij.openapi.progress.ProgressManager
+import java.lang.String
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,6 +29,8 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScPackageContainerStub) = {this (); setStub(stub); setNode(null)}
+
+  def fullPackageName: String = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
 
   override def toString = "ScPackaging"
 

@@ -242,14 +242,14 @@ object ResolveUtils {
                 //same as for private
                 val packageName = enclosing match {
                   case file: ScalaFile => file.getPackageName
-                  case packaging: ScPackaging => packaging.getPackageName
+                  case packaging: ScPackaging => packaging.fullPackageName
                 }
                 val placeEnclosing: PsiElement = ScalaPsiUtil.
                         getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
-                  case pack: ScPackaging => pack.getPackageName
+                  case pack: ScPackaging => pack.fullPackageName
                 }
                 return placePackageName.startsWith(packageName)
               }
@@ -300,7 +300,7 @@ object ResolveUtils {
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
             case file: ScalaFile => file.getPackageName
-            case pack: ScPackaging => pack.getPackageName
+            case pack: ScPackaging => pack.fullPackageName
           }
           return placePackageName.startsWith(packageName)
         }
