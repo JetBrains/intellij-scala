@@ -17,6 +17,7 @@ import api.toplevel.typedef.{ScClass, ScObject}
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import org.jetbrains.annotations.Nullable
+import com.incors.plaf.alloy.de
 
 trait ScType {
   def equiv(t: ScType): Boolean = t == this
@@ -82,7 +83,7 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Float")
 
 object ScType {
-  def create(psiType: PsiType, project: Project): ScType = psiType match {
+  def create(psiType: PsiType, project: Project, deep: Int = 0): ScType = {if (deep > 2) return Any; psiType match {
     case classType: PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
@@ -99,15 +100,15 @@ object ScType {
                 new ScExistentialArgument("_", Nil, Nothing,
                   tp.getSuperTypes.length match {
                     case 0 => Any
-                    case 1 => create(tp.getSuperTypes.apply(0), project)
-                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                    case 1 => create(tp.getSuperTypes.apply(0), project, deep + 1)
+                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
                   })
               }}): _*))
             }
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
                       (tp => {
               val psiType = substitutor.substitute(tp)
-              if (psiType != null) ScType.create(psiType, project)
+              if (psiType != null) ScType.create(psiType, project, deep + 1)
               else ScalaPsiManager.typeVariable(tp)
             }).toSeq : _*))
           }
@@ -144,8 +145,8 @@ object ScType {
     case PsiType.SHORT => Short
     case PsiType.NULL => Null
     case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-      if(wild.isSuper) create(wild.getSuperBound, project) else Nothing,
-      if(wild.isExtends) create(wild.getExtendsBound, project) else Any)
+      if(wild.isSuper) create(wild.getSuperBound, project, deep + 1) else Nothing,
+      if(wild.isExtends) create(wild.getExtendsBound, project, deep + 1) else Any)
     case capture : PsiCapturedWildcardType =>
       val wild = capture.getWildcard
       new ScSkolemizedType("_", Nil,
@@ -153,7 +154,7 @@ object ScType {
         if(wild.isExtends) create(capture.getUpperBound, project) else Any)
     case null => Any//new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
-  }
+  }}
 
   def toPsi(t: ScType, project: Project, scope: GlobalSearchScope): PsiType = {
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
