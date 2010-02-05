@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.debugger.filters;
 
+import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.Configurable;
+import java.awt.event.ActionListener;
 
 /**
  * @author ilyas
@@ -38,7 +37,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   }
 
   public Icon getIcon() {
-    return Icons.FILE_TYPE_LOGO;
+    return Icons.SCALA_SMALL_LOGO;
   }
 
   public String getHelpTopic() {

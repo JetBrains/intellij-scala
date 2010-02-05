@@ -61,7 +61,7 @@ public class ScalaFacetType extends FacetType<ScalaFacet, ScalaFacetConfiguratio
   }
 
   public Icon getIcon() {
-    return Icons.FILE_TYPE_LOGO;
+    return Icons.SCALA_SMALL_LOGO;
   }
 
   public boolean isSuitableModuleType(ModuleType moduleType) {

@@ -14,6 +14,7 @@ import tools.scalap.scalax.rules.scalasig._
 import java.lang.String
 import scala.reflect.NameTransformer
 import collection.Seq
+import tools.nsc.io.VirtualFile
 
 /**
  * @author ilyas
