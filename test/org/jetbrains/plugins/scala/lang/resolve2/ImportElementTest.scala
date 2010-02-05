@@ -22,5 +22,6 @@ class ImportElementTest extends ResolveTestBase {
   def testTypeAlias = doTest
   //TODO
 //  def testCaseClassParameter = doTest
-  def testFunctionParameter = doTest
+  //TODO
+//  def testFunctionParameter = doTest
 }

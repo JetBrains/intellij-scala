@@ -3,8 +3,8 @@ trait T {
   type A = String
 }
 
-import T.f
-import T.A
+import /* resolved: false */T.f
+import /* resolved: false */T.A
 
 println(/* resolved: false  */ f)
 println(classOf[/* resolved: false  */ f])
