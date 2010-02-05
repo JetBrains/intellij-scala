@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
 import tools.scalap.scalax.rules.scalasig._
 import java.lang.String
-import scala.util.NameTransformer
+import scala.reflect.NameTransformer
 import collection.Seq
 
 /**
