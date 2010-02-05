@@ -62,7 +62,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   override def getNavigationElement: PsiElement = {
     if (!isCompiled) this
     else {
-      val pName = getPackageNameInner
+      val pName = getPackageNameInner + typeDefinitions.find(_.isPackageObject).map("." + _.name).getOrElse("")
       val sourceFile = sourceName
       val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
