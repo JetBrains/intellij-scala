@@ -5,14 +5,13 @@ package org.jetbrains.plugins.scala.lang.resolve2
  * Pavel.Fatin, 02.02.2010
  */
 
-class ScopeTest extends ResolveTestBase {
+class ImportScopeClashTest extends ResolveTestBase {
   override def getTestDataPath: String = {
-    super.getTestDataPath + "scope/"
+    super.getTestDataPath + "import/scope/clash/"
   }
 
-  def testBlock = doTest
+  def testInnerBlock = doTest
   def testOuterBlock = doTest
   def testOuterBlockNested = doTest
-  def testInnerBlock = doTest
   def testTwoBlocks = doTest
 }

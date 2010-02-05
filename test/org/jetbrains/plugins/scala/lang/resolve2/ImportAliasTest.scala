@@ -14,6 +14,6 @@ class ImportAliasTest extends ResolveTestBase {
 //  def testExclude = doTest
   //TODO
 //  def testExcludeOnRename = doTest
-  def testIgnore = doTest
+  def testHide = doTest
   def testRename = doTest
 }
