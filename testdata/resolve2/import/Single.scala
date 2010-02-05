@@ -1,4 +1,4 @@
-import actors.Reaction
+import actors.Actor
 
-println(/* resolved: false */ Reaction.getClass)
-println(classOf[/* path: scala.actors.Reaction */ Reaction])
+println(/* path: scala.actors.Actor  */ Actor.getClass)
+println(classOf[/* path: scala.actors.Actor */ Actor])
