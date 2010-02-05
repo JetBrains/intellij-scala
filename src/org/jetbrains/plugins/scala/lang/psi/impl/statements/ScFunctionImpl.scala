@@ -36,8 +36,7 @@ import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
  */
 
 abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with ScMember
-    with ScFunction with ScTypeParametersOwner {
-
+        with ScFunction with ScTypeParametersOwner {
   def nameId(): PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
       case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
@@ -61,14 +60,14 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
       this, CachesUtil.PSI_RETURN_TYPE_KEY,
       new CachesUtil.MyProvider(this, {ic: ScFunctionImpl => ic.getReturnTypeImpl})
         (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+      )
   }
 
   private def getReturnTypeImpl: PsiType = {
-     getType(TypingContext.empty).getOrElse(Any) match {
-       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
-       case x => ScType.toPsi(x, getProject, getResolveScope)
-     }
+    getType(TypingContext.empty).getOrElse(Any) match {
+      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
+      case x => ScType.toPsi(x, getProject, getResolveScope)
+    }
   }
 
   def superMethods = TypeDefinitionMembers.getMethods(getContainingClass).
@@ -77,7 +76,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superMethod = TypeDefinitionMembers.getMethods(getContainingClass).
           get(new PhysicalSignature(this, ScSubstitutor.empty)).get.primarySuper.map(_.info.method)
-  
+
 
   def superSignatures: Seq[FullSignature] = {
     val clazz = getContainingClass
@@ -178,8 +177,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
   }
 
-  override protected def findSameMemberInSource(m: ScMember) = m match {
-  case f : ScFunction => f.name == name && f.parameters.length == parameters.length
+  override protected def isSimilarMemberForNavigation(m: ScMember) = m match {
+    case f: ScFunction => f.name == name && f.parameters.length == parameters.length
     case _ => false
   }
 
@@ -189,7 +188,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   def hasAssign = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).size > 0
-  
+
   def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
