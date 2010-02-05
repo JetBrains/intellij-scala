@@ -14,4 +14,8 @@ class ImportTest extends ResolveTestBase {
   def testMultiple = doTest
   def testSelection = doTest
   def testSingle = doTest
+  //TODO
+//  def testLocal = doTest
+  //TODO
+//  def testLoca2 = doTest
 }
