@@ -3,8 +3,8 @@ case class C {
   type A = String
 }
 
-import C.f
-import C.A
+import C./* resolved: false */f
+import C./* resolved: false */A
 
 println(/* resolved: false */ f)
 println(classOf[/* resolved: false  */ f])

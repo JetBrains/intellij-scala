@@ -12,5 +12,11 @@ class ImportAccessTest extends ResolveTestBase {
 
   //TODO
 //  def testPrivate = doTest
-  def testFoo = {} 
+  //TODO
+//  def testPrivateClass = doTest
+  def testPrivateFunction = {}
+  def testPrivateObject = {}
+  def testPrivateTrait = {}
+  def testPrivateValue = {}
+  def testPrivateVariable = {}
 }
