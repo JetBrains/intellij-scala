@@ -42,7 +42,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     } else super.hasModifierProperty(name)
   }
 
-  protected def findSameMemberInSource(m: ScMember) = false
+  protected def isSimilarMemberForNavigation(m: ScMember) = false
 
   override def getNavigationElement: PsiElement = getContainingFile match {
     case s: ScalaFileImpl if s.isCompiled => getSourceMirrorMember
@@ -53,7 +53,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case tdb: ScTemplateBody => tdb.getParent match {
       case eb: ScExtendsBlock => eb.getParent match {
         case td: ScTypeDefinition => td.getNavigationElement match {
-          case c: ScTypeDefinition => c.members.find(findSameMemberInSource _) match {
+          case c: ScTypeDefinition => c.members.find(isSimilarMemberForNavigation _) match {
             case Some(m) => m
             case None => this
           }

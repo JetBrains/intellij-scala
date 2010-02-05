@@ -17,13 +17,16 @@ import icons.Icons
 import types.result.{TypeResult, TypingContext, Success}
 import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
+import scala.continuations.ControlContext._
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
+  self =>
   def declaredElements: Seq[ScTypedDefinition]
+
   def typeElement: Option[ScTypeElement]
 
   def declaredType: Option[ScType] = typeElement flatMap (_.getType(TypingContext.empty) match {
@@ -32,6 +35,17 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
   })
 
   def getType(ctx: TypingContext): TypeResult[ScType]
+
+
+  override protected def isSimilarMemberForNavigation(m: ScMember): Boolean = m match {
+    case other: ScValue =>
+      for (elem <- self.declaredElements) {
+        if (other.declaredElements.exists(_.name == elem.name))
+          return true
+      }
+      false
+    case _ => false
+  }
 
   override def getIcon(flags: Int): Icon = {
     var parent = getParent

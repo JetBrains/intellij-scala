@@ -15,6 +15,10 @@ import lang.lexer._
 import psi.stubs.ScReferencePatternStub
 import psi.types.result.{Failure, TypingContext, Success}
 import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
+import api.ScalaFile
+import util.PsiTreeUtil
+import api.toplevel.typedef.ScMember
+import api.statements.ScDeclaredElementsHolder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,6 +43,22 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
       case Some(x) => Success(x, Some(this))
       case None => Failure("cannot define expected type", Some(this))
     }
+  }
+
+
+  override def getNavigationElement = getContainingFile match {
+    case sf: ScalaFile if sf.isCompiled => {
+      val parent = PsiTreeUtil.getParentOfType(this, classOf[ScMember]) // there is no complicated pattern-based declarations in decompiled files
+      if (parent != null) {
+        val navElem = parent.getNavigationElement
+        navElem match {
+          case holder: ScDeclaredElementsHolder => holder.declaredElements.find(_.getName == name).getOrElse(navElem)
+          case x => x
+        }
+      }
+      else super.getNavigationElement
+    }
+    case _ => super.getNavigationElement
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {

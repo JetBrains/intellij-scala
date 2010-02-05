@@ -21,7 +21,7 @@ import types.ScType
 trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder with ScDocCommentOwner {
   override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 
-  override protected def findSameMemberInSource(m: ScMember) = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember) = m match {
     case t : ScTypeAlias => t.name == name
     case _ => false
   }
