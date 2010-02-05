@@ -28,7 +28,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
 
   @Nullable
   public Icon getIcon() {
-    return Icons.FILE_TYPE_LOGO;
+    return Icons.SCALA_SMALL_LOGO;
   }
 
   @NotNull
