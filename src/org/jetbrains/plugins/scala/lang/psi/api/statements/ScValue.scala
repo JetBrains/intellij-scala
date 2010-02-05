@@ -17,7 +17,6 @@ import icons.Icons
 import types.result.{TypeResult, TypingContext, Success}
 import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
-import scala.continuations.ControlContext._
 
 /**
  * @author Alexander Podkhalyuzin
