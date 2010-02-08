@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  * Pavel.Fatin, 20.01.2010
  */
 trait ScalaSeparatorProvider {
-  val DEFAULT_GROUP = 0
-  val MULTILINE_LEVEL = 10
+  val DefaultGroup = 0
+  val MultilineLevel = 10
 
   //TODO remove commments handling when SCL-1751 will be fixed
   def isSeparatorNeeded(element: PsiElement): Boolean = {
@@ -88,7 +88,7 @@ trait ScalaSeparatorProvider {
   def doIfSeparatorNeeded(element: PsiElement) = {
     if (isSeparationContainer(element.getParent) && hasElementAbove(element)) {
       val g = getGroup(element)
-      if (g.get >= MULTILINE_LEVEL) {
+      if (g.get >= MultilineLevel) {
         true
       } else {
         g != getGroupAbove(element) {_ => true}
@@ -102,7 +102,7 @@ trait ScalaSeparatorProvider {
 
   def getGroup(element: PsiElement) = {
     for (g <- groupOf(element))
-    yield if (isMultiline(element)) MULTILINE_LEVEL + g else g
+    yield if (isMultiline(element)) MultilineLevel + g else g
   }
 
   def groupOf(element: PsiElement): Option[Int] = {
@@ -116,8 +116,8 @@ trait ScalaSeparatorProvider {
               _: ScClass |
               _: ScObject |
               _: ScTrait |
-              _: ScBlock => Some(DEFAULT_GROUP)
-      case it: ScNewTemplateDefinition if (it.extendsBlock != null) => Some(DEFAULT_GROUP)
+              _: ScBlock => Some(DefaultGroup)
+      case it: ScNewTemplateDefinition if (it.extendsBlock != null) => Some(DefaultGroup)
       case _ => None
     }
   }
