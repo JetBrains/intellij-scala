@@ -10,7 +10,6 @@ class ImportElementTest extends ResolveTestBase {
     super.getTestDataPath + "import/element/"
   }
 
-  //TODO
   def testCaseClass = doTest
   def testClass = doTest
   def testCompanion = doTest
@@ -22,6 +21,5 @@ class ImportElementTest extends ResolveTestBase {
   def testTypeAlias = doTest
   //TODO
 //  def testCaseClassParameter = doTest
-  //TODO
-//  def testFunctionParameter = doTest
+  def testFunctionParameter = doTest
 }
