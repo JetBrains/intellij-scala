@@ -40,6 +40,8 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     case Some(res) => res.element
   }
 
+  def advancedResolve: (PsiElement, Boolean) = (resolve, true)
+
   override def getReference = this
 
   def nameId: PsiElement
