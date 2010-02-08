@@ -13,21 +13,17 @@ class ElementMixTest extends ResolveTestBase {
 
   //TODO
 //  def testCaseClassAndClass = doTest
-  //TODO
-//  def testCaseClassAndObject = doTest
+  def testCaseClassAndObject = doTest
   //TODO
 //  def testCaseClassAndTrait = doTest
   //TODO
 //  def testCaseClassAndTypeAlias = doTest
 
-  //TODO
-//  def testFunctionAndClass = doTest
+  def testFunctionAndClass = doTest
   //TODO
 //  def testFunctionAndObject = doTest
-  //TODO
-//  def testFunctionAndTrait = doTest
-  //TODO
-//  def testFunctionAndTypeAlias = doTest
+  def testFunctionAndTrait = doTest
+  def testFunctionAndTypeAlias = doTest
 
   def testClassAndObject = doTest
   //TODO
