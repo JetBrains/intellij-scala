@@ -157,6 +157,15 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
     }
     case _ => t
   }
+
+  def removeUndefines(tps: Array[PsiTypeParameter]): ScSubstitutor = {
+    new ScSubstitutor(tvMap.filter(t => {
+      t._2 match {
+        case ScUndefinedType(tpt) if tps.contains(tpt.param) => false
+        case _ => true
+      }
+    }), aliasesMap, outerMap, if (follower != null) follower.removeUndefines(tps) else null)
+  }
 }
 
 class ScUndefinedSubstitutor(val upperMap: Map[String, Seq[ScType]], val lowerMap: Map[String, ScType]) {
