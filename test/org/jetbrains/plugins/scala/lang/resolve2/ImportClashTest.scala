@@ -16,12 +16,10 @@ class ImportClashTest extends ResolveTestBase {
   def testType1 = doTest
   def testType2 = doTest
   def testType3 = doTest
-  //TODO
-//  def testTypeAndValue1 = doTest
-  //TODO
-//  def testTypeAndValue2 = doTest
-  //TODO
-//  def testTypeAndValue3 = doTest
+  def testTypeAndValue1 = doTest
+  def testTypeAndValue2 = doTest
+  def testTypeAndValue3 = doTest
+  def testTypeAndValueAll = doTest
   def testValue1 = doTest
   def testValue2 = doTest
   def testValue3 = doTest
