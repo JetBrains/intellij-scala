@@ -11,8 +11,7 @@ class ElementTest extends ResolveTestBase {
     super.getTestDataPath + "element/"
   }
 
-  //TODO
-//  def testCaseClass = doTest
+  def testCaseClass = doTest
   def testClass = doTest
   def testObject = doTest
   def testTrait = doTest

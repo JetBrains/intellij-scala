@@ -332,6 +332,15 @@ class MethodResolveProcessor(ref: PsiElement,
           addResult(new ScalaResolveResult(cc, s.followed(subst), getImports(state), None, implicitConversionClass))
           true
         }
+        case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
+                ScalaPsiUtil.getCompanionModule(cc) == None => {
+          addResult(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state), None,
+            implicitConversionClass))
+          true
+        }
+        case cc: ScClass if cc.isCase && ScalaPsiUtil.getCompanionModule(cc) == None => {
+          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
+        }
         case cc: ScClass => true
         case o: ScObject if o.isPackageObject => {
           addResult(new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass))
