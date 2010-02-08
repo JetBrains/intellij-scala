@@ -1,9 +1,8 @@
-class PrivateThisAccess {
+class PrivateThis {
   object A {
     private[this] val foo = 56
   }
   class A {
-    A./*ref*/foo
+    A./* resolved: false */foo
   }
 }
-//false

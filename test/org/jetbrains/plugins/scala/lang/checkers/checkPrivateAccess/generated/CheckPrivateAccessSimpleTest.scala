@@ -11,9 +11,5 @@ class CheckPrivateAccessSimpleTest extends CheckPrivateAccessTestBase {
 
   def testPrivateEnclosing = doTest
 
-  def testPrivateThisAccess = doTest
-
-  def testSimplePrivateAccess = doTest
-
   def testSimpleResolve = doTest
 }
