@@ -22,4 +22,5 @@ class BugTest extends ResolveTestBase {
   def testSimplePrivateAccess = doTest
   def testPrivateThis = doTest
   def testProtectedThis = doTest
+  def testGetOrElse = doTest
 }

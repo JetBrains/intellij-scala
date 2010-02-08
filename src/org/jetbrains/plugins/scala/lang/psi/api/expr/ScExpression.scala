@@ -39,12 +39,17 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
       val tr = if (exp != None) { //save data
         val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
-        expectedTypesCache = expectedOption.toList.toArray
-        expectedTypesModCount = getManager.getModificationTracker.getModificationCount
-        exprType = null
-        val trData = getType(TypingContext.empty)
-        //load data
-        expectedTypesCache = z._1;exprTypeModCount = z._2;exprType = z._3;exprTypeModCount = z._4
+        var trData: TypeResult[ScType] = null
+        try {
+          expectedTypesCache = expectedOption.toList.toArray
+          expectedTypesModCount = getManager.getModificationTracker.getModificationCount
+          exprType = null
+          trData = getType(TypingContext.empty)
+        }
+        finally {
+          //load data
+          expectedTypesCache = z._1;expectedTypesModCount = z._2;exprType = z._3;exprTypeModCount = z._4
+        }
         trData
       } else getType(TypingContext.empty)
 
