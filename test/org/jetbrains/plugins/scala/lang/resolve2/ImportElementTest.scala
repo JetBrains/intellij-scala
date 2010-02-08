@@ -11,7 +11,7 @@ class ImportElementTest extends ResolveTestBase {
   }
 
   //TODO
-//  def testCaseClass = doTest
+  def testCaseClass = doTest
   def testClass = doTest
   def testCompanion = doTest
   def testObject = doTest
