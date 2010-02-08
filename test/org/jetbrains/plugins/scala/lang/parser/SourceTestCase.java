@@ -69,9 +69,9 @@ abstract class SourceTestCase extends BaseScalaFileSetTestCase {
     return DebugUtil.psiToString(psiFile, false);
   }
 
-  public static Test suite() {
+  /*public static Test suite() {
     return new SourceTestCase();
-  }
+  }*/
 
   public String getSearchPattern() {
     return TEST_FILE_PATTERN;
