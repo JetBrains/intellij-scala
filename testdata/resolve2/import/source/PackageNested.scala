@@ -4,7 +4,7 @@ case class C
 }
 }
 
-import p1.p2.C
+import p1.p2./* */C
 
 trait T {
   println( /* file: PackageNested, offset: 37 */ C.getClass)

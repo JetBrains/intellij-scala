@@ -10,7 +10,6 @@ class ImportSourceTest extends ResolveTestBase {
     super.getTestDataPath + "import/source/"
   }
 
-
   //TODO
 //  def testCaseClass = doTest
   def testClass = doTest
