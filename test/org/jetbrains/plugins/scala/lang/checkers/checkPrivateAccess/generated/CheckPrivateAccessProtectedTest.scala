@@ -9,7 +9,5 @@ class CheckPrivateAccessProtectedTest extends CheckPrivateAccessTestBase {
 
   def testProtectedSelf = doTest
 
-  def testProtectedThis = doTest
-
   def testSimpleProtected = doTest
 }

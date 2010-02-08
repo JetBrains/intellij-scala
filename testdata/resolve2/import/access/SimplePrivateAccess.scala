@@ -4,7 +4,6 @@ class SimplePrivateAccess {
   }
 
   object B {
-    A./*ref*/x
+    A./* resolved: false */x
   }
 }
-//false
