@@ -1,2 +1,8 @@
-println(/* path: scala.Some, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass  */ Some.getClass)
-println(classOf[/* path: scala.Some, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass  */ Some])
+object O {
+  case class C
+}
+
+import O.C
+
+println(/* path: O.C, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass  */ C.getClass)
+println(classOf[/* path: O.C, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass  */ C])

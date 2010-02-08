@@ -15,13 +15,19 @@ class ElementClashTest extends ResolveTestBase {
 //  def testClass = doTest
   //TODO
 //  def testCaseClass = doTest
+  def testCaseClauseBinding = doTest
+  def testCaseClauseNamed = doTest
   //TODO
 //  def testTrait = doTest
   def testObject = doTest
   def testFunctionDefinition = doTest
+  def testFunctionExpressionParameter = doTest
   def testFunctionParameter = doTest
   def testFunctionParameterClause = doTest
   def testConstructorParameter = doTest
+  def testStatementForAssignment = doTest
+  def testStatementForBinding = doTest
+  def testStatementForValues = doTest
   //TODO
 //  def testTypeAlias = doTest
   def testValue = doTest
