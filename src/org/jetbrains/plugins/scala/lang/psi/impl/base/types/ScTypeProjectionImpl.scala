@@ -62,7 +62,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScTypeProjectionImpl] {
     def resolve(projection: ScTypeProjectionImpl, incomplete: Boolean) = {
-      projection._resolve(new ResolveProcessor(projection.getKinds(incomplete), projection.refName))
+      projection._resolve(new ResolveProcessor(projection.getKinds(incomplete), projection, projection.refName))
     }
   }
 

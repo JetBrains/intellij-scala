@@ -24,7 +24,7 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
     case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
     case ScDesignatorType(des) => projected match {
       case ScSingletonType(path) => {
-        val processor = new ResolveProcessor(StdKinds.stableClass, ref.refName)
+        val processor = new ResolveProcessor(StdKinds.stableClass, ref, ref.refName)
         processor.processType(projected, path)
         if (processor.candidates.size == 1) {
           val namedElement = processor.candidates.apply(0).element

@@ -258,7 +258,8 @@ trait ScImportsHolder extends ScalaPsiElement {
             case im: ScImportStmt => {
               def processPackage(elem: PsiElement): Boolean = {
                 if (classPackageQualifier == "") return true
-                val completionProcessor = new ResolveProcessor(StdKinds.packageRef, getSplitQualifierElement(classPackageQualifier)._2)
+                val completionProcessor = new ResolveProcessor(StdKinds.packageRef, elem,
+                  getSplitQualifierElement(classPackageQualifier)._2)
                 this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
                 completionProcessor.candidates.length > 0
               }
