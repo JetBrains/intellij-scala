@@ -27,11 +27,25 @@ import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 
-class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: String) extends BaseProcessor(kinds)
+class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val ref: PsiElement, val name: String) extends BaseProcessor(kinds)
 {
+  def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
+    val memb: PsiMember = {
+      named match {
+        case memb: PsiMember => memb
+        case pl => ScalaPsiUtil.nameContext(named) match {
+          case memb: PsiMember => memb
+          case _ => return true //something strange
+        }
+      }
+    }
+    return ResolveUtils.isAccessible(memb, place)
+  }
+
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
+      if (!isAccessible(named, ref)) return true
       return named match {
         case o: ScObject if o.isPackageObject => true
         case _ => {
@@ -64,10 +78,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val name: 
 
 class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
                                 expected: Option[ScType]/*, patternsCount: Int, lastSeq: Boolean*/)
-        extends ResolveProcessor(kinds, refName) {
+        extends ResolveProcessor(kinds, ref, refName) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
+      if (!isAccessible(named, ref)) return true
       named match {
         case o: ScObject if o.isPackageObject => return true
         case clazz: ScClass if clazz.isCase => {
@@ -154,6 +169,7 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement, refName: String
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
+      if (!isAccessible(named, ref)) return false
       named match {
         case bind: ScBindingPattern => {
           ScalaPsiUtil.nameContext(bind) match {
@@ -191,12 +207,16 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement, refName: String
   }
 }
 
-class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], override val name: String)
-        extends ResolveProcessor(kinds, name)
+class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], override val ref: PsiElement,
+                          override val name: String)
+        extends ResolveProcessor(kinds, ref, name)
 {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+    if (nameAndKindMatch(named, state)) {
+      if (!isAccessible(named, ref)) return true
+      candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+    }
     true
   }
 }
@@ -209,7 +229,7 @@ class MethodResolveProcessor(ref: PsiElement,
                              expected: => Option[ScType],
                              kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
                              noParentheses: Boolean = false,
-                             section : Boolean = false) extends ResolveProcessor(kinds, refName) {
+                             section : Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
   // Return RAW types to not cycle while evaluating Parameter expected type
   // i.e. for functions return the most common type (Any, ..., Any) => Nothing
@@ -301,8 +321,7 @@ class MethodResolveProcessor(ref: PsiElement,
       case x => Some(x)
     }
     if (nameAndKindMatch(named, state)) {
-      if (named.isInstanceOf[PsiMember] &&
-              !ResolveUtils.isAccessible(named.asInstanceOf[PsiMember], ref)) return true
+      if (!isAccessible(named, ref)) return true
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
