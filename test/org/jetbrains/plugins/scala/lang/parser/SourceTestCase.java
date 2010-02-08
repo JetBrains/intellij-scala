@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 import java.io.File;
 
-public class SourceTestCase extends BaseScalaFileSetTestCase {
+abstract class SourceTestCase extends BaseScalaFileSetTestCase {
   @NonNls
   protected static final String DATA_PATH = "/home/ilya/Work/scala-2.7.0-final/src";
   protected static final String TEST_FILE_PATTERN = "(.*)\\.scala";
