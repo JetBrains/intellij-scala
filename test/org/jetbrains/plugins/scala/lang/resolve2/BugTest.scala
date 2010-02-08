@@ -13,11 +13,13 @@ class BugTest extends ResolveTestBase {
     super.getTestDataPath + "bug/"
   }
 
-  def testStub = Assert.assertTrue(true)
-
   //TODO
 //  def testBug1 = doTest
 
   //TODO
 //  def testIncomplete = doTest
+
+  def testSimplePrivateAccess = doTest
+  def testPrivateThis = doTest
+  def testProtectedThis = doTest
 }
