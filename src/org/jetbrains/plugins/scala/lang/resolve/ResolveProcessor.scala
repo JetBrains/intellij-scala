@@ -222,7 +222,7 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], overrid
 }
 
 import Compatibility.Expression
-class MethodResolveProcessor(ref: PsiElement,
+class MethodResolveProcessor(override val ref: PsiElement,
                              refName: String,
                              argumentClauses: List[Seq[Expression]],
                              typeArgElements: Seq[ScTypeElement],
@@ -498,13 +498,14 @@ class MethodResolveProcessor(ref: PsiElement,
             }
             case _ => //todo: ?
           }
-          s.getSubstitutor match {
-            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), importUsed, c.nameShadow, c.implicitConversionClass)
-            case None => c
+          val resultSubst = s.getSubstitutor match {
+            case Some(s) => substitutor.followed(s).removeUndefines(owner.typeParameters.toArray)
+            case None => c.substitutor.removeUndefines(owner.typeParameters.toArray)
           }
+          new ScalaResolveResult(owner, resultSubst, importUsed, c.nameShadow, c.implicitConversionClass)
         }
         case owner: PsiTypeParameterListOwner => {
-          var s = Compatibility.compatible(owner, substitutor, argumentClauses, withImplicits, ())._2
+          var s: ScUndefinedSubstitutor = Compatibility.compatible(owner, substitutor, argumentClauses, withImplicits, ())._2
           for (tParam <- owner.getTypeParameters) {
             s = s.addLower(tParam.getName, Nothing) //todo:
             s = s.addUpper(tParam.getName, Any) //todo:
@@ -522,10 +523,11 @@ class MethodResolveProcessor(ref: PsiElement,
             }
             case _ =>  //todo: ?
           }
-          s.getSubstitutor match {
-            case Some(s) => new ScalaResolveResult(owner, substitutor.followed(s), c.importsUsed, c.nameShadow, c.implicitConversionClass)
-            case None => c
+          val resultSubst = s.getSubstitutor match {
+            case Some(s) => substitutor.followed(s).removeUndefines(owner.getTypeParameters)
+            case None => c.substitutor.removeUndefines(owner.getTypeParameters)
           }
+          new ScalaResolveResult(owner, resultSubst, c.importsUsed, c.nameShadow, c.implicitConversionClass)
         }
       }
     }
