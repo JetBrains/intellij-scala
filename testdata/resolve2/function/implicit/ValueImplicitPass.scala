@@ -1,3 +1,3 @@
 def f(implicit i: Int) = {}
 
-println(/* */ f(1))
+println(/* offset: 4 */ f(1))

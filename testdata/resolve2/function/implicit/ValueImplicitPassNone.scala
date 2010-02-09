@@ -2,4 +2,4 @@ def f(implicit i: Int) = {}
 
 implicit val v: Int = 1
 
-println(/* applicable: false */ f())
+println(/* offset: 4, applicable: false */ f())
