@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import collection.Seq;
 import com.intellij.psi._
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -23,4 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScPrefixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPrefixExpr with ScCallExprImpl {
   override def toString: String = "PrefixExpression"
+
+  def argumentExpressions: Seq[ScExpression] = Seq.empty
 }

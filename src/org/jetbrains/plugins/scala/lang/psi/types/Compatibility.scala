@@ -49,7 +49,7 @@ object Compatibility {
     }
   }
 
-  private def checkConformance(checkNames: Boolean,
+  def checkConformance(checkNames: Boolean,
                                parameters: Seq[Parameter],
                                exprs: Seq[Expression],
                                checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {

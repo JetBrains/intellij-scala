@@ -18,6 +18,8 @@ import api.statements._
 import com.intellij.psi._
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
+import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
@@ -34,6 +36,32 @@ import util.{PsiFormatUtil, PsiFormatUtilBase}
  */
 
 object ScalaPsiUtil {
+  def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                 typeParams: Seq[TypeParameter]): ScTypePolymorphicType = {
+    val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+      (subst: ScSubstitutor, tp: TypeParameter) =>
+        subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+    }
+    val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
+    val c = Compatibility.checkConformance(true, paramsWithUndefTypes, exprs, true)
+    if (c._1) {
+      val un = c._2
+      ScTypePolymorphicType(retType, typeParams.map(tp => {
+        var lower = tp.lowerType
+        var upper = tp.upperType
+        for ((name, addLower) <- un.lowerMap if name == tp.name) {
+          lower = Bounds.lub(lower, addLower)
+        }
+        for ((name, addUpperSeq) <- un.upperMap if name == tp.name; addUpper <- addUpperSeq) {
+          upper = Bounds.glb(upper, addUpper)
+        }
+        TypeParameter(tp.name, lower, upper, tp.ptp)
+      }))
+    } else {
+      ScTypePolymorphicType(retType, typeParams)
+    }
+  }
+
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
     val file = start.getContainingFile
     if (file == null || file != end.getContainingFile) return Nil
