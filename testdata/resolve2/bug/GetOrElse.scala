@@ -3,5 +3,5 @@ class GetOrElse {
 
   def a(x: Unit) = 45
   def a(x: Int) = 47
-  /* resolved: true */a(z.getOrElse(34))
+  /* */a(z.getOrElse(34))
 }
