@@ -21,7 +21,7 @@ class FunctionBlockTest extends ResolveTestBase {
   //TODO
 //  def testBlockToFunctionWithArgs = doTest
   //TODO
-//  def testBlockToIncompatible = doTest
+//  def testBlockToOtherType = doTest
   //TODO
 //  def testBlockToNone = doTest
   def testBlockToOne = doTest
