@@ -10,6 +10,8 @@ import junit.framework._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import java.lang.String
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -19,14 +21,15 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   val pattern = """/\*\s*(.*?)\s*\*/\s*""".r
   type Parameters = Map[String, String]
 
-  val RESOLVED = "resolved"
-  val NAME = "name"
-  val FILE = "file"
-  val LINE = "line"
-  val OFFSET = "offset"
-  val LENGTH = "length"
-  val TYPE = "type"
-  val PATH = "path"
+  val Resolved = "resolved"
+  val Name = "name"
+  val File = "file"
+  val Line = "line"
+  val Offset = "offset"
+  val Length = "length"
+  val Type = "type"
+  val Path = "path"
+  val Applicable = "applicable"
 
   var options: List[Parameters] = List()
   var references: List[PsiReference] = List()
@@ -63,7 +66,7 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   def check(parameters: Parameters) = {
     for ((key, value) <- parameters) {
       key match {
-        case RESOLVED | NAME | FILE | LINE | OFFSET | LENGTH | TYPE | PATH =>
+        case Resolved | Name | File | Line | Offset | Length | Type | Path | Applicable =>
         case _ => Assert.fail("Unknown parameter: " + key)
       }
     }
@@ -87,41 +90,49 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   def doEachTest(reference: PsiReference, options: Parameters) {
     val referenceName = reference.getElement.getText
 
-    val target = reference.resolve
+    val (target, applicable)  = reference.asInstanceOf[ScReferenceElement].advancedResolve
 
-    if (options.contains(RESOLVED) && options(RESOLVED) == "false") {
-      Assert.assertNull("Reference must not be resolved: " + referenceName + ":\n" + myFile.getText, target);
+    val description: String = referenceName + ":\n\n" + myFile.getText + "\n"
+
+    if (options.contains(Resolved) && options(Resolved) == "false") {
+      Assert.assertNull("Reference must NOT be resolved: " + description, target);
     } else {
-      Assert.assertNotNull("Reference must be resolved: " + referenceName + ":\n" + myFile.getText, target);
+      Assert.assertNotNull("Reference must BE resolved: " + description, target);
 
-      if (options.contains(PATH)) {
-        Assert.assertEquals(PATH, options(PATH), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
+      if (options.contains(Applicable) && options(Applicable) == "false") {
+        Assert.assertFalse("Reference must NOT be applicable: " + description, applicable);
+      } else {
+        Assert.assertTrue("Reference must BE applicable: " + description, applicable);
       }
 
-      if (options.contains(FILE)) {
+      if (options.contains(Path)) {
+        Assert.assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
+      }
+
+      if (options.contains(File)) {
         val targetFile = target.getContainingFile.getVirtualFile.getNameWithoutExtension
-        Assert.assertEquals(FILE, options(FILE), targetFile)
+        Assert.assertEquals(File, options(File), targetFile)
       }
 
-      val expectedName = if (options.contains(NAME)) options(NAME) else referenceName
-      Assert.assertEquals(NAME, expectedName, target.asInstanceOf[PsiNamedElement].getName)
-      
-      if (options.contains(LINE)) {
-        Assert.assertEquals(LINE, options(LINE).toInt, getLine(target))
+      val expectedName = if (options.contains(Name)) options(Name) else referenceName
+      Assert.assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].getName)
+
+      if (options.contains(Line)) {
+        Assert.assertEquals(Line, options(Line).toInt, getLine(target))
       }
 
-      if (options.contains(OFFSET)) {
-        Assert.assertEquals(OFFSET, options(OFFSET).toInt, target.getTextOffset)
+      if (options.contains(Offset)) {
+        Assert.assertEquals(Offset, options(Offset).toInt, target.getTextOffset)
       }
 
-      if (options.contains(LENGTH)) {
-        Assert.assertEquals(LENGTH, options(LENGTH).toInt, target.getTextLength)
+      if (options.contains(Length)) {
+        Assert.assertEquals(Length, options(Length).toInt, target.getTextLength)
       }
 
-      if (options.contains(TYPE)) {
-        val expectedClass = Class.forName(options(TYPE))
+      if (options.contains(Type)) {
+        val expectedClass = Class.forName(options(Type))
         val targetClass = target.getClass
-        Assert.assertTrue(TYPE + ": expected " + expectedClass.getSimpleName + ", but was " + targetClass.getSimpleName,
+        Assert.assertTrue(Type + ": expected " + expectedClass.getSimpleName + ", but was " + targetClass.getSimpleName,
           expectedClass.isAssignableFrom(targetClass))
       }
     }
