@@ -5,4 +5,4 @@ object O {
 import O.A
 
 println(/* resolved: false  */ A.getClass)
-println(classOf[/* file: TypeAlias, offset: 18 */ A])
+println(classOf[/* file: this, offset: 18 */ A])
