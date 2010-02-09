@@ -11,9 +11,10 @@ class ImportTest extends ResolveTestBase {
   }
 
   def testAll = doTest
+  def testBrokenChain = doTest
+  def testLocal1 = doTest
+  def testLocal2 = doTest
   def testMultiple = doTest
   def testSelection = doTest
   def testSingle = doTest
-  def testLocal1 = doTest
-  def testLocal2 = doTest
 }
