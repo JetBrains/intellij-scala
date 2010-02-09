@@ -10,8 +10,16 @@ class FunctionImplicitTest extends ResolveTestBase {
     super.getTestDataPath + "function/implicit/"
   }
 
+  def testCurrying = doTest
+  def testCurryingPassAll = doTest
+  //TODO
+//  def testCurryingPassEmpty = doTest
+  def testTwoAsOne = doTest
   def testValueImplicit1 = doTest
   def testValueImplicit2 = doTest
+  def testValueImplicitPass = doTest
+  //TODO
+//  def testValueImplicitPassNone = doTest
   //TODO
 //  def testValueNone = doTest
   //TODO
