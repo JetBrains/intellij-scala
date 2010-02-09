@@ -28,7 +28,6 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
   def inferValueType: ValueType = {
     if (params.length == 0) return returnType.inferValueType
-    else if (isImplicit) return returnType.inferValueType //todo: ad local type inference
     return ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
   }
 

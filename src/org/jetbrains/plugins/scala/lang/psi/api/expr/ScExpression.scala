@@ -8,8 +8,10 @@ import com.intellij.psi.{PsiInvalidElementAccessException}
 import impl.ScalaPsiElementFactory
 import implicits.{ScImplicitlyConvertible}
 import types._
+import nonvalue.{ScMethodType, Parameter, ScTypePolymorphicType}
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
+import types.Compatibility.Expression
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -142,7 +144,18 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   private def valueType(ctx: TypingContext): TypeResult[ScType] = {
     val inner = innerType(ctx)
-    Success(inner.getOrElse(return inner).inferValueType, Some(this))
+    var res = inner.getOrElse(return inner)
+    //todo: implicit parameters
+
+    res match {
+      case ScMethodType(retType, params, impl) if impl => res = retType
+      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
+        res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", internal.inferValueType, false, false)),
+          Seq(new Expression(expectedType.get)), typeParams)
+      }
+      case _ =>
+    }
+    Success(res.inferValueType, Some(this))
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
