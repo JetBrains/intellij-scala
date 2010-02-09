@@ -4,5 +4,5 @@ object C {
 
 import C.CC
 
-println(/* file: Local1, offset: 24 */ CC.getClass)
-println(classOf[/* file: Local1, offset: 24 */ CC])
+println(/* file: this, offset: 24 */ CC.getClass)
+println(classOf[/* file: this, offset: 24 */ CC])
