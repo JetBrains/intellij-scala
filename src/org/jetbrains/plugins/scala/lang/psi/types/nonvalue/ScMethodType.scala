@@ -27,7 +27,9 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
   def inferValueType: ValueType = {
-    return null //todo: ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
+    if (params.length == 0) return returnType.inferValueType
+    else if (isImplicit) return returnType.inferValueType //todo: ad local type inference
+    return ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
   }
 
   override def equiv(t: ScType): Boolean = {
@@ -78,7 +80,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
 case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {
   def inferValueType: ValueType = {
-    //todo: understand it and implement
+    //todo: implement
     throw new UnsupportedOperationException("Type Constuctors not implemented yet")
   }
   //todo: equiv
