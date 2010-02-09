@@ -90,7 +90,7 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   def doEachTest(reference: PsiReference, options: Parameters) {
     val referenceName = reference.getElement.getText
 
-    val (target, applicable)  = reference.asInstanceOf[ScReferenceElement].advancedResolve
+    val (target, applicable) = reference.asInstanceOf[ScReferenceElement].advancedResolve
 
     val description: String = referenceName + ":\n\n" + myFile.getText + "\n"
 
@@ -110,8 +110,11 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
       }
 
       if (options.contains(File)) {
-        val targetFile = target.getContainingFile.getVirtualFile.getNameWithoutExtension
-        Assert.assertEquals(File, options(File), targetFile)
+        val actual = target.getContainingFile.getVirtualFile.getNameWithoutExtension
+        val expected = if (options(File) == "this") {
+          reference.getElement.getContainingFile.getVirtualFile.getNameWithoutExtension
+        } else options(File)
+        Assert.assertEquals(File, expected, actual)
       }
 
       val expectedName = if (options.contains(Name)) options(Name) else referenceName

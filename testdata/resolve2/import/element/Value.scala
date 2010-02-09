@@ -4,5 +4,5 @@ object O {
 
 import O.v
 
-println(/* file: Value, offset: 17 */ v.getClass)
+println(/* file: this, offset: 17 */ v.getClass)
 println(classOf[/* resolved: false  */ v])
