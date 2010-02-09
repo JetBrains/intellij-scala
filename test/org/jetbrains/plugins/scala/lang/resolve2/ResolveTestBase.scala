@@ -109,9 +109,9 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
         Assert.assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
       }
 
-      if (options.contains(File)) {
+      if (options.contains(File) || options.contains(Offset)) {
         val actual = target.getContainingFile.getVirtualFile.getNameWithoutExtension
-        val expected = if (options(File) == "this") {
+        val expected = if (!options.contains(File) || options(File) == "this") {
           reference.getElement.getContainingFile.getVirtualFile.getNameWithoutExtension
         } else options(File)
         Assert.assertEquals(File, expected, actual)
