@@ -13,6 +13,8 @@ class FunctionImplicitTest extends ResolveTestBase {
   //TODO
 //  def testClash = doTest
   def testClashHierarchy = doTest
+  //TODO
+//  def testClashScope = doTest
   def testCurrying = doTest
   def testCurryingPassAll = doTest
   //TODO
@@ -33,6 +35,7 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testValueImplicitPass = doTest
   //TODO
 //  def testValueImplicitPassNone = doTest
+  def testValueImplicitScope = doTest
   //TODO
 //  def testValueNone = doTest
   //TODO
