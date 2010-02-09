@@ -11,7 +11,7 @@ import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.types._
 import _root_.scala.collection.Set
-import nonvalue.{Parameter, ScMethodType, NonValueType}
+import nonvalue._
 import psi.api.statements.params.{ScParameter, ScTypeParam}
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
@@ -86,7 +86,8 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor): NonValueType = {
     if (m.getTypeParameters.length == 0) return javaMethodType(m, s)
     else {
-      throw new UnsupportedOperationException("todo: Java Polymorphic Type") //todo:
+      ScTypePolymorphicType(javaMethodType(m, s), m.getTypeParameters.map(tp =>
+        TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
     }
   }
 

@@ -19,7 +19,7 @@ import types.result.{TypingContext, Failure, Success}
 class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReturnStmt {
   override def toString: String = "ReturnStatement"
 
-  protected override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))
+  protected[expr] override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))
     //Failure("Cannot infer type of `return' expression", Some(this))
 
   def returnKeyword: PsiElement = findChildByType(ScalaTokenTypes.kRETURN)

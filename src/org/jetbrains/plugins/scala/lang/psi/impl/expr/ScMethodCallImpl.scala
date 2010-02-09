@@ -17,6 +17,7 @@ import api.base.types.ScTypeElement
 import types._
 import com.intellij.psi._
 import api.statements.params.ScParameters
+import nonvalue.{ScMethodType, ScTypePolymorphicType}
 import result.{TypeResult, Failure, Success, TypingContext}
 import implicits.ScImplicitlyConvertible
 import api.toplevel.imports.usages.ImportUsed
@@ -88,9 +89,14 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         //todo: add implicit types check
       }
-      val res = getInvokedExpr.getType(TypingContext.empty) match {
+      val res = getInvokedExpr.getNonValueType(TypingContext.empty) match {
         case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => {
           retType
+        }
+        case Success(ScMethodType(retType, _, _), _) => retType
+        case Success(ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams), _) => {
+          //todo: add local type inference
+          ScTypePolymorphicType(retType, typeParams)
         }
         case Success(tp: ScType, _) => {
           ScType.extractClassType(tp) match {
@@ -105,19 +111,8 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         case x => x.getOrElse(return x)
       }
-      def isOneMoreCall(elem: PsiElement): Boolean = {
-        elem.getParent match {
-          case _: ScMethodCall => true
-          case _: ScUnderscoreSection => true
-          case _: ScParenthesisedExpr => isOneMoreCall(elem.getParent)
-          case _ => false
-        }
-      }
-      //conversion for implicit clause
-      res match {
-        case tp: ScFunctionType if tp.isImplicit && !isOneMoreCall(this) => tp.returnType
-        case tp => tp
-      }
+
+      res
     }
 
     Success(inner, Some(this))

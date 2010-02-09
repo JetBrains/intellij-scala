@@ -19,6 +19,6 @@ import types.result.TypingContext
 class ScParenthesisedExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedExpr {
   override def toString: String = "ExpressionInParenthesis"
 
-  protected override def innerType(ctx: TypingContext) = wrap(expr) flatMap (_.getType(ctx))
+  protected override def innerType(ctx: TypingContext) = wrap(expr) flatMap (_.getNonValueType(ctx))
 
 }

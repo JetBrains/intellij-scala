@@ -16,8 +16,6 @@ import toplevel.imports.usages.ImportUsed
  */
 
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
-  self =>
-
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
@@ -97,13 +95,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
-    //todo: typing context can be not empty?
+    if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && exprTypeModCount == curModCount) {
       return tp
     }
-    tp = typeWithUnderscore
+    tp = typeWithUnderscore(ctx)
     exprType = tp
     exprTypeModCount = curModCount
     return tp
@@ -123,18 +121,41 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   @volatile
   private var exprTypeAfterImplicitModCount: Long = 0
 
-  private def typeWithUnderscore: TypeResult[ScType] = {
+  @volatile
+  private var nonValueType: TypeResult[ScType] = null
+  @volatile
+  private var nonValueTypeModCount: Long = 0
+
+  private def typeWithUnderscore(ctx: TypingContext): TypeResult[ScType] = {
     getText.indexOf("_") match {
-      case -1 => innerType(TypingContext.empty) //optimization
+      case -1 => valueType(ctx) //optimization
       case _ => {
         val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) innerType(TypingContext.empty)
+        if (unders.length == 0) valueType(ctx)
         else {
-          new Success(new ScFunctionType(innerType(TypingContext.empty).getOrElse(Any),
-            unders.map(_.getType(TypingContext.empty).getOrElse(Any)), getProject), Some(this)
+          new Success(new ScFunctionType(valueType(ctx).getOrElse(Any),
+            unders.map(_.getType(ctx).getOrElse(Any)), getProject), Some(this)
 )        }
       }
     }
+  }
+
+  private def valueType(ctx: TypingContext): TypeResult[ScType] = {
+    val inner = innerType(ctx)
+    Success(inner.getOrElse(return inner).inferValueType, Some(this))
+  }
+
+  def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
+    if (ctx != TypingContext.empty) return innerType(ctx)
+    var tp = nonValueType
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && nonValueTypeModCount == curModCount) {
+      return tp
+    }
+    tp = innerType(ctx)
+    nonValueType = tp
+    nonValueTypeModCount = curModCount
+    return tp
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
