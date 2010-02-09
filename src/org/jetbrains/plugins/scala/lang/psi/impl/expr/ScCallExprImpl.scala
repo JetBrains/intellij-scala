@@ -11,12 +11,15 @@ import api.expr._
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
 import api.statements.{ScFunction, ScFun}
 import resolve.ResolveUtils
+import types.Compatibility.Expression
 
 /**
  * @author ven
  */
 trait ScCallExprImpl extends ScExpression {
   def operation : ScReferenceExpression
+
+  def argumentExpressions: Seq[ScExpression]
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     for{r <- wrap(operation.bind)} yield {
@@ -30,9 +33,9 @@ trait ScCallExprImpl extends ScExpression {
 
       tp match {
         case ScMethodType(ret, _, _) => ret
-        case ScTypePolymorphicType(ScMethodType(ret, _, _), params) => {
-          //todo: local type inference
-          ScTypePolymorphicType(ret, params)
+        case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
+          val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+          ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
         }
         case _ => tp
       }
