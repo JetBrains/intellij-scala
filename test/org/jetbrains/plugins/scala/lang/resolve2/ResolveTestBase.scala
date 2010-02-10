@@ -8,10 +8,11 @@ import com.intellij.openapi.vfs.VirtualFile
 import scala.util.matching.Regex.{Match, MatchData}
 import junit.framework._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
+import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -84,13 +85,12 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
 
   def doTest(file: String) {
     configureByFile(file)
-    references.zip(options).foreach(it => doEachTest(it._1, it._2))
+    references.zip(options).foreach(it => doEachTest(it._1.asInstanceOf[ScReferenceElement], it._2))
   }
 
-  def doEachTest(reference: PsiReference, options: Parameters) {
-    val referenceName = reference.getElement.getText
-
-    val (target, applicable) = reference.asInstanceOf[ScReferenceElement].advancedResolve
+  def doEachTest(reference: ScReferenceElement, options: Parameters) {
+    val (target, applicable) = reference.advancedResolve
+    val referenceName = reference.refName
 
     val description: String = referenceName + ":\n\n" + myFile.getText + "\n"
 
