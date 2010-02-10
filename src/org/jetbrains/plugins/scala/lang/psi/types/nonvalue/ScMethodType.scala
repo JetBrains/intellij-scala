@@ -55,8 +55,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   def polymorphicTypeSubstitutor: ScSubstitutor =
     new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name,
-            if (tp.upperType == Any) tp.lowerType else if (tp.lowerType == Nothing) tp.upperType else Nothing))),
-      Map.empty, Map.empty)
+            if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType else tp.lowerType))),
+      Map.empty, Map.empty) //todo: possible check lower type conforms upper type
 
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
