@@ -312,16 +312,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => fail
           }
         }
-        if (isMethodCall) new ScFunctionType(s.subst(result.getOrElse(return result)),
-          f.paramTypes.map{s.subst _}, getProject)
-        else s.subst(result.getOrElse(return result))
+        s.subst(f.polymorphicType)
       }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
-        if (isMethodCall) new ScFunctionType(s.subst(fun.retType),
-          collection.immutable.Seq(fun.paramTypes.map({
-            s.subst _
-          }).toSeq: _*), getProject)
-        else s.subst(fun.retType)
+        s.subst(fun.polymorphicType)
       }
 
       //prevent infinite recursion for recursive pattern reference
@@ -348,9 +342,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
-        val result = if (isMethodCall) fun.getType(TypingContext.empty)
-        else fun.returnType
-        s.subst(result.getOrElse(return result))
+        s.subst(fun.polymorphicType)
       }
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
         val seqClass = JavaPsiFacade.getInstance(getProject).
@@ -366,6 +358,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(result.getOrElse(return result))
       }
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
+      case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase => {
+        s.subst(clazz.constructor.
+                getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
+      }
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
           collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
@@ -375,8 +371,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
       case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => {
-        if (isMethodCall) ResolveUtils.methodType(method, s)
-        else s.subst(ScType.create(method.getReturnType, getProject))
+        ResolveUtils.javaPolymorphicType(method, s)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }

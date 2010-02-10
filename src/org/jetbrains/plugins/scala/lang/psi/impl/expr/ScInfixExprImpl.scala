@@ -15,6 +15,7 @@ import api.statements.ScFunction
 import com.intellij.psi.{PsiParameter, PsiMethod, PsiTypeParameter}
 import collection.mutable.ArrayBuffer
 import resolve.ScalaResolveResult
+import collection.Seq
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,6 +24,13 @@ import resolve.ScalaResolveResult
 
 class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr with ScCallExprImpl {
   override def toString: String = "InfixExpression"
+
+  def argumentExpressions: Seq[ScExpression] = {
+    if (isLeftAssoc) Seq.singleton(lOp) else rOp match {
+      case tuple: ScTuple => tuple.exprs
+      case rOp => Seq.singleton(rOp)
+    }
+  }
 
   def possibleApplications: Array[Array[(String, ScType)]] = {
     val buffer = new ArrayBuffer[Array[(String, ScType)]]

@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import collection.Seq;
 import com.intellij.psi._
 
 import org.jetbrains.annotations._
@@ -33,4 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScPostfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPostfixExpr with ScCallExprImpl {
   override def toString: String = "PostfixExpression"
+
+  def argumentExpressions: Seq[ScExpression] = Seq.empty
 }

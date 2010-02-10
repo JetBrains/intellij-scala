@@ -16,7 +16,7 @@ import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
 import types._
-import nonvalue.{TypeParameter, ScTypePolymorphicType, NonValueType, ScMethodType}
+import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
@@ -32,6 +32,16 @@ trait ScFun extends ScTypeParametersOwner {
   def paramTypes: Seq[ScType]
 
   def typeParameters: Seq[ScTypeParam]
+
+  def methodType: ScMethodType = {
+    ScMethodType(retType, paramTypes.map(Parameter("", _, false, false)), false)
+  }
+
+  def polymorphicType: ScType = {
+    if (typeParameters.length == 0) return methodType
+    else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
+      TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
+  }
 }
 
 
@@ -47,6 +57,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Returns pure `function' type as it was defined as a field with functional value
    */
   def methodType: ScMethodType = {
+    //todo: infer result type of recursive methods from super methods
     val parameters: ScParameters = paramClauses
     val clauses = parameters.clauses
     if (clauses.length == 0) return ScMethodType(returnType.getOrElse(Any), Seq.empty, false)

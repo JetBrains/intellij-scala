@@ -22,6 +22,17 @@ import lang.resolve.ScalaResolveResult
 
 object Conformance {
 
+  def weakConforms(l: ScType, r: ScType): Boolean = {
+    (l, r) match {
+      case (Byte, Short | Char | Int | Long | Float | Double) => true
+      case (Short, Int | Long | Float | Double) => true
+      case (Int, Long | Float | Double) => true
+      case (Long, Float | Double) => true
+      case (Float, Double) => true
+      case (_, _) => conforms(l, r)
+    }
+  }
+
   /**
    * Checks, whether the following assignment is correct:
    * val x: l = (y: r) 
@@ -29,8 +40,6 @@ object Conformance {
   def conforms(l: ScType, r: ScType): Boolean = conforms(l, r, HashSet.empty, new ScUndefinedSubstitutor)._1
 
   def undefinedSubst(l: ScType, r: ScType): ScUndefinedSubstitutor = conforms(l, r, HashSet.empty, new ScUndefinedSubstitutor)._2
-
-  def conformsSeq(ls: Seq[ScType], rs: Seq[ScType]): Boolean = ls.length == rs.length && ls.zip(rs).foldLeft(true)((z, p) => z && conforms(p._1, p._2))
 
   private def conforms(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor, noBaseTypes: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
