@@ -24,23 +24,19 @@ import org.jetbrains.plugins.scala.psi.api._
 
 trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   def bind(): Option[ScalaResolveResult] = {
-    var res: Option[ScalaResolveResult] = None
     ProgressManager.checkCanceled
     val results = multiResolve(false)
-    res = results.length match {
-      case 1 => Some(results(0).asInstanceOf[ScalaResolveResult])
-      case _ => None
+    if(results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
+  }
+
+  def resolve(): PsiElement = advancedResolve._1
+
+  def advancedResolve: (PsiElement, Boolean) = {
+    bind match {
+      case Some(result) if !result.isCyclicReference =>  (result.element, result.isValidResult)
+      case _ => (null, true)
     }
-    res
   }
-
-  def resolve(): PsiElement = bind match {
-    case None => null
-    case Some(result) if result.isCyclicReference => null
-    case Some(res) => res.element
-  }
-
-  def advancedResolve: (PsiElement, Boolean) = (resolve, true)
 
   override def getReference = this
 
@@ -89,7 +85,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
 
   def qualifier: Option[ScalaPsiElement]
 
-  //provides the set of possible namespace alternatives based on syntactic position 
+  //provides the set of possible namespace alternatives based on syntactic position
   def getKinds(incomplete: Boolean): Set[ResolveTargets.Value]
 
   def getVariants(implicits: Boolean): Array[Object] = getVariants()
