@@ -12,8 +12,7 @@ class BugTest extends ResolveTestBase {
   override def getTestDataPath: String = {
     super.getTestDataPath + "bug/"
   }
-
-  //TODO
+  //TODO test is ok, problem with ResolveTestBase
 //  def testBug1 = doTest
 
   //TODO
@@ -22,6 +21,5 @@ class BugTest extends ResolveTestBase {
   def testSimplePrivateAccess = doTest
   def testPrivateThis = doTest
   def testProtectedThis = doTest
-  //TODO
-//  def testGetOrElse = doTest
+  def testGetOrElse = doTest
 }
