@@ -53,9 +53,13 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
 
+  def polymorphicTypeSubstitutor: ScSubstitutor =
+    new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name,
+            if (tp.upperType == Any) tp.lowerType else if (tp.lowerType == Nothing) tp.upperType else Nothing))),
+      Map.empty, Map.empty)
+
   def inferValueType: ValueType = {
-    val subst = new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name, tp.lowerType))), Map.empty, Map.empty)
-    subst.subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def equiv(t: ScType): Boolean = {
