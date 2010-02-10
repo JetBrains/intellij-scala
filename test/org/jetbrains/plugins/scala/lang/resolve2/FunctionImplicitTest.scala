@@ -15,6 +15,12 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testClashHierarchy = doTest
   //TODO
 //  def testClashScope = doTest
+  //TODO
+//  def testClashValueAndImport1 = doTest
+  //TODO
+//  def testClashValueAndImport2 = doTest
+  //TODO
+//  def testClashValues = doTest
   def testCurrying = doTest
   def testCurryingPassAll = doTest
   //TODO
