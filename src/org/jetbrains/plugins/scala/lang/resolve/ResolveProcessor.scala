@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Key
 import psi.types._
 
 import _root_.scala.collection.immutable.HashSet
+import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import psi.api.base.types.ScTypeElement
 import result.{Success, TypingContext}
 import scala._
@@ -231,10 +232,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              noParentheses: Boolean = false,
                              section : Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
-  // Return RAW types to not cycle while evaluating Parameter expected type
-  // i.e. for functions return the most common type (Any, ..., Any) => Nothing
-  private val args: Seq[ScType] = Nil //argumentClauses.map(_.cachedType)
-
   /**
    * Contains highest precedence of all resolve results.
    * 1 - import a._
@@ -384,7 +381,17 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def forFilter(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
-    val substitutor: ScSubstitutor = c.substitutor
+    val substitutor: ScSubstitutor =
+    getType(c.element) match {
+      case ScTypePolymorphicType(_, typeParams) => {
+        val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+          (subst: ScSubstitutor, tp: TypeParameter) =>
+            subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+        }
+        c.substitutor.followed(s)
+      }
+      case _ => c.substitutor
+    }
     c.element match {
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
@@ -410,44 +417,95 @@ class MethodResolveProcessor(override val ref: PsiElement,
     val applicable: Set[ScalaResolveResult] = filtered
 
     if (applicable.isEmpty) set.toArray else {
-      val buff = new ArrayBuffer[ScalaResolveResult]
-      def existsBetter(r: ScalaResolveResult): Boolean = {
-        for (r1 <- applicable if r != r1) {
-          if (isMoreSpecific(r1.element, r.element, r1.implicitConversionClass, r.implicitConversionClass)) return true
-        }
-        false
+      mostSpecific(applicable) match {
+        case Some(r) => Array(r)
+        case None => applicable.toArray
       }
-      for (r <- applicable if !existsBetter(r)) {
-        buff += r
-      }
-      if (buff.length == 0) return set.toArray
-      buff.toArray[T]
     }
   }
 
-  def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement, t1: Option[PsiClass], t2: Option[PsiClass]): Boolean = {
-    /*(t1, t2) match {
-      case (Some(t1), Some(t2)) => {
-        if (t1.isInheritor(t2, true)) return true
-        else return false
+  private def isAsSpecificAs(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
+    (r1.element, r2.element) match {
+      case (m1: PsiMethod, m2: PsiMethod) => {
+        val (t1, t2) = (getType(m1), getType(m2))
+        t1 match {
+          case ScMethodType(_, params, _) => {
+            val params = t2 match {
+              case ScMethodType(_, params, _) => params
+              case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                  (subst: ScSubstitutor, tp: TypeParameter) =>
+                    subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+                }
+                params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
+              }
+            }
+            val i: Int = if (argumentClauses.length > 0 && params.length > 0) 0.max(argumentClauses.apply(0).
+                    length - params.length) else 0
+            val default: Expression = new Expression(if (params.length > 0) params.last.paramType else Nothing)
+            val exprs: Seq[Expression] = params.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
+            return Compatibility.checkConformance(false, params, exprs, false)._1
+          }
+          case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+            return false //todo:
+          }
+          case _ => return false
+        }
       }
-      case _ =>
+      case (_, m2: PsiMethod) => return true
+      case (e1, e2) => return Compatibility.compatible(getType(e1), getType(e2))
     }
-    (e1, e2, getType(e1), getType(e2)) match {
-      case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
-        if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
-        import Compatibility.Expression
-        val res = Compatibility.compatible(e2, e2 match {case m: PsiTypeParameterListOwner => inferMethodTypesArgs(m, ScSubstitutor.empty)
-        case _ => ScSubstitutor.empty},
-          List(params1.map(new Expression(_)) ++ Seq.fill(if (argumentClauses.length > 0 && params1.length > 0)
-            0.max(argumentClauses.apply(0).length - params1.length) else 0)(new Expression(if (params1.length > 0) params1.last else Nothing))), 
-          false, true)._1
-        res
+  }
+
+  private def getClazz(r: ScalaResolveResult): Option[PsiClass] = {
+    val element = ScalaPsiUtil.nameContext(r.element)
+    element match {
+      case memb: PsiMember => {
+        val clazz = memb.getContainingClass
+        if (clazz == null) None else Some(clazz)
       }
-      case (_, e2: PsiMethod, _, _) => true
-      case _ => Compatibility.compatible(getType(e1), getType(e2))
-    }*/
-    return false
+      case _ => None
+    }
+  }
+
+  private def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
+    (c1, c2) match {
+      case (Some(c1), Some(c2)) => {
+        if (c1 == c2) return false
+        if (c1.isInheritor(c2, true)) return true
+        ScalaPsiUtil.getCompanionModule(c1) match {
+          case Some(c1) => if (c1.isInheritor(c2, true)) return true
+          case _ =>
+        }
+        ScalaPsiUtil.getCompanionModule(c2) match {
+          case Some(c2) => if (c1.isInheritor(c2, true)) return true
+          case _ =>
+        }
+        return false
+      }
+      case _ => false
+    }
+  }
+
+  private def relativeWeight(r1: ScalaResolveResult, r2: ScalaResolveResult): Int = {
+    val s1 = if (isAsSpecificAs(r1, r2)) 1 else 0
+    val s2 = if (isDerived(getClazz(r1), getClazz(r2))) 1 else 0
+    s1 + s2
+  }
+
+  private def isMoreSpecific(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
+    relativeWeight(r1, r2) > relativeWeight(r2, r1)
+  }
+
+  private def mostSpecific(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
+    for (a1 <- applicable) {
+      var break = false
+      for (a2 <- applicable if a1 != a2 && !break) {
+        if (!isMoreSpecific(a1, a2)) break = true
+      }
+      if (!break) return Some(a1)
+    }
+    return None
   }
 
   private def getType(e: PsiNamedElement): ScType = e match {

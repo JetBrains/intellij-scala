@@ -27,6 +27,7 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import result.{Success, TypingContext}
+import com.intellij.psi.impl.compiled.ClsParameterImpl
 
 /**
  * @author ven
@@ -79,7 +80,7 @@ object ResolveUtils {
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
     ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
-      Parameter(param.getName, s.subst(ScType.create(param.getType, m.getProject)), false, param.isVarArgs)
+      Parameter("", s.subst(ScType.create(param.getType, m.getProject)), false, param.isVarArgs)
     }).toSeq, false)
   }
 

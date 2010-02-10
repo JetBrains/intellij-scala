@@ -344,8 +344,9 @@ object ScalaPsiUtil {
     return el
   }
 
-  def getCompanionModule(td: ScTemplateDefinition): Option[ScTypeDefinition] = {
-    if (!td.isInstanceOf[ScTypeDefinition]) return None
+  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
+    if (!clazz.isInstanceOf[ScTypeDefinition]) return None
+    val td = clazz.asInstanceOf[ScTypeDefinition]
     val name: String = td.getName
     val scope: PsiElement = td.getParent
     val arrayOfElements: Array[PsiElement] = scope match {
