@@ -6,12 +6,18 @@ package expr
 
 import com.intellij.psi.{PsiInvalidElementAccessException}
 import impl.ScalaPsiElementFactory
-import implicits.{ScImplicitlyConvertible}
 import types._
-import nonvalue.{ScMethodType, Parameter, ScTypePolymorphicType}
+import nonvalue.{TypeParameter, ScMethodType, Parameter, ScTypePolymorphicType}
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import types.Compatibility.Expression
+import statements.ScFunction
+import base.patterns.ScBindingPattern
+import resolve.ScalaResolveResult
+import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import collection.mutable.ArrayBuffer
+import statements.params.ScParameter
+import psi.{ScalaPsiUtil}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -103,7 +109,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     if (tp != null && exprTypeModCount == curModCount) {
       return tp
     }
-    tp = typeWithUnderscore(ctx)
+    tp = valueType(ctx)
     exprType = tp
     exprTypeModCount = curModCount
     return tp
@@ -130,22 +136,59 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   private def typeWithUnderscore(ctx: TypingContext): TypeResult[ScType] = {
     getText.indexOf("_") match {
-      case -1 => valueType(ctx) //optimization
+      case -1 => innerType(ctx) //optimization
       case _ => {
         val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) valueType(ctx)
+        if (unders.length == 0) innerType(ctx)
         else {
-          new Success(new ScFunctionType(valueType(ctx).getOrElse(Any),
-            unders.map(_.getType(ctx).getOrElse(Any)), getProject), Some(this)
+          new Success(new ScMethodType(innerType(ctx).getOrElse(Any),
+            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false), Some(this)
 )        }
       }
     }
   }
 
   private def valueType(ctx: TypingContext): TypeResult[ScType] = {
-    val inner = innerType(ctx)
+    val inner = getNonValueType(ctx)
     var res = inner.getOrElse(return inner)
-    //todo: implicit parameters
+    res match {
+      case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
+        val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+          (subst: ScSubstitutor, tp: TypeParameter) =>
+            subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+        }
+        val exprs = new ArrayBuffer[Expression]
+        val iterator = params.iterator
+        while (iterator.hasNext) {
+          val param = iterator.next
+          val paramType = s.subst(param.paramType) //we should do all of this with information known before
+          val collector = new ImplicitParametersCollector(this, paramType)
+          val results = collector.collect
+          if (results.length == 1) {
+            results(0) match {
+              case ScalaResolveResult(patt: ScBindingPattern, subst) => {
+                exprs += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
+              }
+              case ScalaResolveResult(fun: ScFunction, subst) => {
+                val funType = {
+                  if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
+                    subst.subst(fun.getType(TypingContext.empty).get) match {
+                      case ScFunctionType(ret, _) => ret
+                      case x => x
+                    }
+                  }
+                  else subst.subst(fun.getType(TypingContext.empty).get)
+                }
+                exprs += new Expression(funType)
+              }
+            }
+          } else exprs += new Expression(Any)
+        }
+        val subst = t.polymorphicTypeSubstitutor
+        res = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, subst)
+      }
+      case _ =>
+    }
 
     res match {
       case ScMethodType(retType, params, impl) if impl => res = retType
@@ -165,7 +208,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     if (tp != null && nonValueTypeModCount == curModCount) {
       return tp
     }
-    tp = innerType(ctx)
+    tp = typeWithUnderscore(ctx)
     nonValueType = tp
     nonValueTypeModCount = curModCount
     return tp

@@ -37,7 +37,8 @@ import util.{PsiFormatUtil, PsiFormatUtilBase}
 
 object ScalaPsiUtil {
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                 typeParams: Seq[TypeParameter]): ScTypePolymorphicType = {
+                                 typeParams: Seq[TypeParameter],
+                                 subst: ScSubstitutor = ScSubstitutor.empty): ScTypePolymorphicType = {
     val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
         subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
@@ -50,10 +51,10 @@ object ScalaPsiUtil {
         var lower = tp.lowerType
         var upper = tp.upperType
         for ((name, addLower) <- un.lowerMap if name == tp.name) {
-          lower = Bounds.lub(lower, addLower)
+          lower = Bounds.lub(lower, subst.subst(addLower))
         }
         for ((name, addUpperSeq) <- un.upperMap if name == tp.name; addUpper <- addUpperSeq) {
-          upper = Bounds.glb(upper, addUpper)
+          upper = Bounds.glb(upper, subst.subst(addUpper))
         }
         TypeParameter(tp.name, lower, upper, tp.ptp)
       }))
