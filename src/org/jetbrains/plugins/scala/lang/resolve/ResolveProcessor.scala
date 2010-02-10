@@ -426,7 +426,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   private def isAsSpecificAs(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
     (r1.element, r2.element) match {
-      case (m1: PsiMethod, m2: PsiMethod) => {
+      case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
         val (t1, t2) = (getType(m1), getType(m2))
         t1 match {
           case ScMethodType(_, params1, _) => {
