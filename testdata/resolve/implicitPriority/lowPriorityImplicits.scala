@@ -15,5 +15,5 @@ object HighPriority extends LowPriority {
 }
 
 import HighPriority._
-val a: Int = 1
-a.<ref>bullseye
+val aba: Int = 1
+aba.<ref>bullseye

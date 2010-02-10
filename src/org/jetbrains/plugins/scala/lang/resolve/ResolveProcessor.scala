@@ -494,6 +494,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def isMoreSpecific(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
+    (r1.implicitConversionClass, r2.implicitConversionClass) match {
+      case (Some(t1), Some(t2)) => if (t1.isInheritor(t2, true)) return true
+      case _ =>
+    }
     relativeWeight(r1, r2) > relativeWeight(r2, r1)
   }
 
