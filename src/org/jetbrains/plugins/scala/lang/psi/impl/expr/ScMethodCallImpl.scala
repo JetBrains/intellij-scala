@@ -12,15 +12,17 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
 import toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
-import lang.resolve.{MethodResolveProcessor, ScalaResolveResult}
 import api.base.types.ScTypeElement
 import types._
 import com.intellij.psi._
-import api.statements.params.ScParameters
+import nonvalue.{TypeParameter, Parameter, ScMethodType, ScTypePolymorphicType}
 import result.{TypeResult, Failure, Success, TypingContext}
 import implicits.ScImplicitlyConvertible
 import api.toplevel.imports.usages.ImportUsed
 import com.intellij.openapi.progress.ProgressManager
+import lang.resolve.{ResolveUtils, MethodResolveProcessor, ScalaResolveResult}
+import api.statements.params.{ScTypeParam, ScParameters}
+import types.Compatibility.Expression
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,12 +33,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   override def toString: String = "MethodCall"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-
-    // todo rewrite me!
     val inner: ScType = {
-      /**
-       * Utility method to get type for apply (and update) methods of concrecte class.
-       */
       def processType(tp: ScType): ScType = {
         val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == this
         val methodName = if (isUpdate) "update" else "apply"
@@ -78,48 +75,39 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           candidates(0) match {
             case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
               fun match {
-                case fun: ScFun => s.subst(fun.retType)
-                case fun: ScFunction => s.subst(fun.returnType.getOrElse(Any))
-                case meth: PsiMethod => s.subst(ScType.create(meth.getReturnType, getProject))
+                case fun: ScFun => s.subst(fun.polymorphicType)
+                case fun: ScFunction => s.subst(fun.polymorphicType)
+                case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s)
               }
             }
             case _ => Nothing
           }
         }
-        //todo: add implicit types check
       }
-      val res = getInvokedExpr.getType(TypingContext.empty) match {
-        case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => {
-          retType
+      var nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
+      val res = nonValueType match {
+        case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => retType
+        case Success(ScMethodType(retType, _, _), _) => retType
+        case Success(ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams), _) => {
+          val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+          ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
         }
-        case Success(tp: ScType, _) => {
-          ScType.extractClassType(tp) match {
-            case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
-              clazz match {
-                case clazz: ScClass if clazz.isCase => tp //todo: this is wrong if reference isn't class name
-                case _ => processType(tp)
-              }
-            }
-            case _ => tp
+        case Success(tp: ScType, _) => processType(tp) match {
+          case ScFunctionType(retType: ScType, params: Seq[ScType]) => retType
+          case ScMethodType(retType, _, _) => retType
+          case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
+            val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+            ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
           }
+          case tp => tp
         }
-        case x => x.getOrElse(return x)
+        case x => return x
       }
-      def isOneMoreCall(elem: PsiElement): Boolean = {
-        elem.getParent match {
-          case _: ScMethodCall => true
-          case _: ScUnderscoreSection => true
-          case _: ScParenthesisedExpr => isOneMoreCall(elem.getParent)
-          case _ => false
-        }
-      }
-      //conversion for implicit clause
-      res match {
-        case tp: ScFunctionType if tp.isImplicit && !isOneMoreCall(this) => tp.returnType
-        case tp => tp
-      }
+      res
     }
 
     Success(inner, Some(this))
   }
+
+
 }

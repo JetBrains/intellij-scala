@@ -16,7 +16,6 @@ import api.statements.ScTypeAlias
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.annotations.NotNull
-import types.ScCompoundType
 
 object ScSubstitutor {
   val empty = new ScSubstitutor()
@@ -69,6 +68,8 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
         TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
       }))
     }
+
+    //todo: ScTypeConstructor
     case tpt : ScTypeParameterType => tvMap.get(tpt.name) match {
       case None => tpt
       case Some(v) => v

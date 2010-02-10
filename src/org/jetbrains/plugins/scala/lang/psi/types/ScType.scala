@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
 import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
+import nonvalue.NonValueType
 import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -23,6 +24,8 @@ trait ScType {
   def equiv(t: ScType): Boolean = t == this
 
   def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
+
+  def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
   override def toString = ScType.presentableText(this)
 
@@ -157,6 +160,7 @@ object ScType {
   }}
 
   def toPsi(t: ScType, project: Project, scope: GlobalSearchScope): PsiType = {
+    if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
     def javaObj = JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName("java.lang.Object", scope)
     t match {
       case Unit => PsiType.VOID
@@ -169,34 +173,11 @@ object ScType {
       case Byte => PsiType.BYTE
       case Short => PsiType.SHORT
       case Null => PsiType.NULL
-      //todo add generics
-      case ScFunctionType(rt, args) => {
-        val facade = JavaPsiFacade.getInstance(project)
-        val c: PsiClass = facade.findClass("scala.Function" + (args.length))
-        if (c == null) return javaObj
-        val typeParams = c.getTypeParameters
-        val subst = (args ++ Seq(rt)).toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
-          case (s, (targ, tp)) => {
-            val str = toPsi(targ, project, scope).getPresentableText
-            val boxed = PsiTypesUtil.boxIfPossible(str)
-            s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
-          }
-        }
-        facade.getElementFactory.createType(c, subst)
+      case fun: ScFunctionType => fun.resolveFunctionTrait(project) match {
+        case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
-      case ScTupleType(args) => {
-        val facade = JavaPsiFacade.getInstance(project)
-        val c: PsiClass = facade.findClass("scala.Tuple" + (args.length))
-        if (c == null) return javaObj
-        val typeParams = c.getTypeParameters
-        val subst = args.toArray[ScType].zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY){
-          case (s, (targ, tp)) => {
-            val str = toPsi(targ, project, scope).getPresentableText
-            val boxed = PsiTypesUtil.boxIfPossible(str)
-            s.put(tp, facade.getElementFactory.createTypeByFQClassName(boxed, scope))
-          }
-        }
-        facade.getElementFactory.createType(c, subst)
+      case tuple: ScTupleType => tuple.resolveTupleTrait(project) match {
+        case Some(tp) => toPsi(tp, project, scope) case _ => javaObj
       }
       case ScCompoundType(Seq(t, _*), _, _, _) => toPsi(t, project, scope)
       case ScDesignatorType(c: PsiClass) => JavaPsiFacade.getInstance(project).getElementFactory.createType(c, PsiSubstitutor.EMPTY)
@@ -245,6 +226,7 @@ object ScType {
   }
 
   def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {
+    case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case proj@ScProjectionType(p, _) => proj.resolveResult match {
       case Some(ScalaResolveResult(c: PsiClass, s)) => Some((c, s))

@@ -27,7 +27,8 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
   def inferValueType: ValueType = {
-    return null //todo: ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
+    if (params.length == 0) return returnType.inferValueType
+    return ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
   }
 
   override def equiv(t: ScType): Boolean = {
@@ -52,9 +53,13 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
 
+  def polymorphicTypeSubstitutor: ScSubstitutor =
+    new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name,
+            if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType else tp.lowerType))),
+      Map.empty, Map.empty) //todo: possible check lower type conforms upper type
+
   def inferValueType: ValueType = {
-    val subst = new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name, tp.lowerType))), Map.empty, Map.empty)
-    subst.subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def equiv(t: ScType): Boolean = {
@@ -78,7 +83,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
 case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {
   def inferValueType: ValueType = {
-    //todo: understand it and implement
+    //todo: implement
     throw new UnsupportedOperationException("Type Constuctors not implemented yet")
   }
   //todo: equiv

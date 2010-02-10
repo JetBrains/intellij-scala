@@ -11,7 +11,7 @@ import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.types._
 import _root_.scala.collection.Set
-import nonvalue.{Parameter, ScMethodType, NonValueType}
+import nonvalue._
 import psi.api.statements.params.{ScParameter, ScTypeParam}
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
@@ -27,6 +27,7 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import result.{Success, TypingContext}
+import com.intellij.psi.impl.compiled.ClsParameterImpl
 
 /**
  * @author ven
@@ -79,14 +80,15 @@ object ResolveUtils {
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
     ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
-      Parameter(param.getName, s.subst(ScType.create(param.getType, m.getProject)), false, param.isVarArgs)
+      Parameter("", s.subst(ScType.create(param.getType, m.getProject)), false, param.isVarArgs)
     }).toSeq, false)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor): NonValueType = {
     if (m.getTypeParameters.length == 0) return javaMethodType(m, s)
     else {
-      throw new UnsupportedOperationException("todo: Java Polymorphic Type") //todo:
+      ScTypePolymorphicType(javaMethodType(m, s), m.getTypeParameters.map(tp =>
+        TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
     }
   }
 

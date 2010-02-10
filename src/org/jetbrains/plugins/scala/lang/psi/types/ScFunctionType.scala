@@ -17,7 +17,7 @@ import decompiler.DecompilerUtil
  * @param shortDef is true for functions defined as follows
  *  def foo : Type = ...
  */
-case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) extends ValueType {
+case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ValueType {
   private var project: Project = null
   def getProject: Project = {
     if (project != null) project else DecompilerUtil.obtainProject

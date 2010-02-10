@@ -33,6 +33,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testImplicitApply = doTest
 
+  def testInfixIntegers = doTest
+
   def testLibraryList = doTest
 
   def testMapApply = doTest
