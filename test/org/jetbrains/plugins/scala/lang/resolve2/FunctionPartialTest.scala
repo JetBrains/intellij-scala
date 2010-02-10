@@ -10,6 +10,9 @@ class FunctionPartialTest extends ResolveTestBase {
     super.getTestDataPath + "function/partial/"
   }
 
+  def testAppliedFirst = doTest
+  def testAppliedMany = doTest
+  def testAppliedSecond = doTest
   //TODO
 //  def testOneToEmpty = doTest
   //TODO
