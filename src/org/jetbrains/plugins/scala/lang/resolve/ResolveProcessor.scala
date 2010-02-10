@@ -429,8 +429,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case (m1: PsiMethod, m2: PsiMethod) => {
         val (t1, t2) = (getType(m1), getType(m2))
         t1 match {
-          case ScMethodType(_, params, _) => {
-            val params = t2 match {
+          case ScMethodType(_, params1, _) => {
+            val params2 = t2 match {
               case ScMethodType(_, params, _) => params
               case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
@@ -440,11 +440,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
               }
             }
-            val i: Int = if (argumentClauses.length > 0 && params.length > 0) 0.max(argumentClauses.apply(0).
-                    length - params.length) else 0
-            val default: Expression = new Expression(if (params.length > 0) params.last.paramType else Nothing)
-            val exprs: Seq[Expression] = params.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-            return Compatibility.checkConformance(false, params, exprs, false)._1
+            val i: Int = if (argumentClauses.length > 0 && params1.length > 0) 0.max(argumentClauses.apply(0).
+                    length - params1.length) else 0
+            val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
+            val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
+            return Compatibility.checkConformance(false, params2, exprs, false)._1
           }
           case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
             return false //todo:
