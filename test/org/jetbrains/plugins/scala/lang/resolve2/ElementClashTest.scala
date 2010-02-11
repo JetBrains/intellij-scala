@@ -33,5 +33,9 @@ class ElementClashTest extends ResolveTestBase {
   def testValue = doTest
   def testVariable = doTest
   //TODO
-//  def testTypeParameter = doTest
+//  def testTypeParameterClass = doTest
+  //TODO
+//  def testTypeParameterFunction = doTest
+  //TODO
+//  def testTypeParameterTrait = doTest
 }
