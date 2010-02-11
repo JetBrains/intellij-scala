@@ -11,7 +11,6 @@ class ImportAliasClashTest extends ResolveTestBase {
     super.getTestDataPath + "import/alias/clash/"
   }
 
-
   //TODO
 //  def testRenameType1 = doTest
   //TODO
