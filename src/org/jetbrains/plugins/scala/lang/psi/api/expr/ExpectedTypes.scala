@@ -219,17 +219,25 @@ private[expr] object ExpectedTypes {
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
         val i = args.exprs.findIndexOf(_ == expr)
-        val tp = args.callExpression.getNonValueType(TypingContext.empty)
-        processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
+        val callExpression = args.callExpression
+        if (callExpression != null) {
+          val tp = callExpression.getNonValueType(TypingContext.empty)
+          processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
+        }
         res.toArray
       }
       case _ => Array.empty
     }
   }
 
-  private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType], length: Int) {
+  private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType],
+                                  length: Int) {
     def applyForParams(params: Seq[Parameter]) {
-      val p: ScType = if (i >= params.length) Nothing else params(i).paramType  //todo: repeate params case
+      val p: ScType =
+        if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
+          params(params.length - 1).paramType
+        else if (i > params.length) Nothing
+        else params(i).paramType
       if (expr.isInstanceOf[ScAssignStmt]) {
         val assign = expr.asInstanceOf[ScAssignStmt]
         val lE = assign.getLExpression
@@ -243,9 +251,12 @@ private[expr] object ExpectedTypes {
           }
           case _ => res += p
         }
-      } else if (expr.isInstanceOf[ScTypedStmt] && i == length - 1 &&
-              expr.getLastChild.isInstanceOf[ScSequenceArg] && params(params.length - 1).isRepeated) {
-        res += params(params.length - 1).paramType  //todo: this is wrong
+      } else if (expr.isInstanceOf[ScTypedStmt] && expr.getLastChild.isInstanceOf[ScSequenceArg] && params.length > 0) {
+        val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+        if (seqClass != null) {
+          val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(params(params.length - 1).paramType))
+          res += tp
+        }
       } else res += p
     }
     tp match {
