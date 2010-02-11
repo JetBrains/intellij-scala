@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.resolve2
 
 import com.intellij.testFramework.{ResolveTestCase, PsiTestCase}
 import com.intellij.openapi.application.ex.PathManagerEx
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.vfs.VirtualFile
 import scala.util.matching.Regex.{Match, MatchData}
@@ -13,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -89,7 +89,8 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   }
 
   def doEachTest(reference: ScReferenceElement, options: Parameters) {
-    val (target, applicable) = reference.advancedResolve
+    val result = reference.advancedResolve
+    val (target, applicable) = if(result.isDefined) (result.get.element, result.get.isValidResult) else (null, true)
     val referenceName = reference.refName
 
     val description: String = referenceName + ":\n\n" + myFile.getText + "\n"

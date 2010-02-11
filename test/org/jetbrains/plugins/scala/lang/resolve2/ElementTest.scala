@@ -22,7 +22,12 @@ class ElementTest extends ResolveTestBase {
   def testTypeAlias = doTest
   def testValue = doTest
   def testVariable = doTest
-  def testTypeParameter = doTest
+  //TODO
+//  def testTypeParameterClass = doTest
+  //TODO
+//  def testTypeParameterFunction = doTest
+  //TODO
+//  def testTypeParameterTrait = doTest
   def testBinding = doTest
   def testValues = doTest
   def testStatementForValue = doTest

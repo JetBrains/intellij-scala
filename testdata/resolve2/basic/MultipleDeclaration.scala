@@ -1,4 +1,4 @@
-val a = 1
-val a = 2
+val a: Int = 1
+val a: Int = 2
 
 /* resolved: false */ a + 1

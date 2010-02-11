@@ -29,12 +29,17 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     if(results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
   }
 
-  def resolve(): PsiElement = advancedResolve._1
+  def resolve(): PsiElement = {
+    advancedResolve match {
+      case Some(result) => result.element
+      case _ => null
+    }
+  }
 
-  def advancedResolve: (PsiElement, Boolean) = {
+  def advancedResolve: Option[ScalaResolveResult] = {
     bind match {
-      case Some(result) if !result.isCyclicReference =>  (result.element, result.isValidResult)
-      case _ => (null, true)
+      case Some(result) if !result.isCyclicReference =>  Some(result)
+      case _ => None
     }
   }
 
