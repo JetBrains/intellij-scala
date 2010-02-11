@@ -42,6 +42,27 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
       //now we want to change context for this expression, for example
       //we want to imagine that expected type for this expression is...
+      def anon(expr: ScExpression): Boolean = {
+        getText.indexOf("_") match {
+          case -1 => false //optimization
+          case _ => {
+            val unders = ScUnderScoreSectionUtil.underscores(this)
+            if (unders.length != 0) {
+              return true
+            }
+          }
+        }
+        expr match {
+          case b: ScBlockExpr => b.lastExpr match {case Some(x) => anon(x) case _ => false}
+          case p: ScParenthesisedExpr => p.expr match {case Some(x) => anon(x) case _ => false}
+          case i: ScIfStmt if i.elseBranch != None =>
+            anon(i.elseBranch.get) || (i.thenBranch match {case Some(x) => anon(x) case _ => false})
+          case td: ScTryBlock => td.lastExpr match {case Some(x) => anon(x) case _ => false}
+          case m: ScMatchStmt => m.getBranches.foldLeft(false)((x, y) => x || anon(y))
+          case f: ScFunctionExpr =>  f.parameters.exists(p => p.typeElement == None)
+          case _ => false
+        }
+      }
 
       val tr = if (exp != None) { //save data
         val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
@@ -50,7 +71,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           expectedTypesCache = expectedOption.toList.toArray
           expectedTypesModCount = getManager.getModificationTracker.getModificationCount
           exprType = null
-          trData = getType(TypingContext.empty)
+          trData = if (!anon(this)) getType(TypingContext.empty) else {
+            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getParent)
+            newExpr.setExpectedTypes(expectedOption.toList.toArray)
+            newExpr.getType(TypingContext.empty)
+          }
         }
         finally {
           //load data
@@ -268,5 +293,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     expectedTypesCache = tp
     expectedTypesModCount = curModCount
     return tp
+  }
+
+  private[expr] def setExpectedTypes(tps: Array[ScType]) {
+    expectedTypesCache = tps
+    expectedTypesModCount = getManager.getModificationTracker.getModificationCount
   }
 }

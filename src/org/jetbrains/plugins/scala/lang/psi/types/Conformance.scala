@@ -383,7 +383,12 @@ object Conformance {
       )
   }
 
-  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass): (Boolean, ScType) = {
+
+  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
+    smartIsInheritor(leftClass, substitutor, rightClass, new collection.mutable.HashSet[PsiClass])
+  }
+  private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass,
+                               visited: collection.mutable.HashSet[PsiClass]): (Boolean, ScType) = {
     val bases: Seq[ScType] = leftClass match {
       case td: ScTypeDefinition => td.superTypes.map(substitutor.subst(_))
       case _ => leftClass.getSuperTypes.map(tp => substitutor.subst(ScType.create(tp, leftClass.getProject))).toSeq
@@ -393,12 +398,15 @@ object Conformance {
     while (iterator.hasNext) {
       val tp = iterator.next
       ScType.extractClassType(tp) match {
+        case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, subst)) if clazz == rightClass => {
+          visited += clazz
           if (res == null) res = tp
           else if (tp.conforms(res)) res = tp
         }
         case Some((clazz: PsiClass, subst)) => {
-          val recursive = smartIsInheritor(clazz, subst, rightClass)
+          visited += clazz
+          val recursive = smartIsInheritor(clazz, subst, rightClass, visited)
           if (recursive._1) {
             if (res == null) res = recursive._2
             else if (recursive._2.conforms(res)) res = recursive._2

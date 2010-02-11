@@ -33,16 +33,16 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    * Get all implicit types for given expression
    */
   def getImplicitTypes : List[ScType] = {
-      implicitMap.keySet.toList
+      implicitMap.map(_._1).toList
   }
 
   /**
    * returns class which contains function for implicit conversion to type t.
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
-    implicitMap.get(t) match {
-      case Some(set: Set[(ScFunctionDefinition, Set[ImportUsed])]) if set.size == 1 => return {
-        set.toSeq.apply(0)._1.getContainingClass match {
+    implicitMap.find(tp => t.equiv(tp._1)) match {
+      case Some((_, fun, _))=> return {
+        fun.getContainingClass match {
           case null => None
           case x => Some(x)
         }
@@ -54,18 +54,20 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   /**
    *  Get all imports used to obtain implicit conversions for given type
    */
-  def getImportsForImplicit(t: ScType): Set[ImportUsed] = implicitMap.get(t).map(s => s.flatMap(p => p._2.toList)) match {
-    case Some(s) => s
-    case None => Set()
+  def getImportsForImplicit(t: ScType): Set[ImportUsed] = {
+    implicitMap.find(tp => t.eq(tp._1)).map(s => s._3) match {
+      case Some(s) => s
+      case None => Set()
+    }
   }
 
   @volatile
-  private var cachedImplicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = null
+  private var cachedImplicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = null
 
   @volatile
   private var modCount: Long = 0
 
-  private def implicitMap: collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
+  private def implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
     var tp = cachedImplicitMap
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && modCount == curModCount) {
@@ -77,7 +79,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     return tp
   }
 
-  private def buildImplicitMap : collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]] = {
+  private def buildImplicitMap : Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
     val processor = new CollectImplicitsProcessor
 
     // Collect implicit conversions from bottom to up
@@ -96,9 +98,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     treeWalkUp(this, null)
 
     val typez: ScType = getType(TypingContext.empty).getOrElse(Nothing)
-    val result = new HashMap[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]
-    if (typez == Nothing) return result
-    if (typez.isInstanceOf[ScUndefinedType]) return result
+    val result = new ArrayBuffer[(ScType, ScFunctionDefinition, Set[ImportUsed])]
+    if (typez == Nothing) return result.toSeq
+    if (typez.isInstanceOf[ScUndefinedType]) return result.toSeq
     
     val sigsFound = processor.signatures.filter((sig: Signature) => {
       ProgressManager.checkCanceled
@@ -124,11 +126,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         val rt = sig.substitutor.subst(fun.returnType.getOrElse(Any))
 
         def register(t: ScType) = {
-          if (!result.contains(t)) {
-            result += (t -> Set((fun, imports)))
-          } else {
-            result += (t -> (result(t) + (Pair(fun, imports))))
-          }
+            result += Tuple(t, fun, imports)
         }
         rt match {
           // This is needed to pass OptimizeImportsImplicitsTest.testImplicitReference2
@@ -141,7 +139,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         }
       }
     }
-    result
+    result.toSeq
   }
 
 
