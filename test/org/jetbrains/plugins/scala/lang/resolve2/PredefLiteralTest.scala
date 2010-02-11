@@ -23,7 +23,7 @@ class PredefLiteralTest extends ResolveTestBase {
   //TODO
 //  def testLong = doTest
   //TODO
-//  def testNull = doTest
+//  def testTheNull = doTest
   def testShort = doTest
   //TODO
 //  def testString = doTest
