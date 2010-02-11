@@ -28,7 +28,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
     if (stub != null) {
       stub.getParentStubOfType(classOf[ScTemplateDefinition])
-    } else PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
+    } else PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition], true)
   }
 
   override def hasModifierProperty(name: String) = {
