@@ -91,7 +91,7 @@ private[expr] object ExpectedTypes {
       })
 
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
-        expectedExprTypes(t)
+        t.expectedTypes
       }
       //SLS[6.13]
       case t: ScTypedStmt => {
@@ -155,7 +155,7 @@ private[expr] object ExpectedTypes {
       case tuple: ScTuple => {
         val buffer = new ArrayBuffer[ScType]
         val index = tuple.exprs.indexOf(expr)
-        for (tp: ScType <- expectedExprTypes(tuple)) {
+        for (tp: ScType <- tuple.expectedTypes) {
           tp match {
             case ScTupleType(comps) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
