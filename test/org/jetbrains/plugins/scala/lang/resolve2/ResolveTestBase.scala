@@ -13,6 +13,7 @@ import java.lang.String
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**
  * Pavel.Fatin, 02.02.2010
