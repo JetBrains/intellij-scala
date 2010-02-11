@@ -227,7 +227,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
-    if (ctx != TypingContext.empty) return innerType(ctx)
+    if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
     var tp = nonValueType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && nonValueTypeModCount == curModCount) {
