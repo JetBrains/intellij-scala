@@ -236,7 +236,7 @@ private[expr] object ExpectedTypes {
       val p: ScType =
         if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
           params(params.length - 1).paramType
-        else if (i > params.length) Nothing
+        else if (i >= params.length) Nothing
         else params(i).paramType
       if (expr.isInstanceOf[ScAssignStmt]) {
         val assign = expr.asInstanceOf[ScAssignStmt]
