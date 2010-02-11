@@ -14,9 +14,10 @@ import base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
 import types._
 import com.intellij.psi.util.PsiTreeUtil
-import result.{Success, TypingContext}
 import base.types.{ScSequenceArg, ScTypeElement}
 import com.intellij.psi._
+import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
+import result.{TypeResult, Success, TypingContext}
 
 /**
  * @author ilyas
@@ -36,10 +37,10 @@ private[expr] object ExpectedTypes {
     //this method needs to replace expected type to return type if it's placholder function expression
     def finalize(expr: ScExpression): Array[ScType] = {
       ScUnderScoreSectionUtil.underscores(expr).length match {
-        case 0 => expectedExprTypes(expr)
+        case 0 => expr.expectedTypes
         case _ => {
           val res = new ArrayBuffer[ScType]
-          for (tp <- expectedExprTypes(expr)) {
+          for (tp <- expr.expectedTypes) {
             tp match {
               case ScFunctionType(rt: ScType, _) => res += rt
               case ScParameterizedType(des, args) => {
@@ -171,29 +172,8 @@ private[expr] object ExpectedTypes {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
           case _ => expr
         }
-        zExpr match {
-          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] => {
-            for (application: Array[(String, ScType)] <- infix.possibleApplications) {
-              if (application.length == 1) {
-                //todo: add possibility to check if last param is repeated
-                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
-                if (seqClass != null) {
-                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
-                  res += tp
-                }
-              }
-            }
-          }
-          case _ => {
-            val i: Int = 0
-            for (application: Array[(String, ScType)] <- infix.possibleApplications if expr.
-                    isInstanceOf[ScParenthesisedExpr] || application.length == 1) {
-              if (application.length > i && i >=0) {
-                res += application(i)._2
-              }
-            }
-          }
-        }
+        val tp = infix.operation.getNonValueType(TypingContext.empty)
+        processArgsExpected(res, zExpr, 0, tp, 1)
         res.toArray
       }
       //SLS[4.1]
@@ -238,32 +218,46 @@ private[expr] object ExpectedTypes {
       }
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
-        expr match {
-          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] &&
-                  args.exprs.lastOption == Some(expr) => {
-            for (application: Array[(String, ScType)] <- args.possibleApplications) {
-              if (application.length == args.exprs.length) {
-                //todo: add possibility to check if last param is repeated
-                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
-                if (seqClass != null) {
-                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
-                  res += tp
-                }
-              }
-            }
-          }
-          case _ => {
-            val i: Int = args.exprs.findIndexOf(_ == expr)
-            for (application: Array[(String, ScType)] <- args.possibleApplications) {
-              if (application.length > i && i >=0) {
-                res += application(i)._2
-              }
-            }
-          }
-        }
+        val i = args.exprs.findIndexOf(_ == expr)
+        val tp = args.callExpression.getNonValueType(TypingContext.empty)
+        processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
         res.toArray
       }
       case _ => Array.empty
+    }
+  }
+
+  private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType], length: Int) {
+    def applyForParams(params: Seq[Parameter]) {
+      val p: ScType = if (i >= params.length) Nothing else params(i).paramType  //todo: repeate params case
+      if (expr.isInstanceOf[ScAssignStmt]) {
+        val assign = expr.asInstanceOf[ScAssignStmt]
+        val lE = assign.getLExpression
+        lE match {
+          case ref: ScReferenceExpression if ref.qualifier == None => {
+            val name = ref.refName
+            params.find(_.name == name) match {
+              case Some(param) => res += param.paramType
+              case _ => res += p
+            }
+          }
+          case _ => res += p
+        }
+      } else if (expr.isInstanceOf[ScTypedStmt] && i == length - 1 &&
+              expr.getLastChild.isInstanceOf[ScSequenceArg] && params(params.length - 1).isRepeated) {
+        res += params(params.length - 1).paramType  //todo: this is wrong
+      } else res += p
+    }
+    tp match {
+      case Success(ScMethodType(_, params, _), _) => {
+        applyForParams(params)
+      }
+      case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), _), _) => {
+        val subst = t.polymorphicTypeSubstitutor
+        val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
+        applyForParams(newParams)
+      }
+      case _ =>
     }
   }
 }

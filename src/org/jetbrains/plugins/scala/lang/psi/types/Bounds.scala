@@ -7,7 +7,8 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import _root_.scala.collection.mutable.{Set, HashSet}
 import api.statements.params.ScTypeParam
 import com.intellij.psi.PsiClass
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import api.toplevel.typedef.{ScClass, ScTrait, ScTemplateDefinition, ScTypeDefinition}
+import com.intellij.openapi.project.DumbService
 
 object Bounds {
 
@@ -59,7 +60,7 @@ object Bounds {
         case Some((cbase, sbase)) if cbase.getQualifiedName != null && (cbase.getQualifiedName == "java.lang.Object" ||
                 cbase.getQualifiedName == "scala.ScalaObject" || cbase.getQualifiedName == "scala.Product") => 
         case Some((cbase, sbase)) => {
-          superSubstitutor(cbase, clazz2, s2, new HashSet[PsiClass]) match {
+          superSubstitutor(cbase, clazz2, s2) match {
             case Some(superSubst) => {
               val typeParams = cbase.getTypeParameters
               if (typeParams.length > 0) {
@@ -93,8 +94,10 @@ object Bounds {
     }
   }
 
-  def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor) : Option[ScSubstitutor] =
+  def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor) : Option[ScSubstitutor] = {
+    //if (drv.isInheritor(base, true)) Some(ScSubstitutor.empty) else None
     superSubstitutor(base, drv, drvSubst, HashSet[PsiClass]())
+  }
 
   private def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor, visited : Set[PsiClass]) : Option[ScSubstitutor] =
     //todo: move somewhere and cache
@@ -105,7 +108,9 @@ object Bounds {
           case td: ScTemplateDefinition => td.superTypes
           case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
         }
-        for (st <- superTypes) {
+        val iterator = superTypes.iterator
+        while(iterator.hasNext) {
+          val st = iterator.next
           ScType.extractClassType(st) match {
             case None =>
             case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
@@ -117,4 +122,33 @@ object Bounds {
         None
       }
     }
+  
+
+  /*override def isInheritor(baseClass: PsiClass, drv: PsiClass): Boolean = {
+    def isInheritorInner(base: PsiClass, drv: PsiClass, visited: Set[PsiClass]): Boolean = {
+      if (visited.contains(drv)) false
+      else drv match {
+        case drg: ScTypeDefinition => drg.superTypes.find{
+          t => ScType.extractClassType(t) match {
+            case Some((c, _)) => {
+              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
+                case _: ScTrait if c.isInstanceOf[ScTrait] => true
+                case _: ScClass if c.isInstanceOf[ScClass] => true
+                case _ if !c.isInstanceOf[ScTypeDefinition] => true
+                case _ => false
+              }
+              (c.getQualifiedName == baseClass.getQualifiedName && value) || isInheritorInner(base, c, visited + drg)
+            }
+            case _ => false
+          }
+        }
+        case _ => drv.getSuperTypes.find{
+          psiT =>
+                  val c = psiT.resolveGenerics.getElement
+                  if (c == null) false else c == baseClass || isInheritorInner(base, c, visited + drv)
+        }
+      }
+    }
+    isInheritorInner(baseClass, drv, Set.empty)
+  }*/
 }
