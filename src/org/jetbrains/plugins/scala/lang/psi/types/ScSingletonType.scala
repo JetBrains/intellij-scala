@@ -54,13 +54,13 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
       def equiv(e1: ScPathElement, e2: ScPathElement): Boolean = {
         (e1, e2) match {
           case (r1: ScReferenceElement, r2: ScReferenceElement) =>
-            r1.bind == r2.bind && ((r1.qualifier, r2.qualifier) match {
+            r1.bind == r2.bind /*&& ((r1.qualifier, r2.qualifier) match {
               case (Some(q1: ScPathElement), Some(q2: ScPathElement)) => equiv(q1, q2)
               case (None, None) => true
               case _ => false
-            })
+            })*/
           case (t1: ScThisReference, t2: ScThisReference) => t1.refTemplate == t2.refTemplate
-          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate &&
+          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate/* &&
                   ((s1.staticSuper, s2.staticSuper) match {
                     case (Some(t1), Some(t2)) => t1 equiv t2
                     case (None, None) => true
@@ -71,7 +71,7 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
                     case (Some(q1), Some(q2)) => equiv(q1, q2)
                     case (None, None) => true
                     case _ => false
-                  })
+                  })*/
           case _ => false
         }
       }
