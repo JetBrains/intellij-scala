@@ -7,9 +7,10 @@ package expr
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import types.{ScParameterizedType, ScFunctionType, ScType}
-import com.intellij.psi.PsiClass
 import types.result.{Success, TypeResult, Failure, TypingContext}
+import resolve.ScalaResolveResult
+import com.intellij.psi.{PsiMethod, PsiClass}
+import types.{ScSubstitutor, ScParameterizedType, ScFunctionType, ScType}
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -20,7 +21,9 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     bindingExpr match {
-      case Some(x) => Failure("No type inferred", None) //todo: implement me
+      case Some(x) => {
+        x.getNonValueType(TypingContext.empty)
+      }
       case None => {
         getContext match {
           case typed: ScTypedStmt => return typed.getType(ctx)
