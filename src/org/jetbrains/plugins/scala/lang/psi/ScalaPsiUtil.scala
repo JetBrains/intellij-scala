@@ -197,7 +197,8 @@ object ScalaPsiUtil {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod | _: ScCaseClause => true
+        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod |
+                _: ScCaseClause | _: PsiClass => true
         case _ => false
       }
     }
