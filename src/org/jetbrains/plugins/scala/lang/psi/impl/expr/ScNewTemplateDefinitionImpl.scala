@@ -20,6 +20,7 @@ import com.intellij.openapi.project.DumbService
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTrait, ScTypeDefinition}
 import psi.stubs.ScTemplateDefinitionStub
 import types.{ScSubstitutor, ScType, ScCompoundType}
+import icons.Icons
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,6 +32,8 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "NewTemplateDefinition"
+
+  override def getIcon(flags: Int) = Icons.CLASS
 
   protected override def innerType(ctx: TypingContext) = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
