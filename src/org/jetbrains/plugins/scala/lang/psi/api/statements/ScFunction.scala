@@ -66,7 +66,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(x) => x
     }
     if (clauses.length == 0) return ScMethodType(resultType, Seq.empty, false)
-    val res = clauses.foldRight[ScType](returnType.getOrElse(Any)){(clause: ScParameterClause, tp: ScType) =>
+    val res = clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
     res.asInstanceOf[ScMethodType]
