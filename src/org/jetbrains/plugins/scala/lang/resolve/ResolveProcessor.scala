@@ -438,7 +438,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
               val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                 (subst: ScSubstitutor, tp: TypeParameter) =>
-                  subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+                  subst.bindT(tp.name, new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
               }
               params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
             }
@@ -513,6 +513,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     return None
   }
 
+  //todo: implement existential dual
   private def getType(e: PsiNamedElement): ScType = e match {
     case fun: ScFun => fun.polymorphicType
     case f: ScFunction => f.polymorphicType
