@@ -259,7 +259,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   private def getPrecendence(result: ScalaResolveResult): Int = {
     if (result.importsUsed.size == 0) {
-      result.getElement match {
+      ScalaPsiUtil.nameContext(result.getElement) match {
         case synthetic: ScSyntheticClass => return 1
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
@@ -278,6 +278,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             clazz.getQualifiedName match {
               case "scala.Predef" => return 2
               case "scala.LowPriorityImplicits" => return 2
+              case "scala" => return 2
               case _ => return 5
             }
           }

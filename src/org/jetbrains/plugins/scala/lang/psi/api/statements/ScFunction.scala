@@ -56,11 +56,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
-  def methodType: ScMethodType = {
+  def methodType: ScMethodType = methodType(None)
+  def methodType(result: Option[ScType]): ScMethodType = {
     //todo: infer result type of recursive methods from super methods
     val parameters: ScParameters = paramClauses
     val clauses = parameters.clauses
-    if (clauses.length == 0) return ScMethodType(returnType.getOrElse(Any), Seq.empty, false)
+    val resultType = result match {
+      case None => returnType.getOrElse(Any)
+      case Some(x) => x
+    }
+    if (clauses.length == 0) return ScMethodType(resultType, Seq.empty, false)
     val res = clauses.foldRight[ScType](returnType.getOrElse(Any)){(clause: ScParameterClause, tp: ScType) =>
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
@@ -70,9 +75,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns internal type with type parameters.
    */
-  def polymorphicType: ScType = {
-    if (typeParameters.length == 0) return methodType
-    else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
+  def polymorphicType: ScType = polymorphicType(None)
+  def polymorphicType(result: Option[ScType]): ScType = {
+    if (typeParameters.length == 0) return methodType(result)
+    else return ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
   }
 
