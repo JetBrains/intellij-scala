@@ -80,7 +80,11 @@ object ResolveUtils {
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
     ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
-      Parameter("", s.subst(ScType.create(param.getType, m.getProject)), false, param.isVarArgs)
+      var psiType = param.getType
+      if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
+        psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
+      }
+      Parameter("", s.subst(ScType.create(psiType, m.getProject)), false, param.isVarArgs)
     }).toSeq, false)
   }
 

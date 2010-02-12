@@ -425,32 +425,32 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def isAsSpecificAs(r1: ScalaResolveResult, r2: ScalaResolveResult): Boolean = {
+    def lastRepeated(params: Seq[Parameter]): Boolean = {
+      params.lastOption.getOrElse(return false).isRepeated
+    }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
         val (t1, t2) = (getType(m1), getType(m2))
-        t1 match {
-          case ScMethodType(_, params1, _) => {
-            val params2 = t2 match {
-              case ScMethodType(_, params, _) => params
-              case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
-                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                  (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
-                }
-                params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
+        def calcParams(tp: ScType): Seq[Parameter] = {
+          tp match {
+            case ScMethodType(_, params, _) => params
+            case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+              val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                (subst: ScSubstitutor, tp: TypeParameter) =>
+                  subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
               }
+              params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
             }
-            val i: Int = if (argumentClauses.length > 0 && params1.length > 0) 0.max(argumentClauses.apply(0).
-                    length - params1.length) else 0
-            val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
-            val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-            return Compatibility.checkConformance(false, params2, exprs, false)._1
+            case _ => Seq.empty
           }
-          case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
-            return false //todo:
-          }
-          case _ => return false
         }
+        val (params1, params2) = (calcParams(t1), calcParams(t2))
+        if (lastRepeated(params1) && !lastRepeated(params2)) return false
+        val i: Int = if (argumentClauses.length > 0 && params1.length > 0) 0.max(argumentClauses.apply(0).
+                length - params1.length) else 0
+        val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
+        val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
+        return Compatibility.checkConformance(false, params2, exprs, false)._1
       }
       case (_, m2: PsiMethod) => return true
       case (e1, e2) => return Compatibility.compatible(getType(e1), getType(e2))
