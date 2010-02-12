@@ -73,7 +73,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def superMethods: Seq[PsiMethod] = {
     val clazz = getContainingClass
     if (clazz != null) TypeDefinitionMembers.getMethods(clazz).
-          get(new PhysicalSignature(this, ScSubstitutor.empty)).get.supers.map {_.info.method}
+          get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.map {_.info.method}
     else Seq.empty
   }
 
@@ -81,7 +81,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     val clazz = getContainingClass
     if (clazz != null)
       TypeDefinitionMembers.getMethods(clazz).
-          get(new PhysicalSignature(this, ScSubstitutor.empty)).get.primarySuper.map(_.info.method)
+          get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return None).primarySuper.map(_.info.method)
     else None
   }
 
