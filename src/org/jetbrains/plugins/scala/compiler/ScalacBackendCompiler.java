@@ -25,6 +25,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
@@ -41,6 +42,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtils;
 import scala.tools.nsc.CompileServer;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -257,9 +259,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     commandLine.add(XSS_COMPILER_PROPERTY);
     commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
+    Charset encoding = settings.getNonDefaultEncoding();
+    if (encoding != null) {
+      commandLine.add("-Dfile.encoding=" + encoding.name());
+    }
+
     commandLine.add("-cp");
-
-
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
@@ -413,6 +418,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       addJavaSourceFiles(printer, sourceDependency, filesToCompile);
     }
     printer.close();
+    if (LOG.isDebugEnabled()) {
+      try {
+        LOG.debug(FileUtil.loadTextAndClose(new FileReader(fileWithParameters)));
+      } catch (IOException e) {
+        // ignore
+      }
+    }
   }
 
   private static boolean isTestChunk(ModuleChunk chunk) {
@@ -498,5 +510,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         return super.processMessageLine(callback);
       }
     };
+  }
+
+  public Charset getEncoding() {
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    final Charset encoding = settings.getNonDefaultEncoding();
+    if (encoding == null) {
+      return CharsetToolkit.getDefaultSystemCharset();
+    } else {
+      return encoding;
+    }
   }
 }
