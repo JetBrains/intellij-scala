@@ -197,7 +197,8 @@ object ScalaPsiUtil {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod | _: ScCaseClause => true
+        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod |
+                _: ScCaseClause | _: PsiClass => true
         case _ => false
       }
     }
@@ -341,6 +342,18 @@ object ScalaPsiUtil {
       element.getParent
     }
     while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
+    return el
+  }
+
+  /**
+   * For one classOf use PsiTreeUtil.getContextOfType instead
+   */
+  def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
+    var el: PsiElement = if (!strict) element else {
+      if (element == null) return null
+      element.getContext
+    }
+    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getContext
     return el
   }
 

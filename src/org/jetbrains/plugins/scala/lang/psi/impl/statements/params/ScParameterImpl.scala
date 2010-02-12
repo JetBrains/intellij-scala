@@ -55,7 +55,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.EMPTY_SCOPE
   }
 
-  def isVarArgs = false
+  def isVarArgs = isRepeatedParameter
 
   def computeConstantValue = null
 
@@ -67,7 +67,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   // todo rewrite to handle errors
   def getType(ctx: TypingContext) : TypeResult[ScType] = {
-    val computeType: ScType = {
+    var computeType: ScType = {
       val stub = getStub
       if (stub != null) {
         stub.asInstanceOf[ScParameterStub].getTypeText match {

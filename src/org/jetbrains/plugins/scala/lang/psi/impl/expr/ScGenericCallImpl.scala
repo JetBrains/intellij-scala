@@ -32,7 +32,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
    * Utility method to get generics for apply methods of concrecte class.
    */
   private def processType(tp: ScType): ScType = {
-    val curr = getParent match {case call: ScMethodCall => call case _ => this}
+    val curr = getContext match {case call: ScMethodCall => call case _ => this}
     val isUpdate = curr.getContext.isInstanceOf[ScAssignStmt] &&
             curr.getContext.asInstanceOf[ScAssignStmt].getLExpression == curr
     val methodName = if (isUpdate) "update" else "apply"

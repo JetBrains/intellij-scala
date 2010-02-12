@@ -97,7 +97,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getKinds(incomplete: Boolean) = {
-    getParent match {
+    getContext match {
       case _: ScReferenceExpression => StdKinds.refExprQualRef
       case _ => StdKinds.refExprLastRef
     }
@@ -227,10 +227,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
           }
-          ref.getParent match {
+          ref.getContext match {
             case assign: ScAssignStmt if assign.getLExpression == ref &&
-                    assign.getParent.isInstanceOf[ScArgumentExprList] => {
-              assign.getParent match { //trying to resolve naming parameter
+                    assign.getContext.isInstanceOf[ScArgumentExprList] => {
+              assign.getContext match { //trying to resolve naming parameter
                 case args: ScArgumentExprList => {
                   val exprs = args.exprs
                   val assignName = ref.refName
@@ -292,8 +292,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     def isMethodCall: Boolean = {
-      var parent = getParent
-      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
+      var parent = getContext
+      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getContext
       parent match {
         case _: ScUnderscoreSection | _: ScMethodCall => true
         case _ => false
@@ -303,16 +303,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) => {
-        val result: TypeResult[ScType] = f.declaredType match {
-          case s: Success[ScType] => s
-          // this is in case if function has super method => resursion has defined type
+        val result: Option[ScType] = f.declaredType match {
+          case s: Success[ScType] => Some(s.get)
+          // this is in case if function has super method => recursion has defined type
           case fail: Failure => f.superMethod match {
-            case Some(fun: ScFunction) => fun.returnType
-            case Some(meth: PsiMethod) => Success(ScType.create(meth.getReturnType, meth.getProject), None)
-            case _ => fail
+            case Some(fun: ScFunction) => fun.returnType match {case s: Success[ScType] => Some(s.get) case _ => None}
+            case Some(meth: PsiMethod) => Some(ScType.create(meth.getReturnType, meth.getProject))
+            case _ => None
           }
         }
-        s.subst(f.polymorphicType)
+        s.subst(f.polymorphicType(result))
       }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         s.subst(fun.polymorphicType)
