@@ -25,13 +25,13 @@ trait ScUnderscoreSection extends ScExpression {
     if (bindingExpr != None) return Some(this)
 
     def go(expr: PsiElement, calcArguments: Boolean = true): Option[ScExpression] = {
-      expr.getParent match {
+      expr.getContext match {
         case args: ScArgumentExprList => {
           if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
-          args.getParent match {
+          args.getContext match {
             case call: ScMethodCall => Some(call)
             case constr: ScConstructor => {
-              PsiTreeUtil.getParentOfType(constr, classOf[ScNewTemplateDefinition]) match {
+              PsiTreeUtil.getContextOfType(constr, classOf[ScNewTemplateDefinition], true) match {
                 case null => None
                 case n: ScNewTemplateDefinition => Some(n)
               }
@@ -61,9 +61,9 @@ trait ScUnderscoreSection extends ScExpression {
         }
       }
     }
-    getParent match {
+    getContext match {
       case t: ScTypedStmt => {
-        t.getParent match {
+        t.getContext match {
           case p: ScParenthesisedExpr => go(p)
           case _ => go(t)
         }

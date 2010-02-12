@@ -77,7 +77,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       val subst = getSubst(state)
       named match {
         case patt: ScBindingPattern => {
-          val memb = ScalaPsiUtil.getParentOfType(patt, classOf[ScValue], classOf[ScVariable])
+          val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
             case memb: ScMember if memb.hasModifierProperty("implicit") => candidatesSet += new ScalaResolveResult(named, subst, getImports(state))
             case _ =>
@@ -167,8 +167,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         case (true, false) => true
         case (false, true) => false
         case _ if a1 == a2 => {
-          val e1td = PsiTreeUtil.getParentOfType(e1, classOf[ScTemplateDefinition])
-          val e2td = PsiTreeUtil.getParentOfType(e2, classOf[ScTemplateDefinition])
+          val e1td = PsiTreeUtil.getContextOfType(e1, classOf[ScTemplateDefinition], true)
+          val e2td = PsiTreeUtil.getContextOfType(e2, classOf[ScTemplateDefinition], true)
           if (e1td == null && e2td != null) return true
           if (e2td == null) return false
           e1td.isInheritor(e2td, true)

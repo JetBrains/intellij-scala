@@ -344,6 +344,18 @@ object ScalaPsiUtil {
     return el
   }
 
+  /**
+   * For one classOf use PsiTreeUtil.getContextOfType instead
+   */
+  def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
+    var el: PsiElement = if (!strict) element else {
+      if (element == null) return null
+      element.getContext
+    }
+    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getContext
+    return el
+  }
+
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     if (!clazz.isInstanceOf[ScTypeDefinition]) return None
     val td = clazz.asInstanceOf[ScTypeDefinition]

@@ -50,7 +50,7 @@ class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, membe
 
   def getContainingClass = member match {
     case mem : ScMember => mem.getContainingClass
-    case _ => PsiTreeUtil.getParentOfType(member, classOf[PsiClass])
+    case _ => PsiTreeUtil.getContextOfType(member, classOf[PsiClass], true)
   }
 
   def getThrowsList: PsiReferenceList = new LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiReferenceList {

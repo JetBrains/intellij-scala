@@ -24,7 +24,7 @@ trait ScTuple extends ScExpression {
    * Return true if this expression is call
    */
   def isCall: Boolean = {
-    getParent match {
+    getContext match {
       case infix: ScInfixExpr => {
         infix.isLeftAssoc match {
           case true => infix.lOp == this
