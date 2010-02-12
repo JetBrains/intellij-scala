@@ -13,6 +13,7 @@ import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.util.{QueryExecutor, Processor}
 import stubs.util.ScalaStubsUtil
 import api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,6 +28,7 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
         def compute: Boolean = {
           val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
           for (candidate <- candidates if candidate.showAsInheritor) {
+            ProgressManager.checkCanceled
             if (candidate.isInheritor(clazz, false)) {
               if (!consumer.process(candidate)) {
                 return false

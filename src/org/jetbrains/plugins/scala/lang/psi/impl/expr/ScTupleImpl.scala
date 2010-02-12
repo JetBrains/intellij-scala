@@ -32,7 +32,7 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
     }
 
   def possibleApplications: Array[Array[(String, ScType)]] = {
-    getParent match {
+    getContext match {
       case call: ScInfixExpr if isCall => {
         call.possibleApplications
       }

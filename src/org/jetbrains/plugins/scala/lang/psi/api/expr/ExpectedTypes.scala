@@ -56,7 +56,7 @@ private[expr] object ExpectedTypes {
         }
       }
     }
-    expr.getParent match {
+    expr.getContext match {
       case p: ScParenthesisedExpr => p.expectedTypes
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
@@ -68,13 +68,13 @@ private[expr] object ExpectedTypes {
       case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
-        case Some(e) if e == expr => finalize(tb.getParent.asInstanceOf[ScTryStmt])
+        case Some(e) if e == expr => finalize(tb.getContext.asInstanceOf[ScTryStmt])
         case _ => Array.empty
       }
       //todo: make catch block an expression with appropriate type and expected type (PartialFunction[Throwable, pt])
       case fb: ScFinallyBlock => Array(types.Unit)
       //see SLS[8.4]
-      case c: ScCaseClause => c.getParent.getParent match {
+      case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => finalize(m)
         case _ => Array.empty
       }
@@ -91,7 +91,7 @@ private[expr] object ExpectedTypes {
       })
 
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
-        expectedExprTypes(t)
+        t.expectedTypes
       }
       //SLS[6.13]
       case t: ScTypedStmt => {
@@ -155,7 +155,7 @@ private[expr] object ExpectedTypes {
       case tuple: ScTuple => {
         val buffer = new ArrayBuffer[ScType]
         val index = tuple.exprs.indexOf(expr)
-        for (tp: ScType <- expectedExprTypes(tuple)) {
+        for (tp: ScType <- tuple.expectedTypes) {
           tp match {
             case ScTupleType(comps) if comps.length == tuple.exprs.length => {
               buffer += comps(index)
@@ -204,7 +204,7 @@ private[expr] object ExpectedTypes {
         }
       }
       case ret: ScReturnStmt => {
-        val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
+        val fun: ScFunction = PsiTreeUtil.getContextOfType(ret, classOf[ScFunction], true)
         if (fun == null) return Array.empty
         fun.returnTypeElement match {
           case Some(rte: ScTypeElement) => {

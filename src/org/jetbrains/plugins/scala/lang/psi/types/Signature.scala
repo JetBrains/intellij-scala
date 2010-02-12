@@ -8,9 +8,9 @@ import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
 import api.statements.params.ScParameter
-import com.intellij.psi.{NavigatablePsiElement, PsiTypeParameter, PsiNamedElement, PsiClass}
 import psi.impl.ScalaPsiManager
 import result.TypingContext
+import com.intellij.psi._
 
 class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
@@ -65,10 +65,19 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
                      method.getParameterList.getParameters.length,
                      method.getTypeParameters,
                      substitutor) {
+    def hasRepeatedParam: Boolean = {
+      method.getParameterList.getParameters.lastOption match {
+        case Some(p: PsiParameter) => p.isVarArgs
+        case _ => false
+      }
+    }
+
     override def paramTypesEquiv(other: Signature): Boolean = {
       other match {
         case phys1: PhysicalSignature => {
           if (phys1.paramLength != paramLength) return false
+          if ((phys1.hasRepeatedParam && !hasRepeatedParam) ||
+                  (!phys1.hasRepeatedParam && hasRepeatedParam)) return false
           val unified1 = unify(substitutor, typeParams, typeParams)
           val unified2 = unify(other.substitutor, typeParams, other.typeParams)
           types.zip(other.types) forall {
@@ -79,7 +88,8 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
             }
           }
         }
-        case _ => super.paramTypesEquiv(other)
+        case _ if !hasRepeatedParam => super.paramTypesEquiv(other)
+        case _ => false
       }
     }
 }

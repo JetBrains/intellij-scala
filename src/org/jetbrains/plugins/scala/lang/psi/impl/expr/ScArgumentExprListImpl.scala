@@ -83,7 +83,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def callReference: Option[ScReferenceExpression] = {
-    getParent match {
+    getContext match {
       case call: ScMethodCall =>{
         call.deepestInvokedExpr match {
           case ref: ScReferenceExpression => Some(ref)
@@ -101,7 +101,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def callGeneric: Option[ScGenericCall] = {
-    getParent match {
+    getContext match {
       case call: ScMethodCall => {
         call.deepestInvokedExpr match {
           case gen: ScGenericCall => Some(gen)
@@ -113,7 +113,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def callExpression: ScExpression = {
-    getParent match {
+    getContext match {
       case call: ScMethodCall => {
         call.getInvokedExpr
       }
@@ -122,7 +122,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   }
 
   def possibleApplications: Array[Array[(String, ScType)]] = {
-    getParent match {
+    getContext match {
       case call: ScMethodCall => {
         val refOpt = callReference /*: ScReferenceExpression = call.getInvokedExpr match {
           case ref: ScReferenceExpression => ref
