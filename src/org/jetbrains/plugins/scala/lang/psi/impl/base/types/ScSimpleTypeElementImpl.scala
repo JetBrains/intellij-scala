@@ -75,7 +75,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       Success(ScSingletonType(pathElement), Some(this))
     } else {
       //if type parameters ommited, we should to infer them manually, but this is Parameterized or TypeArgs Type.
-      getParent match {
+      getContext match {
         case _: ScParameterizedTypeElement | _: ScTypeArgs => return result
         case _ =>
       }
@@ -86,7 +86,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
               val tps = clazz.getTypeParameters
               //If parent Constructor and tps.length > 0 => we need localTypeInference
-              val needLocalTypeInference = getParent match {
+              val needLocalTypeInference = getContext match {
                 case _: ScConstructor => true
                 case _ => false
               }
@@ -103,7 +103,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 else {
                   //ok, let's try to infer generic type
                   var result: TypeResult[ScType] = null
-                  val argClauses= getParent match {
+                  val argClauses= getContext match {
                     case constr: ScConstructor => constr.arguments.map(args => args.exprs).toList
                   } //todo: add implicit parameters
                   var filtered = clazz.getConstructors.filter(forFilter(_, subst.followed(undefSubst), argClauses, false))
@@ -149,13 +149,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   private def forMap(m: PsiMethod, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]],
                         checkWithImplicits: Boolean, typez: ScType): (PsiMethod, ScSubstitutor) = {
     val expected: Option[ScType] = {
-      getParent match {
+      getContext match {
         case constr: ScConstructor => {
-          constr.getParent match {
+          constr.getContext match {
             case par: ScClassParents => {
-              par.getParent match {
+              par.getContext match {
                 case ext: ScExtendsBlock => {
-                  ext.getParent match {
+                  ext.getContext match {
                     case templ: ScNewTemplateDefinition => templ.expectedType
                     case _ => None
                   }

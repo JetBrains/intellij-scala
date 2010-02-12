@@ -126,7 +126,7 @@ object ResolveUtils {
                       }
                       case pack: PsiPackage => {
                         val packageName = pack.getQualifiedName
-                        val placeEnclosing: PsiElement = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                        val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                         if (placeEnclosing == null) return false //not Scala
                         val placePackageName = placeEnclosing match {
                           case file: ScalaFile => file.getPackageName
@@ -145,7 +145,7 @@ object ResolveUtils {
                   Such members can be accessed only from within the directly enclosing
                   template and its companion module or companion class
                 */
-                val enclosing = ScalaPsiUtil.getParentOfType(scMember, true,
+                val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
                   classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
                 enclosing match {
                   case td: ScTemplateDefinition => {
@@ -161,7 +161,7 @@ object ResolveUtils {
                       case packaging: ScPackaging => packaging.getPackageName
                     }
                     val placeEnclosing: PsiElement = ScalaPsiUtil.
-                            getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                            getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                     if (placeEnclosing == null) return false //not Scala
                     val placePackageName = placeEnclosing match {
                       case file: ScalaFile => file.getPackageName
@@ -189,7 +189,7 @@ object ResolveUtils {
                       case pack: PsiPackage => { //like private (nothing related to real life)
                         val packageName = pack.getQualifiedName
                         val placeEnclosing: PsiElement = ScalaPsiUtil.
-                                getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                                getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                         if (placeEnclosing == null) return false //not Scala
                         val placePackageName = placeEnclosing match {
                           case file: ScalaFile => file.getPackageName
@@ -204,7 +204,7 @@ object ResolveUtils {
               }
               case None =>
             }
-            val enclosing = ScalaPsiUtil.getParentOfType(scMember, true,
+            val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
             enclosing match {
               case td: ScTypeDefinition => {
@@ -212,7 +212,7 @@ object ResolveUtils {
                         (withCompanion && PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
                 var placeTd: ScTemplateDefinition = PsiTreeUtil.
-                        getParentOfType(place, classOf[ScTemplateDefinition], true)
+                        getContextOfType(place, classOf[ScTemplateDefinition], true)
                 while (placeTd != null) {
                   if (placeTd.isInheritor(td, true)) return true
                   placeTd.selfTypeElement match {
@@ -236,7 +236,7 @@ object ResolveUtils {
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
-                  placeTd = PsiTreeUtil.getParentOfType(placeTd, classOf[ScTemplateDefinition], true)
+                  placeTd = PsiTreeUtil.getContextOfType(placeTd, classOf[ScTemplateDefinition], true)
                 }
                 false
               }
@@ -251,7 +251,7 @@ object ResolveUtils {
                   case packaging: ScPackaging => packaging.fullPackageName
                 }
                 val placeEnclosing: PsiElement = ScalaPsiUtil.
-                        getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                        getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
@@ -269,7 +269,7 @@ object ResolveUtils {
         else if (member.hasModifierProperty("protected")) {
           val clazz = member.getContainingClass
           var placeTd: ScTemplateDefinition = PsiTreeUtil.
-                  getParentOfType(place, classOf[ScTemplateDefinition], true)
+                  getContextOfType(place, classOf[ScTemplateDefinition], true)
           while (placeTd != null) {
             if (placeTd.isInheritor(clazz, true)) return true
             placeTd.selfTypeElement match {
@@ -293,7 +293,7 @@ object ResolveUtils {
             val companion: ScTemplateDefinition = ScalaPsiUtil.
                     getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && companion.isInheritor (clazz, true)) return true
-            placeTd = PsiTreeUtil.getParentOfType(placeTd, classOf[ScTemplateDefinition], true)
+            placeTd = PsiTreeUtil.getContextOfType(placeTd, classOf[ScTemplateDefinition], true)
           }
           false
         } else {
@@ -302,7 +302,7 @@ object ResolveUtils {
             case _ => return false
           }
           val placeEnclosing: PsiElement = ScalaPsiUtil.
-                  getParentOfType(place, classOf[ScPackaging], classOf[ScalaFile])
+                  getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
             case file: ScalaFile => file.getPackageName

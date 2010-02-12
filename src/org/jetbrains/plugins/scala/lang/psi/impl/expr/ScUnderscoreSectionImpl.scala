@@ -22,7 +22,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     bindingExpr match {
       case Some(x) => Failure("No type inferred", None) //todo: implement me
       case None => {
-        getParent match {
+        getContext match {
           case typed: ScTypedStmt => return typed.getType(ctx)
           case _ =>
         }

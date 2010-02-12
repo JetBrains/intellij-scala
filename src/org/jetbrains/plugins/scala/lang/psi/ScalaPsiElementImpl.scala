@@ -64,7 +64,6 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     if (stub != null) {
       return stub.getParentStub.getPsi
     }
-
     SharedImplUtil.getParent(getNode)
   }
 

@@ -30,7 +30,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   override def toString: String = "TypeParameter"
 
   def getIndex() : Int = 0
-  def getOwner() : PsiTypeParameterListOwner = getParent.getParent match {
+  def getOwner() : PsiTypeParameterListOwner = getContext.getContext match {
     case c : PsiTypeParameterListOwner => c
     case _ => null
   }
@@ -59,7 +59,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     }
   }
 
-  def owner  = getParent.getParent.asInstanceOf[ScTypeParametersOwner]
+  def owner  = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
   override def getUseScope  = new LocalSearchScope(owner)
 

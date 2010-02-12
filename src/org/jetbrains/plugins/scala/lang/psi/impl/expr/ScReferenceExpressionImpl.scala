@@ -97,7 +97,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getKinds(incomplete: Boolean) = {
-    getParent match {
+    getContext match {
       case _: ScReferenceExpression => StdKinds.refExprQualRef
       case _ => StdKinds.refExprLastRef
     }
@@ -227,10 +227,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
           }
-          ref.getParent match {
+          ref.getContext match {
             case assign: ScAssignStmt if assign.getLExpression == ref &&
-                    assign.getParent.isInstanceOf[ScArgumentExprList] => {
-              assign.getParent match { //trying to resolve naming parameter
+                    assign.getContext.isInstanceOf[ScArgumentExprList] => {
+              assign.getContext match { //trying to resolve naming parameter
                 case args: ScArgumentExprList => {
                   val exprs = args.exprs
                   val assignName = ref.refName
@@ -292,8 +292,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     def isMethodCall: Boolean = {
-      var parent = getParent
-      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getParent
+      var parent = getContext
+      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getContext
       parent match {
         case _: ScUnderscoreSection | _: ScMethodCall => true
         case _ => false

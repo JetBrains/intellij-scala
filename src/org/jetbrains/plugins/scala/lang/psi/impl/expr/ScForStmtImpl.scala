@@ -70,7 +70,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           enum.generators.apply(0)
         }
     }
-    val isYield = gen.getParent.getParent.asInstanceOf[ScForStatement].isYield
+    val isYield = gen.getContext.getContext.asInstanceOf[ScForStatement].isYield
     var next = gen.getNextSibling
     if (gen.rvalue == null) return null
     //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used
