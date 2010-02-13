@@ -1,0 +1,157 @@
+object test {
+  val f: (Int => Int)  = { implicit x => x }
+  val g: (Int => Int)  = implicit x => x
+  val h: (Int => Int)  = {(); implicit x => x}
+}
+-----
+ScalaFile
+  ScObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis
+            PsiElement(()('(')
+            FunctionalType
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameters
+                ParametersClause
+                  Parameter
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('g')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis
+            PsiElement(()('(')
+            FunctionalType
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                PsiElement(implicit)('implicit')
+                PsiWhiteSpace(' ')
+                Parameter
+                  PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ReferenceExpression
+              PsiElement(identifier)('x')
+        PsiElement(newline)('\n  ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern
+              PsiElement(identifier)('h')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis
+            PsiElement(()('(')
+            FunctionalType
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleTypeElement
+                CodeReferenceElement
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+          PsiWhiteSpace('  ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameters
+                ParametersClause
+                  Parameter
+                    PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              ReferenceExpression
+                PsiElement(identifier)('x')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
