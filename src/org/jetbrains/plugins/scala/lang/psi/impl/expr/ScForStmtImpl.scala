@@ -62,6 +62,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
 
   override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    val failure = Failure("Cannot create expression", Some(this))
     val exprText = new StringBuilder
     val (enums, gens) = enumerators match {
       case None => return Failure("No enumerators", Some(this))
@@ -71,9 +72,10 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
     if (enums.length == 0 && gens.length == 1) {
       val gen = gens(0)
+      if (gen.rvalue == null)  return failure
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
               .append(" { case ").
-        append(gen.pattern.getText).append( "=> ")
+      append(gen.pattern.getText).append( "=> ")
       body match {
         case Some(x) => exprText.append(x.getText)
         case _ =>
@@ -87,7 +89,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       return newExpr.getNonValueType(ctx)
     }
     catch {
-      case e: Exception => return Failure("Cannot create expression", Some(this))
+      case e: Exception => return failure
     }
   }
 }

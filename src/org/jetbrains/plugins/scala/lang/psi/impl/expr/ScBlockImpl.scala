@@ -20,6 +20,7 @@ import scala.Some
 import com.intellij.psi.PsiClass
 import controlFlow.impl.ScalaControlFlowBuilder
 import controlFlow.Instruction
+import api.base.patterns.{ScCaseClause, ScCaseClauses}
 
 /**
 * @author ilyas
@@ -31,14 +32,28 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     if (isAnonymousFunction) {
-      return expectedType match {
-        case Some(tp: ScFunctionType) => Success(tp, Some(this))
-        case Some(tp: ScParameterizedType) if (ScType.extractClassType(tp) match {
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => true
-          case _ => false
-        }) => Success(tp, Some(this))
-        case _ => Failure("Cannot infer type without expected type", Some(this))
+      val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
+      val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
+      lazy val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
+        case Some(expr) => expr.getType(TypingContext.empty).getOrElse(types.Nothing)
+        case _ => types.Nothing
+      }))
+      expectedType match {
+        case Some(f@ScFunctionType(retType, params)) => {
+          return Success(new ScFunctionType(clausesType, params, f.getProject), Some(this))
+        }
+        case Some(tp@ScParameterizedType(des, typeArgs)) => {
+          ScType.extractClassType(tp) match {
+            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1), clazz.getProject), Some(this))
+            }
+            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => {
+              return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1) ++ Seq(clausesType)), Some(this))
+            }
+            case _ => return Failure("Cannot infer type without expected type", Some(this))
+          }
+        }
+        case _ => return Failure("Cannot infer type without expected type", Some(this))
       }
     }
     val inner = lastExpr match {

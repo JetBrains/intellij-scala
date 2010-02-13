@@ -141,7 +141,7 @@ object AnnotatorHighlighter {
         }
       }
       case x: PsiMethod => {
-        if (x.getModifierList.hasModifierProperty("static")) {
+        if (x.getModifierList != null && x.getModifierList.hasModifierProperty("static")) {
           annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
         } else {
           annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)

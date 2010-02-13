@@ -53,6 +53,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           }
         }
         expr match {
+          case b: ScBlockExpr if b.isAnonymousFunction => true
           case b: ScBlockExpr => b.lastExpr match {case Some(x) => anon(x) case _ => false}
           case p: ScParenthesisedExpr => p.expr match {case Some(x) => anon(x) case _ => false}
           case i: ScIfStmt if i.elseBranch != None =>
