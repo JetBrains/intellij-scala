@@ -21,6 +21,7 @@ class FunctionImplicitTest extends ResolveTestBase {
 //  def testClashValueAndImport2 = doTest
   //TODO
 //  def testClashValues = doTest
+//  def testContextBoundImplicit = doTest
   def testCurrying = doTest
   def testCurryingPassAll = doTest
   //TODO
@@ -35,16 +36,24 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testObjectImplicit = doTest
   //TODO
 //  def testObjectOrdinary = doTest
+  def testParameterImplicit = doTest
   def testTwoAsOne = doTest
   def testValueImplicit1 = doTest
   def testValueImplicit2 = doTest
+  def testValueImplicitAsContextBound = doTest
+  def testValueImplicitAsViewBound = doTest
   def testValueImplicitPass = doTest
   //TODO
 //  def testValueImplicitPassNone = doTest
   def testValueImplicitScope = doTest
   //TODO
 //  def testValueNone = doTest
+
+  //TODO
+//  def testValueNoneAsContextBound = doTest
   //TODO
 //  def testValueOrdinary = doTest
   def testVariableImplicit = doTest
+
+  def testViewBoundImplicit = doTest
 }
