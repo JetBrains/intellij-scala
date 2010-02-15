@@ -20,10 +20,10 @@ import java.nio.charset.Charset;
  */
 
 @State(
-  name = "ScalacSettings",
-  storages = {
-    @Storage(id = "default", file = "$PROJECT_FILE$")
-   ,@Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)
+    name = "ScalacSettings",
+    storages = {
+        @Storage(id = "default", file = "$PROJECT_FILE$")
+        , @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)
     }
 )
 public class ScalacSettings implements PersistentStateComponent<ScalacSettings>, ProjectComponent {
@@ -71,19 +71,19 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
 
   public String getOptionsString() {
     StringBuilder options = new StringBuilder();
-    if(DEPRECATION) {
+    if (DEPRECATION) {
       options.append("-deprecation ");
     }
-    if(GENERATE_NO_WARNINGS) {
+    if (GENERATE_NO_WARNINGS) {
       options.append("-nowarn ");
     }
-    if(UNCHECKED) {
+    if (UNCHECKED) {
       options.append("-unchecked ");
     }
-    if(NO_GENERICS) {
+    if (NO_GENERICS) {
       options.append("-Yno-generic-signatures ");
     }
-    if(OPTIMISE) {
+    if (OPTIMISE) {
       options.append("-optimise ");
     }
     if (SERVER_RESET) {
@@ -97,18 +97,18 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     }
     boolean isEncodingSet = false;
     final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
-    while(tokenizer.hasMoreTokens()) {
+    while (tokenizer.hasMoreTokens()) {
       String token = tokenizer.nextToken();
-      if("-deprecation".equals(token)) {
+      if ("-deprecation".equals(token)) {
         continue;
       }
-      if("-nowarn".equals(token)) {
+      if ("-nowarn".equals(token)) {
         continue;
       }
-      if("-unchecked".equals(token)) {
+      if ("-unchecked".equals(token)) {
         continue;
       }
-      if("-optimise".equals(token)) {
+      if ("-optimise".equals(token)) {
         continue;
       }
       if ("-reset".equals(token)) {
@@ -134,5 +134,24 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
       }
     }
     return options.toString();
+  }
+
+  /**
+   * @return The encoding that will be passed in the -encoding command line option to scalac, or null if
+   *         defaults will be used.
+   */
+  public Charset getNonDefaultEncoding() {
+    final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
+    while (tokenizer.hasMoreTokens()) {
+      String token = tokenizer.nextToken();
+      if ("-encoding".equals(token)) {
+        return Charset.forName(tokenizer.nextToken());
+      }
+    }
+    Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
+    if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
+      return ideCharset;
+    }
+    return null;
   }
 }

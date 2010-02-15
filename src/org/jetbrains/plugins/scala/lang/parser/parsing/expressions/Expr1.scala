@@ -21,6 +21,9 @@ import patterns.CaseClauses
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
  *         | 'for' ('(' Enumerators ')' | '{' Enumerators '}') {nl} ['yield'] Expr
  *         | 'throw' Expr
+ * 
+ *         | implicit Id => Expr  # Not in Scala Specification yet!
+ *
  *         | 'return' [Expr]
  *         | [SimpleExpr '.'] id '=' Expr
  *         | SimpleExpr1 ArgumentExprs '=' Expr
@@ -281,6 +284,39 @@ object Expr1 {
         exprMarker.done(ScalaElementTypes.THROW_STMT)
         return true
       }
+      //--------------implicit closure--------------//
+      case ScalaTokenTypes.kIMPLICIT => {
+        val ipmarker = builder.mark
+        builder.advanceLexer //Ate implicit
+        builder.getTokenType match {
+          case ScalaTokenTypes.tIDENTIFIER => {
+            val pmarker = builder.mark
+            builder.advanceLexer //Ate id
+            builder.getTokenType match {
+              case ScalaTokenTypes.tFUNTYPE => {
+                pmarker.done(ScalaElementTypes.PARAM)
+                ipmarker.done(ScalaElementTypes.PARAM_CLAUSE)
+                ipmarker.precede.done(ScalaElementTypes.PARAM_CLAUSES)
+
+                builder.advanceLexer //Ate =>
+                if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+                exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
+                return true
+              }
+              case _ => {
+                pmarker.drop
+                ipmarker.drop
+                exprMarker.rollbackTo
+              }
+            }
+          }
+          case _ => {
+            ipmarker.drop
+            exprMarker.rollbackTo
+          }
+        }
+      }
+
       //---------------return statement-----------//
       case ScalaTokenTypes.kRETURN => {
         builder.advanceLexer //Ate return
@@ -288,6 +324,7 @@ object Expr1 {
         exprMarker.done(ScalaElementTypes.RETURN_STMT)
         return true
       }
+      
       //---------other cases--------------//
       case _ => {
         if (!PostfixExpr.parse(builder)) {

@@ -8,16 +8,19 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 03.03.2008
-*/
-
-/*
- * Expr ::= (Bindings | id) '=>' Expr
- *        | Expr1
+ * @author Alexander Podkhalyuzin
+ * Date: 03.03.2008
  */
 
+/*
+ * Expr ::= (Bindings | [‘implicit’] id | ‘_’) ‘=>’ Expr
+ *         | Expr1
+ *
+ * implicit closures are actually implemented in other parts of the parser, not here! The grammar
+ * from the Scala Reference does not match the implementation in Parsers.scala.
+ */
 object Expr {
+
   def parse(builder: PsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
@@ -43,6 +46,7 @@ object Expr {
           }
         }
       }
+      
       case ScalaTokenTypes.tLPARENTHESIS => {
         if (Bindings.parse(builder)) {
           builder.getTokenType match {
