@@ -58,8 +58,12 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case Seq() => initial
       case _ => {
         var res = initial
-        for (p <- params.toArray zip typeArgs) {
-          res = res bindT (p._1.name, p._2)
+        val paramsIterator =  params.iterator
+        val argsIterator = typeArgs.iterator
+        while (paramsIterator.hasNext && argsIterator.hasNext) {
+          val p1 = paramsIterator.next
+          val p2 = argsIterator.next
+          res = res bindT (p1.name, p2)
         }
         res
       }

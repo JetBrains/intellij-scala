@@ -162,8 +162,13 @@ object Conformance {
         if (args1.length != args2.length) return (false, undefinedSubst)
         ScType.extractClassType(owner) match {
           case Some((owner: PsiClass, _)) => {
-            owner.getTypeParameters.zip(args1 zip args2) forall {
-              case (tp, argsPair) => tp match {
+            val parametersIterator = owner.getTypeParameters.iterator
+            val args1Iterator = args1.iterator
+            val args2Iterator = args2.iterator
+            while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
+              val tp = parametersIterator.next
+              val argsPair = (args1Iterator.next, args2Iterator.next)
+              tp match {
                 case scp: ScTypeParam if (scp.isContravariant) => {
                   val y = Conformance.conforms(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
                   if (!y._1) return (false, undefinedSubst)
@@ -194,7 +199,6 @@ object Conformance {
                   }
                 }
               }
-              true
             }
             return (true, undefinedSubst)
           }
@@ -370,7 +374,9 @@ object Conformance {
 
   def getSignatureMapInner(clazz: PsiClass): HashMap[Signature, ScType] = {
     val m = new HashMap[Signature, ScType]
-    for ((full, _) <- TypeDefinitionMembers.getSignatures(clazz)) {
+    val iterator = TypeDefinitionMembers.getSignatures(clazz).iterator
+    while (iterator.hasNext) {
+      val (full, _) = iterator.next
       m += ((full.sig, full.retType))
     }
     m
