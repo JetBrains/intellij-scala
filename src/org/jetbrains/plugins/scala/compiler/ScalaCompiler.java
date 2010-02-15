@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.compiler.CompilerException;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
-import com.intellij.compiler.impl.javaCompiler.EncodingAwareBackendCompilerWrapper;
 import com.intellij.compiler.make.CacheCorruptedException;
 import com.intellij.facet.FacetManager;
 import com.intellij.openapi.application.ApplicationManager;
@@ -104,14 +103,9 @@ public class ScalaCompiler implements TranslatingCompiler {
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
     final BackendCompiler backEndCompiler = getBackEndCompiler();
-    Charset encoding;
-    if (backEndCompiler instanceof ScalacBackendCompiler) {
-      encoding = ((ScalacBackendCompiler) backEndCompiler).getEncoding();
-    } else {
-      encoding = CharsetToolkit.getDefaultSystemCharset();
-    }
-    final EncodingAwareBackendCompilerWrapper wrapper = new EncodingAwareBackendCompilerWrapper(moduleChunk, myProject, Arrays.asList(files),
-        (CompileContextEx) context, backEndCompiler, sink, encoding);
+
+    final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(moduleChunk, myProject, Arrays.asList(files),
+        (CompileContextEx) context, backEndCompiler, sink);
     try {
       wrapper.compile();
     }

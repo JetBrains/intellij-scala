@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
+import com.intellij.compiler.impl.CompilerUtil;
 import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
@@ -259,10 +260,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     commandLine.add(XSS_COMPILER_PROPERTY);
     commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
-    Charset encoding = settings.getNonDefaultEncoding();
-    if (encoding != null) {
-      commandLine.add("-Dfile.encoding=" + encoding.name());
-    }
+    CompilerUtil.addLocaleOptions(commandLine, false);
 
     commandLine.add("-cp");
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
