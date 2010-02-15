@@ -27,13 +27,14 @@ import types.result.{TypingContext, Failure}
 class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSuperReference {
   override def toString = "SuperReference"
 
-  def drvTemplate = qualifier match {
+  def drvTemplate: Option[ScTemplateDefinition] = qualifier match {
     case Some(q) => q.bind match {
       case Some(ScalaResolveResult(td : ScTypeDefinition, _)) => Some(td)
       case _ => None
     }
     case None => {
       val template = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinition], true)
+      if (template == null) return None
       template.extendsBlock.templateParents match {
         case Some(parents) if PsiTreeUtil.isAncestor(parents, this, true) => {
           val ptemplate = PsiTreeUtil.getContextOfType(template, classOf[ScTemplateDefinition], true)
