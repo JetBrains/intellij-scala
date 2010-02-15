@@ -209,7 +209,24 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def expectedType: Option[ScType] = getParent match {
+  @volatile
+  private var expectedTypeCache: Option[ScType] = null
+  @volatile
+  private var expectedTypeModCount: Long = 0L
+
+  def expectedType: Option[ScType] = {
+    var tp = expectedTypeCache
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && curModCount == expectedTypeModCount) {
+      return tp
+    }
+    tp = innerExpectedType
+    expectedTypeModCount = curModCount
+    expectedTypeCache = tp
+    return tp
+  }
+
+  private def innerExpectedType: Option[ScType] = getParent match {
     case list : ScPatternList => list.getParent match {
       case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(return None))
       case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(return None))
