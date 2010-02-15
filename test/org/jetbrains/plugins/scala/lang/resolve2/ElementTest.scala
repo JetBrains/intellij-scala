@@ -38,4 +38,8 @@ class ElementTest extends ResolveTestBase {
   def testCaseClauseParameter = doTest
   def testCaseClauseNamed = doTest
   def testCaseClauseBinding = doTest
+
+  //TODO
+//  def testPackage = doTest
+  def testPackageObject = doTest
 }
