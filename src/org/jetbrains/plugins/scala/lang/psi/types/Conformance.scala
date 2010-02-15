@@ -358,6 +358,7 @@ object Conformance {
         var bases: Seq[ScType] = BaseTypes.get(r)
         val iterator = bases.iterator
         while (iterator.hasNext) {
+          ProgressManager.checkCanceled
           val tp = iterator.next
           val t = conforms(l, tp, visited, undefinedSubst, true)
           if (t._1) return (true, t._2)
@@ -389,6 +390,7 @@ object Conformance {
   }
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass,
                                visited: collection.mutable.HashSet[PsiClass]): (Boolean, ScType) = {
+    ProgressManager.checkCanceled
     val bases: Seq[ScType] = leftClass match {
       case td: ScTypeDefinition => td.superTypes.map(substitutor.subst(_))
       case _ => leftClass.getSuperTypes.map(tp => substitutor.subst(ScType.create(tp, leftClass.getProject))).toSeq

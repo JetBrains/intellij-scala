@@ -27,22 +27,12 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
 
     pattern match {
       case Some(p) => {
-        expr match {
-          case Some(e) if e == lastParent =>
-            for (b <- p.bindings) {
-              if (!processor.execute(b, state)) return false
-            }
-            true
-          case _ => true
+        val iterator = p.bindings.iterator
+        while (iterator.hasNext) {
+          val b = iterator.next
+          if (!processor.execute(b, state)) return false
         }
-        guard match {
-          case Some(g) if g == lastParent =>
-            for (b <- p.bindings) {
-              if (!processor.execute(b, state)) return false
-            }
-            true
-          case _ => true
-        }
+        true
       }
       case _ => true
     }
