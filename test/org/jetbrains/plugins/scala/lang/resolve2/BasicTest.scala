@@ -12,7 +12,8 @@ class BasicTest extends ResolveTestBase {
     super.getTestDataPath + "basic/"
   }
 
+  def testMultipleDeclaration = doTest
+  def testName = doTest
   def testUnresolvedRef = doTest
   def testUnresolvedType = doTest
-  def testMultipleDeclaration = doTest
 }
