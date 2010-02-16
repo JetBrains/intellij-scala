@@ -45,35 +45,42 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   lazy val substitutor : ScSubstitutor = {
-    val (params, initial): (Seq[ScTypeParameterType], ScSubstitutor) = designator match {
-      case ScPolymorphicType(_, args, _, _) => (args, ScSubstitutor.empty)
-      case _ => ScType.extractDesignated(designator) match {
-        case Some((owner: ScTypeParametersOwner, s)) => (owner.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}, s)
-        case Some((owner: PsiTypeParameterListOwner, s)) => (owner.getTypeParameters.map({tp => ScalaPsiManager.typeVariable(tp)}).toSeq, s)
-        case _ => (Seq.empty, ScSubstitutor.empty)
+    def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
+      var res = initial
+      val argsIterator = typeArgs.iterator
+      while (paramsIterator.hasNext && argsIterator.hasNext) {
+        val p1 = map(paramsIterator.next)
+        val p2 = argsIterator.next
+        res = res bindT (p1.name, p2)
       }
+      res
     }
-
-    params match {
-      case Seq() => initial
-      case _ => {
-        var res = initial
-        val paramsIterator =  params.iterator
-        val argsIterator = typeArgs.iterator
-        while (paramsIterator.hasNext && argsIterator.hasNext) {
-          val p1 = paramsIterator.next
-          val p2 = argsIterator.next
-          res = res bindT (p1.name, p2)
+    designator match {
+      case ScPolymorphicType(_, args, _, _) => {
+        forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
+      }
+      case _ => ScType.extractDesignated(designator) match {
+        case Some((owner: ScTypeParametersOwner, s)) => {
+          forParams(owner.typeParameters.iterator, s, (tp: ScTypeParam) => ScalaPsiManager.typeVariable(tp))
         }
-        res
+        case Some((owner: PsiTypeParameterListOwner, s)) => {
+          forParams(owner.getTypeParameters.iterator, s, (ptp: PsiTypeParameter) => ScalaPsiManager.typeVariable(ptp))
+        }
+        case _ => ScSubstitutor.empty
       }
     }
   }
 
   override def equiv(t: ScType): Boolean = t match {
     case ScParameterizedType(designator1, typeArgs1) => {
-      return designator.equiv(designator1) &&
-             (typeArgs.zip(typeArgs1) forall {case (x,y) => x equiv y})
+      if (!designator.equiv(designator1)) return false
+      if (typeArgs.length != typeArgs1.length) return false
+      val iterator1 = typeArgs.iterator
+      val iterator2 = typeArgs1.iterator
+      while (iterator1.hasNext && iterator2.hasNext) {
+        if (!iterator1.next.equiv(iterator2.next)) return false
+      }
+      return true
     }
     case fun : ScFunctionType => fun equiv this
     case tuple : ScTupleType => tuple equiv this
@@ -81,8 +88,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   def getTupleType: Option[ScTupleType] = {
-    ScType.extractClassType(designator) match {
-      case Some((clazz: PsiClass, _)) if Option(clazz.getQualifiedName).exists(_.startsWith("scala.Tuple")) && typeArgs.length > 0 => {
+    ScType.extractClass(designator) match {
+      case Some(clazz) if Option(clazz.getQualifiedName).exists(_.startsWith("scala.Tuple")) && typeArgs.length > 0 => {
         Some(new ScTupleType(typeArgs, clazz.getProject))
       }
       case _ => None
@@ -90,8 +97,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   def getFunctionType: Option[ScFunctionType] = {
-    ScType.extractClassType(designator) match {
-      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") && typeArgs.length > 0 => {
+    ScType.extractClass(designator) match {
+      case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") && typeArgs.length > 0 => {
         Some(new ScFunctionType(typeArgs.apply(typeArgs.length - 1), typeArgs.slice(0, typeArgs.length - 1), clazz.getProject))
       }
       case _ => None

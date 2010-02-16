@@ -56,8 +56,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
   }
 
   protected def substInternal(t: ScType) : ScType = t match {
-    case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), 
-      collection.immutable.Seq(params.map(substInternal _).toSeq : _*), f.isImplicit)
+    case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _), f.isImplicit)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {substInternal _}, t1.getProject)
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
     case ScMethodType(retType, params, isImplicit) => ScMethodType(substInternal(retType), params.map(p => {
@@ -108,13 +107,18 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       tvMap.get(tpt.name) match {
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
-          val args = typeArgs map {substInternal _}
           substInternal(tpt) match {
             case ScTypeConstructorType(_, tcArgs, aliased) => {
-              val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+              val typeArgsIterator = typeArgs.iterator
+              val otherIterator = tcArgs.iterator
+              var s1 = ScSubstitutor.empty
+              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
+                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
+                s1 = s1.bindT(p2.name, p1)
+              }
               s1.subst(aliased.v)
             }
-            case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
+            case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
         }
       }
@@ -123,25 +127,35 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
       tvMap.get(u.tpt.name) match {
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
-          val args = typeArgs map {substInternal _}
           substInternal(u) match {
             case ScTypeConstructorType(_, tcArgs, aliased) => {
-              val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+              val typeArgsIterator = typeArgs.iterator
+              val otherIterator = tcArgs.iterator
+              var s1 = ScSubstitutor.empty
+              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
+                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
+                s1 = s1.bindT(p2.name, p1)
+              }
               s1.subst(aliased.v)
             }
-            case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
+            case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
         }
       }
     }
     case ScParameterizedType (des, typeArgs) => {
-      val args = typeArgs map {substInternal _}
       substInternal(des) match {
         case ScTypeConstructorType(_, tcArgs, aliased) => {
-          val s1 = args.zip(tcArgs.toSeq).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+          val typeArgsIterator = typeArgs.iterator
+          val otherIterator = tcArgs.iterator
+          var s1 = ScSubstitutor.empty
+          while (typeArgsIterator.hasNext && otherIterator.hasNext) {
+            val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
+            s1 = s1.bindT(p2.name, p1)
+          }
           s1.subst(aliased.v)
         }
-        case des => new ScParameterizedType(des, collection.immutable.Seq(args.toSeq : _*))
+        case des => new ScParameterizedType(des, typeArgs map {substInternal _})
       }
     }
     case ScExistentialArgument(name, args, lower, upper) =>

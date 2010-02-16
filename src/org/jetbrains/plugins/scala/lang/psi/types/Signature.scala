@@ -22,8 +22,6 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
 
   def substitutedTypes = types.map(substitutor.subst(_))
 
-  //private val typesHashCode = substitutedTypes.map(ScType.canonicalText(_)).hashCode
-
   def equiv(other: Signature): Boolean = {
     name == other.name &&
             typeParams.length == other.typeParams.length &&
@@ -34,12 +32,22 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
     if (paramLength != other.paramLength) return false
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-    types.zip(other.types) forall {case (t1, t2) => {unified1.subst(t1) equiv unified2.subst(t2)}}
+    val typesIterator = types.iterator
+    val otherTypesIterator = other.types.iterator
+    while (typesIterator.hasNext && otherTypesIterator.hasNext) {
+      val t1 = typesIterator.next
+      val t2 = otherTypesIterator.next
+      if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
+    }
+    return true
   }
 
   protected def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
     var res = subst
-    for ((tp1, tp2) <- tps1 zip tps2) {
+    val iterator1 = tps1.iterator
+    val iterator2 = tps2.iterator
+    while (iterator1.hasNext && iterator2.hasNext) {
+      val (tp1, tp2) = (iterator1.next, iterator2.next)
       res = res bindT (tp2.getName, ScalaPsiManager.typeVariable(tp1))
     }
     res
@@ -51,7 +59,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
   }
 
   override def hashCode: Int = {
-    name.hashCode * 31/* + typesHashCode*/
+    name.hashCode * 31
   }
 }
 
@@ -80,13 +88,14 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSub
                   (!phys1.hasRepeatedParam && hasRepeatedParam)) return false
           val unified1 = unify(substitutor, typeParams, typeParams)
           val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-          types.zip(other.types) forall {
-            case (t1, t2) => (unified1.subst(t1), unified2.subst(t2)) match {
-              case ((Any | AnyRef), ScDesignatorType(c: PsiClass)) if c.getQualifiedName == "java.lang.Object" => true
-              case (ScDesignatorType(c: PsiClass), (Any | AnyRef)) if c.getQualifiedName == "java.lang.Object" => true
-              case (t1, t2) => t1 equiv t2
-            }
+          val otherTypesIterator = other.types.iterator
+          val typesIterator = types.iterator
+          while (typesIterator.hasNext && otherTypesIterator.hasNext) {
+            val t1 = typesIterator.next
+            val t2 = otherTypesIterator.next
+            if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
           }
+          return true
         }
         case _ if !hasRepeatedParam => super.paramTypesEquiv(other)
         case _ => false

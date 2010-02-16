@@ -44,8 +44,8 @@ private[expr] object ExpectedTypes {
             tp match {
               case ScFunctionType(rt: ScType, _) => res += rt
               case ScParameterizedType(des, args) => {
-                ScType.extractClassType(des) match {
-                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => res += args(args.length - 1)
+                ScType.extractClass(des) match {
+                  case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => res += args(args.length - 1)
                   case _ =>
                 }
               }
@@ -82,8 +82,8 @@ private[expr] object ExpectedTypes {
       case f: ScFunctionExpr => finalize(f).flatMap(_ match {
         case ScFunctionType(retType, _) => Array[ScType](retType)
         case ScParameterizedType(des, args) => {
-          ScType.extractClassType(des) match {
-            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => Array[ScType](args(args.length - 1))
+          ScType.extractClass(des) match {
+            case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Array[ScType](args(args.length - 1))
             case _ => Array[ScType]()
           }
         }

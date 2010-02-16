@@ -160,8 +160,8 @@ object Conformance {
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
         if owner.equiv(owner1) => {
         if (args1.length != args2.length) return (false, undefinedSubst)
-        ScType.extractClassType(owner) match {
-          case Some((owner: PsiClass, _)) => {
+        ScType.extractClass(owner) match {
+          case Some(owner) => {
             val parametersIterator = owner.getTypeParameters.iterator
             val args1Iterator = args1.iterator
             val args2Iterator = args2.iterator
@@ -304,8 +304,8 @@ object Conformance {
       case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conforms(upper, r, HashSet.empty, undefinedSubst)
       case (ex@ScExistentialType(q, wilds), _) => return conforms(ex.substitutor.subst(q), r, HashSet.empty, undefinedSubst)
       case (_, s: ScSingletonType) => {
-        ScType.extractClassType(l) match {
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Singleton" => return (true, undefinedSubst)
+        ScType.extractClass(l) match {
+          case Some(clazz) if clazz.getQualifiedName == "scala.Singleton" => return (true, undefinedSubst)
           case _ => if (conforms(l, s.pathType)) return (true, undefinedSubst)
         }
       }
@@ -329,9 +329,9 @@ object Conformance {
       }
       case (_, ScPolymorphicType(_, _, _, upper)) => {
         val uBound = upper.v
-        ScType.extractClassType(uBound) match {
-          case Some((pc, _)) if visited.contains(pc) => return conforms(l, ScDesignatorType(pc), visited + pc, undefinedSubst)
-          case Some((pc, _)) => return conforms(l, uBound, visited + pc, undefinedSubst)
+        ScType.extractClass(uBound) match {
+          case Some(pc) if visited.contains(pc) => return conforms(l, ScDesignatorType(pc), visited + pc, undefinedSubst)
+          case Some(pc) => return conforms(l, uBound, visited + pc, undefinedSubst)
           case None => return conforms(l, uBound, visited, undefinedSubst)
         }
       }
@@ -341,13 +341,14 @@ object Conformance {
     ScType.extractClassType(r) match {
       case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
       case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
-        ScType.extractClassType(l) match {
-          case Some((lClass: PsiClass, _)) => {
+        ScType.extractClass(l) match {
+          case Some(lClass) => {
             if (rClass.getQualifiedName == "java.lang.Object" ) {
               return conforms(l, AnyRef, visited, undefinedSubst, noBaseTypes)
             } else if (lClass.getQualifiedName == "java.lang.Object") {
               return conforms(AnyRef, r, visited, undefinedSubst, noBaseTypes)
             }
+            if (!rClass.isInheritor(lClass, true)) return (false, undefinedSubst)
             val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2
@@ -397,14 +398,17 @@ object Conformance {
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass,
                                visited: collection.mutable.HashSet[PsiClass]): (Boolean, ScType) = {
     ProgressManager.checkCanceled
-    val bases: Seq[ScType] = leftClass match {
-      case td: ScTypeDefinition => td.superTypes.map(substitutor.subst(_))
-      case _ => leftClass.getSuperTypes.map(tp => substitutor.subst(ScType.create(tp, leftClass.getProject))).toSeq
+    val bases: Seq[Any] = leftClass match {
+      case td: ScTypeDefinition => td.superTypes
+      case _ => leftClass.getSuperTypes
     }
     val iterator = bases.iterator
     var res: ScType = null
     while (iterator.hasNext) {
-      val tp = iterator.next
+      val tp: ScType = iterator.next match {
+        case tp: ScType => substitutor.subst(tp)
+        case pct: PsiClassType => substitutor.subst(ScType.create(pct, leftClass.getProject))
+      }
       ScType.extractClassType(tp) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, subst)) if clazz == rightClass => {

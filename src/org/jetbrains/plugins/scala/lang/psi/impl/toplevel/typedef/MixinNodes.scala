@@ -17,6 +17,8 @@ import com.intellij.psi.{PsiClass}
 import psi.types._
 import result.TypingContext
 import synthetic.ScSyntheticClass
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 abstract class MixinNodes {
   type T
@@ -135,7 +137,8 @@ abstract class MixinNodes {
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
       case ScDesignatorType(template : ScTemplateDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
-        (BaseTypes.get(ScDesignatorType(template)), putAliases(template, ScSubstitutor.empty))
+        val lin = MixinNodes.linearization(template)
+        (if (!lin.isEmpty) lin.tail else lin, putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -143,11 +146,12 @@ abstract class MixinNodes {
       }
       case ScDesignatorType(clazz: PsiClass) => {
         processJava(clazz, ScSubstitutor.empty, map, false)
-        (BaseTypes.get(ScDesignatorType(clazz)), ScSubstitutor.empty)
+        val lin = MixinNodes.linearization(clazz)
+        (if (!lin.isEmpty) lin.tail else lin, ScSubstitutor.empty)
       }
-      case _: ScCompoundType => {
+      case cp: ScCompoundType => {
         //todo: add processing comp refinement
-        (BaseTypes.get(tp), ScSubstitutor.empty)
+        (MixinNodes.linearization(cp), ScSubstitutor.empty)
       }
       case _ => (Seq.empty, ScSubstitutor.empty)
     }
@@ -208,4 +212,115 @@ abstract class MixinNodes {
   def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
   def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
   def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
+}
+
+object MixinNodes {
+  def linearization(clazz: PsiClass): Seq[ScType] = {
+    CachesUtil.get(
+      clazz, CachesUtil.LINEARIZATION_KEY,
+      new CachesUtil.MyProvider(clazz, {clazz: PsiClass => linearizationInner(clazz)})
+        (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+      )
+  }
+
+  def linearization(compound: ScCompoundType): Seq[ScType] = {
+    val comps = compound.components
+
+    //todo: duplicate
+    val buffer = new ListBuffer[ScType]
+    val set: HashSet[String] = new HashSet //to add here qualified names of classes
+    def add(tp: ScType) {
+      ScType.extractClass(tp) match {
+        case Some(clazz) if clazz.getQualifiedName != null && !set.contains(clazz.getQualifiedName) => {
+          tp +: buffer
+          set += clazz.getQualifiedName
+        }
+        case Some(clazz) if clazz.getTypeParameters.length != 0 => {
+          val i = buffer.findIndexOf(newTp => {
+            ScType.extractClass(newTp) match {
+              case Some(newClazz) if newClazz == clazz => true
+              case _ => false
+            }
+          })
+          if (i != -1) {
+            val newTp = buffer.apply(i)
+            if (tp.conforms(newTp)) buffer.update(i, tp)
+          }
+        }
+        case _ =>
+      }
+    }
+
+    val iterator = comps.reverseIterator
+    while (iterator.hasNext) {
+      val tp = iterator.next
+      ScType.extractClassType(tp) match {
+        case Some((clazz, subst)) => {
+          val lin = linearization(clazz)
+          val newIterator = lin.reverseIterator
+          while (newIterator.hasNext) {
+            val tp = newIterator.next
+            add(subst.subst(tp))
+          }
+        }
+        case _ =>
+      }
+    }
+    return buffer.toSeq
+  }
+
+  def linearizationInner(clazz: PsiClass): Seq[ScType] = {
+    val tp = {
+      if (clazz.getTypeParameters.length == 0) ScDesignatorType(clazz)
+      else ScParameterizedType(ScDesignatorType(clazz), clazz.
+              getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
+    }
+    val supers: Seq[ScType] = {
+      clazz match {
+        case td: ScTemplateDefinition => td.superTypes
+        case clazz: PsiClass => clazz.getSuperTypes.map(tp => ScType.create(tp, clazz.getProject)).toSeq
+      }
+    }
+    val buffer = new ListBuffer[ScType]
+    val set: HashSet[String] = new HashSet //to add here qualified names of classes
+    def add(tp: ScType) {
+      ScType.extractClass(tp) match {
+        case Some(clazz) if clazz.getQualifiedName != null && !set.contains(clazz.getQualifiedName) => {
+          tp +: buffer
+          set += clazz.getQualifiedName
+        }
+        case Some(clazz) if clazz.getTypeParameters.length != 0 => {
+          val i = buffer.findIndexOf(newTp => {
+            ScType.extractClass(newTp) match {
+              case Some(newClazz) if newClazz == clazz => true
+              case _ => false
+            }
+          })
+          if (i != -1) {
+            val newTp = buffer.apply(i)
+            if (tp.conforms(newTp)) buffer.update(i, tp)
+          }
+        }
+        case _ =>
+      }
+    }
+
+    val iterator = supers.reverseIterator
+    while (iterator.hasNext) {
+      val tp = iterator.next
+      ScType.extractClassType(tp) match {
+        case Some((clazz, subst)) => {
+          val lin = linearization(clazz)
+          val newIterator = lin.reverseIterator
+          while (newIterator.hasNext) {
+            val tp = newIterator.next
+            add(subst.subst(tp))
+          }
+        }
+        case _ =>
+      }
+    }
+    add(tp)
+    return buffer.toSeq
+  }
 }

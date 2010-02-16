@@ -62,8 +62,8 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    def processClassType(t: ScType) = ScType.extractClassType(t) match {
-      case Some((c, _)) => c.processDeclarations(processor, state, null, place)
+    def processClassType(t: ScType) = ScType.extractClass(t) match {
+      case Some(c) => c.processDeclarations(processor, state, null, place)
       case _ => true
     }
 

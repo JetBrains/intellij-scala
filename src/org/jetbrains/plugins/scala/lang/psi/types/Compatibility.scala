@@ -15,6 +15,7 @@ import impl.compiled.ClsParameterImpl
 import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author ven
@@ -53,6 +54,7 @@ object Compatibility {
                                parameters: Seq[Parameter],
                                exprs: Seq[Expression],
                                checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    ProgressManager.checkCanceled
     var undefSubst = new ScUndefinedSubstitutor
     if (parameters.length == 0) return (exprs.length == 0, undefSubst)
     var k = 0

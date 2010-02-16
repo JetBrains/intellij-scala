@@ -24,8 +24,8 @@ trait ScImportableDeclarationsOwner extends ScalaPsiElement {
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) =
     if (isStable) lastParent match {
       case _: ScImportStmt => {
-        ScType.extractClassType(getType(TypingContext.empty).getOrElse(Any)) match {
-          case Some((c, _)) => c.processDeclarations(processor, state, null, place)
+        ScType.extractClass(getType(TypingContext.empty).getOrElse(Any)) match {
+          case Some(c) => c.processDeclarations(processor, state, null, place)
           case _ => true
         }
       }

@@ -43,11 +43,11 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           return Success(new ScFunctionType(clausesType, params, f.getProject), Some(this))
         }
         case Some(tp@ScParameterizedType(des, typeArgs)) => {
-          ScType.extractClassType(tp) match {
-            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => {
+          ScType.extractClass(tp) match {
+            case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => {
               return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1), clazz.getProject), Some(this))
             }
-            case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => {
+            case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => {
               return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1) ++ Seq(clausesType)), Some(this))
             }
             case _ => return Failure("Cannot infer type without expected type", Some(this))
