@@ -59,7 +59,7 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
       references = myFile.findReferenceAt(m.end) :: references
     }
 
-    Assert.assertFalse("At least one reference must be specified", references.isEmpty)
+    Assert.assertFalse("At least one expectation must be specified", references.isEmpty)
     Assert.assertEquals("Options number", references.size, options.size)
 
     null
