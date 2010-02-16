@@ -1,1 +1,1 @@
-println(classOf[/* resolved: false */ a])
+println(classOf[/* resolved: false */ A])

@@ -33,6 +33,8 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   val Path = "path"
   val Applicable = "applicable"
 
+  val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Applicable)
+
   var options: List[Parameters] = List()
   var references: List[PsiReference] = List()
 
@@ -67,10 +69,8 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
 
   def check(parameters: Parameters) = {
     for ((key, value) <- parameters) {
-      key match {
-        case Resolved | Name | File | Line | Offset | Length | Type | Path | Applicable =>
-        case _ => Assert.fail("Unknown parameter: " + key)
-      }
+      Assert.assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
+        Parameters.contains(key))
     }
   }
 
