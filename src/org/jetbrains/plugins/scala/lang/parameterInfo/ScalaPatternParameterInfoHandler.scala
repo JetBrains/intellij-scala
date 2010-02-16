@@ -87,8 +87,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 subst.subst(ScType.create(method.getReturnType, method.getProject))
               }
             }
-            val qual = ScType.extractClassType(p) match {
-              case Some((clazz, substitutor)) => clazz.getQualifiedName
+            val qual = ScType.extractClass(p) match {
+              case Some(clazz) => clazz.getQualifiedName
               case _ => ""
             }
             val generics: Seq[ScType] = p match {
@@ -120,8 +120,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 val o = paramX._2
                 val buffer: StringBuilder = new StringBuilder("")
                 buffer.append(ScType.presentableText(param))
-                val isSeq = sign.method.getName == "unapplySeq" && (ScType.extractClassType(param) match {
-                  case Some((clazz, substitutor)) => clazz.getQualifiedName == "scala.Seq"
+                val isSeq = sign.method.getName == "unapplySeq" && (ScType.extractClass(param) match {
+                  case Some(clazz) => clazz.getQualifiedName == "scala.Seq"
                   case _ => false
                 })
                 if (isSeq) {

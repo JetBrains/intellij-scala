@@ -53,8 +53,8 @@ class ScalaVariableOfTypeMacro extends Macro {
                   array += item
                 }
                 case "foreach" => {
-                  ScType.extractClassType(t) match {
-                    case Some((x: ScTypeDefinition, _)) => {
+                  ScType.extractClass(t) match {
+                    case Some(x: ScTypeDefinition) => {
                       if (!x.functionsByName("foreach").isEmpty) array += new LookupItem(variant.getElement, variant.getElement.getName)
                     }
                     case _ =>
@@ -62,8 +62,8 @@ class ScalaVariableOfTypeMacro extends Macro {
                 }
                 case  _ => {
                   for (expr <- exprs) {
-                    if ((ScType.extractClassType(t) match {
-                      case Some((x, _)) => x.getQualifiedName
+                    if ((ScType.extractClass(t) match {
+                      case Some(x) => x.getQualifiedName
                       case None => ""
                     }) == expr) array += new LookupItem(variant.getElement, variant.getElement.getName)
                   }

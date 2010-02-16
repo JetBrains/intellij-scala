@@ -49,8 +49,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
               }
               val types = callExpression.allTypes
               for (typez <- types) {
-                ScType.extractClassType(typez) match {
-                  case Some((clazz: PsiClass, _)) => {
+                ScType.extractClass(typez) match {
+                  case Some(clazz) => {
                     val applyMethods = clazz.findMethodsByName("apply", true)
                     for{
                       method <- applyMethods

@@ -79,7 +79,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       }
 
       def resolve = findSuper(id) match {
-        case Some(t) => ScType.extractClassType(t) match {case Some((c, _)) => c case None => null}
+        case Some(t) => ScType.extractClass(t) match {case Some(c) => c case None => null}
         case _ => null
       }
 
@@ -87,8 +87,8 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case None => Array[Object]()
         case Some(supers) => {
           val buff = new ArrayBuffer[Object]
-          supers.foreach{ t => ScType.extractClassType(t) match {
-            case Some((c, _)) => buff += c
+          supers.foreach{ t => ScType.extractClass(t) match {
+            case Some(c) => buff += c
             case None =>
           }}
           buff.toArray
@@ -102,8 +102,8 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     case Some(types) => {
       val name = id.getText
       for (t <- types) {
-        ScType.extractClassType(t) match {
-          case Some((c, s)) if name == c.getName => return Some(t)
+        ScType.extractClass(t) match {
+          case Some(c) if name == c.getName => return Some(t)
           case _ =>
         }
       }

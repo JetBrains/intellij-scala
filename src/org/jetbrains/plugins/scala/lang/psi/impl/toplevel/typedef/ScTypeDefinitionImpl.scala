@@ -241,18 +241,24 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getAllMethods: Array[PsiMethod] = {
     val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
-    buffer ++= TypeDefinitionMembers.getMethods(this).toArray.map[PsiMethod, Array[PsiMethod]](_._1.method)
-    for ((t, _) <- TypeDefinitionMembers.getVals(this).toArray) {
-       t match {
-         case t: ScTypedDefinition => {
-           val context = ScalaPsiUtil.nameContext(t)
-           buffer += new FakePsiMethod(t, context match {
-              case o: PsiModifierListOwner => o.hasModifierProperty _
-              case _ => (s: String) => false
-            })
-         }
-         case _ =>
-       }
+    val methodsIterator = TypeDefinitionMembers.getMethods(this).iterator
+    while (methodsIterator.hasNext) {
+      val method = methodsIterator.next._1.method
+      buffer += method
+    }
+    val valsIterator = TypeDefinitionMembers.getVals(this).iterator
+    while (valsIterator.hasNext) {
+      val t = valsIterator.next._1
+      t match {
+        case t: ScTypedDefinition => {
+          val context = ScalaPsiUtil.nameContext(t)
+          buffer += new FakePsiMethod(t, context match {
+            case o: PsiModifierListOwner => o.hasModifierProperty _
+            case _ => (s: String) => false
+          })
+        }
+        case _ =>
+      }
     }
     //todo: methods from companion module?
     return buffer.toArray
@@ -265,8 +271,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       if (visited.contains(drv)) false
       else drv match {
         case drg: ScTypeDefinition => drg.superTypes.find{
-          t => ScType.extractClassType(t) match {
-            case Some((c, _)) => {
+          t => ScType.extractClass(t) match {
+            case Some(c) => {
               val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
                 case _: ScTrait if c.isInstanceOf[ScTrait] => true
                 case _: ScClass if c.isInstanceOf[ScClass] => true

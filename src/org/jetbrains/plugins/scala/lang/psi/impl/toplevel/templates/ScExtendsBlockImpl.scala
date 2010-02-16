@@ -61,7 +61,25 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case _ => None
   }
 
+  @volatile
+  private var superTypesCache: List[ScType] = null
+
+  @volatile
+  private var superTypesModCount: Long = 0L
+
   def superTypes: List[ScType] = {
+    var tp = superTypesCache
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && curModCount == superTypesModCount) {
+      return tp
+    }
+    tp = superTypesInner
+    superTypesCache = tp
+    superTypesModCount = curModCount
+    return tp
+  }
+
+  private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType): Unit = t match {
       case ScCompoundType(comps, _, _, _) => comps.foreach{addType _}
@@ -110,8 +128,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def supers() = {
     val buf = new ArrayBuffer[PsiClass]
     for (t <- superTypes) {
-      ScType.extractClassType(t) match {
-        case Some((c, _)) => buf += c
+      ScType.extractClass(t) match {
+        case Some(c) => buf += c
         case None =>
       }
     }

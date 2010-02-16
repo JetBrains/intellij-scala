@@ -146,8 +146,8 @@ trait ScPattern extends ScalaPsiElement {
         for (rt <- fun.returnType) {
           if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
           subst.subst(rt) match {
-            case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
-              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+            case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
+              case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
                       clazz.getQualifiedName == "scala.Some" => true
               case _ => false
             }) => {
@@ -157,8 +157,8 @@ trait ScPattern extends ScalaPsiElement {
                   if (i < args.length) return Some(args(i))
                   else return None
                 }
-                case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
-                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Tuple" => true
+                case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
+                  case Some(clazz) if clazz.getQualifiedName == "scala.Tuple" => true
                   case _ => false
                 }) => {
                   if (i < args.length) return Some(args(i))
@@ -178,15 +178,15 @@ trait ScPattern extends ScalaPsiElement {
       case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapplySeq" => {
         for (rt <- fun.returnType) {
           subst.subst(rt) match {
-            case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
-              case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.Option" ||
+            case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
+              case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
                       clazz.getQualifiedName == "scala.Some" => true
               case _ => false
             }) => {
               if (args.length != 1) return None
               (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
-                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClassType(des) match {
-                  case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
+                  case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
                   case _ => false
                 }) => true
                 case _ => false
@@ -297,9 +297,9 @@ trait ScPattern extends ScalaPsiElement {
           else if (params.length == 1) Some(params(0))
           else Some(new ScTupleType(params, getProject))
         }
-        case Some(ScParameterizedType(des, args)) if (ScType.extractClassType(des) match {
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "scala.PartialFunction" => true
-          case Some((clazz: PsiClass, _)) if clazz.getQualifiedName.startsWith("scala.Function") => true
+        case Some(ScParameterizedType(des, args)) if (ScType.extractClass(des) match {
+          case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => true
+          case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => true
           case _ => false
         }) => {
           if (args.length == 1) Some(Unit)

@@ -77,8 +77,8 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       if (visited.contains(drv)) false
       else drv match {
         case drg: ScTemplateDefinition => drg.superTypes.find {
-          t => ScType.extractClassType(t) match {
-            case Some((c, _)) => {
+          t => ScType.extractClass(t) match {
+            case Some(c) => {
               val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
                 case _: ScTrait if c.isInstanceOf[ScTrait] => true
                 case _: ScClass if c.isInstanceOf[ScClass] => true

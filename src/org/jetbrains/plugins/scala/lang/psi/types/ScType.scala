@@ -60,8 +60,8 @@ case object Null extends StdType("Null", Some(AnyRef))
 
 case object AnyRef extends StdType("AnyRef", Some(Any)) {
   override def equiv(t: ScType): Boolean = {
-    ScType.extractClassType(t) match {
-      case Some((clazz: PsiClass, _)) if clazz.getQualifiedName == "java.lang.Object" => true
+    ScType.extractClass(t) match {
+      case Some(clazz) if clazz.getQualifiedName == "java.lang.Object" => true
       case _ => super.equiv(t)
     }
   }
@@ -223,6 +223,38 @@ object ScType {
       }
       case _ => javaObj
     }
+  }
+
+  /**
+   * Faster then extractClassType
+   */
+  def extractClass(t: ScType): Option[PsiClass] = t match {
+    case n: NonValueType => extractClass(n.inferValueType)
+    case ScDesignatorType(clazz: PsiClass) => Some(clazz)
+    case proj@ScProjectionType(p, _) => proj.resolveResult match {
+      case Some(ScalaResolveResult(c: PsiClass, _)) => Some(c)
+      case _ => None
+    }
+    case p@ScParameterizedType(t1, _) => {
+      extractClass(t1) match {
+        case Some(c) => Some(c)
+        case None => None
+      }
+    }
+    case tuple@ScTupleType(comp) => {
+      tuple.resolveTupleTrait match {
+        case Some(clazz) => extractClass(clazz)
+        case _ => None
+      }
+    }
+    case fun: ScFunctionType => {
+      fun.resolveFunctionTrait match {
+        case Some(tp) => extractClass(tp)
+        case _ => None
+      }
+    }
+    case std@StdType(_, _) => Some(std.asClass(DecompilerUtil.obtainProject).getOrElse(return None))
+    case _ => None
   }
 
   def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {

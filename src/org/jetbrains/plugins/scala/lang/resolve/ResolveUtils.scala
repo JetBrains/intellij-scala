@@ -219,8 +219,8 @@ object ResolveUtils {
                     case Some(te: ScSelfTypeElement) => te.typeElement match {
                       case Some(te: ScTypeElement) => {
                         te.getType(TypingContext.empty) match {
-                          case Success(tp: ScType, _) => ScType.extractClassType(tp) match {
-                            case Some((clazz: PsiClass, _)) => {
+                          case Success(tp: ScType, _) => ScType.extractClass(tp) match {
+                            case Some(clazz) => {
                               if (clazz == td) return true
                               if (clazz.isInheritor(td, true)) return true
                             }
@@ -276,8 +276,8 @@ object ResolveUtils {
               case Some(te: ScSelfTypeElement) => te.typeElement match {
                 case Some(te: ScTypeElement) => {
                   te.getType(TypingContext.empty) match {
-                    case Success(tp: ScType, _) => ScType.extractClassType(tp) match {
-                      case Some((cl: PsiClass, _)) => {
+                    case Success(tp: ScType, _) => ScType.extractClass(tp) match {
+                      case Some(cl) => {
                         if (cl == clazz) return true
                         if (cl.isInheritor(clazz, true)) return true
                       }
@@ -340,8 +340,8 @@ object ResolveUtils {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
         var isBold = false
         var isDeprecated = false
-        ScType.extractClassType(qualifierType) match {
-          case Some((clazz, _)) =>  {
+        ScType.extractClass(qualifierType) match {
+          case Some(clazz) =>  {
             element match {
               case m: PsiMember  => {
                 if (m.getContainingClass == clazz) isBold = true

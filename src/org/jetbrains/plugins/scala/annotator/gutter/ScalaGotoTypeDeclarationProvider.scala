@@ -17,8 +17,8 @@ class ScalaGotoTypeDeclarationProvider extends TypeDeclarationProvider {
     symbol match {
       case typed: ScTypedDefinition => {
         val res = typed.getType(TypingContext.empty)
-        def getForType(tp: ScType): Seq[PsiElement] = ScType.extractClassType(tp) match {
-          case Some((clazz: PsiClass, _)) => return Seq[PsiElement](clazz)
+        def getForType(tp: ScType): Seq[PsiElement] = ScType.extractClass(tp) match {
+          case Some(clazz: PsiClass) => return Seq[PsiElement](clazz)
           case _ => Seq.empty
         }
         val tp = res.getOrElse(return null)

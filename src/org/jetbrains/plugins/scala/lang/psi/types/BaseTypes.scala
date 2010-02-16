@@ -20,10 +20,10 @@ object BaseTypes {
       case ScPolymorphicType(_, Nil, _, upper) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
       case p : ScParameterizedType => {
-        ScType.extractClassType(p.designator) match {
-          case Some((td: ScTypeDefinition, _)) =>
+        ScType.extractClass(p.designator) match {
+          case Some(td: ScTypeDefinition) =>
             reduce(td.superTypes.flatMap {tp => if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll) ++ Seq(p.substitutor.subst(tp)) else Seq(p.substitutor.subst(tp))})
-          case Some((clazz: PsiClass, _)) => {
+          case Some(clazz) => {
             val s = p.substitutor
             reduce(clazz.getSuperTypes.flatMap {t => if (!notAll) BaseTypes.get(s.subst(ScType.create(t, clazz.getProject)), notAll) ++
                     Seq(s.subst(ScType.create(t, clazz.getProject))) else Seq(s.subst(ScType.create(t, clazz.getProject)))})
@@ -67,8 +67,8 @@ object BaseTypes {
     val iterator = types.iterator
     while (iterator.hasNext) {
        val t = iterator.next
-      ScType.extractClassType(t) match {
-        case Some((c, _)) => {
+      ScType.extractClass(t) match {
+        case Some(c) => {
           val isBest = all.get(c) match {
             case None => true
             case Some(ts) => ts.find(t1 => !Conformance.conforms(t1, t)) == None
