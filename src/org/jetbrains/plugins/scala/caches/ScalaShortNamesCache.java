@@ -16,6 +16,7 @@ import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
@@ -37,13 +38,13 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiClass[] getClassesByName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiClass> plainClasses = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, myProject, scope);
+    final Collection<? extends PsiClass> plainClasses = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, myProject, new ScalaSourceFilterScope(scope, myProject));
     return plainClasses.toArray(new PsiClass[plainClasses.size()]);
   }
 
   @Nullable
   public PsiClass getClassByFQName(@NotNull @NonNls String name, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, scope);
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), name.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
     for (PsiElement element : classes) {
       if (!(element instanceof PsiClass)) {
         VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
@@ -67,7 +68,8 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiClass[] getClassesByFQName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(), fqn.hashCode(), myProject, scope);
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(),
+        fqn.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
     for (PsiElement element : classes) {
       if (!(element instanceof PsiClass)) {
@@ -87,7 +89,7 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   }
 
   public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(), myProject, scope);
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
     ArrayList<ScTypeDefinition> list = new ArrayList<ScTypeDefinition>();
     for (PsiClass psiClass : classes) {
       if (fqn.equals(psiClass.getQualifiedName())) {
@@ -117,7 +119,7 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiMethod[] getMethodsByNameIfNotMoreThan(@NonNls @NotNull String name, @NotNull GlobalSearchScope scope, int maxCount) {
-    return getMethodsByName(name, scope);
+    return getMethodsByName(name, new ScalaSourceFilterScope(scope, myProject));
   }
 
   @NotNull

@@ -10,6 +10,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElementFinder, PsiClass, PsiPackage}
 import lang.psi.api.ScalaFile
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
+import com.intellij.openapi.fileTypes.{StdFileTypes, FileType}
+import com.intellij.openapi.module.Module
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
 
