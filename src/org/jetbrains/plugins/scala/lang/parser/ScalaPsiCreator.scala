@@ -200,7 +200,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.CATCH_BLOCK => new ScCatchBlockImpl(node)
     case ScalaElementTypes.FINALLY_BLOCK => new ScFinallyBlockImpl(node)
     case ScalaElementTypes.WHILE_STMT => new ScWhileStmtImpl(node)
-    case ScalaElementTypes.METHOD_CLOSURE => new ScClosureImpl(node)
     case ScalaElementTypes.RETURN_STMT => new ScReturnStmtImpl(node)
     case ScalaElementTypes.THROW_STMT => new ScThrowStmtImpl(node)
     case ScalaElementTypes.ASSIGN_STMT => new ScAssignStmtImpl(node)

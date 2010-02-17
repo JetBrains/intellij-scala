@@ -46,7 +46,6 @@ object TokenSets {
       CATCH_BLOCK,
       FINALLY_BLOCK,
       RETURN_STMT,
-      METHOD_CLOSURE,
       THROW_STMT,
       ASSIGN_STMT,
       MATCH_STMT,
