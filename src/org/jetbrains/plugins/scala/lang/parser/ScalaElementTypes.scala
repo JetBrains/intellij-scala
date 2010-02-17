@@ -210,7 +210,6 @@ object ScalaElementTypes {
   val CATCH_BLOCK = new ScalaElementType("catch block")
   val FINALLY_BLOCK = new ScalaElementType("finally block")
   val RETURN_STMT = new ScalaElementType("return statement")
-  val METHOD_CLOSURE = new ScalaElementType("method closure")
   val THROW_STMT = new ScalaElementType("throw statement")
   val ASSIGN_STMT = new ScalaElementType("assign statement")
   val MATCH_STMT = new ScalaElementType("match statement")
