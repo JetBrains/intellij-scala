@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ public class ScalaGoToClassContributor implements ChooseByNameContributor {
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, project, scope);
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
     return classes.toArray(new NavigationItem[classes.size()]);
   }
 }

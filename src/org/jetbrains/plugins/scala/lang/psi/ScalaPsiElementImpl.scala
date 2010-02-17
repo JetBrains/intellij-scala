@@ -5,9 +5,10 @@ package psi
 import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.lang.ASTNode
-import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import stubs.elements.wrappers.DummyASTNode
 import com.intellij.psi.impl.source.tree.{SharedImplUtil, CompositeElement}
+import com.intellij.psi.{PsiElementVisitor, PsiElement, StubBasedPsiElement}
+import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
 @author ven

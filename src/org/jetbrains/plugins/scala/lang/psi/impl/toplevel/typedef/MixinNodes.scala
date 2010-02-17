@@ -135,10 +135,14 @@ abstract class MixinNodes {
     val superTypesBuff = new ListBuffer[Map]
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
-      case ScDesignatorType(template : ScTemplateDefinition) => {
+      case ScDesignatorType(template: ScTypeDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
         val lin = MixinNodes.linearization(template)
         (if (!lin.isEmpty) lin.tail else lin, putAliases(template, ScSubstitutor.empty))
+      }
+      case ScDesignatorType(template : ScTemplateDefinition) => {
+        processScala(template, ScSubstitutor.empty, map, false)
+        (MixinNodes.linearization(template), putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)

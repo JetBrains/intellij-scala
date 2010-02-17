@@ -8,6 +8,10 @@ import fileNameInspection.FileNameInspection
 import java.lang.String
 import packageNameInspection.PackageNameInspection
 import referenceInspections.CyclicReferencesInspection
+import unresolvedInspection.UnresolvedReferencesInspection
+import collection.mutable.ArrayBuffer
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.impl.ApplicationImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,11 +19,22 @@ import referenceInspections.CyclicReferencesInspection
  */
 
 class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationComponent {
-  def getInspectionClasses: Array[java.lang.Class[_]] = Array[java.lang.Class[_]](
+  def getInspectionClasses: Array[java.lang.Class[_]] = {
+    val res = new ArrayBuffer[java.lang.Class[_]]
+    Array[java.lang.Class[_]](
     classOf[CyclicReferencesInspection],
     classOf[FileNameInspection],
-    classOf[PackageNameInspection]
+    classOf[PackageNameInspection],
+    classOf[UnresolvedReferencesInspection]
   )
+    res += classOf[CyclicReferencesInspection]
+    res += classOf[FileNameInspection]
+    res += classOf[PackageNameInspection]
+    if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
+      res += classOf[UnresolvedReferencesInspection]
+    }
+    res.toArray
+  }
 
   def initComponent: Unit = {}
 
