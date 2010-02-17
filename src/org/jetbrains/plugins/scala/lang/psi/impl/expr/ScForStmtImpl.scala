@@ -92,7 +92,25 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
               !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
       next match {
         case null =>
-        case guard: ScGuard => //todo:
+        case guard: ScGuard => {
+          exprText.append("for {").append(gen.pattern.getText).
+                  append(" <- ((").append(gen.rvalue.getText).append(").filter(").
+                  append(gen.pattern.bindings.map(b => b.name).mkString("(",", ", ")")).append("))")
+          next = next.getNextSibling
+          while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
+              !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
+          if (next != null) exprText.append(";")
+          while (next != null) {
+            exprText.append(next.getText)
+            next = next.getNextSibling
+          }
+          exprText.append("\n} ")
+          if (isYield) exprText.append("yield ")
+          body match {
+            case Some(x) => exprText append x.getText
+            case _ => exprText append "{}"
+          }
+        }
         case gen2: ScGenerator => {
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "flatMap " else "foreach ").append("{case ").
             append(gen.pattern.getText).append(" => ").append("for {")
@@ -108,7 +126,28 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
           exprText.append("\n}")
         }
-        case enum: ScEnumerator => //todo:
+        case enum: ScEnumerator => {
+          if (enum.rvalue == null) return failure
+          exprText.append("for {(").append(enum.pattern.getText).append(", ").append(gen.pattern.getText).
+                  append(") <- (for (freshNameForIntelliJIDEA1@(").append(gen.pattern.getText).append(") <- ").
+                  append(gen.rvalue.getText).append(") yield {val freshNameForIntelliJIDEA2@(").
+                  append(enum.pattern.getText).append(") = ").append(enum.rvalue.getText).
+                  append("; (freshNameForIntelliJIDEA2, freshNameForIntelliJIDEA1)})")
+          next = next.getNextSibling
+          while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
+              !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
+          if (next != null) exprText.append(";")
+          while (next != null) {
+            exprText.append(next.getText)
+            next = next.getNextSibling
+          }
+          exprText.append("\n} ")
+          if (isYield) exprText.append("yield ")
+          body match {
+            case Some(x) => exprText append x.getText
+            case _ => exprText append "{}"
+          }
+        }
         case _ =>
       }
     }
