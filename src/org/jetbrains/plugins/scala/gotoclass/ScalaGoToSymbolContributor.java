@@ -8,6 +8,7 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
@@ -33,10 +34,10 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final boolean searchAll = CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class).SEARCH_ALL_SYMBOLS;
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
-    final Collection<? extends NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, scope);
-    final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, scope);
-    final Collection<? extends NavigationItem> values = StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, scope);
-    final Collection<? extends NavigationItem> vars = StubIndex.getInstance().get(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project, scope);
+    final Collection<? extends NavigationItem> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
+    final Collection<? extends NavigationItem> types = StubIndex.getInstance().get(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
+    final Collection<? extends NavigationItem> values = StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
+    final Collection<? extends NavigationItem> vars = StubIndex.getInstance().get(ScalaIndexKeys.VARIABLE_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
 
     final ArrayList<NavigationItem> items = new ArrayList<NavigationItem>();
 
