@@ -5,7 +5,12 @@ package impl
 package toplevel
 
 import com.intellij.psi.PsiElement
-import stubs.ScEarlyDefinitionsStub;
+import stubs.ScEarlyDefinitionsStub
+import api.statements.{ScVariableDefinition, ScPatternDefinition}
+
+import stubs.ScEarlyDefinitionsStub
+import com.intellij.psi.{ResolveState, PsiElement}
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -25,8 +30,34 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 * Date: 22.02.2008
 */
 
-class ScEarlyDefinitionsImpl extends ScalaStubBasedElementImpl[ScEarlyDefinitions] with ScEarlyDefinitions {
+class ScEarlyDefinitionsImpl private () extends ScalaStubBasedElementImpl[ScEarlyDefinitions] with ScEarlyDefinitions {
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScEarlyDefinitionsStub) = {this(); setStub(stub); setNode(null)}
   override def toString: String = "EarlyDefinitions"
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                                   lastParent: PsiElement, place: PsiElement): Boolean = {
+    var element: PsiElement = lastParent
+    while (element != null) {
+      element match {
+        case p: ScPatternDefinition => {
+          val iterator = p.bindings.iterator
+          while (iterator.hasNext) {
+            val elem = iterator.next
+            if (!processor.execute(elem, state)) return false
+          }
+        }
+        case p: ScVariableDefinition => {
+          val iterator = p.bindings.iterator
+          while (iterator.hasNext) {
+            val elem = iterator.next
+            if (!processor.execute(elem, state)) return false
+          }
+        }
+        case _ =>
+      }
+      element = element.getPrevSibling
+    }
+    return true
+  }
 }
