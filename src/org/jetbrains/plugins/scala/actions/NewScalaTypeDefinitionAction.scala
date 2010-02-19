@@ -23,7 +23,7 @@ import com.intellij.openapi.actionSystem._
  */
 
 class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeDefinition](
-  ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS) with DumbAware {
+  ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS, true) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory): CreateFileFromTemplateDialog.Builder = {
     val builder = CreateFileFromTemplateDialog.
       createDialog(project, ScalaBundle.message("newclass.dlg.title"));
