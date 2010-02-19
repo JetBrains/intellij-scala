@@ -26,4 +26,5 @@ class BugTest extends ResolveTestBase {
   //TODO in debug mode all works ok, but test is failed
 //  def testIntegerEqualiity = doTest
   def testEarlyDefinitionsBefore = doTest
+  def testFunctionEmptyParamList = doTest
 }
