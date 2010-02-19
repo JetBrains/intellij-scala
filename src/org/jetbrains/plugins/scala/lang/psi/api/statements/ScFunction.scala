@@ -56,16 +56,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
-  def methodType: ScMethodType = methodType(None)
-  def methodType(result: Option[ScType]): ScMethodType = {
-    //todo: infer result type of recursive methods from super methods
+  def methodType: ScType = methodType(None)
+  def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = paramClauses
     val clauses = parameters.clauses
     val resultType = result match {
       case None => returnType.getOrElse(Any)
       case Some(x) => x
     }
-    if (clauses.length == 0) return ScMethodType(resultType, Seq.empty, false)
+    if (clauses.length == 0) return resultType
     val res = clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
       ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
     }
