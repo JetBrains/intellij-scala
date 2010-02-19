@@ -28,23 +28,6 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
         processor.processType(projected, path)
         if (processor.candidates.size == 1) {
           val namedElement = processor.candidates.apply(0).element
-          //todo: fix for case, when sources are attached, fix this case and remove this quickfix.
-          namedElement match {
-            case clazz: ScClass => {
-              if (!des.isInstanceOf[ScClass]) return false
-              return clazz.getQualifiedName == des.asInstanceOf[ScClass].getQualifiedName
-            }
-            case clazz: ScTrait => {
-              if (!des.isInstanceOf[ScTrait]) return false
-              return clazz.getQualifiedName == des.asInstanceOf[ScTrait].getQualifiedName
-            }
-            case td: ScTypeDefinition => return false
-            case p: PsiClass => {
-              if (des.isInstanceOf[ScTypeDefinition] || !des.isInstanceOf[PsiClass]) return false
-              return p.getQualifiedName == des.asInstanceOf[PsiClass].getQualifiedName
-            }
-            case _ =>
-          }
           val res = namedElement eq des
           res
         }
