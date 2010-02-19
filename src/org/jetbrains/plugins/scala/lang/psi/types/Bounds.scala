@@ -4,11 +4,12 @@ package psi
 package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import _root_.scala.collection.mutable.{Set, HashSet}
 import api.statements.params.ScTypeParam
-import com.intellij.psi.PsiClass
 import api.toplevel.typedef.{ScClass, ScTrait, ScTemplateDefinition, ScTypeDefinition}
 import com.intellij.openapi.project.DumbService
+import com.intellij.psi.{GenericsUtil, PsiClass}
+import types.ScDesignatorType
+import collection.mutable.{ArrayBuffer, Set, HashSet}
 
 object Bounds {
 
@@ -39,58 +40,47 @@ object Bounds {
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
       case (_: ValType, _: ValType) => types.AnyVal
 
-      case _ => ScType.extractClassType(t1) match {
-        case Some((c1, s1)) => {
+      case _ => (ScType.extractClassType(t1), ScType.extractClassType(t2)) match {
+        case (Some((clazz1, subst1)), Some((clazz2, subst2))) => {
           val set = new HashSet[ScType]
-          appendBaseTypes(t2, c1, s1, set, depth)
+          val supers = GenericsUtil.getLeastUpperClasses(clazz1, clazz2) //todo: rewrite it for scala (to have for compound types)
+          for (sup <- supers) {
+            set += getTypeForAppending(clazz1, subst1, clazz2, subst2, sup, depth)
+          }
           set.toArray match {
             case a: Array[ScType] if a.length == 0 => Any
             case a: Array[ScType] if a.length == 1 => a(0)
             case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
           }
         }
-        case None => Any //todo compound types
+        case _ => Any //todo: compound types
       }
     }
   }
 
-  private def appendBaseTypes(t1 : ScType, clazz2 : PsiClass, s2 : ScSubstitutor, set : Set[ScType], depth : Int) {
-    for (base <- BaseTypes.get(t1, true)) {
-      ScType.extractClassType(base) match {
-        case Some((cbase, sbase)) if cbase.getQualifiedName != null && (cbase.getQualifiedName == "java.lang.Object" ||
-                cbase.getQualifiedName == "scala.ScalaObject" || cbase.getQualifiedName == "scala.Product") => 
-        case Some((cbase, sbase)) => {
-          superSubstitutor(cbase, clazz2, s2) match {
-            case Some(superSubst) => {
-              val typeParams = cbase.getTypeParameters
-              if (typeParams.length > 0) {
-                val substRes = typeParams.toList.foldLeft(ScSubstitutor.empty) {
-                  (curr, tp) => {
-                    val tv = ScalaPsiManager.typeVariable(tp)
-                    val substed1 = superSubst.subst(tv)
-                    val substed2 = sbase.subst(tv)
-                    val t = tp match {
-                      case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
-                      case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
-                      case _ => if (substed1 equiv substed2) substed1 else {
-                        appendBaseTypes(base, clazz2, s2, set, 0)
-                        return
-                      }
-                    }
-
-                    curr bindT (tv.name, t)
-                  }
-                }
-                set += ScParameterizedType.create(cbase, substRes)
-              } else {
-                set += new ScDesignatorType(cbase)
-              }
-            }
-            case None => appendBaseTypes(base, clazz2, s2, set, 0)
-          }
+  private def getTypeForAppending(clazz1: PsiClass, subst1: ScSubstitutor,
+                                  clazz2: PsiClass, subst2: ScSubstitutor,
+                                  baseClass: PsiClass, depth: Int): ScType = {
+    if (baseClass.getTypeParameters.length == 0) return ScDesignatorType(baseClass)
+    (superSubstitutor(baseClass, clazz1, subst1), superSubstitutor(baseClass, clazz2, subst2)) match {
+      case (Some(superSubst1), Some(superSubst2)) => {
+        val tp = ScParameterizedType(ScDesignatorType(baseClass), baseClass.
+                getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getProject).typeVariable(tp)))
+        val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
+        val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
+        val resTypeArgs = new ArrayBuffer[ScType]
+        for (i <- 0 until baseClass.getTypeParameters.length) {
+          val substed1 = tp1.typeArgs.apply(i)
+          val substed2 = tp2.typeArgs.apply(i)
+          resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
+            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
+            case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
+            case _ => if (substed1 equiv substed2) substed1 else Any
+          })
         }
-        case None =>
+        return ScParameterizedType(ScDesignatorType(baseClass), resTypeArgs.toSeq)
       }
+      case _ => Any
     }
   }
 
@@ -99,7 +89,8 @@ object Bounds {
     superSubstitutor(base, drv, drvSubst, HashSet[PsiClass]())
   }
 
-  private def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor, visited : Set[PsiClass]) : Option[ScSubstitutor] =
+  private def superSubstitutor(base : PsiClass, drv : PsiClass, drvSubst : ScSubstitutor,
+                               visited : Set[PsiClass]) : Option[ScSubstitutor] = {
     //todo: move somewhere and cache
     if (base == drv) Some(drvSubst) else {
       if (visited.contains(drv)) None else {
@@ -122,33 +113,5 @@ object Bounds {
         None
       }
     }
-  
-
-  /*override def isInheritor(baseClass: PsiClass, drv: PsiClass): Boolean = {
-    def isInheritorInner(base: PsiClass, drv: PsiClass, visited: Set[PsiClass]): Boolean = {
-      if (visited.contains(drv)) false
-      else drv match {
-        case drg: ScTypeDefinition => drg.superTypes.find{
-          t => ScType.extractClassType(t) match {
-            case Some((c, _)) => {
-              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
-                case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                case _: ScClass if c.isInstanceOf[ScClass] => true
-                case _ if !c.isInstanceOf[ScTypeDefinition] => true
-                case _ => false
-              }
-              (c.getQualifiedName == baseClass.getQualifiedName && value) || isInheritorInner(base, c, visited + drg)
-            }
-            case _ => false
-          }
-        }
-        case _ => drv.getSuperTypes.find{
-          psiT =>
-                  val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == baseClass || isInheritorInner(base, c, visited + drv)
-        }
-      }
-    }
-    isInheritorInner(baseClass, drv, Set.empty)
-  }*/
+  }
 }

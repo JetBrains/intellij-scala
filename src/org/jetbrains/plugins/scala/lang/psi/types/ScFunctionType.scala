@@ -28,15 +28,22 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
     this.project = project
   } 
 
-  override def equiv(that : ScType) = that match {
-    case ScFunctionType(rt1, params1) => (returnType equiv rt1) &&
-                               (params.zip(params1) forall {case (x,y) => x equiv y})
-    case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
-      if args.length > 0 && c.getQualifiedName == functionTraitName => {
-      //to prevent MatchError, here used clear definition
-      val otherArgsTypes = args.slice(0, args.length - 1)
-      val otherReturnType = args.apply(args.length - 1)
-      (returnType equiv otherReturnType) && otherArgsTypes.zip(params.toArray[ScType]).forall{case (t1, t2) => t1 equiv t2}
+  override def equiv(that : ScType): Boolean = that match {
+    case ScFunctionType(rt1, params1) => {
+      if (params1.length != params.length) return false
+      if (!returnType.equiv(rt1)) return false
+      val iter1 = params.iterator
+      val iter2 = params1.iterator
+      while (iter1.hasNext) {
+        if (!iter1.next.equiv(iter2.next)) return false
+      }
+      true
+    }
+    case p: ScParameterizedType => {
+      p.getFunctionType match {
+        case Some(function) => this.equiv(function)
+        case _ => false
+      }
     }
     case _ => false
   }
@@ -81,11 +88,20 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
     this.project = project
   }
 
-  override def equiv(that : ScType) = that match {
-    case ScTupleType(c1) if c1.length == components.length => components.zip(c1) forall {case (x,y)=> x equiv y}
-    case ScParameterizedType(ScDesignatorType(c : PsiClass), args)
-      if args.length > 0 && c.getQualifiedName == "scala.Tuple" + args.length => {
-      args.zip(components.toArray[ScType]).forall{case (t1, t2) => t1 equiv t2}
+  override def equiv(that : ScType): Boolean = that match {
+    case ScTupleType(c1) if c1.length == components.length => {
+      val iter1 = components.iterator
+      val iter2 = c1.iterator
+      while (iter1.hasNext) {
+        if (!iter1.next.equiv(iter2.next)) return false
+      }
+      true
+    }
+    case p: ScParameterizedType => {
+      p.getTupleType match {
+        case Some(tuple) => this.equiv(tuple)
+        case _ => false
+      }
     }
     case _ => false
   }
