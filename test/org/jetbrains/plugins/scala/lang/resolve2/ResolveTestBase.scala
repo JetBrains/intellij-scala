@@ -31,9 +31,9 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   val Length = "length"
   val Type = "type"
   val Path = "path"
-  val Applicable = "applicable"
+  val Valid = "valid"
 
-  val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Applicable)
+  val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Valid)
 
   var options: List[Parameters] = List()
   var references: List[PsiReference] = List()
@@ -101,7 +101,7 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
     } else {
       Assert.assertNotNull("Reference must BE resolved: " + description, target);
 
-      if (options.contains(Applicable) && options(Applicable) == "false") {
+      if (options.contains(Valid) && options(Valid) == "false") {
         Assert.assertFalse("Reference must NOT be applicable: " + description, applicable);
       } else {
         Assert.assertTrue("Reference must BE applicable: " + description, applicable);
