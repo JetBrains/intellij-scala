@@ -167,15 +167,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(ctx)
         else {
-          new Success(new ScMethodType(innerType(ctx).getOrElse(Any),
-            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false), Some(this)
-)        }
+          new Success(new ScMethodType(valueType(ctx, true).getOrElse(Any),
+            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false), Some(this))
+        }
       }
     }
   }
 
-  private def valueType(ctx: TypingContext): TypeResult[ScType] = {
-    val inner = getNonValueType(ctx)
+  private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
+    val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res = inner.getOrElse(return inner)
     res match {
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
@@ -216,11 +216,24 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       case _ =>
     }
 
+    val exp = expectedType //to avoid None.get
+
     res match {
       case ScMethodType(retType, params, impl) if impl => res = retType
-      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
-        res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", internal.inferValueType, false, false)),
-          Seq(new Expression(expectedType.get)), typeParams)
+      case ScTypePolymorphicType(internal, typeParams) if exp != None => {
+        def updateRes(expected: ScType) {
+          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", internal.inferValueType, false, false)),
+              Seq(new Expression(expected)), typeParams)
+        }
+        if (!fromUnderscoreSection) {
+          updateRes(exp.get)
+        } else {
+          exp.get match {
+            case ScFunctionType(retType, _) => updateRes(retType)
+            case _ => //do not update res, we haven't expected type
+          }
+        }
+
       }
       case _ =>
     }
