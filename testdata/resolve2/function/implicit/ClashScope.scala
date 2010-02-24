@@ -4,5 +4,5 @@ implicit val a: Int = 1;
 
   implicit val b: Int = 2
 
-  println(/* offset: 32, applicable: false */ f)
+  println(/* offset: 32, valid: false */ f)
 }

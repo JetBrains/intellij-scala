@@ -3,4 +3,4 @@ class Child extends Parent
 
 def f(a: Child) = {}
 
-println(/* applicable: false */f(new Parent))
+println(/* valid: false */f(new Parent))

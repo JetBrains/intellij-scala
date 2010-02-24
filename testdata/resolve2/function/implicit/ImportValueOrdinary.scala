@@ -6,4 +6,4 @@ def f(implicit i: Int) = {}
 
 import O._
 
-println(/* offset: 35, applicable: false */ f)
+println(/* offset: 35, valid: false */ f)
