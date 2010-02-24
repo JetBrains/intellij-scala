@@ -1,3 +1,3 @@
 def f(i: Int) = {}
 
-println(/* offset: 4, applicable: false */ f(_: String))
+println(/* offset: 4, valid: false */ f(_: String))
