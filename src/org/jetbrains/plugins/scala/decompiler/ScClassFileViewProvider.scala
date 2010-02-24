@@ -12,6 +12,7 @@ import com.intellij.testFramework.LightVirtualFile
 
 import java.io.ByteArrayOutputStream
 import lang.psi.impl.ScalaFileImpl
+import com.intellij.psi.impl.compiled.ClassFileStubBuilder
 
 /**
  * @author ilyas
@@ -24,8 +25,9 @@ extends SingleRootFileViewProvider(manager, file, physical) {
 
   override def createFile(project: Project, vFile: VirtualFile, fileType: FileType): PsiFile = {
     val name = vFile.getNameWithoutExtension
+    val builder = new ClassFileStubBuilder
     // skip inners & anonymous
-    if (name.lastIndexOf('$') >= 0) null
+    if (!builder.acceptsFile(vFile)) null
     else {
       val file = new ScalaFileImpl(this)
       val adj = file.asInstanceOf[CompiledFileAdjuster]
