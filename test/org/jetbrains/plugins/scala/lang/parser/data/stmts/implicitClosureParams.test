@@ -50,10 +50,10 @@ ScalaFile
             PsiElement({)('{')
             PsiWhiteSpace(' ')
             FunctionExpression
-              PsiElement(implicit)('implicit')
-              PsiWhiteSpace(' ')
               Parameters
                 ParametersClause
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
                   Parameter
                     PsiElement(identifier)('x')
               PsiWhiteSpace(' ')
@@ -141,10 +141,10 @@ ScalaFile
             PsiElement(;)(';')
             PsiWhiteSpace(' ')
             FunctionExpression
-              PsiElement(implicit)('implicit')
-              PsiWhiteSpace(' ')
               Parameters
                 ParametersClause
+                  PsiElement(implicit)('implicit')
+                  PsiWhiteSpace(' ')
                   Parameter
                     PsiElement(identifier)('x')
               PsiWhiteSpace(' ')

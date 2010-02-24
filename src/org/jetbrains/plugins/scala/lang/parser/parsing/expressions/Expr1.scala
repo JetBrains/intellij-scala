@@ -306,13 +306,11 @@ object Expr1 {
               case _ => {
                 pmarker.drop
                 ipmarker.drop
-                exprMarker.rollbackTo
               }
             }
           }
           case _ => {
             ipmarker.drop
-            exprMarker.rollbackTo
           }
         }
       }
