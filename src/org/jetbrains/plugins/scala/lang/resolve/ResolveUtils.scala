@@ -195,7 +195,7 @@ object ResolveUtils {
                           case file: ScalaFile => file.getPackageName
                           case pack: ScPackaging => pack.fqn
                         }
-                        return placePackageName.startsWith(packageName)
+                        if (placePackageName.startsWith(packageName)) return true
                       }
                       case _ => return true
                     }
