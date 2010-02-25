@@ -4,6 +4,6 @@ class SimplePrivateAccess {
   }
 
   object B {
-    A./* resolved: false */x
+    A./* accessible: false */x
   }
 }
