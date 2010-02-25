@@ -3,6 +3,6 @@ class PrivateThis {
     private[this] val foo = 56
   }
   class A {
-    A./* resolved: false */foo
+    A./* accessible: false */foo
   }
 }

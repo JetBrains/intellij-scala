@@ -5,4 +5,4 @@ object Holder {
 import Holder._
 
 println(/* resolved: false */ C)
-println(classOf[/* resolved: false */ C])
+println(classOf[/* accessible: false */ C])
