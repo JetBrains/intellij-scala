@@ -21,5 +21,7 @@ class QualifierSourceTest extends ResolveTestBase {
   def testObject = doTest
   //TODO
 //  def testPackage = doTest
+  //TODO
+//  def testPackageObject = doTest
   def testTrait = doTest
 }
