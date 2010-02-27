@@ -14,5 +14,7 @@ class ScopeTest extends ResolveTestBase {
   def testOuterBlock = doTest
   def testOuterBlockNested = doTest
   def testInnerBlock = doTest
+  //TODO
+//  def testPackageObject = doTest
   def testTwoBlocks = doTest
 }
