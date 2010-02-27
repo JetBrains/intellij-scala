@@ -58,8 +58,9 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val ref: P
     return true
   }
 
-  protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState) = {
+  protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
     val nameSet = state.get(ResolverEnv.nameKey)
+    if (named.getName == null) return false
     val elName = if (nameSet == null) named.getName.replace("`", "") else nameSet.replace("`", "")
     elName == name && kindMatches(named)
   }
