@@ -17,11 +17,17 @@ class QualifierSourceTest extends ResolveTestBase {
 //  def testCaseClassObjectSyntetic = doTest
   def testCaseObject = doTest
 //  def testCaseObjectSyntetic = doTest
+  //TODO
+//  def testChain = doTest
   def testClass = doTest
   def testObject = doTest
   //TODO
 //  def testPackage = doTest
   //TODO
+//  def testPackageAsValue = doTest
+  //TODO
 //  def testPackageObject = doTest
+  //TODO
+//  def testPackageObjectAsValue = doTest
   def testTrait = doTest
 }
