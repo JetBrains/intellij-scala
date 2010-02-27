@@ -18,10 +18,11 @@ class ImportElementTest extends ResolveTestBase {
 //  def testPackage = doTest
   def testTrait = doTest
   def testFunctionDefinition = doTest
+  def testFunctionParameter = doTest
+  def testInherited = doTest
   def testValue = doTest
   def testVariable = doTest
   def testTypeAlias = doTest
   //TODO
-//  def testCaseClassParameter = doTest
-  def testFunctionParameter = doTest
+  //  def testCaseClassParameter = doTest
 }

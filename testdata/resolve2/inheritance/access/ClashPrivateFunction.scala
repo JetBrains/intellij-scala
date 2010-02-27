@@ -7,5 +7,5 @@ class C extends P {
   
   println(/* line: 6 */ f)
   println(this./* line: 6 */ f)
-  println(super./* resolved: false */ f)
+  println(super./* accessible: false */ f)
 }

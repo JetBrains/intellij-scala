@@ -18,9 +18,12 @@ class BugTest extends ResolveTestBase {
   //TODO
 //  def testIncomplete = doTest
 
-  def testSimplePrivateAccess = doTest
-  def testPrivateThis = doTest
-  def testProtectedThis = doTest
+  //TODO
+//  def testSimplePrivateAccess = doTest
+  //TODO
+//  def testPrivateThis = doTest
+  //TODO
+//  def testProtectedThis = doTest
   def testGetOrElse = doTest
   def testAnonymousClassMethods = doTest
   //TODO in debug mode all works ok, but test is failed

@@ -31,9 +31,10 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   val Length = "length"
   val Type = "type"
   val Path = "path"
-  val Valid = "valid"
+  val Applicable = "applicable"
+  val Accessible = "accessible"
 
-  val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Valid)
+  val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Applicable, Accessible)
 
   var options: List[Parameters] = List()
   var references: List[PsiReference] = List()
@@ -91,7 +92,10 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
 
   def doEachTest(reference: ScReferenceElement, options: Parameters) {
     val result = reference.advancedResolve
-    val (target, applicable) = if(result.isDefined) (result.get.element, result.get.isValidResult) else (null, true)
+    val (target, accessible, applicable) = if(result.isDefined) (
+            result.get.element,
+            result.get.isAccessible,
+            result.get.isApplicable) else (null, true, true)
     val referenceName = reference.refName
 
     val description: String = referenceName + ":\n\n" + myFile.getText + "\n"
@@ -101,7 +105,13 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
     } else {
       Assert.assertNotNull("Reference must BE resolved: " + description, target);
 
-      if (options.contains(Valid) && options(Valid) == "false") {
+      if (options.contains(Accessible) && options(Accessible) == "false") {
+        Assert.assertFalse("Reference must NOT be accessible: " + description, applicable);
+      } else {
+        Assert.assertTrue("Reference must BE accessible: " + description, applicable);
+      }
+
+      if (options.contains(Applicable) && options(Applicable) == "false") {
         Assert.assertFalse("Reference must NOT be applicable: " + description, applicable);
       } else {
         Assert.assertTrue("Reference must BE applicable: " + description, applicable);
