@@ -65,54 +65,59 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         }
       }
 
-      val tr = if (exp != None) { //save data
+      def forExpr(expr: ScExpression): (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+        val tr = expr.getType(TypingContext.empty)
+        val defaultResult: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = (tr, Set.empty)
+        val tp = tr.getOrElse(return defaultResult)
+        //if this result is ok, we do not need to think about implicits
+        if (tp.conforms(expected)) return defaultResult
+        if (!checkImplicits) return defaultResult
+
+        //this functionality for checking if this expression can be implicitly changed and then
+        //it will conform to expected type
+        val f = for ((typez, imports) <- expr.allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
+        if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
+        else if (f.length == 0) return defaultResult
+        else {
+          var res = f(0)
+          if (res._2 == None) return defaultResult
+          var i = 1
+          while (i < f.length) {
+            val pr = f(i)
+            if (pr._1.equiv(res._1)) {
+              //todo: there are serious overloading resolutions to implement it
+            }
+            else if (pr._2 != None) {
+              if (pr._2.get.isInheritor(res._2.get, true)) res = pr
+              else return defaultResult
+            } else return defaultResult
+            i += 1
+          }
+          return (Success(res._1, Some(this)), res._3)
+        }
+      }
+
+      if (exp != None) { //save data
         val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
-        var trData: TypeResult[ScType] = null
         try {
           expectedTypesCache = expectedOption.toList.toArray
           expectedTypesModCount = getManager.getModificationTracker.getModificationCount
           exprType = null
-          trData = if (!anon(this)) getType(TypingContext.empty) else {
+          if (!anon(this)) forExpr(this) else {
             val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext)
             newExpr.setExpectedTypes(expectedOption.toList.toArray)
-            newExpr.getType(TypingContext.empty)
+            forExpr(newExpr)
           }
         }
         finally {
           //load data
           expectedTypesCache = z._1;expectedTypesModCount = z._2;exprType = z._3;exprTypeModCount = z._4
         }
-        trData
-      } else getType(TypingContext.empty)
-
-      val defaultResult: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = (tr, Set.empty)
-      val tp = tr.getOrElse(return defaultResult)
-      //if this result is ok, we do not need to think about implicits
-      if (tp.conforms(expected)) return defaultResult
-      if (!checkImplicits) return defaultResult
-
-      //this functionality for checking if this expression can be implicitly changed and then
-      //it will conform to expected type
-      val f = for ((typez, imports) <- allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
-      if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
-      else if (f.length == 0) return defaultResult
-      else {
-        var res = f(0)
-        if (res._2 == None) return defaultResult
-        var i = 1
-        while (i < f.length) {
-          val pr = f(i)
-          if (pr._1.equiv(res._1)) {
-            //todo: there are serious overloading resolutions to implement it
-          }
-          else if (pr._2 != None) {
-            if (pr._2.get.isInheritor(res._2.get, true)) res = pr
-            else return defaultResult
-          } else return defaultResult
-          i += 1
-        }
-        return (Success(res._1, Some(this)), res._3)
+      } else {
+        forExpr(this)
       }
+
+
     }
     if (exp != None || !checkImplicits) return inner //no cache with strange parameters
 
