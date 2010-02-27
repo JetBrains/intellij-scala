@@ -17,6 +17,8 @@ class ImportSourceTest extends ResolveTestBase {
   //TODO
 //  def testPackage = doTest
   //TODO
+  //def testPackageObject = doTest
+  //TODO
 //  def testPackageNested = doTest
   def testTrait = doTest
   def testFunction = doTest
