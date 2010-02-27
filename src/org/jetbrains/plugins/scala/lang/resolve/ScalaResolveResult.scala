@@ -21,7 +21,11 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def getElement() = element
 
-  def isValidResult() = true
+  def isApplicable() = true
+
+  def isAccessible() = true
+
+  def isValidResult() = isAccessible && isApplicable
 
   def isCyclicReference = false
 

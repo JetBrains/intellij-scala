@@ -2,7 +2,7 @@ object Holder {
    private class C
 }
 
-import Holder./* resolved: false */C
+import Holder./* accessible: false */C
 
 println(/* resolved: false */ C)
-println(classOf[/* resolved: false */ C])
+println(classOf[/* accessible: false */ C])

@@ -9,6 +9,6 @@ class ProtectedThis {
 
   object B {
     val b = new B
-    b./* resolved: false */a
+    b./* accessible: false */a
   }
 }

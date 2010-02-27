@@ -2,7 +2,7 @@ object Holder {
   private def f = {}
 }
 
-import Holder./* resolved: false */f
+import Holder./* accessible: false */f
 
-println(/* resolved: false */ f)
+println(/* accessible: false */ f)
 println(classOf[/* resolved: false */ f])
