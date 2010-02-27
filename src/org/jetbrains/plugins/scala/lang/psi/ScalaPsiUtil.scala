@@ -36,13 +36,16 @@ import util.{PsiFormatUtil, PsiFormatUtilBase}
  */
 
 object ScalaPsiUtil {
-  def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                 typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty): ScTypePolymorphicType = {
-    val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+  def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
+    typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
         subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
     }
+  }
+  def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                 typeParams: Seq[TypeParameter],
+                                 subst: ScSubstitutor = ScSubstitutor.empty): ScTypePolymorphicType = {
+    val s: ScSubstitutor = undefineSubstitutor(typeParams)
     val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
     val c = Compatibility.checkConformance(true, paramsWithUndefTypes, exprs, true)
     if (c._1) {

@@ -4,10 +4,8 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.{PsiInvalidElementAccessException}
 import impl.ScalaPsiElementFactory
-import types._
-import nonvalue.{TypeParameter, ScMethodType, Parameter, ScTypePolymorphicType}
+import types.nonvalue.{TypeParameter, ScMethodType, Parameter, ScTypePolymorphicType}
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import types.Compatibility.Expression
@@ -18,6 +16,9 @@ import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import collection.mutable.ArrayBuffer
 import statements.params.ScParameter
 import psi.{ScalaPsiUtil}
+import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
+import types._
+import nonvalue._
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -100,12 +101,42 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       if (exp != None) { //save data
         val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
         try {
-          expectedTypesCache = expectedOption.toList.toArray
+          //this substitutor is importatant in case for anon functions in currings, to apply to params known information
+          val subst: ScSubstitutor = getContext match {
+            case args: ScArgumentExprList => {
+              args.callExpression match {
+                case call: ScMethodCall => {
+                  call.getNonValueType(TypingContext.empty) match {
+                    case Success(tp: ScTypePolymorphicType, _) => tp.polymorphicTypeSubstitutor
+                    case _ => ScSubstitutor.empty
+                  }
+                }
+                case _ => ScSubstitutor.empty
+              }
+            }
+            case _ => ScSubstitutor.empty
+          }
+          val tps = expectedOption.toList.toArray.map(_ match {
+            case p@ScParameterizedType(des, typeArgs) => p.getFunctionType match {
+              case Some(ScFunctionType(retType, params)) => ScParameterizedType(des, params.map(subst subst _) ++ Seq(retType))
+              case _ => p
+            }
+            case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _), getProject)
+            case ScMethodType(retType, params, isImpl) => ScMethodType(retType,
+              params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl)
+            case ScTypePolymorphicType(ScMethodType(retType, params, isImpl), typeParams) => {
+              ScTypePolymorphicType(ScMethodType(retType,
+                params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl),
+                typeParams)
+            }
+            case tp => tp
+          })
+          expectedTypesCache = tps
           expectedTypesModCount = getManager.getModificationTracker.getModificationCount
           exprType = null
           if (!anon(this)) forExpr(this) else {
             val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext)
-            newExpr.setExpectedTypes(expectedOption.toList.toArray)
+            newExpr.setExpectedTypes(tps)
             forExpr(newExpr)
           }
         }
@@ -227,8 +258,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       case ScMethodType(retType, params, impl) if impl => res = retType
       case ScTypePolymorphicType(internal, typeParams) if exp != None => {
         def updateRes(expected: ScType) {
-          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", internal.inferValueType, false, false)),
-              Seq(new Expression(expected)), typeParams)
+          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
+              Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
+            typeParams) //here should work in different way:
         }
         if (!fromUnderscoreSection) {
           updateRes(exp.get)

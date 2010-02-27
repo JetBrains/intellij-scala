@@ -225,6 +225,7 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], overrid
   }
 }
 
+//todo: remove all argumentClauses, we need just one of them
 import Compatibility.Expression
 class MethodResolveProcessor(override val ref: PsiElement,
                              refName: String,
@@ -402,12 +403,12 @@ class MethodResolveProcessor(override val ref: PsiElement,
               fun.paramClauses.clauses.apply(0).isImplicit && argumentClauses.length == 0 => true //special case for cases like Seq.toArray
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits, ())._1
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses.headOption.toList, checkWithImplicits, ())._1
       }
       case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.getTypeParameters.length) &&
               tp.isInstanceOf[PsiNamedElement] => {
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses, checkWithImplicits, ())._1
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses.headOption.toList, checkWithImplicits, ())._1
       }
       case _ => false
     }
