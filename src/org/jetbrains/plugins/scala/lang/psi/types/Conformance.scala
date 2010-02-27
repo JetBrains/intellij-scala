@@ -348,7 +348,6 @@ object Conformance {
             } else if (lClass.getQualifiedName == "java.lang.Object") {
               return conforms(AnyRef, r, visited, undefinedSubst, noBaseTypes)
             }
-            if (!rClass.isInheritor(lClass, true)) return (false, undefinedSubst)
             val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2

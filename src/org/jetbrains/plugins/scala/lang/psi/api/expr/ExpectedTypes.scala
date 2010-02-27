@@ -127,28 +127,11 @@ private[expr] object ExpectedTypes {
       //method application
       case tuple: ScTuple if tuple.isCall => {
         val res = new ArrayBuffer[ScType]
-        expr match {
-          case typed: ScTypedStmt if typed.getLastChild.isInstanceOf[ScSequenceArg] &&
-                  tuple.exprs.lastOption == Some(expr) => {
-            for (application: Array[(String, ScType)] <- tuple.possibleApplications) {
-              if (application.length == tuple.exprs.length) {
-                //todo: add possibility to check if last param is repeated
-                val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
-                if (seqClass != null) {
-                  val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(application(application.length - 1)._2))
-                  res += tp
-                }
-              }
-            }
-          }
-          case _ => {
-            val i: Int = tuple.exprs.findIndexOf(_ == expr)
-            for (application: Array[(String, ScType)] <- tuple.possibleApplications) {
-              if (application.length > i && i >=0) {
-                res += application(i)._2
-              }
-            }
-          }
+        val i = tuple.exprs.findIndexOf(_ == expr)
+        val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
+        if (callExpression != null) {
+          val tp = callExpression.getNonValueType(TypingContext.empty)
+          processArgsExpected(res, expr, i, tp, tuple.exprs.length - 1)
         }
         res.toArray
       }
