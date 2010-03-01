@@ -54,6 +54,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
   def invoke(project: Project, editor: Editor, file: PsiFile) = {
     CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
       def run() {
+        if (!ref.isValid) return
         classes = ScalaImportClassFix.getClasses(ref, project)
         new ScalaAddImportAction(editor, classes, ref).execute()
       }
@@ -62,6 +63,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 
   private val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   def showHint(editor: Editor): Boolean = {
+    if (!ref.isValid) return false
     ref.qualifier match {
       case Some(_) => return false
       case None => {
@@ -248,6 +250,7 @@ object ScalaImportClassFix {
   }
 
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
+    if (!ref.isValid) return Array.empty
     val kinds = ref.getKinds(false)
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
