@@ -313,7 +313,7 @@ trait ScPattern extends ScalaPsiElement {
     case gen: ScGenerator => {
       val isYield = gen.getParent.getParent.asInstanceOf[ScForStatement].isYield
       var next = gen.getNextSibling
-      if (gen.rvalue == null) return null
+      if (gen.rvalue == null) return None
       //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used
       while (next != null && !next.isInstanceOf[ScGenerator]) {
         next match {
