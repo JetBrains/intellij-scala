@@ -11,7 +11,8 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 
 import com.intellij.navigation.ItemPresentation
 import psi.api.toplevel.ScNamedElement
-import psi.impl.toplevel.typedef.TypeDefinitionMembers;
+import psi.impl.toplevel.typedef.TypeDefinitionMembers
+import com.intellij.openapi.project.IndexNotReadyException;
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi._
@@ -58,42 +59,46 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
         case _ =>
       }
     }
-
-    val signs = clazz.allSignatures
-    for (sign <- signs) {
-      sign match {
-        case FullSignature(sign: PhysicalSignature, _, _, _) => {
-          sign.method match {
-            case x if x.getName == "$tag" || x.getName == "$init$" =>
-            case x if x.getContainingClass.getQualifiedName == "java.lang.Object" =>
-            case x if x.getContainingClass == clazz =>
-            case x: ScFunction => children += new ScalaFunctionStructureViewElement(x, true)
-            case x: PsiMethod => children += new PsiMethodTreeElement(x, true)
+    try {
+      val signs = clazz.allSignatures
+      for (sign <- signs) {
+        sign match {
+          case FullSignature(sign: PhysicalSignature, _, _, _) => {
+            sign.method match {
+              case x if x.getName == "$tag" || x.getName == "$init$" =>
+              case x if x.getContainingClass.getQualifiedName == "java.lang.Object" =>
+              case x if x.getContainingClass == clazz =>
+              case x: ScFunction => children += new ScalaFunctionStructureViewElement(x, true)
+              case x: PsiMethod => children += new PsiMethodTreeElement(x, true)
+            }
           }
-        }
-        case FullSignature(_, _, element, _) => {
-          element match {
-            case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-              case x: ScValue if x.getContainingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
-              case x: ScVariable if x.getContainingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
-              case _ =>
+          case FullSignature(_, _, element, _) => {
+            element match {
+              case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
+                case x: ScValue if x.getContainingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
+                case x: ScVariable if x.getContainingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
+                case _ =>
+              }
             }
           }
         }
       }
-    }
-    val types = clazz.allTypeAliases
-    val t: TypeDefinitionMembers.TypeNodes.T = null
-    for {
-      typex <- types
-      t = typex._1
-      if t.isInstanceOf[ScTypeAlias]
-      alias = t.asInstanceOf[ScTypeAlias]
-      if alias.getContainingClass != clazz
-    } children += new ScalaTypeAliasStructureViewElement(alias, true)
+      val types = clazz.allTypeAliases
+      val t: TypeDefinitionMembers.TypeNodes.T = null
+      for {
+        typex <- types
+        t = typex._1
+        if t.isInstanceOf[ScTypeAlias]
+        alias = t.asInstanceOf[ScTypeAlias]
+        if alias.getContainingClass != clazz
+      } children += new ScalaTypeAliasStructureViewElement(alias, true)
 
-    for (typeDef <- element.typeDefinitions)
-      children += new ScalaTypeDefinitionStructureViewElement(typeDef)
+      for (typeDef <- element.typeDefinitions)
+        children += new ScalaTypeDefinitionStructureViewElement(typeDef)
+    }
+    catch {
+      case e: IndexNotReadyException => //do nothing, this is indexing
+    }
     return children.toArray
   }
 }
