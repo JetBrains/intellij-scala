@@ -11,6 +11,6 @@ object O {
   /* */O./* */CC1.getClass
   classOf[/* */O./* */CC1]
 
-  /* */O./* accessible: false */CC2.getClass
+  /* */O./* */CC2.getClass
   classOf[/* */O./* accessible: false */CC2]
 }
