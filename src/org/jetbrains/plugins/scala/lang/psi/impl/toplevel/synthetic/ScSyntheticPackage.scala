@@ -5,7 +5,6 @@ package impl
 package toplevel
 package synthetic
 
-import collection.mutable.HashSet
 import caches.ScalaCachesManager
 import java.util.ArrayList
 import api.toplevel.packaging.ScPackageContainer
@@ -21,6 +20,11 @@ import stubs.index.ScalaIndexKeys
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.util.IncorrectOperationException
+import com.intellij.openapi.diagnostic.Logger
+import collection.JavaConversions
+import collection.mutable.{ArrayBuffer, HashSet}
+import util.PsiUtilBase
+import com.intellij.util.indexing.FileBasedIndex
 
 /**
  * @author ilyas
@@ -79,11 +83,15 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
 
 
 object ScSyntheticPackage {
+  private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage")
+
   def get(fqn: String, project: Project): ScSyntheticPackage = {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
 
     import com.intellij.psi.stubs.StubIndex
+
+    if (!SyntheticPackageHelper.checkNeedReindex(project, fqn)) return null
 
     val packages = collection.immutable.Seq(StubIndex.getInstance().get(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
