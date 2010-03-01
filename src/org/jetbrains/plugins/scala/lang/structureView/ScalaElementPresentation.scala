@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.types.Any
+import com.intellij.openapi.project.IndexNotReadyException
 
 /**
 * @author Alexander Podkhalyuzin
@@ -49,7 +50,12 @@ object ScalaElementPresentation {
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short))
 
     presentableText.append(": ")
-    presentableText.append(ScType.presentableText(function.returnType.getOrElse(Any)))
+    try {
+      presentableText.append(ScType.presentableText(function.returnType.getOrElse(Any)))
+    }
+    catch {
+      case e: IndexNotReadyException => presentableText.append("NoTypeInfo")
+    }
 
 
     presentableText.toString()
