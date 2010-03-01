@@ -32,7 +32,12 @@ object MoveRefactoringUtil {
     val searchInComments = JavaRefactoringSettings.getInstance().MOVE_SEARCH_IN_COMMENTS
     moveDialog.setData(elements, initialTargetPackageName, initialTargetDirectory, isTargetDirectoryFixed, searchInComments,
                        searchForTextOccurences, HelpID.getMoveHelpID(elements(0)))
-    moveDialog.show()
+    try {
+      moveDialog.show()
+    }
+    catch {
+      case e: Exception => //todo: write right Move Refactoring!
+    }
   }
 
   private def getInitialTargetPackageName(initialTargetElement: PsiElement, movedElements: Array[PsiElement]): String = {
