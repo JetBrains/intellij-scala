@@ -13,6 +13,10 @@ class QualifierTargetTest extends ResolveTestBase {
   def testCaseClass = doTest
   def testCaseObject = doTest
   def testClass = doTest
+  def testClassParameter = doTest
+  def testClassParameterValue = doTest
+  def testClassParameterVariable = doTest
+  def testClassTypeParameter = doTest
   def testFunction = doTest
   def testImport = doTest
   def testObject = doTest

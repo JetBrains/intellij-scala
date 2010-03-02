@@ -15,6 +15,9 @@ class ElementClashTest extends ResolveTestBase {
 //  def testClass = doTest
   //TODO
 //  def testCaseClass = doTest
+  def testClassParameter = doTest
+  def testClassParameterValue = doTest
+  def testClassParameterVariable = doTest
   def testCaseObject = doTest
   def testCaseClauseBinding = doTest
   def testCaseClauseNamed = doTest
