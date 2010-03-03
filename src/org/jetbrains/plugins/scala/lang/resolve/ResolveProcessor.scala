@@ -418,7 +418,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     if (filtered.isEmpty) filtered = set.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
     val applicable: Set[ScalaResolveResult] = filtered
 
-    if (applicable.isEmpty) set.toArray else {
+    if (applicable.isEmpty) set.toArray.map(_.copy(applicable = false)) else {
       mostSpecific(applicable) match {
         case Some(r) => Array(r)
         case None => applicable.toArray

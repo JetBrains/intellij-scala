@@ -133,8 +133,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               }
             }
             undefSubst.getSubstitutor match {
-              case Some(s: ScSubstitutor) => new ScalaResolveResult(fun, subst.followed(s), c.importsUsed,
-                c.nameShadow, c.implicitConversionClass)
+              case Some(s: ScSubstitutor) => c.copy(subst.followed(s))
               case _ => c
             }
           }

@@ -17,19 +17,23 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val substitutor: ScSubstitutor = ScSubstitutor.empty,
                          val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
                          val nameShadow: Option[String] = None,
-                         val implicitConversionClass: Option[PsiClass] = None) extends ResolveResult {
+                         val implicitConversionClass: Option[PsiClass] = None,
+                         val applicable: Boolean = true) extends ResolveResult {
 
-  def getElement() = element
+  def getElement = element
 
-  def isApplicable() = true
+  def isApplicable = applicable
 
-  def isAccessible() = true
+  def isAccessible = true
 
-  def isValidResult() = isAccessible && isApplicable
+  def isValidResult = isAccessible && isApplicable
 
   def isCyclicReference = false
 
   def isRenamed: Option[String] = nameShadow
+
+  def copy(subst: ScSubstitutor = substitutor, applicable: Boolean = applicable): ScalaResolveResult =
+    new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, applicable)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

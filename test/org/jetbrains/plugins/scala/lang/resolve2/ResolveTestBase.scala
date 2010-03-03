@@ -106,9 +106,9 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
       Assert.assertNotNull("Reference must BE resolved: " + description, target);
 
       if (options.contains(Accessible) && options(Accessible) == "false") {
-        Assert.assertFalse("Reference must NOT be accessible: " + description, applicable);
+        Assert.assertFalse("Reference must NOT be accessible: " + description, accessible);
       } else {
-        Assert.assertTrue("Reference must BE accessible: " + description, applicable);
+        Assert.assertTrue("Reference must BE accessible: " + description, accessible);
       }
 
       if (options.contains(Applicable) && options(Applicable) == "false") {
