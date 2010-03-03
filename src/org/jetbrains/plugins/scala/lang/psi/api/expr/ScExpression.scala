@@ -213,6 +213,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res = inner.getOrElse(return inner)
+    val exp = expectedType //to avoid None.get
+    //if (exp == Some(Unit)) return Success(Unit, Some(this))
+    
     res match {
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
         val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
@@ -251,8 +254,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
       case _ =>
     }
-
-    val exp = expectedType //to avoid None.get
 
     res match {
       case ScMethodType(retType, params, impl) if impl => res = retType

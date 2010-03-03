@@ -404,7 +404,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           Compatibility.compatible(fun, substitutor, List(args), false, ())._1
         }
         case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
-          val args = typeArgs.slice(1, typeArgs.length).map(new Expression(_))
+          val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
           Compatibility.compatible(fun, substitutor, List(args), false, ())._1
         }
         case _ => {

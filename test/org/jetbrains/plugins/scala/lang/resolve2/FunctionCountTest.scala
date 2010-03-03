@@ -12,24 +12,16 @@ class FunctionCountTest extends ResolveTestBase {
 
   def testEmptyToEmpty = doTest
   def testEmptyToNone = doTest
-  //TODO
-//  def testEmptyToOne = doTest
+  def testEmptyToOne = doTest
 
   //TODO
 //  def testNoneToEmpty = doTest
   def testNoneToNone = doTest
-  //TODO
-//  def testNoneToOne = doTest
-
-  //TODO
-//  def testOneToEmpty = doTest
-  //TODO
-//  def testOneToNone = doTest
+  def testNoneToOne = doTest
+  def testOneToEmpty = doTest
+  def testOneToNone = doTest
   def testOneToOne = doTest
-  //TODO
-//  def testOneToTwo = doTest
-
-  //TODO
-//  def testTwoToOne = doTest
+  def testOneToTwo = doTest
+  def testTwoToOne = doTest
   def testTwoToTwo = doTest
 }
