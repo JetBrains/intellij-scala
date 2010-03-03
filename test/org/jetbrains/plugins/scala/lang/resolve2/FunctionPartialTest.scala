@@ -14,23 +14,16 @@ class FunctionPartialTest extends ResolveTestBase {
   def testAllToNone = doTest
   def testAllToOne = doTest
   def testAllToTwo = doTest
-
   def testAppliedFirst = doTest
   def testAppliedMany = doTest
   def testAppliedSecond = doTest
-  //TODO
-//  def testOneToEmpty = doTest
-  //TODO
-//  def testOneToNone = doTest
+  def testOneToEmpty = doTest
+  def testOneToNone = doTest
   def testOneToOne = doTest
-  //TODO
-//  def testOneToTwo = doTest
-  //TODO
-//  def testTwoToOne = doTest
+  def testOneToTwo = doTest
+  def testTwoToOne = doTest
   def testTwoToTwo = doTest
-  //TODO
-//  def testTypeIncompatible = doTest
+  def testTypeIncompatible = doTest
   def testTypeInheritance = doTest
-  //TODO
-//  def testTypeInheritanceIncompatible = doTest
+  def testTypeInheritanceIncompatible = doTest
 }

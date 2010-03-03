@@ -10,8 +10,6 @@ class FunctionImplicitTest extends ResolveTestBase {
     super.getTestDataPath + "function/implicit/"
   }
 
-  //TODO
-//  def testClash = doTest
   def testClashHierarchy = doTest
   //TODO
 //  def testClashScope = doTest
@@ -21,15 +19,14 @@ class FunctionImplicitTest extends ResolveTestBase {
 //  def testClashValueAndImport2 = doTest
   //TODO
 //  def testClashValues = doTest
+  //TODO
 //  def testContextBoundImplicit = doTest
   def testCurrying = doTest
   def testCurryingPassAll = doTest
-  //TODO
-//  def testCurryingPassEmpty = doTest
+  def testCurryingPassEmpty = doTest
   def testFunctionImplicit = doTest
   def testImportObjectImplicit = doTest
-  //TODO
-//  def testImportObjectOrdinary = doTest
+  def testImportObjectOrdinary = doTest
   def testImportValueImplicit = doTest
   //TODO
 //  def testImportValueOrdinary = doTest
@@ -43,8 +40,7 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testValueImplicitAsContextBound = doTest
   def testValueImplicitAsViewBound = doTest
   def testValueImplicitPass = doTest
-  //TODO
-//  def testValueImplicitPassNone = doTest
+  def testValueImplicitPassNone = doTest
   def testValueImplicitScope = doTest
   //TODO
 //  def testValueNone = doTest

@@ -11,18 +11,12 @@ class FunctionRepeatTest extends ResolveTestBase {
   }
 
   def testArray = doTest
-  //TODO
-//  def testArrayRaw = doTest
-  //TODO
-//  def testEmpty = doTest
+  def testArrayRaw = doTest
+  def testEmpty = doTest
   def testNone = doTest
   def testOne = doTest
   def testTwo = doTest
-
-  //TOD
-//  def testIncompatibleArray = doTest
-  //TODO
-//  def testIncompatibleOne = doTest
-  //TODO
-//  def testIncompatibleTwo = doTest
+  def testIncompatibleArray = doTest
+  def testIncompatibleOne = doTest
+  def testIncompatibleTwo = doTest
 }
