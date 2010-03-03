@@ -30,6 +30,10 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testImportObjectImplicit = doTest
   //TODO
 //  def testImportObjectOrdinary = doTest
+  def testPackageObjectImplicit = doTest
+  def testPackageObjectImplicitChild = doTest
+  //TODO
+  def testPackageObjectImplicitEmpty = doTest
   def testImportValueImplicit = doTest
   //TODO
 //  def testImportValueOrdinary = doTest
