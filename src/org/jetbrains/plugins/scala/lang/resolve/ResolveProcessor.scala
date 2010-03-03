@@ -231,10 +231,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              refName: String,
                              argumentClauses: List[Seq[Expression]],
                              typeArgElements: Seq[ScTypeElement],
-                             expected: => Option[ScType],
-                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
-                             noParentheses: Boolean = false,
-                             section : Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef) extends ResolveProcessor(kinds, ref, refName) {
 
   /**
    * Contains highest precedence of all resolve results.

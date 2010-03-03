@@ -333,7 +333,7 @@ trait ScPattern extends ScalaPsiElement {
         }
       }
       import Compatibility.Expression
-      val processor = new MethodResolveProcessor(gen.rvalue, refName, List(Seq(new Expression(Nothing))) /*todo*/, Seq.empty/*todo*/, None)
+      val processor = new MethodResolveProcessor(gen.rvalue, refName, List(Seq(new Expression(Nothing))) /*todo*/, Seq.empty/*todo*/)
       def processTypes(e: ScExpression) {
         ProgressManager.checkCanceled
         val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
