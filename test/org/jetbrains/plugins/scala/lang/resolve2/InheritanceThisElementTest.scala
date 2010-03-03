@@ -14,6 +14,10 @@ class InheritanceThisElementTest extends ResolveTestBase {
 //  def testBlock = doTest
   def testClass = doTest
   //TODO
+  //def testClassParameter = doTest
+  def testClassParameterValue = doTest
+  def testClassParameterVariable = doTest
+  //TODO
 //  def testFile = doTest
   //TODO
 //  def testFunction = doTest

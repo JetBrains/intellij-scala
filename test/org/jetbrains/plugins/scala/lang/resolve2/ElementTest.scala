@@ -14,6 +14,9 @@ class ElementTest extends ResolveTestBase {
   def testCaseClass = doTest
   def testCaseObject = doTest
   def testClass = doTest
+  def testClassParameter = doTest
+  def testClassParameterValue = doTest
+  def testClassParameterVariable = doTest
   def testObject = doTest
   def testTrait = doTest
   def testFunctionDefinition = doTest

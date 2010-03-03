@@ -15,6 +15,10 @@ class QualifierAccessTest extends ResolveTestBase {
   def testStub = Assert.assertTrue(true)
 
   //TODO
+//  def testClassParameterValue = doTest
+  //TODO
+//  def testClassParameterVariable = doTest
+  //TODO
 //  def testPrivateRef = doTest
   //TODO
 //  def testPrivateRefCaseClass = doTest

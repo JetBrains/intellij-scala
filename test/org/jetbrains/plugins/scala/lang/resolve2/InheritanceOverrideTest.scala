@@ -13,6 +13,17 @@ class InheritanceOverrideTest extends ResolveTestBase {
   //TODO
 //  def testCaseClass = doTest
   def testClass = doTest
+
+  def testClassParameter = doTest
+  def testClassParameterValue = doTest
+  //TODO
+//  def testClassParameterValueFrom = doTest
+  def testClassParameterValueTo = doTest
+  def testClassParameterVariable = doTest
+  //TODO
+//  def testClassParameterVariableFrom = doTest
+  def testClassParameterVariableTo = doTest
+
   def testFunction = doTest
   //TODO
 //  def testObject = doTest
