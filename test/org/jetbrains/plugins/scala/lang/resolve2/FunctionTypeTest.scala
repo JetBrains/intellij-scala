@@ -16,6 +16,10 @@ class FunctionTypeTest extends ResolveTestBase {
   def testIncompatibleFirst = doTest
   def testIncompatibleSecond = doTest
   def testIncompatibleWithCount = doTest
+
   def testInheritanceChild = doTest
+  
   def testInheritanceParent = doTest
+
+  def testParentheses = doTest
 }
