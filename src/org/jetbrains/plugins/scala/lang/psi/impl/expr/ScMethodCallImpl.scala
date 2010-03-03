@@ -50,8 +50,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           case _ => Seq.empty
         }
         import Compatibility.Expression._
-        val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil,
-          typeArgs, None)
+        val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs)
         processor.processType(tp, getInvokedExpr, ResolveState.initial)
         var candidates = processor.candidates
         if (candidates.length == 0) {

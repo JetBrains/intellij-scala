@@ -31,6 +31,7 @@ import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import types.Compatibility.Expression
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -108,38 +109,49 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean): Array[ResolveResult] = {
       import Compatibility.Expression._
-      def defineProcessor(e : ScExpression, typeArgs: Seq[ScTypeElement]) : ResolveProcessor = e.getContext match {
-        case generic : ScGenericCall => defineProcessor(generic, generic.arguments)
-
-        case _: ScMethodCall | _ : ScUnderscoreSection =>
-          def defProc1(e: ScExpression, argsClauses: List[Seq[ScExpression]]) : MethodResolveProcessor =  e.
-                  getContext match {
-            case call: ScMethodCall =>
-              defProc1(call, argsClauses ::: List(call.argumentExpressions)) //todo rewrite this crap!
-            case section: ScUnderscoreSection => new MethodResolveProcessor(ref, ref.refName, argsClauses,
-              typeArgs, section.expectedType, section = true)
-            case _ => new MethodResolveProcessor(ref, ref.refName, argsClauses, typeArgs, e.expectedType)
+      def getArgs(e: ScExpression): Seq[Expression] = {
+        e.getContext match {
+          case generic : ScGenericCall => getArgs(generic)
+          case call: ScMethodCall => call.argumentExpressions
+          case section: ScUnderscoreSection => Seq.empty
+          case inf: ScInfixExpr if ref == inf.operation => {
+            if (ref.rightAssoc) Seq.singleton(inf.lOp) else inf.rOp match {
+              case tuple: ScTuple => tuple.exprs
+              case rOp => Seq.singleton(rOp)
+            }
           }
-          defProc1(e.asInstanceOf[ScExpression], Nil)
-
-        case inf: ScInfixExpr if ref == inf.operation => {
-          val args = if (ref.rightAssoc) Seq.singleton(inf.lOp) else inf.rOp match {
-            case tuple: ScTuple => tuple.exprs
-            case rOp => Seq.singleton(rOp)
-          }
-          new MethodResolveProcessor(ref, ref.refName, List(args), Nil, inf.expectedType)
+          case parents: ScParenthesisedExpr => getArgs(parents)
+          case postf: ScPostfixExpr if ref == postf.operation => getArgs(postf)
+          case pref: ScPrefixExpr if ref == pref.operation => getArgs(pref)
+          case _ => Seq.empty
         }
-
-        case postf: ScPostfixExpr if ref == postf.operation =>
-          new MethodResolveProcessor(ref, ref.refName,  Nil, Nil, postf.expectedType)
-
-        case pref: ScPrefixExpr if ref == pref.operation =>
-          new MethodResolveProcessor(ref, "unary_" + ref.refName, Nil, Nil, pref.expectedType)
-
-        case _ => new MethodResolveProcessor(ref, ref.refName, Nil, typeArgs, e.expectedType, getKinds(incomplete), true)
       }
 
-      val res = _resolve(ref, defineProcessor(ref, Nil))
+      def kinds(e: ScExpression): scala.collection.Set[ResolveTargets.Value] = {
+        e.getContext match {
+          case gen: ScGenericCall => kinds(gen)
+          case parents: ScParenthesisedExpr => kinds(parents)
+          case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
+          case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
+          case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
+          case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
+          case _ => getKinds(incomplete)
+        }
+      }
+      def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
+        e.getContext match {
+          case generic: ScGenericCall => generic.arguments
+          case parents: ScParenthesisedExpr => getTypeArgs(parents)
+          case _ => Seq.empty
+        }
+      }
+
+      val name = getContext match {
+        case pref: ScPrefixExpr if pref.operation == ref => "unary_" + refName
+        case _ => refName
+      }
+
+      val res = _resolve(ref, new MethodResolveProcessor(ref, name, List(getArgs(ref)), getTypeArgs(ref), kinds(ref)))
       if (refName.endsWith("=") && refName.length > 1 && res.length == 0) {
         //we should check if it's infix method like +=
         ref.getContext match {
@@ -155,10 +167,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                           case rOp => Seq.singleton(rOp)
                         }
                         val processor = new MethodResolveProcessor(ref, refName.substring(0, refName.length - 1),
-                          List(args), Nil, patt.getType(TypingContext.empty) match {
-                            case Success(tp, _) => Some(tp)
-                            case _ => None
-                          })
+                          List(args), Nil)
                         return _resolve(ref, processor)
                       }
                       case _ => return res
