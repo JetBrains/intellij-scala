@@ -16,4 +16,5 @@ class ConventionTest extends ResolveTestBase {
   def testUnary = doTest
   //TODO
 //  def testUnaryIllegal = doTest
+  def testUnaryParameter = doTest
 }

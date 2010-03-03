@@ -24,4 +24,6 @@ class FunctionTypeTest extends ResolveTestBase {
   
   //TODO
 //  def testInheritanceParent = doTest
+
+  def testParentheses = doTest
 }
