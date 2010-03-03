@@ -16,6 +16,7 @@ class QualifierSourceTest extends ResolveTestBase {
   //TODO
 //  def testCaseClassObjectSyntetic = doTest
   def testCaseObject = doTest
+  //TODO
 //  def testCaseObjectSyntetic = doTest
   //TODO
 //  def testChain = doTest
