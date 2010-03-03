@@ -109,21 +109,21 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean): Array[ResolveResult] = {
       import Compatibility.Expression._
-      def getArgs(e: ScExpression): Seq[Expression] = {
+      def getInfo(e: ScExpression): (Option[Seq[Expression]], () => Option[ScType], Boolean) = {
         e.getContext match {
-          case generic : ScGenericCall => getArgs(generic)
-          case call: ScMethodCall => call.argumentExpressions
-          case section: ScUnderscoreSection => Seq.empty
+          case generic : ScGenericCall => getInfo(generic)
+          case call: ScMethodCall => (Some(call.argumentExpressions), () => None, false)
+          case section: ScUnderscoreSection => (None, () => section.expectedType, true)
           case inf: ScInfixExpr if ref == inf.operation => {
-            if (ref.rightAssoc) Seq.singleton(inf.lOp) else inf.rOp match {
-              case tuple: ScTuple => tuple.exprs
-              case rOp => Seq.singleton(rOp)
-            }
+            (if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
+              case tuple: ScTuple => Some(tuple.exprs)
+              case rOp => Some(Seq(rOp))
+            }, () => None, false)
           }
-          case parents: ScParenthesisedExpr => getArgs(parents)
-          case postf: ScPostfixExpr if ref == postf.operation => getArgs(postf)
-          case pref: ScPrefixExpr if ref == pref.operation => getArgs(pref)
-          case _ => Seq.empty
+          case parents: ScParenthesisedExpr => getInfo(parents)
+          case postf: ScPostfixExpr if ref == postf.operation => getInfo(postf)
+          case pref: ScPrefixExpr if ref == pref.operation => getInfo(pref)
+          case _ => (None, () => e.expectedType, false)
         }
       }
 
@@ -151,7 +151,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ => refName
       }
 
-      val res = _resolve(ref, new MethodResolveProcessor(ref, name, List(getArgs(ref)), getTypeArgs(ref), kinds(ref)))
+      val info = getInfo(ref)
+      val res = _resolve(ref, new MethodResolveProcessor(ref, name, info._1.toList, getTypeArgs(ref),
+                            kinds(ref), info._2.apply, info._3))
       if (refName.endsWith("=") && refName.length > 1 && res.length == 0) {
         //we should check if it's infix method like +=
         ref.getContext match {

@@ -231,7 +231,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              refName: String,
                              argumentClauses: List[Seq[Expression]],
                              typeArgElements: Seq[ScTypeElement],
-                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef) extends ResolveProcessor(kinds, ref, refName) {
+                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
+                             expectedOption: => Option[ScType] = None,
+                             isUnderscore: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
   /**
    * Contains highest precedence of all resolve results.
@@ -382,7 +384,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     return true
   }
 
-  private def forFilter(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
+  private def isApplicable(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
     val substitutor: ScSubstitutor =
     getType(c.element) match {
       case ScTypePolymorphicType(_, typeParams) => {
@@ -394,18 +396,58 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
       case _ => c.substitutor
     }
+
+    def checkFunction(fun: PsiNamedElement): Boolean = {
+      expectedOption match {
+        case Some(ScFunctionType(retType, params)) => {
+          val args = params.map(new Expression(_))
+          Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+        }
+        case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
+          val args = typeArgs.slice(1, typeArgs.length).map(new Expression(_))
+          Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+        }
+        case _ => {
+          fun match {
+            case fun: ScFunction if fun.parameters.length == 0 || isUnderscore => true
+            case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => true
+            case method: PsiMethod if method.getParameterList.getParameters.length == 0 || isUnderscore => true
+            case _ => false
+          }
+        }
+      }
+    }
+
     c.element match {
+      //todo: add values and objects
+      //Implicit Application
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-              fun.paramClauses.clauses.apply(0).isImplicit && argumentClauses.length == 0 => true //special case for cases like Seq.toArray
+              fun.paramClauses.clauses.apply(0).isImplicit &&
+              argumentClauses.length == 0 => true //special case for cases like Seq.toArray
+      //eta expansion
+      case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
+              typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
+              fun.isInstanceOf[PsiNamedElement] => {
+        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return false
+        checkFunction(fun.asInstanceOf[PsiNamedElement])
+      }
+      case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
+              typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.length == 0 &&
+              fun.isInstanceOf[PsiNamedElement] => {
+        checkFunction(fun.asInstanceOf[PsiNamedElement])
+      }
+      //simple application including empty application
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses.headOption.toList, checkWithImplicits, ())._1
+        val args = argumentClauses.headOption.toList
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ())._1
       }
       case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.getTypeParameters.length) &&
               tp.isInstanceOf[PsiNamedElement] => {
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, argumentClauses.headOption.toList, checkWithImplicits, ())._1
+        val args = argumentClauses.headOption.toList
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ())._1
       }
       case _ => false
     }
@@ -413,12 +455,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
     val set = candidatesSet ++ levelSet
-    var filtered = set.filter(forFilter(_, false))
+    var filtered = set.filter(isApplicable(_, false))
     val withImplicit = filtered.isEmpty
-    if (filtered.isEmpty) filtered = set.filter(forFilter(_, true)) //do not try implicit conversions if exists something without it
+    if (filtered.isEmpty) filtered = set.filter(isApplicable(_, true)) //do not try implicit conversions if exists something without it
     val applicable: Set[ScalaResolveResult] = filtered
 
-    if (applicable.isEmpty) set.toArray.map(_.copy(applicable = false)) else {
+    if (applicable.isEmpty) set.toArray.map(r =>
+      if (r.element.isInstanceOf[PsiMethod] || r.element.isInstanceOf[ScFun]) r.copy(applicable = false) else r)
+    else {
       mostSpecific(applicable) match {
         case Some(r) => Array(r)
         case None => applicable.toArray

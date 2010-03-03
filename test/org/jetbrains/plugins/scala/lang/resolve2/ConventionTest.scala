@@ -14,6 +14,6 @@ class ConventionTest extends ResolveTestBase {
   def testRight = doTest
   def testRightIllegal = doTest
   def testUnary = doTest
-  //TODO
   def testUnaryIllegal = doTest
+  def testParenthesisedPrefix = doTest
 }
