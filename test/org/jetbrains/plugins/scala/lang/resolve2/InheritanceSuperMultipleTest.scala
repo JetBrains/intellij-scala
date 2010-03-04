@@ -13,7 +13,6 @@ class InheritanceSuperMultipleTest extends ResolveTestBase {
   def testClashClass = doTest
   def testClashObject = doTest
   def testClashTrait = doTest
-
   def testClass = doTest
   def testObject = doTest
   def testTrait = doTest

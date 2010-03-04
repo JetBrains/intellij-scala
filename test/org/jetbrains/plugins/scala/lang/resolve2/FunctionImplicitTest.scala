@@ -48,12 +48,10 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testValueImplicitScope = doTest
   //TODO
 //  def testValueNone = doTest
-
   //TODO
 //  def testValueNoneAsContextBound = doTest
   //TODO
 //  def testValueOrdinary = doTest
   def testVariableImplicit = doTest
-
   def testViewBoundImplicit = doTest
 }

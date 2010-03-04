@@ -16,5 +16,4 @@ class ImportQualifierTest extends ResolveTestBase {
   def testValue2 = doTest
   def testVariable = doTest
   def testFunction = doTest
-
 }
