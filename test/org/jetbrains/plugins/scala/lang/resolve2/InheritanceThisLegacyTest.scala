@@ -13,7 +13,6 @@ class InheritanceThisLegacyTest extends ResolveTestBase {
   def testClass = doTest
   def testObject = doTest
   def testTrait = doTest
-  
   def testClashClass = doTest
   def testClashObject = doTest
   def testClashTrait = doTest
