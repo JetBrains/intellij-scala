@@ -10,20 +10,20 @@ class InheritanceOverrideTest extends ResolveTestBase {
     super.getTestDataPath + "inheritance/override/"
   }
 
-  //TODO
+  //TODO answer?
 //  def testCaseClass = doTest
   def testClass = doTest
   def testClassParameter = doTest
   def testClassParameterValue = doTest
-  //TODO
+  //TODO classparameter
 //  def testClassParameterValueFrom = doTest
   def testClassParameterValueTo = doTest
   def testClassParameterVariable = doTest
-  //TODO
+  //TODO classparameter
 //  def testClassParameterVariableFrom = doTest
   def testClassParameterVariableTo = doTest
   def testFunction = doTest
-  //TODO
+  //TODO answer?
 //  def testObject = doTest
   def testTrait = doTest
   def testValue = doTest

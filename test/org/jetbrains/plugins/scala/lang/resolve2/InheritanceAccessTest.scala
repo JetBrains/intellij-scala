@@ -10,12 +10,12 @@ class InheritanceAccessTest extends ResolveTestBase {
     super.getTestDataPath + "inheritance/access/"
   }
 
-  //TODO
+  //TODO accessible
 //  def testClashPrivateFunction = doTest
   def testClashProtectedFunction = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateClass = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateFunction = doTest
   def testProtectedFunction = doTest
 }

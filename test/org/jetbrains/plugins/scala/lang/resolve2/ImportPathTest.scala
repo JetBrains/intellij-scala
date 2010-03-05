@@ -9,18 +9,15 @@ import junit.framework.Assert
 
 class ImportPathTest extends ResolveTestBase {
   override def getTestDataPath: String = {
-    super.getTestDataPath + "import/element/"
-//    super.getTestDataPath + "import/path/"
+    super.getTestDataPath + "import/path/"
   }
 
-  def testStub = Assert.assertTrue(true)
+  override def allSourcesFromDirectory: Boolean = true
 
-  //TODO
-//  def testDir = doTest
-  //TODO
+  def testDir = doTest
+  //TODO ok
 //  def testDirAndLocal = doTest
-  //TODO
-//  def testDirThenLocal = doTest
-  //TODO
+  def testDirThenLocal = doTest
+  //TODO ok
 //  def testTwoLocal = doTest
 }

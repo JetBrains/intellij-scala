@@ -63,7 +63,7 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     }
   }
 
-  protected boolean allSourcesFromDirectory() {
+  public boolean allSourcesFromDirectory() {
     return false;
   }
 

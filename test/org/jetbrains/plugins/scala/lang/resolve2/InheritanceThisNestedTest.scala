@@ -19,6 +19,6 @@ class InheritanceThisNestedTest extends ResolveTestBase {
   def testQualifiedClass = doTest
   def testQualifiedObject = doTest
   def testQualifiedTrait = doTest
-  //TODO
+  //TODO answer?
 //  def testWrongQualifier = doTest
 }

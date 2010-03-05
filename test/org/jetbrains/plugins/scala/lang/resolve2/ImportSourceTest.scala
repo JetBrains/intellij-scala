@@ -10,18 +10,16 @@ class ImportSourceTest extends ResolveTestBase {
     super.getTestDataPath + "import/source/"
   }
 
-  //TODO
+  //TODO caseclass
 //  def testCaseClass = doTest
   def testClass = doTest
   def testObject = doTest
-  //TODO
-//  def testPackage = doTest
-  //TODO
-  //def testPackageObject = doTest
-  //TODO
+  def testPackage = doTest
+  //TODO packageobject
+//  def testPackageObject = doTest
+  //TODO packageobject
 //  def testPackageWithObject = doTest
-  //TODO
-//  def testPackageNested = doTest
+  def testPackageNested = doTest
   def testTrait = doTest
   def testFunction = doTest
   def testValue = doTest
