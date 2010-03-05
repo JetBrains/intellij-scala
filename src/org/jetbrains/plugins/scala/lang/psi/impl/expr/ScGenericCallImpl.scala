@@ -38,7 +38,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     val methodName = if (isUpdate) "update" else "apply"
     val args: Seq[ScExpression] = (curr match {case call: ScMethodCall => call.args.exprs
       case _ => Seq.empty[ScExpression]}) ++ (
-            if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
+            if (isUpdate) curr.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
               case Some(x) => Seq[ScExpression](x)
               case None =>
                 Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
