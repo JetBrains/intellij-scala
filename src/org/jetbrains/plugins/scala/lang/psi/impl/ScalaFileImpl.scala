@@ -4,7 +4,6 @@ package psi
 package impl
 
 
-import api.base.{ScStableCodeReferenceElement}
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import caches.{ScalaCachesManager, CachesUtil}
@@ -31,6 +30,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
+import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -219,7 +219,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                                    place: PsiElement): Boolean = {
     import org.jetbrains.plugins.scala.lang.resolve._
 
-    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor,
+    if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
     if (!super[ScImportsHolder].processDeclarations(processor,
@@ -231,32 +231,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
+      case ref: ScReferenceElement if !getPackagings.isEmpty => {
+        val approprPackage = JavaPsiFacade.getInstance(getProject).findPackage(ref.refName)
+        if (approprPackage != null) processor.execute(approprPackage, state)
+      }
       case _ => {
-        //todo: this is redundant pName now always ""
-        val pName = getPackageName
-
-        // Treat package object first
-        val manager = ScalaCachesManager.getInstance(getProject)
-        val cache = manager.getNamesCache
-
-        val obj = cache.getPackageObjectByName(pName, GlobalSearchScope.allScope(getProject))
-        if (obj != null) {
-          if (!obj.processDeclarations(processor, state, null, place)) return false
-        }
-
-        var current = JavaPsiFacade.getInstance(getProject).findPackage(pName)
-        while (current != null) {
-          ProgressManager.checkCanceled
-          if (!current.processDeclarations(processor, state, null, place)) return false
-          current = current.getParentPackage
-
-          // Treat parent package object
-          if (current != null) {
-            val parentObj = cache.getPackageObjectByName(current.getQualifiedName, GlobalSearchScope.allScope(getProject))
-            if (parentObj != null) {
-              if (!parentObj.processDeclarations(processor, state, null, place)) return false
-            }
-          }
+        if (getPackagings.isEmpty) {
+          val defaultPackage = JavaPsiFacade.getInstance(getProject).findPackage("")
+          if (!defaultPackage.processDeclarations(processor, state, null, place)) return false
         }
       }
     }

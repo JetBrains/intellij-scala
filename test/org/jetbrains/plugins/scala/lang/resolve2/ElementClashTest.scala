@@ -12,9 +12,9 @@ class ElementClashTest extends ResolveTestBase {
   }
 
   //TODO
-//  def testClass = doTest
+  def testClass = doTest
   //TODO
-//  def testCaseClass = doTest
+  def testCaseClass = doTest
   def testClassParameter = doTest
   def testClassParameterValue = doTest
   def testClassParameterVariable = doTest
@@ -22,7 +22,7 @@ class ElementClashTest extends ResolveTestBase {
   def testCaseClauseBinding = doTest
   def testCaseClauseNamed = doTest
   //TODO
-//  def testTrait = doTest
+  def testTrait = doTest
   def testObject = doTest
   def testFunctionDefinition = doTest
   def testFunctionExpressionParameter = doTest
@@ -33,13 +33,13 @@ class ElementClashTest extends ResolveTestBase {
   def testStatementForBinding = doTest
   def testStatementForValues = doTest
   //TODO
-//  def testTypeAlias = doTest
+  def testTypeAlias = doTest
   def testValue = doTest
   def testVariable = doTest
   //TODO
-//  def testTypeParameterClass = doTest
+  def testTypeParameterClass = doTest
   //TODO
-//  def testTypeParameterFunction = doTest
+  def testTypeParameterFunction = doTest
   //TODO
-//  def testTypeParameterTrait = doTest
+  def testTypeParameterTrait = doTest
 }

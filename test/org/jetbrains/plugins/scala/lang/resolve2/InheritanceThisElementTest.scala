@@ -13,8 +13,8 @@ class InheritanceThisElementTest extends ResolveTestBase {
   //TODO
 //  def testBlock = doTest
   def testClass = doTest
-  //TODO
-  //def testClassParameter = doTest
+  //TODO major
+//  def testClassParameter = doTest
   def testClassParameterValue = doTest
   def testClassParameterVariable = doTest
   //TODO
