@@ -15,6 +15,11 @@ public class ResolvePackagingsTest extends ScalaResolveTestCase {
     return TestUtils.getTestDataPath() + "/resolve/packages/";
   }
 
+  @Override
+   protected boolean allSourcesFromDirectory() {
+    return true;
+  }
+
   public void testSeparatedPackages() throws Exception {
     PsiReference ref = configureByFile("separated/my/scala/stuff/Main.scala");
     final PsiElement psiElement = ref.resolve();

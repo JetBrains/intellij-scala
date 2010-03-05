@@ -12,21 +12,20 @@ class BugTest extends ResolveTestBase {
   override def getTestDataPath: String = {
     super.getTestDataPath + "bug/"
   }
-  //TODO test is ok, problem with ResolveTestBase
-//  def testBug1 = doTest
+  def testBug1 = doTest
 
-  //TODO
+  //TODO answer?
 //  def testIncomplete = doTest
 
-  //TODO
+  //TODO accessible
 //  def testSimplePrivateAccess = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateThis = doTest
-  //TODO
+  //TODO accessible
 //  def testProtectedThis = doTest
   def testGetOrElse = doTest
   def testAnonymousClassMethods = doTest
-  //TODO in debug mode all works ok, but test is failed
+  //TODO ok
 //  def testIntegerEqualiity = doTest
   def testEarlyDefinitionsBefore = doTest
   def testFunctionEmptyParamList = doTest

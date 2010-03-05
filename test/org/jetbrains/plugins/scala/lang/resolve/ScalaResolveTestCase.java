@@ -63,6 +63,13 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     }
   }
 
+<<<<<<< Updated upstream
+=======
+  protected boolean allSourcesFromDirectory() {
+    return false;
+  }
+
+>>>>>>> Stashed changes
   protected void setUp() throws Exception {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
@@ -77,7 +84,11 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     VirtualFile vDir = LocalFileSystem.getInstance().
         refreshAndFindFileByPath(dir.getCanonicalPath().replace(File.separatorChar, '/'));
     assertNotNull(vDir);
+<<<<<<< Updated upstream
     configureFile(testDataRoot, testName, vDir);
+=======
+    if (allSourcesFromDirectory()) configureFile(testDataRoot, testName, vDir);
+>>>>>>> Stashed changes
 
     ContentEntry contentEntry = rootModel.addContentEntry(vDir);
     rootModel.setSdk(JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false));
