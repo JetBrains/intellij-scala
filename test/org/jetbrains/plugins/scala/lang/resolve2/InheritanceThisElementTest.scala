@@ -10,16 +10,16 @@ class InheritanceThisElementTest extends ResolveTestBase {
     super.getTestDataPath + "inheritance/this/element/"
   }
 
-  //TODO
+  //TODO scriptthis
 //  def testBlock = doTest
   def testClass = doTest
-  //TODO major
+  //TODO classparameter
 //  def testClassParameter = doTest
   def testClassParameterValue = doTest
   def testClassParameterVariable = doTest
-  //TODO
+  //TODO scriptthis
 //  def testFile = doTest
-  //TODO
+  //TODO scriptthis
 //  def testFunction = doTest
   def testObject = doTest
   def testTrait = doTest

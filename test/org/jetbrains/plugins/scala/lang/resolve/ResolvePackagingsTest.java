@@ -16,7 +16,7 @@ public class ResolvePackagingsTest extends ScalaResolveTestCase {
   }
 
   @Override
-   protected boolean allSourcesFromDirectory() {
+   public boolean allSourcesFromDirectory() {
     return true;
   }
 
