@@ -11,9 +11,7 @@ class ElementClashTest extends ResolveTestBase {
     super.getTestDataPath + "element/clash/"
   }
 
-  //TODO
   def testClass = doTest
-  //TODO
   def testCaseClass = doTest
   def testClassParameter = doTest
   def testClassParameterValue = doTest
@@ -21,7 +19,6 @@ class ElementClashTest extends ResolveTestBase {
   def testCaseObject = doTest
   def testCaseClauseBinding = doTest
   def testCaseClauseNamed = doTest
-  //TODO
   def testTrait = doTest
   def testObject = doTest
   def testFunctionDefinition = doTest
@@ -32,14 +29,10 @@ class ElementClashTest extends ResolveTestBase {
   def testStatementForAssignment = doTest
   def testStatementForBinding = doTest
   def testStatementForValues = doTest
-  //TODO
   def testTypeAlias = doTest
   def testValue = doTest
   def testVariable = doTest
-  //TODO
   def testTypeParameterClass = doTest
-  //TODO
   def testTypeParameterFunction = doTest
-  //TODO
   def testTypeParameterTrait = doTest
 }
