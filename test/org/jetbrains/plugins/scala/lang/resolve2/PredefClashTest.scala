@@ -10,8 +10,7 @@ class PredefClashTest extends ResolveTestBase {
     super.getTestDataPath + "predef/clash/"
   }
 
-  //TODO
-//  def testInherited = doTest
+  def testInherited = doTest
   def testLocal1 = doTest
   def testLocal2 = doTest
   def testOuterScope = doTest

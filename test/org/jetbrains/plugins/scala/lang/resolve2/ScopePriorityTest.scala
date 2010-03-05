@@ -17,6 +17,6 @@ class ScopePriorityTest extends ResolveTestBase {
   def testBlockAndCount = doTest
   def testBlockAndType = doTest
   def testBlockNested = doTest
-  //TODO
+  //TODO packageobject
 //  def testPackageObject = doTest
 }

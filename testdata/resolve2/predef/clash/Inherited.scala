@@ -3,5 +3,5 @@ class P {
 }
 
 class C extends P {
-  /* file: Predef */ println("2")
+  /* line: 2 */ println("2")
 }

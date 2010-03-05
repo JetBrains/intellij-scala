@@ -12,24 +12,24 @@ class PredefLiteralTest extends ResolveTestBase {
   def testSmth = {}
   //TODO answer?
 //  def testBoolean = doTest
-  //TODO
+  //TODO answer?
 //  def testByte = doTest
-  //TODO
+  //TODO answer?
 //  def testChar = doTest
-  //TODO
+  //TODO answer?
 //  def testDouble = doTest
-  //TODO
+  //TODO answer?
 //  def testFloat = doTest
-  //TODO
+  //TODO answer?
 //  def testInt = doTest
-  //TODO
+  //TODO answer?
 //  def testLong = doTest
-  //TODO
+  //TODO answer?
 //  def testTheNull = doTest
-  //TODO
+  //TODO answer?
 //  def testShort = doTest
-  //TODO
+  //TODO answer?
 //  def testString = doTest
-  //TODO
+  //TODO answer?
 //  def testSymbol = doTest
 }

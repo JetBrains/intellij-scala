@@ -14,12 +14,12 @@ class ScopeAccessTest extends ResolveTestBase {
 
   def testStub = Assert.assertTrue(true)
 
-  //TODO
+  //TODO accessible
 //  def testPrivateCompanionClass = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateCompanionObject = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateThisCompanionClass = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateThisCompanionObject = doTest
 }
