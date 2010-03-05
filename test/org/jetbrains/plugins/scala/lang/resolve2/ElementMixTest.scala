@@ -11,25 +11,19 @@ class ElementMixTest extends ResolveTestBase {
     super.getTestDataPath + "element/mix/"
   }
 
-  //TODO
-//  def testCaseClassAndClass = doTest
+  def testCaseClassAndClass = doTest
   def testCaseClassAndObject = doTest
-  //TODO
-//  def testCaseClassAndTrait = doTest
-  //TODO
-//  def testCaseClassAndTypeAlias = doTest
-
+  def testCaseClassAndTrait = doTest
+  def testCaseClassAndTypeAlias = doTest
   def testFunctionAndClass = doTest
   //TODO
 //  def testFunctionAndObject = doTest
   def testFunctionAndTrait = doTest
   def testFunctionAndTypeAlias = doTest
-
   //TODO
 //  def testClassParameterAndFunction = doTest
   def testClassParameterAndValue = doTest
   def testClassParameterAndVariable = doTest
-
   def testFunctionParameterAndObject = doTest
   def testFunctionParameterAndValue1 = doTest
   def testFunctionParameterAndValue2 = doTest
@@ -37,15 +31,11 @@ class ElementMixTest extends ResolveTestBase {
   def testFunctionTypeParameterAndClass = doTest
   def testFunctionTypeParameterAndTrait = doTest
   def testFunctionTypeParameterAndValue = doTest
-
   def testClassAndObject = doTest
-  //TODO
-//  def testClassAndTrait = doTest
-  //TODO
-//  def testClassAndTypeAlias = doTest
+  def testClassAndTrait = doTest
+  def testClassAndTypeAlias = doTest
   def testObjectAndTrait = doTest
   def testObjectAndTypeAlias = doTest
-  //TODO
-//  def testTraitAndTypeAlias = doTest
+  def testTraitAndTypeAlias = doTest
 
 }

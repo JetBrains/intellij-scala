@@ -26,7 +26,7 @@ class BugTest extends ResolveTestBase {
   def testGetOrElse = doTest
   def testAnonymousClassMethods = doTest
   //TODO ok
-//  def testIntegerEqualiity = doTest
+  def testIntegerEqualiity = doTest
   def testEarlyDefinitionsBefore = doTest
   def testFunctionEmptyParamList = doTest
 }
