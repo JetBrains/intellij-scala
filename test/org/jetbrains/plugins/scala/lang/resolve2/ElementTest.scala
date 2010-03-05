@@ -26,12 +26,12 @@ class ElementTest extends ResolveTestBase {
   def testTypeAlias = doTest
   def testValue = doTest
   def testVariable = doTest
-  //TODO
-//  def testTypeParameterClass = doTest
-  //TODO
-//  def testTypeParameterFunction = doTest
-  //TODO
-//  def testTypeParameterTrait = doTest
+  //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
+  def testTypeParameterClass = doTest
+  //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
+  def testTypeParameterFunction = doTest
+  //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
+  def testTypeParameterTrait = doTest
   def testBinding = doTest
   def testValues = doTest
   def testStatementForValue = doTest
@@ -43,8 +43,8 @@ class ElementTest extends ResolveTestBase {
   def testCaseClauseNamed = doTest
   def testCaseClauseBinding = doTest
 
-  //TODO
-//  def testPackage = doTest
-  //TODO
-//  def testPackageObject = doTest
+  //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
+  def testPackage = doTest
+  //TODO answer? classof, it's internal compiler error, should be resolved, but another error in annotator
+  def testPackageObject = doTest
 }

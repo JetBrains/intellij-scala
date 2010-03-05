@@ -10,9 +10,9 @@ class ImportAliasTest extends ResolveTestBase {
     super.getTestDataPath + "import/alias/"
   }
 
-  //TODO
+  //TODO importexclude
 //  def testExclude = doTest
-  //TODO
+  //TODO importexclude
 //  def testExcludeOnRename = doTest
   def testHide = doTest
   def testRename = doTest

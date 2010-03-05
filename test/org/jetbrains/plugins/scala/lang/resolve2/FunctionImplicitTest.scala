@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
+import com.sun.xml.internal.bind.v2.TODO
+
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -11,16 +13,15 @@ class FunctionImplicitTest extends ResolveTestBase {
   }
 
   def testClashHierarchy = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testClashScope = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testClashValueAndImport1 = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testClashValueAndImport2 = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testClashValues = doTest
-  //TODO
-//  def testContextBoundImplicit = doTest
+  def testContextBoundImplicit = doTest
   def testCurrying = doTest
   def testCurryingPassAll = doTest
   def testCurryingPassEmpty = doTest
@@ -29,13 +30,13 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testImportObjectOrdinary = doTest
   def testPackageObjectImplicit = doTest
   def testPackageObjectImplicitChild = doTest
-  //TODO
-  //def testPackageObjectImplicitEmpty = doTest
+  //TODO implicitparameter
+//  def testPackageObjectImplicitEmpty = doTest
   def testImportValueImplicit = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testImportValueOrdinary = doTest
   def testObjectImplicit = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testObjectOrdinary = doTest
   def testParameterImplicit = doTest
   def testTwoAsOne = doTest
@@ -46,11 +47,11 @@ class FunctionImplicitTest extends ResolveTestBase {
   def testValueImplicitPass = doTest
   def testValueImplicitPassNone = doTest
   def testValueImplicitScope = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testValueNone = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testValueNoneAsContextBound = doTest
-  //TODO
+  //TODO implicitparameter
 //  def testValueOrdinary = doTest
   def testVariableImplicit = doTest
   def testViewBoundImplicit = doTest

@@ -11,7 +11,7 @@ class FunctionTypePriorityTest extends ResolveTestBase {
   }
 
   def testInheritanceHierarchy = doTest
-  //TODO
+  //TODO answer?
 //  def testInheritanceIncompatible = doTest
   def testInheritanceOne1 = doTest
   def testInheritanceOne2 = doTest

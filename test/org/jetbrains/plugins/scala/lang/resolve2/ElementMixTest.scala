@@ -16,11 +16,11 @@ class ElementMixTest extends ResolveTestBase {
   def testCaseClassAndTrait = doTest
   def testCaseClassAndTypeAlias = doTest
   def testFunctionAndClass = doTest
-  //TODO
+  //TODO object also can be applicable! do not filter object
 //  def testFunctionAndObject = doTest
   def testFunctionAndTrait = doTest
   def testFunctionAndTypeAlias = doTest
-  //TODO
+  //TODO classparameter
 //  def testClassParameterAndFunction = doTest
   def testClassParameterAndValue = doTest
   def testClassParameterAndVariable = doTest
