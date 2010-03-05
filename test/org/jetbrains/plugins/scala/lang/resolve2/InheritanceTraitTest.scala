@@ -10,29 +10,25 @@ class InheritanceTraitTest extends ResolveTestBase {
     super.getTestDataPath + "inheritance/trait/"
   }
 
-  //TODO
+  //TODO abstractoverride
 //  def testAbstractOverrideExtendsClass = doTest
   def testAbstractOverrideExtendsFunction = doTest
-  //TODO
+  //TODO abstractoverride
 //  def testAbstractOverrideSelfClass = doTest
-  //TODO
+  //TODO abstractoverride
 //  def testAbstractOverrideSelfFunction = doTest
 
-  //TODO
+  //TODO abstractoverride
 //  def testClashAbstractOverrideExtends1 = doTest
-  //TODO
+  //TODO abstractoverride
 //  def testClashAbstractOverrideExtends2 = doTest
-  //TODO
+  //TODO abstractoverride
 //  def testClashAbstractOverrideSelf = doTest
 
-  //TODO
-//  def testClashTwo1 = doTest
-  //TODO
-//  def testClashTwo2 = doTest
-
+  def testClashTwo1 = doTest
+  def testClashTwo2 = doTest
   def testMixOne = doTest
   def testMixTwo = doTest
-
   def testSelfTypeElements = doTest
   def testSelfTypeModifiers = doTest
 }

@@ -1,7 +1,7 @@
 package p
 
 object O {
-  println(p./* line: 2 */O)
+  println(p./* line: 3 */O)
 }
 
 
