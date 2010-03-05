@@ -14,9 +14,9 @@ class FunctionBlockTest extends ResolveTestBase {
   def testBlocksToTwo = doTest
   def testBlockToEmpty = doTest
   def testBlockToFunctionInt = doTest
-  //TODO
+  //TODO unit
 //  def testBlockToFunctionUnit = doTest
-  //TODO
+  //TODO unit
 //  def testBlockToFunctionWithArgs = doTest
   def testBlockToOtherType = doTest
   def testBlockToNone = doTest

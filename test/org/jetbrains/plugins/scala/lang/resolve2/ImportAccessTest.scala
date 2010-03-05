@@ -10,27 +10,27 @@ class ImportAccessTest extends ResolveTestBase {
     super.getTestDataPath + "import/access/"
   }
 
-  //TODO
+  //TODO accessible
 //  def testInheritedPrivate = doTest
   def testInheritedPrivateClash1 = doTest
-  //TODO
+  //TODO accessible
 //  def testInheritedPrivateClash2 = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivate = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateClass = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateClassAll = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateFunction = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateObject = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateTrait = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateValue = doTest
-  //TODO
+  //TODO accessible
 //  def testPrivateVariable = doTest
-  //TODO
+  //TODO accessible
 //  def testProtectedClass = doTest
 }

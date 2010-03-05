@@ -12,10 +12,10 @@ class FunctionTypeGenericTest extends ResolveTestBase {
 
   def testFunction1 = doTest
   def testFunction2 = doTest
-  //TODO
+  //TODO answer?
 //  def testFunctionExpression1 = doTest
   def testFunctionExpression2 = doTest
-  //TODO
+  //TODO answer?
 //  def testGeneric1 = doTest
   def testGeneric2 = doTest
 }

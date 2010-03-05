@@ -13,7 +13,7 @@ class FunctionCountTest extends ResolveTestBase {
   def testEmptyToEmpty = doTest
   def testEmptyToNone = doTest
   def testEmptyToOne = doTest
-  //TODO
+  //TODO emptyparamclause
 //  def testNoneToEmpty = doTest
   def testNoneToNone = doTest
   def testNoneToOne = doTest
