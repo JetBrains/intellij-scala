@@ -75,7 +75,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   override def getVariants(implicits: Boolean): Array[Object] = {
     val tp = wrap(qualifier).flatMap (_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
 
-    _resolve(this, new CompletionProcessor(getKinds(true), implicits)).map(r => {
+    doResolve(this, new CompletionProcessor(getKinds(true), implicits)).map(r => {
       r match {
         case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
         case _ => r.getElement
@@ -83,7 +83,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     })
   }
 
-  def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
 
   import com.intellij.psi.impl.PsiManagerEx
 
@@ -106,54 +106,61 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   import com.intellij.psi.impl.source.resolve.ResolveCache
 
+  case class Info(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
+
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
+    import Compatibility.Expression._
+    
+    def getInfo(ref: ScReferenceExpressionImpl, e: ScExpression): Info = {
+      e.getContext match {
+        case generic : ScGenericCall => getInfo(ref, generic)
+        case call: ScMethodCall => Info(Some(call.argumentExpressions), () => None, false)
+        case section: ScUnderscoreSection => Info(None, () => section.expectedType, true)
+        case inf: ScInfixExpr if ref == inf.operation => {
+          Info(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
+            case tuple: ScTuple => Some(tuple.exprs)
+            case rOp => Some(Seq(rOp))
+          }, () => None, false)
+        }
+        case parents: ScParenthesisedExpr => getInfo(ref, parents)
+        case postf: ScPostfixExpr if ref == postf.operation => getInfo(ref, postf)
+        case pref: ScPrefixExpr if ref == pref.operation => getInfo(ref, pref)
+        case _ => Info(None, () => e.expectedType, false)
+      }
+    }
+
+    def kinds(ref: ScReferenceExpressionImpl, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
+      e.getContext match {
+        case gen: ScGenericCall => kinds(ref, gen, incomplete)
+        case parents: ScParenthesisedExpr => kinds(ref, parents, incomplete)
+        case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
+        case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
+        case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
+        case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
+        case _ => getKinds(incomplete)
+      }
+    }
+
+    def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
+      e.getContext match {
+        case generic: ScGenericCall => generic.arguments
+        case parents: ScParenthesisedExpr => getTypeArgs(parents)
+        case _ => Seq.empty
+      }
+    }
+
     def resolve(ref: ScReferenceExpressionImpl, incomplete: Boolean): Array[ResolveResult] = {
-      import Compatibility.Expression._
-      def getInfo(e: ScExpression): (Option[Seq[Expression]], () => Option[ScType], Boolean) = {
-        e.getContext match {
-          case generic : ScGenericCall => getInfo(generic)
-          case call: ScMethodCall => (Some(call.argumentExpressions), () => None, false)
-          case section: ScUnderscoreSection => (None, () => section.expectedType, true)
-          case inf: ScInfixExpr if ref == inf.operation => {
-            (if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
-              case tuple: ScTuple => Some(tuple.exprs)
-              case rOp => Some(Seq(rOp))
-            }, () => None, false)
-          }
-          case parents: ScParenthesisedExpr => getInfo(parents)
-          case postf: ScPostfixExpr if ref == postf.operation => getInfo(postf)
-          case pref: ScPrefixExpr if ref == pref.operation => getInfo(pref)
-          case _ => (None, () => e.expectedType, false)
-        }
-      }
-
-      def kinds(e: ScExpression): scala.collection.Set[ResolveTargets.Value] = {
-        e.getContext match {
-          case gen: ScGenericCall => kinds(gen)
-          case parents: ScParenthesisedExpr => kinds(parents)
-          case _: ScMethodCall | _: ScUnderscoreSection => StdKinds.methodRef
-          case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
-          case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
-          case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
-          case _ => getKinds(incomplete)
-        }
-      }
-      def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
-        e.getContext match {
-          case generic: ScGenericCall => generic.arguments
-          case parents: ScParenthesisedExpr => getTypeArgs(parents)
-          case _ => Seq.empty
-        }
-      }
-
+      //TODO move this knowledge into MethodResolveProcessor
       val name = getContext match {
         case pref: ScPrefixExpr if pref.operation == ref => "unary_" + refName
         case _ => refName
       }
 
-      val info = getInfo(ref)
-      val res = _resolve(ref, new MethodResolveProcessor(ref, name, info._1.toList, getTypeArgs(ref),
-                            kinds(ref), info._2.apply, info._3))
+      val info = getInfo(ref, ref)
+
+      val res = doResolve(ref, new MethodResolveProcessor(ref, name, info.arguments.toList, getTypeArgs(ref),
+                            kinds(ref, ref, incomplete), info.expectedType.apply, info.isUnderscore))
+      
       if (refName.endsWith("=") && refName.length > 1 && res.length == 0) {
         //we should check if it's infix method like +=
         ref.getContext match {
@@ -170,7 +177,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                         }
                         val processor = new MethodResolveProcessor(ref, refName.substring(0, refName.length - 1),
                           List(args), Nil)
-                        return _resolve(ref, processor)
+                        return doResolve(ref, processor)
                       }
                       case _ => return res
                     }
@@ -188,7 +195,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  private def _resolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
+  private def doResolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
     def processTypes(e: ScExpression) {
       ProgressManager.checkCanceled
       e match {
