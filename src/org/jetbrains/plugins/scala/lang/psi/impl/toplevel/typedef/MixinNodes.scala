@@ -11,7 +11,6 @@ package typedef
 import _root_.scala.collection.mutable.LinkedHashSet
 import api.statements.ScTypeAliasDefinition
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.{ScTypeDefinition, ScTemplateDefinition}
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
 import com.intellij.psi.{PsiClass}
 import psi.types._
@@ -19,6 +18,7 @@ import result.TypingContext
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
 
 abstract class MixinNodes {
   type T
@@ -220,11 +220,26 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    CachesUtil.get(
+    /*CachesUtil.get(
       clazz, CachesUtil.LINEARIZATION_KEY,
       new CachesUtil.MyProvider(clazz, {clazz: PsiClass => linearizationInner(clazz)})
         (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
-      )
+      )*/
+    clazz match {
+      case obj: ScObject if obj.isPackageObject && obj.getQualifiedName == "scala" => {
+        return Seq(ScDesignatorType(obj))
+      }
+      case _ =>
+    }
+
+    val data = clazz.getUserData(CachesUtil.LINEARIZATION_KEY)
+    val currModCount = clazz.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (data != null && currModCount == data._2) {
+      return data._1
+    }
+    val linearizationResult = linearizationInner(clazz)
+    clazz.putUserData(CachesUtil.LINEARIZATION_KEY, (linearizationResult, currModCount))
+    return linearizationResult
   }
 
   def linearization(compound: ScCompoundType): Seq[ScType] = {
