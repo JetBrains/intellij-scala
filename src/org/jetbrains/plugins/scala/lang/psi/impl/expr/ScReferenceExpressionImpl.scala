@@ -174,6 +174,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       
       if (result.isEmpty && ref.isAssignmentOperator) {
         val infixExpr = getContext.asInstanceOf[ScInfixExpr]
+        //TODO should rOp really be parsed as Tuple (not as argument list)?
         val args = infixExpr.rOp match {
           case t: ScTuple => t.exprs
           case op => Seq(op)
