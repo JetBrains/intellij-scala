@@ -14,20 +14,17 @@ class FunctionAssignmentTest extends ResolveTestBase {
   def testClashWithType = doTest
   //TODO
 //  def testDotAndParentheses = doTest
-  //TODO
-//  def testIllegalOpChar = doTest
+  def testIllegalOpChar = doTest
   def testIncompatibleReturnType = doTest
+  def testIncompatibleType = doTest
+  def testInstance = doTest
+  def testNotAssignmentOrdinary = doTest
   //TODO
-//  def testLetter = doTest
-  //TODO
-//  def testLetters = doTest
-  def testNotAssignment = doTest
+//  def testNotAssignmentPostfix = doTest
   def testOpChar = doTest
   def testOpChars = doTest
   def testParentheses = doTest
-  //TODO
-//  def testStartsWithEqual = doTest
+  def testStartsWithEqual = doTest
   def testTwoArguments = doTest
-  //TODO
-//  def testValue = doTest
+  def testValue = doTest
 }
