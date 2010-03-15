@@ -98,23 +98,23 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
             result.get.isApplicable) else (null, true, true)
     val referenceName = reference.refName
 
-    val description: String = referenceName + ":\n\n" + myFile.getText + "\n"
+    def message = format(myFile.getText, _: String, lineOf(reference))
 
     if (options.contains(Resolved) && options(Resolved) == "false") {
-      Assert.assertNull("Reference must NOT be resolved: " + description, target);
+      Assert.assertNull(message(referenceName + " must NOT be resolved!"), target);
     } else {
-      Assert.assertNotNull("Reference must BE resolved: " + description, target);
+      Assert.assertNotNull(message(referenceName + " must BE resolved!"), target);
 
       if (options.contains(Accessible) && options(Accessible) == "false") {
-        Assert.assertFalse("Reference must NOT be accessible: " + description, accessible);
+        Assert.assertFalse(message(referenceName + " must NOT be accessible!"), accessible);
       } else {
-        Assert.assertTrue("Reference must BE accessible: " + description, accessible);
+        Assert.assertTrue(message(referenceName + " must BE accessible!"), accessible);
       }
 
       if (options.contains(Applicable) && options(Applicable) == "false") {
-        Assert.assertFalse("Reference must NOT be applicable: " + description, applicable);
+        Assert.assertFalse(message(referenceName + " must NOT be applicable!"), applicable);
       } else {
-        Assert.assertTrue("Reference must BE applicable: " + description, applicable);
+        Assert.assertTrue(message(referenceName + " must BE applicable!"), applicable);
       }
 
       if (options.contains(Path)) {
@@ -133,7 +133,7 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
       Assert.assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].getName)
 
       if (options.contains(Line)) {
-        Assert.assertEquals(Line, options(Line).toInt, getLine(target))
+        Assert.assertEquals(Line, options(Line).toInt, lineOf(target))
       }
 
       if (options.contains(Offset)) {
@@ -153,8 +153,13 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
     }
   }
 
-  def getLine(element: PsiElement) = {
+  def lineOf(element: PsiElement) = {
     element.getContainingFile.getText.substring(0, element.getTextOffset).count(_ == '\n') + 1
+  }
+
+  def format(text: String, message: String, line: Int) = {
+    val lines = text.lines.zipWithIndex.map(p => if (p._2 + 1 == line) p._1 + " // " + message else p._1)
+    "\n\n" + lines.mkString("\n") + "\n"
   }
 }
 
