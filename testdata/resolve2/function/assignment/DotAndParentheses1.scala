@@ -3,4 +3,4 @@ class C {
 }
 
 var v = new C
-v./* line: 2, name: + */ +=(1)
+v./* line: 2, name: + */ += (1)

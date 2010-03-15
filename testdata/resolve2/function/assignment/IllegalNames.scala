@@ -7,4 +7,5 @@ class C {
 var v = new C
 v /* resolved: false */ >= 1
 v /* resolved: false */ <= 1
+// uncomment: v != 1
 

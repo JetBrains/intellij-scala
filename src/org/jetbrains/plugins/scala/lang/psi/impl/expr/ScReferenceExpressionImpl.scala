@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import impl.PsiManagerEx
 import result.{TypeResult, Failure, Success, TypingContext}
 import util.PsiTreeUtil
 
@@ -32,6 +33,12 @@ import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import types.Compatibility.Expression
+import Compatibility.Expression._
+import com.intellij.psi.impl.PsiManagerEx
+import util.PsiTreeUtil
+import com.intellij.psi.impl.source.resolve.ResolveCache
+
+
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -39,10 +46,11 @@ import types.Compatibility.Expression
  */
 
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReferenceExpression {
+  case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
+
   override def toString: String = "ReferenceExpression"
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitReferenceExpression(this)
 
@@ -85,8 +93,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
 
-  import com.intellij.psi.impl.PsiManagerEx
-
   def multiResolve(incomplete: Boolean) = {
     //val now = System.currentTimeMillis
     val resolve = getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
@@ -105,8 +111,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def isAssignmentOperator = {
-    getContext.isInstanceOf[ScInfixExpr] && refName.endsWith("=") && 
-            !(refName.startsWith("=") || Seq("!=", "<=", ">=").contains(refName))
+    val context = getContext
+    (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
+            refName.endsWith("=") && !(refName.startsWith("=") || Seq("!=", "<=", ">=").contains(refName))
   }
 
   def isUnaryOperator = {
@@ -115,14 +122,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case _ => false
     }
   }
-  
-  import com.intellij.psi.impl.source.resolve.ResolveCache
 
-  case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
-    import Compatibility.Expression._
-    
     def getContextInfo(ref: ScReferenceExpressionImpl, e: ScExpression): ContextInfo = {
       e.getContext match {
         case generic : ScGenericCall => getContextInfo(ref, generic)
@@ -173,16 +175,24 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       val result = doResolve(ref, processor)
       
       if (result.isEmpty && ref.isAssignmentOperator) {
-        val infixExpr = getContext.asInstanceOf[ScInfixExpr]
-        //TODO should rOp really be parsed as Tuple (not as argument list)?
-        val args = infixExpr.rOp match {
-          case t: ScTuple => t.exprs
-          case op => Seq(op)
-        }
-        doResolve(ref, new MethodResolveProcessor(ref, refName.init, List(args), Nil))
+        val arguments = argumentsOf(getContext)
+        doResolve(ref, new MethodResolveProcessor(ref, refName.init, List(arguments), Nil))
       } else {
         result
       }
+    }
+  }
+
+  private def argumentsOf(e: PsiElement): Seq[Expression] = {
+    e match {
+      case infixExpr: ScInfixExpr => {
+        //TODO should rOp really be parsed as Tuple (not as argument list)?
+        infixExpr.rOp match {
+          case t: ScTuple => t.exprs
+          case op => Seq(op)
+        }
+      }
+      case methodCall: ScMethodCall => methodCall.argumentExpressions
     }
   }
 
