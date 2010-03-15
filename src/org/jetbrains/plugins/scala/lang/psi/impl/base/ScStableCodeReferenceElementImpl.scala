@@ -143,17 +143,25 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
-    processor.candidates.filter(srr => srr.element match {
+
+    val candidates = processor.candidates
+    val filtered = candidates.filter(candidatesFilter)
+
+    filtered.toArray
+  }
+
+  private def candidatesFilter(result: ScalaResolveResult) = {
+    result.element match {
       case c: PsiClass if c.getName == c.getQualifiedName => c.getContainingFile match {
         case s: ScalaFile => true // scala classes are available from default package
         // Other classes from default package are available only for top-level Scala statements
         case _ => PsiTreeUtil.getContextOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
-          case s : ScalaFile => s.getPackageName.length == 0
+          case s: ScalaFile => s.getPackageName.length == 0
           case _ => true
         })
       }
       case _ => true
-    }).toArray[ResolveResult]
+    }
   }
 
   def multiResolve(incomplete: Boolean) = {

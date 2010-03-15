@@ -37,7 +37,7 @@ import Compatibility.Expression._
 import com.intellij.psi.impl.PsiManagerEx
 import util.PsiTreeUtil
 import com.intellij.psi.impl.source.resolve.ResolveCache
-
+import api.base.ScReferenceElement
 
 
 /**
@@ -70,7 +70,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (qualName != null) {
           org.jetbrains.plugins.scala.annotator.intention.
                 ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                addImportForClass(c, ref = this) 
+                addImportForClass(c, ref = this)
         }
         this
       }
@@ -124,8 +124,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
 
-  object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
-    def getContextInfo(ref: ScReferenceExpressionImpl, e: ScExpression): ContextInfo = {
+  private object MyResolver extends ResolveCache.PolyVariantResolver[ScReferenceExpressionImpl] {
+    private def getContextInfo(ref: ScReferenceExpressionImpl, e: ScExpression): ContextInfo = {
       e.getContext match {
         case generic : ScGenericCall => getContextInfo(ref, generic)
         case call: ScMethodCall => ContextInfo(Some(call.argumentExpressions), () => None, false)
@@ -143,7 +143,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
     }
 
-    def kinds(ref: ScReferenceExpressionImpl, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
+    private def kinds(ref: ScReferenceExpressionImpl, e: ScExpression, incomplete: Boolean): scala.collection.Set[ResolveTargets.Value] = {
       e.getContext match {
         case gen: ScGenericCall => kinds(ref, gen, incomplete)
         case parents: ScParenthesisedExpr => kinds(ref, parents, incomplete)
@@ -155,7 +155,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
     }
 
-    def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
+    private def getTypeArgs(e : ScExpression) : Seq[ScTypeElement] = {
       e.getContext match {
         case generic: ScGenericCall => generic.arguments
         case parents: ScParenthesisedExpr => getTypeArgs(parents)
@@ -173,7 +173,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         getTypeArgs(ref), kinds(ref, ref, incomplete), info.expectedType.apply, info.isUnderscore)
 
       val result = doResolve(ref, processor)
-      
+
       if (result.isEmpty && ref.isAssignmentOperator) {
         doResolve(ref, new MethodResolveProcessor(ref, refName.init, List(argumentsOf(ref)), Nil))
       } else {
@@ -196,99 +196,113 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   private def doResolve(ref: ScReferenceExpressionImpl, processor: BaseProcessor): Array[ResolveResult] = {
-    def processTypes(e: ScExpression) {
-      ProgressManager.checkCanceled
-      e match {
-        case ref: ScReferenceExpression if ref.multiResolve(false).length > 1 => {
-          for (tp <- ref.multiType) {
-            processor.processType(tp, e, ResolveState.initial)
+    ref.qualifier match {
+      case None => resolveUnqalified(ref, processor)
+      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
+      case Some(q) => processTypes(q, processor)
+    }
+    processor.candidates
+  }
+
+  private def resolveUnqalified(ref: ScReferenceExpressionImpl, processor: BaseProcessor) = {
+    ref.getContext match {
+      case inf: ScInfixExpr if ref == inf.operation => {
+        val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
+        processTypes(thisOp, processor)
+      }
+      case postf: ScPostfixExpr if ref == postf.operation => processTypes(postf.operand, processor)
+      case pref: ScPrefixExpr if ref == pref.operation => processTypes(pref.operand, processor)
+      case _ => resolveUnqualifiedExpression(ref, processor)
+    }
+  }
+
+  private def resolveUnqualifiedExpression(ref: ScReferenceExpressionImpl, processor: BaseProcessor) = {
+    def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+      place match {
+        case null =>
+        case p => {
+          if (!p.processDeclarations(processor,
+            ResolveState.initial(),
+            lastParent, ref)) return
+          if (!processor.changedLevel) return
+          treeWalkUp(place.getContext, place)
+        }
+      }
+    }
+    ref.getContext match {
+      case assign: ScAssignStmt if assign.getLExpression == ref &&
+              assign.getContext.isInstanceOf[ScArgumentExprList] => processAssignment(assign, ref, processor)
+      case _ => //todo: constructors
+    }
+    treeWalkUp(ref, null)
+  }
+
+  private def processAssignment(assign: ScAssignStmt, ref: ScReferenceExpressionImpl, processor: BaseProcessor) {
+    assign.getContext match { //trying to resolve naming parameter
+      case args: ScArgumentExprList => {
+        val exprs = args.exprs
+        args.callReference match {
+          case Some(callReference) => processCallReference(args, callReference, ref, processor)
+          case None =>
+        }
+      }
+    }
+  }
+
+  private def processCallReference(args: ScArgumentExprList, callReference: ScReferenceElement,
+          ref: ScReferenceExpressionImpl, processor: BaseProcessor) = {
+    for (variant <- callReference.multiResolve(false)) {
+      variant match {
+        case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
+          fun.getParamByName(ref.refName, args.invocationCount - 1) match {
+            case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
+            case None =>
           }
-          return
         }
         case _ =>
       }
-      val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
-      processor.processType(result, e, ResolveState.initial)
-      if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
-              processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
-        for (t <- e.getImplicitTypes) {
-          ProgressManager.checkCanceled
-          val importsUsed = e.getImportsForImplicit(t)
-          var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-          e.getClazzForType(t) match {
-            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-            case _ =>
-          }
-          processor.processType(t, e, state)
-        }
-      }
     }
+  }
 
-      ref.qualifier match {
-      case None => ref.getContext match {
-        case inf: ScInfixExpr if ref == inf.operation => {
-          val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
-          processTypes(thisOp)
-        }
-        case postf: ScPostfixExpr if ref == postf.operation => processTypes(postf.operand)
-        case pref: ScPrefixExpr if ref == pref.operation => processTypes(pref.operand)
-        case _ => {
-          def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-            place match {
-              case null =>
-              case p => {
-                if (!p.processDeclarations(processor,
-                  ResolveState.initial(),
-                  lastParent, ref)) return
-                if (!processor.changedLevel) return
-                treeWalkUp(place.getContext, place)
-              }
-            }
-          }
-          ref.getContext match {
-            case assign: ScAssignStmt if assign.getLExpression == ref &&
-                    assign.getContext.isInstanceOf[ScArgumentExprList] => {
-              assign.getContext match { //trying to resolve naming parameter
-                case args: ScArgumentExprList => {
-                  val exprs = args.exprs
-                  val assignName = ref.refName
-                  var resultFound = false
-                  args.callReference match {
-                    case Some(callReference) => {
-                      val count = args.invocationCount
-                      val variants = callReference.multiResolve(false)
-                      for (variant <- variants) {
-                        variant match {
-                          case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
-                            fun.getParamByName(assignName, count - 1) match {
-                              case Some(param) => {
-                                processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
-                                resultFound = true
-                              }
-                              case None =>
-                            }
-                          }
-                          case _ =>
-                        }
-                      }
-                    }
-                    case None =>
-                  }
-                  if (!resultFound) {
-                    //todo: do it for types
-                  }
-                }
-              }
-            }
-            case _ => //todo: constructors
-          }
-          treeWalkUp(ref, null)
+  private def processTypes(e: ScExpression, processor: BaseProcessor) {
+    ProgressManager.checkCanceled
+    e match {
+      case ref: ScReferenceExpression if ref.multiResolve(false).length > 1 => {
+        for (tp <- ref.multiType) {
+          processor.processType(tp, e, ResolveState.initial)
         }
       }
-      case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-      case Some(q) => processTypes(q)
+      case _ => {
+        val result = e.getType(TypingContext.empty)
+        if (result.isDefined) {
+          processType(result.get, e, processor)
+        }
+      }
     }
-    processor.candidates
+  }
+
+  private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor) {
+    processor.processType(aType, e, ResolveState.initial)
+
+    val candidates = processor.candidates
+
+    if (candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
+            processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+      collectImplicits(e, processor)
+    }
+  }
+
+  private def collectImplicits(e: ScExpression, processor: BaseProcessor) {
+    for (t <- e.getImplicitTypes) {
+        ProgressManager.checkCanceled
+        val importsUsed = e.getImportsForImplicit(t)
+        var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+        e.getClazzForType(t) match {
+          case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+          case _ =>
+        }
+        processor.processType(t, e, state)
+      }
   }
 
   private def rightAssoc = refName.endsWith(":")

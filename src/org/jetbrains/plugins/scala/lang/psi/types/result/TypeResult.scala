@@ -15,6 +15,7 @@ sealed abstract class TypeResult[+T] {
   def foreach[B](f: T => B): Unit
   def get: T
   def isEmpty : Boolean
+  def isDefined = !isEmpty
   def getOrElse[U >: T](default: => U): U = if (isEmpty) default else this.get
   def toOption: Option[T] = if (isEmpty) None else Some(this.get)
 
