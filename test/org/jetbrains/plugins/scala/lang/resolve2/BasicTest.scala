@@ -15,6 +15,4 @@ class BasicTest extends ResolveTestBase {
   def testSimple = doTest
   def testMultipleDeclaration = doTest
   def testName = doTest
-  def testUnresolvedRef = doTest
-  def testUnresolvedType = doTest
 }

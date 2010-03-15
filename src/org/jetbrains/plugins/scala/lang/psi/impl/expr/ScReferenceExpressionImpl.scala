@@ -175,16 +175,15 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       val result = doResolve(ref, processor)
       
       if (result.isEmpty && ref.isAssignmentOperator) {
-        val arguments = argumentsOf(getContext)
-        doResolve(ref, new MethodResolveProcessor(ref, refName.init, List(arguments), Nil))
+        doResolve(ref, new MethodResolveProcessor(ref, refName.init, List(argumentsOf(ref)), Nil))
       } else {
         result
       }
     }
   }
 
-  private def argumentsOf(e: PsiElement): Seq[Expression] = {
-    e match {
+  private def argumentsOf(ref: PsiElement): Seq[Expression] = {
+    ref.getContext match {
       case infixExpr: ScInfixExpr => {
         //TODO should rOp really be parsed as Tuple (not as argument list)?
         infixExpr.rOp match {
