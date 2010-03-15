@@ -3,5 +3,5 @@ class C {
 }
 
 var v = new C
-v /* resolved: false */ +=
+v /* resolved: false */ +=;
 v /* line: 2 */ +
