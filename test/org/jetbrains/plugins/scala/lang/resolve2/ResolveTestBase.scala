@@ -19,20 +19,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
  * Pavel.Fatin, 02.02.2010
  */
 
-abstract class ResolveTestBase() extends ScalaResolveTestCase {
+abstract class ResolveTestBase extends ScalaResolveTestCase {
   val pattern = """/\*\s*(.*?)\s*\*/\s*""".r
   type Parameters = Map[String, String]
 
-  val Resolved = "resolved"
-  val Name = "name"
-  val File = "file"
+  val Resolved = "resolved" // default: true
+  val Name = "name" // default: reference name
+  val File = "file" // default: this (if line or offset provided)
   val Line = "line"
   val Offset = "offset"
   val Length = "length"
   val Type = "type"
   val Path = "path"
-  val Applicable = "applicable"
-  val Accessible = "accessible"
+  val Applicable = "applicable" // default: true
+  val Accessible = "accessible" // default: true
 
   val Parameters = List(Resolved, Name, File, Line, Offset, Length, Type, Path, Applicable, Accessible)
 
@@ -56,19 +56,26 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
     val matches = pattern.findAllIn(text).matchData
 
     for (m <- matches) {
-      val each = parseParameters(m.group(1))
-      check(each)
-      options = each :: options
-      references = myFile.findReferenceAt(m.end) :: references
+      val parameters = parseParameters(m.group(1))
+      val reference = myFile.findReferenceAt(m.end)
+
+      assertKnown(parameters)
+      Assert.assertNotNull("No reference found at offset " + m.end, references)
+
+      options = parameters :: options
+      references = reference :: references
     }
 
+    options = options.reverse
+    references = references.reverse
+    
     Assert.assertFalse("At least one expectation must be specified", references.isEmpty)
     Assert.assertEquals("Options number", references.size, options.size)
 
     null
   }
 
-  def check(parameters: Parameters) = {
+  def assertKnown(parameters: Parameters) = {
     for ((key, value) <- parameters) {
       Assert.assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
         Parameters.contains(key))
@@ -91,12 +98,12 @@ abstract class ResolveTestBase() extends ScalaResolveTestCase {
   }
 
   def doEachTest(reference: ScReferenceElement, options: Parameters) {
+    val referenceName = reference.refName
     val result = reference.advancedResolve
     val (target, accessible, applicable) = if(result.isDefined) (
             result.get.element,
             result.get.isAccessible,
             result.get.isApplicable) else (null, true, true)
-    val referenceName = reference.refName
 
     def message = format(myFile.getText, _: String, lineOf(reference))
 
