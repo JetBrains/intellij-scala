@@ -22,4 +22,5 @@ class FunctionNamedTest extends ResolveTestBase {
   def testUnnamed1 = doTest
   //TODO
 //  def testUnnamed2 = doTest
+  def testUnresolved = doTest
 }
