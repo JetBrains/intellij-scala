@@ -113,7 +113,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def isAssignmentOperator = {
     val context = getContext
     (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
-            refName.endsWith("=") && !(refName.startsWith("=") || Seq("!=", "<=", ">=").contains(refName))
+            refName.endsWith("=") &&
+            !(refName.startsWith("=") || Seq("!=", "<=", ">=").contains(refName) || refName.exists(_.isLetterOrDigit))
   }
 
   def isUnaryOperator = {
