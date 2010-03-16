@@ -4,6 +4,6 @@ object O {
 
 val v = O
 
-import v.C
+import v./* */C
 
 println(classOf[/* */ C])

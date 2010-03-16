@@ -2,7 +2,7 @@ object O {
   class C
 }
 
-var v = O
+var v = /* */O
 
 import /* resolved: false */ v.C
 

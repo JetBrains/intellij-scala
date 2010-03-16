@@ -14,6 +14,9 @@ class ImportQualifierTest extends ResolveTestBase {
   def testImport2 = doTest
   def testValue1 = doTest
   def testValue2 = doTest
+  //TODO
+//  def testValueCaseClass = doTest
+  def testValueClass = doTest
   def testVariable = doTest
   def testFunction = doTest
 }
