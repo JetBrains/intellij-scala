@@ -2,7 +2,7 @@ object O {
   class C
 }
 
-import v.C
+import v./* */C
 
 println(classOf[/* */ C])
 

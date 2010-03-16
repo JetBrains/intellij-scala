@@ -107,6 +107,10 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
     def message = format(myFile.getText, _: String, lineOf(reference))
 
+    def assertEquals(name: String, v1: Any, v2: Any) {
+      if(v1 != v2) Assert.fail(message(name + " - expected: " + v1 + ", actual: " + v2))
+    }
+
     if (options.contains(Resolved) && options(Resolved) == "false") {
       Assert.assertNull(message(referenceName + " must NOT be resolved!"), target);
     } else {
@@ -125,7 +129,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       }
 
       if (options.contains(Path)) {
-        Assert.assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
+        assertEquals(Path, options(Path), target.asInstanceOf[ScTypeDefinition].getQualifiedName)
       }
 
       if (options.contains(File) || options.contains(Offset) || options.contains(Line)) {
@@ -133,29 +137,29 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
         val expected = if (!options.contains(File) || options(File) == "this") {
           reference.getElement.getContainingFile.getVirtualFile.getNameWithoutExtension
         } else options(File)
-        Assert.assertEquals(File, expected, actual)
+        assertEquals(File, expected, actual)
       }
 
       val expectedName = if (options.contains(Name)) options(Name) else referenceName
-      Assert.assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].getName)
+      assertEquals(Name, expectedName, target.asInstanceOf[PsiNamedElement].getName)
 
       if (options.contains(Line)) {
-        Assert.assertEquals(Line, options(Line).toInt, lineOf(target))
+        assertEquals(Line, options(Line).toInt, lineOf(target))
       }
 
       if (options.contains(Offset)) {
-        Assert.assertEquals(Offset, options(Offset).toInt, target.getTextOffset)
+        assertEquals(Offset, options(Offset).toInt, target.getTextOffset)
       }
 
       if (options.contains(Length)) {
-        Assert.assertEquals(Length, options(Length).toInt, target.getTextLength)
+        assertEquals(Length, options(Length).toInt, target.getTextLength)
       }
 
       if (options.contains(Type)) {
         val expectedClass = Class.forName(options(Type))
         val targetClass = target.getClass
-        Assert.assertTrue(Type + ": expected " + expectedClass.getSimpleName + ", but was " + targetClass.getSimpleName,
-          expectedClass.isAssignableFrom(targetClass))
+        val text = Type + " - expected: " + expectedClass.getSimpleName + ", actual: " + targetClass.getSimpleName
+        Assert.assertTrue(message(text), expectedClass.isAssignableFrom(targetClass))
       }
     }
   }
