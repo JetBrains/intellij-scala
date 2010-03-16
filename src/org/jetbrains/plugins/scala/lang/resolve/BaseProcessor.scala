@@ -15,6 +15,7 @@ import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
 import psi.impl.toplevel.synthetic.ScSyntheticClass
+import toplevel.typedef.ScClass
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -148,15 +149,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = e match {
-    case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place)
+  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = {
+    e match {
+      case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place)
 
-    //need to process scala way
-    case clazz: PsiClass =>
-      TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, s),
-        null, place)
+      //need to process scala way
+      case clazz: PsiClass =>
+        TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, s),
+          null, place)
 
-    case des => des.processDeclarations(this, state.put(ScSubstitutor.key, s), null, place)
+      case des => des.processDeclarations(this, state.put(ScSubstitutor.key, s), null, place)
+    }
   }
 
   protected def getSubst(state: ResolveState) = {

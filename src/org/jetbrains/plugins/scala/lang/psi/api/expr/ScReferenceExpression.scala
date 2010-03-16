@@ -16,7 +16,6 @@ import psi.types.ScType
 */
 
 trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
-
   def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
 
   /**
@@ -27,5 +26,4 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
    * we should resolve. If all methods has same result type, then we will give valid completion and resolve.
    */
   def multiType: Array[ScType]
-
 }
