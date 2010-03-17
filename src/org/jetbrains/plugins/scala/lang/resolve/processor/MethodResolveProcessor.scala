@@ -4,33 +4,34 @@ package resolve
 
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
-import params.{ScTypeParam, ScParameter}
-import com.intellij.psi.scope._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.util.Key
-
 import psi.types._
 
-import _root_.scala.collection.immutable.HashSet
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import psi.api.base.types.ScTypeElement
-import result.{Success, TypingContext}
+import result.{TypingContext}
 import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
 import collection.{Seq, Set}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import psi.api.expr.{ScTypedStmt, ScMethodCall, ScGenericCall, ScExpression}
-import psi.implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import psi.api.expr.{ScMethodCall, ScGenericCall}
+import psi.implicits.{ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.ScalaPsiUtil
-import psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
+import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
+import Compatibility.Expression
 
-class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val ref: PsiElement, val name: String) extends BaseProcessor(kinds)
-{
-
+//todo: remove all argumentClauses, we need just one of them
+class MethodResolveProcessor(override val ref: PsiElement,
+                             refName: String,
+                             argumentClauses: List[Seq[Expression]],
+                             typeArgElements: Seq[ScTypeElement],
+                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
+                             expectedOption: => Option[ScType] = None,
+                             isUnderscore: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
   /**
    * Contains highest precedence of all resolve results.
    * 1 - import a._
@@ -83,294 +84,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value], val ref: P
           }
         }
         case _ =>
-      }
-      return 5
-    }
-    val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
-    importUsed match {
-      case _: ImportWildcardSelectorUsed => return 3
-      case _: ImportSelectorUsed => return 4
-      case ImportExprUsed(expr) => {
-        if (expr.singleWildcard) return 3
-        else return 4
-      }
-    }
-  }
-
-  override def changedLevel = {
-    if (levelSet.isEmpty) true
-    else if (precedence == 5) {
-      candidatesSet ++= levelSet
-      levelSet.clear
-      false
-    }
-    else {
-      candidatesSet ++= levelSet
-      levelSet.clear
-      true
-    }
-  }
-
-  def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
-    val memb: PsiMember = {
-      named match {
-        case memb: PsiMember => memb
-        case pl => ScalaPsiUtil.nameContext(named) match {
-          case memb: PsiMember => memb
-          case _ => return true //something strange
-        }
-      }
-    }
-    return ResolveUtils.isAccessible(memb, place)
-  }
-
-  def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
-      return named match {
-        case o: ScObject if o.isPackageObject => true
-        case _ => {
-          addResult(new ScalaResolveResult(named, getSubst(state), getImports(state)))
-          true
-        }
-      }
-    }
-    return true
-  }
-
-  protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
-    val nameSet = state.get(ResolverEnv.nameKey)
-    val elName = if (nameSet == null) {
-      if (named.getName == null) return false
-      named.getName.replace("`", "")
-    } else nameSet.replace("`", "")
-    elName == name && kindMatches(named)
-  }
-
-  override def getHint[T](hintKey: Key[T]): T = {
-    if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
-    else super.getHint(hintKey)
-  }
-
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    (candidatesSet ++ levelSet).toArray
-  }
-  object ScalaNameHint extends NameHint {
-    def getName(state: ResolveState) = {
-      val stateName = state.get(ResolverEnv.nameKey)
-      if (stateName == null) name else stateName
-    }
-  }
-}
-
-class ExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
-                                expected: Option[ScType]/*, patternsCount: Int, lastSeq: Boolean*/)
-        extends ResolveProcessor(kinds, ref, refName) {
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
-      named match {
-        case o: ScObject if o.isPackageObject => return true
-        case clazz: ScClass if clazz.isCase => {
-          candidatesSet.clear
-          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-          return false //find error  about existing unapply in companion during annotation under case class
-        }
-        case ta: ScTypeAliasDefinition => {
-          val alType = ta.aliasedType(TypingContext.empty)
-          for (tp <- alType) {
-            ScType.extractClassType(tp) match {
-              case Some((clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
-                candidatesSet.clear
-                candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-                return false
-              }
-              case _ =>
-            }
-          }
-        }
-        case obj: ScObject => {
-          for (sign <- obj.signaturesByName("unapply")) {
-            val m = sign.method
-            val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
-          }
-          //unapply has bigger priority then unapplySeq
-          if (candidatesSet.isEmpty)
-          for (sign <- obj.signaturesByName("unapplySeq")) {
-            val m = sign.method
-            val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
-          }
-          return true
-        }
-        case bind: ScBindingPattern => {
-          candidatesSet += new ScalaResolveResult(bind, getSubst(state), getImports(state))
-        }
-        case _ => return true
-      }
-    }
-    return true
-  }
-
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    //todo: Local type inference
-    expected match {
-      case Some(tp) => {
-          for (applicable <- candidatesSet) {
-            applicable.element match {
-              case fun: ScFunction => {
-                val clauses = fun.paramClauses.clauses
-                if (clauses.length != 0) {
-                  if (clauses.apply(0).parameters.length == 1) {
-                    for (paramType <- clauses(0).parameters.apply(0).getType(TypingContext.empty)) {
-                      if (tp equiv applicable.substitutor.subst(paramType)) return Array(applicable)
-                    }
-                  }
-                }
-              }
-              case _ =>
-            }
-          }
-      }
-      case _ =>
-    }
-    return candidatesSet.toArray
-  }
-}
-
-/**
- * This class is useful for finding actual methods for unapply or unapplySeq, in case for values:
- * <code>
- *   val a: Regex
- *   z match {
- *     case a() =>
- *   }
- * </code>
- * This class cannot be used for actual resolve, because reference to value should work to this value, not to
- * invoked unapply method.
- */
-class ExpandedExtractorResolveProcessor(ref: ScReferenceElement, refName: String, kinds: Set[ResolveTargets.Value],
-        expected: Option[ScType]) extends ExtractorResolveProcessor(ref, refName, kinds, expected) {
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return false
-      named match {
-        case bind: ScBindingPattern => {
-          ScalaPsiUtil.nameContext(bind) match {
-            case v: ScValue => {
-              val parentSubst = getSubst(state)
-              val typez = bind.getType(TypingContext.empty).getOrElse(return true)
-              ScType.extractClassType(typez) match {
-                case Some((clazz: ScTypeDefinition, substitutor: ScSubstitutor)) => {
-                  for (sign <- clazz.signaturesByName("unapply")) {
-                    val m = sign.method
-                    val subst = sign.substitutor
-                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
-                      getImports(state))
-                  }
-                  //unapply has bigger priority then unapplySeq
-                  if (candidatesSet.isEmpty)
-                  for (sign <- clazz.signaturesByName("unapplySeq")) {
-                    val m = sign.method
-                    val subst = sign.substitutor
-                    candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
-                      getImports(state))
-                  }
-                  return true
-                }
-                case _ => return true
-              }
-            }
-            case _ => return true
-          }
-        }
-        case _ => return super.execute(element, state)
-      }
-    }
-    true
-  }
-}
-
-class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value], override val ref: PsiElement,
-                          override val name: String)
-        extends ResolveProcessor(kinds, ref, name)
-{
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
-    if (nameAndKindMatch(named, state)) {
-      if (!isAccessible(named, ref)) return true
-      candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
-    }
-    true
-  }
-}
-
-//todo: remove all argumentClauses, we need just one of them
-import Compatibility.Expression
-class MethodResolveProcessor(override val ref: PsiElement,
-                             refName: String,
-                             argumentClauses: List[Seq[Expression]],
-                             typeArgElements: Seq[ScTypeElement],
-                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
-                             expectedOption: => Option[ScType] = None,
-                             isUnderscore: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
-
-  /**
-   * Contains highest precedence of all resolve results.
-   * 1 - import a._
-   * 2 - import a.x
-   * 3 - definition or declaration
-   */
-  private var precedence: Int = 0
-
-  private val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
-
-  /**
-   * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
-   */
-  private def addResult(result: ScalaResolveResult): Boolean = {
-    val currentPrecedence = getPrecendence(result)
-    if (currentPrecedence < precedence) return false
-    else if (currentPrecedence == precedence && levelSet.isEmpty) return false
-    precedence = currentPrecedence
-    val newSet = levelSet.filterNot(res => getPrecendence(res) < precedence)
-    levelSet.clear
-    levelSet ++= newSet
-    levelSet += result
-    true
-  }
-
-  private def getPrecendence(result: ScalaResolveResult): Int = {
-    if (result.importsUsed.size == 0) {
-      ScalaPsiUtil.nameContext(result.getElement) match {
-        case synthetic: ScSyntheticClass => return 2 //like scala.Int
-        case clazz: PsiClass => {
-          val qualifier = clazz.getQualifiedName
-          if (qualifier == null) return 5
-          val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 5
-          val q = qualifier.substring(0, index)
-          if (q == "java.lang") return 1
-          else if (q == "scala") return 2
-          else return 5
-        }
-        case _: ScBindingPattern | _: PsiMember => {
-          val clazz = PsiTreeUtil.getParentOfType(result.getElement, classOf[PsiClass])
-          if (clazz == null) return 5
-          else {
-            clazz.getQualifiedName match {
-              case "scala.Predef" => return 2
-              case "scala.LowPriorityImplicits" => return 2
-              case "scala" => return 2
-              case _ => return 5
-            }
-          }
-        }
-        case _ => 
       }
       return 5
     }
@@ -657,31 +370,4 @@ class MethodResolveProcessor(override val ref: PsiElement,
     case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Any)
     case _ => Nothing
   }
-}
-
-import ResolveTargets._
-
-object StdKinds {
-  
-  val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL)
-  val stableQualOrClass = stableQualRef + CLASS
-  val noPackagesClassCompletion = ValueSet(OBJECT, VAL, CLASS)
-  val stableImportSelector = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
-  val stableClass = ValueSet(CLASS)
-
-  val stableClassOrObject = ValueSet(CLASS, OBJECT)
-  val classOrObjectOrValues = stableClassOrObject + VAL + VAR
-
-  val refExprLastRef = ValueSet(OBJECT, VAL, VAR, METHOD)
-  val refExprQualRef = refExprLastRef + PACKAGE
-
-  val methodRef = ValueSet(VAL, VAR, METHOD)
-
-  val valuesRef = ValueSet(VAL, VAR)
-
-  val packageRef = ValueSet(PACKAGE)
-}
-
-object ResolverEnv {
-  val nameKey: Key[String] = Key.create("ResolverEnv.nameKey")
 }

@@ -35,8 +35,8 @@ import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
  * Date: 22.02.2008
  */
 
-class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScStableCodeReferenceElement {
-  def getVariants(): Array[Object] = _resolve(this, new CompletionProcessor(getKinds(true))).map(r => {
+class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableStableCodeReferenceElement {
+  def getVariants(): Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).map(r => {
     r match {
       case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
       case _ => r.getElement
@@ -44,23 +44,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   })
 
   override def toString: String = "CodeReferenceElement"
-
-  object MyResolver extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElementImpl] {
-    def resolve(ref: ScStableCodeReferenceElementImpl, incomplete: Boolean) = {
-      val kinds = ref.getKinds(false)
-      val proc = ref.getContext match {
-      //last ref may import many elements with the same name
-        case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) => new CollectAllProcessor(kinds, ref, refName)
-        case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, refName)
-        case _: ScImportSelector => new CollectAllProcessor(kinds, ref, refName)
-
-        case constr: ScConstructorPattern => new ExtractorResolveProcessor(ref, refName, kinds, constr.expectedType)
-        case infix: ScInfixPattern => new ExtractorResolveProcessor(ref, refName, kinds, infix.expectedType)
-        case _ => new ResolveProcessor(kinds, ref, refName)
-      }
-      _resolve(ref, proc)
-    }
-  }
 
   def getKinds(incomplete: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
@@ -79,93 +62,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScInfixTypeElement => stableClass
       case _ => stableQualRef
     }
-  }
-
-  private def _qualifier() = {
-    getContext match {
-      case sel: ScImportSelector => {
-        sel.getContext /*ScImportSelectors*/.getContext.asInstanceOf[ScImportExpr].reference
-      }
-      case _ => pathQualifier
-    }
-  }
-
-  def _resolve(ref: ScStableCodeReferenceElementImpl, processor: BaseProcessor): Array[ResolveResult] = {
-    _qualifier match {
-      case None => {
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-          place match {
-            case null =>
-            case p => {
-              if (!p.processDeclarations(processor,
-                ResolveState.initial,
-                lastParent, ref)) return
-              if (!processor.changedLevel) return
-              treeWalkUp(place.getContext, place)
-            }
-          }
-        }
-        treeWalkUp(ref, null)
-      }
-      case Some(q: ScStableCodeReferenceElement) => {
-        q.bind match {
-          case None =>
-          case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => 
-            processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
-          case Some(r@ScalaResolveResult(pack: PsiPackage, _)) => {
-
-            // Process synthetic classes for scala._ package
-            if (pack.getQualifiedName == "scala") {
-              import toplevel.synthetic.SyntheticClasses
-              for (synth <- SyntheticClasses.get(getProject).getAll) {
-                processor.execute(synth, ResolveState.initial)
-              }
-            }
-
-            // Process package object declarations first
-            // Treat package object first
-            val manager = ScalaCachesManager.getInstance(getProject)
-            val cache = manager.getNamesCache
-            val obj = cache.getPackageObjectByName(pack.getQualifiedName, GlobalSearchScope.allScope(getProject))
-            if (obj == null ||
-                    obj.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ScStableCodeReferenceElementImpl.this)) {
-              // Treat other declarations from package
-              pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ScStableCodeReferenceElementImpl.this)
-
-            }
-          }
-          case Some(other) => {
-            other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
-              null, ScStableCodeReferenceElementImpl.this)
-          }
-        }
-      }
-      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
-      case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-    }
-
-    val candidates = processor.candidates
-    val filtered = candidates.filter(candidatesFilter)
-
-    filtered.toArray
-  }
-
-  private def candidatesFilter(result: ScalaResolveResult) = {
-    result.element match {
-      case c: PsiClass if c.getName == c.getQualifiedName => c.getContainingFile match {
-        case s: ScalaFile => true // scala classes are available from default package
-        // Other classes from default package are available only for top-level Scala statements
-        case _ => PsiTreeUtil.getContextOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
-          case s: ScalaFile => s.getPackageName.length == 0
-          case _ => true
-        })
-      }
-      case _ => true
-    }
-  }
-
-  def multiResolve(incomplete: Boolean) = {
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
   }
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)
@@ -192,5 +88,5 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = _resolve(this, new CompletionProcessor(getKinds(true), false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), false, Some(refName)))
 }

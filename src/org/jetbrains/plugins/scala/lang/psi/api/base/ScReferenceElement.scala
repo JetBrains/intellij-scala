@@ -22,27 +22,7 @@ import org.jetbrains.plugins.scala.psi.api._
  * Date: 22.02.2008
  */
 
-trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
-  def bind(): Option[ScalaResolveResult] = {
-    ProgressManager.checkCanceled
-    val results = multiResolve(false)
-    if(results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
-  }
-
-  def resolve(): PsiElement = {
-    advancedResolve match {
-      case Some(result) => result.element
-      case _ => null
-    }
-  }
-
-  def advancedResolve: Option[ScalaResolveResult] = {
-    bind match {
-      case Some(result) if !result.isCyclicReference =>  Some(result)
-      case _ => None
-    }
-  }
-
+trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement {
   override def getReference = this
 
   def nameId: PsiElement
