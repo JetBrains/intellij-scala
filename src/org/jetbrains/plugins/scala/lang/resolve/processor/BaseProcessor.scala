@@ -14,16 +14,16 @@ import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
-import psi.impl.toplevel.synthetic.ScSyntheticClass
-import toplevel.typedef.ScClass
+import ResolveTargets._
+import psi.impl.toplevel.synthetic.SyntheticClasses
+import _root_.scala.collection.mutable.HashSet
+
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
-  import _root_.scala.collection.mutable.HashSet
-
   protected val candidatesSet: HashSet[ScalaResolveResult] = new HashSet[ScalaResolveResult]
 
   def changedLevel = true
@@ -55,14 +55,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {
-  }
-
-  import ResolveTargets._
+  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {}
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
-
-  import psi.impl.toplevel.synthetic.SyntheticClasses
 
   def processType(t: ScType, place: ScalaPsiElement): Boolean = processType(t, place, ResolveState.initial)
 
@@ -171,5 +166,4 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
   }
-
 }
