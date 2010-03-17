@@ -10,18 +10,8 @@ class QualifierSourceTest extends ResolveTestBase {
     super.getTestDataPath + "qualifier/source/"
   }
 
-  def testCaseClass = doTest
-  //TODO caseclass
-//  def testCaseClassObject = doTest
-  //TODO caseclass
-//  def testCaseClassObjectSyntetic = doTest
-  def testCaseObject = doTest
-  //TODO caseclass
-//  def testCaseObjectSyntetic = doTest
   def testChainLong = doTest
   def testChainDeep = doTest
-  def testClass = doTest
-  def testObject = doTest
   def testPackage = doTest
   //TODO getClass
 //  def testPackageAsValue = doTest
@@ -29,5 +19,4 @@ class QualifierSourceTest extends ResolveTestBase {
 //  def testPackageObject = doTest
   //TODO packageobject
 //  def testPackageObjectAsValue = doTest
-  def testTrait = doTest
 }
