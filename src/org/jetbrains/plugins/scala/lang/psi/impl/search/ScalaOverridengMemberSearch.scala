@@ -44,9 +44,9 @@ object ScalaOverridengMemberSearch {
         case Some(x) => x
         case None => return true
       }
-      val signatures: Seq[FullSignature] = TypeDefinitionMembers.getSignatures(inheritor).values.map{n => n.info}.
-                  collect.map(_.asInstanceOf[FullSignature]).
-                  filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor)
+      val signatures: Iterable[FullSignature] = (TypeDefinitionMembers.getSignatures(inheritor).values.map {n => n.info}.
+              map(_.asInstanceOf[FullSignature]).
+              filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor))
       member match {
         case method: PsiMethod => {
           val sign = new PhysicalSignature(method, substitutor)
