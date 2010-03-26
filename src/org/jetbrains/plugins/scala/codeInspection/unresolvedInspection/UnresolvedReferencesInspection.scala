@@ -35,7 +35,7 @@ class UnresolvedReferencesInspection extends LocalInspectionTool {
     res.toArray
   }
 
-  def getShortName: String = "Unresolved references"
+  def getShortName: String = "UnresolvedReferences"
 
   def getDisplayName: String = "Unresolved references inspection"
 
