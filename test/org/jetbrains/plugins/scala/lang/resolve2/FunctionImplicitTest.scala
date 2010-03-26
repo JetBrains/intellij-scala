@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-import com.sun.xml.internal.bind.v2.TODO
-
-
 /**
  * Pavel.Fatin, 02.02.2010
  */
