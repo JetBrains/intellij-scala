@@ -24,6 +24,10 @@
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
+  <extensions>
+    <org.jetbrains.idea.maven.importer implementation="org.jetbrains.plugins.scala.config.maven.ScalaMavenImporter"/>
+  </extensions>
+
   <extensions defaultExtensionNs="com.intellij">
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>

@@ -281,7 +281,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     val manager = PsiManager.getInstance(project)
     var clazz = new ScSyntheticClass(manager, name, t)
 
-    all + ((name, clazz)); clazz
+    all += ((name, clazz)); clazz
   }
 
   def registerIntegerClass(clazz : ScSyntheticClass) = {integer += clazz; clazz}
