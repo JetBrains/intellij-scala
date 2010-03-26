@@ -33,7 +33,20 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
                     rootModel: MavenRootModelAdapter, facet: ScalaFacet, mavenTree: MavenProjectsTree,
                     mavenProject: MavenProject, changes: MavenProjectChanges,
                     mavenProjectToModuleName: Map[MavenProject, String],
-                    postTasks: List[MavenProjectsProcessorTask]): Unit = {}
+                    postTasks: List[MavenProjectsProcessorTask]): Unit = {
+    val configuration = facet.getConfiguration
+    val settings = configuration.getMyScalaLibrariesConfiguration
+    val compiler = mavenProject.findDependencies("org.scala-lang", "scala-compiler")
+    val library = mavenProject.findDependencies("org.scala-lang", "scala-library")
+    if (compiler.size > 0) {
+      settings.takeFromSettings = true
+      settings.myScalaCompilerJarPaths = Array(compiler.get(0).getPath)
+    }
+    if (library.size > 0) {
+      settings.takeFromSettings = true
+      settings.myScalaSdkJarPaths = Array(library.get(0).getPath)
+    }
+  }
 
   def setupFacet(f: ScalaFacet, mavenProject: MavenProject): Unit = {}
 }
