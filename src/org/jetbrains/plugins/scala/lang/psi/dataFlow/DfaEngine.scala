@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.dataFlow
 
 import collection.mutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
+import collection.immutable.HashSet
 
 /**
  * @author ilyas
@@ -16,20 +17,18 @@ final class DfaEngine[E](cfg: Seq[Instruction],
     val after = HashMap(initial: _*)
     val forward = dfa.isForward
 
-    def traverse(workList: Set[Instruction]): Unit = if (!workList.isEmpty) {
-      val v = workList.head
-      var newWorkList = workList - v
+    val workList: java.util.Set[Instruction] = new java.util.HashSet[Instruction](java.util.Arrays.asList(cfg.toArray : _*))
+    while (!workList.isEmpty) {
+      val v = workList.iterator.next
+      workList.remove(v)
 
       val fv = dfa.fun(v)
       val newAfter = fv(l.join((if (forward) v.pred else v.succ).map(after(_))))
       if (!l.eq(newAfter, after(v))) {
         after(v) = newAfter
-        newWorkList ++= (if (forward) v.succ else v.pred)
+        workList addAll java.util.Arrays.asList((if (forward) v.succ.toArray else v.pred.toArray): _*)
       }
-      traverse(newWorkList)
     }
-
-    traverse(Set(cfg: _*))
     after
   }
 }
