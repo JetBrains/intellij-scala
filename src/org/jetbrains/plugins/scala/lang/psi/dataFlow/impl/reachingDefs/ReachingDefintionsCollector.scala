@@ -35,7 +35,7 @@ object ReachingDefintionsCollector {
     // CFG -> DFA
     val commonParent = findCommonParent(elements: _*)
     val cfowner = getParentOfType(commonParent, classOf[ScControlFlowOwner])
-    val cfg = cfowner.getControlFlow(true)
+    val cfg = cfowner.getControlFlow(false) //todo: make cache more right to not get PsiInvalidAccess
     val engine = new DfaEngine(cfg, ReachingDefinitionsInstance, ReachingDefinitionsLattice)
     val dfaResult = engine.performDFA
 
