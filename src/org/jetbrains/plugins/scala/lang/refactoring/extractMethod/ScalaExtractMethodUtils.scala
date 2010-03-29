@@ -88,12 +88,18 @@ object ScalaExtractMethodUtils {
     }).createPopup.showInBestPositionFor(editor)
   }
 
+  class FakePsiType(val tp: ScType) extends PsiPrimitiveType("fakeForScala", PsiAnnotation.EMPTY_ARRAY) {
+    override def getPresentableText: String = ScType.presentableText(tp)
+  }
+
   def convertVariableData(variable: VariableInfo): ParameterTablePanel.VariableData = {
     val tp = variable.element.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).
             getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
-    new ParameterTablePanel.VariableData(new FakePsiParameter(variable.element.getManager, ScalaFileType.SCALA_LANGUAGE,
-      tp, variable.element.getName), new PsiPrimitiveType("fake", PsiAnnotation.EMPTY_ARRAY) {
-      override def getPresentableText: String = ScType.presentableText(tp)
-    })
+    val param =
+      new FakePsiParameter(variable.element.getManager, ScalaFileType.SCALA_LANGUAGE, tp, variable.element.getName)
+    val data = new ParameterTablePanel.VariableData(param, new FakePsiType(tp))
+    data.passAsParameter = true
+    data.name = variable.element.getName
+    data
   }
 }

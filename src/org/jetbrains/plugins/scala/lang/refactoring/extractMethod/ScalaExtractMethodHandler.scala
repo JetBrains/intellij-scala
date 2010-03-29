@@ -88,12 +88,12 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (scope == null) return
     if (siblings.length > 1) {
       ScalaExtractMethodUtils.showChooser(editor, siblings, {selectedValue =>
-        invokeDialog(project, editor, elements, hasReturn, selectedValue, scope)
+        invokeDialog(project, editor, elements, hasReturn, selectedValue)
       }, "Choose level for Extract Method", getTextForElement _)
       return
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, elements, hasReturn, siblings(0), scope)
+      invokeDialog(project, editor, elements, hasReturn, siblings(0))
     } else return
   }
 
@@ -116,7 +116,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Boolean,
-                           sibling: PsiElement, scope: PsiElement) {
+                           sibling: PsiElement) {
+    val scope = sibling.getParent
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
       val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
       val input = info.inputVariables

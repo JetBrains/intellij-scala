@@ -16,6 +16,8 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
+import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
+import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
@@ -25,11 +27,9 @@ import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
 import patterns.{ScReferencePattern, ScCaseClause}
 import result.TypingContext
-import search.GlobalSearchScope
 import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import collection.mutable.ArrayBuffer
-import util.{PsiFormatUtil, PsiFormatUtilBase}
 
 /**
  * User: Alexander Podkhalyuzin

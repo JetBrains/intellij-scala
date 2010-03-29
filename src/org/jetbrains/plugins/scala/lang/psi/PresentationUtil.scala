@@ -15,7 +15,8 @@ import refactoring.util.ScTypeUtil
  */
 
 object PresentationUtil {
-  def presentationString(obj: Any, substitutor: ScSubstitutor = ScSubstitutor.empty): String = {
+  def presentationString(obj: Any): String = presentationString(obj, ScSubstitutor.empty)
+  def presentationString(obj: Any, substitutor: ScSubstitutor): String = {
     val res: String = obj match {
       case clauses: ScParameters => clauses.clauses.map(presentationString(_, substitutor)).mkString("")
       case clause: ScParameterClause => {

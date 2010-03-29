@@ -10,6 +10,7 @@ import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.PresentationUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
@@ -17,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableI
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import javax.swing.*;
@@ -24,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -43,6 +47,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private EditorTextField editorTextField;
   private JPanel visibilityPanel;
   private JPanel inputParametersPanel;
+  private JLabel returnTypeLabel;
 
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
@@ -54,6 +59,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private PsiElement myScope;
   private VariableInfo[] myInput;
   private VariableInfo[] myOutput;
+  private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
 
   public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn, PsiElement sibling,
                                   PsiElement scope, VariableInfo[] input, VariableInfo[] output) {
@@ -139,6 +145,23 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
     });
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
+
+    ScType[] returnTypes = getReturnTypes();
+    if (returnTypes.length == 0)
+      returnTypeLabel.setText("Unit");
+    else if (returnTypes.length == 1) {
+      returnTypeLabel.setText(PresentationUtil.presentationString(returnTypes[0]));
+    }
+    else {
+      StringBuilder builder = new StringBuilder("(");
+      for (ScType returnType : returnTypes) {
+        builder.append(PresentationUtil.presentationString(returnType)).append(", ");
+      }
+      builder.replace(builder.length() - 2, builder.length(), "");
+      builder.append(")");
+      returnTypeLabel.setText(builder.toString());
+    }
+
     setupParametersPanel();
   }
 
@@ -147,7 +170,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     for (int i = 0; i < myInput.length; ++i) {
       data[i] = ScalaExtractMethodUtils.convertVariableData(myInput[i]);
     }
-    inputParametersPanel.add(new ScalaParameterTablePanel(myProject, data));
+    parameterTablePanel = new ScalaParameterTablePanel(myProject, data);
+    inputParametersPanel.add(parameterTablePanel);
   }
 
   private boolean isVisibilitySectionAvailable() {
@@ -167,7 +191,14 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private String[] getParamNames() {
-    return new String[0]; //todo:
+    ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
+    ArrayList<String> list = new ArrayList<String>();
+    for (ParameterTablePanel.VariableData d : data) {
+      if (d.passAsParameter) {
+        list.add(d.name);
+      }
+    }
+    return list.toArray(new String[list.size()]);
   }
 
   @Override
@@ -178,11 +209,24 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private ScType[] getParamTypes() {
-    return new ScType[0]; //todo:
+    ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
+    ArrayList<ScType> list = new ArrayList<ScType>();
+    for (ParameterTablePanel.VariableData d : data) {
+      if (d.passAsParameter) {
+        list.add(((ScalaExtractMethodUtils.FakePsiType) d.type).tp());
+      }
+    }
+    return list.toArray(new ScType[list.size()]);
   }
 
   private ScType[] getReturnTypes() {
-    return new ScType[0]; //todo:
+    ArrayList<ScType> list = new ArrayList<ScType>();
+    for (VariableInfo info : myOutput) {
+      ScalaExtractMethodUtils.FakePsiType tp =
+          (ScalaExtractMethodUtils.FakePsiType) ScalaExtractMethodUtils.convertVariableData(info).type;
+      list.add(tp.tp());
+    }
+    return list.toArray(new ScType[list.size()]);
   }
 
   private String getMethodName() {
