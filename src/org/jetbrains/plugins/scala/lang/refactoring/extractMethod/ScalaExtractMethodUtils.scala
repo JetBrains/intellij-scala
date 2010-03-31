@@ -130,48 +130,6 @@ object ScalaExtractMethodUtils {
     method
   }
 
-  //todo: Move to refactoring utils.
-  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
-                                   elementName: T => String): Unit = {
-    val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model: DefaultListModel = new DefaultListModel
-    for (element <- elements) {
-      model.addElement(element)
-    }
-    val list: JList = new JList(model)
-    list.setCellRenderer(new DefaultListCellRenderer {
-      override def getListCellRendererComponent(list: JList, value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        val buf: StringBuffer = new StringBuffer
-        val element: T = value.asInstanceOf[T]
-        if (element.isValid) {
-          setText(elementName(element))
-        }
-        return rendererComponent
-      }
-    })
-    list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent): Unit = {
-        highlighter.dropHighlight
-        val index: Int = list.getSelectedIndex
-        if (index < 0) return
-        val element: T = model.get(index).asInstanceOf[T]
-        val toExtract: ArrayList[PsiElement] = new ArrayList[PsiElement]
-        toExtract.add(element)
-        highlighter.highlight(element, toExtract)
-      }
-    })
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run: Unit = {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
-    }).addListener(new JBPopupAdapter {
-      override def onClosed(event: LightweightWindowEvent): Unit = {
-        highlighter.dropHighlight
-      }
-    }).createPopup.showInBestPositionFor(editor)
-  }
-
   class FakePsiType(val tp: ScType) extends PsiPrimitiveType("fakeForScala", PsiAnnotation.EMPTY_ARRAY) {
     override def getPresentableText: String = ScType.presentableText(tp)
   }
