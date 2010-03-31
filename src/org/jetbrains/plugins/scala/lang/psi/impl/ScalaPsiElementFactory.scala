@@ -197,12 +197,15 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
       case _ => throw new com.intellij.util.IncorrectOperationException()
     }
   }
-
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
                         expr: ScExpression, manager: PsiManager): ScMember = {
+    createDeclaration(typez, name, isVariable, expr.getText, manager)
+  }
+  def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
+                        exprText: String, manager: PsiManager): ScMember = {
     val text = "class a {" + (if (isVariable) "var " else "val ") +
               name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  +
-            ScType.canonicalText(typez) else "") + " = " + expr.getText + "}"
+            ScType.canonicalText(typez) else "") + " = " + exprText + "}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScValue]

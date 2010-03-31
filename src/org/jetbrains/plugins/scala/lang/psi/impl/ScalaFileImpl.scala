@@ -238,7 +238,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       case _ => {
         if (getPackagings.isEmpty) {
           val defaultPackage = JavaPsiFacade.getInstance(getProject).findPackage("")
-          if (!defaultPackage.processDeclarations(processor, state, null, place)) return false
+          if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
         }
       }
     }

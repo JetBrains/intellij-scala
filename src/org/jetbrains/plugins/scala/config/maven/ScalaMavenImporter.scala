@@ -15,7 +15,7 @@ import org.jetbrains.idea.maven.utils.MavenJDOMUtil
  */
 
 class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfiguration, ScalaFacetType]("org.scala-tools",
-  "maven-scala-plugin", ScalaFacetType.INSTANCE, "Scala Facet") {
+  "maven-scala-plugin", ScalaFacetType.INSTANCE, "Scala") {
 
   override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit =
     collectSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala", result)

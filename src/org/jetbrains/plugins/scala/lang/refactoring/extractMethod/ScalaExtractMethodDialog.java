@@ -11,6 +11,9 @@ import com.intellij.ui.EditorTextField;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil;
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector;
@@ -18,6 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableI
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter;
+import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodReturn;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
@@ -146,7 +151,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     });
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
 
-    ScType[] returnTypes = getReturnTypes();
+    ExtractMethodReturn[] returns = getReturns();
+    ScType[] returnTypes = new ScType[returns.length];
+    for (int i = 0; i < returns.length; i++) {
+      ExtractMethodReturn aReturn = returns[i];
+      returnTypes[i] = aReturn.returnType();
+    }
     if (returnTypes.length == 0)
       returnTypeLabel.setText("Unit");
     else if (returnTypes.length == 1) {
@@ -168,7 +178,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private void setupParametersPanel() {
     ParameterTablePanel.VariableData[] data = new ParameterTablePanel.VariableData[myInput.length];
     for (int i = 0; i < myInput.length; ++i) {
-      data[i] = ScalaExtractMethodUtils.convertVariableData(myInput[i]);
+      data[i] = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
     }
     parameterTablePanel = new ScalaParameterTablePanel(myProject, data);
     inputParametersPanel.add(parameterTablePanel);
@@ -190,53 +200,42 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     }
   }
 
-  private String[] getParamNames() {
-    ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
-    ArrayList<String> list = new ArrayList<String>();
-    for (ParameterTablePanel.VariableData d : data) {
-      if (d.passAsParameter) {
-        list.add(d.name);
-      }
-    }
-    return list.toArray(new String[list.size()]);
-  }
-
   @Override
   protected void doOKAction() {
-    settings = new ScalaExtractMethodSettings(getMethodName(), getParamNames(), getParamTypes(), getReturnTypes(),
+    settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
         getVisibility(), myScope, mySibling, myElements, myHasReturn);
     super.doOKAction();
   }
 
-  private ScType[] getParamTypes() {
+  private ExtractMethodParameter[] getParameters() {
     ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
-    ArrayList<ScType> list = new ArrayList<ScType>();
+    ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
     for (ParameterTablePanel.VariableData d : data) {
-      if (d.passAsParameter) {
-        list.add(((ScalaExtractMethodUtils.FakePsiType) d.type).tp());
-      }
+      ScalaExtractMethodUtils.ScalaVariableData variableData = (ScalaExtractMethodUtils.ScalaVariableData) d;
+      ExtractMethodParameter param = new ExtractMethodParameter(d.variable.getName(), d.name, false /*todo*/,
+          ((ScalaExtractMethodUtils.FakePsiType) d.type).tp(), variableData.isMutable(), d.passAsParameter,
+          variableData.vari() instanceof ScFunction);
+      list.add(param);
     }
-    return list.toArray(new ScType[list.size()]);
+    return list.toArray(new ExtractMethodParameter[list.size()]);
   }
 
-  private ScType[] getReturnTypes() {
-    ArrayList<ScType> list = new ArrayList<ScType>();
+  private ExtractMethodReturn[] getReturns() {
+    ArrayList<ExtractMethodReturn> list = new ArrayList<ExtractMethodReturn>();
     for (VariableInfo info : myOutput) {
-      ScalaExtractMethodUtils.FakePsiType tp =
-          (ScalaExtractMethodUtils.FakePsiType) ScalaExtractMethodUtils.convertVariableData(info).type;
-      list.add(tp.tp());
+      ScalaExtractMethodUtils.ScalaVariableData data =
+          (ScalaExtractMethodUtils.ScalaVariableData) ScalaExtractMethodUtils.convertVariableData(info, myElements);
+      ScalaExtractMethodUtils.FakePsiType tp = (ScalaExtractMethodUtils.FakePsiType) data.type;
+      ExtractMethodReturn aReturn = new ExtractMethodReturn(info.element().getName(), tp.tp(), 
+          data.isInsideOfElements(), ScalaPsiUtil.nameContext(info.element()) instanceof ScValue ||
+          ScalaPsiUtil.nameContext(info.element()) instanceof ScFunction);
+      list.add(aReturn);
     }
-    return list.toArray(new ScType[list.size()]);
+    return list.toArray(new ExtractMethodReturn[list.size()]);
   }
 
   private String getMethodName() {
     return editorTextField.getText();
-  }
-
-  private PsiElement getSibling() {
-    PsiElement result = myElements[0];
-    while (result.getParent() != null && result.getParent() != mySibling) result = result.getParent();
-    return result;
   }
 
   public ScalaExtractMethodSettings getSettings() {
