@@ -88,7 +88,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
     if (scope == null) return
     if (siblings.length > 1) {
-      ScalaExtractMethodUtils.showChooser(editor, siblings, {selectedValue =>
+      ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, selectedValue)
       }, "Choose level for Extract Method", getTextForElement _)
       return

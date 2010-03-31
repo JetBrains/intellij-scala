@@ -3,13 +3,18 @@ package lang
 package refactoring
 package util
 
+import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
+import _root_.com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdapter, JBPopupFactory}
+import _root_.java.util.{ArrayList, HashMap, Comparator}
+import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import _root_.java.awt.Component
+import _root_.javax.swing.{DefaultListCellRenderer, DefaultListModel, JList}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColors}
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import java.util.{HashMap, Comparator}
 import psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import psi.api.expr._
@@ -243,5 +248,46 @@ object ScalaRefactoringUtil {
 
   def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor): Unit = {
     highlightOccurrences(project, occurrences.map({el: PsiElement => el.getTextRange}), editor)
+  }
+
+  def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
+                                   elementName: T => String): Unit = {
+    val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
+    val model: DefaultListModel = new DefaultListModel
+    for (element <- elements) {
+      model.addElement(element)
+    }
+    val list: JList = new JList(model)
+    list.setCellRenderer(new DefaultListCellRenderer {
+      override def getListCellRendererComponent(list: JList, value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+        val buf: StringBuffer = new StringBuffer
+        val element: T = value.asInstanceOf[T]
+        if (element.isValid) {
+          setText(elementName(element))
+        }
+        return rendererComponent
+      }
+    })
+    list.addListSelectionListener(new ListSelectionListener {
+      def valueChanged(e: ListSelectionEvent): Unit = {
+        highlighter.dropHighlight
+        val index: Int = list.getSelectedIndex
+        if (index < 0) return
+        val element: T = model.get(index).asInstanceOf[T]
+        val toExtract: ArrayList[PsiElement] = new ArrayList[PsiElement]
+        toExtract.add(element)
+        highlighter.highlight(element, toExtract)
+      }
+    })
+    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
+      def run: Unit = {
+        pass(list.getSelectedValue.asInstanceOf[T])
+      }
+    }).addListener(new JBPopupAdapter {
+      override def onClosed(event: LightweightWindowEvent): Unit = {
+        highlighter.dropHighlight
+      }
+    }).createPopup.showInBestPositionFor(editor)
   }
 }
