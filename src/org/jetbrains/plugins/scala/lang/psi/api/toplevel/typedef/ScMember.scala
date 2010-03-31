@@ -10,9 +10,9 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import stubs.StubElement
+import com.intellij.psi.stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
-import impl.source.PsiFileImpl
+import com.intellij.psi.impl.source.PsiFileImpl
 
 /**
  * @author Alexander Podkhalyuzin

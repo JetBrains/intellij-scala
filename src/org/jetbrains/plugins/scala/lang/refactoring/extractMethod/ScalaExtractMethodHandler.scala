@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
 
+import _root_.com.intellij.psi._
+import _root_.org.jetbrains.plugins.scala.lang.resolve.{StdKinds, CompletionProcessor}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{ScrollType, Editor}
@@ -15,12 +17,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.psi.{PsiExpression, PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.openapi.util.Pass
-import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScDeclarationSequenceHolder, ScalaPsiUtil}
+import collection.mutable.{HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -146,6 +147,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
+    val element = settings.elements.apply(0)
+    val processor = new CompletionProcessor(StdKinds.refExprLastRef)
+    PsiTreeUtil.treeWalkUp(processor, element, null, ResolveState.initial)
+    val allNames = new HashSet[String]()
+    allNames ++= processor.candidates.map(rr => rr.element.getName)
+    var freshName = "r"
+    var count = 0
+    while (allNames.contains(freshName)) {
+      count += 1
+      freshName = "r" + count
+    }
     if (method == null) return
     val runnable = new Runnable {
       def run: Unit = {
@@ -154,9 +166,50 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         val sibling = settings.nextSibling
         sibling.getParent.getNode.addChild(method.getNode, sibling.getNode)
         sibling.getParent.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(method.getManager), sibling.getNode)
-        val methodName = settings.methodName
-        val call = ScalaPsiElementFactory.createExpressionFromText(methodName /*todo*/, settings.elements.apply(0).getManager)
-        settings.elements.apply(0).replace(call)
+        val methodCall = new StringBuilder(settings.methodName)
+        if (settings.parameters.find(p => p.passAsParameter) != None) {
+          val paramStrings = new ArrayBuffer[String]
+          for (param <- settings.parameters if param.passAsParameter) {
+            paramStrings += param.oldName + (if (param.isFunction) " _" else "")
+          }
+          methodCall.append(paramStrings.mkString("(", ", ", ")"))
+        }
+        if (settings.returns.length == 0) {
+          val call = ScalaPsiElementFactory.createExpressionFromText(methodCall.toString, settings.elements.apply(0).getManager)
+          settings.elements.apply(0).replace(call)
+        } else if (settings.returns.length == 1) {
+          val ret = settings.returns.apply(0)
+          if (ret.needNewDefinition) {
+            val stmt = ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
+                methodCall.toString, settings.elements.apply(0).getManager)
+            settings.elements.apply(0).replace(stmt)
+          } else {
+            val expr = ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " +
+              methodCall.toString, settings.elements.apply(0).getManager)
+            settings.elements.apply(0).replace(expr)
+          }
+        } else {
+          val stmt = ScalaPsiElementFactory.createDeclaration(null, freshName, false,
+            methodCall.toString, settings.elements.apply(0).getManager)
+          settings.elements.apply(0).replace(stmt)
+          var lastElem: PsiElement = stmt
+          def addNode(elem: PsiElement) {
+            lastElem.getParent.getNode.addChild(elem.getNode, lastElem.getNextSibling.getNode)
+            lastElem = elem
+          }
+          var count = 1
+          for (ret <- settings.returns) {
+            addNode(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
+            if (ret.needNewDefinition) {
+              addNode(ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName,
+                !ret.isVal, freshName + "._" + count, lastElem.getManager))
+            } else {
+              addNode(ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + freshName +
+                      "._" + count, stmt.getManager))
+            }
+            count += 1
+          }
+        }
         var i = 1
         while (i < settings.elements.length) {
           settings.elements.apply(i).getParent.getNode.removeChild(settings.elements.apply(i).getNode)
