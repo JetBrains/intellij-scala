@@ -1,7 +1,9 @@
-package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang
+package refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.PsiElement
+import refactoring.extractMethod.{ExtractMethodReturn, ExtractMethodParameter}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -16,4 +18,7 @@ class ScalaExtractMethodSettings(
         val scope: PsiElement,
         val nextSibling: PsiElement,
         val elements: Array[PsiElement],
-        val hasReturn: Boolean)
+        val returnType: Option[ScType],
+        val lastReturn: Boolean) {
+  def calcReturnType: String = ScalaExtractMethodUtils.calcReturnType(returnType, returns, lastReturn)
+}

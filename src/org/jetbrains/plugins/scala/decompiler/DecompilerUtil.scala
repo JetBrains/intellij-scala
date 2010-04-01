@@ -22,7 +22,7 @@ import collection.Seq
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 87
+  val DECOMPILER_VERSION = 88
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
@@ -89,7 +89,7 @@ object DecompilerUtil {
       val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
-      syms.first.parent match {
+      if (!syms.isEmpty) syms.first.parent match {
       //Partial match
         case Some(p) if (p.name != "<empty>") => {
           val path = p.path

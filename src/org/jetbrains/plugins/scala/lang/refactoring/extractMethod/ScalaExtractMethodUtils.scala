@@ -1,10 +1,11 @@
-package org.jetbrains.plugins.scala.lang.refactoring.extractMethod
+package org.jetbrains.plugins.scala.lang
+package refactoring.extractMethod
 
 import _root_.com.intellij.psi._
 import _root_.com.intellij.refactoring.rename.RenameProcessor
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignStmt
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReturnStmt, ScAssignStmt}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, Nothing, ScType}
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
@@ -51,9 +52,7 @@ object ScalaExtractMethodUtils {
       builder.append(")")
     }
     builder.append(": ")
-    if (settings.returns.length == 1) builder.append(ScType.presentableText(settings.returns.apply(0).returnType))
-    else if (settings.returns.length == 0) builder.append("Unit")
-    else builder.append(settings.returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")"))
+    builder.append(settings.calcReturnType)
     builder.append(" = {\n")
     for (param <- settings.parameters) {
       if (!param.passAsParameter) {
@@ -69,13 +68,63 @@ object ScalaExtractMethodUtils {
     for (element <- settings.elements) {
       builder.append(element.getText)
     }
-    if (settings.returns.length == 1) builder.append("\n ").append(settings.returns(0).oldParamName)
-    else if (settings.returns.length > 1) {
-      builder.append("\n").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")"))
+    if (!settings.lastReturn) {
+      settings.returnType match {
+        case Some(psi.types.Unit) => {
+          if (settings.returns.length == 1) {
+            builder.append("\n(false, Some(").append(settings.returns(0).oldParamName).append("))")
+          }
+          else if (settings.returns.length > 1) {
+            builder.append("\n(false, Some(").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")")).
+              append("))")
+          } else builder.append("\nfalse")
+        }
+        case Some(tp) => {
+          if (settings.returns.length == 1) {
+            builder.append("\n(None, Some(").append(settings.returns(0).oldParamName).append("))")
+          }
+          else if (settings.returns.length > 1) {
+            builder.append("\n(None, Some(").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")")).
+              append("))")
+          } else builder.append("\nNone")
+        }
+        case _ => {
+          if (settings.returns.length == 1) {
+            builder.append("\n").append(settings.returns(0).oldParamName)
+          }
+          else if (settings.returns.length > 1) {
+            builder.append("\n").append(settings.returns.map(_.oldParamName).mkString("(", ", ", ")"))
+          }
+        }
+      }
     }
     builder.append("\n}")
     val method = ScalaPsiElementFactory.createMethodFromText(builder.toString, settings.elements.apply(0).getManager)
 
+
+    val returnVisitor = new ScalaRecursiveElementVisitor {
+      override def visitReturnStatement(ret: ScReturnStmt): Unit = {
+        if (ret.returnFunction != Some(method)) return
+        val text = ret.expr match {
+          case Some(t) => "Some(" + t.getText + ")"
+          case _ => "true"
+        }
+        val retText = new StringBuilder("return ")
+        if (settings.returns.length == 0) retText.append(text)
+        else retText.append("(").append(text).append(", None)")
+        val retElem = ScalaPsiElementFactory.createExpressionFromText(retText.toString, ret.getManager)
+        ret.replace(retElem)
+        super.visitReturnStatement(ret)
+      }
+    }
+    returnVisitor.visitElement(method: ScalaPsiElement)
+
+    settings.returnType match {
+      case Some(tp) => {
+
+      }
+      case _ => //Nothing to do
+    }
 
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReference(ref: ScReferenceElement) = {
@@ -165,5 +214,27 @@ object ScalaExtractMethodUtils {
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
     new ScalaVariableData(definition, isMutable, isInside)
+  }
+
+  def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean): String = {
+    returnType match {
+      case Some(psi.types.Unit) => {
+        if (returns.length == 0 || lastReturn) "Boolean"
+        if (returns.length == 1) "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
+        else "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
+      }
+      case Some(tp) => {
+        if (returns.length == 0 || lastReturn) "Option[" + ScType.presentableText(tp) + "]"
+        if (returns.length == 1) "(Option[" + ScType.presentableText(tp) +
+                "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
+        else "(Option[" + ScType.presentableText(tp) +"]," +
+                " Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
+      }
+      case None => {
+        if (returns.length == 1) ScType.presentableText(returns.apply(0).returnType)
+        else if (returns.length == 0) "Unit"
+        else returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")")
+      }
+    }
   }
 }
