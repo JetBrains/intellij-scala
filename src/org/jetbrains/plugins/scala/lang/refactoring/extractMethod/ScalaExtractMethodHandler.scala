@@ -225,7 +225,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           }
           methodCall.append(paramStrings.mkString("(", ", ", ")"))
         }
-        if (settings.returns.length == 0) {
+        if (settings.lastReturn) {
+          val expr = ScalaPsiElementFactory.createExpressionFromText("return " + methodCall.toString, method.getManager)
+          settings.elements.apply(0).replace(expr)
+        } else if (settings.returns.length == 0) {
           settings.elements.apply(0).replace(getMatchForReturn(methodCall.toString))
         } else if (settings.returns.length == 1) {
           val ret = settings.returns.apply(0)

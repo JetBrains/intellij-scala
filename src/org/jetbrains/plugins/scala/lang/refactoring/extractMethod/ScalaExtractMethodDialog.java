@@ -227,26 +227,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     return settings;
   }
 
-  //todo: make it more general in Java and remove it from here
   private class ScalaParameterTablePanel extends ParameterTablePanel {
     public ScalaParameterTablePanel(Project project, VariableData[] variableData) {
       super(project, variableData);
-      //todo: replace choosing types
     }
-
-    @Override
-    protected void updateSignature() {
-      //todo:
-    }
-
-    @Override
-    protected void doEnterAction() {
-      //todo:
-    }
-
-    @Override
-    protected void doCancelAction() {
-      //todo:
-    }
+    protected void updateSignature() {}
+    protected void doEnterAction() {}
+    protected void doCancelAction() {}
   }
 }
