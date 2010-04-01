@@ -106,11 +106,13 @@ object ScalaExtractMethodUtils {
       override def visitReturnStatement(ret: ScReturnStmt): Unit = {
         if (ret.returnFunction != Some(method)) return
         val text = ret.expr match {
-          case Some(t) => "Some(" + t.getText + ")"
-          case _ => "true"
+          case Some(t) if !settings.lastReturn => "Some(" + t.getText + ")"
+          case Some(t) => t.getText
+          case _ if !settings.lastReturn => "true"
+          case _ => ""
         }
         val retText = new StringBuilder("return ")
-        if (settings.returns.length == 0) retText.append(text)
+        if (settings.returns.length == 0 || settings.lastReturn) retText.append(text)
         else retText.append("(").append(text).append(", None)")
         val retElem = ScalaPsiElementFactory.createExpressionFromText(retText.toString, ret.getManager)
         ret.replace(retElem)
@@ -217,14 +219,17 @@ object ScalaExtractMethodUtils {
   }
 
   def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean): String = {
+    if (lastReturn) {
+      return ScType.presentableText(returnType.get)
+    }
     returnType match {
       case Some(psi.types.Unit) => {
-        if (returns.length == 0 || lastReturn) "Boolean"
+        if (returns.length == 0) "Boolean"
         if (returns.length == 1) "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
         else "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
       }
       case Some(tp) => {
-        if (returns.length == 0 || lastReturn) "Option[" + ScType.presentableText(tp) + "]"
+        if (returns.length == 0) "Option[" + ScType.presentableText(tp) + "]"
         if (returns.length == 1) "(Option[" + ScType.presentableText(tp) +
                 "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
         else "(Option[" + ScType.presentableText(tp) +"]," +
