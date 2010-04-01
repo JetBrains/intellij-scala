@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodR
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodSettings;
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import scala.Option;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -57,7 +58,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private ScalaExtractMethodSettings settings = null;
   private Project myProject;
   private PsiElement[] myElements;
-  private boolean myHasReturn;
+  private Option<ScType> myHasReturn;
 
   private PsiElement mySibling;
 
@@ -65,14 +66,17 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private VariableInfo[] myInput;
   private VariableInfo[] myOutput;
   private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
+  private boolean myLastReturn;
 
-  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, boolean hasReturn, PsiElement sibling,
+  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
+                                  PsiElement sibling,
                                   PsiElement scope, VariableInfo[] input, VariableInfo[] output) {
     super(project, true);
 
     myElements = elements;
     myProject = project;
     myHasReturn = hasReturn;
+    myLastReturn = lastReturn;
     myScope = scope;
     myInput = input;
     myOutput = output;
@@ -151,26 +155,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     });
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
 
-    ExtractMethodReturn[] returns = getReturns();
-    ScType[] returnTypes = new ScType[returns.length];
-    for (int i = 0; i < returns.length; i++) {
-      ExtractMethodReturn aReturn = returns[i];
-      returnTypes[i] = aReturn.returnType();
-    }
-    if (returnTypes.length == 0)
-      returnTypeLabel.setText("Unit");
-    else if (returnTypes.length == 1) {
-      returnTypeLabel.setText(PresentationUtil.presentationString(returnTypes[0]));
-    }
-    else {
-      StringBuilder builder = new StringBuilder("(");
-      for (ScType returnType : returnTypes) {
-        builder.append(PresentationUtil.presentationString(returnType)).append(", ");
-      }
-      builder.replace(builder.length() - 2, builder.length(), "");
-      builder.append(")");
-      returnTypeLabel.setText(builder.toString());
-    }
+    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn));
 
     setupParametersPanel();
   }
@@ -203,7 +188,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   @Override
   protected void doOKAction() {
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-        getVisibility(), myScope, mySibling, myElements, myHasReturn);
+        getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn);
     super.doOKAction();
   }
 
