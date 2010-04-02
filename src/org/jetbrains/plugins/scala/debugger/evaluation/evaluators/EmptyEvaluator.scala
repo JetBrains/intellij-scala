@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala
 package debugger.evaluation.evaluators
 
@@ -11,9 +12,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 
 class EmptyEvaluator extends Evaluator {
   def evaluate(context: EvaluationContextImpl): AnyRef = {
-    val vm = context.getDebugProcess.getVirtualMachineProxy
-    vm.mirrorOf
   }
 
   def getModifier: Modifier = null
-}
+}*/

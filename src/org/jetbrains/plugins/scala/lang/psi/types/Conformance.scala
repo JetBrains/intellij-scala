@@ -15,7 +15,7 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.scala.collection.immutable.HashSet
 
 import com.intellij.psi._
-import util.PsiModificationTracker
+import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
 import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.ScalaResolveResult

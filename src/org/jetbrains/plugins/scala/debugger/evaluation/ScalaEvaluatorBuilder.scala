@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
@@ -41,3 +42,4 @@ object ScalaEvaluatorBuilder {
   lazy val getInstance = new ScalaEvaluatorBuilder
 }
 
+*/
