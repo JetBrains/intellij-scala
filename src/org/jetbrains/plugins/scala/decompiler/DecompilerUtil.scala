@@ -14,6 +14,8 @@ import tools.scalap.scalax.rules.scalasig._
 import java.lang.String
 import scala.reflect.NameTransformer
 import collection.Seq
+import tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
+import scala.reflect.generic.ByteCodecs
 
 /**
  * @author ilyas
@@ -74,6 +76,8 @@ object DecompilerUtil {
 
   val SOURCE_FILE = "SourceFile"
   val SCALA_SIG = "ScalaSig"
+  val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
+  val BYTES_VALUE = "bytes"
 
   def decompile(bytes: Array[Byte], file: VirtualFile) = {
 
@@ -82,14 +86,31 @@ object DecompilerUtil {
     val ba = decompiledTextAttribute.readAttributeBytes(file)
     val sf = sourceFileAttribute.readAttributeBytes(file)
     val (bts, sourceFile) = if (ba != null && sf != null) (ba, sf) else {
+      def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
+        import classFile._
+        classFile.annotation(SCALA_SIG_ANNOTATION) match {
+          case None => null
+          case Some(Annotation(_, elements)) =>
+            val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
+            val bytes = ((bytesElem.elementValue match {case ConstValueIndex(index) => constantWrapped(index)})
+                    .asInstanceOf[StringBytesPair].bytes)
+            val length = ByteCodecs.decode(bytes)
+            val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
+            scalaSig
+        }
+      }
       val classFile = ClassFileParser.parse(byteCode)
-      val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get
+      val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
+        // No entries in ScalaSig attribute implies that the signature is stored in the annotation
+        case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
+        case scalaSig => scalaSig
+      }
 
       val baos = new ByteArrayOutputStream
       val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
-      if (!syms.isEmpty) syms.first.parent match {
+      syms.first.parent match {
       //Partial match
         case Some(p) if (p.name != "<empty>") => {
           val path = p.path
@@ -109,26 +130,7 @@ object DecompilerUtil {
         case _ =>
       }
       // Print classes
-      val printer = new ScalaSigPrinter(stream, true) {
-        override def printClass(level: Int, c: ClassSymbol) = {
-          // todo patch scalap to support fix this.
-          if (c.name != "<local child>"/*scala.tools.nsc.symtab.StdNames.LOCALCHILD.toString()*/) {
-            super.printClass(level, c)
-          } else {
-            stream.print("\n")
-          }
-        }
-
-        // todo if the decoded name is not a valid Scala identifier (e.g. 'type' 'a b c'), then
-        // enclose it in backticks. If backticks are used, resolve won't work correctly
-        // unless http://youtrack.jetbrains.net/issue/SCL-1707 is fixed.
-        override def processName(name: String) = NameTransformer.decode(super.processName(name))
-
-        override def typeParamString(params: Seq[Symbol]) =
-          super.typeParamString(params)
-                  .replace(" >: scala.Nothing", "")
-                  .replace(" <: scala.Any", "")
-      }
+      val printer = new ScalaSigPrinter(stream, true)
 
       for (c <- syms) {
         printer.printSymbol(c)
