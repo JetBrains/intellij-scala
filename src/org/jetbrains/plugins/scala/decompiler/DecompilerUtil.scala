@@ -140,11 +140,12 @@ object DecompilerUtil {
 
       // Obtain source file name
       val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
-      val source: String = classFile.header.constants(index) match {
-        case s: String => s
-        case _ => ""
+      val c = classFile.header.constants(index)
+      val sBytes: Array[Byte] = c match {
+        case s: String => s.getBytes(CharsetToolkit.UTF8)
+        case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
+        case _ => Array.empty
       }
-      val sBytes = source.getBytes(CharsetToolkit.UTF8)
       sourceFileAttribute.writeAttributeBytes(file, sBytes, 0, sBytes.length)
       (bs, sBytes)
     }
