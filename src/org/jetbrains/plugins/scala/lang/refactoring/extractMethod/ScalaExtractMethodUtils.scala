@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.lang.String
 import collection.mutable.ArrayBuffer
-import psi.api.ScalaRecursiveElementVisitor
+import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -214,10 +214,8 @@ object ScalaExtractMethodUtils {
     }
     for (element <- elements if element.isInstanceOf[ScalaPsiElement] && !isMutable) {
       element match {
-        case ref: ScReferenceElement => checkIsMutable(ref)
-        case spe: ScalaPsiElement => visitor.visitElement(spe)
+        case spe: ScalaPsiElement => spe.accept(visitor: ScalaElementVisitor)
       }
-
     }
     val isInside = if (elements.length > 0) {
       val startOffset = elements(0).getTextRange.getStartOffset

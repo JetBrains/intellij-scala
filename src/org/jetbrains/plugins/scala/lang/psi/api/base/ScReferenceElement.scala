@@ -76,9 +76,6 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def getSameNameVariants: Array[ResolveResult]
 
   override def accept(visitor: ScalaElementVisitor) {
-    visitor match {
-      case sev: ScalaElementVisitor => sev.visitReference(this)
-      case _ => visitor.visitElement(this)
-    }
+    visitor.visitReference(this)
   }
 }
