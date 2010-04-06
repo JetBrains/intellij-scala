@@ -64,16 +64,16 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret), collection.immutable.Seq(params.map({existize _}).toSeq: _*), fun.getProject)
           case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), getProject)
           case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
-            case clazz: ScClass => {
-              val t = existize(leastClassType(clazz))
-              val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
-              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
-              new ScTypeVariable(clazz.name)
-            }
             case obj: ScObject => {
               val t = existize(leastClassType(obj))
               m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
               new ScTypeVariable(obj.name)
+            }
+            case clazz: ScTypeDefinition => {
+              val t = existize(leastClassType(clazz))
+              val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
+              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
+              new ScTypeVariable(clazz.name)
             }
             case typed: ScTypedDefinition => {
               val t = existize(typed.getType(TypingContext.empty).getOrElse(Any))
