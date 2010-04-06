@@ -16,7 +16,7 @@ import psi.stubs.ScReferencePatternStub
 import psi.types.result.{Failure, TypingContext, Success}
 import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
 import api.ScalaFile
-import util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
 import api.statements.ScDeclaredElementsHolder
 
@@ -38,10 +38,9 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   override def toString: String = "ReferencePattern"
 
   override def getType(ctx: TypingContext) = {
-    //rewrited because of Scala Compiler bugs (NPE was here)
     expectedType match {
       case Some(x) => Success(x, Some(this))
-      case None => Failure("cannot define expected type", Some(this))
+      case _ => Failure("cannot define expected type", Some(this))
     }
   }
 
