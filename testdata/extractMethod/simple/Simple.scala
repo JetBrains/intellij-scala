@@ -1,4 +1,4 @@
-class A {
+class Simple {
   def foo = {
     /*start*/
     1 + 1
@@ -7,7 +7,7 @@ class A {
   }
 }
 /*
-class A {
+class Simple {
   def testMethodName: Unit = {
     1 + 1
     2 + 3

@@ -196,19 +196,28 @@ object ScalaExtractMethodUtils {
   def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ParameterTablePanel.VariableData = {
     var isMutable = false
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
+
+    def checkIsMutable(ref: ScReferenceElement): Unit = {
+      if (ScalaPsiUtil.isLValue(ref)) {
+        ref.bind match {
+          case Some(ScalaResolveResult(elem, _)) if elem == definition => isMutable = true
+          case _ =>
+        }
+      }
+    }
+
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) = {
-        if (ScalaPsiUtil.isLValue(ref)) {
-          ref.bind match {
-            case Some(ScalaResolveResult(elem, _)) if elem == definition => isMutable = true
-            case _ =>
-          }
-        }
+        checkIsMutable(ref)
         super.visitReference(ref)
       }
     }
-    for (element <- elements if element.isInstanceOf[ScalaPsiElement]) {
-      visitor.visitElement(element.asInstanceOf[ScalaPsiElement])
+    for (element <- elements if element.isInstanceOf[ScalaPsiElement] && !isMutable) {
+      element match {
+        case ref: ScReferenceElement => checkIsMutable(ref)
+        case spe: ScalaPsiElement => visitor.visitElement(spe)
+      }
+
     }
     val isInside = if (elements.length > 0) {
       val startOffset = elements(0).getTextRange.getStartOffset
