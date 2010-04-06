@@ -185,6 +185,10 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
   }
 
+  private def toStop {
+    "stop"
+  }
+
   private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
 
 
@@ -220,6 +224,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (method == null) return
     val runnable = new Runnable {
       def run: Unit = {
+        toStop
         PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
         val scope = settings.scope
         val sibling = settings.nextSibling
@@ -249,27 +254,29 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
                     exprText, settings.elements.apply(0).getManager)
           }
           val before = settings.elements.apply(0)
+          def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
           if (settings.returnType != None) {
-            def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
             val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager)
             val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val matcher = getMatchForReturn(tFreshName + "._1")
-            addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1); addNode(stmt);
+            addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1);
           }
+          addNode(stmt)
           before.getParent.getNode.removeChild(before.getNode)
         } else {
           val exprText = if (settings.returnType == None) methodCall.toString else tFreshName + "._2.get"
           val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, false, exprText, method.getManager)
           val before = settings.elements.apply(0)
+          def addNodeBack(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
           if (settings.returnType != None) {
-            def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
             val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager)
             val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val matcher = getMatchForReturn(tFreshName + "._1")
-            addNode(decl); addNode(nl2); addNode(matcher); addNode(nl1); addNode(stmt);
+            addNodeBack(decl); addNodeBack(nl2); addNodeBack(matcher); addNodeBack(nl1);
           }
+          addNodeBack(stmt)
           before.getParent.getNode.removeChild(before.getNode)
           var lastElem: PsiElement = stmt
           def addNode(elem: PsiElement) {
