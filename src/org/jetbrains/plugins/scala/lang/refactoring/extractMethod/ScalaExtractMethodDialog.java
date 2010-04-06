@@ -192,7 +192,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     super.doOKAction();
   }
 
-  private ExtractMethodParameter[] getParameters() {
+  public ExtractMethodParameter[] getParameters() {
     ParameterTablePanel.VariableData[] data = parameterTablePanel.getVariableData();
     ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
     for (ParameterTablePanel.VariableData d : data) {
@@ -205,7 +205,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     return list.toArray(new ExtractMethodParameter[list.size()]);
   }
 
-  private ExtractMethodReturn[] getReturns() {
+  public ExtractMethodReturn[] getReturns() {
     ArrayList<ExtractMethodReturn> list = new ArrayList<ExtractMethodReturn>();
     for (VariableInfo info : myOutput) {
       ScalaExtractMethodUtils.ScalaVariableData data =

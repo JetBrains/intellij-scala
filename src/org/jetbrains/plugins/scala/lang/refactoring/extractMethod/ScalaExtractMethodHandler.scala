@@ -119,7 +119,9 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       } else null
     }
     if (scope == null) return
-    if (siblings.length > 1) {
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0))
+    } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue)
       }, "Choose level for Extract Method", getTextForElement _)
@@ -163,7 +165,13 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       }
       dialog.getSettings
     } else {
-      return //todo: unit tests is not supported yet
+      val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      val input = info.inputVariables
+      val output = info.outputVariables
+      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, scope,
+        input.toArray, output.toArray)
+      new ScalaExtractMethodSettings("testMethodName", dialog.getParameters, dialog.getReturns, "", scope, sibling,
+        elements, hasReturn, lastReturn)
     }
     performRefactoring(settings, editor)
   }
