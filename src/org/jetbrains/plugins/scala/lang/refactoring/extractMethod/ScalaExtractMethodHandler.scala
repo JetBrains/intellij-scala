@@ -4,7 +4,8 @@ package refactoring.extractMethod
 import _root_.com.intellij.psi._
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
-import _root_.org.jetbrains.plugins.scala.lang.resolve.{StdKinds, CompletionProcessor}
+import _root_.org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import _root_.org.jetbrains.plugins.scala.lang.resolve.{StdKinds}
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{ScrollType, Editor}
@@ -13,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
-import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScDeclarationSequenceHolder, ScalaPsiUtil}
 import collection.mutable.{HashSet, ArrayBuffer}
+import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 
 /**
  * User: Alexander Podkhalyuzin

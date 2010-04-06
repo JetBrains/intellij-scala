@@ -1,25 +1,25 @@
 package org.jetbrains.plugins.scala
 package lang
-package psi
-package impl
-package base
+package resolve
 
-import api.ScalaFile
-import api.toplevel.packaging.ScPackaging
 import caches.ScalaCachesManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
 import psi.api.base._
+import psi.api.expr._
+import psi.api.ScalaFile
+import psi.api.toplevel.ScTypedDefinition
+import psi.impl.toplevel.synthetic.SyntheticClasses
+import psi.api.toplevel.packaging.ScPackaging
 import psi.types._
 import resolve._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
-import api.toplevel.ScTypedDefinition
-import api.expr.{ScSuperReference, ScThisReference}
 import result.TypingContext
+import lang.resolve.processor.BaseProcessor
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this)
@@ -54,7 +54,6 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
             // Process synthetic classes for scala._ package
             if (pack.getQualifiedName == "scala") {
-              import toplevel.synthetic.SyntheticClasses
               for (synth <- SyntheticClasses.get(getProject).getAll) {
                 processor.execute(synth, ResolveState.initial)
               }

@@ -9,7 +9,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState, PsiClass}
 import com.intellij.util.ArrayFactory
-import resolve.BaseProcessor
 import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
@@ -19,6 +18,7 @@ import types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
+import resolve.processor.BaseProcessor
 
 /**
  * @author ven

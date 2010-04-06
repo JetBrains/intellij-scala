@@ -8,7 +8,6 @@ package statements
 import base.ScPatternList
 import expr.ScExpression
 import base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin

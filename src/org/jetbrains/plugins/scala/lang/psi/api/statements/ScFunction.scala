@@ -18,7 +18,6 @@ import psi.stubs.ScFunctionStub
 import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin

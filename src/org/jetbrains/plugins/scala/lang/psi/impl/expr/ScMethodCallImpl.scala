@@ -20,9 +20,10 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import implicits.ScImplicitlyConvertible
 import api.toplevel.imports.usages.ImportUsed
 import com.intellij.openapi.progress.ProgressManager
-import lang.resolve.{ResolveUtils, MethodResolveProcessor, ScalaResolveResult}
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import api.statements.params.{ScTypeParam, ScParameters}
 import types.Compatibility.Expression
+import lang.resolve.processor.MethodResolveProcessor
 
 /**
  * @author Alexander Podkhalyuzin

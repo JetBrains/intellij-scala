@@ -9,7 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
 import lang.resolve.ScalaResolveResult
@@ -20,8 +19,8 @@ import lang.psi.api.expr.{ScBlockExpr, ScReturnStmt, ScExpression}
 import annotator.ScalaAnnotator
 import lang.psi.types.{ScType, Unit}
 import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
-import psi.api.ScalaRecursiveElementVisitor
 import lang.psi.ScalaPsiElement
+import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 
 /**
  * User: Alexander Podkhalyuzin

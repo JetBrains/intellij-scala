@@ -18,7 +18,6 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       state : ResolveState,
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
 
     if (lastParent != null) {
       var run = lastParent

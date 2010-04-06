@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang
 package resolve
+package processor
 
 import com.intellij.psi._
 import collection.Set
+import processor.ResolveProcessor
 
 class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val ref: PsiElement,

@@ -11,7 +11,6 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import formatting.settings.ScalaCodeStyleSettings
-import lang.resolve.{ResolveProcessor, CompletionProcessor, ScalaResolveResult, StdKinds}
 import lexer.ScalaTokenTypes
 import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
@@ -23,6 +22,8 @@ import collection.mutable.Set
 import refactoring.util.ScalaNamesUtil
 import scope._
 import com.intellij.openapi.progress.ProgressManager
+import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
+import lang.resolve.{ScalaResolveResult, StdKinds}
 
 trait ScImportsHolder extends ScalaPsiElement {
 

@@ -4,6 +4,7 @@ package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
 import lexer.ScalaTokenTypes
+import processor.BaseProcessor
 import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.expr.ScSuperReference
 import psi.api.ScalaFile

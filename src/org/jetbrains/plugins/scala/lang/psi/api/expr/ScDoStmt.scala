@@ -6,7 +6,6 @@ package expr
 
 import psi.ScalaPsiElement
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin

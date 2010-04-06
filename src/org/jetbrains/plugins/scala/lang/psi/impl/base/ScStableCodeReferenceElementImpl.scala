@@ -26,6 +26,7 @@ import com.intellij.util.IncorrectOperationException
 import api.toplevel.ScTypedDefinition
 import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
+import processor.CompletionProcessor
 import result.TypingContext
 import api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}

@@ -5,7 +5,6 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.controlFlow.impl
 
 
-import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}

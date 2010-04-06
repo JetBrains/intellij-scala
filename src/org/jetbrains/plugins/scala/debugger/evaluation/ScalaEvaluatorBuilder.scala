@@ -1,20 +1,19 @@
-/*
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
-
+/*
 import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Evaluator, ExpressionEvaluatorImpl, EvaluatorBuilder}
 import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, TextWithImports}
 import com.intellij.debugger.SourcePosition
 import com.intellij.psi.PsiElement
 import lang.psi.api.ScalaFile
-import lang.psi.impl.ScalaPsiElementFactory
+import lang.psi.impl.ScalaPsiElementFactory*/
 /**
  * User: Alexander Podkhalyuzin
  * Date: 06.03.2009
  */
 
-class ScalaEvaluatorBuilder private extends EvaluatorBuilder {
+class ScalaEvaluatorBuilder /*private extends EvaluatorBuilder {
   def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     Builder(position).buildElement(codeFragment)
   }

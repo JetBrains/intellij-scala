@@ -31,6 +31,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import lang.resolve.processor.ResolverEnv
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -217,7 +218,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
 
     if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false

@@ -21,13 +21,13 @@ import result.TypingContext
 import types.PhysicalSignature
 import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
-import util._
 import _root_.scala.collection.mutable.HashMap
-import lang.resolve.BaseProcessor
 import fake.FakePsiMethod
 import api.toplevel.ScTypedDefinition
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.util._
+import lang.resolve.processor.BaseProcessor
 //import Suspension._
 
 object TypeDefinitionMembers {

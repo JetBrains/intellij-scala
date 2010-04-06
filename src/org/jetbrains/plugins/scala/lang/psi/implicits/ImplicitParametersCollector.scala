@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTemplateDefinition}
+import processor.BaseProcessor
 import result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import collection.mutable.ArrayBuffer

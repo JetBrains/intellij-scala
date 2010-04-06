@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
+import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
 import com.intellij.testFramework.{ResolveTestCase, PsiTestCase}
 import com.intellij.openapi.application.ex.PathManagerEx
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -12,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
 /**

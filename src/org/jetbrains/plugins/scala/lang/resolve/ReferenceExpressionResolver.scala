@@ -4,6 +4,7 @@ package resolve
 
 import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
 import _root_.com.intellij.psi.{ResolveResult, PsiElement}
+import processor.MethodResolveProcessor
 import psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

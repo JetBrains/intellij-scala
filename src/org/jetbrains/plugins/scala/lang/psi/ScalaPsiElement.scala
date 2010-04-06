@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import api.ScalaElementVisitor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import util.monads.MonadTransformer
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
   protected var context: PsiElement = null

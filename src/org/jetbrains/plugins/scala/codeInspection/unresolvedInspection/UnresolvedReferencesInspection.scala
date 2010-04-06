@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.unresolvedInspection
 
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import java.lang.String
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi.{PsiFile, PsiElementVisitor}
-import org.jetbrains.plugins.scala.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import com.intellij.codeInspection._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}

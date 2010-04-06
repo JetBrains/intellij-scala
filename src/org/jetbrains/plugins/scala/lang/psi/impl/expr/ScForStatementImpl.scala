@@ -20,12 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.openapi.progress.ProgressManager
 import api.toplevel.imports.usages.ImportUsed
-import lang.resolve.{MethodResolveProcessor, CompletionProcessor, ScalaResolveResult}
+import lang.resolve.{ScalaResolveResult}
 import types.result.{Success, Failure, TypeResult, TypingContext}
 import types._
 import collection.mutable.ArrayBuffer
 import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import nonvalue.{Parameter, TypeParameter, ScMethodType, ScTypePolymorphicType}
+import lang.resolve.processor.MethodResolveProcessor
 
 /**
 * @author Alexander Podkhalyuzin

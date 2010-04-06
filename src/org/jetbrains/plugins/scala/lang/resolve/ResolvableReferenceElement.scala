@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang
-package psi
-package api
-package base
+package resolve
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._

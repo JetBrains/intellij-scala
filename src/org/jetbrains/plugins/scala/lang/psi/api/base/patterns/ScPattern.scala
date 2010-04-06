@@ -16,10 +16,10 @@ import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
 import statements.params.ScTypeParam
 import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import toplevel.typedef.{ScTypeDefinition, ScClass}
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve._
+import processor.{MethodResolveProcessor, CompletionProcessor, ExpandedExtractorResolveProcessor}
 
 /**
  * @author Alexander Podkhalyuzin

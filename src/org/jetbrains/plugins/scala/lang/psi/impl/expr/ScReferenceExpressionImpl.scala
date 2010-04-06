@@ -5,7 +5,6 @@ package impl
 package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
-import api.ScalaFile
 import api.statements._
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
@@ -14,15 +13,15 @@ import com.intellij.util.IncorrectOperationException
 import params.ScParameter
 import resolve._
 
+import processor.CompletionProcessor
 import types._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import impl.PsiManagerEx
+import com.intellij.psi.impl.PsiManagerEx
 import result.{TypeResult, Failure, Success, TypingContext}
-import util.PsiTreeUtil
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -30,14 +29,14 @@ import com.intellij.psi.{PsiElement}
 import api.base.types.ScTypeElement
 import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import types.Compatibility.Expression
 import Compatibility.Expression._
 import com.intellij.psi.impl.PsiManagerEx
-import util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import api.base.ScReferenceElement
+import api.{ScalaElementVisitor, ScalaFile}
 
 
 /**

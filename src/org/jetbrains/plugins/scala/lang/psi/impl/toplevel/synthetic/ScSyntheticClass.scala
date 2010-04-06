@@ -26,6 +26,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
+import processor.{ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
