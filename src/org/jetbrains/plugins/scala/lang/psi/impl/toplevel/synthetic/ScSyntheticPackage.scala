@@ -14,7 +14,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
-import resolve.BaseProcessor
 import resolve.ResolveTargets._
 import stubs.index.ScalaIndexKeys
 import com.intellij.psi._
@@ -23,8 +22,9 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.openapi.diagnostic.Logger
 import collection.JavaConversions
 import collection.mutable.{ArrayBuffer, HashSet}
-import util.PsiUtilBase
+import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.indexing.FileBasedIndex
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author ilyas

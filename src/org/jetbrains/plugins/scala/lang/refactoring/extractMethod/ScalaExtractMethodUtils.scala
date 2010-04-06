@@ -10,7 +10,6 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement,
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, Nothing, ScType}
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import _root_.org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupAdapter, LightweightWindowEvent}
@@ -29,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.lang.String
 import collection.mutable.ArrayBuffer
+import psi.api.ScalaRecursiveElementVisitor
 
 /**
  * User: Alexander Podkhalyuzin

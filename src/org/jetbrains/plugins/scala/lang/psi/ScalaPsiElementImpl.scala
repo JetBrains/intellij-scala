@@ -8,7 +8,6 @@ import com.intellij.lang.ASTNode
 import stubs.elements.wrappers.DummyASTNode
 import com.intellij.psi.impl.source.tree.{SharedImplUtil, CompositeElement}
 import com.intellij.psi.{PsiElementVisitor, PsiElement, StubBasedPsiElement}
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
 @author ven

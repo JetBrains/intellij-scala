@@ -6,7 +6,6 @@ package expr
 
 import base.patterns.{ScCaseClause, ScCaseClauses}
 import impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin, ilyas

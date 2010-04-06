@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.resolve2.bug
+package org.jetbrains.plugins.scala.lang.resolve2
 
 import org.jetbrains.plugins.scala.lang.resolve2.ResolveTestBase
 import junit.framework.Assert

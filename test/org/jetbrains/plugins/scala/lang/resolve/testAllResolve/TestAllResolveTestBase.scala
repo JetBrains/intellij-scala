@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve.testAllResolve
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.psi.PsiManager
 import java.io.File
-import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**

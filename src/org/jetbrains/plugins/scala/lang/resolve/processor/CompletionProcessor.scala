@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang
 package resolve
+package processor
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, Signature, ScSubstitutor}
 import com.intellij.psi._
 
 import _root_.scala.collection.Set
 import collection.mutable.HashSet
+import processor.ResolverEnv
 import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 
 import psi.api.toplevel.typedef.ScTypeDefinition

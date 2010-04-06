@@ -9,6 +9,7 @@ import impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScClass}
 import api.base.{ScPathElement, ScStableCodeReferenceElement, ScReferenceElement}
+import processor.ResolveProcessor
 
 /**
 * @author ilyas

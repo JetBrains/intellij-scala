@@ -11,7 +11,7 @@ import java.lang.String
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.statements.ScTypeAliasDefinition
 import lang.psi.types.result.Failure
-import org.jetbrains.plugins.scala.psi.api._
+import lang.psi.api.ScalaElementVisitor
 
 /**
  * User: Alexander Podkhalyuzin

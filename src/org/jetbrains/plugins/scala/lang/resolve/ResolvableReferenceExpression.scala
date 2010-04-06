@@ -4,6 +4,7 @@ package resolve
 
 import _root_.com.intellij.openapi.progress.ProgressManager
 import _root_.com.intellij.psi.impl.PsiManagerEx
+import processor.{CompletionProcessor, BaseProcessor}
 import psi.implicits.ScImplicitlyConvertible
 import _root_.com.intellij.psi.{PsiClass, ResolveState, ResolveResult, PsiElement}
 import psi.api.toplevel.imports.usages.ImportUsed

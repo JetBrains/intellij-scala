@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package resolve
+package processor
 
 import com.intellij.psi.scope._
 import com.intellij.psi._

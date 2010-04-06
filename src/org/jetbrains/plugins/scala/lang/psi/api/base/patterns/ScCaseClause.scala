@@ -7,7 +7,6 @@ package patterns
 
 import psi.ScalaPsiElement
 import expr.{ScExpression, ScGuard}
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin

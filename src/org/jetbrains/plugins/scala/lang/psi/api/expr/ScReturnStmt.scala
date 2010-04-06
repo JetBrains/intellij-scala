@@ -5,7 +5,6 @@ package api
 package expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.psi.api.ScalaElementVisitor
 import statements.ScFunctionDefinition
 
 /** 

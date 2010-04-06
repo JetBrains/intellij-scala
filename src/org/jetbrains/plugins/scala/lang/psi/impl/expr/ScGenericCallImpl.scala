@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import result.{Failure, Success, TypeResult, TypingContext}
 import api.statements.{ScFun, ScFunction}
 import api.base.types.ScTypeElement
-import lang.resolve.{ResolveUtils, MethodResolveProcessor, ScalaResolveResult}
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
+import lang.resolve.processor._
 
 /**
  * @author Alexander Podkhalyuzin

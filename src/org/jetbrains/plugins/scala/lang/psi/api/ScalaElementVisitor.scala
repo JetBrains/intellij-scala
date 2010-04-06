@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.psi.api
+package org.jetbrains.plugins.scala.lang.psi.api
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement

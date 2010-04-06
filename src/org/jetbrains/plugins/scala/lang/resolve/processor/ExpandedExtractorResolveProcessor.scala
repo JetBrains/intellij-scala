@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang
 package resolve
+package processor
 
+import processor.ExtractorResolveProcessor
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._

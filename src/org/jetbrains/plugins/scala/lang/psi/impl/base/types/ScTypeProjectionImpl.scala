@@ -20,6 +20,7 @@ import psi.types._
 
 import com.intellij.lang.ASTNode
 import resolve._
+import processor.{CompletionProcessor, ResolveProcessor, BaseProcessor}
 import result.{Success, TypingContext}
 
 /**

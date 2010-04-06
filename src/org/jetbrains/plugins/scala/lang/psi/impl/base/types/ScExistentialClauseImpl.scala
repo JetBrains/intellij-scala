@@ -40,8 +40,6 @@ class ScExistentialClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    import org.jetbrains.plugins.scala.lang.resolve._
-
     if (lastParent != null) {
       var run = lastParent
       while (run != null) {

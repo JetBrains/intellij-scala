@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang
-package psi
-package impl
-package base
+package resolve
 
-import org.jetbrains.plugins.scala.lang._
-import psi.api.base._
-import resolve._
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
+import processor._
+import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import psi.api.base.ScStableCodeReferenceElement
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement) extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {

@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.lang.ASTNode
 
 import com.intellij.util.ArrayFactory
-import lang.resolve.{ScalaResolveResult, ResolverEnv, BaseProcessor}
+import lang.resolve.{ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
@@ -17,6 +17,7 @@ import parser.ScalaElementTypes
 import psi.stubs.ScImportStmtStub
 import usages._
 import com.intellij.openapi.progress.ProgressManager
+import lang.resolve.processor._
 
 /**
  * @author Alexander Podkhalyuzin

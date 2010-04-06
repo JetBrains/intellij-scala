@@ -16,9 +16,9 @@ import types.result.{TypingContext, Success, TypeResult}
 import com.intellij.openapi.progress.ProgressManager
 import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.psi.api.ScalaRecursiveElementVisitor
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
+import api.ScalaRecursiveElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
