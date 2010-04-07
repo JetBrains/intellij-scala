@@ -3,7 +3,6 @@ package lang
 package resolve
 package processor
 
-import processor.ResolveProcessor
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
@@ -63,6 +62,16 @@ class MethodResolveProcessor(override val ref: PsiElement,
     if (result.importsUsed.size == 0) {
       ScalaPsiUtil.nameContext(result.getElement) match {
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
+        case pack: PsiPackage => {
+          val qualifier = pack.getQualifiedName
+          if (qualifier == null) return 5
+          val index: Int = qualifier.lastIndexOf('.')
+          if (index == -1) return 5
+          val q = qualifier.substring(0, index)
+          if (q == "java.lang") return 1
+          else if (q == "scala") return 2
+          else return 5
+        }
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
           if (qualifier == null) return 5

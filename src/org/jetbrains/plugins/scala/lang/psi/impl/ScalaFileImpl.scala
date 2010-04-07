@@ -231,10 +231,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
-      /*case ref: ScReferenceElement if !getPackagings.isEmpty => {
-        val approprPackage = JavaPsiFacade.getInstance(getProject).findPackage(ref.refName)
-        if (approprPackage != null) processor.execute(approprPackage, state)
-      }*/
       case _ => {
         val defaultPackage = JavaPsiFacade.getInstance(getProject).findPackage("")
         if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
