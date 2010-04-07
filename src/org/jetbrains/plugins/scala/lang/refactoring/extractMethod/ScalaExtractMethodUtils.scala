@@ -3,14 +3,14 @@ package refactoring.extractMethod
 
 import _root_.com.intellij.psi._
 import _root_.com.intellij.refactoring.rename.RenameProcessor
+import _root_.com.intellij.refactoring.util.ParameterTablePanel.VariableData
+import _root_.org.jetbrains.annotations.Nullable
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReturnStmt, ScAssignStmt}
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, Nothing, ScType}
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupAdapter, LightweightWindowEvent}
 import com.intellij.openapi.editor.Editor
@@ -29,6 +29,9 @@ import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.lang.String
 import collection.mutable.ArrayBuffer
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import psi.api.statements.{ScValue, ScFunction}
+import psi.api.statements.params.ScTypeParam
+import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,6 +43,20 @@ object ScalaExtractMethodUtils {
     var builder: StringBuilder = new StringBuilder
     builder.append(settings.visibility)
     builder.append("def ").append(settings.methodName)
+    val tp: ArrayBuffer[ScTypeParam] = new ArrayBuffer
+    var elem: PsiElement = settings.elements.apply(0)
+    while (elem != null && !(elem.getTextRange.contains(settings.nextSibling.getTextRange) &&
+            !elem.getTextRange.equalsToRange(settings.nextSibling.getTextRange.getStartOffset,
+              settings.nextSibling.getTextRange.getEndOffset))) {
+      elem match {
+        case tpo: ScTypeParametersOwner => tp ++= tpo.typeParameters
+        case _ =>
+      }
+      elem = elem.getParent
+    }
+    if (tp.length != 0) {
+      builder.append(tp.reverse.map(_.getText).mkString("[", ", ", "]"))
+    }
     if (settings.parameters.filter(_.passAsParameter).length != 0) {
       builder.append("(")
       for (param <- settings.parameters) {
@@ -193,8 +210,10 @@ object ScalaExtractMethodUtils {
     name = param.getName
   }
 
+  @Nullable
   def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ParameterTablePanel.VariableData = {
     var isMutable = false
+    if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
 
     def checkIsMutable(ref: ScReferenceElement): Unit = {
@@ -248,5 +267,39 @@ object ScalaExtractMethodUtils {
         else returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")")
       }
     }
+  }
+
+  /**
+   * methods for Unit tests
+   */
+  def getParameters(myInput: Array[VariableInfo], elements: Array[PsiElement]) = {
+    var buffer: ArrayBuffer[VariableData] = new ArrayBuffer[VariableData]
+    for (input <- myInput) {
+      var d: VariableData = ScalaExtractMethodUtils.convertVariableData(input, elements)
+      if (d != null) buffer += d
+    }
+    val data = buffer.toArray
+    var list: ArrayBuffer[ExtractMethodParameter] = new ArrayBuffer[ExtractMethodParameter]
+    for (d <- data) {
+      var variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
+      var param: ExtractMethodParameter =
+      new ExtractMethodParameter(d.variable.getName, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
+        variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction])
+      list += param
+    }
+    list.toArray
+  }
+
+  def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {
+    var list: ArrayList[ExtractMethodReturn] = new ArrayList[ExtractMethodReturn]
+    for (info <- myOutput) {
+      var data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements).asInstanceOf[ScalaVariableData]
+      var tp: FakePsiType = data.`type`.asInstanceOf[FakePsiType]
+      var aReturn: ExtractMethodReturn = new ExtractMethodReturn(info.element.getName, tp.tp, data.isInsideOfElements,
+        ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScValue] ||
+                ScalaPsiUtil.nameContext(info.element).isInstanceOf[ScFunction])
+      list.add(aReturn)
+    }
+    return list.toArray(new Array[ExtractMethodReturn](list.size))
   }
 }

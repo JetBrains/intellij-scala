@@ -202,10 +202,11 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     createDeclaration(typez, name, isVariable, expr.getText, manager)
   }
   def createDeclaration(typez: ScType, name: String, isVariable: Boolean,
-                        exprText: String, manager: PsiManager): ScMember = {
+                        exprText: String, manager: PsiManager, isPresentableText: Boolean = false): ScMember = {
+    val typeToString = if (isPresentableText) ScType.presentableText _ else ScType.canonicalText _
     val text = "class a {" + (if (isVariable) "var " else "val ") +
-              name + (if (typez != null && ScType.canonicalText(typez) != "") ": "  +
-            ScType.canonicalText(typez) else "") + " = " + exprText + "}"
+              name + (if (typez != null && typeToString(typez) != "") ": "  +
+            typeToString(typez) else "") + " = " + exprText + "}"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions()(0)
     if (!isVariable) classDef.members()(0).asInstanceOf[ScValue]

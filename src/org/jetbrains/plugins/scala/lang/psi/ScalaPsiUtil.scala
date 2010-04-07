@@ -16,11 +16,11 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import tree.TokenSet
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
@@ -30,6 +30,7 @@ import result.TypingContext
 import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import collection.mutable.ArrayBuffer
+import com.intellij.psi.util._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -70,32 +71,33 @@ object ScalaPsiUtil {
     val file = start.getContainingFile
     if (file == null || file != end.getContainingFile) return Nil
 
-    val parents1 = getParents(start, file)
-    val parents2 = getParents(end, file)
-
-    def drop(l1: List[PsiElement], l2: List[PsiElement]): Option[(PsiElement, PsiElement)] =
-      (l1, l2) match {
-        case (h1 :: t1, h2 :: t2) if h1 eq h2 => drop(t1, t2)
-        case (h1 :: _, h2 :: _) => Some((h1, h2))
-        case _ => None
+    val commonParent = PsiTreeUtil.findCommonParent(start, end)
+    val startOffset = start.getTextRange.getStartOffset
+    val endOffset = end.getTextRange.getEndOffset
+    if (commonParent.getTextRange.getStartOffset == startOffset &&
+      commonParent.getTextRange.getEndOffset == endOffset) {
+      var parent = commonParent.getParent
+      var prev = commonParent
+      while (parent.getTextRange.equalsToRange(prev.getTextRange.getStartOffset, prev.getTextRange.getEndOffset)) {
+        prev = parent
+        parent = parent.getParent
       }
-
-    drop(parents1, parents2) match {
-      case Some((h1, h2)) => {
-        val buffer = new ArrayBuffer[PsiElement]
-        buffer + h1
-        var curr = h1.getNextSibling
-        while (curr != h2 && curr != null) {
-          buffer + curr
-          curr = curr.getNextSibling
-        }
-        if ((curr eq h2) && curr != null) {
-          buffer + h2
-        }
-        buffer.toSeq
-      }
-      case _ => Nil
+      return Seq(prev)
     }
+    val buffer = new ArrayBuffer[PsiElement]
+    var child = commonParent.getNode.getFirstChildNode
+    var writeBuffer = false
+    while (child != null) {
+      if (child.getTextRange.getStartOffset == startOffset) {
+        writeBuffer = true
+      }
+      if (writeBuffer) buffer.append(child.getPsi)
+      if (child.getTextRange.getEndOffset >= endOffset) {
+        writeBuffer = false
+      }
+      child = child.getTreeNext
+    }
+    return buffer.toSeq
   }
 
   def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {

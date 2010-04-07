@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang
 package refactoring.extractMethod
 
 import _root_.com.intellij.psi._
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import _root_.org.jetbrains.annotations.Nullable
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import _root_.org.jetbrains.plugins.scala.lang.resolve.{StdKinds}
@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -24,7 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScDeclarationSequenceHolder, ScalaPsiUtil}
 import collection.mutable.{HashSet, ArrayBuffer}
-import psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import psi.api.base.ScReferenceElement
+import psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import psi.api.statements.{ScTypeAlias, ScFunction, ScFunctionDefinition}
+import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -70,8 +72,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case _ => false
       }
     }
-    var i= elements.length - 1
-    while (!elements(i).isInstanceOf[ScalaPsiElement] && i > 0) i= i -1
+    var i = elements.length - 1
+    while (!elements(i).isInstanceOf[ScalaPsiElement] && i > 0) i = i -1
     val lastReturn = checkLastReturn(elements(i))
     var hasReturn: Option[ScType] = None
     val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
@@ -98,7 +100,27 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         checkReturn(element.asInstanceOf[ScReturnStmt])
       }
     }
-    val siblings: Array[PsiElement] = getSiblings(elements(0))
+    var stopAtScope: PsiElement = null
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitReference(ref: ScReferenceElement) = {
+        def attachElement(elem: PsiElement) {
+          if (elem.getTextOffset >= elements(0).getTextRange.getStartOffset &&
+              elem.getTextOffset <= elements(elements.length - 1).getTextRange.getEndOffset) return
+          if (stopAtScope == null) stopAtScope = elem.getParent
+          else {
+            if (stopAtScope.getTextRange.contains(elem.getTextRange)) stopAtScope = elem.getParent
+          }
+        }
+        ref.resolve match {
+          case td: ScTypeDefinition => attachElement(td)
+          case fun: ScFunction if fun.typeParameters.length > 0 => attachElement(fun)
+          case _ =>
+        }
+      }
+    }
+    for (element <- elements if element.isInstanceOf[ScalaPsiElement])
+      element.asInstanceOf[ScalaPsiElement].accept(visitor: ScalaElementVisitor)
+    val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
     val scope: PsiElement = {
       if (file.isScriptFile()) {
         file
@@ -119,7 +141,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       } else null
     }
     if (scope == null) return
-    if (ApplicationManager.getApplication.isUnitTestMode) {
+    if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
       invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0))
     } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
@@ -132,11 +154,15 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     } else return
   }
 
-  private def getSiblings(element: PsiElement): Array[PsiElement] = {
+  private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
+    def isParentOk(parent: PsiElement): Boolean = {
+      parent != null && (stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange))
+    }
+
     val res = new ArrayBuffer[PsiElement]
     var prev = element
     var parent = element.getParent
-    while (parent != null) {
+    while (isParentOk(parent)) {
       parent match {
         case file: ScalaFile if file.isScriptFile() => res += prev
         case block: ScBlockExpr => res += prev
@@ -168,9 +194,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
       val input = info.inputVariables
       val output = info.outputVariables
-      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, scope,
-        input.toArray, output.toArray)
-      new ScalaExtractMethodSettings("testMethodName", dialog.getParameters, dialog.getReturns, "", scope, sibling,
+      new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
+        ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", scope, sibling,
         elements, hasReturn, lastReturn)
     }
     performRefactoring(settings, editor)
@@ -248,7 +273,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           val exprText = if (settings.returnType == None) methodCall.toString else tFreshName + "._2.get"
           val stmt: PsiElement = if (ret.needNewDefinition) {
             ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName, !ret.isVal,
-              exprText, method.getManager)
+              exprText, method.getManager, true)
           } else {
             ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " +
                     exprText, settings.elements.apply(0).getManager)
@@ -256,7 +281,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           val before = settings.elements.apply(0)
           def addNode(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
           if (settings.returnType != None) {
-            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager)
+            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager, true)
             val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val matcher = getMatchForReturn(tFreshName + "._1")
@@ -266,11 +291,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           before.getParent.getNode.removeChild(before.getNode)
         } else {
           val exprText = if (settings.returnType == None) methodCall.toString else tFreshName + "._2.get"
-          val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, false, exprText, method.getManager)
+          val stmt = ScalaPsiElementFactory.createDeclaration(null, rFreshName, false, exprText, method.getManager, true)
           val before = settings.elements.apply(0)
           def addNodeBack(elem: PsiElement) {before.getParent.getNode.addChild(elem.getNode, before.getNode)}
           if (settings.returnType != None) {
-            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager)
+            val decl = ScalaPsiElementFactory.createDeclaration(null, tFreshName, false, methodCall.toString, method.getManager, true)
             val nl1 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val nl2 = ScalaPsiElementFactory.createNewLineNode(decl.getManager).getPsi
             val matcher = getMatchForReturn(tFreshName + "._1")
@@ -288,7 +313,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
             addNode(ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi)
             if (ret.needNewDefinition) {
               addNode(ScalaPsiElementFactory.createDeclaration(ret.returnType, ret.oldParamName,
-                !ret.isVal, rFreshName + "._" + count, lastElem.getManager))
+                !ret.isVal, rFreshName + "._" + count, lastElem.getManager, true))
             } else {
               addNode(ScalaPsiElementFactory.createExpressionFromText(ret.oldParamName + " = " + rFreshName +
                       "._" + count, stmt.getManager))

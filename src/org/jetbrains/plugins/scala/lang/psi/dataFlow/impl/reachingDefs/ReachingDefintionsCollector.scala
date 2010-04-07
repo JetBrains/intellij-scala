@@ -55,7 +55,7 @@ object ReachingDefintionsCollector {
 
   private def elementToFragmentMapper(elements: Seq[PsiElement]) = new ((PsiElement) => Boolean) {
     import collection.mutable._
-    def elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
+    val elem2Outer: Map[PsiElement, Boolean] = new HashMap[PsiElement, Boolean]
 
     def apply(elem: PsiElement): Boolean = elem != null && (elem2Outer.get(elem) match {
       case Some(b) => b

@@ -161,11 +161,13 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void setupParametersPanel() {
-    ParameterTablePanel.VariableData[] data = new ParameterTablePanel.VariableData[myInput.length];
+    ArrayList<ParameterTablePanel.VariableData> data = new ArrayList<ParameterTablePanel.VariableData>();
     for (int i = 0; i < myInput.length; ++i) {
-      data[i] = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
+      ParameterTablePanel.VariableData d = ScalaExtractMethodUtils.convertVariableData(myInput[i], myElements);
+      if (d != null) data.add(d);
     }
-    parameterTablePanel = new ScalaParameterTablePanel(myProject, data);
+    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(
+        new ParameterTablePanel.VariableData[data.size()]));
     inputParametersPanel.add(parameterTablePanel);
   }
 
