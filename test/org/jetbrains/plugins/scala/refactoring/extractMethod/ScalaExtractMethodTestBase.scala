@@ -18,7 +18,7 @@ import junit.framework.Assert._
  * Date: 06.04.2010
  */
 
-class ScalaExtractMethodTestBase extends ScalaPsiTestCase {
+abstract class ScalaExtractMethodTestBase extends ScalaPsiTestCase {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
