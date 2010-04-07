@@ -203,7 +203,7 @@ object ScalaPsiUtil {
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
         case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod |
-                _: ScCaseClause | _: PsiClass => true
+                _: ScCaseClause | _: PsiClass | _: PsiPackage => true
         case _ => false
       }
     }
