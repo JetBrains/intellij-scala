@@ -47,7 +47,23 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def isReferenceTo(element: PsiElement): Boolean = {
     val res = resolve
-    if (res == null) return false
+    if (res == null) {
+      //case for imports with reference to Class and Object
+      element match {
+        case td: ScTypeDefinition => {
+          ScalaPsiUtil.getCompanionModule(td) match {
+            case Some(comp) => {
+              val res = multiResolve(false)
+              if (res.length == 2) {
+                return res.find(_.getElement == td) != None && res.find(_.getElement == comp) != None
+              } else return false
+            }
+            case _ => return false
+          }
+        }
+        case _ => return false
+      }
+    }
     if (res == element) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
