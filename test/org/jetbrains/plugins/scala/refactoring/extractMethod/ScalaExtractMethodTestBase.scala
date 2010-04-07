@@ -52,7 +52,7 @@ class ScalaExtractMethodTestBase extends ScalaPsiTestCase {
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }
     catch {
-      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace.map(_.toString).mkString("  \n"))
     }
     finally {
       ScalaUtils.runWriteAction(new Runnable {
