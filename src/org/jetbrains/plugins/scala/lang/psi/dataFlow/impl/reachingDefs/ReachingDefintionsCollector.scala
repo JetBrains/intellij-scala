@@ -18,16 +18,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 object ReachingDefintionsCollector {
   import ReachingDefinitions.{A => RDSet, _}
-
+  def collectVariableInfo(elements: Seq[PsiElement]): FragmentVariableInfos = {
+    val elementsForScope: ArrayBuffer[PsiElement] = new ArrayBuffer
+    var element = elements(0)
+    while (element != null) {
+      elementsForScope += element
+      element = element.getNextSibling
+    }
+    collectVariableInfo(elements, elementToFragmentMapper(elementsForScope.toSeq))
+  }
+  def collectVariableInfo(elements: Seq[PsiElement], scope: ScalaPsiElement): FragmentVariableInfos =
+    collectVariableInfo(elements, elementToScopeMapper(scope))
   /**
    * @param elements a fragment to analyze
    * @param scope since Extract Method refactoring is in fact RDC's main client, it should define a scope
    *              where to look for captured variables 
    */
-  def collectVariableInfo(elements: Seq[PsiElement], scope: ScalaPsiElement): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], isInScope: (PsiElement) => Boolean): FragmentVariableInfos = {
     import PsiTreeUtil._
     val isInFragment = elementToFragmentMapper(elements)
-    val isInScope = elementToScopeMapper(scope)
     // for every reference element, define is it's definition in scope
     val inputInfos = getInputInfo(elements, isInFragment, isInScope)
 
