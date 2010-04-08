@@ -34,7 +34,8 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)
     val end: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionEnd - 1 else file.getTextLength - 1)
     val range = ScalaPsiUtil.getElementsRange(start, end)
-    val scope: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), classOf[ScFunctionDefinition], false)
+    val scope: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), 
+      classOf[ScFunctionDefinition], false)
 
     import ReachingDefintionsCollector._
     val infos = collectVariableInfo(range, scope)
