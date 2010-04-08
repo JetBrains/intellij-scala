@@ -128,9 +128,7 @@ public class ScalaFacetTab extends FacetEditorTab {
     return !(
         myConfiguration.takeFromSettings == myUseSettingsChb.isSelected() &&
         Arrays.equals(myConfiguration.getCompilerPaths(), getCompilerPaths()) &&
-        Arrays.equals(myConfiguration.getSdkPaths(), getSdkPaths())) ||
-        !myConfiguration.myScalaCompilerJarPath.equals("") ||
-        !myConfiguration.myScalaSdkJarPath.equals("");
+        Arrays.equals(myConfiguration.getSdkPaths(), getSdkPaths()));
   }
 
   private String getSdkPath() {
@@ -171,8 +169,6 @@ public class ScalaFacetTab extends FacetEditorTab {
     myConfiguration.myScalaCompilerJarPaths = getCompilerPaths();
     myConfiguration.myScalaSdkJarPaths = getSdkPaths();
     myConfiguration.takeFromSettings = myUseSettingsChb.isSelected();
-    myConfiguration.myScalaSdkJarPath = "";
-    myConfiguration.myScalaCompilerJarPath = "";
   }
 
   public void reset() {

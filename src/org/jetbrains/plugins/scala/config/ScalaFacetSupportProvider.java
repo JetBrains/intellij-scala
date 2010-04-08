@@ -20,6 +20,9 @@ import com.intellij.facet.ui.FacetBasedFrameworkSupportProvider;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.ide.util.frameworkSupport.FrameworkVersion;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -59,6 +62,21 @@ public class ScalaFacetSupportProvider extends FacetBasedFrameworkSupportProvide
       versions.add(new FrameworkVersion(version.toString(), getLibraryName(version.toString()), getLibraries(version.toString())));
     }
     return versions;
+  }
+
+  @Override
+  protected void onLibraryAdded(ScalaFacet facet, @NotNull Library library) {
+    VirtualFile[] files = library.getFiles(OrderRootType.CLASSES);
+    ScalaLibrariesConfiguration settings = facet.getConfiguration().getMyScalaLibrariesConfiguration();
+    for (VirtualFile file : files) {
+      if (file.getName().equals("scala-compiler.jar")) {
+        settings.takeFromSettings = true;
+        settings.myScalaCompilerJarPaths = new String[]{file.getPath()};
+      } else if (file.getName().equals("scala-library.jar")) {
+        settings.takeFromSettings = true;
+        settings.myScalaSdkJarPaths = new String[]{file.getPath()};
+      }
+    }
   }
 
   private static ScalaVersion getVersion(String versionName) {

@@ -42,6 +42,18 @@ public enum ScalaVersion {
       createJarDownloadInfo("scala-compiler", "2.7.6", "org/scala-lang", "scala.tools.nsc.CompilerRun"),
       createJarDownloadInfo("scala-library", "2.7.6", "org/scala-lang", "scala.Predef"),
   })
+  ,
+
+  Scala2_7_7("2.7.7", new LibraryInfo[]{
+      createJarDownloadInfo("scala-compiler", "2.7.7", "org/scala-lang", "scala.tools.nsc.CompilerRun"),
+      createJarDownloadInfo("scala-library", "2.7.7", "org/scala-lang", "scala.Predef"),
+  })
+  ,
+
+  Scala2_8_0_Beta1("2.8.0.Beta1", new LibraryInfo[]{
+      createJarDownloadInfo("scala-compiler", "2.8.0.Beta1", "org/scala-lang", "scala.tools.nsc.CompilerRun"),
+      createJarDownloadInfo("scala-library", "2.8.0.Beta1", "org/scala-lang", "scala.Predef"),
+  })
   ;
 
   private final String myName;
