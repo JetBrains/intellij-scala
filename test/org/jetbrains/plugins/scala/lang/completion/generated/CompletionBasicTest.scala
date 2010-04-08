@@ -7,6 +7,8 @@ class CompletionBasicTest extends CompletionTestBase {
 
   def testAnyToString = doTest
 
+  def testClassInImport = doTest
+
   def testEmptyCompletionListAfterUnresolvedReference = doTest
 
   def testToString = doTest
