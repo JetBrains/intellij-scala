@@ -262,6 +262,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
     JDOMExternalizer.write(element, "version", scalaTestVersion)
+    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -272,6 +273,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
     scalaTestVersion = JDOMExternalizer.readBoolean(element, "version")
+    val pp = JDOMExternalizer.readString(element, "workingDirectory")
+    if (pp != null) workingDirectory = pp
   }
 
   private def getClassPath(module: Module): String = {

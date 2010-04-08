@@ -255,6 +255,10 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     JDOMExternalizer.write(element, "path", getTestClassPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
+    JDOMExternalizer.write(element, "packagepath", getTestPackagePath)
+    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
+    JDOMExternalizer.write(element, "sysFilter", sysFilter)
+    JDOMExternalizer.write(element, "exampleFilter", exampleFilter)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -263,6 +267,15 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     testClassPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
+    //todo: this var should be removed after few releases. Creation date: 08.04.2010
+    var pp = JDOMExternalizer.readString(element, "packagepath")
+    if (pp != null) testPackagePath = pp
+    pp = JDOMExternalizer.readString(element, "workingDirectory")
+    if (pp != null) workingDirectory = pp
+    pp = JDOMExternalizer.readString(element, "sysFilter")
+    if (pp != null) sysFilter = pp
+    pp = JDOMExternalizer.readString(element, "exampleFilter")
+    if (pp != null) exampleFilter = pp
   }
 
   private def getClassPath(module: Module): String = {
