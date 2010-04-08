@@ -7,8 +7,6 @@ import _root_.com.intellij.refactoring.util.ParameterTablePanel.VariableData
 import _root_.org.jetbrains.annotations.Nullable
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReturnStmt, ScAssignStmt}
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, Nothing, ScType}
 import _root_.org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -32,6 +30,8 @@ import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import psi.api.statements.{ScValue, ScFunction}
 import psi.api.statements.params.ScTypeParam
 import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
+import psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
+import psi.api.expr._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -155,9 +155,36 @@ object ScalaExtractMethodUtils {
               var break = false
               for (param <- settings.parameters if !break) {
                 if (param.oldName == oldName) {
-                  if (param.oldName != param.newName) {
-                    val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName, method.getManager)
-                    ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
+                  def tail: Unit = {
+                    if (param.oldName != param.newName) {
+                      val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName, method.getManager)
+                      ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
+                    }
+                  }
+                  ref.getParent match {
+                    case sect: ScUnderscoreSection if param.isFunction => {
+                      val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName, method.getManager)
+                      sect.getParent.getNode.replaceChild(sect.getNode, newRef.getNode)
+                    }
+                    case _ if param.isEmptyParamFunction => {
+                      ref.getParent match {
+                        case ref: ScReferenceElement if ref.refName == "apply" => tail
+                        case call: ScMethodCall => tail
+                        case _ => {
+                          ref.asInstanceOf[ScExpression].expectedType match {
+                            case Some(ScFunctionType(_, params)) if params.length == 0 => tail
+                            case _ => {
+                              //we need to replace by method call
+                              val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName + "()", method.getManager)
+                              ref.getParent.getNode.replaceChild(ref.getNode, newRef.getNode)
+                            }
+                          }
+                        }
+                      }
+                    }
+                    case _ => {
+                      tail
+                    }
                   }
                   break = true
                 }
@@ -202,10 +229,9 @@ object ScalaExtractMethodUtils {
     override def getPresentableText: String = ScType.presentableText(tp)
   }
 
-  class ScalaVariableData(val vari: ScTypedDefinition, val isMutable: Boolean, val isInsideOfElements: Boolean) extends {
-    val tp = vari.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
-    val param = new FakePsiParameter(vari.getManager, ScalaFileType.SCALA_LANGUAGE, tp, vari.getName)
-  } with ParameterTablePanel.VariableData(param, new FakePsiType(tp)) {
+  class ScalaVariableData(val vari: ScTypedDefinition, val isMutable: Boolean, val isInsideOfElements: Boolean, 
+                          val tp: ScType, val param: FakePsiParameter)
+          extends ParameterTablePanel.VariableData(param, new FakePsiType(tp)) {
     passAsParameter = true
     name = param.getName
   }
@@ -241,7 +267,13 @@ object ScalaExtractMethodUtils {
       val endOffset = elements(elements.length - 1).getTextRange.getEndOffset
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
-    new ScalaVariableData(definition, isMutable, isInside)
+    val retType = definition.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
+    val tp = definition match {
+      case fun: ScFunction if fun.paramClauses.clauses.length == 0 => new ScFunctionType(retType, Seq.empty, definition.getProject)
+      case _ => retType
+    }
+    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, tp, definition.getName)
+    new ScalaVariableData(definition, isMutable, isInside, tp, param)
   }
 
   def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean): String = {
@@ -284,7 +316,8 @@ object ScalaExtractMethodUtils {
       var variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
       var param: ExtractMethodParameter =
       new ExtractMethodParameter(d.variable.getName, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
-        variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction])
+        variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction],
+        variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0)
       list += param
     }
     list.toArray
