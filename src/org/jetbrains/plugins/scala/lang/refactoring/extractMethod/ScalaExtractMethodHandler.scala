@@ -141,17 +141,19 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       } else null
     }
     if (scope == null) return
+    if (siblings.length == 0) return
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0))
+      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), siblings.length == 1)
     } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
-        invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue)
+        invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
+          siblings(siblings.length - 1) == selectedValue)
       }, "Choose level for Extract Method", getTextForElement _)
       return
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0))
-    } else return
+      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), true)
+    }
   }
 
   private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
@@ -177,10 +179,14 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
-                           lastReturn: Boolean, sibling: PsiElement) {
+                           lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean) {
     val scope = sibling.getParent
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      val info =
+      if (!smallestScope)
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      else
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
       val input = info.inputVariables
       val output = info.outputVariables
       val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, scope,
@@ -191,7 +197,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       }
       dialog.getSettings
     } else {
-      val info = ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      val info =
+      if (!smallestScope)
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+      else
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
       val input = info.inputVariables
       val output = info.outputVariables
       new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
