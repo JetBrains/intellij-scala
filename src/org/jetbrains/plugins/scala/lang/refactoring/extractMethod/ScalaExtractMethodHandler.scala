@@ -181,14 +181,15 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean) {
     val scope = sibling.getParent
+    val info =
+    if (!smallestScope)
+      ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+    else
+      ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
+    val input = info.inputVariables
+    val output = info.outputVariables
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val info =
-      if (!smallestScope)
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
-      else
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
-      val input = info.inputVariables
-      val output = info.outputVariables
+
       val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, scope,
         input.toArray, output.toArray)
       dialog.show
@@ -197,13 +198,6 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       }
       dialog.getSettings
     } else {
-      val info =
-      if (!smallestScope)
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
-      else
-        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
-      val input = info.inputVariables
-      val output = info.outputVariables
       new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
         ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", scope, sibling,
         elements, hasReturn, lastReturn)
