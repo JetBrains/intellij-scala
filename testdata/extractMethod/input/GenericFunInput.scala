@@ -6,9 +6,9 @@ class GenericFunInput {
     val y = goo("")
     val z = goo[Long](3L)
     /*end*/
-    x;
-    y;
-    z
+    val f = x
+    val h = y
+    val u = z
   }
 }
 /*
@@ -27,9 +27,9 @@ class GenericFunInput {
     val y: String = r._2
     val z: Long = r._3
     /*end*/
-    x;
-    y;
-    z
+    val f = x
+    val h = y
+    val u = z
   }
 }
 */
