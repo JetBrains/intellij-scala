@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import com.intellij.openapi.project.{Project}
 import com.intellij.openapi.project.DumbAware
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import com.intellij.CommonBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -16,6 +15,11 @@ import com.intellij.ide.IdeView
 import org.jetbrains.annotations.NonNls
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.fileTypes.StdFileTypes
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaBundle}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,4 +88,18 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   }
 
   private val SCALA_EXTENSIOIN = ".scala";
+
+  override def doCheckCreate(dir: PsiDirectory, className: String, templateName: String): Unit = {
+    if (!ScalaNamesUtil.isIdentifier(className)) {
+      throw new IncorrectOperationException(PsiBundle.message("0.is.not.an.identifier", className))
+    }
+    var fileName: String = className + "." + ScalaFileType.DEFAULT_EXTENSION
+    dir.checkCreateFile(fileName)
+    var helper: PsiNameHelper = JavaPsiFacade.getInstance(dir.getProject).getNameHelper
+    var aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(dir)
+    var qualifiedName: String = if (aPackage == null) null else aPackage.getQualifiedName
+    if (!StringUtil.isEmpty(qualifiedName) && !helper.isQualifiedName(qualifiedName)) {
+      throw new IncorrectOperationException("Cannot create class in invalid package: '" + qualifiedName + "'")
+    }
+  }
 }
