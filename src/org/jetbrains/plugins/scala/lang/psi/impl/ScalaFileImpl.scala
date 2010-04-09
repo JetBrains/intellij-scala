@@ -11,10 +11,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.{ArrayFactory}
 import lexer.ScalaTokenTypes
-import stubs.ScFileStub
+import psi.stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
-import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import decompiler.CompiledFileAdjuster
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -23,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.psi._
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import scala.util.control.Breaks._
@@ -31,7 +30,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
-import lang.resolve.processor.ResolverEnv
+import com.intellij.psi.util.PsiTreeUtil
+import scope.{NameHint, PsiScopeProcessor}
+import lang.resolve.processor.{ResolveProcessor, BaseProcessor, CompletionProcessor, ResolverEnv}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -233,7 +234,35 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
       case _ => {
         val defaultPackage = JavaPsiFacade.getInstance(getProject).findPackage("")
-        if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
+        if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
+          if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
+        }
+        else if (defaultPackage != null) {
+          //only packages resolve, no classes from default package
+          val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
+          val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]
+          if (name == null) {
+            val packages = defaultPackage.getSubPackages(place.getResolveScope)
+            val iterator = packages.iterator
+            while (iterator.hasNext) {
+              val pack = iterator.next
+              if (!processor.execute(pack, state)) return false
+            }
+            val migration = facade.getCurrentMigration
+            if (migration != null) {
+              val list = migration.getMigrationPackages("")
+              val packages = list.toArray(new Array[PsiPackage](list.size))
+              val iterator = packages.iterator
+              while (iterator.hasNext) {
+                val pack = iterator.next
+                if (!processor.execute(pack, state)) return false
+              }
+            }
+          } else {
+            var aPackage: PsiPackage = facade.findPackage(name)
+            if (aPackage != null && !processor.execute(aPackage, state)) return false
+          }
+        }
       }
     }
 

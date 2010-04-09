@@ -38,9 +38,4 @@ public class DefaultPackageResolveTest extends ScalaResolveTestCase {
     PsiReference ref = configureByFile("defaultPackage/DefaultScalaToJava.scala");
     assertTrue(ref.resolve() != null);
   }
-  //TODO
-  /*public void testDefaultScalaToJava() throws Exception {
-    PsiReference ref = configureByFile("defaultPackage/DefaultScalaToJava.scala");
-    assertTrue(ref.resolve() != null);
-  }*/
 }
