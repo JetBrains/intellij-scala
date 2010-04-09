@@ -92,7 +92,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         return
       } else {
         ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
-          chooseExpression(elem.asInstanceOf[ScExpression]), "Choose Expression for Introduce Variable", (expr: ScExpression) => expr.toString)
+          chooseExpression(elem.asInstanceOf[ScExpression]), "Choose Expression for Introduce Variable", (expr: ScExpression) => {
+          ScalaRefactoringUtil.getShortText(expr)
+        })
         return
       }
     }

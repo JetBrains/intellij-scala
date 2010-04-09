@@ -30,6 +30,9 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 import psi.types._
 import psi.api.statements.{ScFunction, ScFunctionDefinition}
 import lang.resolve.ScalaResolveResult
+import psi.api.expr.xml.ScXmlExpr
+import psi.ScalaPsiElement
+import psi.api.base.ScLiteral
 
 /**
  * User: Alexander Podkhalyuzin
@@ -289,5 +292,141 @@ object ScalaRefactoringUtil {
         highlighter.dropHighlight
       }
     }).createPopup.showInBestPositionFor(editor)
+  }
+  
+  def getShortText(expr: ScalaPsiElement): String = {
+    val builder = new StringBuilder
+    expr match {
+      case ass: ScAssignStmt => {
+        builder.append(getShortText(ass.getLExpression))
+        builder.append(" = ")
+        ass.getRExpression match {
+          case Some(r) => builder.append(getShortText(r))
+          case _ =>
+        }
+      }
+      case bl: ScBlock => {
+        builder.append("{...}")
+      }
+      case d: ScDoStmt => {
+        builder.append("do {...} while (...)")
+      }
+      case f: ScForStatement => {
+        builder.append("for (...) ")
+        if (f.isYield) builder.append("yield ")
+        builder.append("{...}")
+      }
+      case f: ScFunctionExpr => {
+        builder.append(f.params.getText).append(" => {...}")
+      }
+      case g: ScGenericCall => {
+        builder.append(getShortText(g.referencedExpr))
+        builder.append("[...]")
+      }
+      case i: ScIfStmt => {
+        builder.append("if (...) {...}")
+        if (i.elseBranch != None) builder.append(" else {...}")
+      }
+      case i: ScInfixExpr => {
+        builder.append(getShortText(i.lOp))
+        builder.append(" ")
+        builder.append(getShortText(i.operation))
+        builder.append(" ")
+        builder.append(getShortText(i.rOp))
+      }
+      case l: ScLiteral => builder.append(l.getText)
+      case m: ScMatchStmt => {
+        m.expr match {
+          case Some(expr) => builder.append(getShortText(expr))
+          case _ => builder.append("...")
+        }
+        builder.append(" match {...}")
+      }
+      case m: ScMethodCall => {
+        builder.append(getShortText(m.getInvokedExpr))
+        if (m.argumentExpressions.length == 0) builder.append("()")
+        else builder.append("(...)")
+      }
+      case n: ScNewTemplateDefinition => {
+        builder.append("new ")
+        val types = n.extendsBlock.superTypes
+        for (tp <- types) {
+          builder.append(ScType.presentableText(tp))
+          if (tp != types(types.length - 1)) builder.append(" with ")
+        }
+        n.extendsBlock.templateBody match {
+          case Some(tb) => builder.append(" {...}")
+          case _ =>
+        }
+      }
+      case p: ScParenthesisedExpr => {
+        builder.append("(")
+        p.expr match {case Some(expr) => builder.append(getShortText(expr)) case _ =>}
+        builder.append(")")
+      }
+      case p: ScPostfixExpr => {
+        builder.append(getShortText(p.operand))
+        builder.append(" ")
+        builder.append(getShortText(p.operation))
+      }
+      case p: ScPrefixExpr => {
+        builder.append(getShortText(p.operation))
+        builder.append(getShortText(p.operand))
+      }
+      case r: ScReferenceExpression => {
+        r.qualifier match {
+          case Some(q) => builder.append(getShortText(q)).append(".")
+          case _ =>
+        }
+        builder.append(r.refName)
+      }
+      case r: ScReturnStmt => {
+        builder.append("return ")
+        r.expr match {
+          case Some(expr) => builder.append(getShortText(expr))
+          case _ =>
+        }
+      }
+      case s: ScSuperReference => builder.append(s.getText)
+      case t: ScThisReference => builder.append(t.getText)
+      case t: ScThrowStmt => {
+        builder.append("throw ")
+        t.body match {
+          case Some(expr) => builder.append(getShortText(expr))
+          case _ => builder.append("...")
+        }
+      }
+      case t: ScTryStmt => {
+        builder.append("try {...}")
+        if (t.catchBlock != None) builder.append(" catch {...}")
+        if (t.finallyBlock != None) builder.append(" finally {...}")
+      }
+      case t: ScTuple => {
+        builder.append("(")
+        val exprs = t.exprs
+        for (expr <- exprs) {
+          builder.append(getShortText(expr))
+          if (expr != exprs.apply(exprs.length - 1)) builder.append(", ")
+        }
+        builder.append(")")
+      }
+      case t: ScTypedStmt => {
+        builder.append(getShortText(t.expr))
+        builder.append(" : ")
+        builder.append(t.typeElement match {case Some(te) => te.getText case _ => "..."})
+      }
+      case u: ScUnderscoreSection => {
+        if (u.bindingExpr == None) builder.append("_")
+        else {
+          builder.append(getShortText(u.bindingExpr.get))
+          builder.append(" _")
+        }
+      }
+      case u: ScUnitExpr => builder.append("()")
+      case w: ScWhileStmt => builder.append("while (...) {...}")
+      case x: ScXmlExpr => builder.append(x.getText)
+      case _ => builder.append(expr.getText)
+    }
+    builder.toString
   }
 }
