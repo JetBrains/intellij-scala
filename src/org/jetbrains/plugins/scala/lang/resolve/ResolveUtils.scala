@@ -370,7 +370,7 @@ object ResolveUtils {
             presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
           }
           case param: ScParameter => {
-            presentation.setTypeText(presentationString(param.getType(TypingContext.empty).getOrElse(Any), substitutor))
+            presentation.setTypeText(presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor))
           }
           case clazz: PsiClass => {
             val location: String = clazz.getPresentation.getLocationString
