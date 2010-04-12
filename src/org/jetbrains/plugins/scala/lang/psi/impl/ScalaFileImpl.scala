@@ -70,9 +70,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
       val project = getProject
-      val moduleManager = ModuleManager.getInstance(project)
+      /*val moduleManager = ModuleManager.getInstance(project)
       // Look in all modules for such a source file
-      for (m <- moduleManager.getModules) {
+      /or (m <- moduleManager.getModules) {
         val rootManager = ModuleRootManager.getInstance(m)
         for (e <- rootManager.getOrderEntries if e.isInstanceOf[ModuleSourceOrderEntry]) {
           for (f <- e.getFiles(OrderRootType.SOURCES)) {
@@ -86,13 +86,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
             }
           }
         }
-      }
+      }*/
 
       // Look in libraries' sources
       val vFile = getContainingFile.getVirtualFile
       val index = ProjectRootManager.getInstance(getProject).getFileIndex
       val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
-      for (entry <- entries) {
+      var entryIterator = entries.iterator
+      while (entryIterator.hasNext) {
+        val entry = entryIterator.next
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
         for (file <- files) {
@@ -103,6 +105,46 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
               case o: PsiClassOwner => return o
               case _ =>
             }
+          }
+        }
+      }
+      entryIterator = entries.iterator
+      //Look in libraries sources if file not relative to path
+      while (entryIterator.hasNext) {
+        val entry = entryIterator.next
+        // Look in sources of an appropriate entry
+        val files = entry.getFiles(OrderRootType.SOURCES)
+        for (file <- files) {
+          if (typeDefinitions.length == 0) return this
+          val qual = typeDefinitions.apply(0).getQualifiedName
+          def scanFile(file: VirtualFile): Option[PsiElement] = {
+            var children: Array[VirtualFile] = file.getChildren
+            if (children != null) {
+              for (child <- children) {
+                if (child.getName == sourceFile) {
+                  val psiSource = getManager.findFile(child)
+                  psiSource match {
+                    case o: PsiClassOwner => {
+                      for (clazz <- o.getClasses) {
+                        if (qual == clazz.getQualifiedName) {
+                          return Some(o)
+                        }
+                      }
+                    }
+                    case _ =>
+                  }
+                }
+                scanFile(child) match {
+                  case Some(s) => return Some(s)
+                  case _ =>
+                }
+              }
+            }
+            None
+          }
+          scanFile(file) match {
+            case Some(x) => return x
+            case None =>
           }
         }
       }
