@@ -21,7 +21,6 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{PsiDocumentManager, PsiFileFactory, PsiManager}
 import java.awt.event.{KeyEvent, InputEvent}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdkType}
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
 import config.{ScalaCompilerUtil, ScalaConfigUtils}
@@ -35,12 +34,13 @@ import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.vcsUtil.VcsUtil
-import java.io.File
 import java.util.Arrays
 import com.intellij.facet.FacetManager
 import lang.psi.api.ScalaFile
 import settings.ScalaApplicationSettings
 import util.ScalaUtils
+import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
+import java.io.{PrintStream, FileOutputStream, IOException, File}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -108,11 +108,29 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
         params.getClassPath.add(rtJarPath)
         params.setMainClass(MAIN_CLASS)
-
-        params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(project))
-
-        params.getProgramParametersList.addParametersString(consoleArgs)
+        if (JdkUtil.useDynamicClasspath(getProject)) {
+          try {
+            var fileWithParams: File = File.createTempFile("scalaconsole", ".tmp")
+            var printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
+            printer.println("-classpath")
+            printer.println(getClassPath(project))
+            val parms: Array[String] = ParametersList.parse(consoleArgs)
+            for (parm <- parms) {
+              printer.println(parm)
+            }
+            printer.close
+            params.getProgramParametersList.add("@" + fileWithParams.getPath)
+          }
+          catch {
+            case e: IOException => {
+              //todo:
+            }
+          }
+        } else {
+          params.getProgramParametersList.add("-classpath")
+          params.getProgramParametersList.add(getClassPath(project))
+          params.getProgramParametersList.addParametersString(consoleArgs)
+        }
         return params
       }
     }
