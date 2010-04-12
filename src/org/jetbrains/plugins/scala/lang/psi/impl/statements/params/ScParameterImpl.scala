@@ -34,6 +34,19 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
+  def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
+    if (!isRepeatedParameter) return getType(ctx)
+    getType(ctx) match {
+      case f@Success(tp: ScType, elem) => {
+        val seq = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", getResolveScope)
+        if (seq != null) {
+          return Success(new ScParameterizedType(new ScDesignatorType(seq), Seq(tp)), elem)
+        } else return f
+      }
+      case f => return f
+    }
+  }
+
   def nameId = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id

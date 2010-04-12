@@ -105,12 +105,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   private def scalaObject(): ScType = {
-    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject")
+    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject", getResolveScope)
     if (so != null) new ScDesignatorType(so) else null
   }
 
   private def scalaProduct(): ScType = {
-    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.Product")
+    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.Product", getResolveScope)
     if (so != null) new ScDesignatorType(so) else null
   }
 

@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi._
 import api.statements.params._
 import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import types.result.{TypeResult, TypingContext}
+import types.ScType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -38,4 +40,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def isDefaultParam: Boolean
 
   def getDefaultExpression: Option[ScExpression] = findChild(classOf[ScExpression])
+
+  def getRealParameterType(ctx: TypingContext): TypeResult[ScType]
 }
