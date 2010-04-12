@@ -17,6 +17,7 @@ import psi.impl.toplevel.synthetic.{ScSyntheticClass}
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) {
+  lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
   /**
    * Contains highest precedence of all resolve results.
    * 1 - import a._
@@ -48,47 +49,48 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
         case pack: PsiPackage => {
           val qualifier = pack.getQualifiedName
-          if (qualifier == null) return 5
+          if (qualifier == null) return 6
           val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 5
+          if (index == -1) return 6
           val q = qualifier.substring(0, index)
           if (q == "java.lang") return 1
           else if (q == "scala") return 2
-          else return 5
+          else if (q == placePackageName) return 6
+          else return 3
         }
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
-          if (qualifier == null) return 5
+          if (qualifier == null) return 6
           val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 5
+          if (index == -1) return 6
           val q = qualifier.substring(0, index)
           if (q == "java.lang") return 1
           else if (q == "scala") return 2
-          else return 5
+          else return 6
         }
         case _: ScBindingPattern | _: PsiMember => {
           val clazz = PsiTreeUtil.getParentOfType(result.getElement, classOf[PsiClass])
-          if (clazz == null) return 5
+          if (clazz == null) return 6
           else {
             clazz.getQualifiedName match {
               case "scala.Predef" => return 2
               case "scala.LowPriorityImplicits" => return 2
               case "scala" => return 2
-              case _ => return 5
+              case _ => return 6
             }
           }
         }
         case _ =>
       }
-      return 5
+      return 6
     }
     val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
     importUsed match {
-      case _: ImportWildcardSelectorUsed => return 3
-      case _: ImportSelectorUsed => return 4
+      case _: ImportWildcardSelectorUsed => return 4
+      case _: ImportSelectorUsed => return 5
       case ImportExprUsed(expr) => {
-        if (expr.singleWildcard) return 3
-        else return 4
+        if (expr.singleWildcard) return 4
+        else return 5
       }
     }
   }

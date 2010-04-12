@@ -409,4 +409,10 @@ object ResolveUtils {
     })
     (lookupBuilder, element, substitutor)
   }
+
+  def getPlacePackage(place: PsiElement): String = {
+    val pack = PsiTreeUtil.getParentOfType(place, classOf[ScPackaging])
+    if (pack == null) return ""
+    pack.fullPackageName
+  }
 }
