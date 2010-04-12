@@ -51,7 +51,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           val qualifier = pack.getQualifiedName
           if (qualifier == null) return 6
           val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 6
+          if (index == -1) return 3
           val q = qualifier.substring(0, index)
           if (q == "java.lang") return 1
           else if (q == "scala") return 2
