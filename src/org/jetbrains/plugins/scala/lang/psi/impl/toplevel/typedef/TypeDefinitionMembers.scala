@@ -26,7 +26,7 @@ import fake.FakePsiMethod
 import api.toplevel.ScTypedDefinition
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.util._
+import util._
 import lang.resolve.processor.BaseProcessor
 //import Suspension._
 

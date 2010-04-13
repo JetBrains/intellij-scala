@@ -17,21 +17,21 @@ import psi.impl.toplevel.synthetic.{ScSyntheticClass}
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) {
-  lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
+  protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
   /**
    * Contains highest precedence of all resolve results.
    * 1 - import a._
    * 2 - import a.x
    * 3 - definition or declaration
    */
-  private var precedence: Int = 0
+  protected var precedence: Int = 0
 
-  private val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
+  protected val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
 
   /**
    * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
    */
-  private def addResult(result: ScalaResolveResult): Boolean = {
+  protected def addResult(result: ScalaResolveResult): Boolean = {
     val currentPrecedence = getPrecendence(result)
     if (currentPrecedence < precedence) return false
     else if (currentPrecedence == precedence && levelSet.isEmpty) return false
@@ -43,7 +43,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     true
   }
 
-  private def getPrecendence(result: ScalaResolveResult): Int = {
+  protected def getPrecendence(result: ScalaResolveResult): Int = {
     if (result.importsUsed.size == 0) {
       ScalaPsiUtil.nameContext(result.getElement) match {
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
