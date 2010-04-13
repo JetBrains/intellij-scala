@@ -20,8 +20,8 @@ package impl.statements
  * Date: 23.03.2009
  */
 
+import _root_.base.types.Z
 import api.base._
-import base.types.Z
 
 class X extends /*ref*/Z {
 

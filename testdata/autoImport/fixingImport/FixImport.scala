@@ -13,7 +13,7 @@ class FixImport extends G {
 package tin
 
 import _root_.bin._
-import tin.bon.G
+import _root_.tin.bon.G
 
 class FixImport extends G {
   val x = new /*ref*/E
