@@ -32,6 +32,7 @@ import psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import psi.api.expr._
 import psi.api.statements.{ScVariable, ScValue, ScFunction}
 import psi.api.statements.params.{ScParameter, ScTypeParam}
+import scala.util.Sorting
 
 /**
  * User: Alexander Podkhalyuzin
@@ -329,7 +330,9 @@ object ScalaExtractMethodUtils {
       var param: ExtractMethodParameter = getParameter(d, variableData)
       list += param
     }
-    list.toArray
+    val res = list.toArray
+    Sorting.stableSort[ExtractMethodParameter](res, (p1: ExtractMethodParameter, p2: ExtractMethodParameter) => {p1.oldName < p2.oldName})
+    res
   }
 
   def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodReturn] = {

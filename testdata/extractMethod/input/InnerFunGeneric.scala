@@ -14,7 +14,7 @@ class A {
 }
 /*
 class A {
-  def testMethodName[T, G](y: G, z: T, x: T): T = {
+  def testMethodName[T, G](x: T, y: G, z: T): T = {
     y: G
     z: T
     val u = x
@@ -25,7 +25,7 @@ class A {
     def goo[G](y: G) {
       val z: T = x
       /*start*/
-      val u: T = testMethodName(y, z, x)
+      val u: T = testMethodName(x, y, z)
       /*end*/
       u
     }
