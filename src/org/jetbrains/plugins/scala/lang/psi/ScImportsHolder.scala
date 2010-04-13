@@ -142,8 +142,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     var isPlaceHolderImport = false
     clazz.getName +: selectors
     if (selectors.exists(_ == "_") ||
-            selectors.length >= CodeStyleSettingsManager.getSettings(getProject).
-            getCustomSettings(classOf[ScalaCodeStyleSettings]).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
+            selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
       selectors.clear
       selectors += "_"
       isPlaceHolderImport = true
@@ -169,17 +168,37 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
     treeWalkUp(this, place)
-    val packages = completionProcessor.candidates.map((result: ScalaResolveResult) => result match {
-      case ScalaResolveResult(pack: PsiPackage, _) => pack.getQualifiedName
-      case _ => ""
-    })
+    val names: HashSet[String] = new HashSet
+    val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
+    for (candidate <- completionProcessor.candidates) {
+      candidate match {
+        case ScalaResolveResult(pack: PsiPackage, _) => {
+          if (names.contains(pack.getName)) {
+            var index = packs.findIndexOf(_.getName == pack.getName)
+            while(index != -1) {
+              packs.remove(index)
+              index = packs.findIndexOf(_.getName == pack.getName)
+            }
+          } else {
+            names += pack.getName
+            packs += pack
+          }
+        }
+        case _ =>
+      }
+
+    }
+    val packages = packs.map(_.getQualifiedName)
 
     var importSt: ScImportStmt = null
+
     while (importSt == null) {
       val (pre, last) = getSplitQualifierElement(classPackageQualifier)
       if (ScalaNamesUtil.isKeyword(last)) importString = "`" + last + "`" + "." + importString
       else importString = last + "." + importString
-      if (packages.contains(classPackageQualifier)) {
+      if ((!ScalaPsiUtil.getSettings(getProject).ADD_FULL_QUALIFIED_IMPORTS ||
+              classPackageQualifier.indexOf(".") == -1) &&
+              packages.contains(classPackageQualifier)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
         classPackageQualifier = pre

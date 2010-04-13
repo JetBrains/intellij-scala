@@ -16,6 +16,7 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
+import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
@@ -31,12 +32,17 @@ import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.util._
+import formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
+  def getSettings(project: Project): ScalaCodeStyleSettings = {
+    CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+  }
+
   def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
