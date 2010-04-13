@@ -32,6 +32,15 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
+  def isCallByNameParameter: Boolean = {
+    paramType match {
+      case Some(paramType) => {
+        paramType.isCallByNameParameter
+      }
+      case _ => false
+    }
+  }
+
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {

@@ -27,11 +27,11 @@ import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.lang.String
 import collection.mutable.ArrayBuffer
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
-import psi.api.statements.{ScValue, ScFunction}
-import psi.api.statements.params.ScTypeParam
 import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
 import psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import psi.api.expr._
+import psi.api.statements.{ScVariable, ScValue, ScFunction}
+import psi.api.statements.params.{ScParameter, ScTypeParam}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,6 +62,7 @@ object ScalaExtractMethodUtils {
       for (param <- settings.parameters) {
         if (param.passAsParameter) {
           builder.append(if (!param.needMirror) param.oldName else "_" + param.newName).append(": ").
+                  append(if (param.isCallByNameParameter) "=> " else "").
                   append(ScType.presentableText(param.tp)).append(", ")
         }
       }
@@ -301,6 +302,17 @@ object ScalaExtractMethodUtils {
     }
   }
 
+  def getParameter(d: VariableData, variableData: ScalaVariableData): ExtractMethodParameter = {
+    new ExtractMethodParameter(d.variable.getName, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
+        variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction],
+        variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0,
+        ScalaPsiUtil.nameContext(variableData.vari) match {
+          case v: ScValue if v.hasModifierProperty("lazy") => true
+          case p: ScParameter if p.isCallByNameParameter => true
+          case _ => false
+        })
+  }
+
   /**
    * methods for Unit tests
    */
@@ -314,10 +326,7 @@ object ScalaExtractMethodUtils {
     var list: ArrayBuffer[ExtractMethodParameter] = new ArrayBuffer[ExtractMethodParameter]
     for (d <- data) {
       var variableData: ScalaVariableData = d.asInstanceOf[ScalaVariableData]
-      var param: ExtractMethodParameter =
-      new ExtractMethodParameter(d.variable.getName, d.name, false, (d.`type`.asInstanceOf[FakePsiType]).tp,
-        variableData.isMutable, d.passAsParameter, variableData.vari.isInstanceOf[ScFunction],
-        variableData.vari.isInstanceOf[ScFunction] && variableData.vari.asInstanceOf[ScFunction].parameters.length == 0)
+      var param: ExtractMethodParameter = getParameter(d, variableData)
       list += param
     }
     list.toArray

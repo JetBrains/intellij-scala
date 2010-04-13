@@ -104,6 +104,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) = {
         def attachElement(elem: PsiElement) {
+          if (elem.getContainingFile != ref.getContainingFile) return
           if (elem.getTextOffset >= elements(0).getTextRange.getStartOffset &&
               elem.getTextOffset <= elements(elements.length - 1).getTextRange.getEndOffset) return
           if (stopAtScope == null) stopAtScope = elem.getParent
