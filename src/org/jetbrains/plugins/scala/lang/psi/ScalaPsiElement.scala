@@ -3,9 +3,9 @@ package lang
 package psi
 
 import api.ScalaElementVisitor
-import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import util.monads.MonadTransformer
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
   protected var context: PsiElement = null

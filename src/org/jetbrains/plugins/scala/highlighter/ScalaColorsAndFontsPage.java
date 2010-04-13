@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter;
 
+import com.intellij.application.options.colors.InspectionColorSettingsPage;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;

@@ -35,4 +35,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def isPackageObject = false
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitTypeDefintion(this)
+
+  override def isDeprecated = {
+    hasAnnotation("scala.deprecated") != None
+  }
 }
