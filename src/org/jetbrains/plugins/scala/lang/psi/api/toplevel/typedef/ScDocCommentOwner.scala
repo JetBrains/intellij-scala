@@ -33,7 +33,6 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
     }
   }
 
-  // todo implement me!
   def isDeprecated = false
 
 }

@@ -200,4 +200,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
+
+  override def isDeprecated = {
+    hasAnnotation("scala.deprecated") != None
+  }
 }

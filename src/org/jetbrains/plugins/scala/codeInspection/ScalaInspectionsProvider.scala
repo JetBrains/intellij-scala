@@ -4,6 +4,7 @@ package codeInspection
 
 import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.openapi.components.ApplicationComponent
+import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
 import java.lang.String
 import packageNameInspection.PackageNameInspection
@@ -21,15 +22,10 @@ import com.intellij.openapi.application.impl.ApplicationImpl
 class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationComponent {
   def getInspectionClasses: Array[java.lang.Class[_]] = {
     val res = new ArrayBuffer[java.lang.Class[_]]
-    Array[java.lang.Class[_]](
-    classOf[CyclicReferencesInspection],
-    classOf[FileNameInspection],
-    classOf[PackageNameInspection],
-    classOf[UnresolvedReferencesInspection]
-  )
     res += classOf[CyclicReferencesInspection]
     res += classOf[FileNameInspection]
     res += classOf[PackageNameInspection]
+    res += classOf[ScalaDeprecationInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }

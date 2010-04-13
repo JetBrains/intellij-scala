@@ -3,6 +3,7 @@ package lang
 package psi
 
 import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
+import api.ScalaElementVisitor
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.lang.ASTNode
 import stubs.elements.wrappers.DummyASTNode
