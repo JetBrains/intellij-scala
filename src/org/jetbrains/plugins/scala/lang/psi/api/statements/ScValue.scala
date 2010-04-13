@@ -60,5 +60,5 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
 
   def getValToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAL)
 
-  override def isDeprecated = hasAnnotation("scala.deprecation") != None
+  override def isDeprecated = hasAnnotation("scala.deprecated") != None
 }
