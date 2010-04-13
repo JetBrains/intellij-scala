@@ -199,10 +199,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
     for (ParameterTablePanel.VariableData d : data) {
       ScalaExtractMethodUtils.ScalaVariableData variableData = (ScalaExtractMethodUtils.ScalaVariableData) d;
-      ExtractMethodParameter param = new ExtractMethodParameter(d.variable.getName(), d.name, false /*todo*/,
-          ((ScalaExtractMethodUtils.FakePsiType) d.type).tp(), variableData.isMutable(), d.passAsParameter,
-          variableData.vari() instanceof ScFunction, variableData.vari() instanceof ScFunction &&
-              ((ScFunction)variableData.vari()).parameters().length() == 0);
+      ExtractMethodParameter param = ScalaExtractMethodUtils.getParameter(d, variableData);
       list.add(param);
     }
     return list.toArray(new ExtractMethodParameter[list.size()]);

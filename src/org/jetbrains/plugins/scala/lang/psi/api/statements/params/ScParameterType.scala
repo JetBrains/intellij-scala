@@ -25,4 +25,8 @@ trait ScParameterType extends ScalaPsiElement {
       case _ => false
     }
   }
+
+  def isCallByNameParameter: Boolean = {
+    findChildrenByType(ScalaTokenTypes.tFUNTYPE).length > 0
+  }
 }

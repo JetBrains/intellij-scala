@@ -37,6 +37,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isRepeatedParameter: Boolean
 
+  def isCallByNameParameter: Boolean
+
   def isDefaultParam: Boolean
 
   def getDefaultExpression: Option[ScExpression] = findChild(classOf[ScExpression])

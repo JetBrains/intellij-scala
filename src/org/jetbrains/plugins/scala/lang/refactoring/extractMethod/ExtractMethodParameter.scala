@@ -9,4 +9,4 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 case class ExtractMethodParameter(oldName: String, newName: String, isRef: Boolean, tp: ScType,
                                   needMirror: Boolean, passAsParameter: Boolean, isFunction: Boolean,
-                                  isEmptyParamFunction: Boolean)
+                                  isEmptyParamFunction: Boolean, isCallByNameParameter: Boolean)
