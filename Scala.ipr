@@ -1309,9 +1309,7 @@
         <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-NQRFPT.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-NQRFPT-sources.jar!/" />
-      </SOURCES>
+      <SOURCES />
     </library>
     <library name="specs-1.6.1-scala-2.8">
       <CLASSES>
