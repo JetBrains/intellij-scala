@@ -17,7 +17,8 @@ import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
 import com.intellij.psi.{PsiClass, PsiMember, PsiElement}
 import com.intellij.openapi.util.Computable
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ApplicationManager
+import refactoring.util.ScalaNamesUtil;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -86,18 +87,17 @@ class ScalaCompletionContributor extends CompletionContributor {
     val offset = context.getStartOffset() - 1
     val file = context.getFile
     val element = file.findElementAt(offset);
-    if (element != null && file.findReferenceAt(offset) != null && specialOperator(element.getParent)) {
-      context.setFileCopyPatcher(new DummyIdentifierPatcher("+"));
+    val ref = file.findReferenceAt(offset)
+    if (element != null && ref != null) {
+      val text = ref.asInstanceOf[PsiElement].getText
+      if (isOpChar(text(text.length - 1))) {
+       context.setFileCopyPatcher(new DummyIdentifierPatcher("+++++++++++++++++++++++"))
+     }
     }
     super.beforeCompletion(context)
   }
 
-  private def specialOperator(elem: PsiElement) = (elem match {
-    case ref: ScReferenceExpression => ref.getParent match {
-      case inf: ScInfixExpr if ref eq inf.operation => true
-      case pos: ScPostfixExpr if ref eq pos.operation => true
-      case _ => false
-    }
-    case _ => false
-  }) && !Character.isJavaIdentifierPart(elem.getText.charAt(0))
+  private def isOpChar(c: Char): Boolean = {
+    ScalaNamesUtil.isIdentifier("+" + c)
+  }
 }
