@@ -188,7 +188,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTest10Scala28Runner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTest09Scala27Runner])
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)

@@ -29,8 +29,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Runners" />
-    <orderEntry type="library" name="scalatest-0.9-scala-2.7" level="project" />
-    <orderEntry type="module" module-name="ScalaRunners" />
     <orderEntry type="library" name="Scala SDK" level="application" />
   </component>
 </module>
