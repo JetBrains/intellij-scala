@@ -164,8 +164,8 @@
     <!--Scalac 2.8 taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
-        <pathelement location="${scala.lib}/scala-compiler.jar"/>
-        <pathelement location="${scala.lib}/scala-library.jar"/>
+        <pathelement location="${scala.aux.scala.lib}/scala-compiler.jar"/>
+        <pathelement location="${scala.aux.scala.lib}/scala-library.jar"/>
       </classpath>
     </taskdef>
 

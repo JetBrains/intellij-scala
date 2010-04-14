@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.specs
 import java.io.{StringWriter, PrintWriter}
 import collection.mutable.HashMap
 import org.specs.runner.{Notifier, NotifierRunner}
+import java.lang.{Throwable, String}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -68,4 +69,12 @@ class Specs16Scala28Notifier extends Notifier {
   private def escapeString(s: String): String = {
     return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]", "|]")
   }
+
+  def systemSkipped(name: String): Unit = {}
+
+  def systemError(name: String, e: Throwable): Unit = {}
+
+  def systemFailed(name: String, e: Throwable): Unit = {}
+
+  def systemSucceeded(name: String): Unit = {}
 }
