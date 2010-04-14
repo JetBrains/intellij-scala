@@ -254,7 +254,7 @@ object ScalaRefactoringUtil {
   }
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
-                                   elementName: T => String): Unit = {
+                                   elementName: T => String, highlightParent: Boolean = false): Unit = {
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel = new DefaultListModel
     for (element <- elements) {
@@ -279,8 +279,8 @@ object ScalaRefactoringUtil {
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
         val toExtract: ArrayList[PsiElement] = new ArrayList[PsiElement]
-        toExtract.add(element)
-        highlighter.highlight(element, toExtract)
+        toExtract.add(element.getParent)
+        highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
       }
     })
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {

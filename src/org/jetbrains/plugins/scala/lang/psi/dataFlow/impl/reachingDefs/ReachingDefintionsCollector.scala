@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 object ReachingDefintionsCollector {
   import ReachingDefinitions.{A => RDSet, _}
-  def collectVariableInfo(elements: Seq[PsiElement]): FragmentVariableInfos = {
+  def collectVariableInfo(elements: Seq[PsiElement], scope: Seq[PsiElement]): FragmentVariableInfos = {
     val elementsForScope: ArrayBuffer[PsiElement] = new ArrayBuffer
-    var element = elements(0)
+    var element = scope(0)
     while (element != null) {
       elementsForScope += element
       element = element.getNextSibling

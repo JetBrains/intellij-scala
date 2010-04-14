@@ -149,7 +149,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
           siblings(siblings.length - 1) == selectedValue)
-      }, "Choose level for Extract Method", getTextForElement _)
+      }, "Choose level for Extract Method", getTextForElement _, true)
       return
     }
     else if (siblings.length == 1) {
@@ -181,17 +181,22 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean) {
-    val scope = sibling.getParent
+    val tdScope = sibling.getParent.isInstanceOf[ScTemplateBody]
     val info =
-    if (!smallestScope)
-      ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, scope.asInstanceOf[ScalaPsiElement])
+    if (!smallestScope) {
+      if (tdScope)
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq,
+          sibling.asInstanceOf[ScalaPsiElement]: ScalaPsiElement)
+      else
+        ReachingDefintionsCollector.collectVariableInfo(elements.toSeq, Seq(sibling))
+    }
     else
-      ReachingDefintionsCollector.collectVariableInfo(elements.toSeq)
+      ReachingDefintionsCollector.collectVariableInfo(elements, elements.toSeq)
     val input = info.inputVariables
     val output = info.outputVariables
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, scope,
+      val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, sibling,
         input.toArray, output.toArray)
       dialog.show
       if (!dialog.isOK) {
@@ -200,7 +205,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       dialog.getSettings
     } else {
       new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
-        ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", scope, sibling,
+        ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling, sibling,
         elements, hasReturn, lastReturn)
     }
     performRefactoring(settings, editor)
