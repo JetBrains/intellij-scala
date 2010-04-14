@@ -86,9 +86,6 @@
   </path>
 
   <path id="scala.runners.path">
-    <fileset dir="${scala.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
     <fileset dir="${scala.aux.scala.lib}">
       <include name="**/*.jar"/>
     </fileset>
