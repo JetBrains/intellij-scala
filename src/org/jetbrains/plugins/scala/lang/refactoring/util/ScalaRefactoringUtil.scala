@@ -279,7 +279,7 @@ object ScalaRefactoringUtil {
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
         val toExtract: ArrayList[PsiElement] = new ArrayList[PsiElement]
-        toExtract.add(element.getParent)
+        toExtract.add(if (highlightParent) element.getParent else element)
         highlighter.highlight(if (highlightParent) element.getParent else element, toExtract)
       }
     })
