@@ -234,9 +234,11 @@ public class ScalaPositionManager implements PositionManager {
             final List<ReferenceType> result = new ArrayList<ReferenceType>(outers.size());
             for (ReferenceType outer : outers) {
               if (outer.name().startsWith(enclosingName)) {
-                final ReferenceType nested = findNested(outer, sourceImage, position);
-                if (nested != null) {
-                  result.add(nested);
+                try {
+                  if (outer.locationsOfLine(position.getLine() + 1).size() > 0) {
+                    result.add(outer);
+                  }
+                } catch (AbsentInformationException ignore) {
                 }
               }
             }
