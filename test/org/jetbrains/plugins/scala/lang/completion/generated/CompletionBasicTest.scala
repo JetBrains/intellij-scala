@@ -11,6 +11,8 @@ class CompletionBasicTest extends CompletionTestBase {
 
   def testEmptyCompletionListAfterUnresolvedReference = doTest
 
+  def testOpChar = doTest
+
   def testToString = doTest
 
   def testTuple = doTest
