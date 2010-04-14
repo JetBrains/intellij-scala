@@ -253,6 +253,8 @@ public class ScalaPositionManager implements PositionManager {
     return result;
   }
 
+  //todo: this is possibly redundant method. (Copy paste from Java/Groovy)
+  @Deprecated
   @Nullable
   private ReferenceType findNested(ReferenceType fromClass, final ScalaPsiElement toFind, SourcePosition classPosition) {
     final VirtualMachineProxy vmProxy = myDebugProcess.getVirtualMachineProxy();
