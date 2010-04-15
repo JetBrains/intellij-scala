@@ -25,14 +25,12 @@ ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
     case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
     case ScDesignatorType(des) => projected match {
       case ScSingletonType(path) => {
-        val processor = new ResolveProcessor(StdKinds.stableClass, ref, ref.refName)
-        processor.processType(projected, path)
-        if (processor.candidates.size == 1) {
-          val namedElement = processor.candidates.apply(0).element
-          val res = namedElement eq des
-          res
+        resolveResult match {
+          case Some(ScalaResolveResult(el: PsiNamedElement, _)) => {
+            el == des
+          }
+          case _ => false
         }
-        else false
       }
       case ScDesignatorType(_) => resolveResult match {
         case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == des

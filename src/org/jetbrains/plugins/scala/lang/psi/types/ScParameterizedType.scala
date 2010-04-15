@@ -100,7 +100,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     ScType.extractClass(designator) match {
       case Some(clazz) if clazz.getQualifiedName != null &&
               clazz.getQualifiedName.startsWith("scala.Function") && typeArgs.length > 0 => {
-        Some(new ScFunctionType(typeArgs.apply(typeArgs.length - 1), typeArgs.slice(0, typeArgs.length - 1), clazz.getProject))
+        Some(new ScFunctionType(typeArgs.apply(typeArgs.length - 1), typeArgs.slice(0, typeArgs.length - 1),
+          clazz.getProject, clazz.getResolveScope))
       }
       case _ => None
     }

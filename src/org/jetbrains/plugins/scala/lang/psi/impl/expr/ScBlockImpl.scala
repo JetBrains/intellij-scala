@@ -34,18 +34,19 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
     if (isAnonymousFunction) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
-      lazy val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
+      val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
         case Some(expr) => expr.getType(TypingContext.empty).getOrElse(types.Nothing)
         case _ => types.Nothing
       }))
       expectedType match {
         case Some(f@ScFunctionType(retType, params)) => {
-          return Success(new ScFunctionType(clausesType, params, f.getProject), Some(this))
+          return Success(new ScFunctionType(clausesType, params, f.getProject, f.getScope), Some(this))
         }
         case Some(tp@ScParameterizedType(des, typeArgs)) => {
           ScType.extractClass(tp) match {
             case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => {
-              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1), clazz.getProject), Some(this))
+              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1), clazz.getProject,
+                clazz.getResolveScope), Some(this))
             }
             case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => {
               return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1) ++ Seq(clausesType)), Some(this))
@@ -61,7 +62,8 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
       case Some(e) => {
         val m = new HashMap[String, ScExistentialArgument]
         def existize(t: ScType): ScType = t match {
-          case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret), collection.immutable.Seq(params.map({existize _}).toSeq: _*), fun.getProject)
+          case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret),
+            collection.immutable.Seq(params.map({existize _}).toSeq: _*), fun.getProject, fun.getScope)
           case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), getProject)
           case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
             case obj: ScObject => {

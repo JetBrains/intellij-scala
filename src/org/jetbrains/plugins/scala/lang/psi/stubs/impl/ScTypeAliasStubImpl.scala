@@ -42,7 +42,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     if (getTypeElementText == "") return null
     val res: ScTypeElement = {
-      ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi)
+      ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, getPsi /*doesn't matter*/)
     }
     myTypeElement = new PatchedSoftReference[ScTypeElement](res)
     return res

@@ -160,8 +160,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) => {
-              val b = cl.isImplicit
-              res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _, b))
+              res = collectFailures(paramTypes, Nothing)(new ScFunctionType(t, _, getProject, getResolveScope))
             }
             case _ =>
           }

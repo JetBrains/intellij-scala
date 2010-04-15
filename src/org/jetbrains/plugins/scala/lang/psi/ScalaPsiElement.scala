@@ -9,8 +9,10 @@ import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
 trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
   protected var context: PsiElement = null
-  def setContext(element: PsiElement) {
+  protected var child: PsiElement = null
+  def setContext(element: PsiElement, child: PsiElement) {
     context = element
+    this.child = child
   }
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T

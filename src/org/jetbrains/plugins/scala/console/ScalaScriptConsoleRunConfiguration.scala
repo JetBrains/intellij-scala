@@ -30,7 +30,6 @@ import javax.swing.filechooser.{FileFilter, FileView}
 import javax.swing.{Icon, JFileChooser, KeyStroke}
 import org.jdom.Element
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import com.intellij.openapi.util.JDOMExternalizer
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
 import com.intellij.vcsUtil.VcsUtil
@@ -40,7 +39,10 @@ import lang.psi.api.ScalaFile
 import settings.ScalaApplicationSettings
 import util.ScalaUtils
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
-import java.io.{PrintStream, FileOutputStream, IOException, File}
+import com.intellij.execution.console.{LanguageConsoleViewImpl, LanguageConsoleImpl}
+import java.io._
+import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.util.{TextRange, JDOMExternalizer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -216,6 +218,20 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         for (filter <- filters) {
           consoleView.addMessageFilter(filter)
         }
+        /*val consoleView = new ScalaLanguageConsoleView(getProject)
+        consoleView.getConsole.setPrompt("")
+        val saveAction = new AnAction {
+          private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.CTRL_DOWN_MASK))
+          setShortcutSet(shortcutSet)
+          registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
+          def actionPerformed(e: AnActionEvent): Unit = {
+            val document = consoleView.getConsole.getConsoleEditor.getDocument
+            val text = consoleView.getConsole.addCurrentToHistory(new TextRange(0, document.getTextLength), true)
+            val stream = new OutputStreamWriter(consoleView.getHandler.getProcessInput)
+            stream.write(text + "\n")
+            stream.flush
+          }
+        }*/
         return consoleView
       }
 

@@ -8,7 +8,6 @@ import api.statements.params.ScTypeParam
 import api.toplevel.typedef.{ScClass, ScTrait, ScTemplateDefinition, ScTypeDefinition}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.{GenericsUtil, PsiClass}
-import types.ScDesignatorType
 import collection.mutable.{ArrayBuffer, Set, HashSet}
 
 object Bounds {
@@ -26,7 +25,9 @@ object Bounds {
     else if (t2.conforms(t1)) t1
     else (t1, t2) match {
       case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
-        new ScFunctionType(lub(rt1, rt2), collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*), fun.getProject)
+        new ScFunctionType(lub(rt1, rt2),
+          collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*),
+          fun.getProject, fun.getScope)
       case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
         new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*), t1.getProject)
 

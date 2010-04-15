@@ -49,9 +49,9 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
     val returnType: ScType = if (typeParameters.length == 0) ScDesignatorType(clazz) else {
       ScParameterizedType(ScDesignatorType(clazz), typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
     }
-    if (clauses.length == 0) return ScMethodType(returnType, Seq.empty, false)
+    if (clauses.length == 0) return new ScMethodType(returnType, Seq.empty, false, getProject, getResolveScope)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
-      ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
+      new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit, getProject, getResolveScope)
     }
     res.asInstanceOf[ScMethodType]
   }
