@@ -77,16 +77,16 @@ object ResolveUtils {
         //scala hack: Objects in java are modelled as Any in scala
         if (pt.equalsToText("java.lang.Object")) Any
         else s.subst(ScType.create(pt, m.getProject))
-      }).toSeq: _*), m.getProject)
+      }).toSeq: _*), m.getProject, m.getResolveScope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
-    ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
+    new ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
       var psiType = param.getType
       if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
       }
       Parameter("", s.subst(ScType.create(psiType, m.getProject)), false, param.isVarArgs)
-    }).toSeq, false)
+    }).toSeq, false, m.getProject, m.getResolveScope)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor): NonValueType = {

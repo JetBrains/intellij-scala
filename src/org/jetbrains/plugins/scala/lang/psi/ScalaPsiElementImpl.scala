@@ -25,6 +25,20 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     }
   }
 
+  override def getPrevSibling: PsiElement = {
+    context match {
+      case null => super.getPrevSibling
+      case _ => child.getPrevSibling
+    }
+  }
+
+  override def getNextSibling: PsiElement = {
+    context match {
+      case null => super.getNextSibling
+      case _ => child.getNextSibling
+    }
+  }
+
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
@@ -57,6 +71,20 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     context match {
       case null => super.getContext
       case _ => context
+    }
+  }
+
+  override def getPrevSibling: PsiElement = {
+    context match {
+      case null => super.getPrevSibling
+      case _ => child.getPrevSibling
+    }
+  }
+
+  override def getNextSibling: PsiElement = {
+    context match {
+      case null => super.getNextSibling
+      case _ => child.getNextSibling
     }
   }
 

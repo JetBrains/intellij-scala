@@ -121,12 +121,15 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
               case Some(ScFunctionType(retType, params)) => ScParameterizedType(des, params.map(subst subst _) ++ Seq(retType))
               case _ => p
             }
-            case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _), getProject)
-            case ScMethodType(retType, params, isImpl) => ScMethodType(retType,
-              params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl)
+            case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _),
+              getProject, getResolveScope)
+            case ScMethodType(retType, params, isImpl) => new ScMethodType(retType,
+              params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
+              getProject, getResolveScope)
             case ScTypePolymorphicType(ScMethodType(retType, params, isImpl), typeParams) => {
-              ScTypePolymorphicType(ScMethodType(retType,
-                params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl),
+              ScTypePolymorphicType(new ScMethodType(retType,
+                params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
+                getProject, getResolveScope),
                 typeParams)
             }
             case tp => tp
@@ -135,7 +138,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           expectedTypesModCount = getManager.getModificationTracker.getModificationCount
           exprType = null
           if (!anon(this)) forExpr(this) else {
-            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext)
+            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
             newExpr.setExpectedTypes(tps)
             forExpr(newExpr)
           }
@@ -204,7 +207,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         if (unders.length == 0) innerType(ctx)
         else {
           new Success(new ScMethodType(valueType(ctx, true).getOrElse(Any),
-            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false), Some(this))
+            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false, getProject,
+            getResolveScope), Some(this))
         }
       }
     }

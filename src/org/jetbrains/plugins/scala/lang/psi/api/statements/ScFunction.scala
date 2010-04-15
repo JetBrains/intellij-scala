@@ -33,7 +33,7 @@ trait ScFun extends ScTypeParametersOwner {
   def typeParameters: Seq[ScTypeParam]
 
   def methodType: ScMethodType = {
-    ScMethodType(retType, paramTypes.map(Parameter("", _, false, false)), false)
+    new ScMethodType(retType, paramTypes.map(Parameter("", _, false, false)), false, getProject, getResolveScope)
   }
 
   def polymorphicType: ScType = {
@@ -65,7 +65,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     if (clauses.length == 0) return resultType
     val res = clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-      ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
+      new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit, getProject, getResolveScope)
     }
     res.asInstanceOf[ScMethodType]
   }

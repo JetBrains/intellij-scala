@@ -487,13 +487,13 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     }
   }
 
-  def createTypeFromText(text: String, context: PsiElement): ScType = {
-    val te = createTypeElementFromText(text, context)
+  def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {
+    val te = createTypeElementFromText(text, context, child)
     if (te == null) return null
     else return te.getType(TypingContext.empty).getOrElse(Any)
   }
 
-  def createReferenceFromText(text: String, context: PsiElement): ScStableCodeReferenceElement = {
+  def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
@@ -503,12 +503,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScStableCodeReferenceElement]) {
       val referenceElement = psi.asInstanceOf[ScStableCodeReferenceElement]
-      referenceElement.asInstanceOf[ScalaPsiElement].setContext(context)
+      referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
       return referenceElement
     } else return null
   }
 
-  def createExpressionWithContextFromText(text: String, context: PsiElement): ScExpression = {
+  def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
       new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "def a = " + text)
@@ -519,12 +519,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     if (psi.isInstanceOf[ScFunctionDefinition]) {
       val fun = psi.asInstanceOf[ScFunctionDefinition]
       val expr = fun.body.get
-      expr.setContext(context)
+      expr.setContext(context, child)
       return expr
     } else return null
   }
 
-  def createTypeElementFromText(text: String, context: PsiElement): ScTypeElement = {
+  def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
@@ -533,12 +533,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScTypeElement]) {
-      psi.asInstanceOf[ScalaPsiElement].setContext(context)
+      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
       psi.asInstanceOf[ScTypeElement]
     } else null
   }
 
-  def createPatterListFromText(text: String, context: PsiElement): ScPatternList = {
+  def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239")
@@ -548,12 +548,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScPatternDefinition]) {
       val pList: ScPatternList = psi.asInstanceOf[ScPatternDefinition].pList
-      pList.asInstanceOf[ScalaPsiElement].setContext(context)
+      pList.asInstanceOf[ScalaPsiElement].setContext(context, child)
       pList
     } else null
   }
 
-  def createIdsListFromText(text: String, context: PsiElement): ScIdList = {
+  def createIdsListFromText(text: String, context: PsiElement, child: PsiElement): ScIdList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " : Int")
@@ -563,7 +563,7 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScPatternDefinition]) {
       val idList: ScIdList = psi.asInstanceOf[ScValueDeclaration].getIdList
-      idList.asInstanceOf[ScalaPsiElement].setContext(context)
+      idList.asInstanceOf[ScalaPsiElement].setContext(context, child)
       idList
     } else null
   }

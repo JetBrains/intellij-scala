@@ -19,13 +19,17 @@ import decompiler.DecompilerUtil
  */
 case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ValueType {
   private var project: Project = null
+  private var scope: GlobalSearchScope = GlobalSearchScope.allScope(getProject)
   def getProject: Project = {
     if (project != null) project else DecompilerUtil.obtainProject
   }
 
-  def this(returnType: ScType, params: Seq[ScType], project: Project) {
+  def getScope = scope
+
+  def this(returnType: ScType, params: Seq[ScType], project: Project, scope: GlobalSearchScope) {
     this(returnType, params)
     this.project = project
+    this.scope = scope
   } 
 
   override def equiv(that : ScType): Boolean = that match {

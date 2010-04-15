@@ -154,7 +154,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
     try {
       if (exprText.toString == "") return failure
-      val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText.toString, this.getContext)
+      val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText.toString, this.getContext, this)
       return newExpr.getNonValueType(ctx)
     }
     catch {

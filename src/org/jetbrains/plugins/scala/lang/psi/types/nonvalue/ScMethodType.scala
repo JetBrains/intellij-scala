@@ -5,6 +5,9 @@ import collection.immutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.Suspension
 import com.intellij.psi.PsiTypeParameter
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
 /**
  * @author ilyas
@@ -26,9 +29,19 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
+  var project: Project = DecompilerUtil.obtainProject
+  var scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
+
+  def this(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean, project: Project,
+        scope: GlobalSearchScope) {
+    this(returnType, params, isImplicit)
+    this.project = project
+    this.scope = scope
+  }
+
   def inferValueType: ValueType = {
     if (params.length == 0) return returnType.inferValueType
-    return ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))
+    return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType), project, scope)
   }
 
   override def equiv(t: ScType): Boolean = {

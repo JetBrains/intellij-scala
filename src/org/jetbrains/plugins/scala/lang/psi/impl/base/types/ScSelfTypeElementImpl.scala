@@ -46,7 +46,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
     if (stub != null) {
       return stub.asInstanceOf[ScSelfTypeElementStub].getTypeElementText match {
         case "" => None
-        case text => Some(ScalaPsiElementFactory.createTypeElementFromText(text, this))
+        case text => Some(ScalaPsiElementFactory.createTypeElementFromText(text, this, this))
       }
     }
     findChild(classOf[ScTypeElement])

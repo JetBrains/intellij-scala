@@ -56,12 +56,13 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
   }
 
   protected def substInternal(t: ScType) : ScType = t match {
-    case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _), f.isImplicit)
+    case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _),
+      f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {substInternal _}, t1.getProject)
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
-    case ScMethodType(retType, params, isImplicit) => ScMethodType(substInternal(retType), params.map(p => {
+    case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType), params.map(p => {
       Parameter(p.name, substInternal(p.paramType), p.isDefault, p.isRepeated)
-    }), isImplicit)
+    }), isImplicit, m.project, m.scope)
     case ScTypePolymorphicType(internalType, typeParameters) => {
       ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
         TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
@@ -243,7 +244,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[String, Seq[ScType]], val lowerMa
 object ScUndefinedSubstitutor {
   def removeUndefindes(tp: ScType): ScType = tp match {
      case f@ScFunctionType(ret, params) => new ScFunctionType(removeUndefindes(ret),
-      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*), f.isImplicit)
+      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*), f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {removeUndefindes _}, t1.getProject)
     case ScProjectionType(proj, ref) => new ScProjectionType(removeUndefindes(proj), ref)
     case tpt : ScTypeParameterType => tpt
