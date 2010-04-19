@@ -35,6 +35,8 @@ class ScalacOutputParser extends OutputParser {
   @NonNls
   private static final String ourWroteMarker = "wrote ";
   @NonNls
+  private static final String ourWroteBeanInfoMarker = "wrote BeanInfo ";
+  @NonNls
   private static final String ourColumnMarker = "^";
   @NonNls
   private static final String ourParsingMarker = "parsing ";
@@ -169,18 +171,24 @@ class ScalacOutputParser extends OutputParser {
             callback.setProgressText("Loaded directory path " + info.substring(begin, end));
           }
 //          callback.setProgressText("Loading files...");
+        } else if (info.startsWith(ourWroteBeanInfoMarker)) {
+          checkOutput(callback, info, ourWroteBeanInfoMarker);
         } else if (info.startsWith(ourWroteMarker)) {
-          callback.setProgressText(info);
-          String outputPath = info.substring(ourWroteMarker.length());
-          final String path = outputPath.replace(File.separatorChar, '/');
-//          callback.fileGenerated(path);
-          synchronized (WRITTEN_LIST_LOCK) {
-            myWrittenList.add(path);
-          }
+          checkOutput(callback, info, ourWroteMarker);
         }
       }
     }
     return true;
+  }
+
+  private void checkOutput(Callback callback, String info, final String ourWroteBeanInfoMarker) {
+    callback.setProgressText(info);
+    String outputPath = info.substring(ourWroteBeanInfoMarker.length());
+    final String path = outputPath.replace(File.separatorChar, '/');
+//          callback.fileGenerated(path);
+    synchronized (WRITTEN_LIST_LOCK) {
+      myWrittenList.add(path);
+    }
   }
 
   private static String getPhaseName(@NotNull String st) {
