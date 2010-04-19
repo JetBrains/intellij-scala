@@ -134,7 +134,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     val candidates = processor.candidates
 
-    if (candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
+    if (candidates.length == 0 || candidates.forall(!_.applicable) || (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       collectImplicits(e, processor)
     }
