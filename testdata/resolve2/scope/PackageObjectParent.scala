@@ -10,7 +10,7 @@ package object level1 {
 
 package level1 {
   package level2 {
-  class C {
+  class C4 {
     println(classOf[/* line: 2 */C])
     println(/* line: 3 */O.getClass)
     println(classOf[/* line: 4 */T])
