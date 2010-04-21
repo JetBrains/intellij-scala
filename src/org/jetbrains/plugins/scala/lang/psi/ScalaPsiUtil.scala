@@ -175,13 +175,17 @@ object ScalaPsiUtil {
     }
   }
 
-  def genericCallSubstitutor(tp: Seq[String], gen: ScGenericCall): ScSubstitutor = {
-    val typeArgs: Seq[ScTypeElement] = gen.arguments
+  def genericCallSubstitutor(tp: Seq[String], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[String, ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
       map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+  }
+
+  def genericCallSubstitutor(tp: Seq[String], gen: ScGenericCall): ScSubstitutor = {
+    val typeArgs: Seq[ScTypeElement] = gen.arguments
+    genericCallSubstitutor(tp, typeArgs)
   }
 
   def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, ScSubstitutor.empty)

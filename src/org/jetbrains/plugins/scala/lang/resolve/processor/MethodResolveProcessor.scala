@@ -104,6 +104,20 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def isApplicable(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
+    def getTypeArgumentsSubstitutor: ScSubstitutor = {
+      if (typeArgElements.length  != 0) {
+        c.element match {
+          case t: ScTypeParametersOwner if t.typeParameters.length == typeArgElements.length => {
+            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(_.name), typeArgElements)
+          }
+          case p: PsiTypeParameterListOwner if p.getTypeParameters.length == typeArgElements.length => {
+            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(_.getName), typeArgElements)
+          }
+          case _ => ScSubstitutor.empty
+        }
+      } else ScSubstitutor.empty
+    }
+
     val substitutor: ScSubstitutor =
     getType(c.element) match {
       case ScTypePolymorphicType(_, typeParams) => {
@@ -111,30 +125,31 @@ class MethodResolveProcessor(override val ref: PsiElement,
           (subst: ScSubstitutor, tp: TypeParameter) =>
             subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
-        c.substitutor.followed(s)
+        c.substitutor.followed(s).followed(getTypeArgumentsSubstitutor)
       }
-      case _ => c.substitutor
+      case _ => c.substitutor.followed(getTypeArgumentsSubstitutor)
     }
 
     def checkFunction(fun: PsiNamedElement): Boolean = {
-      expectedOption match {
-        case Some(ScFunctionType(retType, params)) => {
-          val args = params.map(new Expression(_))
-          Compatibility.compatible(fun, substitutor, List(args), false, ())._1
-        }
-        case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
-          val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
-          Compatibility.compatible(fun, substitutor, List(args), false, ())._1
-        }
+      fun match {
+        case fun: ScFunction if fun.parameters.length == 0 || isUnderscore => true
+        case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => true
+        case method: PsiMethod if method.getParameterList.getParameters.length == 0 || isUnderscore => true
         case _ => {
-          fun match {
-            case fun: ScFunction if fun.parameters.length == 0 || isUnderscore => true
-            case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => true
-            case method: PsiMethod if method.getParameterList.getParameters.length == 0 || isUnderscore => true
+          expectedOption match {
+            case Some(ScFunctionType(retType, params)) => {
+              val args = params.map(new Expression(_))
+              Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+            }
+            case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
+              val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
+              Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+            }
             case _ => false
           }
         }
       }
+
     }
 
     c.element match {
