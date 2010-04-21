@@ -216,6 +216,10 @@
       <add-to-group group-id="RefactoringMenu" anchor="last"/>
       <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
     </action>-->
+    <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
+      <keyboard-shortcut first-keystroke="control alt shift T" keymap="$default"/>
+      <add-to-group group-id="CodeEditorViewGroup" anchor="last"/>
+    </action>
   </actions>
 
 </idea-plugin>
