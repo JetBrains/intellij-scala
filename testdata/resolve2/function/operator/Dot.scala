@@ -1,5 +1,5 @@
 object O {
-  def +(p: Int) = {}
+  def +++(p: Int) = {}
 }
 
-println(O./* applicable: false */ + 1)
+println(O./* applicable: false */ +++ 1)
