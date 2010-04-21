@@ -51,6 +51,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testSimpleStringCharAt = doTest
 
+  def testSplit = doTest
+
   def testStaticCall = doTest
 
   def testThisTypeCompound = doTest
