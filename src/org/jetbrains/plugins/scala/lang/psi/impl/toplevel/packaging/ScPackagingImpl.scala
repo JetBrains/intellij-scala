@@ -6,7 +6,6 @@ package toplevel
 package packaging
 
 import api.base.ScStableCodeReferenceElement
-import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 import psi.stubs.elements.wrappers.DummyASTNode
 import com.intellij.openapi.progress.ProgressManager
 import java.lang.String
+import api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -95,6 +95,17 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     var p = JavaPsiFacade.getInstance(getProject).findPackage(pName)
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false
+    }
+
+    val classes = JavaPsiFacade.getInstance(getProject).findClasses(pName, getResolveScope)
+    val iter = classes.iterator
+    while (iter.hasNext) {
+      iter.next match {
+        case o: ScObject if o.isPackageObject => {
+          if (!o.processDeclarations(processor, state, lastParent, place)) return false
+        }
+        case _ => //nothing to do
+      }
     }
 
     if (lastParent != null && lastParent.getParent == this) {
