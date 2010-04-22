@@ -19,6 +19,7 @@ class ScalaExtractMethodSettings(
         val nextSibling: PsiElement,
         val elements: Array[PsiElement],
         val returnType: Option[ScType],
-        val lastReturn: Boolean) {
-  def calcReturnType: String = ScalaExtractMethodUtils.calcReturnType(returnType, returns, lastReturn)
+        val lastReturn: Boolean,
+        val lastMeaningful: Option[ScType]) {
+  def calcReturnType: String = ScalaExtractMethodUtils.calcReturnType(returnType, returns, lastReturn, lastMeaningful)
 }

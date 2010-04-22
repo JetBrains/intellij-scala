@@ -67,10 +67,11 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private VariableInfo[] myOutput;
   private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
   private boolean myLastReturn;
+  private Option<ScType> myLastMeaningful = null;
 
   public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
-                                  PsiElement sibling,
-                                  PsiElement scope, VariableInfo[] input, VariableInfo[] output) {
+                                  PsiElement sibling, PsiElement scope, VariableInfo[] input, VariableInfo[] output,
+                                  Option<ScType> lastMeaningful) {
     super(project, true);
 
     myElements = elements;
@@ -80,6 +81,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myScope = scope;
     myInput = input;
     myOutput = output;
+    myLastMeaningful = lastMeaningful;
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -155,7 +157,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     });
     visibilityPanel.setVisible(isVisibilitySectionAvailable());
 
-    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn));
+    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(myHasReturn, getReturns(), myLastReturn, myLastMeaningful));
 
     setupParametersPanel();
   }
@@ -190,7 +192,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   @Override
   protected void doOKAction() {
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-        getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn);
+        getVisibility(), myScope, mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful);
     super.doOKAction();
   }
 
