@@ -85,6 +85,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case d: ScDoStmt if d.getExprBody == Some(expr) => false
         case w: ScWhileStmt if w.body == Some(expr) => false
         case i: ScIfStmt if i.elseBranch == None && i.thenBranch == Some(expr) => false
+        case fun: ScFunction if !fun.hasAssign => false
         case _ => true
       }
     }
