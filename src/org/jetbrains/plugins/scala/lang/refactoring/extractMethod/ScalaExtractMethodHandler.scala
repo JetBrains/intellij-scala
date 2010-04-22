@@ -27,6 +27,8 @@ import psi.api.base.ScReferenceElement
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import psi.api.statements.{ScTypeAlias, ScFunction, ScFunctionDefinition}
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
+import psi.api.base.patterns.ScCaseClause
+import psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -72,9 +74,29 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case _ => false
       }
     }
+    def checkLastExpressionMeaningful(elem: PsiElement): Boolean = {
+      if (!elem.isInstanceOf[ScExpression]) return false
+      val expr = elem.asInstanceOf[ScExpression]
+      expr.getParent match {
+        case t: ScTryBlock if t.lastExpr == Some(expr) => checkLastExpressionMeaningful(t.getParent)
+        case bl: ScBlock if bl.lastExpr == Some(expr) => checkLastExpressionMeaningful(bl)
+        case bl: ScBlock => false
+        case clause: ScCaseClause => checkLastExpressionMeaningful(clause.getParent.getParent)
+        case d: ScDoStmt if d.getExprBody == Some(expr) => false
+        case w: ScWhileStmt if w.body == Some(expr) => false
+        case i: ScIfStmt if i.elseBranch == None && i.thenBranch == Some(expr) => false
+        case _ => true
+      }
+    }
     var i = elements.length - 1
     while (!elements(i).isInstanceOf[ScalaPsiElement] && i > 0) i = i -1
     val lastReturn = checkLastReturn(elements(i))
+    val isLastExpressionMeaningful: Option[ScType] = {
+      if (lastReturn) None
+      else if (checkLastExpressionMeaningful(elements(i)))
+        Some(elements(i).asInstanceOf[ScExpression].getType(TypingContext.empty).getOrElse(psi.types.Any))
+      else None
+    }
     var hasReturn: Option[ScType] = None
     val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
     for (element <- elements if fun != null && hasReturn == None) {
@@ -144,16 +166,17 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (scope == null) return
     if (siblings.length == 0) return
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), siblings.length == 1)
+      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), siblings.length == 1,
+        isLastExpressionMeaningful)
     } else if (siblings.length > 1) {
       ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
         invokeDialog(project, editor, elements, hasReturn, lastReturn, selectedValue,
-          siblings(siblings.length - 1) == selectedValue)
+          siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
       }, "Choose level for Extract Method", getTextForElement _, true)
       return
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), true)
+      invokeDialog(project, editor, elements, hasReturn, lastReturn, siblings(0), true, isLastExpressionMeaningful)
     }
   }
 
@@ -180,7 +203,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   }
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
-                           lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean) {
+                           lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
+                           lastMeaningful: Option[ScType]) {
     val tdScope = sibling.getParent.isInstanceOf[ScTemplateBody]
     val info =
     if (!smallestScope) {
@@ -197,7 +221,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val settings: ScalaExtractMethodSettings = if (!ApplicationManager.getApplication.isUnitTestMode) {
 
       val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling, sibling,
-        input.toArray, output.toArray)
+        input.toArray, output.toArray, lastMeaningful)
       dialog.show
       if (!dialog.isOK) {
         return
@@ -206,7 +230,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     } else {
       new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
         ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling, sibling,
-        elements, hasReturn, lastReturn)
+        elements, hasReturn, lastReturn, lastMeaningful)
     }
     performRefactoring(settings, editor)
   }

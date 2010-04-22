@@ -279,19 +279,23 @@ object ScalaExtractMethodUtils {
     new ScalaVariableData(definition, isMutable, isInside, tp, param)
   }
 
-  def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean): String = {
+  def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean,
+                     lastMeaningful: Option[ScType]): String = {
     if (lastReturn) {
       return ScType.presentableText(returnType.get)
+    }
+    if (returns.length == 0 && returnType == None && lastMeaningful != None) {
+      return ScType.presentableText(lastMeaningful.get)
     }
     returnType match {
       case Some(psi.types.Unit) => {
         if (returns.length == 0) "Boolean"
-        if (returns.length == 1) "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
+        else if (returns.length == 1) "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
         else "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
       }
       case Some(tp) => {
         if (returns.length == 0) "Option[" + ScType.presentableText(tp) + "]"
-        if (returns.length == 1) "(Option[" + ScType.presentableText(tp) +
+        else if (returns.length == 1) "(Option[" + ScType.presentableText(tp) +
                 "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
         else "(Option[" + ScType.presentableText(tp) +"]," +
                 " Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
