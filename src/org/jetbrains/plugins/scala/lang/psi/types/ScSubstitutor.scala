@@ -119,6 +119,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
               }
               s1.subst(aliased.v)
             }
+            case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
             case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
         }
@@ -139,6 +140,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
               }
               s1.subst(aliased.v)
             }
+            case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
             case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
         }
@@ -156,6 +158,7 @@ class ScSubstitutor(val tvMap: Map[String, ScType],
           }
           s1.subst(aliased.v)
         }
+        case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
         case des => new ScParameterizedType(des, typeArgs map {substInternal _})
       }
     }
