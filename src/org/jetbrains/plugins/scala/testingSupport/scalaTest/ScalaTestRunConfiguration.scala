@@ -41,6 +41,7 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfiguration
 import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUtil}
 import java.lang.String
+import lang.psi.impl.ScPackageImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -106,8 +107,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   }
 
   def getPackage(path: String): PsiPackage = {
-    val facade = JavaPsiFacade.getInstance(project)
-    facade.findPackage(path)
+    ScPackageImpl.findPackage(project, path)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {

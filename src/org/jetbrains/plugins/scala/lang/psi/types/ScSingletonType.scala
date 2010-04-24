@@ -6,8 +6,9 @@ package types
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.{ScReferenceElement, ScPathElement}
 import api.toplevel.ScTypedDefinition
-import com.intellij.psi.PsiElement
 import result.{TypeResult, TypingContext}
+import resolve.ScalaResolveResult
+import com.intellij.psi.{PsiPackage, PsiElement}
 
 /**
  * @author ilyas
@@ -54,24 +55,13 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
       def equiv(e1: ScPathElement, e2: ScPathElement): Boolean = {
         (e1, e2) match {
           case (r1: ScReferenceElement, r2: ScReferenceElement) =>
-            r1.bind == r2.bind /*&& ((r1.qualifier, r2.qualifier) match {
-              case (Some(q1: ScPathElement), Some(q2: ScPathElement)) => equiv(q1, q2)
-              case (None, None) => true
-              case _ => false
-            })*/
+            (r1.resolve, r2.resolve) match {
+              case (null, _) => false
+              case (_, null) => false
+              case (p1, p2) => p1 == p2
+            }
           case (t1: ScThisReference, t2: ScThisReference) => t1.refTemplate == t2.refTemplate
-          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate/* &&
-                  ((s1.staticSuper, s2.staticSuper) match {
-                    case (Some(t1), Some(t2)) => t1 equiv t2
-                    case (None, None) => true
-                    case _ => false
-                  }) &&
-                  //we can come to the same classes from different outer classes' "super"
-                  ((s1.qualifier, s2.qualifier) match {
-                    case (Some(q1), Some(q2)) => equiv(q1, q2)
-                    case (None, None) => true
-                    case _ => false
-                  })*/
+          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate
           case _ => false
         }
       }

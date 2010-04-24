@@ -71,7 +71,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
       def resolve(): PsiElement = {
         val name = id.getText
         def findPackage(qname : String) : PsiPackage = {
-          var pack = JavaPsiFacade.getInstance(getProject).findPackage(qname)
+          var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
           while (pack != null) {
             if (pack.getName == name) return pack
             pack = pack.getParentPackage
@@ -92,7 +92,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
       def getVariants(): Array[Object] = {
         val buff = new ArrayBuffer[Object]
         def processPackages(qname : String) = {
-          var pack = JavaPsiFacade.getInstance(getProject).findPackage(qname)
+          var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
           while (pack != null && pack.getName != null) {
             buff += pack
             pack = pack.getParentPackage

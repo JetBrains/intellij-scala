@@ -6,6 +6,7 @@ import caches.ScalaCachesManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
+import processor.{CompletionProcessor, BaseProcessor}
 import psi.api.base._
 import psi.api.expr._
 import psi.api.ScalaFile
@@ -19,13 +20,49 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
-import lang.resolve.processor.BaseProcessor
-
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this)
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
+  }
+
+  def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement): Unit = {
+    res match {
+      case ScalaResolveResult(typed: ScTypedDefinition, s) =>
+        processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
+      case r@ScalaResolveResult(pack: PsiPackage, _) => {
+
+        /*// Process synthetic classes for scala._ package
+        if (pack.getQualifiedName == "scala") {
+          for (synth <- SyntheticClasses.get(getProject).getAll) {
+            processor.execute(synth, ResolveState.initial)
+          }
+        }
+
+        // Process package object declarations first
+        // Treat package object first
+        val manager = ScalaCachesManager.getInstance(getProject)
+        val cache = manager.getNamesCache
+        val fqn = pack.getQualifiedName
+        val obj = cache.getPackageObjectByName(fqn, ref.getResolveScope)
+        if (obj != null) {
+          val candidatesCount = processor.candidates.size
+          obj.processDeclarations(processor, ResolveState.initial, null, ResolvableStableCodeReferenceElement.this)
+          if (!processor.isInstanceOf[CompletionProcessor] && processor.candidates.size != candidatesCount) {
+            return
+          }
+        }*/
+        // Treat other declarations from package
+        pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor),
+          null, ResolvableStableCodeReferenceElement.this)
+      }
+      case other: ScalaResolveResult => {
+        other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
+          null, ResolvableStableCodeReferenceElement.this)
+      }
+      case _ =>
+    }
   }
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor): Array[ResolveResult] = {
@@ -46,35 +83,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         treeWalkUp(ref, null)
       }
       case Some(q: ScStableCodeReferenceElement) => {
-        q.bind match {
-          case None =>
-          case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) =>
-            processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
-          case Some(r@ScalaResolveResult(pack: PsiPackage, _)) => {
-
-            // Process synthetic classes for scala._ package
-            if (pack.getQualifiedName == "scala") {
-              for (synth <- SyntheticClasses.get(getProject).getAll) {
-                processor.execute(synth, ResolveState.initial)
-              }
-            }
-
-            // Process package object declarations first
-            // Treat package object first
-            val manager = ScalaCachesManager.getInstance(getProject)
-            val cache = manager.getNamesCache
-            val obj = cache.getPackageObjectByName(pack.getQualifiedName, GlobalSearchScope.allScope(getProject))
-            if (obj == null ||
-                    obj.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ResolvableStableCodeReferenceElement.this)) {
-              // Treat other declarations from package
-              pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor), null, ResolvableStableCodeReferenceElement.this)
-
-            }
-          }
-          case Some(other) => {
-            other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
-              null, ResolvableStableCodeReferenceElement.this)
-          }
+        val results = q.bind match {
+          case Some(res) => processQualifierResolveResult(res, processor, ref)
+          case _ =>
         }
       }
       case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)

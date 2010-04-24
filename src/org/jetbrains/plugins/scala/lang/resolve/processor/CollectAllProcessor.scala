@@ -5,7 +5,7 @@ package processor
 
 import com.intellij.psi._
 import collection.Set
-import processor.ResolveProcessor
+import psi.impl.ScPackageImpl
 
 class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value],
                           override val ref: PsiElement,
@@ -14,7 +14,11 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value],
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
-      candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+      named match {
+        case pack: PsiPackage =>
+          candidatesSet += new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state))
+        case _ =>  candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+      }
     }
     true
   }
