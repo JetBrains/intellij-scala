@@ -358,13 +358,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 val gen = args.callGeneric.getOrElse(null: ScGenericCall)
                 def collectSubstitutor(element: PsiElement): ScSubstitutor = {
                   if (gen == null) return ScSubstitutor.empty
-                  val tp: Array[String] = element match {
-                    case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.name).toArray
-                    case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.getName)
+                  val tp: Array[(String, String)] = element match {
+                    case tpo: ScTypeParametersOwner => tpo.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))).toArray
+                    case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
                     case _ => return ScSubstitutor.empty
                   }
                   val typeArgs: Seq[ScTypeElement] = gen.arguments
-                  val map = new collection.mutable.HashMap[String, ScType]
+                  val map = new collection.mutable.HashMap[(String, String), ScType]
                   for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                     map += Tuple(tp(i), typeArgs(i).calcType)
                   }
@@ -468,9 +468,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case Some(constr: ScPrimaryConstructor) if i < constr.parameterList.clauses.length => {
                           typeElement match {
                             case gen: ScParameterizedTypeElement => {
-                              val tp = clazz.typeParameters.map(_.name)
+                              val tp = clazz.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                               val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                              val map = new collection.mutable.HashMap[String, ScType]
+                              val map = new collection.mutable.HashMap[(String, String), ScType]
                               for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                                 map += Tuple(tp(i), typeArgs(i).calcType)
                               }
@@ -498,9 +498,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       for (constructor <- clazz.getConstructors) {
                         typeElement match {
                           case gen: ScParameterizedTypeElement => {
-                            val tp = clazz.getTypeParameters.map(_.getName)
+                            val tp = clazz.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                            val map = new collection.mutable.HashMap[String, ScType]
+                            val map = new collection.mutable.HashMap[(String, String), ScType]
                             for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                               map += Tuple(tp(i), typeArgs(i).calcType)
                             }

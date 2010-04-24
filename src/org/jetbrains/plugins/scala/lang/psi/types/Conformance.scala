@@ -47,10 +47,11 @@ object Conformance {
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
     (l, r) match {
-      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level => return (true, undefinedSubst.addUpper(u2.tpt.name, u1))  //todo: remove
+      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
+        return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))  //todo: remove
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level == u1.level => return (true, undefinedSubst)
-      case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower(u.tpt.name, tp))
-      case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper(u.tpt.name, tp))
+      case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower((u.tpt.name, u.tpt.getId), tp))
+      case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), tp))
       case _ if l equiv r => return (true, undefinedSubst)
       case (ScMethodType(returnType1, params1, _), ScMethodType(returnType2, params2, _)) => {
         if (params1.length != params2.length) return (false, undefinedSubst)
@@ -77,8 +78,9 @@ object Conformance {
           i = i + 1
         }
         import Suspension._
-        val subst = new ScSubstitutor(new collection.immutable.HashMap[String, ScType] ++ typeParameters1.zip(typeParameters2).map({
-          tuple => (tuple._1.name, new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
+          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
+                  new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
         }), Map.empty, Map.empty)
         val t = conforms(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
@@ -152,10 +154,10 @@ object Conformance {
         }
       }
       case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
-        return (true, undefinedSubst.addLower(owner.tpt.name, r))
+        return (true, undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), r))
       }
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScUndefinedType, args2)) => {
-        return (true, undefinedSubst.addUpper(owner1.tpt.name, l))
+        return (true, undefinedSubst.addUpper((owner1.tpt.name, owner1.tpt.getId), l))
       }
       case (ScParameterizedType(owner: ScType, args1), ScParameterizedType(owner1: ScType, args2))
         if owner.equiv(owner1) => {
@@ -183,12 +185,12 @@ object Conformance {
                 case _ => {
                   argsPair match {
                     case (u: ScUndefinedType, rt) => {
-                      undefinedSubst = undefinedSubst.addLower(u.tpt.name, rt)
-                      undefinedSubst = undefinedSubst.addUpper(u.tpt.name, rt)
+                      undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+                      undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
                     }
                     case (lt, u: ScUndefinedType) => {
-                      undefinedSubst = undefinedSubst.addLower(u.tpt.name, lt)
-                      undefinedSubst = undefinedSubst.addUpper(u.tpt.name, lt)
+                      undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+                      undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
                     }
                     case (_: ScExistentialArgument, _) => {
                       val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)

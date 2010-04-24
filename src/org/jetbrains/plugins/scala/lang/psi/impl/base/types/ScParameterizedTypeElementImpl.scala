@@ -36,9 +36,9 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           case Some(_) => fails(new ScParameterizedType(res, Seq(argTypesgetOrElseped.toSeq: _*)))
           case None => res match {
             case tp: ScTypeConstructorType => {
-              val map = new HashMap[String, ScType]
+              val map = new HashMap[(String, String), ScType]
               for (i <- 0 until argTypesgetOrElseped.length.min(tp.args.size)) {
-                map += Tuple(tp.args.apply(i).name, argTypesgetOrElseped(i))
+                map += Tuple((tp.args.apply(i).name, tp.args.apply(i).getId), argTypesgetOrElseped(i))
               }
               val subst = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
               fails(subst.subst(tp.aliased.v))

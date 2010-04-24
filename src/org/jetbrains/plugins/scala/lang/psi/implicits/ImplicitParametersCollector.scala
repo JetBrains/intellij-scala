@@ -216,7 +216,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
      */
     def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
       fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-        (subst, tp) => subst.bindT(tp.getName, new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
+        (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
       }
     }
   }

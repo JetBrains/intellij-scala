@@ -94,7 +94,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               if (tps.length > 0) {
                 val typez = ScParameterizedType(tp, tps.map({tp => new ScTypeParameterType(tp, subst)}))
                 val undefSubst: ScSubstitutor = tps.foldLeft[ScSubstitutor](ScSubstitutor.empty) {
-                  (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+                  (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                     case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, subst)
                     case tp: PsiTypeParameter => new ScTypeParameterType(tp, subst)
                   }))
@@ -174,8 +174,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       case owner: ScTypeParametersOwner => {
         var s = Compatibility.compatible(m, subst, argClauses, checkWithImplicits)._2
         for (tParam <- owner.typeParameters) { //todo: think about view type bound
-          s = s.addLower(tParam.getName, subst.subst(tParam.lowerBound.getOrElse(Nothing)))
-          s = s.addUpper(tParam.getName, subst.subst(tParam.upperBound.getOrElse(Any)))
+          s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.lowerBound.getOrElse(Nothing)))
+          s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.upperBound.getOrElse(Any)))
         }
         expected match {
           case Some(expected) => {
@@ -194,8 +194,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       case owner: PsiTypeParameterListOwner => {
         var s = Compatibility.compatible(owner, subst, argClauses, checkWithImplicits)._2
         for (tParam <- owner.getTypeParameters) {
-          s = s.addLower(tParam.getName, Nothing) //todo:
-          s = s.addUpper(tParam.getName, Any) //todo:
+          s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Nothing) //todo:
+          s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Any) //todo:
         }
         expected match {
           case Some(expected) => {

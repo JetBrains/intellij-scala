@@ -224,7 +224,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
         val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
           (subst: ScSubstitutor, tp: TypeParameter) =>
-            subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+            subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+              new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
         val exprs = new ArrayBuffer[Expression]
         val iterator = params.iterator

@@ -39,6 +39,13 @@ import formatting.settings.ScalaCodeStyleSettings
  */
 
 object ScalaPsiUtil {
+  def getPsiElementId(elem: PsiElement): String = {
+    if (elem != null && elem.isValid) {
+      " in:" + (if (elem.getContainingFile != null)elem.getContainingFile.getName else "NoFile") + ":" +
+              (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
+    } else "NotValidElemId"
+  }
+
   def getSettings(project: Project): ScalaCodeStyleSettings = {
     CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   }
@@ -46,7 +53,8 @@ object ScalaPsiUtil {
   def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
-        subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+        subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+          new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
     }
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
@@ -56,14 +64,14 @@ object ScalaPsiUtil {
     val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
     val c = Compatibility.checkConformance(true, paramsWithUndefTypes, exprs, true)
     if (c._1) {
-      val un = c._2
+      val un: ScUndefinedSubstitutor = c._2
       ScTypePolymorphicType(retType, typeParams.map(tp => {
         var lower = tp.lowerType
         var upper = tp.upperType
-        for ((name, addLower) <- un.lowerMap if name == tp.name) {
+        for ((name, addLower) <- un.lowerMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) {
           lower = Bounds.lub(lower, subst.subst(addLower))
         }
-        for ((name, addUpperSeq) <- un.upperMap if name == tp.name; addUpper <- addUpperSeq) {
+        for ((name, addUpperSeq) <- un.upperMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)); addUpper <- addUpperSeq) {
           upper = Bounds.glb(upper, subst.subst(addUpper))
         }
         TypeParameter(tp.name, lower, upper, tp.ptp)
@@ -175,15 +183,15 @@ object ScalaPsiUtil {
     }
   }
 
-  def genericCallSubstitutor(tp: Seq[String], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[String, ScType]
+  def genericCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, String), ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
       map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
   }
 
-  def genericCallSubstitutor(tp: Seq[String], gen: ScGenericCall): ScSubstitutor = {
+  def genericCallSubstitutor(tp: Seq[(String, String)], gen: ScGenericCall): ScSubstitutor = {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     genericCallSubstitutor(tp, typeArgs)
   }
