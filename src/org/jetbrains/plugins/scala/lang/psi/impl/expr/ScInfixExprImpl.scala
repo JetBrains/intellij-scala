@@ -42,7 +42,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
         case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
           val subst = if (method.getTypeParameters.length != 0) {
             val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+              (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                 case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
                 case tp: PsiTypeParameter => new ScTypeParameterType(tp, s)
               }))

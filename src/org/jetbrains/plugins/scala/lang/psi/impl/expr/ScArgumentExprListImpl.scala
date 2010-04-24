@@ -145,19 +145,19 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
               case ScalaResolveResult(method: PsiMethod, s: ScSubstitutor) => {
                 val subst = callGeneric match { //needs for generic call => substitutor more complex
                   case Some(gen) => {
-                    val tp: Seq[String] = method match {
+                    val tp: Seq[(String, String)] = method match {
                       case fun: ScFunction => {
-                        fun.typeParameters.map(_.name)
+                        fun.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
                       }
                       case method: PsiMethod => {
-                        method.getTypeParameters.map(_.getName)
+                        method.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p)))
                       }
                     }
                     s.followed(ScalaPsiUtil.genericCallSubstitutor(tp, gen))
                   }
                   case _ if method.getTypeParameters.length != 0 => {
                     val subst = method.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-                      (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(tp match {
+                      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(tp match {
                         case tp: ScTypeParam => new ScTypeParameterType(tp: ScTypeParam, s)
                         case tp: PsiTypeParameter => new ScTypeParameterType(tp, s)
                       }))

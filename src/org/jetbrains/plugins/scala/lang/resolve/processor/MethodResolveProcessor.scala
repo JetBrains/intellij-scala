@@ -111,10 +111,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
       if (typeArgElements.length  != 0) {
         c.element match {
           case t: ScTypeParametersOwner if t.typeParameters.length == typeArgElements.length => {
-            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(_.name), typeArgElements)
+            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
           }
           case p: PsiTypeParameterListOwner if p.getTypeParameters.length == typeArgElements.length => {
-            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(_.getName), typeArgElements)
+            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
           }
           case _ => ScSubstitutor.empty
         }
@@ -126,7 +126,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case ScTypePolymorphicType(_, typeParams) => {
         val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
           (subst: ScSubstitutor, tp: TypeParameter) =>
-            subst.bindT(tp.name, new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+            subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
         c.substitutor.followed(s).followed(getTypeArgumentsSubstitutor)
       }
@@ -220,7 +220,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
               val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                 (subst: ScSubstitutor, tp: TypeParameter) =>
-                  subst.bindT(tp.name, new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
+                  subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
               }
               params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
             }

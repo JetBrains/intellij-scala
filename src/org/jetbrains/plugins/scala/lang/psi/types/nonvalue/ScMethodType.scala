@@ -8,6 +8,7 @@ import com.intellij.psi.PsiTypeParameter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * @author ilyas
@@ -67,7 +68,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   def polymorphicTypeSubstitutor: ScSubstitutor =
-    new ScSubstitutor(new HashMap[String, ScType] ++ (typeParameters.map(tp => (tp.name,
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
             if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType else tp.lowerType))),
       Map.empty, Map.empty) //todo: possible check lower type conforms upper type
 
@@ -84,8 +85,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           if (!typeParameters(i).upperType.equiv(p.typeParameters(i).upperType)) return false
         }
         import Suspension._
-        val subst = new ScSubstitutor(new HashMap[String, ScType] ++ typeParameters.zip(p.typeParameters).map({
-          tuple => (tuple._1.name, new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+        val subst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.zip(p.typeParameters).map({
+          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
+            List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
         }), Map.empty, Map.empty)
         subst.subst(internalType).equiv(p.internalType)
       }

@@ -51,7 +51,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next)
         val p2 = argsIterator.next
-        res = res bindT (p1.name, p2)
+        res = res bindT ((p1.name, p1.getId), p2)
       }
       res
     }
@@ -123,7 +123,7 @@ case class ScTypeConstructorType(alias : ScTypeAliasDefinition, override val arg
 extends ScPolymorphicType(alias.name, args, aliased, aliased) {
   override def equiv(t: ScType) = t match {
     case tct : ScTypeConstructorType => alias == tct.alias && {
-      val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+      val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
       lower.v.equiv(s.subst(tct.lower.v)) && upper.v.equiv(s.subst(tct.upper.v))
     }
     case _ => false
@@ -139,7 +139,7 @@ case class ScTypeAliasType(alias : ScTypeAlias, override val args : List[ScTypeP
 extends ScPolymorphicType(alias.name, args, lower, upper) {
     override def equiv(t: ScType) = t match {
       case tat : ScTypeAliasType => alias == tat.alias && {
-        val s = args.zip(tat.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT (p._2.name, p._1)}
+        val s = args.zip(tat.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
         (CyclicHelper.compute(alias, tat.alias)(() => lower.v.equiv(s.subst(tat.lower.v)) && upper.v.equiv(s.subst(tat.upper.v))) match {
           case None => true
           case Some(b) => b
@@ -185,6 +185,10 @@ extends ScPolymorphicType(name, args, lower, upper) {
         case Some(b) => b
       })
     case _ => false
+  }
+
+  def getId: String = {
+    ScalaPsiUtil.getPsiElementId(param)
   }
 }
 

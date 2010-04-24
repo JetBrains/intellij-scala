@@ -193,7 +193,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
      */
     def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
       fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-        (subst, tp) => subst.bindT(tp.getName, ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
+        (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
       }
     }
   }

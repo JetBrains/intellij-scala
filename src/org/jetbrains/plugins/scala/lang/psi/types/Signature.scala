@@ -48,7 +48,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next, iterator2.next)
-      res = res bindT (tp2.getName, ScalaPsiManager.typeVariable(tp1))
+      res = res bindT ((tp2.getName, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
     }
     res
   }
