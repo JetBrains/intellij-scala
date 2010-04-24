@@ -3,6 +3,7 @@ package lang
 package psi
 
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import api.base.ScReferenceElement
@@ -12,7 +13,6 @@ import com.intellij.codeInsight.hint.HintManager
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import formatting.settings.ScalaCodeStyleSettings
 import lexer.ScalaTokenTypes
-import impl.ScalaPsiElementFactory
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.typedef.ScTypeDefinition
@@ -216,7 +216,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val subPackages = if (syntheticPackage != null)
         syntheticPackage.getSubPackages
       else {
-        val psiPack = JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualifiedName)._1)
+        val psiPack = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(getSplitQualifierElement(qualifiedName)._1))
         if (psiPack != null) psiPack.getSubPackages
         else Array[PsiPackage]()
       }

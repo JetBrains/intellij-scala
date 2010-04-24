@@ -13,6 +13,7 @@ import psi.ScalaPsiUtil
 import psi.api.toplevel.typedef.{ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass}
+import psi.impl.ScPackageImpl
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -44,19 +45,26 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   protected def getPrecendence(result: ScalaResolveResult): Int = {
+    def getPackagePrecedence(qualifier: String): Int = {
+      if (qualifier == null) return 6
+      val index: Int = qualifier.lastIndexOf('.')
+      if (index == -1) return 3
+      val q = qualifier.substring(0, index)
+      if (q == "java.lang") return 1
+      else if (q == "scala") return 2
+      else if (q == placePackageName) return 6
+      else return 3
+    }
     if (result.importsUsed.size == 0) {
       ScalaPsiUtil.nameContext(result.getElement) match {
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
+        case obj: ScObject if obj.isPackageObject => {
+          val qualifier = obj.getQualifiedName
+          return getPackagePrecedence(qualifier)
+        }
         case pack: PsiPackage => {
           val qualifier = pack.getQualifiedName
-          if (qualifier == null) return 6
-          val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 3
-          val q = qualifier.substring(0, index)
-          if (q == "java.lang") return 1
-          else if (q == "scala") return 2
-          else if (q == placePackageName) return 6
-          else return 3
+          return getPackagePrecedence(qualifier)
         }
         case clazz: PsiClass => {
           val qualifier = clazz.getQualifiedName
@@ -126,12 +134,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
-      return named match {
-        case o: ScObject if o.isPackageObject => true
-        case _ => {
-          addResult(new ScalaResolveResult(named, getSubst(state), getImports(state)))
-          true
-        }
+      named match {
+        case o: ScObject if o.isPackageObject =>
+        case pack: PsiPackage =>
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
+        case _ => addResult(new ScalaResolveResult(named, getSubst(state), getImports(state)))
       }
     }
     return true

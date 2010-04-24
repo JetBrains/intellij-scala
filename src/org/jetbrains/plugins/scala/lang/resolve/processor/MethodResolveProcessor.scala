@@ -24,6 +24,7 @@ import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 import Compatibility.Expression
+import psi.impl.ScPackageImpl
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -94,6 +95,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case synthetic: ScSyntheticFunction => {
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass))
         }
+        case pack: PsiPackage =>
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), None, implicitConversionClass))
         case _ => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
           true

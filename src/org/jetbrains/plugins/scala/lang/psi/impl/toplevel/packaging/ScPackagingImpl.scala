@@ -19,6 +19,7 @@ import psi.stubs.elements.wrappers.DummyASTNode
 import com.intellij.openapi.progress.ProgressManager
 import java.lang.String
 import api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import caches.ScalaCachesManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -82,7 +83,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       packageName.substring(0, packageName.indexOf("."))
     } else packageName
     val top = if (_prefix.length > 0) _prefix + "." + topRefName else topRefName
-    val p = JavaPsiFacade.getInstance(getProject).findPackage(top)
+    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(top))
     if (p == null) Seq.empty else Seq.singleton(p)
   }
 
@@ -92,21 +93,17 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   place: PsiElement): Boolean = {
     val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
     ProgressManager.checkCanceled
-    var p = JavaPsiFacade.getInstance(getProject).findPackage(pName)
+    var p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false
     }
 
-    val classes = JavaPsiFacade.getInstance(getProject).findClasses(pName, getResolveScope)
-    val iter = classes.iterator
-    while (iter.hasNext) {
-      iter.next match {
-        case o: ScObject if o.isPackageObject => {
-          if (!o.processDeclarations(processor, state, lastParent, place)) return false
-        }
-        case _ => //nothing to do
-      }
-    }
+    /*val manager = ScalaCachesManager.getInstance(getProject)
+    val cache = manager.getNamesCache
+    val obj = cache.getPackageObjectByName(pName, getResolveScope)
+    if (obj != null) {
+      if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+    }*/
 
     if (lastParent != null && lastParent.getParent == this) {
       if (!super[ScImportsHolder].processDeclarations(processor,

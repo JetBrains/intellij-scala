@@ -112,14 +112,14 @@ object ScSyntheticPackage {
           def getClasses(scope: GlobalSearchScope) =
             getClasses.filter{clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}
 
-          def getParentPackage = JavaPsiFacade.getInstance(project).findPackage(pname)
+          def getParentPackage = ScPackageImpl.findPackage(project, pname)
 
           def getSubPackages = {
             val buff = new HashSet[PsiPackage]
             pkgs.foreach{
               p =>
               def addPackage(tail : String) {
-                val p = JavaPsiFacade.getInstance(project).findPackage(fqn + "." + tail)
+                val p = ScPackageImpl.findPackage(project, fqn + "." + tail)
                 if (p != null) buff += p
               }
 

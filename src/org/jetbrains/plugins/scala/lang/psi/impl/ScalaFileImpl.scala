@@ -270,12 +270,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
-        val top = JavaPsiFacade.getInstance(getProject()).findPackage("")
+        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject()).findPackage(""))
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        val defaultPackage = JavaPsiFacade.getInstance(getProject).findPackage("")
+        val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
         }
@@ -293,7 +293,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
             val migration = facade.getCurrentMigration
             if (migration != null) {
               val list = migration.getMigrationPackages("")
-              val packages = list.toArray(new Array[PsiPackage](list.size))
+              val packages = list.toArray(new Array[PsiPackage](list.size)).map(ScPackageImpl(_))
               val iterator = packages.iterator
               while (iterator.hasNext) {
                 val pack = iterator.next
@@ -301,7 +301,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
               }
             }
           } else {
-            var aPackage: PsiPackage = facade.findPackage(name)
+            var aPackage: PsiPackage = ScPackageImpl(facade.findPackage(name))
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
