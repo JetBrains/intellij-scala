@@ -14,7 +14,7 @@ import psi.api.base.types.ScTypeElement
 import result.{TypingContext}
 import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
-import collection.{Seq, Set}
+import scala.collection.Set
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.api.expr.{ScMethodCall, ScGenericCall}
 import psi.implicits.{ScImplicitlyConvertible}
