@@ -1,0 +1,102 @@
+package scala
+@scala.serializable
+case class Tuple2[@scala.specialized +T1, @scala.specialized +T2](_1 : T1, _2 : T2)
+------
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement
+      PsiElement(identifier)('scala')
+    PsiElement(newline)('\n')
+    ScClass
+      AnnotationsList
+        Annotation
+          PsiElement(@)('@')
+          AnnotationExpression
+            Constructor
+              SimpleTypeElement
+                CodeReferenceElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('serializable')
+          PsiElement(newline)('\n')
+      Modifiers
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Tuple2')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                Constructor
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('specialized')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                Constructor
+                  SimpleTypeElement
+                    CodeReferenceElement
+                      CodeReferenceElement
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('specialized')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T2')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('_1')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('T1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ClassParameter
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('_2')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleTypeElement
+                  CodeReferenceElement
+                    PsiElement(identifier)('T2')
+            PsiElement())(')')
+      ExtendsBlock
+        <empty list>

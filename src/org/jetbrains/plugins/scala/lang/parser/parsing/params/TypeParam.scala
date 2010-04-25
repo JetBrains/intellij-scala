@@ -7,6 +7,7 @@ package params
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.Type
+import expressions.Annotation
 
 /**
  * @author Alexander Podkhalyuzin
@@ -14,12 +15,18 @@ import types.Type
  */
 
 /*
- * TypeParam ::= (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
+ * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
  */
 
 object TypeParam {
   def parse(builder: PsiBuilder, mayHaveVariance: Boolean): Boolean = {
     val paramMarker = builder.mark
+    val annotationMarker = builder.mark
+    var exist = false
+    while (Annotation.parse(builder)) {exist = true}
+    if (exist) annotationMarker.done(ScalaElementTypes.ANNOTATIONS)
+    else annotationMarker.drop
+
     if (mayHaveVariance) {
       builder.getTokenText match {
         case "+" | "-" => builder.advanceLexer
