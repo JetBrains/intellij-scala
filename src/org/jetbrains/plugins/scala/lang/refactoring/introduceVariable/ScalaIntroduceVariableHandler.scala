@@ -113,6 +113,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project))
 
+      val typeText = ScType.presentableText(typez)
+
       expr.getParent match {
         case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)
         case post: ScPostfixExpr if post.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project)

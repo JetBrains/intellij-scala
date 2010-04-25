@@ -137,11 +137,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           expectedTypesCache = tps
           expectedTypesModCount = getManager.getModificationTracker.getModificationCount
           exprType = null
-          if (!anon(this)) forExpr(this) else {
+//          if (!anon(this)) forExpr(this) else {
             val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
             newExpr.setExpectedTypes(tps)
             forExpr(newExpr)
-          }
+//          }
         }
         finally {
           //load data
