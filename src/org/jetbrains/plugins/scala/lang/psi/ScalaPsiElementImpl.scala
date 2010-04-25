@@ -25,6 +25,13 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     }
   }
 
+  override def getStartOffsetInParent: Int = {
+    context match {
+      case null => super.getStartOffsetInParent
+      case _ => child.getStartOffsetInParent
+    }
+  }
+
   override def getPrevSibling: PsiElement = {
     context match {
       case null => super.getPrevSibling
@@ -73,6 +80,14 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
       case _ => context
     }
   }
+
+  override def getStartOffsetInParent: Int = {
+    context match {
+      case null => super.getStartOffsetInParent
+      case _ => child.getStartOffsetInParent
+    }
+  }
+
 
   override def getPrevSibling: PsiElement = {
     context match {

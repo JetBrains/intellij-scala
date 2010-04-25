@@ -9,8 +9,8 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{Success, TypeResult, Failure, TypingContext}
 import resolve.ScalaResolveResult
-import com.intellij.psi.{PsiMethod, PsiClass}
 import types.{ScSubstitutor, ScParameterizedType, ScFunctionType, ScType}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiClass}
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -33,7 +33,13 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case None => Failure("No type inferred", None)
           case Some(expr: ScExpression) => {
             val unders = ScUnderScoreSectionUtil.underscores(expr)
-            val i = unders.findIndexOf(_ == this)
+            var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
+            var e: PsiElement = this
+            while (e != expr) {
+              startOffset += e.getStartOffsetInParent
+              e = e.getContext
+            }
+            val i = unders.findIndexOf(_.getTextRange.getStartOffset == startOffset)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes if result != None) {
@@ -47,7 +53,13 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   }
                   else if (params.length > unders.length) result = Some(params(i))
                   else {
+                    try
                     result = Some(params(i))
+                    catch {
+                      case e: Exception => {
+                        "stop"
+                      }
+                    }
                     forEqualsParamLength = true
                   }
                 }
