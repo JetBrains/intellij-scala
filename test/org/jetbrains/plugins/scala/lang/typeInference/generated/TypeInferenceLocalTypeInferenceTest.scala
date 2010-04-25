@@ -25,7 +25,23 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testOmittedGenericsWithOurClass = doTest
 
+  def testSCL1547 = doTest
+
   def testSCL1644 = doTest
+
+  def testSCL1671 = doTest
+
+  def testSCL1687 = doTest
+
+  def testSCL1771 = doTest
+
+  def testSCL1771First = doTest
+
+  def testSCL1772 = doTest
+
+  def testSCL1824 = doTest
+
+  def testSameNameGeneric = doTest
 
   def testSecondClause = doTest
 
