@@ -8,11 +8,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.util.Consumer
 import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.codeInsight.completion.{CompletionType, CompletionParameters, CompletionService}
 import collection.mutable.ArrayBuffer
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType, CompletionParameters, CompletionService}
+import com.intellij.codeInsight.lookup.{LookupManager, LookupElement}
+import com.intellij.codeInsight.lookup.impl.LookupImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,17 +37,15 @@ abstract class CompletionTestBase extends ScalaPsiTestCase {
     val fileText = scalaFile.getText
     val offset = fileText.indexOf(caretMarker)
     assert(offset != -1, "Not specified end marker in test case. Use /*caret*/ in scala file for this.")
+    val fileEditorManager = FileEditorManager.getInstance(myProject)
+    val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
+    val myType = if (testName.startsWith("Smart")) CompletionType.SMART else CompletionType.BASIC
+    new CodeCompletionHandlerBase(myType).invoke(myProject, editor, scalaFile)
+    var lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
+    val items: Array[String] =
+      if (lookup == null) Array.empty
+      else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
 
-    val element: PsiElement = scalaFile.findElementAt(offset - 1)
-    val parameters: CompletionParameters = new CompletionParameters(element, scalaFile, if (testName.startsWith("Smart"))
-      CompletionType.SMART else CompletionType.BASIC, offset, if (testName.endsWith("Second")) 2 else 1)
-
-    val items: ArrayBuffer[String] = new ArrayBuffer[String]
-    CompletionService.getCompletionService.performCompletion(parameters, new Consumer[LookupElement] {
-      def consume(lookupElement: LookupElement): Unit = {
-        items += lookupElement.getLookupString
-      }
-    })
     val res = items.sortWith(_ < _).mkString("\n")
     
     println("------------------------ " + scalaFile.getName + " ------------------------")

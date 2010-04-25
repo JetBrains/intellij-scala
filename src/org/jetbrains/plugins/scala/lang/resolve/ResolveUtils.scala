@@ -29,6 +29,7 @@ import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, 
 import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import result.{Success, TypingContext}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
+import com.intellij.openapi.application.{ApplicationManager, Application}
 
 /**
  * @author ven
@@ -407,7 +408,10 @@ object ResolveUtils {
         presentation.setItemTextBold(isBold)
       }
     })
-    (lookupBuilder, element, substitutor)
+    val returnLookupElement =
+      if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)  
+      else lookupBuilder
+    (returnLookupElement, element, substitutor)
   }
 
   def getPlacePackage(place: PsiElement): String = {
