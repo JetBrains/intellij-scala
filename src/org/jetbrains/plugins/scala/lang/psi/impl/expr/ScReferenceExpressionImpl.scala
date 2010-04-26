@@ -130,7 +130,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           // this is in case if function has super method => recursion has defined type
           case fail: Failure => f.superMethod match {
             case Some(fun: ScFunction) => fun.returnType match {case s: Success[ScType] => Some(s.get) case _ => None}
-            case Some(meth: PsiMethod) => Some(ScType.create(meth.getReturnType, meth.getProject))
+            case Some(meth: PsiMethod) => Some(ScType.create(meth.getReturnType, meth.getProject, getResolveScope))
             case _ => None
           }
         }
@@ -191,9 +191,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
           collection.immutable.Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
-      case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject))
+      case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => {
-        ResolveUtils.javaPolymorphicType(method, s)
+        ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }

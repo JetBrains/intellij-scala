@@ -196,7 +196,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
     any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
     val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
-    val arrayClass = JavaPsiFacade.getInstance(project).findClass("scala.Array", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
       val stringType = new ScDesignatorType(stringClass)
       any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
@@ -259,9 +258,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       }
     }
     scriptSyntheticValues = new HashSet[ScSyntheticValue]
-    if (stringClass != null && arrayClass != null) {
+    if (stringClass != null) {
       scriptSyntheticValues += new ScSyntheticValue(manager, "args",
-        ScParameterizedType(ScDesignatorType(arrayClass), Seq(ScDesignatorType(stringClass))))
+        JavaArrayType(ScDesignatorType(stringClass)))
     }
   }
 

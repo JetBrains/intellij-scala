@@ -40,7 +40,21 @@ object Bounds {
       case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
       case (_: ValType, _: ValType) => types.AnyVal
-
+      case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
+        JavaArrayType(calcForTypeParamWithotVariance(arg1, arg2))
+      }
+      case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
+        case Some(q) => q.getQualifiedName == "scala.Array"
+        case _ => false
+      }) => {
+        ScParameterizedType(des, Seq(calcForTypeParamWithotVariance(arg, args(0))))
+      }
+      case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
+        case Some(q) => q.getQualifiedName == "scala.Array"
+        case _ => false
+      }) => {
+        ScParameterizedType(des, Seq(calcForTypeParamWithotVariance(arg, args(0))))
+      }
       case _ => (ScType.extractClassType(t1), ScType.extractClassType(t2)) match {
         case (Some((clazz1, subst1)), Some((clazz2, subst2))) => {
           val set = new HashSet[ScType]
@@ -57,6 +71,10 @@ object Bounds {
         case _ => Any //todo: compound types
       }
     }
+  }
+
+  private def calcForTypeParamWithotVariance(substed1: ScType, substed2: ScType): ScType = {
+    if (substed1 equiv substed2) substed1 else Any
   }
 
   private def getTypeForAppending(clazz1: PsiClass, subst1: ScSubstitutor,
@@ -76,7 +94,7 @@ object Bounds {
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
-            case _ => if (substed1 equiv substed2) substed1 else Any
+            case _ => calcForTypeParamWithotVariance(substed1, substed2) //todo: _ >: substed1 with substed2
           })
         }
         return ScParameterizedType(ScDesignatorType(baseClass), resTypeArgs.toSeq)

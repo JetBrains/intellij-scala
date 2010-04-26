@@ -19,6 +19,7 @@ object BaseTypes {
                 Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
       case ScPolymorphicType(_, Nil, _, upper) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
+      case a: JavaArrayType => Seq(types.Any)
       case p : ScParameterizedType => {
         ScType.extractClass(p.designator) match {
           case Some(td: ScTypeDefinition) =>

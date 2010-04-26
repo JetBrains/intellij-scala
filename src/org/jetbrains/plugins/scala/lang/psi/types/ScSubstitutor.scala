@@ -109,6 +109,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         new ScTypeAliasType(alias, args, () => substInternal(lower.v), () => substInternal(upper.v))
       }
     }
+    case JavaArrayType(arg) => JavaArrayType(substInternal(arg))
     case pt@ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
       tvMap.get((tpt.name, tpt.getId)) match {
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
@@ -264,6 +265,7 @@ object ScUndefinedSubstitutor {
       import Misc.fun2suspension
       new ScTypeAliasType(alias, args, () => removeUndefindes(lower.v), () => removeUndefindes(upper.v))
     }
+    case JavaArrayType(arg) => JavaArrayType(removeUndefindes(arg))
     case ScParameterizedType (des, typeArgs) => ScParameterizedType(removeUndefindes(des),
       collection.immutable.Seq(typeArgs.map(removeUndefindes _).toSeq: _*))
     case ScExistentialArgument(name, args, lower, upper) =>

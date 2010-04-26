@@ -26,6 +26,7 @@ import api.toplevel.{ScTypeParametersOwner, ScTypedDefinition, ScNamedElement, S
 import params.ScTypeParam
 import api.expr.{ScNewTemplateDefinition, ScExpression}
 import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
+import psi.types.Compatibility.Expression
 
 /**
  * @author Alexander Podkhalyuzin
@@ -81,6 +82,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       }
       result match {
         case Success(p: ScParameterizedType, _) => result
+        case Success(j: JavaArrayType, _) => result
         case Success(tp: ScType, _) => {
           ScType.extractClassType(tp) match {
             case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
@@ -140,7 +142,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
    */
   private def forFilter(m: PsiMethod, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]],
                         checkWithImplicits: Boolean): Boolean = {
-    Compatibility.compatible(m, subst, argClauses, checkWithImplicits)._1
+    Compatibility.compatible(m, subst, argClauses.map(_.map(Compatibility.Expression(_))), checkWithImplicits, getResolveScope)._1
   }
 
   /**
@@ -172,7 +174,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     val clazz = m.getContainingClass
     clazz match {
       case owner: ScTypeParametersOwner => {
-        var s = Compatibility.compatible(m, subst, argClauses, checkWithImplicits)._2
+        var s = Compatibility.compatible(m, subst, argClauses.map(_.map(Expression(_))), checkWithImplicits, getResolveScope)._2
         for (tParam <- owner.typeParameters) { //todo: think about view type bound
           s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.lowerBound.getOrElse(Nothing)))
           s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.upperBound.getOrElse(Any)))
@@ -192,7 +194,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         }
       }
       case owner: PsiTypeParameterListOwner => {
-        var s = Compatibility.compatible(owner, subst, argClauses, checkWithImplicits)._2
+        var s = Compatibility.compatible(owner, subst, argClauses.map(_.map(Expression(_))), checkWithImplicits, getResolveScope)._2
         for (tParam <- owner.getTypeParameters) {
           s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Nothing) //todo:
           s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Any) //todo:
@@ -220,7 +222,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   private def isMoreSpecific(e1: PsiMethod, e2: PsiMethod): Boolean = {
     def getType(e: PsiMethod): ScType = e match {
       case f: ScFunction => f.getType(TypingContext.empty).getOrElse(Any)
-      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
+      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty, getResolveScope)
     }
     (e1, e2, getType(e1), getType(e2)) match {
       case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
