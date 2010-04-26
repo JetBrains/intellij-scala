@@ -31,32 +31,6 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     res match {
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
-      case r@ScalaResolveResult(pack: PsiPackage, _) => {
-
-        /*// Process synthetic classes for scala._ package
-        if (pack.getQualifiedName == "scala") {
-          for (synth <- SyntheticClasses.get(getProject).getAll) {
-            processor.execute(synth, ResolveState.initial)
-          }
-        }
-
-        // Process package object declarations first
-        // Treat package object first
-        val manager = ScalaCachesManager.getInstance(getProject)
-        val cache = manager.getNamesCache
-        val fqn = pack.getQualifiedName
-        val obj = cache.getPackageObjectByName(fqn, ref.getResolveScope)
-        if (obj != null) {
-          val candidatesCount = processor.candidates.size
-          obj.processDeclarations(processor, ResolveState.initial, null, ResolvableStableCodeReferenceElement.this)
-          if (!processor.isInstanceOf[CompletionProcessor] && processor.candidates.size != candidatesCount) {
-            return
-          }
-        }*/
-        // Treat other declarations from package
-        pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, r.substitutor),
-          null, ResolvableStableCodeReferenceElement.this)
-      }
       case other: ScalaResolveResult => {
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, ResolvableStableCodeReferenceElement.this)
