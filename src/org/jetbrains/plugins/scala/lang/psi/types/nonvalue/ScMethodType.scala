@@ -29,7 +29,7 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 }
 
 
-case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
+case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
   var project: Project = DecompilerUtil.obtainProject
   var scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
 

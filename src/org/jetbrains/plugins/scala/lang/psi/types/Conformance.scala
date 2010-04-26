@@ -100,7 +100,7 @@ object Conformance {
         if (!conforms(AnyRef, l)) return (false, undefinedSubst)
         ScType.extractDesignated(l) match {
           case Some((el, _)) => {
-            val notNullClass = JavaPsiFacade.getInstance(el.getProject).findClass("scala.NotNull")
+            val notNullClass = JavaPsiFacade.getInstance(el.getProject).findClass("scala.NotNull", el.getResolveScope)
             val notNullType = ScDesignatorType(notNullClass)
             return (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
           }

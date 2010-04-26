@@ -17,7 +17,7 @@ import decompiler.DecompilerUtil
  * @param shortDef is true for functions defined as follows
  *  def foo : Type = ...
  */
-case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends ValueType {
+case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) extends ValueType {
   private var project: Project = null
   private var scope: GlobalSearchScope = GlobalSearchScope.allScope(getProject)
   def getProject: Project = {
@@ -57,8 +57,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType]) extends Value
   def resolveFunctionTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
         val psiFacade = JavaPsiFacade.getInstance(project)
-        val allScope = GlobalSearchScope.allScope(project)
-        Option(psiFacade.findClass(functionTraitName, allScope))
+        Option(psiFacade.findClass(functionTraitName, getScope))
     }
     findClass(functionTraitName) match {
       case Some(t: ScTrait) => {
