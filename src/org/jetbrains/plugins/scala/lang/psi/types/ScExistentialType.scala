@@ -29,6 +29,7 @@ object ScExistentialTypeReducer {
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
       case ScTypeAliasType(alias, _, _, _) => HashSet.empty + alias.name
       case ScDesignatorType(elem) => HashSet.empty + elem.getName
+      case JavaArrayType(arg) => collectNames(arg)
       case ScParameterizedType (des, typeArgs) =>
         typeArgs.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
       case ScExistentialArgument(_, _, lower, upper) => collectNames(lower) ++ collectNames(upper)
@@ -44,6 +45,7 @@ object ScExistentialTypeReducer {
       new ScFunctionType(noVariantWildcards(ret, wilds), params.map {noVariantWildcards(_, wilds)},
         fun.getProject, fun.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps.map {noVariantWildcards(_, wilds)}, t1.getProject)
+    //todo: case: JavaArrayType?
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
         val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({case (tp, ta) => ta match {

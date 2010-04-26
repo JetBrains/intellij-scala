@@ -73,7 +73,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     t match {
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
-
+      case j: JavaArrayType => processType(j.getParameterizedType(place.getProject, place.getResolveScope).getOrElse(return true), place, state)
       case p@ScParameterizedType(des, typeArgs) => {
         p.designator match {
           case ScPolymorphicType(_, _, _, upper) => processType(p.substitutor.subst(upper.v), place)

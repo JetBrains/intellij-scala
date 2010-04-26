@@ -15,7 +15,10 @@ import psi.impl.ScalaPsiManager
 import result.TypingContext
 import api.base.{ScStableCodeReferenceElement, ScPathElement}
 import resolve.ScalaResolveResult
-import com.intellij.psi.{PsiPackage, PsiTypeParameterListOwner, PsiNamedElement}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{JavaPsiFacade, PsiPackage, PsiTypeParameterListOwner, PsiNamedElement}
+import api.toplevel.typedef.ScClass
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
   override def equiv(t: ScType) = t match {
@@ -37,6 +40,36 @@ case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
 
 import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
+
+case class JavaArrayType(arg: ScType) extends ValueType {
+  override def equiv(t: ScType): Boolean = t match {
+    case JavaArrayType(arg2) => arg equiv arg2
+    case ScParameterizedType(des, args) if args.length == 1 => {
+      ScType.extractClass(des) match {
+        case Some(td) if td.getQualifiedName == "scala.Array" => arg equiv args(0)
+        case _ => false
+      }
+    }
+    case _ => false
+  }
+
+  def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ScType] = {
+    val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array", scope)
+    var arrayClass: PsiClass = null
+    for (clazz <- arrayClasses) {
+      clazz match {
+        case _: ScClass => arrayClass = clazz
+        case _ =>
+      }
+    }
+    if (arrayClass != null) {
+      val tps = arrayClass.getTypeParameters
+      if (tps.length == 1) {
+        Some(new ScParameterizedType(new ScDesignatorType(arrayClass), Seq(arg)))
+      } else None
+    } else None
+  }
+}
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
   def designated: Option[PsiNamedElement] = ScType.extractDesignated(designator) match {
@@ -84,6 +117,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
     case fun : ScFunctionType => fun equiv this
     case tuple : ScTupleType => tuple equiv this
+    case a: JavaArrayType => a.equiv(this)
     case _ => false
   }
 

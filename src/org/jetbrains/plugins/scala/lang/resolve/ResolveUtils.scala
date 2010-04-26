@@ -30,6 +30,7 @@ import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import result.{Success, TypingContext}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.openapi.application.{ApplicationManager, Application}
+import search.GlobalSearchScope
 
 /**
  * @author ven
@@ -73,29 +74,29 @@ object ResolveUtils {
             case _ => false
           })
 
-  def methodType(m : PsiMethod, s : ScSubstitutor) =
-    new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject)),
+  def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope) =
+    new ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)),
       collection.immutable.Seq(m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala
         if (pt.equalsToText("java.lang.Object")) Any
-        else s.subst(ScType.create(pt, m.getProject))
-      }).toSeq: _*), m.getProject, m.getResolveScope)
+        else s.subst(ScType.create(pt, m.getProject, scope))
+      }).toSeq: _*), m.getProject, scope)
 
-  def javaMethodType(m: PsiMethod, s: ScSubstitutor): ScMethodType = {
-    new ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject)), m.getParameterList.getParameters.map((param: PsiParameter) => {
+  def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope): ScMethodType = {
+    new ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)), m.getParameterList.getParameters.map((param: PsiParameter) => {
       var psiType = param.getType
       if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
       }
-      Parameter("", s.subst(ScType.create(psiType, m.getProject)), false, param.isVarArgs)
-    }).toSeq, false, m.getProject, m.getResolveScope)
+      Parameter("", s.subst(ScType.create(psiType, m.getProject, scope)), false, param.isVarArgs)
+    }).toSeq, false, m.getProject, scope)
   }
 
-  def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor): NonValueType = {
-    if (m.getTypeParameters.length == 0) return javaMethodType(m, s)
+  def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null): NonValueType = {
+    if (m.getTypeParameters.length == 0) return javaMethodType(m, s, scope)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s), m.getTypeParameters.map(tp =>
+      ScTypePolymorphicType(javaMethodType(m, s, scope), m.getTypeParameters.map(tp =>
         TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
     }
   }

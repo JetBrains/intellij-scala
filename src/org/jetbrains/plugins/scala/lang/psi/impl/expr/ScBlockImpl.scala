@@ -86,6 +86,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
           case ScCompoundType(comps, decls, types, s) =>
             new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
+          case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>
             new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
           case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))

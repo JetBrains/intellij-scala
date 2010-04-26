@@ -153,6 +153,72 @@ object Conformance {
           case _ => return (false, undefinedSubst)
         }
       }
+      case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
+        val argsPair = (arg1, arg2)
+        argsPair match {
+          case (u: ScUndefinedType, rt) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
+          }
+          case (lt, u: ScUndefinedType) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
+          }
+          case (_: ScExistentialArgument, _) => {
+            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            if (!y._1) return (false, undefinedSubst)
+            else undefinedSubst = y._2
+          }
+          case _ => if (!argsPair._1.equiv(argsPair._2)) return (false, undefinedSubst)
+        }
+        return (true, undefinedSubst)
+      }
+      case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
+        case Some(q) => q.getQualifiedName == "scala.Array"
+        case _ => false
+      }) => {
+        val argsPair = (arg, args(0))
+        argsPair match {
+          case (u: ScUndefinedType, rt) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
+          }
+          case (lt, u: ScUndefinedType) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
+          }
+          case (_: ScExistentialArgument, _) => {
+            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            if (!y._1) return (false, undefinedSubst)
+            else undefinedSubst = y._2
+          }
+          case _ => if (!argsPair._1.equiv(argsPair._2)) return (false, undefinedSubst)
+        }
+        return (true, undefinedSubst)
+      }
+      case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
+        case Some(q) => q.getQualifiedName == "scala.Array"
+        case _ => false
+      }) => {
+        val argsPair = (arg, args(0))
+        argsPair match {
+          case (u: ScUndefinedType, rt) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
+          }
+          case (lt, u: ScUndefinedType) => {
+            undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+            undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
+          }
+          case (_: ScExistentialArgument, _) => {
+            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            if (!y._1) return (false, undefinedSubst)
+            else undefinedSubst = y._2
+          }
+          case _ => if (!argsPair._1.equiv(argsPair._2)) return (false, undefinedSubst)
+        }
+        return (true, undefinedSubst)
+      }
       case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
         return (true, undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), r))
       }

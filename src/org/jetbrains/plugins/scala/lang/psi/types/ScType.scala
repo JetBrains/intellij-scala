@@ -86,7 +86,7 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Float")
 
 object ScType {
-  def create(psiType: PsiType, project: Project, deep: Int = 0): ScType = {if (deep > 2) return Any; psiType match {
+  def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0): ScType = {if (deep > 2) return Any; psiType match {
     case classType: PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
@@ -103,15 +103,15 @@ object ScType {
                 new ScExistentialArgument("_", Nil, Nothing,
                   tp.getSuperTypes.length match {
                     case 0 => Any
-                    case 1 => create(tp.getSuperTypes.apply(0), project, deep + 1)
-                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                    case 1 => create(tp.getSuperTypes.apply(0), project, scope, deep + 1)
+                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
                   })
               }}): _*))
             }
             case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
                       (tp => {
               val psiType = substitutor.substitute(tp)
-              if (psiType != null) ScType.create(psiType, project, deep + 1)
+              if (psiType != null) ScType.create(psiType, project, scope, deep + 1)
               else ScalaPsiManager.typeVariable(tp)
             }).toSeq : _*))
           }
@@ -120,7 +120,8 @@ object ScType {
       }
     }
     case arrayType: PsiArrayType => {
-      val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array", GlobalSearchScope.allScope(project))
+      /*val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array",
+        if (scope == null) GlobalSearchScope.allScope(project) else scope)
       var arrayClass: PsiClass = null
       for (clazz <- arrayClasses) {
         clazz match {
@@ -131,10 +132,11 @@ object ScType {
       if (arrayClass != null) {
         val tps = arrayClass.getTypeParameters
         if (tps.length == 1) {
-          val typeArg = create(arrayType.getComponentType, project)
+          val typeArg = create(arrayType.getComponentType, project, scope)
           new ScParameterizedType(new ScDesignatorType(arrayClass), Seq(typeArg))
         } else new ScDesignatorType(arrayClass)
-      } else Nothing
+      } else Nothing*/
+      JavaArrayType(create(arrayType.getComponentType, project, scope))
     }
 
     case PsiType.VOID => Unit
@@ -148,13 +150,13 @@ object ScType {
     case PsiType.SHORT => Short
     case PsiType.NULL => Null
     case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-      if(wild.isSuper) create(wild.getSuperBound, project, deep + 1) else Nothing,
-      if(wild.isExtends) create(wild.getExtendsBound, project, deep + 1) else Any)
+      if(wild.isSuper) create(wild.getSuperBound, project, scope, deep + 1) else Nothing,
+      if(wild.isExtends) create(wild.getExtendsBound, project, scope, deep + 1) else Any)
     case capture : PsiCapturedWildcardType =>
       val wild = capture.getWildcard
       new ScSkolemizedType("_", Nil,
-        if(wild.isSuper) create(capture.getLowerBound, project) else Nothing,
-        if(wild.isExtends) create(capture.getUpperBound, project) else Any)
+        if(wild.isSuper) create(capture.getLowerBound, project, scope) else Nothing,
+        if(wild.isExtends) create(capture.getUpperBound, project, scope) else Any)
     case null => Any//new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
     case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
   }}
@@ -199,6 +201,7 @@ object ScType {
         }
         case _ => javaObj
       }
+      case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
 
       case ScProjectionType(pr, ref) => ref.bind match {
         case Some(result) if result.isCyclicReference => javaObj
@@ -363,6 +366,7 @@ object ScType {
       case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get)
       case p: ScParameterizedType if p.getFunctionType != None => inner(p.getFunctionType.get)
       case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
+      case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
       case ScUndefinedType(tpt: ScTypeParameterType) => buffer.append("NotInfered").append(tpt.name)

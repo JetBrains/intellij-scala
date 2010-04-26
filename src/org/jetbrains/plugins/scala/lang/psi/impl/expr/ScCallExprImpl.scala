@@ -30,7 +30,7 @@ trait ScCallExprImpl extends ScExpression {
         var tp = r.element match {
           case fun: ScFunction => s.subst(fun.polymorphicType)
           case fun: ScFun => s.subst(fun.polymorphicType)
-          case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s)
+          case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s, getResolveScope)
           case _ => Any
         }
 

@@ -16,6 +16,7 @@ import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import com.intellij.openapi.progress.ProgressManager
+import search.GlobalSearchScope
 
 /**
  * @author ven
@@ -149,14 +150,9 @@ object Compatibility {
     return (true, undefSubst)
   }
 
-  @deprecated
-  def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
-                 argClauses: List[Seq[ScExpression]], checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    compatible(named, substitutor, argClauses.map(_.map(Expression(_))), checkWithImplicits, ())
-  }
 
   def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
-                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, @deprecated fakeArg: Unit): (Boolean, ScUndefinedSubstitutor) = {
+                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, scope: GlobalSearchScope): (Boolean, ScUndefinedSubstitutor) = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
@@ -203,9 +199,10 @@ object Compatibility {
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
         checkConformance(false, parameters.map {param: PsiParameter => Parameter("", {
-          val tp = substitutor.subst(ScType.create(param.getType, method.getProject))
+          val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope))
           if (param.isVarArgs) tp match {
             case ScParameterizedType(_, args) if args.length == 1 => args(0)
+            case JavaArrayType(arg) => arg
             case _ => tp
           }
           else tp

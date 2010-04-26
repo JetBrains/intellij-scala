@@ -142,11 +142,11 @@ class MethodResolveProcessor(override val ref: PsiElement,
           expectedOption match {
             case Some(ScFunctionType(retType, params)) => {
               val args = params.map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
             }
             case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
               val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ())._1
+              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
             }
             case _ => false
           }
@@ -178,13 +178,13 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ())._1
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
       }
       case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.getTypeParameters.length) &&
               tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ())._1
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
       }
       case _ => false
     }
@@ -299,7 +299,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
   private def getType(e: PsiNamedElement): ScType = e match {
     case fun: ScFun => fun.polymorphicType
     case f: ScFunction => f.polymorphicType
-    case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty)
+    case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, ref.getResolveScope)
     case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
       case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, ref, true)) =>
         pd.declaredType match {case Some(t) => t; case None => Nothing}

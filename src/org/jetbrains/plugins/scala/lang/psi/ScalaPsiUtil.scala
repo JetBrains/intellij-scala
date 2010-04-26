@@ -292,64 +292,6 @@ object ScalaPsiUtil {
   }
 
   /**
-   * This method try to conform given expression to method's first parameter clause.
-   * @return all methods which can by applied to given expressions
-   */
-  def getMethodsConformingToMethodCall(methods: Seq[PhysicalSignature], args: Seq[ScExpression], subst: PhysicalSignature => ScSubstitutor): Seq[PhysicalSignature] = {
-    def check(sign: PhysicalSignature): Boolean = {
-      val meth = sign.method
-      meth match {
-        case fun: ScFunction => {
-          val clauses: Seq[ScParameterClause] = fun.paramClauses.clauses
-          if (clauses.length == 0) {
-            if (args.length == 0) return true
-            else return false
-          } else {
-            val clause: ScParameterClause = clauses.apply(0)
-            val methodParams: Seq[ScParameter] = clause.parameters
-            val length = methodParams.length
-            if (length == 0) {
-              if (args.length == 0) return true
-              else return false
-            }
-            //so method have not zero params
-            //length sould be equal or last parameter should be repeated
-            if (!(length == args.length ||
-                    (length < args.length && methodParams(length - 1).isRepeatedParameter))) return false
-            for (i <- 0 to args.length - 1) {
-              val parameter: ScParameter = methodParams(Math.min(i, length - 1))
-              val typez: ScType = subst(sign).subst(parameter.getType(TypingContext.empty).getOrElse(Any))
-              val argType = args(i).getType(TypingContext.empty).getOrElse(Any)
-              if (!(argType: ScType).conforms(typez)) return false
-            }
-            return true
-          }
-        }
-        case meth: PsiMethod => {
-          val methodParams = meth.getParameterList.getParameters
-          val length: Int = methodParams.length
-          if (length == 0) {
-            if (methodParams.length == 0) return true
-            else return false
-          }
-          //so method have not zero params
-          //length sould be equal or last parameter should be repeated
-          if (!(length == args.length || (
-                  length < args.length && methodParams.apply(length - 1).isVarArgs
-                  ))) return false
-          for (i <- 0 to args.length - 1) {
-            val parameter: PsiParameter = methodParams(Math.min(i, length - 1))
-            val typez: ScType = subst(sign).subst(ScType.create(parameter.getType, meth.getProject))
-            if (!(args(i).getType(TypingContext.empty).getOrElse(Any)).conforms(typez)) return false
-          }
-          return true
-        }
-      }
-    }
-    for (method <- methods if check(method)) yield method
-  }
-
-  /**
    * For one classOf use PsiTreeUtil.getParenteOfType instead
    */
   def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
@@ -415,7 +357,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def getPsiSubstitutor(subst: ScSubstitutor, project: Project): PsiSubstitutor = {
+  def getPsiSubstitutor(subst: ScSubstitutor, project: Project, scope: GlobalSearchScope): PsiSubstitutor = {
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
       def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
 
@@ -426,13 +368,12 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type` : PsiType): PsiType = {
-        ScType.toPsi(substitutor.subst(ScType.create(`type`, project)), project,
-          GlobalSearchScope.allScope(project))
+        ScType.toPsi(substitutor.subst(ScType.create(`type`, project, scope)), project, scope)
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
         ScType.toPsi(substitutor.subst(new ScTypeParameterType(typeParameter, substitutor)),
-          project, GlobalSearchScope.allScope(project))
+          project, scope)
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY

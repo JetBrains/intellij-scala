@@ -31,6 +31,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
           case _ => Seq.empty
         }) ++ args.flatMap(collectImplicitClasses(_))
       }
+      case j: JavaArrayType => {
+        val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
+        collectImplicitClasses(parameterizedType.getOrElse(return Seq.empty))
+      }
       case singl@ScSingletonType(path) => collectImplicitClasses(singl.pathType)
       case _=> {
         ScType.extractClassType(tp) match {
@@ -197,7 +201,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
           }
         } else p
       }
-      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty)
+      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty, place.getResolveScope)
 
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, place, true)) =>

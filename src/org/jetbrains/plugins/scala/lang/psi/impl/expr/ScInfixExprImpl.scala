@@ -62,9 +62,10 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
             case method: PsiMethod if invocationCount == 1 => {
               buffer += method.getParameterList.getParameters.map({
                 p: PsiParameter => {
-                  val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject))
+                  val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject, getResolveScope))
                   ("", if (!p.isVarArgs) tp else tp match {
                     case ScParameterizedType(_, args) if args.length == 1 => args(0)
+                    case JavaArrayType(arg) => arg
                     case _ => tp
                   })
                 }

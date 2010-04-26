@@ -111,6 +111,25 @@ object NameSuggester {
         if (s != "") add("arrayOf" + s)
         generateNamesByType(des, names, validator)
       }
+      case JavaArrayType(arg) => {
+        //todo: remove duplicate
+        var s = ""
+        arg match {
+          case ValType(name) => {
+            s = name + "s"
+          }
+          case ScTupleType(_) => s = "Tuples"
+          case ScFunctionType(_,_) => s = "Functions"
+          case ScDesignatorType(e) => {
+            val seq: Seq[String] = getCamelNames(e.getName)
+            if (seq.length > 0) {
+              s = seq(seq.length - 1).substring(0,1).toUpperCase + seq(seq.length - 1).substring(1, seq(seq.length - 1).length) + "s"
+            }
+          }
+          case _ =>
+        }
+        if (s != "") add("arrayOf" + s)
+      }
       case ScParameterizedType(des, typeArgs) => {
         generateNamesByType(des, names, validator)
       }

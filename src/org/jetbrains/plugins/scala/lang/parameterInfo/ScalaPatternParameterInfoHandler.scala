@@ -93,6 +93,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             }
             val generics: Seq[ScType] = p match {
               case pt: ScParameterizedType => pt.typeArgs
+              case JavaArrayType(arg) => Seq(arg)
               case _ => Seq.empty
             }
             if (qual != "scala.Option" || generics.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -105,6 +106,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           clazz.getQualifiedName.startsWith("scala.Tuple") => {
                     tp match {
                       case pt: ScParameterizedType => pt.typeArgs.toSeq
+                      case JavaArrayType(arg) => Seq(arg)
                       case _ => Seq[ScType](tp)
                     }
                   }

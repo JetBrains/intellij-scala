@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInsight.template.macros
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.refactoring.namesSuggester.NameSuggester
 import lang.psi.types.result.{Success, TypingContext}
+import lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -61,6 +61,7 @@ object SuggestNamesUtil {
           items(0) match {
             case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {
               case Success(ScParameterizedType(_, typeArgs), _) => typeArgs(0)
+              case Success(JavaArrayType(arg), _) => arg
               case _ => return Array[String]("x")
             }
             case _ => return Array[String]("x")
