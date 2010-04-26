@@ -29,4 +29,6 @@ class BugTest extends ResolveTestBase {
 //  def testIntegerEqualiity = doTest
   def testEarlyDefinitionsBefore = doTest
   def testFunctionEmptyParamList = doTest
+
+  def testCaseClassObjectStaticImport = doTest
 }
