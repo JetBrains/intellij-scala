@@ -68,7 +68,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   @volatile
   private var modCount: Long = 0
 
-  private def implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
+  def implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
     var tp = cachedImplicitMap
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && modCount == curModCount) {
@@ -109,19 +109,30 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       types.length == 1 && typez.conforms(sig.substitutor.subst(types(0)))
     }).map((sig: Signature) => sig match {
       case phys: PhysicalSignature => {
-        val uSubst = Conformance.undefinedSubst(sig.substitutor.subst(sig.types.apply(0)), typez)  //todo: add missed implicit params
+        var uSubst = Conformance.undefinedSubst(sig.substitutor.subst(sig.types.apply(0)), typez)  //todo: add missed implicit params
+        phys.method match {
+          case fun: ScFunction => {
+            for (tParam <- fun.typeParameters) {
+              uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                sig.substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
+              uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                sig.substitutor.subst(tParam.upperBound.getOrElse(Any)))
+            }
+          }
+          case method: PsiMethod => //nothing to do
+        }
         uSubst.getSubstitutor match {
-          case Some(s) =>  new PhysicalSignature(phys.method, phys.substitutor.followed(s))
-          case _ => sig
+          case Some(s) =>  (new PhysicalSignature(phys.method, phys.substitutor.followed(s)), true)
+          case _ => (sig, false)
         }
       }
-      case _ => sig
+      case _ => (sig, true)
     })
 
     //to prevent infinite recursion
     val functionContext = PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false)
 
-    for (sig <- sigsFound if (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => false})) {
+    for ((sig, pass) <- sigsFound if pass && (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => false})) {
       val set = processor.sig2Method(sig match {case ps: PhysicalSignature => ps.method.asInstanceOf[ScFunctionDefinition]})
       for ((imports, fun) <- set) {
         val rt = sig.substitutor.subst(fun.returnType.getOrElse(Any))
