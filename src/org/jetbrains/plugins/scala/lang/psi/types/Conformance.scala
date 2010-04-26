@@ -110,6 +110,8 @@ object Conformance {
       case (tpt: ScTypeParameterType, _) => return conforms(tpt.lower.v, r, HashSet.empty, undefinedSubst)
       case (_, tpt: ScTypeParameterType) => return conforms(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       case (Null, _) => return (r == Nothing, undefinedSubst)
+      case (AnyRef, Any) => return (false, undefinedSubst)
+      case (AnyRef, AnyVal) => return (false, undefinedSubst)
       case (AnyRef, _: ValType) => return (false, undefinedSubst)
       case (AnyRef, _) => return (true, undefinedSubst)
       case (Singleton, _: ScSingletonType) => return (true, undefinedSubst)
@@ -369,6 +371,16 @@ object Conformance {
 
       case (ScSkolemizedType(_, _, lower, _), _) => return conforms(lower, r, HashSet.empty, undefinedSubst)
       case (ScPolymorphicType(_, _, lower, _), _) => return conforms(lower.v, r, HashSet.empty, undefinedSubst) //todo implement me
+      case (ScExistentialArgument(_, params1, lower1, upper1), ScExistentialArgument(_, params2, lower2, upper2))
+        if params1.isEmpty && params2.isEmpty => {
+        var t = conforms(upper1, upper2, HashSet.empty, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        t = conforms(lower2, lower1, HashSet.empty, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        return (true, undefinedSubst)
+      }
       case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conforms(upper, r, HashSet.empty, undefinedSubst)
       case (ex@ScExistentialType(q, wilds), _) => return conforms(ex.substitutor.subst(q), r, HashSet.empty, undefinedSubst)
       case (_, s: ScSingletonType) => {

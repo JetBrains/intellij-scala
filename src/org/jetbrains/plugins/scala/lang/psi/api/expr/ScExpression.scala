@@ -9,7 +9,6 @@ import types.nonvalue.{TypeParameter, ScMethodType, Parameter, ScTypePolymorphic
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import types.Compatibility.Expression
-import statements.ScFunction
 import base.patterns.ScBindingPattern
 import resolve.ScalaResolveResult
 import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
@@ -19,6 +18,9 @@ import psi.{ScalaPsiUtil}
 import com.intellij.psi.{PsiElement, PsiInvalidElementAccessException}
 import types._
 import nonvalue._
+import collection.{Set, Seq}
+import statements.{ScFunctionDefinition, ScFunction}
+import resolve.processor.MostSpecificUtil
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -76,24 +78,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
         //this functionality for checking if this expression can be implicitly changed and then
         //it will conform to expected type
-        val f = for ((typez, imports) <- expr.allTypesAndImports if typez.conforms(expected)) yield (typez, getClazzForType(typez), imports)
+        val f: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = expr.implicitMap.filter(_._1.conforms(expected))
         if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
         else if (f.length == 0) return defaultResult
         else {
-          var res = f(0)
-          if (res._2 == None) return defaultResult
-          var i = 1
-          while (i < f.length) {
-            val pr = f(i)
-            if (pr._1.equiv(res._1)) {
-              //todo: there are serious overloading resolutions to implement it
-            }
-            else if (pr._2 != None) {
-              if (pr._2.get.isInheritor(res._2.get, true)) res = pr
-              else return defaultResult
-            } else return defaultResult
-            i += 1
-          }
+          var res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
           return (Success(res._1, Some(this)), res._3)
         }
       }
