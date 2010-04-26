@@ -3,5 +3,6 @@ package lang
 package resolve
 
 object ResolveTargets extends Enumeration {
-  val METHOD, VAR, VAL, OBJECT, CLASS, PACKAGE = Value
+  //No case class marker to reject case class in static import when it has companion object
+  val METHOD, VAR, VAL, OBJECT, CLASS, PACKAGE, NO_CASE_CLASS = Value
 }

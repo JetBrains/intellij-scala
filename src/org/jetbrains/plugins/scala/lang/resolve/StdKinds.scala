@@ -5,7 +5,7 @@ package resolve
 import ResolveTargets._
 
 object StdKinds {
-  val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL)
+  val stableQualRef = ValueSet(PACKAGE, OBJECT, VAL, NO_CASE_CLASS)
   val stableQualOrClass = stableQualRef + CLASS
   val noPackagesClassCompletion = ValueSet(OBJECT, VAL, CLASS)
   val stableImportSelector = ValueSet(OBJECT, VAL, VAR, METHOD, PACKAGE, CLASS)
