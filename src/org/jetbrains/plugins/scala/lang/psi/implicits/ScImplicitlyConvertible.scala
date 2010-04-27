@@ -113,10 +113,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         phys.method match {
           case fun: ScFunction => {
             for (tParam <- fun.typeParameters) {
-              uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                sig.substitutor.subst(tParam.lowerBound.getOrElse(Nothing)))
-              uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                sig.substitutor.subst(tParam.upperBound.getOrElse(Any)))
+              val lowerType: ScType = tParam.lowerBound.getOrElse(Nothing)
+              if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                sig.substitutor.subst(lowerType))
+              val upperType: ScType = tParam.upperBound.getOrElse(Any)
+              if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                sig.substitutor.subst(upperType))
             }
           }
           case method: PsiMethod => //nothing to do
