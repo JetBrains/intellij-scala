@@ -12,11 +12,11 @@ import api.base.types._
 import psi.ScalaPsiElementImpl
 import lexer.ScalaTokenTypes
 import psi.types._
+import nonvalue.{ScTypePolymorphicType, ScMethodType}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import collection.Set
 import result.{Failure, TypeResult, Success, TypingContext}
 import scala.None
-import api.base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
 import api.base.patterns.ScReferencePattern
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -27,6 +27,8 @@ import params.ScTypeParam
 import api.expr.{ScNewTemplateDefinition, ScExpression}
 import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import psi.types.Compatibility.Expression
+import lang.resolve.processor.MostSpecificUtil
+import api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -105,26 +107,45 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 else {
                   //ok, let's try to infer generic type
                   var result: TypeResult[ScType] = null
-                  val argClauses= getContext match {
+                  val argClauses = getContext match {
                     case constr: ScConstructor => constr.arguments.map(args => args.exprs).toList
-                  } //todo: add implicit parameters
-                  var filtered = clazz.getConstructors.filter(forFilter(_, subst.followed(undefSubst), argClauses, false))
+                  }
+                  def forFilter(m: PsiMethod, checkWithImplicits: Boolean): Boolean = {
+                    Compatibility.compatible(m, subst.followed(undefSubst),
+                      argClauses.map(_.map(Compatibility.Expression(_))),
+                      checkWithImplicits, getResolveScope)._1
+                  }
+                  var filtered = clazz.getConstructors.filter(forFilter(_, false))
                   val withImplicits = filtered.isEmpty
-                  if (withImplicits) filtered = clazz.getConstructors.filter(forFilter(_, subst.followed(undefSubst), argClauses, true))
-                  val applicable = filtered.map(forMap(_, subst.followed(undefSubst), argClauses, withImplicits, typez))
-                  if (applicable.length == 0) return lift(typez)
-                  val buff = new ArrayBuffer[ScSubstitutor]
-                  def existsBetter(r: PsiMethod): Boolean = {
-                    for ((r1,_) <- applicable if r != r1) {
-                      if (isMoreSpecific(r1, r)) return true
+                  if (withImplicits) filtered = clazz.getConstructors.filter(forFilter(_,  true))
+                  val applicable = filtered
+                  val method = if (applicable.isEmpty) return lift(typez)
+                  else {
+                    MostSpecificUtil(this, if (argClauses.isEmpty) 0 else argClauses(0).length).
+                            mostSpecificForPsiMethod(applicable.toSet) match {
+                      case Some(r) => r
+                      case None => return lift(typez)
                     }
-                    false
                   }
-                  for ((r, g) <- applicable if !existsBetter(r)) {
-                    buff += g
+                  var resType = method match {
+                    case fun: ScFunction => subst.subst(fun.polymorphicType(Some(typez)))
+                    case pr: ScPrimaryConstructor => subst.subst(pr.polymorphicType)
+                    case method: PsiMethod =>
+                      ResolveUtils.javaPolymorphicType(method, subst, getResolveScope, Some(typez))
                   }
-                  if (buff.size != 1) return lift(typez)
-                  else return lift(buff.apply(0).subst(typez))
+                  val iterator = argClauses.iterator
+                  while (iterator.hasNext) {
+                    val argumentExpressions = iterator.next
+                    resType match {
+                      case ScFunctionType(retType: ScType, params: Seq[ScType]) => resType = retType
+                      case ScMethodType(retType, _, _) => resType = retType
+                      case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
+                        val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+                        resType = ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
+                      }
+                    }
+                  }
+                  return lift(resType)
                 }
               }
               else result
@@ -134,105 +155,6 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         }
         case _ => result
       }
-    }
-  }
-
-  /**
-   * Filtering if this constructor is ok for applying to this invocation
-   */
-  private def forFilter(m: PsiMethod, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]],
-                        checkWithImplicits: Boolean): Boolean = {
-    Compatibility.compatible(m, subst, argClauses.map(_.map(Compatibility.Expression(_))), checkWithImplicits, getResolveScope)._1
-  }
-
-  /**
-   * Getting right substitutor after local type inference
-   */
-  private def forMap(m: PsiMethod, subst: ScSubstitutor, argClauses: List[Seq[ScExpression]],
-                        checkWithImplicits: Boolean, typez: ScType): (PsiMethod, ScSubstitutor) = {
-    val expected: Option[ScType] = {
-      getContext match {
-        case constr: ScConstructor => {
-          constr.getContext match {
-            case par: ScClassParents => {
-              par.getContext match {
-                case ext: ScExtendsBlock => {
-                  ext.getContext match {
-                    case templ: ScNewTemplateDefinition => templ.expectedType
-                    case _ => None
-                  }
-                }
-                case _ => None
-              }
-            }
-            case _ => None
-          }
-        }
-        case _ => None
-      }
-    }
-    val clazz = m.getContainingClass
-    clazz match {
-      case owner: ScTypeParametersOwner => {
-        var s = Compatibility.compatible(m, subst, argClauses.map(_.map(Expression(_))), checkWithImplicits, getResolveScope)._2
-        for (tParam <- owner.typeParameters) { //todo: think about view type bound
-          s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.lowerBound.getOrElse(Nothing)))
-          s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), subst.subst(tParam.upperBound.getOrElse(Any)))
-        }
-        expected match {
-          case Some(expected) => {
-            if (Conformance.conforms(expected, subst.subst(typez))) {
-              val uS = Conformance.undefinedSubst(expected, subst.subst(typez))
-              s = s.addSubst(uS)
-            }
-          }
-          case _ =>
-        }
-        s.getSubstitutor match {
-          case Some(s) => (m, s)
-          case None => (m, ScSubstitutor.empty)
-        }
-      }
-      case owner: PsiTypeParameterListOwner => {
-        var s = Compatibility.compatible(owner, subst, argClauses.map(_.map(Expression(_))), checkWithImplicits, getResolveScope)._2
-        for (tParam <- owner.getTypeParameters) {
-          s = s.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Nothing) //todo:
-          s = s.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)), Any) //todo:
-        }
-        expected match {
-          case Some(expected) => {
-            if (Conformance.conforms(expected, subst.subst(typez))) {
-              val uS = Conformance.undefinedSubst(expected, subst.subst(typez))
-              s = s.addSubst(uS)
-            }
-          }
-          case _ =>
-        }
-        s.getSubstitutor match {
-          case Some(s) => (m, s)
-          case None => (m, ScSubstitutor.empty)
-        }
-      }
-    }
-  }
-
-  /**
-   * Can differentiate two method, which one of them is more specific to filter another one
-   */
-  private def isMoreSpecific(e1: PsiMethod, e2: PsiMethod): Boolean = {
-    def getType(e: PsiMethod): ScType = e match {
-      case f: ScFunction => f.getType(TypingContext.empty).getOrElse(Any)
-      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty, getResolveScope)
-    }
-    (e1, e2, getType(e1), getType(e2)) match {
-      case (e1, e2, ScFunctionType(ret1, params1), ScFunctionType(ret2, params2))
-        if e1.isInstanceOf[PsiMethod] || e1.isInstanceOf[ScFun] => {
-          val px = params1.zip(params2).map(p => Compatibility.compatibleWithViewApplicability(p._2, p._1))
-          val compt = px.foldLeft(true)((x: Boolean, z: Boolean) => x && z)
-          compt && params1.length == params2.length
-      }
-      case (_, e2: PsiMethod, _, _) => true
-      case _ => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
     }
   }
 }

@@ -83,8 +83,12 @@ object ResolveUtils {
         else s.subst(ScType.create(pt, m.getProject, scope))
       }).toSeq: _*), m.getProject, scope)
 
-  def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope): ScMethodType = {
-    new ScMethodType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)), m.getParameterList.getParameters.map((param: PsiParameter) => {
+  def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
+    val retType: ScType = returnType match {
+      case None =>s.subst(ScType.create(m.getReturnType, m.getProject, scope))
+      case Some(x) => x
+    }
+    new ScMethodType(retType, m.getParameterList.getParameters.map((param: PsiParameter) => {
       var psiType = param.getType
       if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
@@ -93,10 +97,10 @@ object ResolveUtils {
     }).toSeq, false, m.getProject, scope)
   }
 
-  def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null): NonValueType = {
-    if (m.getTypeParameters.length == 0) return javaMethodType(m, s, scope)
+  def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
+    if (m.getTypeParameters.length == 0) return javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope), m.getTypeParameters.map(tp =>
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
         TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
     }
   }
