@@ -30,6 +30,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r._2, None, r))).map(_.repr)
   }
 
+  def mostSpecificForPsiMethod(applicable: Set[PsiMethod]): Option[PsiMethod] = {
+    mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r, None, r))).map(_.repr)
+  }
+
   private case class InnerScalaResolveResult[T](element: PsiNamedElement, implicitConversionClass: Option[PsiClass],
                                                 repr: T)
 
