@@ -32,4 +32,6 @@ class BugTest extends ResolveTestBase {
 
   def testCaseClassObjectStaticImport = doTest
   def testBufferPlusPlus = doTest
+
+  def testCollectionExpression = doTest
 }

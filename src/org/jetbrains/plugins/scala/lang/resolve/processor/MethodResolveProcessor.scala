@@ -80,10 +80,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
         }
         case cc: ScClass => true
-        case o: ScObject if o.isPackageObject => {
-          addResult(new ScalaResolveResult(o, s, getImports(state), None, implicitConversionClass))
-          return true
-        }
+        case o: ScObject if o.isPackageObject => return true // do not resolve to package object
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
