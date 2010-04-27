@@ -10,7 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.JavaPsiFacade
 import api.base.ScLiteral
 import psi.types._
-import result.{Success, TypingContext}
+import result.{TypeResult, Failure, Success, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +20,7 @@ import result.{Success, TypingContext}
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral{
   override def toString: String = "Literal"
 
-  protected override def innerType(ctx: TypingContext) = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val child = getFirstChild.getNode
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
@@ -43,6 +43,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         if (str != null) new ScDesignatorType(str) else Nothing
       }
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
+      case _ => return Failure("Wrong Psi to get Literal type", Some(this))
     }
     Success(inner, Some(this))
   }
