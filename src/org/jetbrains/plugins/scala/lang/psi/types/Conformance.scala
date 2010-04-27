@@ -22,6 +22,7 @@ import lang.resolve.ScalaResolveResult
 
 object Conformance {
 
+  @deprecated("Use conforms(l, r, true) instead")
   def weakConforms(l: ScType, r: ScType): Boolean = {
     (l, r) match {
       case (Byte, Short | Char | Int | Long | Float | Double) => true
@@ -37,14 +38,29 @@ object Conformance {
    * Checks, whether the following assignment is correct:
    * val x: l = (y: r) 
    */
-  def conforms(l: ScType, r: ScType): Boolean = conforms(l, r, HashSet.empty, new ScUndefinedSubstitutor)._1
+  def conforms(l: ScType, r: ScType, checkWeak: Boolean = false): Boolean =
+    conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, false, checkWeak)._1
 
-  def undefinedSubst(l: ScType, r: ScType): ScUndefinedSubstitutor = conforms(l, r, HashSet.empty, new ScUndefinedSubstitutor)._2
+  def undefinedSubst(l: ScType, r: ScType, checkWeak: Boolean = false): ScUndefinedSubstitutor =
+    conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, false, checkWeak)._2
 
-  private def conforms(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor, noBaseTypes: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+  private def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor,
+                            noBaseTypes: Boolean = false, //todo: remove, not used
+                            checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
 
     var undefinedSubst: ScUndefinedSubstitutor = subst
+
+    if (checkWeak) {
+      (l, r) match {
+        case (Byte, Short | Char | Int | Long | Float | Double) => return (true, undefinedSubst)
+        case (Short, Int | Long | Float | Double) => return (true, undefinedSubst)
+        case (Int, Long | Float | Double) => return (true, undefinedSubst)
+        case (Long, Float | Double) => return (true, undefinedSubst)
+        case (Float, Double) => return (true, undefinedSubst)
+        case _ => 
+      }
+    }
 
     (l, r) match {
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
@@ -55,7 +71,7 @@ object Conformance {
       case _ if l equiv r => return (true, undefinedSubst)
       case (ScMethodType(returnType1, params1, _), ScMethodType(returnType2, params2, _)) => {
         if (params1.length != params2.length) return (false, undefinedSubst)
-        val t = conforms(returnType1, returnType2, HashSet.empty, undefinedSubst)
+        val t = conformsInner(returnType1, returnType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
         var i = 0
@@ -69,10 +85,10 @@ object Conformance {
         if (typeParameters1.length != typeParameters2.length) return (false, undefinedSubst)
         var i = 0
         while (i < typeParameters1.length) {
-          var t = conforms(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
+          var t = conformsInner(typeParameters1(i).lowerType, typeParameters2(i).lowerType, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
-          t = conforms(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
+          t = conformsInner(typeParameters2(i).upperType, typeParameters1(i).lowerType, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
@@ -82,7 +98,7 @@ object Conformance {
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
                   new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
         }), Map.empty, Map.empty)
-        val t = conforms(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
+        val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
         (true, undefinedSubst)
@@ -107,8 +123,8 @@ object Conformance {
           case _ => return (true, undefinedSubst)
         }
       }
-      case (tpt: ScTypeParameterType, _) => return conforms(tpt.lower.v, r, HashSet.empty, undefinedSubst)
-      case (_, tpt: ScTypeParameterType) => return conforms(l, tpt.upper.v, HashSet.empty, undefinedSubst)
+      case (tpt: ScTypeParameterType, _) => return conformsInner(tpt.lower.v, r, HashSet.empty, undefinedSubst)
+      case (_, tpt: ScTypeParameterType) => return conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       case (Null, _) => return (r == Nothing, undefinedSubst)
       case (AnyRef, Any) => return (false, undefinedSubst)
       case (AnyRef, AnyVal) => return (false, undefinedSubst)
@@ -124,7 +140,7 @@ object Conformance {
         while (i < comps1.length) {
           val comp1 = comps1(i)
           val comp2 = comps2(i)
-          val t = conforms(comp1, comp2, HashSet.empty, undefinedSubst)
+          val t = conformsInner(comp1, comp2, HashSet.empty, undefinedSubst)
           if (!t._1) return (false, undefinedSubst)
           else undefinedSubst = t._2
           i = i + 1
@@ -133,25 +149,25 @@ object Conformance {
       }
       case (fun: ScFunctionType, _) => {
         fun.resolveFunctionTrait match {
-          case Some(tp) => return conforms(tp, r, visited, subst, noBaseTypes)
+          case Some(tp) => return conformsInner(tp, r, visited, subst, noBaseTypes)
           case _ => return (false, undefinedSubst)
         }
       }
       case (_, fun: ScFunctionType) => {
         fun.resolveFunctionTrait match {
-          case Some(tp) => return conforms(l, tp, visited, subst, noBaseTypes)
+          case Some(tp) => return conformsInner(l, tp, visited, subst, noBaseTypes)
           case _ => return (false, undefinedSubst)
         }
       }
       case (tuple: ScTupleType, _) => {
         tuple.resolveTupleTrait match {
-          case Some(tp) => return conforms(tp, r, visited, subst, noBaseTypes)
+          case Some(tp) => return conformsInner(tp, r, visited, subst, noBaseTypes)
           case _ => return (false, undefinedSubst)
         }
       }
       case (_, tuple: ScTupleType) => {
         tuple.resolveTupleTrait match {
-          case Some(tp) => return conforms(l, tp, visited, subst, noBaseTypes)
+          case Some(tp) => return conformsInner(l, tp, visited, subst, noBaseTypes)
           case _ => return (false, undefinedSubst)
         }
       }
@@ -167,7 +183,7 @@ object Conformance {
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
           }
           case (_: ScExistentialArgument, _) => {
-            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             else undefinedSubst = y._2
           }
@@ -190,7 +206,7 @@ object Conformance {
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
           }
           case (_: ScExistentialArgument, _) => {
-            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             else undefinedSubst = y._2
           }
@@ -213,7 +229,7 @@ object Conformance {
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
           }
           case (_: ScExistentialArgument, _) => {
-            val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             else undefinedSubst = y._2
           }
@@ -240,12 +256,12 @@ object Conformance {
               val argsPair = (args1Iterator.next, args2Iterator.next)
               tp match {
                 case scp: ScTypeParam if (scp.isContravariant) => {
-                  val y = Conformance.conforms(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
+                  val y = Conformance.conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
                   if (!y._1) return (false, undefinedSubst)
                   else undefinedSubst = y._2
                 }
                 case scp: ScTypeParam if (scp.isCovariant) => {
-                  val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                  val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                   if (!y._1) return (false, undefinedSubst)
                   else undefinedSubst = y._2
                 }
@@ -261,7 +277,7 @@ object Conformance {
                       undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
                     }
                     case (_: ScExistentialArgument, _) => {
-                      val y = Conformance.conforms(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                      val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                       if (!y._1) return (false, undefinedSubst)
                       else undefinedSubst = y._2
                     }
@@ -277,7 +293,7 @@ object Conformance {
       }
       case (c@ScCompoundType(comps, decls, types, _), _) => {
         return (comps.forall(tp => {
-          val t = conforms(r, tp, HashSet.empty, undefinedSubst)
+          val t = conformsInner(r, tp, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
           t._1
         }) && (ScType.extractClassType(r) match {
@@ -288,7 +304,7 @@ object Conformance {
                 sigs.get(sig) match {
                   case None => return (false, undefinedSubst)
                   case Some(t1) => {
-                    val tt = conforms(t, subst.subst(t1), HashSet.empty, undefinedSubst)
+                    val tt = conformsInner(t, subst.subst(t1), HashSet.empty, undefinedSubst)
                     if (!tt._1) return (false, undefinedSubst)
                     else undefinedSubst = tt._2
                   }
@@ -305,19 +321,19 @@ object Conformance {
                     n.info match {
                       case ta: ScTypeAlias => {
                         val s = subst1 followed subst
-                        val tt = conforms(t.upperBound.getOrElse(Any), s.subst(ta.upperBound.getOrElse(Any)), HashSet.empty, undefinedSubst)
+                        val tt = conformsInner(t.upperBound.getOrElse(Any), s.subst(ta.upperBound.getOrElse(Any)), HashSet.empty, undefinedSubst)
                         if (!tt._1) return (false, undefinedSubst)
                         else undefinedSubst = tt._2
-                        val tt2 = conforms(s.subst(ta.lowerBound.getOrElse(Nothing)), t.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
+                        val tt2 = conformsInner(s.subst(ta.lowerBound.getOrElse(Nothing)), t.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
                         if(!tt2._1) return (false, undefinedSubst)
                         else undefinedSubst = tt2._2
                       }
                       case inner: PsiClass => {
                         val des = ScParameterizedType.create(inner, subst1 followed subst)
-                        val tt = conforms(t.upperBound.getOrElse(Any), subst.subst(des), HashSet.empty, undefinedSubst)
+                        val tt = conformsInner(t.upperBound.getOrElse(Any), subst.subst(des), HashSet.empty, undefinedSubst)
                         if (!tt._1) return (false, undefinedSubst)
                         else undefinedSubst = tt._2
-                        val tt2 = conforms(des, t.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
+                        val tt2 = conformsInner(des, t.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
                         if (!tt2._1) return (false, undefinedSubst)
                         else undefinedSubst = tt2._2
                       }
@@ -330,7 +346,7 @@ object Conformance {
           }
           case None => r match {
             case c1@ScCompoundType(comps1, _, _, _) => comps1.forall(tp => {
-              val t = conforms(tp, c, HashSet.empty, undefinedSubst)
+              val t = conformsInner(tp, c, HashSet.empty, undefinedSubst)
               undefinedSubst = t._2
               t._1
             }) && (
@@ -347,7 +363,7 @@ object Conformance {
                                 classSigs.get(s1) match {
                                   case None => false
                                   case Some(rt) => {
-                                    val t = conforms(subst.subst(rt), rt1, HashSet.empty, undefinedSubst)
+                                    val t = conformsInner(subst.subst(rt), rt1, HashSet.empty, undefinedSubst)
                                     undefinedSubst = t._2
                                     t._1
                                   }
@@ -356,7 +372,7 @@ object Conformance {
                             }
                           }
                           case Some(rt) => {
-                            val t = conforms(rt, rt1, HashSet.empty, undefinedSubst)
+                            val t = conformsInner(rt, rt1, HashSet.empty, undefinedSubst)
                             undefinedSubst = t._2
                             t._1
                           }
@@ -369,50 +385,50 @@ object Conformance {
         }), undefinedSubst)
       }
 
-      case (ScSkolemizedType(_, _, lower, _), _) => return conforms(lower, r, HashSet.empty, undefinedSubst)
-      case (ScPolymorphicType(_, _, lower, _), _) => return conforms(lower.v, r, HashSet.empty, undefinedSubst) //todo implement me
+      case (ScSkolemizedType(_, _, lower, _), _) => return conformsInner(lower, r, HashSet.empty, undefinedSubst)
+      case (ScPolymorphicType(_, _, lower, _), _) => return conformsInner(lower.v, r, HashSet.empty, undefinedSubst) //todo implement me
       case (ScExistentialArgument(_, params1, lower1, upper1), ScExistentialArgument(_, params2, lower2, upper2))
         if params1.isEmpty && params2.isEmpty => {
-        var t = conforms(upper1, upper2, HashSet.empty, undefinedSubst)
+        var t = conformsInner(upper1, upper2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
-        t = conforms(lower2, lower1, HashSet.empty, undefinedSubst)
+        t = conformsInner(lower2, lower1, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
         return (true, undefinedSubst)
       }
-      case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conforms(upper, r, HashSet.empty, undefinedSubst)
-      case (ex@ScExistentialType(q, wilds), _) => return conforms(ex.substitutor.subst(q), r, HashSet.empty, undefinedSubst)
+      case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conformsInner(upper, r, HashSet.empty, undefinedSubst)
+      case (ex@ScExistentialType(q, wilds), _) => return conformsInner(ex.substitutor.subst(q), r, HashSet.empty, undefinedSubst)
       case (_, s: ScSingletonType) => {
         ScType.extractClass(l) match {
           case Some(clazz) if clazz.getQualifiedName == "scala.Singleton" => return (true, undefinedSubst)
           case _ => if (conforms(l, s.pathType)) return (true, undefinedSubst)
         }
       }
-      case (_, ScSkolemizedType(_, _, _, upper)) => return conforms(l, upper, HashSet.empty, undefinedSubst)
+      case (_, ScSkolemizedType(_, _, _, upper)) => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
       case (_, ScCompoundType(comps, _, _, _)) => {
         val iterator = comps.iterator
         while (iterator.hasNext) {
           val comp = iterator.next
-          val t = conforms(l, comp, HashSet.empty, undefinedSubst)
+          val t = conformsInner(l, comp, HashSet.empty, undefinedSubst)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)
       }
-      case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty => return conforms(l, upper, HashSet.empty, undefinedSubst)
-      case (_, ex: ScExistentialType) => return conforms(l, ex.skolem, HashSet.empty, undefinedSubst)
+      case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
+      case (_, ex: ScExistentialType) => return conformsInner(l, ex.skolem, HashSet.empty, undefinedSubst)
       case (_, proj: ScProjectionType) => {
         proj.element match {
-          case Some(syntheticClass: ScSyntheticClass) => return conforms(l, syntheticClass.t, HashSet.empty, undefinedSubst)
+          case Some(syntheticClass: ScSyntheticClass) => return conformsInner(l, syntheticClass.t, HashSet.empty, undefinedSubst)
           case _ =>
         }
       }
       case (_, ScPolymorphicType(_, _, _, upper)) => {
         val uBound = upper.v
         ScType.extractClass(uBound) match {
-          case Some(pc) if visited.contains(pc) => return conforms(l, ScDesignatorType(pc), visited + pc, undefinedSubst)
-          case Some(pc) => return conforms(l, uBound, visited + pc, undefinedSubst)
-          case None => return conforms(l, uBound, visited, undefinedSubst)
+          case Some(pc) if visited.contains(pc) => return conformsInner(l, ScDesignatorType(pc), visited + pc, undefinedSubst)
+          case Some(pc) => return conformsInner(l, uBound, visited + pc, undefinedSubst)
+          case None => return conformsInner(l, uBound, visited, undefinedSubst)
         }
       }
       case _ =>
@@ -424,14 +440,14 @@ object Conformance {
         ScType.extractClass(l) match {
           case Some(lClass) => {
             if (rClass.getQualifiedName == "java.lang.Object" ) {
-              return conforms(l, AnyRef, visited, undefinedSubst, noBaseTypes)
+              return conformsInner(l, AnyRef, visited, undefinedSubst, noBaseTypes)
             } else if (lClass.getQualifiedName == "java.lang.Object") {
-              return conforms(AnyRef, r, visited, undefinedSubst, noBaseTypes)
+              return conformsInner(AnyRef, r, visited, undefinedSubst, noBaseTypes)
             }
             val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2
-            val t = conforms(l, tp, visited + rClass, undefinedSubst, true)
+            val t = conformsInner(l, tp, visited + rClass, undefinedSubst, true)
             if (t._1) return (true, t._2)
             else return (false, undefinedSubst)
           }
@@ -444,7 +460,7 @@ object Conformance {
         while (iterator.hasNext) {
           ProgressManager.checkCanceled
           val tp = iterator.next
-          val t = conforms(l, tp, visited, undefinedSubst, true)
+          val t = conformsInner(l, tp, visited, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
         return (false, undefinedSubst)

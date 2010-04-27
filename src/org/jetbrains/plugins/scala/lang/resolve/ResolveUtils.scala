@@ -116,7 +116,7 @@ object ResolveUtils {
               */
               val enclosing = PsiTreeUtil.getContextOfType(scMember, classOf[ScTemplateDefinition], false)
               if (enclosing == null) return true
-              return PsiTreeUtil.isAncestor(enclosing, place, false)
+              return PsiTreeUtil.isContextAncestor(enclosing, place, false)
             }
             am.id match {
               case Some(id: PsiElement) => {
@@ -127,7 +127,8 @@ object ResolveUtils {
                     if (bind == null) return true
                     bind match {
                       case td: ScTemplateDefinition => {
-                        PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                        PsiTreeUtil.isContextAncestor(td, place, false) ||
+                                PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                       }
                       case pack: PsiPackage => {
                         val packageName = pack.getQualifiedName
@@ -154,11 +155,11 @@ object ResolveUtils {
                   classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
                 enclosing match {
                   case td: ScTemplateDefinition => {
-                    PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.
+                    PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                             getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                   }
                   case file: ScalaFile if file.isScriptFile() => {
-                    PsiTreeUtil.isAncestor(file, place, false)
+                    PsiTreeUtil.isContextAncestor(file, place, false)
                   }
                   case _ => {
                     val packageName = enclosing match {
@@ -188,7 +189,7 @@ object ResolveUtils {
                     if (bind == null) return true
                     bind match {
                       case td: ScTemplateDefinition => {
-                        if (PsiTreeUtil.isAncestor(td, place, false) || PsiTreeUtil.isAncestor(ScalaPsiUtil.
+                        if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                                 getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
                       }
                       case pack: PsiPackage => { //like private (nothing related to real life)
@@ -213,8 +214,8 @@ object ResolveUtils {
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
             enclosing match {
               case td: ScTypeDefinition => {
-                if (PsiTreeUtil.isAncestor(td, place, false) ||
-                        (withCompanion && PsiTreeUtil.isAncestor(ScalaPsiUtil.getCompanionModule(td).
+                if (PsiTreeUtil.isContextAncestor(td, place, false) ||
+                        (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
                 var placeTd: ScTemplateDefinition = PsiTreeUtil.
                         getContextOfType(place, classOf[ScTemplateDefinition], true)
@@ -247,7 +248,7 @@ object ResolveUtils {
               }
               case td: ScTemplateDefinition => {
                 //it'd anonymous class, has access only inside
-                PsiTreeUtil.isAncestor(td, place, false)
+                PsiTreeUtil.isContextAncestor(td, place, false)
               }
               case _ => {
                 //same as for private

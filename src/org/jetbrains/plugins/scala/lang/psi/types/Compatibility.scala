@@ -22,7 +22,7 @@ import search.GlobalSearchScope
  * @author ven
  */
 object Compatibility {
-  def compatible(l : ScType, r : ScType): Boolean = {
+  def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = {
     if (r conforms l) {
       true
     }
@@ -54,7 +54,8 @@ object Compatibility {
   def checkConformance(checkNames: Boolean,
                                parameters: Seq[Parameter],
                                exprs: Seq[Expression],
-                               checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                               checkWithImplicits: Boolean,
+                               checkWeakConformance: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
     var undefSubst = new ScUndefinedSubstitutor
     if (parameters.length == 0) return (exprs.length == 0, undefSubst)
@@ -72,9 +73,9 @@ object Compatibility {
           val param: Parameter = parameters(getIt)
           val paramType = param.paramType
           (for (exprType <- expr.getTypeAfterImplicitConversion(Some(paramType), checkWithImplicits)._1) yield {
-            if (!Conformance.conforms(paramType, exprType)) false
+            if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) false
             else {
-              undefSubst += Conformance.undefinedSubst(paramType, exprType)
+              undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
               true
             }
           }).getOrElse(true)
@@ -92,9 +93,9 @@ object Compatibility {
             val paramType = param.paramType
             val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
             for (exprType <- expr.getTypeAfterImplicitConversion(Some(Some(tp)), checkWithImplicits)._1) yield {
-              if (!Conformance.conforms(tp, exprType)) return (false, undefSubst)
+              if (!Conformance.conforms(tp, exprType, checkWeakConformance)) return (false, undefSubst)
               else {
-                undefSubst += Conformance.undefinedSubst(tp, exprType)
+                undefSubst += Conformance.undefinedSubst(tp, exprType, checkWeakConformance)
               }
             }
           } else if (!doNoNamed(Expression(expr))) return (false, undefSubst)
@@ -113,8 +114,8 @@ object Compatibility {
               case Some(expr: ScExpression) => {
                 val paramType = param.paramType
                 for (exprType <- expr.getTypeAfterImplicitConversion(Some(Some(paramType)), checkWithImplicits)._1)
-                if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
-                else undefSubst += Conformance.undefinedSubst(paramType, exprType)
+                if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) return (false, undefSubst)
+                else undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
               }
               case _ => return (false, undefSubst)
             }
@@ -133,8 +134,8 @@ object Compatibility {
       val paramType: ScType = parameters.last.paramType
       while (k < exprs.length) {
         for (exprType <- exprs(k).getTypeAfterImplicitConversion(Some(paramType), checkWithImplicits)._1) {
-          if (!Conformance.conforms(paramType, exprType)) return (false, undefSubst)
-          else undefSubst = Conformance.undefinedSubst(paramType, exprType)
+          if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) return (false, undefSubst)
+          else undefSubst = Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
         }
         k = k + 1
       }
@@ -152,11 +153,13 @@ object Compatibility {
 
 
   def compatible(named: PsiNamedElement, substitutor: ScSubstitutor,
-                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean, scope: GlobalSearchScope): (Boolean, ScUndefinedSubstitutor) = {
+                 argClauses: List[Seq[Expression]], checkWithImplicits: Boolean,
+                 scope: GlobalSearchScope, checkWeakConformance: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
-        checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", substitutor.subst(tp), false, false)}, exprs, checkWithImplicits)
+        checkConformance(false, synthetic.paramTypes.map {tp: ScType => Parameter("", substitutor.subst(tp), false,
+          false)}, exprs, checkWithImplicits, checkWeakConformance)
       }
       case fun: ScFunction => {
         val parameters: Seq[ScParameter] =
@@ -164,14 +167,15 @@ object Compatibility {
           else fun.paramClauses.clauses.apply(0).parameters
         val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
         var undefinedSubst = res._2
         if (!res._1) return res
         var i = 1
         while (i < argClauses.length.min(fun.paramClauses.clauses.length)) {
-          val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, {
-            substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
+          val t = checkConformance(true, fun.paramClauses.clauses.apply(i).parameters.map({param: ScParameter =>
+            Parameter(param.getName, {substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i),
+            checkWithImplicits, checkWeakConformance)
           undefinedSubst += t._2
           i += 1
         }
@@ -183,14 +187,16 @@ object Compatibility {
           else constructor.parameterList.clauses.apply(0).parameters
         val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
         var undefinedSubst = res._2
         if (!res._1) return res
         var i = 1
         while (i < argClauses.length.min(constructor.parameterList.clauses.length)) {
-          val t = checkConformance(true, constructor.parameterList.clauses.apply(i).parameters.map({param: ScParameter => Parameter(param.getName, {
+          val t = checkConformance(true, constructor.parameterList.clauses.apply(i).parameters.
+                  map({param: ScParameter => Parameter(param.getName, {
             substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i), checkWithImplicits)
+          }, param.isDefaultParam, param.isRepeatedParameter)}), argClauses.apply(i),
+            checkWithImplicits, checkWeakConformance)
           undefinedSubst += t._2
           i += 1
         }
@@ -206,7 +212,7 @@ object Compatibility {
             case _ => tp
           }
           else tp
-        }, false, param.isVarArgs)}, exprs, checkWithImplicits)
+        }, false, param.isVarArgs)}, exprs, checkWithImplicits, checkWeakConformance)
       }
       case cc: ScClass if cc.isCase => {
         val parameters: Seq[ScParameter] = {
@@ -217,7 +223,7 @@ object Compatibility {
         }
         checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits)
+        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
       }
 
       case _ => (false, new ScUndefinedSubstitutor)

@@ -61,7 +61,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         return Compatibility.checkConformance(false, params2, exprs, false)._1
       }
       case (_, m2: PsiMethod) => return true
-      case (e1, e2) => return Compatibility.compatible(getType(e1), getType(e2))
+      case (e1, e2) => return Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
     }
   }
 
