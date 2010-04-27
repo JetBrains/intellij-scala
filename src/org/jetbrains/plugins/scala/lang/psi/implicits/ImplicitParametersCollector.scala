@@ -181,7 +181,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     }
 
     def isAsSpecificAs(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
-      if (Compatibility.compatible(getType(e1), getType(e2))) return true
+      if (Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))) return true
       if (e2.isInstanceOf[ScFunction] && !e1.isInstanceOf[ScFunction]) return true
       return false
     }

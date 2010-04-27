@@ -45,6 +45,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testOverloadedCall = doTest
 
+  def testPrivateElementFromContext = doTest
+
   def testSCL1760 = doTest
 
   def testSimpleCall = doTest
