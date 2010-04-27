@@ -120,22 +120,6 @@ object ScType {
       }
     }
     case arrayType: PsiArrayType => {
-      /*val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array",
-        if (scope == null) GlobalSearchScope.allScope(project) else scope)
-      var arrayClass: PsiClass = null
-      for (clazz <- arrayClasses) {
-        clazz match {
-          case _: ScClass => arrayClass = clazz
-          case _ =>
-        }
-      }
-      if (arrayClass != null) {
-        val tps = arrayClass.getTypeParameters
-        if (tps.length == 1) {
-          val typeArg = create(arrayType.getComponentType, project, scope)
-          new ScParameterizedType(new ScDesignatorType(arrayClass), Seq(typeArg))
-        } else new ScDesignatorType(arrayClass)
-      } else Nothing*/
       JavaArrayType(create(arrayType.getComponentType, project, scope))
     }
 

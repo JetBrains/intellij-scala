@@ -511,15 +511,16 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
-      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+      new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "foo(" + text) //Method call is not full to reproduce all possibilities
     Expr.parse(builder)
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
     val psi = node.getPsi
     if (psi.isInstanceOf[ScExpression]) {
-      val expr = psi.asInstanceOf[ScExpression]
-      expr.setContext(context, child)
-      return expr
+      val expr = psi.asInstanceOf[ScMethodCall]
+      val res = expr.argumentExpressions.apply(0)
+      res.setContext(context, child)
+      return res
     } else return null
   }
 

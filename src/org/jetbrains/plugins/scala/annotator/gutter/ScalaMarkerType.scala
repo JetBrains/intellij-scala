@@ -159,7 +159,11 @@ object ScalaMarkerType {
       element match {
         case method: PsiMethod if method.getContainingClass != null => {
           val presentation = method.getContainingClass.getPresentation
-          presentation.getPresentableText + " " + presentation.getLocationString
+          if (presentation != null)
+            presentation.getPresentableText + " " + presentation.getLocationString
+          else {
+            throw new AssertionError("Method hasn't presentation. Method text: " + method.getText)
+          }
         }
         case xlass: PsiClass => {
           val presentation = xlass.getPresentation
