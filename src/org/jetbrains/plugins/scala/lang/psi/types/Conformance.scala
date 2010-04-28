@@ -61,9 +61,19 @@ object Conformance {
         case _ => 
       }
     }
-
-    val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
-    if (isEquiv._1) return isEquiv
+    (l, r) match {
+      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
+        return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
+      case (u2: ScUndefinedType, u1: ScUndefinedType) if u2.level > u1.level =>
+        return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
+      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level == u1.level => return (true, undefinedSubst)
+      case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower((u.tpt.name, u.tpt.getId), tp))
+      case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), tp))
+      case _ => {
+        val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
+        if (isEquiv._1) return isEquiv
+      }
+    }
 
     (l, r) match {
       case (ScMethodType(returnType1, params1, _), ScMethodType(returnType2, params2, _)) => {

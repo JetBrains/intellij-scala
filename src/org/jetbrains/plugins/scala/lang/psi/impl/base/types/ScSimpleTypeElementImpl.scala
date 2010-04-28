@@ -29,6 +29,7 @@ import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import psi.types.Compatibility.Expression
 import lang.resolve.processor.MostSpecificUtil
 import api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
+import api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,29 +47,34 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     val result: TypeResult[ScType] = reference match {
       case Some(ref) => ref.qualifier match {
         case Some(q) => wrap(ref.bind) flatMap {
+          //todo: rework alias typees
           case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
             if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
-            else {
-              //todo work with recursive aliases
-              lift(new ScTypeConstructorType(aliasDef, s))
-            }
+            else lift(new ScTypeConstructorType(aliasDef, s))
           }
           case ScalaResolveResult(synth: ScSyntheticClass, _) => lift(synth.t)
           case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
         }
         case None => wrap(ref.bind) flatMap {
-          case ScalaResolveResult(e, s) => e match {
+          case r@ScalaResolveResult(e, s) => e match {
+            //todo: rework alias types
             case aliasDef: ScTypeAliasDefinition =>
               if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
-              else {
-                //todo work with recursive aliases
-                lift(new ScTypeConstructorType(aliasDef, s))
-              }
+              else lift(new ScTypeConstructorType(aliasDef, s))
             case alias: ScTypeAliasDeclaration => lift(new ScTypeAliasType(alias, s))
+
             case tp: PsiTypeParameter => lift(ScalaPsiManager.typeVariable(tp))
             case synth: ScSyntheticClass => lift(synth.t)
+
             case null => lift(Any)
-            case _ => lift(ScDesignatorType(e))
+            case _ => {
+              /*if (r.importsUsed.size == 0) {
+                val clazz = PsiTreeUtil.getContextOfType(ref, classOf[ScTypeDefinition], false)
+                lift(new ScProjectionType(ScDesignatorType(clazz), ref))
+              } else {*/
+                lift(ScDesignatorType(e))
+              /*}*/
+            }
           }
         }
       }
