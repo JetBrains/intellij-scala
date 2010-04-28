@@ -23,6 +23,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import result.{TypingContext, Success}
 import stubs.{ScExtendsBlockStub}
 import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
+import collection.Seq
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -98,7 +99,9 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         }
       }
       case Some(parents: ScTemplateParents) => {
-        parents.superTypes foreach {t => addType(t)}//typeElements foreach {typeElement => addType(typeElement.cachedType)}
+        val parentSupers: Seq[ScType] = parents.superTypes
+        val noInferValueType = getParent.isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
+        parentSupers foreach {t => addType(if (noInferValueType) t else t.inferValueType)}
       }
     }
     buffer.toList
