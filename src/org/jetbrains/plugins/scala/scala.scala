@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala
+package org.jetbrains.plugins
 
-import _root_.com.intellij.psi.{PsiElement, PsiReference}
+import scala.lang.psi.RichPsiElement
 
+import com.intellij.psi.{PsiElement, PsiReference}
 /**
  * Pavel.Fatin, 21.04.2010
  */
 
-object Predef {
+package object scala {
   implicit def toRichObject[T](o: T) = new RichObject[T](o)
+
+  implicit def toRichPsiElement(e: PsiElement) = new RichPsiElement(e)
 
   class RichObject[T](v: T) {
     def toOption: Option[T] = if (v == null) None else Some(v)

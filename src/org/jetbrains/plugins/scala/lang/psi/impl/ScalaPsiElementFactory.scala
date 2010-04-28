@@ -17,7 +17,6 @@ import collection.mutable.HashSet
 import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
 import com.intellij.psi.impl.source.DummyHolderFactory
 import formatting.settings.ScalaCodeStyleSettings
-import lexer.{ScalaLexer}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
@@ -33,6 +32,7 @@ import types._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import lexer.{ScalaTokenTypes, ScalaLexer}
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -524,6 +524,20 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     } else return null
   }
 
+  def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), 
+      ScalaFileType.SCALA_FILE_TYPE, "var f: " + text).asInstanceOf[ScalaFile]
+    dummyFile.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
+  }
+  
+  def createColon(manager: PsiManager): PsiElement = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), 
+      ScalaFileType.SCALA_FILE_TYPE, "var f: Int").asInstanceOf[ScalaFile]
+    dummyFile.getFirstChild.asInstanceOf[ScalaPsiElement].findChildrenByType(ScalaTokenTypes.tCOLON).head
+  }
+  
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,

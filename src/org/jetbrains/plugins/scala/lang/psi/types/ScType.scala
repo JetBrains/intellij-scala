@@ -27,7 +27,11 @@ trait ScType {
 
   def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
-  override def toString = ScType.presentableText(this)
+  def presentableText = ScType.presentableText(this)
+  
+  def canonicalText = ScType.canonicalText(this)
+  
+  override def toString = presentableText
 
   def isValue: Boolean
 
