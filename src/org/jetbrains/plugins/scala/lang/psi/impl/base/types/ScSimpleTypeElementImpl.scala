@@ -145,6 +145,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                       }
                     }
                   }
+
+                  //todo: add implicit parameters
                   return lift(resType)
                 }
               }

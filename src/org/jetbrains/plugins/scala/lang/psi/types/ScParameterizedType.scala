@@ -21,37 +21,12 @@ import com.intellij.psi.{JavaPsiFacade, PsiPackage, PsiTypeParameterListOwner, P
 import api.toplevel.typedef.ScClass
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
-  override def equiv(t: ScType) = t match {
-    case ScDesignatorType(element1) => element == element1
-    case p : ScProjectionType => p equiv this
-    case ScSingletonType(path: ScPathElement) => path match {
-      case ref: ScStableCodeReferenceElement => {
-        ref.bind match {
-          case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == element
-          case _ => false
-        }
-      }
-      case _ => false
-    }
-    case AnyRef => t.equiv(this)
-    case _ => false
-  }
 }
 
 import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi.{PsiTypeParameter, PsiClass}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
-  override def equiv(t: ScType): Boolean = t match {
-    case JavaArrayType(arg2) => arg equiv arg2
-    case ScParameterizedType(des, args) if args.length == 1 => {
-      ScType.extractClass(des) match {
-        case Some(td) if td.getQualifiedName == "scala.Array" => arg equiv args(0)
-        case _ => false
-      }
-    }
-    case _ => false
-  }
 
   def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ScType] = {
     val arrayClasses = JavaPsiFacade.getInstance(project).findClasses("scala.Array", scope)
@@ -104,23 +79,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
   }
 
-  override def equiv(t: ScType): Boolean = t match {
-    case ScParameterizedType(designator1, typeArgs1) => {
-      if (!designator.equiv(designator1)) return false
-      if (typeArgs.length != typeArgs1.length) return false
-      val iterator1 = typeArgs.iterator
-      val iterator2 = typeArgs1.iterator
-      while (iterator1.hasNext && iterator2.hasNext) {
-        if (!iterator1.next.equiv(iterator2.next)) return false
-      }
-      return true
-    }
-    case fun : ScFunctionType => fun equiv this
-    case tuple : ScTupleType => tuple equiv this
-    case a: JavaArrayType => a.equiv(this)
-    case _ => false
-  }
-
   def getTupleType: Option[ScTupleType] = {
     ScType.extractClass(designator) match {
       case Some(clazz) if Option(clazz.getQualifiedName).exists(_.startsWith("scala.Tuple")) && typeArgs.length > 0 => {
@@ -155,13 +113,6 @@ abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameter
 case class ScTypeConstructorType(alias : ScTypeAliasDefinition, override val args : List[ScTypeParameterType],
                                  aliased : Suspension[ScType])
 extends ScPolymorphicType(alias.name, args, aliased, aliased) {
-  override def equiv(t: ScType) = t match {
-    case tct : ScTypeConstructorType => alias == tct.alias && {
-      val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
-      lower.v.equiv(s.subst(tct.lower.v)) && upper.v.equiv(s.subst(tct.upper.v))
-    }
-    case _ => false
-  }
 
   def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
     this(tad, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
@@ -171,16 +122,6 @@ extends ScPolymorphicType(alias.name, args, aliased, aliased) {
 case class ScTypeAliasType(alias : ScTypeAlias, override val args : List[ScTypeParameterType],
                            override val lower : Suspension[ScType], override val upper : Suspension[ScType])
 extends ScPolymorphicType(alias.name, args, lower, upper) {
-    override def equiv(t: ScType) = t match {
-      case tat : ScTypeAliasType => alias == tat.alias && {
-        val s = args.zip(tat.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
-        (CyclicHelper.compute(alias, tat.alias)(() => lower.v.equiv(s.subst(tat.lower.v)) && upper.v.equiv(s.subst(tat.upper.v))) match {
-          case None => true
-          case Some(b) => b
-        })
-      }
-      case _ => false
-    }
 
   def this(ta : ScTypeAlias, s : ScSubstitutor) =
     this(ta, ta.typeParameters.toList.map{new ScTypeParameterType(_, s)},
@@ -212,15 +153,6 @@ extends ScPolymorphicType(name, args, lower, upper) {
       ptp
     )
 
-  override def equiv(t: ScType) = t match {
-    case stp: ScTypeParameterType => (t eq this) ||
-      (CyclicHelper.compute(param, stp.param)(() => lower.v.equiv(stp.lower.v) && upper.v.equiv(stp.upper.v)) match {
-        case None => true
-        case Some(b) => b
-      })
-    case _ => false
-  }
-
   def getId: String = {
     ScalaPsiUtil.getPsiElementId(param)
   }
@@ -232,7 +164,6 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
     this(tpt)
     this.level = level
   }
-  override def equiv(t: ScType): Boolean = t.equiv(tpt)
 
   def inferValueType: ValueType = tpt
 }

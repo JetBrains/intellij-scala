@@ -49,26 +49,4 @@ case class ScSingletonType(path: ScPathElement) extends ValueType {
       }
     }
   }
-
-  override def equiv(t: ScType) = t match {
-    case ScSingletonType(path1) => {
-      def equiv(e1: ScPathElement, e2: ScPathElement): Boolean = {
-        (e1, e2) match {
-          case (r1: ScReferenceElement, r2: ScReferenceElement) =>
-            (r1.resolve, r2.resolve) match {
-              case (null, _) => false
-              case (_, null) => false
-              case (p1, p2) => p1 == p2
-            }
-          case (t1: ScThisReference, t2: ScThisReference) => t1.refTemplate == t2.refTemplate
-          case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate
-          case _ => false
-        }
-      }
-      equiv(path, path1)
-    }
-    case des: ScDesignatorType => des equiv this
-    case proj: ScProjectionType => proj equiv this
-    case _ => false
-  }
 }

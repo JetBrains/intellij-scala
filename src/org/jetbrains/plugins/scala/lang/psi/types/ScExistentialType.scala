@@ -81,30 +81,13 @@ case class ScExistentialType(val quantified : ScType,
     val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p.unpack)}
     skolemSubst.subst(quantified)
   }
-  
-  override def equiv(t : ScType) = t match {
-    case ex : ScExistentialType => {
-        val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
-        wildcards.zip(ex.wildcards) forall {case (w1, w2) => w1.equiv(unify.subst(w2))}
-      } && (substitutor.subst(quantified) equiv ex.substitutor.subst(ex.quantified))
-    case _ => false
-  }
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
                                  val lowerBound : ScType, val upperBound : ScType) extends ValueType {
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
-
-  override def equiv(t : ScType) = t match {
-    case exist : ScExistentialArgument => {
-      val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, ""), p._2)}
-      lowerBound.equiv(s.subst(exist.lowerBound)) && upperBound.equiv(s.subst(exist.upperBound))
-    }
-    case _ => false
-  }
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
 extends ValueType {
-  override def equiv(t: ScType) = this eq t
 }
