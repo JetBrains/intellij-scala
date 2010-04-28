@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.actions
+package org.jetbrains.plugins.scala
+package actions
 
 import _root_.com.intellij.codeInsight.hint.{HintUtil, HintManager, HintManagerImpl}
 import _root_.com.intellij.codeInsight.{TargetElementUtilBase}
@@ -14,7 +15,6 @@ import _root_.com.intellij.ui.LightweightHint
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import _root_.org.jetbrains.plugins.scala.Predef._
 import _root_.org.jetbrains.plugins.scala.ScalaBundle
 
 /**
@@ -48,8 +48,8 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
   }
 
   val typeOf: PsiElement => Option[String] = {
-    case e: ScFunctionDefinition => e.returnType.toOption.map(_ toString)
-    case e: ScReferencePattern => e.getType(TypingContext.empty).toOption.map(_ toString)
+    case e: ScFunctionDefinition => e.returnType.toOption.map(_.presentableText)
+    case e: ScReferencePattern => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
     case e: PsiMethod => e.getReturnType.toOption.map(_ getPresentableText)
     case e: PsiVariable => e.getType.toOption.map(_ getPresentableText)
     case _ => None
