@@ -21,15 +21,11 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testMapAsFunction = doTest
 
-  def testNoSOE = doTest
-
   def testOmittedGenericsWithOurClass = doTest
 
   def testSCL1547 = doTest
 
   def testSCL1644 = doTest
-
-  def testSCL1671 = doTest
 
   def testSCL1687 = doTest
 

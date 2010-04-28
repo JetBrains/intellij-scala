@@ -44,21 +44,6 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
     if (params.length == 0) return returnType.inferValueType
     return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType), project, scope)
   }
-
-  override def equiv(t: ScType): Boolean = {
-    t match {
-      case m: ScMethodType => {
-        if (m.params.length != params.length) return false
-        if (!m.returnType.equiv(returnType)) return false
-        for (i <- 0 until params.length) {
-          if (params(i).isRepeated != m.params(i).isRepeated) return false //todo: Seq[Type] instead of Type*
-          if (!params(i).paramType.equiv(m.params(i).paramType)) return false
-        }
-        return true
-      }
-      case _ => false
-    }
-  }
 }
 
 case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
@@ -74,25 +59,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
-  }
-
-  override def equiv(t: ScType): Boolean = {
-    t match {
-      case p: ScTypePolymorphicType => {
-        if (typeParameters.length != p.typeParameters.length) return false
-        for (i <- 0 until typeParameters.length) {
-          if (!typeParameters(i).lowerType.equiv(p.typeParameters(i).lowerType)) return false
-          if (!typeParameters(i).upperType.equiv(p.typeParameters(i).upperType)) return false
-        }
-        import Suspension._
-        val subst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.zip(p.typeParameters).map({
-          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
-            List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
-        }), Map.empty, Map.empty)
-        subst.subst(internalType).equiv(p.internalType)
-      }
-      case _ => false
-    }
   }
 }
 

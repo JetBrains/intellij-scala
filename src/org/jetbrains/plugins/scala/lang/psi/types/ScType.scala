@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable
 import com.incors.plaf.alloy.de
 
 trait ScType {
-  def equiv(t: ScType): Boolean = t == this
+  def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
 
   def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
@@ -58,14 +58,7 @@ case object Any extends StdType("Any", None)
 
 case object Null extends StdType("Null", Some(AnyRef))
 
-case object AnyRef extends StdType("AnyRef", Some(Any)) {
-  override def equiv(t: ScType): Boolean = {
-    ScType.extractClass(t) match {
-      case Some(clazz) if clazz.getQualifiedName == "java.lang.Object" => true
-      case _ => super.equiv(t)
-    }
-  }
-}
+case object AnyRef extends StdType("AnyRef", Some(Any))
 
 case object Nothing extends StdType("Nothing", None)
 

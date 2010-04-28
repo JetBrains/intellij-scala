@@ -15,50 +15,8 @@ import processor.ResolveProcessor
 * @author ilyas
 */
 
-case class
-ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
+case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends ValueType {
   def resolveResult = ref.bind
 
   lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)
-  
-  override def equiv(t : ScType): Boolean = t match {
-    case ScProjectionType(p1, ref1) => ref1.refName == ref.refName && (projected equiv p1)
-    case ScDesignatorType(des) => projected match {
-      case ScSingletonType(path) => {
-        resolveResult match {
-          case Some(ScalaResolveResult(el: PsiNamedElement, _)) => {
-            el == des
-          }
-          case _ => false
-        }
-      }
-      case ScDesignatorType(_) => resolveResult match {
-        case Some(ScalaResolveResult(el: PsiNamedElement, _)) => el == des
-        case _ => false
-      }
-      case _ => false
-    }
-    case ScSingletonType(path: ScPathElement) => path match {
-      case ref: ScStableCodeReferenceElement => {
-        ref.bind match {
-          case Some(ScalaResolveResult(el, _)) => {
-            this.resolveResult match {
-              case Some(ScalaResolveResult(el2, _)) => el2 == el
-              case _ => false
-            }
-          }
-          case _ => false
-        }
-      }
-      case _ => false
-    }
-    case AnyRef => AnyRef.equiv(this)
-    case t: StdType => {
-      element match {
-        case Some(synth: ScSyntheticClass) => synth.t equiv t
-        case _ => false
-      }
-    }
-    case _ => false
-  }
 }

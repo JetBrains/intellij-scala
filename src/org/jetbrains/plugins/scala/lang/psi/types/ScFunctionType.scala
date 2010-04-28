@@ -30,26 +30,6 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
     this(returnType, params)
     this.project = project
     this.scope = scope
-  } 
-
-  override def equiv(that : ScType): Boolean = that match {
-    case ScFunctionType(rt1, params1) => {
-      if (params1.length != params.length) return false
-      if (!returnType.equiv(rt1)) return false
-      val iter1 = params.iterator
-      val iter2 = params1.iterator
-      while (iter1.hasNext) {
-        if (!iter1.next.equiv(iter2.next)) return false
-      }
-      true
-    }
-    case p: ScParameterizedType => {
-      p.getFunctionType match {
-        case Some(function) => this.equiv(function)
-        case _ => false
-      }
-    }
-    case _ => false
   }
 
   def resolveFunctionTrait: Option[ScParameterizedType] = resolveFunctionTrait(getProject)
@@ -89,24 +69,6 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
   def this(components: Seq[ScType], project: Project) = {
     this(components)
     this.project = project
-  }
-
-  override def equiv(that : ScType): Boolean = that match {
-    case ScTupleType(c1) if c1.length == components.length => {
-      val iter1 = components.iterator
-      val iter2 = c1.iterator
-      while (iter1.hasNext) {
-        if (!iter1.next.equiv(iter2.next)) return false
-      }
-      true
-    }
-    case p: ScParameterizedType => {
-      p.getTupleType match {
-        case Some(tuple) => this.equiv(tuple)
-        case _ => false
-      }
-    }
-    case _ => false
   }
 
   def resolveTupleTrait: Option[ScParameterizedType] = resolveTupleTrait(getProject)
