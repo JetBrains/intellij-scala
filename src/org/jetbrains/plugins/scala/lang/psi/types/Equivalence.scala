@@ -25,6 +25,17 @@ object Equivalence {
     var undefinedSubst = subst
 
     (l, r) match {
+      case (u1: ScUndefinedType, u2: ScUndefinedType) => return (true, undefinedSubst)
+      case (u: ScUndefinedType, rt) => {
+        undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+        undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
+        return (true, undefinedSubst)
+      }
+      case (lt, u: ScUndefinedType) => {
+        undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+        undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
+        return (true, undefinedSubst)
+      }
       case (l: StdType, r: StdType) => (l == r, undefinedSubst)
       case (AnyRef, r) => {
         ScType.extractClass(r) match {
