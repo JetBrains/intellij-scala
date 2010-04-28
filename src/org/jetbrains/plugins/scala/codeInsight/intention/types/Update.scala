@@ -13,49 +13,49 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 
 object Update extends Strategy {
-  def addToFunction(function: ScFunctionDefinition) = {
+  def addToFunction(function: ScFunctionDefinition) {
     function.returnType.foreach {
       addTypeAnnotation(_, function, function.paramClauses)
     }
   }
 
-  def removeFromFunction(function: ScFunctionDefinition) = {
+  def removeFromFunction(function: ScFunctionDefinition) {
     function.returnTypeElement.foreach {
       removeTypeAnnotation(_)
     }
   }
 
-  def addToValue(value: ScPatternDefinition) = {
+  def addToValue(value: ScPatternDefinition) {
     value.getType(TypingContext.empty).toOption.foreach {
       addTypeAnnotation(_, value, value.pList)
     }
   }
 
-  def removeFromValue(value: ScPatternDefinition) = {
+  def removeFromValue(value: ScPatternDefinition) {
     value.typeElement.foreach {
       removeTypeAnnotation(_)
     }
   }
 
-  def addToVariable(variable: ScVariableDefinition) = {
+  def addToVariable(variable: ScVariableDefinition) {
     variable.getType(TypingContext.empty).toOption.foreach {
       addTypeAnnotation(_, variable, variable.pList)
     }
   }
 
-  def removeFromVariable(variable: ScVariableDefinition) = {
+  def removeFromVariable(variable: ScVariableDefinition) {
     variable.typeElement.foreach {
       removeTypeAnnotation(_)
     }
   }
 
-  def addToPattern(pattern: ScBindingPattern) = {
+  def addToPattern(pattern: ScBindingPattern) {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
   }
 
-  def removeFromPattern(pattern: ScTypedPattern) = {
+  def removeFromPattern(pattern: ScTypedPattern) {
     pattern.typePattern.foreach {
       removeTypeAnnotation(_)
     }
