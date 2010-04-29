@@ -81,8 +81,8 @@ abstract class MixinNodes {
   }*/
 
   def mergeSupers (maps : List[Map]) : MultiMap = {
-    maps.foldRight(MultiMap.empty) {
-      (current, res) => {
+    maps.foldLeft(MultiMap.empty) {
+      (res, current) => {
         for ((k, node) <- current) {
           res.addBinding(k, node)
         }
@@ -315,7 +315,7 @@ object MixinNodes {
       }
     }
 
-    val iterator = supers.reverseIterator
+    val iterator = supers.iterator
     while (iterator.hasNext) {
       val tp = iterator.next
       ScType.extractClassType(tp) match {
