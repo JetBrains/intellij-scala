@@ -17,8 +17,12 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   def getFamilyName = ScalaBundle.message("intention.type.annotation.toggle.family")
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
-    def message(key: String) = setText(ScalaBundle.message(key))
-    complete(new Description(message), element)
+    if(element == null) {
+      false
+    } else {
+      def message(key: String) = setText(ScalaBundle.message(key))
+      complete(new Description(message), element)
+    }
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
