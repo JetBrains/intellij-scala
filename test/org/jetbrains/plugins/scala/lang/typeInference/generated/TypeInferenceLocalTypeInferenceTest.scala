@@ -21,6 +21,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testMapAsFunction = doTest
 
+  def testMostSpecificRuleImplicitParameters = doTest
+
   def testOmittedGenericsWithOurClass = doTest
 
   def testSCL1547 = doTest
