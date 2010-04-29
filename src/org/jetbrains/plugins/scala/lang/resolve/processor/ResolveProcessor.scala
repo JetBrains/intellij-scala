@@ -138,7 +138,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case o: ScObject if o.isPackageObject =>
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
-        case _ => addResult(new ScalaResolveResult(named, getSubst(state), getImports(state)))
+        case _ => addResult(new ScalaResolveResult(named, getSubst(state), getImports(state), boundClass = getBoundClass(state)))
       }
     }
     return true

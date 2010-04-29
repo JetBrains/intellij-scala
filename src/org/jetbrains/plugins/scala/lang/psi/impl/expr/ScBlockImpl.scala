@@ -5,7 +5,6 @@ package impl
 package expr
 
 import _root_.scala.collection.mutable.HashMap
-import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScObject}
 import api.toplevel.{ScTypedDefinition}
 import com.intellij.psi.util.PsiTreeUtil
 import types._
@@ -21,6 +20,7 @@ import com.intellij.psi.PsiClass
 import controlFlow.impl.ScalaControlFlowBuilder
 import controlFlow.Instruction
 import api.base.patterns.{ScCaseClause, ScCaseClauses}
+import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTypeDefinition, ScObject}
 
 /**
 * @author ilyas
@@ -82,6 +82,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
               m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
               new ScTypeVariable(typed.name)
             }
+            case _ => t
           }
           case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
           case ScCompoundType(comps, decls, types, s) =>
@@ -106,7 +107,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
     Success(inner, Some(this))
   }
 
-  private def leastClassType(t : ScTypeDefinition) = {
+  private def leastClassType(t : ScTemplateDefinition) = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
       case Some(b: ScTemplateBody) => {
         // jzaugg: Without these type annotations, a class cast exception occured above. I'm not entirely sure why.
