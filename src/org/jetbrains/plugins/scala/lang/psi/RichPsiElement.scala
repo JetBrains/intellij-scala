@@ -51,8 +51,8 @@ class RichPsiElement(delegate: PsiElement) {
   def nextSiblings: Stream[PsiElement] = RichPsiElement.nextSiblingsOf(delegate)
 
   def children: Stream[PsiElement] = {
-    val e = delegate.getFirstChild
-    if (e == null) Empty else RichPsiElement.nextSiblingsOf(e)
+    val child = delegate.getFirstChild
+    if (child == null) Empty else child #:: RichPsiElement.nextSiblingsOf(child)
   }
 
   def parentOfType[T](aClass: Class[T]): Option[T] =
