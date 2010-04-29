@@ -85,8 +85,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = wrap(ref.bind) map { r =>
     r.element match {
-      case td : ScClass => ScParameterizedType.create(td, r.substitutor)
-      case obj : ScObject => new ScDesignatorType (obj)
+      case td : ScClass if td.typeParameters.length > 0 => ScParameterizedType.create(td, r.substitutor)
+      case td: ScClass => new ScDesignatorType(td)
+      case obj : ScObject => new ScDesignatorType(obj)
       case fun: ScFunction /*It's unapply method*/ if (fun.getName == "unapply" || fun.getName == "unapplySeq") && fun.parameters.length == 1 => {
         return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty)
       }
