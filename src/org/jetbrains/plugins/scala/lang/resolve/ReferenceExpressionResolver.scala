@@ -5,11 +5,11 @@ package resolve
 import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
 import _root_.com.intellij.psi.{ResolveResult, PsiElement}
 import processor.MethodResolveProcessor
-import psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.types.Compatibility.Expression._
+import psi.types.{ScFunctionType, ScSubstitutor, ScType}
 
 class ReferenceExpressionResolver(reference: ResolvableReferenceExpression) extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
   case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
@@ -71,8 +71,26 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression) exte
 
     val info = getContextInfo(ref, ref)
 
+    //expectedOption different for cases
+    // val a: (Int) => Int = foo
+    // and for case
+    // val a: (Int) => Int = _.foo
+    val expectedOption = {
+      ref.getText.indexOf("_") match {
+        case -1 => info.expectedType.apply //optimization
+        case _ => {
+          val unders = ScUnderScoreSectionUtil.underscores(ref)
+          if (unders.length != 0) {
+            info.expectedType.apply match {
+              case Some(ScFunctionType(ret, _)) => Some(ret)
+              case x => x
+            }
+          } else info.expectedType.apply
+        }
+      }
+    }
     val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-      getTypeArgs(ref), kinds(ref, ref, incomplete), info.expectedType.apply, info.isUnderscore)
+      getTypeArgs(ref), kinds(ref, ref, incomplete), expectedOption, info.isUnderscore)
 
     val result = reference.doResolve(ref, processor)
 
