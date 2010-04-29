@@ -15,6 +15,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testOptionLub = doTest
 
+  def testOverridingCheck = doTest
+
   def testThisStmt = doTest
 
   def testTryStatement = doTest
