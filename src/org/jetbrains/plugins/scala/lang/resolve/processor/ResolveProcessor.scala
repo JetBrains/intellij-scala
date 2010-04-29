@@ -14,10 +14,12 @@ import psi.api.toplevel.typedef.{ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass}
 import psi.impl.ScPackageImpl
+import collection.mutable.HashSet
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) {
+  protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
   /**
    * Contains highest precedence of all resolve results.
@@ -138,7 +140,22 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case o: ScObject if o.isPackageObject =>
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
-        case _ => addResult(new ScalaResolveResult(named, getSubst(state), getImports(state), boundClass = getBoundClass(state)))
+        case clazz: PsiClass => {
+          if (clazz.getQualifiedName != null) {
+            if (!qualifiedNamesSet.contains(clazz.getQualifiedName)) {
+              if (addResult(new ScalaResolveResult(named, getSubst(state),
+                  getImports(state), boundClass = getBoundClass(state)))) {
+                qualifiedNamesSet.add(clazz.getQualifiedName)
+              }
+            }
+          } else {
+            addResult(new ScalaResolveResult(named, getSubst(state),
+              getImports(state), boundClass = getBoundClass(state)))
+          }
+        }
+        case _ =>
+          addResult(new ScalaResolveResult(named, getSubst(state),
+            getImports(state), boundClass = getBoundClass(state)))
       }
     }
     return true
