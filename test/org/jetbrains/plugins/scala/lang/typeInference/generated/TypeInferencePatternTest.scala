@@ -11,6 +11,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testMatchUnapply = doTest
 
+  def testNamedConstructorPattern = doTest
+
   def testNamingExtractorPattern = doTest
 
   def testOptionOfTuple = doTest
