@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTemplateDefinition}
-import processor.BaseProcessor
+import processor.{MostSpecificUtil, BaseProcessor}
 import result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import collection.mutable.ArrayBuffer
@@ -146,74 +146,12 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         }
       }
       val applicable: Array[ScalaResolveResult] = candidatesSet.toArray.filter(forFilter(_)).map(forMap(_))
-      if (applicable.length <= 1) applicable.toArray
-      else {
-        val buff = new ArrayBuffer[ScalaResolveResult]
-        def existsBetter(r: ScalaResolveResult): Boolean = {
-          for (r1 <- applicable if r != r1) {
-            if (isMoreSpecific(r1.element, r.element)) return true
-          }
-          false
-        }
-        for (r <- applicable if !existsBetter(r)) {
-          buff += r
-        }
-        buff.toArray[T]
+      new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable.toSet) match {
+        case Some(r) => return Array(r)
+        case _ => applicable.toArray[T]
       }
     }
 
-
-    //todo: not sure about this copy works right: needs more think
-    def isMoreSpecific(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
-      val a1 = isAsSpecificAs(e1, e2)
-      val a2 = isAsSpecificAs(e2, e1)
-      (a1, a2) match {
-        case (true, false) => true
-        case (false, true) => false
-        case _ if a1 == a2 => {
-          val e1td = PsiTreeUtil.getContextOfType(e1, classOf[ScTemplateDefinition], true)
-          val e2td = PsiTreeUtil.getContextOfType(e2, classOf[ScTemplateDefinition], true)
-          if (e1td == null && e2td != null) return true
-          if (e2td == null) return false
-          e1td.isInheritor(e2td, true)
-        }
-      }
-    }
-
-    def isAsSpecificAs(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
-      if (Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))) return true
-      if (e2.isInstanceOf[ScFunction] && !e1.isInstanceOf[ScFunction]) return true
-      return false
-    }
-
-    private def getType(e: PsiNamedElement): ScType = e match {
-      case fun: ScFun => new ScFunctionType(fun.retType, collection.immutable.Seq(fun.paramTypes.toSeq: _*),
-        fun.getProject, fun.getResolveScope)
-      case f: ScFunction => {
-        val p = if (PsiTreeUtil.isAncestor(f, place, true))
-          new ScFunctionType(f.declaredType.getOrElse(Any), collection.immutable.Seq(f.paramTypes.toSeq: _*),
-            f.getProject, f.getResolveScope)
-        else f.getType(TypingContext.empty).getOrElse(Any)
-        if (f.parameters.length == 0 || f.paramClauses.clauses.apply(0).isImplicit) {
-          p match {
-            case ScFunctionType(ret, _) => ret
-            case _ => p
-          }
-        } else p
-      }
-      case m: PsiMethod => ResolveUtils.methodType(m, ScSubstitutor.empty, place.getResolveScope)
-
-      case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-        case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, place, true)) =>
-          pd.declaredType match {case Some(t) => t; case None => Nothing}
-        case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, place, true)) =>
-          vd.declaredType match {case Some(t) => t; case None => Nothing}
-        case _ => refPatt.getType(TypingContext.empty).getOrElse(Any)
-      }
-
-      case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Any)
-      case _ => Nothing
-    }
 
     /**
      Pick all type parameters by method maps them to the appropriate type arguments, if they are

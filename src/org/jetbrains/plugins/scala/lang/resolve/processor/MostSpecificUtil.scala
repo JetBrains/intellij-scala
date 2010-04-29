@@ -93,6 +93,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case Some(c2) => if (c1.isInheritor(c2, true)) return true
           case _ =>
         }
+        (ScalaPsiUtil.getCompanionModule(c1), ScalaPsiUtil.getCompanionModule(c2)) match {
+          case (Some(c1), Some(c2)) => if (c1.isInheritor(c2, true)) return true
+          case _ =>
+        }
         return false
       }
       case _ => false
