@@ -18,7 +18,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
                          val nameShadow: Option[String] = None,
                          val implicitConversionClass: Option[PsiClass] = None,
-                         val applicable: Boolean = true) extends ResolveResult {
+                         val applicable: Boolean = true,
+                         val boundClass: PsiClass = null) extends ResolveResult {
 
   def getElement = element
 
@@ -33,7 +34,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
   def isRenamed: Option[String] = nameShadow
 
   def copy(subst: ScSubstitutor = substitutor, applicable: Boolean = applicable): ScalaResolveResult =
-    new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, applicable)
+    new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, applicable, boundClass)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

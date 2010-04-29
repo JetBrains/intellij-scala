@@ -18,10 +18,14 @@ import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import psi.impl.toplevel.synthetic.SyntheticClasses
 import _root_.scala.collection.mutable.HashSet
+import com.intellij.psi.util.PsiTreeUtil
+import toplevel.typedef.ScTemplateDefinition
 
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
+
+  val boundClassKey: Key[PsiClass] = Key.create("bound.class.key")
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
@@ -83,8 +87,45 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
       }
-      case proj: ScProjectionType => proj.resolveResult match {
-        case Some(res) => processElement(res.element, res.substitutor, place, state)
+      //resolve dependent types case
+      case proj@ScProjectionType(des, ref) => proj.resolveResult match {
+        case Some(res) => {
+          val clazz = PsiTreeUtil.getContextOfType(res.element, classOf[PsiClass], true)
+          val subst = if (clazz != null) {
+            des match {
+              case ScDesignatorType(c: PsiClass) if c != clazz =>
+                {
+                  Bounds.superSubstitutor(clazz, c, res.substitutor.bindD(clazz, c)) match {
+                    case Some(s) => {
+                      if (c.isInstanceOf[ScTemplateDefinition]) {
+                        Bounds.putAliases(c.asInstanceOf[ScTemplateDefinition], s)
+                      } else s
+                    }
+                    case _ => res.substitutor.bindD(clazz, c)
+                  }
+                }
+              case ScDesignatorType(elem) if elem != clazz => res.substitutor.bindD(clazz, elem)
+              case s@ScSingletonType(path) => {
+                s.pathType match {
+                  case ScDesignatorType(c: PsiClass) => {
+                    Bounds.superSubstitutor(clazz, c, res.substitutor.bindD(clazz, c)) match {
+                      case Some(s) => {
+                        if (c.isInstanceOf[ScTemplateDefinition]) {
+                          Bounds.putAliases(c.asInstanceOf[ScTemplateDefinition], s)
+                        } else s
+                      }
+                      case _ => res.substitutor.bindD(clazz, c)
+                    }
+                  }
+                  case ScDesignatorType(elem) if elem != clazz => res.substitutor.bindD(clazz, elem)
+                  case _ => res.substitutor
+                }
+              }
+              case _ => res.substitutor
+            }
+          } else res.substitutor
+          processElement(res.element, subst, place, state)
+        }
         case None => true
       }
 
@@ -166,5 +207,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   protected def getImports(state: ResolveState): Set[ImportUsed] = {
     val used = state.get(ImportUsed.key)
     if (used == null) Set[ImportUsed]() else used
+  }
+
+  protected def getBoundClass(state: ResolveState): PsiClass = {
+    state.get(BaseProcessor.boundClassKey)
   }
 }

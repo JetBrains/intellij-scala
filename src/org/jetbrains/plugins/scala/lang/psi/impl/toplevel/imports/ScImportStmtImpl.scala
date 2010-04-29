@@ -82,7 +82,10 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 shadowed += ((selector, result.getElement))
                 if (!processor.execute(result.getElement,
                   (state.put(ResolverEnv.nameKey, selector.importedName).
-                          put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))))) {
+                          put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                          put(BaseProcessor.boundClassKey,
+                    result match {case result: ScalaResolveResult => result.boundClass case _ => null})
+                          ))) {
                   return false
                 }
                 l = l + 1

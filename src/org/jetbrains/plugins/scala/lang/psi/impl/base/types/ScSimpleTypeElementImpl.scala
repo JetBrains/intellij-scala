@@ -29,7 +29,9 @@ import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import psi.types.Compatibility.Expression
 import lang.resolve.processor.MostSpecificUtil
 import api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
-import api.toplevel.typedef.ScTypeDefinition
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
+import api.toplevel.imports.ScImportExpr
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,12 +70,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
             case null => lift(Any)
             case _ => {
-              /*if (r.importsUsed.size == 0) {
-                val clazz = PsiTreeUtil.getContextOfType(ref, classOf[ScTypeDefinition], false)
-                lift(new ScProjectionType(ScDesignatorType(clazz), ref))
-              } else {*/
-                lift(ScDesignatorType(e))
-              /*}*/
+              val clazz = r.boundClass
+              if (clazz != null) {
+                lift(ScProjectionType(ScDesignatorType(clazz), ref))
+              } else lift(ScDesignatorType(e))
             }
           }
         }

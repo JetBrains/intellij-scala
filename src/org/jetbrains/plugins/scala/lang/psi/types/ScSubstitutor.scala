@@ -8,7 +8,6 @@ package types
 
 
 import api.base.ScReferenceElement
-import com.intellij.psi.{PsiTypeParameterListOwner, PsiTypeParameter, PsiSubstitutor, PsiClass}
 import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
 import com.intellij.openapi.project.Project
@@ -16,6 +15,7 @@ import api.statements.ScTypeAlias
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import org.jetbrains.annotations.NotNull
+import com.intellij.psi._
 
 object ScSubstitutor {
   val empty = new ScSubstitutor()
@@ -25,13 +25,21 @@ object ScSubstitutor {
 
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
-                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) {
-  def this() = this (Map.empty, Map.empty, Map.empty)
+                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]],
+                    val dependentMap: Map[PsiClass, PsiNamedElement]) {
+  def this() = this (Map.empty, Map.empty, Map.empty, Map.empty)
 
   def this(tvMap: Map[(String, String), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
-                    outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]], follower: ScSubstitutor) = {
-    this(tvMap, aliasesMap, outerMap)
+                    outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) = {
+    this(tvMap, aliasesMap, outerMap, Map.empty)
+  }
+
+  def this(tvMap: Map[(String, String), ScType],
+                    aliasesMap: Map[String, Suspension[ScType]],
+                    outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]],
+                    dependentMap: Map[PsiClass, PsiNamedElement], follower: ScSubstitutor) = {
+    this(tvMap, aliasesMap, outerMap, dependentMap)
     this.follower = follower
   }
 
@@ -44,26 +52,39 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     /*if (name._1 == "M" && ScType.presentableText(t).startsWith("Nothing[M")) {
       "stop"
     }*/
-    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, outerMap, follower)
+    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, outerMap, dependentMap, follower)
   }
-  def bindA(name: String, t: ScType) = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), outerMap, follower)
-  def bindA(name: String, f: () => ScType) = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), outerMap, follower)
-  def bindO(outer: PsiClass, t: ScType, ref : ScReferenceElement) = new ScSubstitutor(tvMap, aliasesMap, outerMap + ((outer, (t, ref))), follower)
-  def incl(s: ScSubstitutor) = new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap, follower)
-  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap,
+  def bindA(name: String, t: ScType) =
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), outerMap, dependentMap, follower)
+  def bindA(name: String, f: () => ScType) =
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), outerMap, dependentMap, follower)
+  def bindO(outer: PsiClass, t: ScType, ref : ScReferenceElement) =
+    new ScSubstitutor(tvMap, aliasesMap, outerMap + ((outer, (t, ref))), dependentMap, follower)
+  def bindD(outer: PsiClass, elem: PsiNamedElement) =
+    new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap + Tuple(outer, elem), follower)
+  def incl(s: ScSubstitutor) =
+    new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap, dependentMap, follower)
+  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap,
     if (follower != null) follower followed s else s)
 
   def subst(t: ScType): ScType = try {
     if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
   }
   catch {
-    case s: StackOverflowError => throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
+    case s: StackOverflowError =>
+      throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
 
   protected def substInternal(t: ScType) : ScType = t match {
     case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _),
       f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {substInternal _}, t1.getProject)
+    case ScProjectionType(ScDesignatorType(clazz: PsiClass), ref) => {
+      dependentMap.get(clazz) match {
+        case Some(el) => ScProjectionType(ScDesignatorType(el), ref)
+        case _ => t
+      }
+    }
     case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
     case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType), params.map(p => {
       Parameter(p.name, substInternal(p.paramType), p.isDefault, p.isRepeated)
@@ -173,11 +194,11 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case ex@ScExistentialType(q, wildcards) => {
       //remove bound names
       val trunc = aliasesMap -- ex.boundNames
-      new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap, follower).substInternal(q), wildcards)
+      new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap, dependentMap, follower).substInternal(q), wildcards)
     }
     case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
       ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
-        new ScSubstitutor(tvMap, aliasesMap, outerMap)
+        new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap)
         ))
     }
     case _ => t
@@ -189,7 +210,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case ScUndefinedType(tpt) if tps.contains(tpt.param) => false
         case _ => true
       }
-    }), aliasesMap, outerMap, if (follower != null) follower.removeUndefines(tps) else null)
+    }), aliasesMap, outerMap, dependentMap, if (follower != null) follower.removeUndefines(tps) else null)
   }
 }
 

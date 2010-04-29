@@ -115,18 +115,6 @@ abstract class MixinNodes {
     primarySupers
   }
 
-  private def putAliases(template : ScTemplateDefinition, s : ScSubstitutor) = {
-    var run = s
-    for (alias <- template.aliases) {
-      alias match {
-        case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
-          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).getOrElse(Any)})
-        case _ =>
-      }
-    }
-    run
-  }
-
   def build(clazz: PsiClass) : (Map, Map) = build(ScDesignatorType(clazz))
 
   def build(tp : ScType) : (Map, Map) = {
@@ -138,11 +126,11 @@ abstract class MixinNodes {
       case ScDesignatorType(template: ScTypeDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
         val lin = MixinNodes.linearization(template)
-        (if (!lin.isEmpty) lin.tail else lin, putAliases(template, ScSubstitutor.empty))
+        (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(template : ScTemplateDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
-        (MixinNodes.linearization(template), putAliases(template, ScSubstitutor.empty))
+        (MixinNodes.linearization(template), Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -166,7 +154,10 @@ abstract class MixinNodes {
           case Some((superClass, s)) =>
             // Do not include scala.ScalaObject to Predef's base types to prevent SOE
             if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
-              var newSubst = combine(s, subst, superClass)
+              var newSubst = tp match {
+                case ScDesignatorType(c: ScTemplateDefinition) => combine(s, subst, superClass).bindD(superClass, c)
+                case _ => combine(s, subst, superClass)
+              }
               val newMap = new Map
               superClass match {
                 case template : ScTemplateDefinition => {

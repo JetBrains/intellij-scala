@@ -9,6 +9,8 @@ import api.toplevel.typedef.{ScClass, ScTrait, ScTemplateDefinition, ScTypeDefin
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.{GenericsUtil, PsiClass}
 import collection.mutable.{ArrayBuffer, Set, HashSet}
+import api.statements.ScTypeAliasDefinition
+import result.TypingContext
 
 object Bounds {
 
@@ -132,5 +134,17 @@ object Bounds {
         None
       }
     }
+  }
+
+  def putAliases(template : ScTemplateDefinition, s : ScSubstitutor): ScSubstitutor = {
+    var run = s
+    for (alias <- template.aliases) {
+      alias match {
+        case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
+          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).getOrElse(Any)})
+        case _ =>
+      }
+    }
+    run
   }
 }

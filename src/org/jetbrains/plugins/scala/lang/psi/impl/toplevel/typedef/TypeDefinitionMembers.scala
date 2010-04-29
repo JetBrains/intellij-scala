@@ -320,10 +320,15 @@ object TypeDefinitionMembers {
       }
       map
     }
-    processDeclarations(processor, state, lastParent, place, valuesMap, methodMap, getTypes(clazz),
-      clazz.isInstanceOf[ScObject]) &&
-            AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+
+    val boundsState = state.put(BaseProcessor.boundClassKey, clazz)
+    if (!processDeclarations(processor, boundsState, lastParent, place, valuesMap, methodMap, getTypes(clazz),
+      clazz.isInstanceOf[ScObject])) {
+      return false
+    }
+    AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place)
+
   }
 
   def processSuperDeclarations(td: ScTemplateDefinition,
