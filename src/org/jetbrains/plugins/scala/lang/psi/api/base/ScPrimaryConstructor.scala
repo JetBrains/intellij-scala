@@ -62,4 +62,20 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
     else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
   }
+
+  def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
+    clausePosition match {
+      case -1 => {
+        for (param <- parameters if param.name == name) return Some(param)
+        return None
+      }
+      case i if i < 0 => return None
+      case i if i >= parameterList.clauses.length => return None
+      case i => {
+        val clause: ScParameterClause = parameterList.clauses.apply(i)
+        for (param <- clause.parameters if param.name == name) return Some(param)
+        return None
+      }
+    }
+  }
 }

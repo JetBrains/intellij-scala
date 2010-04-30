@@ -4,15 +4,17 @@ package resolve
 
 import _root_.com.intellij.openapi.progress.ProgressManager
 import _root_.com.intellij.psi.impl.PsiManagerEx
-import processor.{CompletionProcessor, BaseProcessor}
+import processor.{ConstructorResolveProcessor, MethodResolveProcessor, CompletionProcessor, BaseProcessor}
 import psi.implicits.ScImplicitlyConvertible
 import _root_.com.intellij.psi.{PsiClass, ResolveState, ResolveResult, PsiElement}
 import psi.api.toplevel.imports.usages.ImportUsed
 import psi.types.result.TypingContext
 import psi.types.{ScSubstitutor, ScType}
 import psi.api.statements.ScFunction
-import psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import psi.types.Compatibility.Expression
+import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
+import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this)
@@ -80,7 +82,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     ref.getContext match {
       case assign: ScAssignStmt if assign.getLExpression == ref &&
               assign.getContext.isInstanceOf[ScArgumentExprList] => processAssignment(assign, ref, processor)
-      case _ => //todo: constructors
+      case _ =>
     }
     treeWalkUp(ref, null)
   }
@@ -91,9 +93,52 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         val exprs = args.exprs
         args.callReference match {
           case Some(callReference) => processCallReference(args, callReference, ref, processor)
-          case None =>
+          case None => processConstructorReference(args, ref, processor)
         }
       }
+    }
+  }
+
+  private def processConstructorReference(args: ScArgumentExprList, ref: ResolvableReferenceExpression,
+                                          baseProcessor: BaseProcessor): Unit = {
+    args.getContext match {
+      case constr: ScConstructor => {
+        val te: ScTypeElement = constr.typeElement
+        val tp: ScType = te.getType(TypingContext.empty).getOrElse(return)
+        val typeArgs: Seq[ScTypeElement] = te match {
+          case p: ScParameterizedTypeElement => p.typeArgList.typeArgs
+          case _ => Seq.empty[ScTypeElement]
+        }
+        ScType.extractClassType(tp) match {
+          case Some((clazz, subst)) => {
+            val processor: ConstructorResolveProcessor = new ConstructorResolveProcessor(constr,
+              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs)
+            val state = ResolveState.initial.put(ScSubstitutor.key, subst)
+            for (constr <- clazz.getConstructors) {
+              processor.execute(constr, state)
+            }
+            for (candidate <- processor.candidates) {
+              candidate match {
+                case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
+                  fun.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
+                    case Some(param) => baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
+                    case None =>
+                  }
+                }
+                case ScalaResolveResult(constructor: ScPrimaryConstructor, _) => {
+                  constructor.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
+                    case Some(param) => baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
+                    case None =>
+                  }
+                }
+                case _ =>
+              }
+            }
+          }
+          case _ =>
+        }
+      }
+      case _ =>
     }
   }
 
