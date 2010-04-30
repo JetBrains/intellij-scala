@@ -104,7 +104,7 @@ trait ScPattern extends ScalaPsiElement {
                     if (t) {
                       val undefSubst = Conformance.undefinedSubst(tp, clazzType)
                       undefSubst.getSubstitutor match {
-                        case Some(newSubst) => substitutor.followed(newSubst)
+                        case Some(newSubst) => newSubst.followed(substitutor)
                         case _ => substitutor
                       }
                     } else substitutor

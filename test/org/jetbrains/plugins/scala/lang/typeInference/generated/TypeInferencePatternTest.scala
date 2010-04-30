@@ -9,6 +9,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testInfixToTypeAlias = doTest
 
+  def testLocalTypeInference = doTest
+
   def testMatchUnapply = doTest
 
   def testNamedConstructorPattern = doTest
