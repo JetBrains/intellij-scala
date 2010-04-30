@@ -33,7 +33,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
       
       val manager = ScalaCachesManager.getInstance(getProject)
       val cache = manager.getNamesCache
-      val obj = cache.getPackageObjectByName(getQualifiedName, getResolveScope)
+      val obj = cache.getPackageObjectByName(getQualifiedName, place.getResolveScope)
       if (obj != null) {
         if (!obj.processDeclarations(processor, state, lastParent, place)) return false
       }
