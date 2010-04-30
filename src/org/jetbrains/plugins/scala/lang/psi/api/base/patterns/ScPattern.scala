@@ -7,6 +7,7 @@ package patterns
 
 import collection.mutable.ArrayBuffer
 import psi.types._
+import nonvalue.{ScMethodType, ScTypePolymorphicType}
 import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
@@ -142,7 +143,26 @@ trait ScPattern extends ScalaPsiElement {
           case _ => None
         }
       }
-      case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapply" => {
+      case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.getName == "unapply" => {
+        val subst = if (fun.typeParameters.length == 0) substitutor else {
+          val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+              substitutor))))
+          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty).getOrElse(return None))
+          expected match {
+            case Some(tp) => {
+              val t = Conformance.conforms(tp, funType)
+              if (t) {
+                val undefSubst = Conformance.undefinedSubst(tp, funType)
+                undefSubst.getSubstitutor match {
+                  case Some(newSubst) => newSubst.followed(substitutor)
+                  case _ => substitutor
+                }
+              } else substitutor
+            }
+            case _ => substitutor
+          }
+        }
         for (rt <- fun.returnType) {
           if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
           subst.subst(rt) match {
@@ -175,7 +195,26 @@ trait ScPattern extends ScalaPsiElement {
         }
         None
       }
-      case Some(ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor)) if fun.getName == "unapplySeq" => {
+      case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.getName == "unapplySeq" => {
+         val subst = if (fun.typeParameters.length == 0) substitutor else {
+          val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+              substitutor))))
+          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty).getOrElse(return None))
+          expected match {
+            case Some(tp) => {
+              val t = Conformance.conforms(tp, funType)
+              if (t) {
+                val undefSubst = Conformance.undefinedSubst(tp, funType)
+                undefSubst.getSubstitutor match {
+                  case Some(newSubst) => newSubst.followed(substitutor)
+                  case _ => substitutor
+                }
+              } else substitutor
+            }
+            case _ => substitutor
+          }
+        }
         for (rt <- fun.returnType) {
           subst.subst(rt) match {
             case ScParameterizedType(des, args) if (ScType.extractClass(des) match {

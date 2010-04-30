@@ -24,4 +24,6 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
   def testPatternUnapply = doTest
 
   def testRangeMapping = doTest
+
+  def testUnapplySeqLocalTypeInference = doTest
 }
