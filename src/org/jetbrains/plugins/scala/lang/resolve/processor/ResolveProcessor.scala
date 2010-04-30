@@ -144,7 +144,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           if (clazz.getQualifiedName != null) {
             if (!qualifiedNamesSet.contains(clazz.getQualifiedName)) {
               if (addResult(new ScalaResolveResult(named, getSubst(state),
-                  getImports(state), boundClass = getBoundClass(state)))) {
+                   getImports(state), boundClass = getBoundClass(state)))) {
                 qualifiedNamesSet.add(clazz.getQualifiedName)
               }
             }
