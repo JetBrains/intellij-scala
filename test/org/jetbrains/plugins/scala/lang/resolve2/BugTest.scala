@@ -34,4 +34,7 @@ class BugTest extends ResolveTestBase {
   def testBufferPlusPlus = doTest
 
   def testCollectionExpression = doTest
+
+  def testNamedConstructorParam = doTest
+  def testNamedConstructorThisParam = doTest
 }

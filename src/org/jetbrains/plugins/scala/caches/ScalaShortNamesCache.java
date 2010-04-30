@@ -89,7 +89,8 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   }
 
   public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(),
+        myProject, new ScalaSourceFilterScope(scope, myProject));
     ArrayList<ScTypeDefinition> list = new ArrayList<ScTypeDefinition>();
     for (PsiClass psiClass : classes) {
       if (fqn.equals(psiClass.getQualifiedName())) {
