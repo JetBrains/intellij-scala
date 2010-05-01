@@ -8,7 +8,6 @@ import com.intellij.psi._
 
 import _root_.scala.collection.Set
 import collection.mutable.HashSet
-import processor.ResolverEnv
 import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 
 import psi.api.toplevel.typedef.ScTypeDefinition
@@ -60,7 +59,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               }
             }
             case bindingPattern: ScBindingPattern => {
-              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Seq.empty, 0, substitutor)
+              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Stream.empty, 0, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
                 candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed)

@@ -12,13 +12,13 @@ import psi.impl.ScalaPsiManager
 import result.TypingContext
 import com.intellij.psi._
 
-class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val paramLength: Int,
+class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
 
-  def this(name: String, seq: Seq[ScType], paramLength: Int, substitutor: ScSubstitutor) =
-    this (name, Suspension.any2Susp(seq), paramLength, Array[PsiTypeParameter](), substitutor)
+  def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor) =
+    this (name, stream, paramLength, Array[PsiTypeParameter](), substitutor)
 
-  def types = typesEval.v
+  def types = typesEval
 
   def substitutedTypes = types.map(substitutor.subst(_))
 
@@ -65,11 +65,7 @@ class Signature(val name: String, val typesEval: Suspension[Seq[ScType]], val pa
 
 import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
-  extends Signature(method.getName,
-                     new Suspension(() => collection.immutable.Seq(method.getParameterList.getParameters.map({p => p match {
-                                                                  case scp : ScParameter => scp.getType(TypingContext.empty).getOrElse(Nothing)
-                                                                  case _ => ScType.create(p.getType, p.getProject)
-                                                                }}).toSeq :_*)),
+  extends Signature(method.getName, ScalaPsiUtil.getTypesStream(method.getParameterList.getParameters.toList),
                      method.getParameterList.getParameters.length,
                      method.getTypeParameters,
                      substitutor) {

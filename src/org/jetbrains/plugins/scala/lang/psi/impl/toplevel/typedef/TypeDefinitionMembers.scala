@@ -221,12 +221,12 @@ object TypeDefinitionMembers {
           case _var: ScVariable if !noPrivates || !_var.hasModifierProperty("private") =>
             for (dcl <- _var.declaredElements) {
               val t = dcl.getType(TypingContext.empty).getOrElse(Any)
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), t, dcl)
-              addSignature(new Signature(dcl.name + "_", Seq.singleton(t), 1, subst), Unit, dcl)
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), t, dcl)
+              addSignature(new Signature(dcl.name + "_", Stream.apply(t), 1, subst), Unit, dcl)
             }
           case _val: ScValue if !noPrivates || !_val.hasModifierProperty("private") =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Seq.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
             }
           case constr: ScPrimaryConstructor => {
             val isCase: Boolean = template match {
@@ -236,8 +236,8 @@ object TypeDefinitionMembers {
             val parameters = if (isCase) constr.parameters else constr.valueParameters
             for (param <- parameters if !noPrivates || !param.hasModifierProperty("private")) {
               val t = param.getType(TypingContext.empty).getOrElse(Any)
-              addSignature(new Signature(param.name, Seq.empty, 0, subst), t, param)
-              if (!param.isStable) addSignature(new Signature(param.name + "_", Seq.singleton(t), 1, subst), Unit, param)
+              addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
+              if (!param.isStable) addSignature(new Signature(param.name + "_", Stream.apply(t), 1, subst), Unit, param)
             }
           }
           case f: ScFunction if !noPrivates || (!f.isConstructor && !f.hasModifierProperty("private")) => 
@@ -289,8 +289,7 @@ object TypeDefinitionMembers {
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
     def methodMap: MethodNodes.Map = {
-      val map: MethodNodes.Map = new MethodNodes.Map
-      map ++= getMethods(clazz)
+      val map: MethodNodes.Map = getMethods(clazz)
       if (!processor.isInstanceOf[BaseProcessor]) {
         clazz match {
           case td: ScTypeDefinition => {
@@ -305,8 +304,7 @@ object TypeDefinitionMembers {
       map
     }
     def valuesMap: ValueNodes.Map = {
-      val map: ValueNodes.Map = new ValueNodes.Map
-      map ++= getVals(clazz)
+      val map: ValueNodes.Map = getVals(clazz)
       if (!processor.isInstanceOf[BaseProcessor]) {
         clazz match {
           case td: ScTypeDefinition => {

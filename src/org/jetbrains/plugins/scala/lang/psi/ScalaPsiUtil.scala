@@ -33,12 +33,33 @@ import com.intellij.util.ArrayFactory
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
+import collection.immutable.Stream
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
+  def getTypesStream(elems: List[PsiParameter]): Stream[ScType] = {
+    if (elems.isEmpty) return Stream.empty
+    new Stream[ScType] {
+      override def head: ScType = elems.head match {
+        case scp : ScParameter => scp.getType(TypingContext.empty).getOrElse(Nothing)
+        case p => ScType.create(p.getType, p.getProject)
+      }
+
+      override def isEmpty: Boolean = false
+
+      private[this] var tlVal: Stream[ScType] = null
+      def tailDefined = tlVal ne null
+
+      override def tail: Stream[ScType] = {
+        if (!tailDefined) tlVal = getTypesStream(elems.tail)
+        tlVal
+      }
+    }
+  }
+
   def getPsiElementId(elem: PsiElement): String = {
     if (elem != null && elem.isValid) {
       " in:" + (if (elem.getContainingFile != null)elem.getContainingFile.getName else "NoFile") + ":" +
@@ -196,7 +217,7 @@ object ScalaPsiUtil {
     genericCallSubstitutor(tp, typeArgs)
   }
 
-  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Seq.empty, 0, ScSubstitutor.empty)
+  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Stream.empty, 0, ScSubstitutor.empty)
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
     val empty = Seq.empty
