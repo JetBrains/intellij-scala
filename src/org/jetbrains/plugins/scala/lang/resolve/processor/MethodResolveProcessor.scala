@@ -7,6 +7,7 @@ import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import params.ScTypeParam
 import psi.types._
 
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
@@ -104,31 +105,37 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   private def isApplicable(c: ScalaResolveResult, checkWithImplicits: Boolean): Boolean = {
-    def getTypeArgumentsSubstitutor: ScSubstitutor = {
-      if (typeArgElements.length  != 0) {
-        c.element match {
-          case t: ScTypeParametersOwner if t.typeParameters.length == typeArgElements.length => {
-            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          }
-          case p: PsiTypeParameterListOwner if p.getTypeParameters.length == typeArgElements.length => {
-            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p => (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          }
-          case _ => ScSubstitutor.empty
+    val substitutor: ScSubstitutor = {
+      c.element match {
+        case t: ScTypeParametersOwner => {
+          c.substitutor.followed(
+          if (typeArgElements.length  != 0 && t.typeParameters.length == typeArgElements.length ) {
+            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p =>
+              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            t.typeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: ScTypeParam) =>
+                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
         }
-      } else ScSubstitutor.empty
-    }
-
-    val substitutor: ScSubstitutor =
-    MostSpecificUtil(ref, 0 /*doesn't matter*/).getType(c.element) match {
-      case ScTypePolymorphicType(_, typeParams) => {
-        val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-          (subst: ScSubstitutor, tp: TypeParameter) =>
-            subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+        case p: PsiTypeParameterListOwner => {
+          c.substitutor.followed(
+          if (typeArgElements.length  != 0 && p.getTypeParameters.length == typeArgElements.length) {
+            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
+              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
+                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
         }
-        c.substitutor.followed(s).followed(getTypeArgumentsSubstitutor)
+        case _ => c.substitutor
       }
-      case _ => c.substitutor.followed(getTypeArgumentsSubstitutor)
-    }
+    } 
 
     def checkFunction(fun: PsiNamedElement): Boolean = {
       fun match {
