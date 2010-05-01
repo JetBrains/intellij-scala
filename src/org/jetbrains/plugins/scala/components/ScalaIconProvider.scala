@@ -18,7 +18,9 @@ class ScalaIconProvider extends IconProvider {
       if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO
       val name = file.getVirtualFile.getNameWithoutExtension
       val defs = file.typeDefinitions
-      for (val clazz <- defs) {
+      val clazzIterator = defs.iterator
+      while (clazzIterator.hasNext) {
+        val clazz = clazzIterator.next
         if (name.equals(clazz.getName)) return clazz.getIcon(flags)
       }
       if (!defs.isEmpty) return defs(0).getIcon(flags)

@@ -156,8 +156,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
-      for (n <- getNode.getChildren(null); child = n.getPsi) {
-        child match {
+      val childrenIterator = getNode.getChildren(null).iterator
+      while (childrenIterator.hasNext) {
+        val n = childrenIterator.next
+        n.getPsi match {
           case _: ScPackaging => return false
           case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
           case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true

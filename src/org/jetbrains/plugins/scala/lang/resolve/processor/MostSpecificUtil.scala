@@ -118,10 +118,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   }
 
   private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
-    for (a1 <- applicable) {
+    val a1iterator = applicable.iterator
+    while (a1iterator.hasNext) {
+      val a1 = a1iterator.next
       var break = false
-      for (a2 <- applicable if a1 != a2 && !break) {
-        if (!isMoreSpecific(a1, a2)) break = true
+      val a2iterator = applicable.iterator
+      while (a2iterator.hasNext && !break) {
+        val a2 = a2iterator.next
+        if (a1 != a2 && !isMoreSpecific(a1, a2)) break = true
       }
       if (!break) return Some(a1)
     }
