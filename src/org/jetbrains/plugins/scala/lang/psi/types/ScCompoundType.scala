@@ -16,7 +16,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
                           val typeDecls: Seq[ScTypeAlias], val subst: ScSubstitutor) extends ValueType {
   //compound types are checked by checking the set of signatures in their refinements
   val signatureMap = new HashMap[Signature, ScType] {
-    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.types.length
+    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.paramLength
   }
 
   type Bounds = Pair[ScType, ScType]
@@ -37,8 +37,8 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
           case Some(te) => for (e <- varDecl.declaredElements) {
             val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
             varType match {case f@Failure(_, _) => problems += f; case _ =>}
-            signatureMap += ((new Signature(e.name, Seq.empty, 0, subst), varType.getOrElse(Any)))
-            signatureMap += ((new Signature(e.name + "_", Seq.singleton(varType.getOrElse(Any)), 1, subst), Unit)) //setter
+            signatureMap += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrElse(Any)))
+            signatureMap += ((new Signature(e.name + "_", Stream(varType.getOrElse(Any)), 1, subst), Unit)) //setter
           }
           case None =>
         }
@@ -47,7 +47,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
         case Some(te) => for (e <- valDecl.declaredElements) {
           val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
           valType match {case f@Failure(_, _) => problems += f; case _ =>}
-          signatureMap += ((new Signature(e.name, Seq.empty, 0, subst), valType.getOrElse(Any)))
+          signatureMap += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrElse(Any)))
         }
         case None =>
       }

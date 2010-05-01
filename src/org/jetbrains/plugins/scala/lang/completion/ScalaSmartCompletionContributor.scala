@@ -187,7 +187,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           } else {
             for (rOpType <- infix.rOp.getType(TypingContext.empty)) {
               val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty, ScSubstitutor.empty)
-              compoundType.signatureMap += Tuple2(new Signature(op, Seq[ScType](rOpType), 1, ScSubstitutor.empty),
+              compoundType.signatureMap += Tuple2(new Signature(op, Stream.apply(rOpType), 1, ScSubstitutor.empty),
                 types.Any)
               typez += compoundType
             }
@@ -197,7 +197,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           if (op.endsWith(":")) {
             for (lOpType <- infix.lOp.getType(TypingContext.empty)) {
               val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty, ScSubstitutor.empty)
-              compoundType.signatureMap += Tuple(new Signature(op, Seq[ScType](lOpType), 1, ScSubstitutor.empty),
+              compoundType.signatureMap += Tuple(new Signature(op, Stream.apply(lOpType), 1, ScSubstitutor.empty),
                 types.Any)
               typez += compoundType
             }

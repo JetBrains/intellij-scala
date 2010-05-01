@@ -81,14 +81,16 @@ abstract class MixinNodes {
   }*/
 
   def mergeSupers (maps : List[Map]) : MultiMap = {
-    maps.foldLeft(MultiMap.empty) {
-      (res, current) => {
-        for ((k, node) <- current) {
-          res.addBinding(k, node)
-        }
-        res
+    val res = MultiMap.empty
+    val mapsIterator = maps.iterator
+    while (mapsIterator.hasNext) {
+      val currentIterator = mapsIterator.next.iterator
+      while (currentIterator.hasNext) {
+        val (k, node) = currentIterator.next
+        res.addBinding(k, node)
       }
     }
+    return res
   }
 
   //Return primary selected from supersMerged

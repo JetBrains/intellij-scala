@@ -308,7 +308,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
     }
 
-    for (implObj <- ImplicitlyImported.objects) {
+    val implObjIter = ImplicitlyImported.objects.iterator
+    while (implObjIter.hasNext) {
+      val implObj = implObjIter.next
       ProgressManager.checkCanceled
       val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
@@ -316,19 +318,25 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     import toplevel.synthetic.SyntheticClasses
 
-    for (synth <- SyntheticClasses.get(getProject).getAll) {
+    val synthIterator = SyntheticClasses.get(getProject).getAll.iterator
+    while (synthIterator.hasNext) {
+      val synth = synthIterator.next
       ProgressManager.checkCanceled
       if (!processor.execute(synth, state)) return false
     }
 
     if (isScriptFile) {
-      for (syntheticValue <- SyntheticClasses.get(getProject).getScriptSyntheticValues) {
+      val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
+      while (syntheticValueIterator.hasNext) {
+        val syntheticValue = syntheticValueIterator.next
         ProgressManager.checkCanceled
         if (!processor.execute(syntheticValue, state)) return false
       }
     }
 
-    for (implP <- ImplicitlyImported.packages) {
+    val implPIterator = ImplicitlyImported.packages.iterator
+    while (implPIterator.hasNext) {
+      val implP = implPIterator.next
       ProgressManager.checkCanceled
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
