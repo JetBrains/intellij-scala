@@ -40,7 +40,7 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
     if (stub != null) {
       return stub.asInstanceOf[ScImportSelectorStub].reference
     }
-    findChildByClass(classOf[ScStableCodeReferenceElement])
+    (getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null})
   }
 
   def deleteSelector: Unit = {

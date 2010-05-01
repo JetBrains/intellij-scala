@@ -27,13 +27,17 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       case td: ScTypeDefinition => td.isPackageObject
       case _ => false
     }
-    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName, fileName, signs, isPO)
+    val isSFC = psi.isScriptFileClass
+
+    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName,
+      fileName, signs, isPO, isSFC)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.qualName)
     dataStream.writeBoolean(stub.isPackageObject)
+    dataStream.writeBoolean(stub.isScriptFileClass)
     dataStream.writeName(stub.sourceFileName)
     val methodNames = stub.methodNames
     dataStream.writeInt(methodNames.length)
@@ -44,13 +48,15 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val name = StringRef.toString(dataStream.readName)
     val qualName = StringRef.toString(dataStream.readName)
     val isPO = dataStream.readBoolean
+    val isSFC = dataStream.readBoolean
     val fileName = StringRef.toString(dataStream.readName)
     val methodNames = for (i <- 1 to dataStream.readInt) yield StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames.toArray, isPO)
+    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames.toArray, isPO, isSFC)
   }
 
-  def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) = {
+  def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
+    if (stub.isScriptFileClass) return
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
@@ -62,9 +68,9 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     if (stub.isPackageObject) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, fqn.hashCode)
     }
-    val methodNames = stub.methodNames
+    /*val methodNames = stub.methodNames
     for (name <- methodNames) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_TO_CLASS_KEY, name)
-    }
+    }*/
   }
 }

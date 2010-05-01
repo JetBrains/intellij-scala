@@ -23,6 +23,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   var myQualName: StringRef = _
   var mySourceFileName: StringRef = _
   var myMethodNames: Array[StringRef] = Array[StringRef]()
+  private var _isScriptFileClass: Boolean = _
   private var _isPackageObject: Boolean = _
 
   def this(parent: StubElement[ParentPsi],
@@ -31,13 +32,15 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           qualName: String,
           sourceFileName: String,
           methodNames: Array[String],
-          isPackageObject: Boolean) {
+          isPackageObject: Boolean,
+          isScriptFileClass: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.fromString(sourceFileName)
     myName = StringRef.fromString(name)
     myQualName = StringRef.fromString(qualName)
     myMethodNames = methodNames.map(StringRef.fromString(_))
     this._isPackageObject = isPackageObject
+    _isScriptFileClass = isScriptFileClass
   }
 
 
@@ -50,6 +53,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   def getName = StringRef.toString(myName)
 
   def methodNames: Array[String] = myMethodNames.map(StringRef.toString(_))
+
+  def isScriptFileClass: Boolean = _isScriptFileClass
 
   //todo PsiClassStub methods
 
