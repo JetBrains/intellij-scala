@@ -135,6 +135,6 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScImportExprStub].reference
-    } else findChild(classOf[ScStableCodeReferenceElement])
+    } else (getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None})/*findChild(classOf[ScStableCodeReferenceElement])*/
   }
 }

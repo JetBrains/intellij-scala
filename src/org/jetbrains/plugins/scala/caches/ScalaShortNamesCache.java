@@ -71,6 +71,8 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
     final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.FQN_KEY(),
         fqn.hashCode(), myProject, new ScalaSourceFilterScope(scope, myProject));
     ArrayList<PsiClass> list = new ArrayList<PsiClass>();
+    PsiClass psiClass = null;
+    int count = 0;
     for (PsiElement element : classes) {
       if (!(element instanceof PsiClass)) {
         VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
@@ -80,18 +82,21 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
         }
         return null;
       }
-      PsiClass psiClass = (PsiClass) element;
+      psiClass = (PsiClass) element;
       if (fqn.equals(psiClass.getQualifiedName())) {
         list.add(psiClass);
+        count++;
       }
     }
-    return list.toArray(new PsiClass[list.size()]);
+    if (count == 0) return PsiClass.EMPTY_ARRAY;
+    if (count == 1) return new PsiClass[]{psiClass};
+
+    return list.toArray(new PsiClass[count]);
   }
 
   public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
     final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(),
         myProject, new ScalaSourceFilterScope(scope, myProject));
-    ArrayList<ScTypeDefinition> list = new ArrayList<ScTypeDefinition>();
     for (PsiClass psiClass : classes) {
       if (fqn.equals(psiClass.getQualifiedName())) {
         if (psiClass instanceof ScTypeDefinition) {

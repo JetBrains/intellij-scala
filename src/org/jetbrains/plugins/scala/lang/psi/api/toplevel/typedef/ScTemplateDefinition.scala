@@ -69,6 +69,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
   def allSignatures = TypeDefinitionMembers.getSignatures(this).values.map{ n => n.info }
 
+  def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
+
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,

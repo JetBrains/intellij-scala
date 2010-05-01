@@ -18,6 +18,7 @@ import java.util.Collection
  * Date: 14.10.2008
  */
 
+@deprecated
 class ScFunctionNameToClassIndex extends StringStubIndexExtension[ScTypeDefinition] {
   override def get(key: String, project: Project, scope: GlobalSearchScope): Collection[ScTypeDefinition] =
     super.get(key, project, new ScSourceFilterScope(scope, project))
@@ -25,6 +26,8 @@ class ScFunctionNameToClassIndex extends StringStubIndexExtension[ScTypeDefiniti
   def getKey: StubIndexKey[String, ScTypeDefinition] = ScFunctionNameToClassIndex.KEY
 }
 
+@deprecated
 object ScFunctionNameToClassIndex {
+  @deprecated
   val KEY = ScalaIndexKeys.METHOD_NAME_TO_CLASS_KEY
 }

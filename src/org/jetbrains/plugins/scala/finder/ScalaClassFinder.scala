@@ -25,13 +25,9 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   def findClass(qName: String, scope: GlobalSearchScope) =
     ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
 
-  def findClasses(qName: String, scope: GlobalSearchScope) =
-    ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope).filter {
-      c => c.getContainingFile match {
-        case s : ScalaFile => !s.isScriptFile()
-        case _ => true
-      }
-    }
+  def findClasses(qName: String, scope: GlobalSearchScope) = {
+    ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope)
+  }
 
   override def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
 }
