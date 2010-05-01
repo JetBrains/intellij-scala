@@ -164,9 +164,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
     val nameSet = state.get(ResolverEnv.nameKey)
     val elName = if (nameSet == null) {
-      if (named.getName == null) return false
-      named.getName.replace("`", "")
-    } else nameSet.replace("`", "")
+      val name = named.getName
+      if (name == null) return false
+      if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name
+    } else if (nameSet.charAt(0) == '`') nameSet.substring(1, nameSet.length - 1) else nameSet
     elName == name && kindMatches(named)
   }
 
