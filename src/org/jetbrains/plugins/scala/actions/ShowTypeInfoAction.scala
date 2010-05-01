@@ -12,10 +12,11 @@ import _root_.java.awt.{Point}
 import _root_.com.intellij.openapi.ui.{MultiLineLabelUI}
 import _root_.com.intellij.openapi.editor.{Editor}
 import _root_.com.intellij.ui.LightweightHint
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import _root_.org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition}
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import _root_.org.jetbrains.plugins.scala.ScalaBundle
+import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import lang.psi.api.statements.params.ScParameter
+import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -48,8 +49,9 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
   }
 
   val typeOf: PsiElement => Option[String] = {
-    case e: ScFunctionDefinition => e.returnType.toOption.map(_.presentableText)
-    case e: ScReferencePattern => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
+    case e: ScFunction => e.returnType.toOption.map(_.presentableText)
+    case e: ScBindingPattern => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
+    case e: ScParameter => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
     case e: PsiMethod => e.getReturnType.toOption.map(_ getPresentableText)
     case e: PsiVariable => e.getType.toOption.map(_ getPresentableText)
     case _ => None
