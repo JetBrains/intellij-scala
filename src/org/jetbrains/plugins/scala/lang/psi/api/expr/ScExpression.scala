@@ -21,6 +21,7 @@ import nonvalue._
 import collection.{Set, Seq}
 import statements.{ScFunctionDefinition, ScFunction}
 import resolve.processor.MostSpecificUtil
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -157,6 +158,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
+    ProgressManager.checkCanceled
     if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
@@ -273,6 +275,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
+    ProgressManager.checkCanceled
     if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
     var tp = nonValueType
     val curModCount = getManager.getModificationTracker.getModificationCount
