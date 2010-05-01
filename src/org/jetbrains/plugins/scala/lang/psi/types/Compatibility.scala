@@ -58,6 +58,15 @@ object Compatibility {
                                checkWeakConformance: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
     var undefSubst = new ScUndefinedSubstitutor
+
+    //optimization:
+    val hasRepeated = parameters.find(_.isRepeated) != None
+    val maxParams = parameters.length
+    if (exprs.length > maxParams && !hasRepeated) return (false, undefSubst)
+    val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
+    if (exprs.length < minParams) return (false, undefSubst)
+
+
     if (parameters.length == 0) return (exprs.length == 0, undefSubst)
     var k = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
@@ -165,6 +174,14 @@ object Compatibility {
         val parameters: Seq[ScParameter] =
           if (fun.paramClauses.clauses.length == 0) Seq.empty
           else fun.paramClauses.clauses.apply(0).parameters
+
+        //optimization:
+        val hasRepeated = parameters.find(_.isRepeatedParameter) != None
+        val maxParams = parameters.length
+        if (exprs.length > maxParams && !hasRepeated) return (false, new ScUndefinedSubstitutor)
+        val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
+        if (exprs.length < minParams) return (false, new ScUndefinedSubstitutor)
+
         val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
@@ -185,6 +202,14 @@ object Compatibility {
         val parameters: Seq[ScParameter] =
           if (constructor.parameterList.clauses.length == 0) Seq.empty
           else constructor.parameterList.clauses.apply(0).parameters
+
+        //optimization:
+        val hasRepeated = parameters.find(_.isRepeatedParameter) != None
+        val maxParams = parameters.length
+        if (exprs.length > maxParams && !hasRepeated) return (false, new ScUndefinedSubstitutor)
+        val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
+        if (exprs.length < minParams) return (false, new ScUndefinedSubstitutor)
+
         val res = checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
@@ -204,6 +229,12 @@ object Compatibility {
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
+
+        //optimization:
+        val hasRepeated = parameters.find(_.isVarArgs) != None
+        if (exprs.length > parameters.length && !hasRepeated) return (false, new ScUndefinedSubstitutor)
+        if (exprs.length < parameters.length - (if (hasRepeated) 1 else 0)) return (false, new ScUndefinedSubstitutor)
+
         checkConformance(false, parameters.map {param: PsiParameter => Parameter("", {
           val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope))
           if (param.isVarArgs) tp match {
@@ -221,6 +252,14 @@ object Compatibility {
             case _ => Seq.empty
           }
         }
+
+        //optimization:
+        val hasRepeated = parameters.find(_.isRepeatedParameter) != None
+        val maxParams = parameters.length
+        if (exprs.length > maxParams && !hasRepeated) return (false, new ScUndefinedSubstitutor)
+        val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
+        if (exprs.length < minParams) return (false, new ScUndefinedSubstitutor)
+
         checkConformance(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, checkWeakConformance)
