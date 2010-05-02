@@ -5,11 +5,10 @@ package api
 package base
 
 
-import com.intellij.psi.PsiElement
-
 trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement {
-  def qualifier = findChild(classOf[ScStableCodeReferenceElement])
-  def pathQualifier = findChild(classOf[ScPathElement])
+  def qualifier: Option[ScStableCodeReferenceElement] =
+    getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None}
+  def pathQualifier = getFirstChild match {case s: ScPathElement => Some(s) case _ => None}
 
   def qualName: String = (qualifier match {
     case Some(x) => x.qualName + "."

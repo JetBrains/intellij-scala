@@ -42,7 +42,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       }
       case _ =>
     }
-    findChildByClassScala(classOf[ScExtendsBlock])
+    getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
   def showAsInheritor: Boolean = {

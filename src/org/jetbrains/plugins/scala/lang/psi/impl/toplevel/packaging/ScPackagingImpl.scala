@@ -35,7 +35,12 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   override def toString = "ScPackaging"
 
-  private def reference = findChild(classOf[ScStableCodeReferenceElement])
+  private def reference : Option[ScStableCodeReferenceElement] = {
+    getFirstChild.getNextSibling.getNextSibling match {
+      case ref: ScStableCodeReferenceElement => Some(ref)
+      case _ => findChild(classOf[ScStableCodeReferenceElement])
+    }
+  }
 
   def getPackageName = ownNamePart
 
