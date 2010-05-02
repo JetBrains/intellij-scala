@@ -48,7 +48,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       } else {
         return Some(array.apply(0))
       }
-    } else findChild(classOf[ScTemplateBody])
+    } else {
+      getLastChild match {
+        case tb: ScTemplateBody => Some(tb)
+        case _ => None
+      }
+    }
   }
 
   def empty = getNode.getFirstChildNode == null

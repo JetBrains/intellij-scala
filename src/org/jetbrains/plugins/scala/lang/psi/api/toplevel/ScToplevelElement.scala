@@ -24,11 +24,11 @@ import psi.impl.toplevel.packaging.ScPackagingImpl
  */
 
 trait ScToplevelElement extends ScalaPsiElement {
-  def typeDefinitions(): Array[ScTypeDefinition] = {
+  def typeDefinitions(): Seq[ScTypeDefinition] = {
     val buff = new ArrayBuffer[ScTypeDefinition]
     for (clazz <- immediateTypeDefinitions) buff += clazz
     for (pack <- packagings) buff ++= pack.typeDefinitions
-    buff.toArray
+    buff.toSeq
   }
 
   def immediateTypeDefinitions: Seq[ScTypeDefinition] = {

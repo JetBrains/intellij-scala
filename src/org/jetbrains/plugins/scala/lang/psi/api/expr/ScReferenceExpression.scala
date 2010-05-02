@@ -16,7 +16,7 @@ import psi.types.ScType
 */
 
 trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
-  def qualifier: Option[ScExpression] = findChild(classOf[ScExpression])
+  def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
 
   /**
    * This method returns all possible types for this place.
