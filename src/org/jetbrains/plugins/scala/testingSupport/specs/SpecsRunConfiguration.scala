@@ -57,7 +57,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
-  val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.Specs16Scala28Runner"
+  val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner"
   val SUITE_PATH = "org.specs.Specification"
    private var testClassPath = ""
   private var testPackagePath = ""

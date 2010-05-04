@@ -25,8 +25,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="scalatest-1.0.1-scala-2.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.1-scala-2.8" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="scala-2.8-Beta1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="scala-2.8-RC1" level="project" />
   </component>
 </module>
 

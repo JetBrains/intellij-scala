@@ -448,6 +448,15 @@
           <option name="LABEL_INDENT_SIZE" value="0" />
           <option name="LABEL_INDENT_ABSOLUTE" value="false" />
         </ADDITIONAL_INDENT_OPTIONS>
+        <ADDITIONAL_INDENT_OPTIONS fileType="groovy">
+          <option name="INDENT_SIZE" value="2" />
+          <option name="CONTINUATION_INDENT_SIZE" value="8" />
+          <option name="TAB_SIZE" value="4" />
+          <option name="USE_TAB_CHARACTER" value="false" />
+          <option name="SMART_TABS" value="false" />
+          <option name="LABEL_INDENT_SIZE" value="0" />
+          <option name="LABEL_INDENT_ABSOLUTE" value="false" />
+        </ADDITIONAL_INDENT_OPTIONS>
         <ADDITIONAL_INDENT_OPTIONS fileType="gsp">
           <option name="INDENT_SIZE" value="2" />
           <option name="CONTINUATION_INDENT_SIZE" value="8" />
@@ -586,20 +595,6 @@
     <option name="PRINT_LINE_NUMBERS" value="false" />
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="OUTPUT_DIRECTORY" />
-  </component>
-  <component name="FacetAutodetectingManager">
-    <autodetection-disabled>
-      <facet-type id="Scala">
-        <modules>
-          <module name="Runner-for-ScalaTest-1.0">
-            <files>
-              <file url="file://$PROJECT_DIR$/Runner-for-ScalaTest-1.0/src/org/jetbrains/plugins/scala/testingSupport/scalaTest/ScalaHelper.scala" />
-              <file url="file://$PROJECT_DIR$/Runner-for-ScalaTest-1.0/src/org/jetbrains/plugins/scala/testingSupport/scalaTest/ScalaTestAdditionalReporter.scala" />
-            </files>
-          </module>
-        </modules>
-      </facet-type>
-    </autodetection-disabled>
   </component>
   <component name="IdProvider" IDEtalkID="CA57306CD032AD7AF462C2DE24318A97" />
   <component name="InspectionProjectProfileManager">
@@ -1385,13 +1380,6 @@
     </LanguageOptions>
   </component>
   <component name="libraryTable">
-    <library name="scalatest-0.9-scala-2.7">
-      <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest-0.9.5.jar!/" />
-      </CLASSES>
-      <JAVADOC />
-      <SOURCES />
-    </library>
     <library name="specs-1.6.1-scala-2.7">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/scala-27-lib/specs-1.6.1.jar!/" />
@@ -1415,7 +1403,7 @@
     </library>
     <library name="scalatest-1.0.1-scala-2.8">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.Beta1-NQRFPT.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0-RC1.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
@@ -1427,7 +1415,7 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="scala-2.8-Beta1">
+    <library name="scala-2.8-RC1">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scala-library.jar!/" />
         <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scala-compiler.jar!/" />

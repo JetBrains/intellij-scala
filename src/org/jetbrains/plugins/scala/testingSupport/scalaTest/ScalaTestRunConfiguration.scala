@@ -42,6 +42,7 @@ import script.ScalaScriptRunConfiguration
 import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUtil}
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
+import specs.JavaSpecsRunner
 
 /**
  * User: Alexander Podkhalyuzin
@@ -188,7 +189,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
         val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
         val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
-        val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalaTest09Scala27Runner])
+        val rtJarPath = PathUtil.getJarPathForClass(classOf[JavaSpecsRunner])
         params.getClassPath.add(rtJarPath)
 
         val sdkJar = VcsUtil.getVirtualFile(jarPath)
