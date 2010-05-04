@@ -61,7 +61,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id
   }
 
-  def paramType = getLastChild match {case p: ScParameterType => Some(p) case _ => None}
+  def paramType: Option[ScParameterType] = findChild(classOf[ScParameterType])
 
   def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
 

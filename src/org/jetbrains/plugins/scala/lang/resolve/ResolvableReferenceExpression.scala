@@ -159,18 +159,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processTypes(e: ScExpression, processor: BaseProcessor) {
     ProgressManager.checkCanceled
-    e match {
-      case ref: ScReferenceExpression if ref.multiResolve(false).length > 1 => {
-        for (tp <- ref.multiType) {
-          processor.processType(tp, e, ResolveState.initial)
-        }
-      }
-      case _ => {
-        val result = e.getType(TypingContext.empty)
-        if (result.isDefined) {
-          processType(result.get, e, processor)
-        }
-      }
+    val result = e.getType(TypingContext.empty)
+    if (result.isDefined) {
+      processType(result.get, e, processor)
     }
   }
 
