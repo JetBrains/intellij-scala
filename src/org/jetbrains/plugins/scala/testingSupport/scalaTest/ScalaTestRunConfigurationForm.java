@@ -36,7 +36,6 @@ public class ScalaTestRunConfigurationForm {
   private JLabel testClassLabel;
   private JLabel testPackageLabel;
   private JComboBox moduleComboBox;
-  private JCheckBox scalaTestVersion;
   private TextFieldWithBrowseButton workingDirectoryField;
 
   private ConfigurationModuleSelector myModuleSelector;
@@ -153,12 +152,13 @@ public class ScalaTestRunConfigurationForm {
     testPackageTextField.setText(s);
   }
 
+  @Deprecated
   public boolean getScalaTestVersion() {
-    return scalaTestVersion.isSelected();
+    return true;
   }
 
+  @Deprecated
   public void setScalaTestVersion(boolean b) {
-    scalaTestVersion.setSelected(b);
   }
 
   public void setWorkingDirectory(String s) {

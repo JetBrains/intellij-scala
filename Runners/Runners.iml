@@ -7,8 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="scalatest-0.9-scala-2.7" level="project" />
     <orderEntry type="library" name="Scala SDK" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.1-scala-2.8" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="scalatest-1.0.1-scala-2.8" level="project" />
   </component>
 </module>
 
