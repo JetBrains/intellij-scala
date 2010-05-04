@@ -19,6 +19,7 @@ import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import org.jetbrains.annotations.Nullable
 import com.incors.plaf.alloy.de
+import api.base.patterns.ScBindingPattern
 
 trait ScType {
   def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -334,19 +335,32 @@ object ScType {
 
     def inner(t: ScType): Unit = t match {
       case StdType(name, _) => buffer.append(name)
-      case ScFunctionType(ret, params) => buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
+      case ScFunctionType(ret, params) => {
+        buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
+      }
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, ref) => p match {
-        case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
-          case Some(res) => buffer.append(nameWithPointFun(res.getElement)).append(ref.refName)
-          case None => inner(p); buffer.append(".").append(ref.refName)
-        } //todo: another shorthands for ScSingletonType
-        case _ => inner(p); buffer.append("#").append(ref.refName)
+      case ScProjectionType(p, ref) => {
+        val refName = ref.resolve match {
+          case named: PsiNamedElement => named.getName
+          case _ => ref.refName
+        }
+        p match {
+          case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
+            case Some(res) => buffer.append(nameWithPointFun(res.getElement)).append(refName)
+            case None => inner(p); buffer.append(".").append(refName)
+          }
+          case ScDesignatorType(pack: PsiPackage) => buffer.append(nameWithPointFun(pack)).append(refName)
+          case ScDesignatorType(obj: ScObject) => buffer.append(nameWithPointFun(obj)).append(refName)
+          case ScDesignatorType(v: ScBindingPattern) => buffer.append(nameWithPointFun(v)).append(refName)
+          case _ => inner(p); buffer.append("#").append(refName)
+        }
       }
       case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get)
       case p: ScParameterizedType if p.getFunctionType != None => inner(p.getFunctionType.get)
-      case ScParameterizedType(des, typeArgs) => inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
+      case ScParameterizedType(des, typeArgs) => {
+        inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
+      }
       case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
       case ScPolymorphicType(name, _, _, _) => buffer.append(name)
