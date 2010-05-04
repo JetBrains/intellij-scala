@@ -1430,14 +1430,14 @@
     </library>
     <library name="scalatest-1.0.1-scala-2.8">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0-RC1.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.0.1-for-scala-2.8.0.RC1-SNAPSHOT.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
     </library>
     <library name="specs-1.6.1-scala-2.8">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/specs_2.8.0.Beta1-1.6.2.jar!/" />
+        <root url="jar://$PROJECT_DIR$/SDK/lib/specs_2.8.0.Beta1-1.6.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
