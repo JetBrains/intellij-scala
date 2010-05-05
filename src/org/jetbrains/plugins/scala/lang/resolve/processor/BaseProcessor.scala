@@ -137,6 +137,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
                     case _ => true
                   })
         }
+        case None => //nothing to do
       }
 
       case ft@ScFunctionType(rt, params) if isInApplyCall => {
