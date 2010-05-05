@@ -127,12 +127,12 @@ abstract class MixinNodes {
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
       case ScDesignatorType(template: ScTypeDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
-        val lin = MixinNodes.linearization(template)
+        val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
         (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(template : ScTemplateDefinition) => {
         processScala(template, ScSubstitutor.empty, map, false)
-        (MixinNodes.linearization(template), Bounds.putAliases(template, ScSubstitutor.empty))
+        (MixinNodes.linearization(template, collection.immutable.HashSet.empty), Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
@@ -140,7 +140,7 @@ abstract class MixinNodes {
       }
       case ScDesignatorType(clazz: PsiClass) => {
         processJava(clazz, ScSubstitutor.empty, map, false)
-        val lin = MixinNodes.linearization(clazz)
+        val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
         (if (!lin.isEmpty) lin.tail else lin, ScSubstitutor.empty)
       }
       case cp: ScCompoundType => {
@@ -212,7 +212,7 @@ abstract class MixinNodes {
 }
 
 object MixinNodes {
-  def linearization(clazz: PsiClass): Seq[ScType] = {
+  def linearization(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
     /*CachesUtil.get(
       clazz, CachesUtil.LINEARIZATION_KEY,
       new CachesUtil.MyProvider(clazz, {clazz: PsiClass => linearizationInner(clazz)})
@@ -230,7 +230,8 @@ object MixinNodes {
     if (data != null && currModCount == data._2) {
       return data._1
     }
-    val linearizationResult = linearizationInner(clazz)
+    if (visited.contains(clazz)) return Seq.empty
+    val linearizationResult = linearizationInner(clazz, visited + clazz)
     clazz.putUserData(CachesUtil.LINEARIZATION_KEY, (linearizationResult, currModCount))
     return linearizationResult
   }
@@ -268,7 +269,7 @@ object MixinNodes {
       val tp = iterator.next
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
-          val lin = linearization(clazz)
+          val lin = linearization(clazz, collection.immutable.HashSet.empty)
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
             val tp = newIterator.next
@@ -281,7 +282,7 @@ object MixinNodes {
     return buffer.toSeq
   }
 
-  def linearizationInner(clazz: PsiClass): Seq[ScType] = {
+  def linearizationInner(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
     val tp = {
       if (clazz.getTypeParameters.length == 0) ScDesignatorType(clazz)
       else ScParameterizedType(ScDesignatorType(clazz), clazz.
@@ -322,7 +323,7 @@ object MixinNodes {
       val tp = iterator.next
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
-          val lin = linearization(clazz)
+          val lin = linearization(clazz, visited)
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
             val tp = newIterator.next
