@@ -60,6 +60,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
       }
     }
     try {
+      if (!clazz.isValid) return children.toArray
       val signs = clazz.allSignatures
       for (sign <- signs) {
         sign match {
