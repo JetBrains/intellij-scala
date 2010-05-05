@@ -22,4 +22,4 @@ class G extends C {
   def foo: Int = 45
 }
 }
-//G
+//OverridingCheck.G

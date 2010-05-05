@@ -12,4 +12,4 @@ object CompositePattern {
     }
   }
 }
-//C
+//CompositePattern.C
