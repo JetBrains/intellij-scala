@@ -302,7 +302,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
       new PhysicalSignature(n.info.method, n.info.substitutor)
 
-  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+  override def getNameIdentifier: PsiIdentifier = {
+    Predef.assert(nameId != null, "Class hase null nameId. Class text: " + getText) //diagnostic for EA-20122
+    new JavaIdentifier(nameId)
+  }
 
   override def getIcon(flags: Int): Icon = {
     val icon = getIconInner
