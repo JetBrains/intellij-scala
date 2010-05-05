@@ -25,6 +25,7 @@ import com.intellij.util.Processor;
 import com.intellij.util.Query;
 import com.intellij.util.containers.HashSet;
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ClassNotPreparedException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -239,6 +240,7 @@ public class ScalaPositionManager implements PositionManager {
                     result.add(outer);
                   }
                 } catch (AbsentInformationException ignore) {
+                } catch (ClassNotPreparedException ignore) {
                 }
               }
             }
