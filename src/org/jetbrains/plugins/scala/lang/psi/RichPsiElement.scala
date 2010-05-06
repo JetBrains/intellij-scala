@@ -8,7 +8,9 @@ import Stream._
  * Pavel.Fatin, 28.04.2010
  */
 
-class RichPsiElement(delegate: PsiElement) {
+trait RichPsiElement {
+  protected def delegate: PsiElement
+  
   def firstChild: Option[PsiElement] = {
     val child = delegate.getFirstChild
     if (child == null) None else Some(child)
@@ -35,6 +37,8 @@ class RichPsiElement(delegate: PsiElement) {
   }
 
   def parents: Stream[PsiElement] = RichPsiElement.parentsOf(delegate)
+  
+  def parentsInFile: Stream[PsiElement] = RichPsiElement.parentsInFileOf(delegate)
 
   def prevSibling: Option[PsiElement] = {
     val sibling = delegate.getPrevSibling
@@ -56,7 +60,7 @@ class RichPsiElement(delegate: PsiElement) {
   }
 
   def parentOfType[T](aClass: Class[T]): Option[T] =
-    RichPsiElement.findByType(aClass, parents.takeWhile(!_.isInstanceOf[PsiFile]))
+    RichPsiElement.findByType(aClass, RichPsiElement.parentsInFileOf(delegate))
 
   def childOfType[T](aClass: Class[T]): Option[T] =
     RichPsiElement.findByType(aClass, children)
@@ -74,6 +78,8 @@ object RichPsiElement {
   def findByType[T](aClass: Class[T], es: Stream[PsiElement]): Option[T] =
     es.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
 
+  def parentsInFileOf(e: PsiElement): Stream[PsiElement] = parentsOf(e).takeWhile(!_.isInstanceOf[PsiFile]) 
+  
   def parentsOf(e: PsiElement): Stream[PsiElement] = {
     val p = e.getParent
     if (p == null) Empty else p #:: parentsOf(p)

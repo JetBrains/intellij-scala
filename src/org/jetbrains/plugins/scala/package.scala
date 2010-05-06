@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiElement, PsiReference}
 package object scala {
   implicit def toRichObject[T](o: T) = new RichObject[T](o)
 
-  implicit def toRichPsiElement(e: PsiElement) = new RichPsiElement(e)
+  implicit def toRichPsiElement(e: PsiElement) = new RichPsiElement { override def delegate = e }
 
   class RichObject[T](v: T) {
     def toOption: Option[T] = if (v == null) None else Some(v)
