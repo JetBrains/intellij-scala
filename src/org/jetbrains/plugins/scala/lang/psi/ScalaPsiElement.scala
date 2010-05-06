@@ -7,7 +7,8 @@ import com.intellij.psi.tree.{TokenSet, IElementType}
 import util.monads.MonadTransformer
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 
-trait ScalaPsiElement extends PsiElement with ScTypeInferenceHelper with MonadTransformer {
+trait ScalaPsiElement extends PsiElement with RichPsiElement with ScTypeInferenceHelper with MonadTransformer {
+  protected override def delegate = this 
   protected var context: PsiElement = null
   protected var child: PsiElement = null
   def setContext(element: PsiElement, child: PsiElement) {

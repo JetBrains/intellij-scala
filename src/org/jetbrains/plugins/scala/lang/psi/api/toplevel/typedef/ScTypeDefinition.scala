@@ -20,6 +20,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isCase : Boolean = false
 
+  def isTopLevel = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition]) 
+  
   def getPath: String = {
     var qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
