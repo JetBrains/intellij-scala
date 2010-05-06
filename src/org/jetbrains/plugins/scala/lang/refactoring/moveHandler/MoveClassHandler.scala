@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiReference}
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.move.{MoveCallback, MoveHandlerDelegate}
-import psi.api.ScalaFile
 import psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
@@ -19,13 +18,11 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 
 class MoveClassHandler extends MoveHandlerDelegate {
   override def canMove(elements: Array[PsiElement], targetContainer: PsiElement): Boolean = {
-    for (element <- elements if !element.isInstanceOf[ScTypeDefinition] || !element.getParent.isInstanceOf[ScalaFile]) {
-      return false
-    }
-    return targetContainer == null || isValidTarget(targetContainer)
+    super.canMove(elements, targetContainer) && elements.forall(isValidSource)
   }
 
-  override def doMove(project: Project, elements: Array[PsiElement], targetContainer: PsiElement, callback: MoveCallback): Unit = {
+  override def doMove(project: Project, elements: Array[PsiElement],
+                      targetContainer: PsiElement, callback: MoveCallback) {
     MoveRefactoringUtil.moveClass(project, elements, targetContainer, callback)
   }
 
@@ -34,13 +31,18 @@ class MoveClassHandler extends MoveHandlerDelegate {
     case _ => false
   }
 
+  private def isValidSource(e: PsiElement): Boolean = e match {
+    case t: ScTypeDefinition if t.isTopLevel => true
+    case _ => false
+  }
+
   override def tryToMove(element: PsiElement, project: Project,
-                        dataContext: DataContext, reference: PsiReference, editor: Editor): Boolean = {
-    if (element.isInstanceOf[ScTypeDefinition]) {
+                         dataContext: DataContext, reference: PsiReference, editor: Editor): Boolean = {
+    val valid = isValidSource(element)
+    if (valid) {
       MoveRefactoringUtil.moveClass(project, Array[PsiElement](element),
         dataContext.getData(DataConstantsEx.TARGET_PSI_ELEMENT).asInstanceOf[PsiElement], null)
-      return true
-    }
-    return false
+    } 
+    valid
   }
 }
