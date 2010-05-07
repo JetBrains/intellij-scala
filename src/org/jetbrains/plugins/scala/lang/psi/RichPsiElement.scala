@@ -54,10 +54,7 @@ trait RichPsiElement {
 
   def nextSiblings: Stream[PsiElement] = RichPsiElement.nextSiblingsOf(delegate)
 
-  def children: Stream[PsiElement] = {
-    val child = delegate.getFirstChild
-    if (child == null) Empty else child #:: RichPsiElement.nextSiblingsOf(child)
-  }
+  def children: Stream[PsiElement] = RichPsiElement.childrenOf(delegate)
 
   def parentOfType[T](aClass: Class[T]): Option[T] =
     RichPsiElement.findByType(aClass, RichPsiElement.parentsInFileOf(delegate))
@@ -72,6 +69,8 @@ trait RichPsiElement {
     RichPsiElement.findByType(aClass, nextSiblings)
 
   def isAncestorOf(e: PsiElement) = PsiTreeUtil.isAncestor(delegate, e, true)
+  
+  def elements: Stream[PsiElement] = RichPsiElement.elementsOf(delegate)
 }
 
 object RichPsiElement {
@@ -94,4 +93,11 @@ object RichPsiElement {
     val sibling = e.getNextSibling
     if (sibling == null) Empty else sibling #:: nextSiblingsOf(sibling)
   }
+  
+  def childrenOf(e: PsiElement): Stream[PsiElement] = {
+    val child = e.getFirstChild
+    if (child == null) Empty else child #:: RichPsiElement.nextSiblingsOf(child)
+  }
+  
+  def elementsOf(e: PsiElement): Stream[PsiElement] = e #:: childrenOf(e).flatMap(elementsOf _)
 }
