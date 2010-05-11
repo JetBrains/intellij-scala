@@ -18,11 +18,7 @@ import com.intellij.refactoring.{HelpID, JavaRefactoringSettings}
 object MoveRefactoringUtil {
   def moveClass(project: Project, elements: Array[PsiElement], initialTargetElement: PsiElement, moveCallback: MoveCallback) {
     //todo: add checking elements
-    def isSearchTextOccurences: Boolean = {
-      for (element <- elements if TextOccurrencesUtil.isSearchTextOccurencesEnabled(element)) return true
-      false
-    }
-    val searchTextOccurences = isSearchTextOccurences
+    val searchTextOccurences = elements.exists(TextOccurrencesUtil.isSearchTextOccurencesEnabled _)
     val initialTargetPackageName = getInitialTargetPackageName(initialTargetElement, elements)
     val initialTargetDirectory = getInitialTargetDirectory(initialTargetElement, elements)
     val isTargetDirectoryFixed = getContainerDirectory(initialTargetElement) != null;
