@@ -39,6 +39,8 @@ trait RichPsiElement {
   def parents: Iterator[PsiElement] = RichPsiElement.parentsOf(delegate)
 
   def parentsInFile: Iterator[PsiElement] = RichPsiElement.parentsInFileOf(delegate)
+  
+  def contexts: Iterator[PsiElement] = new ContextsIterator(delegate)
 
   def prevSibling: Option[PsiElement] = {
     val sibling = delegate.getPrevSibling

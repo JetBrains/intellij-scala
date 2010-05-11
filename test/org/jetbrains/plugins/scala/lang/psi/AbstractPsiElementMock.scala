@@ -25,8 +25,6 @@ abstract class AbstractPsiElementMock extends PsiElement {
 
   def isPhysical = false
 
-  def getContext = null
-
   def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) = false
 
   def putCopyableUserData[T](key: Key[T], value: T) = {}
