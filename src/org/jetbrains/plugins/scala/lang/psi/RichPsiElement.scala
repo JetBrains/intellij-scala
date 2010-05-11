@@ -52,9 +52,9 @@ trait RichPsiElement {
     if (sibling == null) None else Some(sibling)
   }
 
-  def prevSiblings: Iterator[PsiElement] = new NextSiblignsIterator(delegate)
+  def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(delegate)
 
-  def nextSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(delegate)
+  def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(delegate)
 
   def children: Iterator[PsiElement] = new ChildrenIterator(delegate)
 
