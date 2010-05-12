@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiElement
+import scala.util.parsing.combinator._
 
 /**
  * Pavel.Fatin, 11.05.2010
@@ -39,9 +40,24 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
   
   override def toString = name
   
-  def toText = if(children.isEmpty) toString else toString + "(" + children.mkString(", ") + ")"
+  def toText: String = {
+    if(children.isEmpty) 
+      toString 
+    else 
+      toString + "(" + children.map(_ toText).mkString(", ") + ")"
+  }
 }
 
-object PsiElementMock {
+object PsiElementMock extends JavaTokenParsers {
   def apply(name: String, children: PsiElementMock*) = new PsiElementMock(name, children: _*)
+
+  def parse(s: String): PsiElementMock = parse(element, s).get
+ 
+  private def element: Parser[PsiElementMock] = identifier~opt(elements) ^^ {
+      case name~children => PsiElementMock(name, children.getOrElse(Nil): _*)
+  } 
+ 
+  private def identifier: Parser[String] = """[^,() ]+""".r
+    
+  private def elements: Parser[List[PsiElementMock]] = "("~>repsep(element, ",")<~")"
 }
