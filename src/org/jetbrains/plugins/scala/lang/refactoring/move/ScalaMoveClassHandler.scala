@@ -11,13 +11,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class ScalaMoveClassHandler extends MoveClassHandler {
   def doMoveClass(aClass: PsiClass, moveDestination: PsiDirectory): PsiClass = {
     aClass.getContainingFile match {
-      case file: ScalaFile if (moveDestination != file.getContainingDirectory) => {
+      case file: ScalaFile => {
         val newPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(moveDestination)
 
-        if (file.getClasses.size == 1)
-          moveSingular(aClass, file, moveDestination, newPackage)
-        else
+        if (file.getClasses.size == 1) {
+          if (moveDestination != file.getContainingDirectory)
+            moveSingular(aClass, file, moveDestination, newPackage)
+          else
+            null
+        } else {
           movePlural(aClass, file, moveDestination, newPackage)
+        }
       }
       case _ => null
     }
@@ -25,9 +29,9 @@ class ScalaMoveClassHandler extends MoveClassHandler {
 
   private def moveSingular(aClass: PsiClass, file: ScalaFile,
                            newDirectory: PsiDirectory, newPackage: PsiPackage): PsiClass = {
-    
+
     aClass.getManager.moveFile(file, newDirectory)
-    
+
     if (newPackage != null) {
       file.setPackageName(newPackage.getQualifiedName)
     }
@@ -38,19 +42,19 @@ class ScalaMoveClassHandler extends MoveClassHandler {
   private def movePlural(aClass: PsiClass, file: ScalaFile,
                          newDirectory: PsiDirectory, newPackage: PsiPackage): PsiClass = {
     val newFile = newDirectory.copyFileFrom(getName(aClass), file).asInstanceOf[ScalaFile]
-    
+
     if (newPackage != null) {
       newFile.setPackageName(newPackage.getQualifiedName)
     }
-    
+
     val classes = newFile.asInstanceOf[ScalaFile].getClasses
     var newClass = classes.head.replace(aClass).asInstanceOf[PsiClass]
     aClass.delete
     classes.tail.foreach(_.delete)
-    
+
     newClass
   }
-  
+
   def getName(clazz: PsiClass) = {
     clazz.getContainingFile match {
       case file: ScalaFile => if (file.getClasses.size > 1) clazz.getName + ".scala" else file.getName
