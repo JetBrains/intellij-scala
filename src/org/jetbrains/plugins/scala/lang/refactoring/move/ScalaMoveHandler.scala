@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package refactoring
-package moveHandler
+package move
 
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.ex.DataConstantsEx
@@ -16,7 +16,7 @@ import psi.api.toplevel.typedef.ScTypeDefinition
  * Date: 30.12.2008
  */
 
-class MoveClassHandler extends MoveHandlerDelegate {
+class ScalaMoveHandler extends MoveHandlerDelegate {
   override def canMove(elements: Array[PsiElement], targetContainer: PsiElement): Boolean = {
     super.canMove(elements, targetContainer) && elements.forall(isValidSource)
   }

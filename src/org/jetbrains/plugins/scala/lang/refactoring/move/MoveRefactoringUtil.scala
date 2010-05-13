@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang
 package refactoring
-package moveHandler
+package move
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDirectory, JavaDirectoryService, PsiElement, PsiPackage}
