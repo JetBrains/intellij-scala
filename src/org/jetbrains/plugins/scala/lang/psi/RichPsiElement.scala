@@ -36,9 +36,10 @@ trait RichPsiElement {
     if (p == null) None else Some(p)
   }
 
-  def parents: Iterator[PsiElement] = RichPsiElement.parentsOf(delegate)
+  def parents: Iterator[PsiElement] = new ParentsIterator(delegate)
 
-  def parentsInFile: Iterator[PsiElement] = RichPsiElement.parentsInFileOf(delegate)
+  def parentsInFile: Iterator[PsiElement] = 
+    new ParentsIterator(delegate).takeWhile(!_.isInstanceOf[PsiFile])
   
   def contexts: Iterator[PsiElement] = new ContextsIterator(delegate)
 
@@ -58,30 +59,9 @@ trait RichPsiElement {
 
   def children: Iterator[PsiElement] = new ChildrenIterator(delegate)
 
-  def parentOfType[T](aClass: Class[T]): Option[T] =
-    RichPsiElement.findByType(aClass, RichPsiElement.parentsInFileOf(delegate))
-
-  def childOfType[T](aClass: Class[T]): Option[T] =
-    RichPsiElement.findByType(aClass, children)
-
-  def prevSiblingOfType[T](aClass: Class[T]): Option[T] =
-    RichPsiElement.findByType(aClass, prevSiblings)
-
-  def nextSiblingOfType[T](aClass: Class[T]): Option[T] =
-    RichPsiElement.findByType(aClass, nextSiblings)
-
   def isAncestorOf(e: PsiElement) = PsiTreeUtil.isAncestor(delegate, e, true)
 
   def depthFirst: Iterator[PsiElement] = new DepthFirstIterator(delegate)
 
   def breadthFirst: Iterator[PsiElement] = new BreadthFirstIterator(delegate)
-}
-
-object RichPsiElement {
-  def findByType[T](aClass: Class[T], es: Iterator[PsiElement]): Option[T] =
-    es.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
-
-  def parentsInFileOf(e: PsiElement): Iterator[PsiElement] = parentsOf(e).takeWhile(!_.isInstanceOf[PsiFile])
-
-  def parentsOf(e: PsiElement): Iterator[PsiElement] = new ParentsIterator(e)
 }

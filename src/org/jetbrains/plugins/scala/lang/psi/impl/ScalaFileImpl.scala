@@ -6,9 +6,8 @@ package impl
 
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import caches.{ScalaCachesManager, CachesUtil}
+import caches.{CachesUtil}
 import com.intellij.openapi.util.Key
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.{ArrayFactory}
 import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
@@ -20,25 +19,23 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.psi._
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
-import scala.util.control.Breaks._
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import api.base.{ScStableCodeReferenceElement}
 import com.intellij.psi.util.PsiTreeUtil
-import scope.{NameHint, PsiScopeProcessor}
-import lang.resolve.processor.{ResolveProcessor, BaseProcessor, CompletionProcessor, ResolverEnv}
+import scope.{PsiScopeProcessor}
+import lang.resolve.processor.{ResolveProcessor, BaseProcessor, ResolverEnv}
+import com.intellij.openapi.editor.Document
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
                 with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder
-                with CompiledFileAdjuster with ScControlFlowOwner{
-
+                with CompiledFileAdjuster with ScControlFlowOwner {
   override def getViewProvider = viewProvider
 
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -180,30 +177,27 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
   }
 
+  /**
+   * Inconsistent with Scala syntax (nested packages)
+   */
+  @Deprecated
   def setPackageName(name: String) {
-    if (packageName == null) return
-    else if (packageName == name) return
-    val document = PsiDocumentManager.getInstance(getProject).getDocument(this)
+    if (packageName == null && packageName == name) return
+
+    val document: Document = PsiDocumentManager.getInstance(getProject).getDocument(this)
     try {
-      if (packageName == "") {
-        document.insertString(0, "package " + name + "\n\n")
-        return
-      }
-      def getPackaging(elem: PsiElement): Option[ScPackaging] = {
-        elem.getChildren.find(_.isInstanceOf[ScPackaging]).map(_.asInstanceOf[ScPackaging])
-      }
-      var element: PsiElement = this
-      var child: Option[ScPackaging] = getPackaging(this)
-      while (child != None) {
-        element = child.get
-        child = getPackaging(element)
-      }
-      if (element == null) return
-      val text = element.asInstanceOf[ScPackaging].getBodyText
-      document.replaceString(0, document.getTextLength, "package " + name + "\n\n" + text)
-    }
-    finally {
+      stripPackagings(document)
+      document.insertString(0, "package " + name + "\n\n")
+    } finally {
       PsiDocumentManager.getInstance(getProject).commitDocument(document)
+    }
+  }
+
+  private def stripPackagings(document: Document) {
+    depthFirst.findByType(classOf[ScPackaging]).foreach { p =>
+        document.replaceString(p.getTextOffset, p.getTextLength, p.getBodyText.trim)
+        PsiDocumentManager.getInstance(getProject).commitDocument(document)
+        stripPackagings(document)
     }
   }
 
@@ -213,7 +207,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
-
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
     } else findChildrenByClass(classOf[ScPackaging])
@@ -360,7 +353,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def setContext(context: PsiElement): Unit = this.context = context*/
 
-  private var myControlFlow : Seq[Instruction] = null
+  private var myControlFlow: Seq[Instruction] = null
 
   def getControlFlow(cached: Boolean) = {
     if (!cached || myControlFlow == null) {
@@ -372,12 +365,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 }
 
 object ImplicitlyImported {
-
   val packages = Array("scala", "java.lang")
   val objects = Array("scala.Predef", "scala" /* package object*/ )
 }
 
 private object ScalaFileImpl {
-
   val SCRIPT_KEY = new Key[java.lang.Boolean]("Is Script Key")
 }

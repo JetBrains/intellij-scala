@@ -30,7 +30,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   }
 
   def complete(strategy: Strategy, element: PsiElement): Boolean = {
-    for{function <- element.parentOfType(classOf[ScFunctionDefinition])
+    for{function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
         if function.hasAssign
         body <- function.body
         if (!body.isAncestorOf(element))} {
@@ -43,7 +43,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       return true
     }
 
-    for{value <- element.parentOfType(classOf[ScPatternDefinition])
+    for{value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
         if (value.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
         if (value.pList.allPatternsSimple)
         bindings = value.bindings
@@ -58,7 +58,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       return true
     }
 
-    for{variable <- element.parentOfType(classOf[ScVariableDefinition])
+    for{variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
         if (variable.expr.toOption.map(!_.isAncestorOf(element)).getOrElse(true))
         if (variable.pList.allPatternsSimple)
         bindings = variable.bindings
@@ -73,7 +73,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       return true
     }
 
-    for (pattern <- element.parentOfType(classOf[ScBindingPattern])) {
+    for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
 
       pattern match {
         case p: ScTypedPattern if (p.typePattern.isDefined) =>
