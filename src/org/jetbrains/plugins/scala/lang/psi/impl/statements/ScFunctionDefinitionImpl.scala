@@ -80,9 +80,11 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def getReturnUsages: Array[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
     val visitor = new ScalaRecursiveElementVisitor {
+      override def visitFunction(fun: ScFunction) {}
+
       override def visitReturnStatement(ret: ScReturnStmt) = res += ret
     }
-    accept(visitor)
+    body.foreach(_.accept(visitor))
     def calculateReturns(expr: ScExpression): Unit = {
       expr match {
         case block: ScBlock => {
@@ -106,7 +108,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
             case _ => res += i
           }
         }
-        case _ => res += expr
+        //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
+        case _ => if (!res.contains(expr)) res += expr
       }
     }
     body match {
