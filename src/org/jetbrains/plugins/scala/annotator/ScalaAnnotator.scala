@@ -18,7 +18,6 @@ import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.annotation._
 
-import lang.psi.ScalaPsiUtil
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -41,13 +40,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, T
 import scala.collection.Set
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, FullSignature}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator
+class ScalaAnnotator extends Annotator with FunctionAnnotator
         with ControlFlowInspections {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.getNode.getFirstChildNode == null && element.getTextRange.getStartOffset == 0) {
@@ -68,6 +68,8 @@ class ScalaAnnotator extends Annotator
     }
 
     element match {
+      case f: ScFunctionDefinition => annotateFunction(f, holder)
+      
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
         //checkOverrideMethods(x, holder)
@@ -327,8 +329,7 @@ class ScalaAnnotator extends Annotator
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       }
       case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) => {
-        return //can return anything
-        //todo: add warning to not return something except nothing
+        return
       }
       case _ => fun.returnTypeElement match {
         case Some(x: ScTypeElement) => {
@@ -342,26 +343,9 @@ class ScalaAnnotator extends Annotator
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
             case None => (Success(Unit, None), Set.empty)
           }
-          val conformance: Boolean = ScalaAnnotator.smartCheckConformance(funType, exprType)
-          if (!conformance) {
-            val error = ScalaBundle.message("return.type.does.not.conform", ScType.presentableText(exprType.getOrElse(Nothing)),
-              ScType.presentableText(funType.getOrElse(Nothing)))
-            val annotation: Annotation = holder.createErrorAnnotation(ret, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-            //todo: add fix to change function return type
-          } else {
-            ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
-            return
-          }
+          ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
         }
-        case _ => {
-          val error = ScalaBundle.message("function.must.define.type.explicitly", fun.getName)
-          val annotation: Annotation = holder.createErrorAnnotation(
-            new TextRange(ret.getTextRange.getStartOffset, ret.getTextRange.getStartOffset + 6),
-            error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-          //todo: add fix to add function return type
-        }
+        case _ =>
       }
     }
   }
