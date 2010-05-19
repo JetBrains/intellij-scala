@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.formatter;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
@@ -70,9 +71,9 @@ public class FormatterTest extends BaseScalaFileSetTestCase {
         });
       }
     }, null, null);
-    System.out.println("------------------------ "+testName+" ------------------------");
-    System.out.println(psiFile.getText());
-    System.out.println("");
+    Console.println("------------------------ "+testName+" ------------------------");
+    Console.println(psiFile.getText());
+    Console.println("");
     return psiFile.getText();
   }
 

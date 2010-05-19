@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.util;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -47,7 +48,7 @@ public class TestUtils {
   public static final String END_MARKER = "<end>";
 
   public static PsiFile createPseudoPhysicalFile(final Project project, final String text, int i) throws IncorrectOperationException {
-    String TEMP_FILE = project.getProjectFilePath() + "temp" + i + ".scala";
+    String TEMP_FILE = project.getBaseDir() + "temp" + i + ".scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
@@ -58,7 +59,7 @@ public class TestUtils {
 
 
   public static PsiFile createPseudoPhysicalScalaFile(final Project project, final String text) throws IncorrectOperationException {
-    String TEMP_FILE = project.getProjectFilePath() + "temp.scala";
+    String TEMP_FILE = project.getBaseDir() + "temp.scala";
     return PsiFileFactory.getInstance(project).createFileFromText(
         TEMP_FILE,
         FileTypeManager.getInstance().getFileTypeByFileName(TEMP_FILE),
@@ -147,7 +148,7 @@ public class TestUtils {
     }
     else {
       int percentage = (int)(((float)100 * (actual - expectedOnMyMachine)) / expectedOnMyMachine);
-      System.out.println(message + ". Operation took " + percentage + "% longer than expected. Expected on my machine: " +
+      Console.println(message + ". Operation took " + percentage + "% longer than expected. Expected on my machine: " +
                          expectedOnMyMachine + ". Actual: " + actual + ". Expected on Etalon machine: " + expected +
                          "; Actual on Etalon: " + (actual * ETALON_TIMING / Timings.MACHINE_TIMING));
     }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -91,9 +92,9 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     String result = processFile(psiFile);
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(result);
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(result);
+    Console.println("");
     return result;
   }
 

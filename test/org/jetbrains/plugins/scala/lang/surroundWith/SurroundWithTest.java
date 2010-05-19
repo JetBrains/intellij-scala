@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.surroundWith;
 
+import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory;
@@ -69,9 +70,9 @@ public class SurroundWithTest extends BaseScalaFileSetTestCase{
       }
     }, null, null);
 
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(psiFile.getText());
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(psiFile.getText());
+    Console.println("");
     return psiFile.getText();
   }
 }

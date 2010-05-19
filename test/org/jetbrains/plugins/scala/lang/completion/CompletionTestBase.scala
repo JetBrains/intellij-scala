@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala
+package lang.completion
 
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.openapi.vfs.LocalFileSystem
