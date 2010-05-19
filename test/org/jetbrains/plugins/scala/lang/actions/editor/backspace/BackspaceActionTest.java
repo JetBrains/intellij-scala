@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace;
 
+import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.annotations.NonNls;
@@ -80,9 +81,9 @@ public class BackspaceActionTest extends ActionTestBase {
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     String result = processFile(psiFile);
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(result);
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(result);
+    Console.println("");
     return result;
   }
 

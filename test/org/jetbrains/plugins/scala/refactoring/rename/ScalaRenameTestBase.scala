@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.refactoring.rename
+package org.jetbrains.plugins.scala
+package refactoring.rename
 
 import org.jetbrains.plugins.scala.base.ScalaPsiTestCase
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}

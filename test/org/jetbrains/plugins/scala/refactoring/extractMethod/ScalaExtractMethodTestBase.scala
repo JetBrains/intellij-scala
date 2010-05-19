@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.refactoring.extractMethod
+package org.jetbrains.plugins.scala
+package refactoring.extractMethod
 
 import _root_.com.intellij.openapi.command.undo.UndoManager
 import _root_.com.intellij.openapi.fileEditor.impl.text.TextEditorProvider

@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 import junit.framework.Test;
@@ -56,9 +57,9 @@ public class LexerTest extends BaseScalaFileSetTestCase {
       }
     }
 
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(buffer.toString());
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(buffer.toString());
+    Console.println("");
 
     return buffer.toString();
 

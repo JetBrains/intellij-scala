@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -100,9 +101,9 @@ public class EnterActionTest extends ActionTestBase {
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     String result = processFile(psiFile);
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(result);
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(result);
+    Console.println("");
     return result;
   }
 

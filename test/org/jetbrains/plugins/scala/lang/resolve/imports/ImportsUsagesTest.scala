@@ -20,7 +20,7 @@ class ImportsUsagesTest extends ScalaResolveTestCase {
     println("[" + getTestName(false) + "]")
     println("------------------------------------------------")
     println(imports)
-    println
+    println()
   }
 
   def testStaticJava(): Unit = {

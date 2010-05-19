@@ -62,9 +62,9 @@ object OverrideImplementTestHelper {
         CommandProcessor.getInstance().executeCommand(myProject, runnable, "test", null);
       }
     });                               
-    System.out.println("------------------------ " + file.getName + " ------------------------");
-    System.out.println(file.getText());
-    System.out.println("");
+    println("------------------------ " + file.getName + " ------------------------");
+    println(file.getText());
+    println("");
     return file.getText();
   }
 }

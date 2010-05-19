@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.parser;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import junit.framework.Test;
@@ -39,9 +40,9 @@ public class ParserTest extends BaseScalaFileSetTestCase {
     PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
 
     String psiTree = DebugUtil.psiToString(psiFile, false);
-    System.out.println("------------------------ " + testName + " ------------------------");
-    System.out.println(psiTree);
-    System.out.println("");
+    Console.println("------------------------ " + testName + " ------------------------");
+    Console.println(psiTree);
+    Console.println("");
 
     return psiTree;
 

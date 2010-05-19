@@ -16,7 +16,7 @@ class HideImportsTest extends ScalaResolveTestCase {
     println("[" + getTestName(false) + "]")
     println("------------------------------------------------")
     println(imports)
-    println
+    println()
   }
 
   def testHidePredefImplicit(): Unit = {

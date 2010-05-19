@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.stress;
 
+import org.jetbrains.plugins.scala.Console;
 import com.intellij.lang.Language;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilderFactory;
@@ -94,8 +95,8 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     });
 
     if (penals.size() > 0) {
-      System.out.println("[" + testName + "] Max rollbacks: " + ourMaximum);
-      System.out.println(" Look for example @: " + stickRanges(penals.toArray(new Pair[penals.size()]), fileText));
+      Console.println("[" + testName + "] Max rollbacks: " + ourMaximum);
+      Console.println(" Look for example @: " + stickRanges(penals.toArray(new Pair[penals.size()]), fileText));
       Assert.assertTrue("Too much rollbacks", ourMaximum < MAX_ROLLBACKS);
     }
 

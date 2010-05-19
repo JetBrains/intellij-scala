@@ -17,7 +17,7 @@ class ImplicitPriorityTest extends ScalaResolveTestCase {
     println("[" + getTestName(false) + "]")
     println("------------------------------------------------")
     println(imports)
-    println
+    println()
   }
 
   def testLowPriorityImplicits() {
