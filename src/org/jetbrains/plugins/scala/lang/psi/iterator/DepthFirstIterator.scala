@@ -6,41 +6,28 @@ import com.intellij.psi.PsiElement
  * Pavel.Fatin, 09.05.2010
  */
 
-/**
- * Depth-first state machine tree-traversal iterator implementation, 
- * faster than stack-based implementation, up to 2x faster than ScalaRecursiveElementVisitor.
- */
-class DepthFirstIterator(element: PsiElement) extends Iterator[PsiElement] {
-  var current = element
-  var continuations = List[PsiElement]()
+class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
+  private var stack = List[PsiElement](element)
 
-  def hasNext = current != null
+  def hasNext = !stack.isEmpty
 
   def next() = {
-    val result = current
-    current = nextFor(current)
-    result
+    val element = pop
+    if (predicate(element)) pushChildren(element)
+    element
   }
 
-  def nextFor(e: PsiElement): PsiElement = {
-    if (e.eq(element)) return e.getFirstChild
-
-    val child = e.getFirstChild
-    val sibling = e.getNextSibling
-
-    if (child != null) {
-      if (sibling != null) {
-        continuations = sibling :: continuations
+  def pushChildren(element: PsiElement) {
+      var child = element.getLastChild
+      while (child != null) {
+        stack = child :: stack
+        child = child.getPrevSibling
       }
-      return child
-    }
-
-    if (sibling != null) return sibling
-
-    if (continuations.isEmpty) return null
-
-    val result = continuations.head
-    continuations = continuations.tail
-    result
+  }
+  
+  def pop() = {
+    val element = stack.head
+    stack = stack.tail
+    element
   }
 }

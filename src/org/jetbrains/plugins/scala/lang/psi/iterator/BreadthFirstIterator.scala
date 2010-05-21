@@ -7,36 +7,28 @@ import collection.immutable.Queue
  * Pavel.Fatin, 09.05.2010
  */
 
-/**
- * Breadth-first state machine tree-traversal iterator implementation, 
- * faster than stack-based implementation, up to 2x faster than ScalaRecursiveElementVisitor.
- */
-class BreadthFirstIterator(element: PsiElement) extends Iterator[PsiElement] {
-  var current = element
-  var continuations = Queue[PsiElement]()
-
-  def hasNext = current != null
+class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
+  private var queue = Queue[PsiElement](element)
+    
+  def hasNext = !queue.isEmpty
 
   def next() = {
-    val result = current
-    current = nextFor(current)
-    result
+    val element = pop
+    if (predicate(element)) pushChildren(element)    
+    element
   }
 
-  def nextFor(e: PsiElement): PsiElement = {
-    if (e.eq(element)) return e.getFirstChild
-
-    val sibling = e.getNextSibling
-    val child = e.getFirstChild
-
-    if (child != null) continuations = continuations.enqueue(child)
-
-    if (sibling != null) return sibling
-
-    if (continuations.isEmpty) return null
-
-    val (result, tail) = continuations.dequeue
-    continuations = tail
-    result
+  def pushChildren(element: PsiElement) {
+      var child = element.getFirstChild
+      while (child != null) {
+        queue = queue.enqueue(child)
+        child = child.getNextSibling
+      }
+  }
+  
+  def pop() = {
+    val (element, tail) = queue.dequeue
+    queue = tail
+    element
   }
 }

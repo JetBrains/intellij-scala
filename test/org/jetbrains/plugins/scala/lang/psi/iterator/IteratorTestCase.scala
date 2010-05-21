@@ -12,10 +12,13 @@ abstract class IteratorTestCase extends TestCase {
   protected def assertIterates(expectation: String, expression: String) { 
     assertIterates(expectation, PsiElementMock.parse(expression))
   }
-    
+  
   protected def assertIterates(expectation: String, element: PsiElement) {
-    val it = createIterator(element)
-    Assert.assertEquals(expectation, it.mkString(", "))
+    assertIterates(expectation, createIterator(element))
+  }
+
+  protected def assertIterates(expectation: String, iterator: Iterator[PsiElement]) {
+    Assert.assertEquals(expectation, iterator.mkString(", "))
   }
   
   protected def parse(s: String) = PsiElementMock.parse(s)
