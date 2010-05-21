@@ -37,14 +37,14 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
   override def getFirstChild = firstChild
 
   override def getLastChild = lastChild
-  
+
   override def toString = name
   
-  def toText: String = {
+  override def getText: String = {
     if(children.isEmpty) 
       toString 
     else 
-      toString + "(" + children.map(_ toText).mkString(", ") + ")"
+      toString + "(" + children.map(_ getText).mkString(", ") + ")"
   }
 }
 

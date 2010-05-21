@@ -61,7 +61,13 @@ trait RichPsiElement {
 
   def isAncestorOf(e: PsiElement) = PsiTreeUtil.isAncestor(delegate, e, true)
 
-  def depthFirst: Iterator[PsiElement] = new DepthFirstIterator(delegate)
+  def depthFirst: Iterator[PsiElement] = depthFirst(DefaultPredicate)
+  
+  def depthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] =
+    new DepthFirstIterator(delegate, predicate)
 
-  def breadthFirst: Iterator[PsiElement] = new BreadthFirstIterator(delegate)
+  def breadthFirst: Iterator[PsiElement] = depthFirst(DefaultPredicate)
+  
+  def breadthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] = 
+    new BreadthFirstIterator(delegate, predicate)
 }
