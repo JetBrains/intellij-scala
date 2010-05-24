@@ -383,19 +383,12 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     mock.annotations
   }
   
-  object TypeMismatch {
-    def unapply(s: String) = s.contains("Type mismatch")
-  }
-  
-  object RedundantReturnData {
-    def unapply(s: String) = s.contains("Unit result type")
-  }
-  
-  object NeedsResultType {
-    def unapply(s: String) = s.contains("has return statement")
-  }
-  
-  object Recursive {
-    def unapply(s: String) = s.contains("Recursive method")
+  val TypeMismatch = containsPattern("Type mismatch")
+  val RedundantReturnData = containsPattern("Unit result type")
+  val NeedsResultType = containsPattern("has return statement")
+  val Recursive = containsPattern("Recursive method")
+
+  def containsPattern(fragment: String) = new {
+    def unapply(s: String) = s.contains(fragment)
   }
 }
