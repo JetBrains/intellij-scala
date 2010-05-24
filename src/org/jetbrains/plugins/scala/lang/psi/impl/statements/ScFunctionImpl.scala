@@ -184,8 +184,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     }
   }
 
-  override protected def isSimilarMemberForNavigation(m: ScMember) = m match {
-    case f: ScFunction => f.name == name && f.parameters.length == parameters.length
+  override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean) = m match {
+    case f: ScFunction => f.name == name && {
+      if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
+      else true
+    }
     case _ => false
   }
 
