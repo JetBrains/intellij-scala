@@ -29,7 +29,6 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
       val sFile = file.asInstanceOf[ScalaFile]
       val annotationHolder = new AnnotationHolderImpl()
       val tracker = ImportTracker.getInstance(file.getProject)
-      if (!tracker.isFileAnnotated(sFile)) return
       val unusedImports: Set[ImportUsed] = tracker.getUnusedImport(sFile)
       val annotations = unusedImports.flatMap({
         imp: ImportUsed => {
