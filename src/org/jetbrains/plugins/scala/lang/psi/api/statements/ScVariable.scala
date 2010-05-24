@@ -31,7 +31,7 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
 
   def getType(ctx: TypingContext): TypeResult[ScType]
 
-  override protected def isSimilarMemberForNavigation(m: ScMember): Boolean = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
     case other: ScVariable =>
       for (elem <- self.declaredElements) {
         if (other.declaredElements.exists(_.name == elem.name))

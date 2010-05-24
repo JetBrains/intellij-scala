@@ -31,6 +31,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import scope.{PsiScopeProcessor}
 import lang.resolve.processor.{ResolveProcessor, BaseProcessor, ResolverEnv}
 import com.intellij.openapi.editor.Document
+import types.ScType
+import types.result.{TypingContext, TypeResult}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -67,23 +69,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
       val project = getProject
-      /*val moduleManager = ModuleManager.getInstance(project)
-      // Look in all modules for such a source file
-      /or (m <- moduleManager.getModules) {
-        val rootManager = ModuleRootManager.getInstance(m)
-        for (e <- rootManager.getOrderEntries if e.isInstanceOf[ModuleSourceOrderEntry]) {
-          for (f <- e.getFiles(OrderRootType.SOURCES)) {
-            val source = f.findFileByRelativePath(relPath)
-            if (source != null) {
-              val psiSource = getManager.findFile(source)
-              psiSource match {
-                case o: PsiClassOwner => return o
-                case _ =>
-              }
-            }
-          }
-        }
-      }*/
 
       // Look in libraries' sources
       val vFile = getContainingFile.getVirtualFile
@@ -150,6 +135,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
 
+  @volatile
+  private var isScriptFileCache: Option[Boolean] = None
+  @volatile
+  private var isScriptFileCacheModCount: Long = 0
+
   private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
@@ -172,9 +162,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
-    import CachesUtil._
-    get[ScalaFileImpl, java.lang.Boolean](this, SCRIPT_KEY,
-      new MyProvider(this, {sf: ScalaFileImpl => new java.lang.Boolean(sf.isScriptFileImpl)})(this)) == java.lang.Boolean.TRUE
+    //todo: modCount only for changed file?
+    var option = isScriptFileCache
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (option != None && isScriptFileCacheModCount == curModCount) {
+      return option.get
+    }
+    option = Some(isScriptFileImpl)
+    isScriptFileCache = option
+    isScriptFileCacheModCount = curModCount
+    return option.get
   }
 
   /**
