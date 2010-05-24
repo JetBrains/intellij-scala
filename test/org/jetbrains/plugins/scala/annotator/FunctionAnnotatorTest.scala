@@ -379,7 +379,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     val annotator = new FunctionAnnotator() {}
     val mock = new AnnotatorHolderMock
     
-    annotator.annotateFunction(function, mock)
+    annotator.annotateFunction(function, mock, true)
     mock.annotations
   }
   

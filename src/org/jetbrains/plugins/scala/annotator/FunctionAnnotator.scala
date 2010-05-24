@@ -16,7 +16,7 @@ import lang.psi.api.base.ScReferenceElement
  */
 
 trait FunctionAnnotator {
-  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder) {
+  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
     var recursive = false
 
     if (function.hasAssign && !function.hasExplicitType) {
@@ -63,10 +63,12 @@ trait FunctionAnnotator {
       }
 
       def typeMismatch() = {
-        val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
-        val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
-        val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
-        holder.createErrorAnnotation(returnExpression.getOrElse(usage), message)
+        if (highlightErrors) {
+          val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
+          val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
+          val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
+          holder.createErrorAnnotation(returnExpression.getOrElse(usage), message)
+        }
       }
     }
   }

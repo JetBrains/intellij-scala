@@ -68,7 +68,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
     }
 
     element match {
-      case f: ScFunctionDefinition => annotateFunction(f, holder)
+      case f: ScFunctionDefinition => annotateFunction(f, holder, isErrorHighlightingEnabledFor(f))
       
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override
@@ -104,6 +104,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
     super[ControlFlowInspections].annotate(element, holder)
   }
 
+  def isErrorHighlightingEnabledFor(element: PsiElement) = {
+    CodeStyleSettingsManager.getSettings(element.getProject)
+            .getCustomSettings(classOf[ScalaCodeStyleSettings]).ENABLE_ERROR_HIGHLIGHTING
+  }
+  
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -152,8 +157,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
 
-    if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
-      ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+    if (isErrorHighlightingEnabledFor(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
         case _ =>
@@ -166,8 +170,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
-    val settings: ScalaCodeStyleSettings =
-           CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     var resolve: Array[ResolveResult] = null
     resolve = refElement.multiResolve(false)
     for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
@@ -176,8 +178,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
     }
     checkAccessForReference(resolve, refElement, holder)
 
-    if (CodeStyleSettingsManager.getSettings(refElement.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]).
-      ENABLE_ERROR_HIGHLIGHTING && resolve.length != 1) {
+    if (isErrorHighlightingEnabledFor(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return 
         case _ =>
