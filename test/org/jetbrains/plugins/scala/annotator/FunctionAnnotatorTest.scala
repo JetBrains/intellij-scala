@@ -311,6 +311,68 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
   
+   def testRecursiveUnit {
+    assertMatches(messages("def f { f }")) {
+      case Nil =>
+    }
+  }
+  
+  def testRecursiveType {
+    assertMatches(messages("def f: A = { f }")) {
+      case Nil =>
+    }
+  }
+  
+  def testRecursiveUnresolvedType {
+    assertMatches(messages("def f: C = { f }")) {
+      case Nil =>
+    }
+  }
+  
+  //TODO implement (SOE problem)
+//  def testRecursiveUnapplicable {
+//    assertMatches(messages("def f = { f( new A ) }")) {
+//      case Nil =>
+//    }
+//  }
+  
+  def testRecursive {
+    assertMatches(messages("def f = { f }")) {
+      case Error("f", Recursive()) :: Nil =>
+    }
+  }
+  
+  def testRecursiveMultiple {
+    assertMatches(messages("def f = { f; f }")) {
+      case Error("f", Recursive()) :: Error("f", Recursive()) :: Nil =>
+    }
+  }
+  
+  def testRecursiveParameter {
+    assertMatches(messages("def f(a: A) = { f(new A) }")) {
+      case Error("f", Recursive()) :: Nil =>
+    }
+  }
+  
+  //TODO implement (SOE problem)
+//  def testRecursiveAndNeedsResultType {
+//    assertMatches(messages("def f = { f; return new A }")) {
+//      case Error("f", Recursive()) :: Error("return", NeedsResultType()) :: Nil =>
+//    }
+//  }
+  
+  def testRecursiveAndTypeMismatch {
+    assertMatches(messages("def f: A = { f; new B }")) {
+      case Error("new B", TypeMismatch()) :: Nil =>
+    }
+  }
+  
+  def testRecursiveAndRedundantReturnData {
+    assertMatches(messages("def f { f; return new A }")) {
+      case Warning("new A", RedundantReturnData()) :: Nil =>
+    }
+  }
+  
   def messages(@Language("Scala") code: String): List[Message] = {
     val function = (Header + code).parse.depthFirst.findByType(classOf[ScFunctionDefinition]).get
     
@@ -330,6 +392,10 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   }
   
   object NeedsResultType {
-    def unapply(s: String) = s.contains("needs result type")
+    def unapply(s: String) = s.contains("has return statement")
+  }
+  
+  object Recursive {
+    def unapply(s: String) = s.contains("Recursive method")
   }
 }

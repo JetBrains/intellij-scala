@@ -15,10 +15,10 @@ import resolve.ResolveUtils
 import psi.api.statements.ScFun
 import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
-import com.intellij.psi.{PsiClass, PsiMember, PsiElement}
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
-import refactoring.util.ScalaNamesUtil;
+import refactoring.util.ScalaNamesUtil
+import com.intellij.psi.{PsiReference, PsiClass, PsiMember, PsiElement};
 
 /**
  * @author Alexander Podkhalyuzin
@@ -89,7 +89,10 @@ class ScalaCompletionContributor extends CompletionContributor {
     val element = file.findElementAt(offset);
     val ref = file.findReferenceAt(offset)
     if (element != null && ref != null) {
-      val text = ref.asInstanceOf[PsiElement].getText
+      val text = ref match {
+        case ref: PsiElement => ref.getText
+        case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
+      }
       if (isOpChar(text(text.length - 1))) {
        context.setFileCopyPatcher(new DummyIdentifierPatcher("+++++++++++++++++++++++"))
      }
