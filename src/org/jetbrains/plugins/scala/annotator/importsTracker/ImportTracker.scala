@@ -18,7 +18,6 @@ class ImportTracker {
   //todo: remove fields, use putUserData instead
   private val usedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
   private val unusedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
-  private val annotatedFiles: HashMap[ScalaFile, Boolean] = new HashMap[ScalaFile, Boolean]
   private val lock = new Object()
 
   def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]): Boolean = {
@@ -27,7 +26,7 @@ class ImportTracker {
         case None => {
           val res = new collection.mutable.HashSet[ImportUsed]()
           res ++= used.iterator
-          usedImports += Tuple(file, res)  // todo BUG I_VAR!!!
+          usedImports += Tuple(file, res)
         }
         case Some(set: collection.mutable.Set[ImportUsed]) => set ++= used
       }
@@ -50,27 +49,16 @@ class ImportTracker {
         usedImports -= file
         res
       }
-      if (!isFileAnnotated(file)) return collection.mutable.HashSet.empty
       unusedImports.getOrElse(file, foo)
     }
   }
 
-  def removeAnnotatedFile(file: ScalaFile) {
-    lock synchronized {
-      unusedImports -= file
-      annotatedFiles.put(file, false)
-    }
-  }
-
+  /**
+   * file is currently annotated, unused imports should be empty from this file
+   */
   def markFileAnnotated(file: ScalaFile) {
     lock synchronized {
-      annotatedFiles.put(file, true)
-    }
-  }
-
-  def isFileAnnotated(file: ScalaFile): Boolean = {
-    lock synchronized {
-      annotatedFiles.getOrElse(file, false)
+      unusedImports -= file
     }
   }
 }
