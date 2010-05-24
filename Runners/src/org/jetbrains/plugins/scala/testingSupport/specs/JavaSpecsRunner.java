@@ -52,7 +52,7 @@ public class JavaSpecsRunner {
       if (!option.isEmpty()) {
         runTest(sysFilter, exFilter, option);
       } else {
-        option = c.createObject(clazz, specManifest);
+        option = c.createObject(clazz + "$", specManifest);
         if (!option.isEmpty()) {
           runTest(sysFilter, exFilter, option);
         } else {

@@ -29,6 +29,9 @@ public class JavaSpecsNotifier implements Notifier {
     map.remove(s);
   }
 
+  public void exampleCompleted(String exampleName) {
+  }
+
   public void exampleFailed(String s, Throwable t) {
     boolean error = true;
     String detail;
