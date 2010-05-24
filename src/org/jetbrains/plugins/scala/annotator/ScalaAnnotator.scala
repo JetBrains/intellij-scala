@@ -68,7 +68,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator
     }
 
     element match {
-      case f: ScFunctionDefinition => annotateFunction(f, holder, isErrorHighlightingEnabledFor(f))
+      case f: ScFunctionDefinition => {
+        f.getContainingFile match {
+          case file: ScalaFile if(file.isCompiled) => 
+          case _ => annotateFunction(f, holder, isErrorHighlightingEnabledFor(f))  
+        }
+      }
       
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
         //todo: unhandled case abstract override

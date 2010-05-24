@@ -35,9 +35,14 @@ trait RichPsiElement {
     val p = delegate.getParent
     if (p == null) None else Some(p)
   }
-
+  
   def parents: Iterator[PsiElement] = new ParentsIterator(delegate)
 
+  def containingFile: Option[PsiFile] = {
+    val f = delegate.getContainingFile
+    if (f == null) None else Some(f)
+  }
+  
   def parentsInFile: Iterator[PsiElement] = 
     new ParentsIterator(delegate).takeWhile(!_.isInstanceOf[PsiFile])
   

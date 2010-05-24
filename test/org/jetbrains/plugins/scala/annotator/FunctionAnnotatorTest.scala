@@ -329,12 +329,11 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  //TODO implement (SOE problem)
-//  def testRecursiveUnapplicable {
-//    assertMatches(messages("def f = { f( new A ) }")) {
-//      case Nil =>
-//    }
-//  }
+  def testRecursiveUnapplicable {
+    assertMatches(messages("def f = { f( new A ) }")) {
+      case Nil =>
+    }
+  }
   
   def testRecursive {
     assertMatches(messages("def f = { f }")) {
@@ -354,12 +353,11 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  //TODO implement (SOE problem)
-//  def testRecursiveAndNeedsResultType {
-//    assertMatches(messages("def f = { f; return new A }")) {
-//      case Error("f", Recursive()) :: Error("return", NeedsResultType()) :: Nil =>
-//    }
-//  }
+  def testRecursiveAndNeedsResultType {
+    assertMatches(messages("def f = { f; return new A }")) {
+      case Error("f", Recursive()) :: Error("return", NeedsResultType()) :: Nil =>
+    }
+  }
   
   def testRecursiveAndTypeMismatch {
     assertMatches(messages("def f: A = { f; new B }")) {

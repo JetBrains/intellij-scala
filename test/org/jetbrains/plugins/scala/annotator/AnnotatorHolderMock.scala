@@ -14,7 +14,9 @@ class AnnotatorHolderMock extends AnnotationHolder {
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
     0, 0, HighlightSeverity.INFO, "message", "tooltip")
   
-  var annotations = List[Message]()
+  def annotations = myAnnotations.reverse
+  
+  private var myAnnotations = List[Message]()
   
   def createInfoAnnotation(range: TextRange, message: String) = null
 
@@ -33,7 +35,7 @@ class AnnotatorHolderMock extends AnnotationHolder {
   def createWarningAnnotation(node: ASTNode, message: String) = null
 
   def createWarningAnnotation(elt: PsiElement, message: String) = { 
-    annotations ::= Warning(elt.getText, message)
+    myAnnotations ::= Warning(elt.getText, message)
     FakeAnnotation
   }
 
@@ -42,7 +44,7 @@ class AnnotatorHolderMock extends AnnotationHolder {
   def createErrorAnnotation(node: ASTNode, message: String) = null
 
   def createErrorAnnotation(elt: PsiElement, message: String) = { 
-    annotations ::= Error(elt.getText, message)
+    myAnnotations ::= Error(elt.getText, message)
     FakeAnnotation
   }
 } 
