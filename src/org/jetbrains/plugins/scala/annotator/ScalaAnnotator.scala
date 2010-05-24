@@ -50,10 +50,9 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 class ScalaAnnotator extends Annotator with FunctionAnnotator
         with ControlFlowInspections {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    if (element.getNode.getFirstChildNode == null && element.getTextRange.getStartOffset == 0) {
-      val sFile = element.getContainingFile.asInstanceOf[ScalaFile]
-      ImportTracker.getInstance(sFile.getProject).removeAnnotatedFile(sFile)
-    }
+    if (element.getContainingFile != null &&
+            element.getContainingFile.isInstanceOf[ScalaFile])
+      ImportTracker.getInstance(element.getProject).markFileAnnotated(element.getContainingFile.asInstanceOf[ScalaFile])
 
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
