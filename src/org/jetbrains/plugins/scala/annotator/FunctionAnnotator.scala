@@ -17,14 +17,13 @@ import lang.psi.api.base.ScReferenceElement
 
 trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
-    var recursive = false
-
     if (function.hasAssign && !function.hasExplicitType) {
       function.depthFirst.foreach {
         case ref: ScReferenceElement if ref.isReferenceTo(function) => {
-          val message = ScalaBundle.message("function.recursive.need.result.type", function.getName)
-          holder.createErrorAnnotation(ref, message)
-          recursive = true
+          for (target <- ref.advancedResolve; if target.isApplicable) {
+            val message = ScalaBundle.message("function.recursive.need.result.type", function.getName)
+            holder.createErrorAnnotation(ref, message)
+          }
         }
         case _ =>
       }
