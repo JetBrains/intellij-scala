@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -7,6 +8,8 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import lang.psi.api.base.ScReferenceElement
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -14,7 +17,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyT
 
 trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder) {
-    for (functionType <- function.returnType.toOption;
+    var recursive = false
+
+    if (function.hasAssign && !function.hasExplicitType) {
+      function.depthFirst.foreach {
+        case ref: ScReferenceElement if ref.isReferenceTo(function) => {
+          val message = ScalaBundle.message("function.recursive.need.result.type", function.getName)
+          holder.createErrorAnnotation(ref, message)
+          recursive = true
+        }
+        case _ =>
+      }
+    }
+
+    for (functionType <- if (recursive) function.declaredType else function.returnType;
          usage <- function.getReturnUsages;
          usageType <- typeOf(usage)) {
 
@@ -55,12 +71,12 @@ trait FunctionAnnotator {
     }
   }
 
-  private def typeOf(element: PsiElement): Option[ScType] = element match {
+  private def typeOf(element: PsiElement): TypeResult[ScType] = element match {
     case r: ScReturnStmt => r.expr match {
-      case Some(e) => e.getTypeAfterImplicitConversion()._1.toOption
-      case None => Some(org.jetbrains.plugins.scala.lang.psi.types.Unit)
+      case Some(e) => e.getTypeAfterImplicitConversion()._1
+      case None => Success(UnitType, None)
     }
-    case e: ScExpression => e.getTypeAfterImplicitConversion()._1.toOption
-    case _ => None
+    case e: ScExpression => e.getTypeAfterImplicitConversion()._1
+    case _ => Success(AnyType, None)
   }
 }
