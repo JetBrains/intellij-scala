@@ -134,6 +134,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case _ => None
           }
         }
+        if (result == None) return Failure("Cannot infer recursive method type", Some(this))
         s.subst(f.polymorphicType(result))
       }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
