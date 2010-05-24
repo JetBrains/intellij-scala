@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.config;
 import com.intellij.facet.Facet;
 import com.intellij.facet.FacetManager;
 import com.intellij.facet.FacetManagerAdapter;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.roots.ModifiableRootModel;
@@ -29,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
  * @author ilyas
  */
 public class ScalaFacetListener extends FacetManagerAdapter implements ModuleComponent {
+  private Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.config.ScalaFacetListener");
+
   private MessageBusConnection myConnection;
 
   private Module myModule;
@@ -41,11 +44,16 @@ public class ScalaFacetListener extends FacetManagerAdapter implements ModuleCom
     myConnection = myModule.getMessageBus().connect();
     myConnection.subscribe(FacetManager.FACETS_TOPIC, new FacetManagerAdapter() {
       public void facetAdded(@NotNull final Facet facet) {
+        if (facet.getTypeId() == ScalaFacet.ID) {
+          //noinspection ThrowableInstanceNeverThrown
+          LOG.info(new Throwable("Facet added: " + facet.getName()));
+        }
       }
 
       public void facetRemoved(@NotNull Facet facet) {
         if (facet.getTypeId() == ScalaFacet.ID) {
-          //todo do somethig
+          //noinspection ThrowableInstanceNeverThrown
+          LOG.info(new Throwable("Facet removed: " + facet.getName()));
         }
       }
     });

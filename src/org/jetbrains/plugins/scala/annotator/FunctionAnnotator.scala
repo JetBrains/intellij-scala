@@ -30,7 +30,7 @@ trait FunctionAnnotator {
       }
     }
 
-    for (functionType <- if (recursive) function.declaredType else function.returnType;
+    for (functionType <- function.returnType;
          usage <- function.getReturnUsages;
          usageType <- typeOf(usage)) {
 
