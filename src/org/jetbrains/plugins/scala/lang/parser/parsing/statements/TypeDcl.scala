@@ -15,15 +15,14 @@ import types.Type
 */
 
 /*
- * TypeDcl ::= id [TypeParamClause] ['>;' Type] ['<:' Type]
+ * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
  */
-
 object TypeDcl {
   def parse(builder: PsiBuilder): Boolean = {
     val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
-        builder.advanceLexer //Ate def
+        builder.advanceLexer //Ate type
       }
       case _ => {
         returnMarker.drop
