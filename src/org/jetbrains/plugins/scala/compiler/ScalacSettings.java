@@ -86,14 +86,18 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     if (OPTIMISE) {
       options.append("-optimise ");
     }
-    if (SERVER_RESET) {
-      options.append("-reset ");
-    }
-    if (SERVER_SHUTDOWN) {
-      options.append("-shutdown ");
-    }
-    if (!SERVER_PORT.equals("")) {
-      options.append("-server:").append(SERVER_PORT).append(" ");
+
+    //fsc options
+    if (USE_FSC) {
+      if (SERVER_RESET) {
+        options.append("-reset ");
+      }
+      if (SERVER_SHUTDOWN) {
+        options.append("-shutdown ");
+      }
+      if (!SERVER_PORT.equals("")) {
+        options.append("-server:").append(SERVER_PORT).append(" ");
+      }
     }
     boolean isEncodingSet = false;
     final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
