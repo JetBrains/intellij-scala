@@ -108,6 +108,9 @@ object DecompilerUtil {
 
       val baos = new ByteArrayOutputStream
       val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
+      if (scalaSig == null) {
+        throw new RuntimeException("null scalaSig for file: " + file.getPath)
+      }
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
       syms.first.parent match {
