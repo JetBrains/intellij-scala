@@ -24,7 +24,14 @@ abstract class SimpleTestCase extends TestCase {
             .asInstanceOf[ScalaFile]
   }
 
-  implicit def toParseable(s: String) = new {def parse: ScalaFile = parseText(s)}
+  implicit def toParseable(s: String) = new {
+    def parse: ScalaFile = parseText(s)
+  
+    def parse[T <: PsiElement](aClass: Class[T]): T = 
+      parse.depthFirst.findByType(aClass).getOrElse {
+        throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
+      }
+  }
 
   implicit def toFindable(element: ScalaFile) = new {
     def target: PsiElement = element.depthFirst
