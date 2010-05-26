@@ -12,6 +12,7 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
 import lang.psi.types.ScType
 import params.{ScTypeParam, ScTypeParamClause, ScParameters}
+import lang.psi.api.base.patterns.ScCaseClause
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -76,6 +77,7 @@ trait ScopeAnnotator {
             e.isInstanceOf[ScTemplateBody] ||
             e.isInstanceOf[ScPackageContainer] ||
             e.isInstanceOf[ScParameters] ||
-            e.isInstanceOf[ScTypeParamClause]
+            e.isInstanceOf[ScTypeParamClause] ||
+            e.isInstanceOf[ScCaseClause]
   }
 }

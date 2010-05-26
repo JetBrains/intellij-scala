@@ -306,6 +306,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("new { class C; class C }")) { 
       case Error("C", _) :: Error("C", _) :: Nil =>
     }
+    assertMatches(messages("null match { case _ => class C; class C }")) { 
+      case Error("C", _) :: Error("C", _) :: Nil => 
+    }
+    assertMatches(messages("val f: (Any => Unit) = { case _ => class C; class C }")) { 
+      case Error("C", _) :: Error("C", _) :: Nil => 
+    }
   }
   
   def testScopeBoundary {
@@ -368,6 +374,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
       case Nil => 
     }
     assertMatches(messages("object O; def X(O: Any) {}")) { 
+      case Nil => 
+    }
+    assertMatches(messages("null match { case v =>; case v => }")) { 
+      case Nil => 
+    }
+    assertMatches(messages("val f: (Any => Unit) = { case v =>; case v => }")) { 
       case Nil => 
     }
   }
