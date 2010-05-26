@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.specs.Specification;
@@ -48,16 +50,42 @@ public class JavaSpecsRunner {
     
 
     for (String clazz: classes) {
-      Option<Specification> option = c.createObject(clazz, specManifest);
-      if (!option.isEmpty()) {
-        runTest(sysFilter, exFilter, option);
-      } else {
-        option = c.createObject(clazz + "$", specManifest);
+      Method method = null;
+      try {
+        method = c.getClass().getMethod("createObject", String.class, scala.reflect.ClassManifest.class);
+      }
+      catch(NoSuchMethodException e) {
+        try {
+          method = c.getClass().getMethod("createObject", String.class, scala.reflect.Manifest.class);
+        }
+        catch(NoSuchMethodException ignore) {}
+      }
+
+      if (method == null) {
+        System.out.println("Scala Plugin internal error: can't find createObject method in org.specs.util.Classes");
+        return;
+      }
+
+      try {
+        Option<Specification> option = (Option<Specification>) method.invoke(c, clazz, specManifest);
         if (!option.isEmpty()) {
           runTest(sysFilter, exFilter, option);
         } else {
-          System.out.println("Scala Plugin internal error: no test class was found");
+          option = (Option<Specification>) method.invoke(c, clazz, specManifest);
+          if (!option.isEmpty()) {
+            runTest(sysFilter, exFilter, option);
+          } else {
+            System.out.println("Scala Plugin internal error: no test class was found");
+          }
         }
+      }
+      catch(IllegalAccessException e) {
+        System.out.println("Scala Plugin internal error: illegal access exception");
+        e.printStackTrace();
+      }
+      catch(InvocationTargetException e) {
+        System.out.println("Scala Plugin internal error: invocation target exception");
+        e.printStackTrace();
       }
     }
   }
