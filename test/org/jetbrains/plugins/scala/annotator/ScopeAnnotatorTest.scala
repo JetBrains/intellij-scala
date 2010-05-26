@@ -9,6 +9,9 @@ import org.intellij.lang.annotations.Language
  */
 
 class ScopeAnnotatorTest extends SimpleTestCase {
+  // TODO binding patterns, alias, val a, a = ; val (a, a) = 
+  // TODO for comprehension
+  // TODO function literal arguments
   // TODO class C(val) { val }
   // TODO constructors
   // TODO imports and renaming
@@ -384,12 +387,19 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  def testNestedScopeBoundary {
-    assertMatches(messages("class C; { class C; { class C } }")) { case Nil => }
+  def testNestedScopes {
+    assertMatches(messages("class C; { class C; { class C } }")) { 
+      case Nil => 
+    }
+    assertMatches(messages("class X; { class X; { class C; class C } }")) { 
+      case Error("C", _) :: Error("C", _) :: Nil =>
+    }
   }
   
   def testSameLeveScopeBoundary {
-    assertMatches(messages("{ class C }; { class C }")) { case Nil => }
+    assertMatches(messages("{ class C }; { class C }")) { 
+      case Nil => 
+    }
   }
   
   def testTypesClash {
