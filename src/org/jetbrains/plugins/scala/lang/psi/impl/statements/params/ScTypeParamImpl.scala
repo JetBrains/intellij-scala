@@ -18,6 +18,8 @@ import toplevel.PsiClassFake
 import api.statements.params._
 import base.ScTypeBoundsOwnerImpl
 import toplevel.synthetic.JavaIdentifier
+import icons.Icons
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -102,4 +104,8 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
   def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
   def findAnnotation(p1: String): PsiAnnotation = null
+
+  override def getIcon(flags: Int) = {
+    Icons.TYPE_ALIAS
+  }
 }
