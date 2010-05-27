@@ -24,6 +24,7 @@ object CachesUtil {
   val SIGNATURES_MAP_KEY: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures.map.key")
   val LINEARIZATION_KEY: Key[(Seq[ScType], Long)] = Key.create("linearization.key")
   val IMPLICIT_PARAM_TYPES_KEY: Key[List[ScType]] = Key.create("implicit.param.types.key")
+  val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
