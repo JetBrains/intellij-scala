@@ -12,6 +12,7 @@ import java.util.WeakHashMap
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 import com.intellij.psi.{PsiClassType, PsiManager, PsiTypeParameter}
+import com.intellij.openapi.util.Key
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   def projectOpened {}
@@ -22,15 +23,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnAnyChange(new Runnable {
       override def run = {
         syntheticPackages.clear
-        typeVariables.clear
       }
     })
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
   private val syntheticPackages = new WeakValueHashMap[String, Any]
-
-  private val typeVariables = new WeakHashMap[PsiTypeParameter, ScTypeParameterType]
 
   def syntheticPackage(fqn : String) : ScSyntheticPackage = {
     var p = syntheticPackages.get(fqn)
@@ -51,23 +49,23 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
-    var existing = typeVariables.get(tp)
+    var existing = tp.getUserData(ScalaPsiManager.TYPE_VARIABLE_KEY)
     if (existing != null) existing else {
       import Misc.fun2suspension
 
       val tv = tp match {
         case stp: ScTypeParam => {
-          typeVariables.put(tp, new ScTypeParameterType(stp.name, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
+          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(stp.name, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
           val lower = () => stp.lowerBound.getOrElse(Nothing)
           val upper = () => stp.upperBound.getOrElse(Any)
           // todo rework for error handling!
           val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
-          typeVariables.put(tp, res)
+          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
           res
         }
         case _ => {
-          typeVariables.put(tp, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
+          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val lower = () => Nothing
           val scType = tp.getSuperTypes match {
             case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
@@ -76,14 +74,14 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           }
           val upper = () => scType
           val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
-          typeVariables.put(tp, res)
+          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
           res
         }
       }
       synchronized {
-        existing = typeVariables.get(tp)
+        existing = tp.getUserData(ScalaPsiManager.TYPE_VARIABLE_KEY)
         if (existing == null) {
-          typeVariables.put(tp, tv)
+          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, tv)
           tv
         } else existing
       }
@@ -92,6 +90,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 }
 
 object ScalaPsiManager {
+  val TYPE_VARIABLE_KEY: Key[ScTypeParameterType] = Key.create("type.variable.key")
+
   def instance(project : Project) = project.getComponent(classOf[ScalaPsiManager])
 
   def typeVariable(tp : PsiTypeParameter): ScTypeParameterType = instance(tp.getProject).typeVariable(tp)
