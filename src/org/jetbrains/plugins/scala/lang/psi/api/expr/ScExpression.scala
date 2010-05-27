@@ -22,6 +22,8 @@ import collection.{Set, Seq}
 import statements.{ScFunctionDefinition, ScFunction}
 import resolve.processor.MostSpecificUtil
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.impl.source.resolve.ResolveCache
+import caches.CachesUtil
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -88,60 +90,78 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         }
       }
 
-      if (exp != None) { //save data
-        val z = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
-        try {
-          //this substitutor is importatant in case for anon functions in currings, to apply to params known information
-          val subst: ScSubstitutor = getContext match {
-            case args: ScArgumentExprList => {
-              args.callExpression match {
-                case call: ScMethodCall => {
-                  call.getNonValueType(TypingContext.empty) match {
-                    case Success(tp: ScTypePolymorphicType, _) => tp.polymorphicTypeSubstitutor
-                    case _ => ScSubstitutor.empty
-                  }
+      if (exp != None) {
+        //this substitutor is importatant in case for anon functions in currings, to apply to params known information
+        val subst: ScSubstitutor = getContext match {
+          case args: ScArgumentExprList => {
+            args.callExpression match {
+              case call: ScMethodCall => {
+                call.getNonValueType(TypingContext.empty) match {
+                  case Success(tp: ScTypePolymorphicType, _) => tp.polymorphicTypeSubstitutor
+                  case _ => ScSubstitutor.empty
                 }
-                case _ => ScSubstitutor.empty
               }
+              case _ => ScSubstitutor.empty
             }
-            case _ => ScSubstitutor.empty
           }
-          val tps = expectedOption.toList.toArray.map(_ match {
-            case p@ScParameterizedType(des, typeArgs) => p.getFunctionType match {
-              case Some(ScFunctionType(retType, params)) => ScParameterizedType(des, params.map(subst subst _) ++ Seq(retType))
-              case _ => p
-            }
-            case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _),
-              getProject, getResolveScope)
-            case ScMethodType(retType, params, isImpl) => new ScMethodType(retType,
+          case _ => ScSubstitutor.empty
+        }
+        val tps = expectedOption.toList.toArray.map(_ match {
+          case p@ScParameterizedType(des, typeArgs) => p.getFunctionType match {
+            case Some(ScFunctionType(retType, params)) => ScParameterizedType(des, params.map(subst subst _) ++ Seq(retType))
+            case _ => p
+          }
+          case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _),
+            getProject, getResolveScope)
+          case ScMethodType(retType, params, isImpl) => new ScMethodType(retType,
+            params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
+            getProject, getResolveScope)
+          case ScTypePolymorphicType(ScMethodType(retType, params, isImpl), typeParams) => {
+            ScTypePolymorphicType(new ScMethodType(retType,
               params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
-              getProject, getResolveScope)
-            case ScTypePolymorphicType(ScMethodType(retType, params, isImpl), typeParams) => {
-              ScTypePolymorphicType(new ScMethodType(retType,
-                params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
-                getProject, getResolveScope),
-                typeParams)
+              getProject, getResolveScope),
+              typeParams)
+          }
+          case tp => tp
+        })
+
+        //this is important for thread safe calculations. Because we are using mutable state for expression
+        //todo: possible fix to remove mutable state, and to use TypingContext for type calculation.
+        if (!anon(this)) {
+          var b: java.lang.Boolean = null
+          EXPR_LOCK synchronized {
+            b = getUserData(CachesUtil.EXPRESSION_TYPING_KEY)
+            if (b == null) {
+              putUserData(CachesUtil.EXPRESSION_TYPING_KEY, java.lang.Boolean.TRUE)
             }
-            case tp => tp
-          })
-          expectedTypesCache = tps
-          expectedTypesModCount = getManager.getModificationTracker.getModificationCount
-          exprType = null
-//          if (!anon(this)) forExpr(this) else {
+          }
+          if (b == null) {
+            //save data
+            val data = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
+            expectedTypesCache = tps
+            expectedTypesModCount = getManager.getModificationTracker.getModificationCount
+            exprType = null
+            try {
+              forExpr(this)
+            }
+            finally {
+              //load data
+              expectedTypesCache = data._1;expectedTypesModCount = data._2;exprType = data._3;exprTypeModCount = data._4
+              putUserData(CachesUtil.EXPRESSION_TYPING_KEY, null)
+            }
+          } else {
             val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
             newExpr.setExpectedTypes(tps)
             forExpr(newExpr)
-//          }
-        }
-        finally {
-          //load data
-          expectedTypesCache = z._1;expectedTypesModCount = z._2;exprType = z._3;exprTypeModCount = z._4
+          }
+        } else {
+          val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
+          newExpr.setExpectedTypes(tps)
+          forExpr(newExpr)
         }
       } else {
         forExpr(this)
       }
-
-
     }
     if (exp != None || !checkImplicits) return inner //no cache with strange parameters
 
@@ -156,6 +176,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     exprTypeAfterImplicitModCount = curModCount
     return tp
   }
+
+  private val EXPR_LOCK = new Object()
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     ProgressManager.checkCanceled
