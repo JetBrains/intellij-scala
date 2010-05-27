@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
+import collection.immutable.::
 
 /**
  * User: Alexander Podkhalyuzin
@@ -100,11 +101,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     override def candidates[T >: ScalaResolveResult: ClassManifest]: Array[T] = {
       def forFilter(c: ScalaResolveResult): Boolean = {
         val subst = c.substitutor
-        var searches = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+        val currentThread = Thread.currentThread
+        var userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+        var searches: List[ScType] = if (userData == null) null else userData.getOrElse(currentThread, null)
         if (searches != null && searches.find(_.equiv(tp)) == None)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, tp :: searches)
+          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
+                  +(currentThread -> (tp :: searches)))
         else if (searches == null)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, List(tp))
+          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, Map(currentThread -> List(tp)))
         else return false
         try {
           c.element match {
@@ -133,19 +137,24 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
           }
         }
         finally {
-          searches = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+          userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+          searches = userData.getOrElse(currentThread, null)
           if (searches != null && searches.length > 0)
-            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, searches.tail)
+            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
+                    +(currentThread -> searches.tail))
           else {} //do nothing
         }
       }
       def forMap(c: ScalaResolveResult): ScalaResolveResult = {
         val subst = c.substitutor
-        var searches = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+        val currentThread = Thread.currentThread
+        var userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+        var searches: List[ScType] = if (userData == null) null else userData.getOrElse(currentThread, null)
         if (searches != null && searches.find(_.equiv(tp)) == None)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, tp :: searches)
+          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
+                  +(currentThread -> (tp :: searches)))
         else if (searches == null)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, List(tp))
+          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, Map(currentThread -> List(tp)))
         else {}
         try {
           c.element match {
@@ -168,9 +177,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
           }
         }
         finally {
-          searches = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+          userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
+          searches = userData.getOrElse(currentThread, null)
           if (searches != null && searches.length > 0)
-            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, searches.tail)
+            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
+                    +(currentThread -> searches.tail))
           else {} //do nothing
         }
       }
