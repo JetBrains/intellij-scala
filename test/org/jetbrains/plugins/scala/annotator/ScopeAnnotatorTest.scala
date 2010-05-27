@@ -9,8 +9,10 @@ import org.intellij.lang.annotations.Language
  */
 
 class ScopeAnnotatorTest extends SimpleTestCase {
+  // TODO local function - no signatures
+  // TODO case class and members
+  // TODO unresolved ref
   // TODO binding patterns, alias, val a, a = ; val (a, a) = 
-  // TODO for comprehension
   // TODO function literal arguments
   // TODO class C(val) { val }
   // TODO constructors
@@ -90,6 +92,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("(null, null) match { case p => }")) { 
       case Nil =>  
     }
+    assertMatches(messages("for(v <- Nil) {}")) {
+      case Nil =>  
+    }
+    assertMatches(messages("for(x <- Nil; v = null) {}")) {
+      case Nil =>  
+    }
   }
   
   def testDistinctNames {
@@ -160,6 +168,15 @@ class ScopeAnnotatorTest extends SimpleTestCase {
       case Nil =>  
     }
     assertMatches(messages("(null, null) match { case (a, b) => }")) { 
+      case Nil =>  
+    }
+    assertMatches(messages("for(a <- Nil; b <- Nil) {}")) {
+      case Nil =>  
+    }
+    assertMatches(messages("for(x <- Nil; a = null; b = null) {}")) {
+      case Nil =>  
+    }
+    assertMatches(messages("for(x <- Nil; b = null) {}")) {
       case Nil =>  
     }
   }
@@ -234,6 +251,21 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("(null, null) match { case (p, p) => }")) { 
       case Error("p", _) :: Error("p", _) :: Nil => 
     }
+    assertMatches(messages("for(v <- Nil; v <- Nil) {}")) {
+      case Error("v", _) :: Error("v", _) :: Nil =>  
+    }
+    assertMatches(messages("for(x <- Nil; v = null; v = null) {}")) {
+      case Error("v", _) :: Error("v", _) :: Nil =>  
+    }
+    assertMatches(messages("for(v <- Nil; v = null) {}")) {
+      case Error("v", _) :: Error("v", _) :: Nil =>  
+    }
+  }
+  
+  def testUnderscore {
+    assertMatches(messages("val f: (Any => Unit) = { case _: AnyVal | _: AnyRef => }")) { 
+      case Nil => 
+    }
   }
   
   // TODO implement processing of distributed package declarations
@@ -261,61 +293,64 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
    def testScope {
-    assertMatches(messages("{ class C; class C}")) { 
-      case Error("C", _) :: Error("C", _) :: Nil =>
-    }
-    assertMatches(messages("class X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("case class X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("trait X { class C; class C }")) {
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("object X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("case object X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("package X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }    
-    assertMatches(messages("def X { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("val X = { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("var X = { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("for(x <- Nil) { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }    
-    assertMatches(messages("if(true) { class C; class C } else { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil => 
-    }    
-    assertMatches(messages("while(true) { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }    
-    assertMatches(messages("do { class C; class C } while(true)")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }    
-    assertMatches(messages("try { class C; class C } catch { case _ => } finally { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil =>
-    }
-    assertMatches(messages("new { class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil =>
-    }
-    assertMatches(messages("null match { case _ => class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("val f: (Any => Unit) = { case _ => class C; class C }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-  }
+     assertMatches(messages("{ class C; class C}")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("class X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("case class X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("trait X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("object X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("case object X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("package X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("def X { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("val X = { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("var X = { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("for(x <- Nil) { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("if(true) { class C; class C } else { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("while(true) { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("do { class C; class C } while(true)")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("try { class C; class C } catch { case _ => } finally { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("new { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("null match { case _ => class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("val f: (Any => Unit) = { case _ => class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>
+     }
+     assertMatches(messages("for(v <- Nil) { class C; class C }")) {
+       case Error("C", _) :: Error("C", _) :: Nil =>  
+     }
+   }
   
   def testScopeBoundary {
     assertMatches(messages("class C; { class C }")) { 
@@ -366,6 +401,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("class C; new { class C }")) { 
       case Nil => 
     }
+    assertMatches(messages("class C; for(v <- Nil) { class C }")) {
+      case Nil =>   
+    }
+    assertMatches(messages("for(v <- Nil) { val v = null}")) {
+      case Nil =>   
+    }
     
     assertMatches(messages("class C; class X[C]")) { 
       case Nil => 
@@ -384,6 +425,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     }
     assertMatches(messages("val f: (Any => Unit) = { case v =>; case v => }")) { 
       case Nil => 
+    }
+    assertMatches(messages("val v = null; for(v <- Nil) {}")) {
+      case Nil =>   
+    }
+    assertMatches(messages("val v = null; for(x <- Nil; v = null) {}")) {
+      case Nil =>   
     }
   }
   

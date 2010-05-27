@@ -5,7 +5,6 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.packaging.ScPackageContainer
-import lang.psi.api.expr.{ScBlock}
 import com.intellij.psi.{PsiElement}
 import lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
@@ -13,6 +12,7 @@ import lang.psi.api.statements._
 import lang.psi.types.ScType
 import params.{ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.api.base.patterns.ScCaseClause
+import lang.psi.api.expr.{ScForStatement, ScBlock}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -58,7 +58,7 @@ trait ScopeAnnotator {
   }
 
   private def clashesOf(elements: Definitions): Definitions = {
-    val names = elements.map(nameOf _)
+    val names = elements.map(nameOf _).filterNot(_ == "_")
     val clashedNames = names.diff(names.distinct)
     elements.filter(e => clashedNames.contains(nameOf(e)))
   }
@@ -78,6 +78,7 @@ trait ScopeAnnotator {
             e.isInstanceOf[ScPackageContainer] ||
             e.isInstanceOf[ScParameters] ||
             e.isInstanceOf[ScTypeParamClause] ||
-            e.isInstanceOf[ScCaseClause]
+            e.isInstanceOf[ScCaseClause] ||
+            e.isInstanceOf[ScForStatement]
   }
 }
