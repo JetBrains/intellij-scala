@@ -71,7 +71,12 @@ object Conformance {
       case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), tp))
       case _ => {
         val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
-        if (isEquiv._1) return isEquiv
+        if (isEquiv._1) {
+          isEquiv._2.getSubstitutor match {
+            case Some(s) => if (s.subst(l).equiv(s.subst(r))) return isEquiv
+            case _ =>
+          }
+        }
       }
     }
 

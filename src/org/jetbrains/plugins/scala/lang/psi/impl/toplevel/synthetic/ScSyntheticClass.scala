@@ -288,7 +288,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def registerNumericClass(clazz : ScSyntheticClass) = {numeric += clazz; clazz}
 
 
-  def getAll() = all.values.toList.toArray
+  def getAll: Iterable[ScSyntheticClass] = all.values
 
   def byName(name: String) = all.get(name)
 
