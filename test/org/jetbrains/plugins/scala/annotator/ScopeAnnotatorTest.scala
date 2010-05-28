@@ -10,8 +10,6 @@ import junit.framework.Assert
  */
 
 class ScopeAnnotatorTest extends SimpleTestCase {
-  // TODO val var {} scope
-  // TODO class C(val) { val }, case class and members
   // TODO constructors
   // TODO imports and renaming
   // TODO id and scope names?  messages, "C is already defined as type C"
@@ -72,6 +70,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("(a: Any, b: Any) => ()")
     assertFine("class C[A, B]")
     assertFine("class C(a: Any, b: Any)")
+    assertFine("class C(a: Any)(b: Any)")
     assertFine("class C(val a: Any, val b: Any)")
     assertFine("class C(var a: Any, var b: Any)")
     assertFine("(null, null) match { case (a, b) => }")
@@ -105,6 +104,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("(p: Any, p: Any) => ()", "p")
     assertClashes("class C[T, T]", "T")
     assertClashes("class C(p: Any, p: Any)", "p")
+    assertClashes("class C(p: Any)(p: Any)", "p")
     assertClashes("class C(val p: Any, val p: Any)", "p")
     assertClashes("class C(var p: Any, var p: Any)", "p")
     assertClashes("(null, null) match { case (p, p) => }", "p")
@@ -198,10 +198,14 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("val v = null; for(x <- Nil; v = null) {}")
   }
   
-  def testParametersBoundary {
+  def testSelfBoundary {
+    assertFine("class C { class C }")
     assertFine("class C[T] { class T }")
+    assertFine("def f { val f = null }")
     assertFine("def x[T] { class T }")
-    assertFine("def f(p: Any) { val p = null }")
+    assertFine("def x(p: Any) { val p = null }")
+    assertFine("val v = { val v = null }")
+    assertFine("var v = { val v = null }")
     assertFine("for(v <- Nil) { val v = null }")
     assertFine("for(x <- Nil; v = null) { val v = null }")
     assertFine("null match ( case v => val v = null }")
@@ -217,15 +221,33 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("{ class C }; { class C }")
   }
   
-  //TODO
-//  def testMembers {
-//    assertClashes("class C(p: Any) { val p = null }", "p")
-//    assertClashes("class C(val p: Any) { val p = null }", "p")
-//    assertClashes("class C(var p: Any) { val p = null }", "p")
-//    assertClashes("case class C(p: Any) { val p = null }", "p")
-//    assertClashes("case class C(val p: Any) { val p = null }", "p")
-//    assertClashes("case class C(var p: Any) { val p = null }", "p")
-//  }
+  def testMembers {
+    assertClashes("class C(p: Any) { val p = null }", "p")
+    assertMatches(messages("class C(a: Any, b: Any) { val a = null; val b = null }")) {
+      case Error("b", _) :: Error("a", _) :: Error("a", _) :: Error("b", _) :: Nil =>
+    }
+    assertMatches(messages("class C(a: Any)(b: Any) { val b = null; val a = null }")) {
+      case Error("a", _) :: Error("b", _) :: Error("a", _) :: Error("b", _) :: Nil =>
+    }
+    assertClashes("class C(val p: Any) { val p = null }", "p")
+    assertClashes("class C(var p: Any) { val p = null }", "p")
+    assertClashes("case class C(p: Any) { val p = null }", "p")
+    assertClashes("case class C(val p: Any) { val p = null }", "p")
+    assertClashes("case class C(var p: Any) { val p = null }", "p")
+  }
+  
+  def testMembersCrossClash {
+    assertMatches(messages("class C(p: Any, p: Any) { val p = null }")) {
+      case Error("p", _) :: Error("p", _) :: Error("p", _) :: Nil =>
+    }
+  }  
+  
+  def testMemberAndIds {
+    assertFine("class X(p: Any){ class p }")
+    assertClashes("class X(p: Any){ val p = null }", "p")
+    assertClashes("class X(p: Any){ object p }", "p")
+    assertClashes("class X(p: Any){ case class p }", "p")
+ }
   
   def testTypesClash {
     assertClashes("class T; trait T", "T")
