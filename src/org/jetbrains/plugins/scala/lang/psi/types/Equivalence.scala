@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScThisReference, ScSuperRe
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScPathElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import com.intellij.openapi.progress.ProgressManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,6 +23,8 @@ object Equivalence {
     equivInner(l, r, new ScUndefinedSubstitutor)._2
 
   def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor): (Boolean, ScUndefinedSubstitutor) = {
+    ProgressManager.checkCanceled
+
     var undefinedSubst = subst
 
     (l, r) match {

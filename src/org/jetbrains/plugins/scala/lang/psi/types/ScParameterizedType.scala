@@ -19,6 +19,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiPackage, PsiTypeParameterListOwner, PsiNamedElement}
 import api.toplevel.typedef.ScClass
+import caches.CachesUtil
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
 }
@@ -169,20 +170,36 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
 }
 
 private[types] object CyclicHelper {
-  private var pairs: List[(PsiNamedElement, PsiNamedElement)] = Nil
-
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
-    pairs.find(p => p._1 == pn1 && p._2 == pn2 || p._1 == pn2 && p._2 == pn1) match {
-      case Some(_) => {
-        pairs = Nil
-        None
-      }
-      case None => {
-        pairs = (pn1, pn2) :: pairs
-        val res = Some(fun.apply)
-        pairs = pairs - (pn1, pn2) 
-        res
-      }
+    val currentThread = Thread.currentThread
+    def setup(pn1: PsiNamedElement, pn2: PsiNamedElement): Boolean = {
+      var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
+      var searches: List[PsiNamedElement] = if (userData == null) null else userData.getOrElse(currentThread, null)
+      if (searches != null && searches.find(_ == pn2) == None)
+        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
+                +(currentThread -> (pn2 :: searches)))
+      else if (searches == null)
+        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, Map(currentThread -> List(pn2)))
+      else return false
+      true
+    }
+
+    def close(pn1: PsiNamedElement, pn2: PsiNamedElement) = {
+      var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
+      var searches = userData.getOrElse(currentThread, null)
+      if (searches != null && searches.length > 0)
+        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
+                +(currentThread -> searches.tail))
+      else {} //do nothing
+    }
+    if (!setup(pn1, pn2)) return None
+    if (pn1 != pn2 && !setup(pn2, pn1)) return None
+    try {
+      Some(fun.apply)
+    }
+    finally {
+      close(pn1, pn2)
+      if (pn1 != pn2) close(pn2, pn1)
     }
   }
 }

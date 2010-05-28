@@ -477,6 +477,15 @@ object Conformance {
             val inh = smartIsInheritor(rClass, subst, lClass)
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2
+            //Special case for higher kind types passed to generics.
+            if (lClass.getTypeParameters.length > 0) {
+              l match {
+                case p: ScParameterizedType =>
+                case f: ScFunctionType =>
+                case t: ScTupleType =>
+                case _ => return (true, undefinedSubst)
+              }
+            }
             val t = conformsInner(l, tp, visited + rClass, undefinedSubst, true)
             if (t._1) return (true, t._2)
             else return (false, undefinedSubst)
