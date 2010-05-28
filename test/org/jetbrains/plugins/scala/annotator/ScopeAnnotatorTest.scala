@@ -3,269 +3,121 @@ package annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
+import junit.framework.Assert
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 class ScopeAnnotatorTest extends SimpleTestCase {
-  // TODO local function - no signatures
-  // TODO case class and members
-  // TODO unresolved ref
-  // TODO binding patterns, alias, val a, a = ; val (a, a) = 
-  // TODO function literal arguments
-  // TODO class C(val) { val }
+  // TODO val var {} scope
+  // TODO class C(val) { val }, case class and members
   // TODO constructors
   // TODO imports and renaming
   // TODO id and scope names?  messages, "C is already defined as type C"
   
   def testEmpty {
-    assertMatches(messages("")) { 
-      case Nil => 
-    }
+    assertFine("")
   }
 
   def testSingleDefinition {
-      assertMatches(messages("class C")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("case class C")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("trait T")) {
-      case Nil =>  
-    }
-    assertMatches(messages("object O")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("case object O")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("package p {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("val v = null")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("val v")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("var v = null")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("var v")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("type A = Any")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("type A")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f[T] {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f(p: Any) {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("(p: Any) => ()")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("class C[T]")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("class C(p: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("class C(val p: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("class C(var p: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("(null, null) match { case p => }")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("for(v <- Nil) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("for(x <- Nil; v = null) {}")) {
-      case Nil =>  
-    }
+    assertFine("class C")
+    assertFine("case class C")
+    assertFine("trait T")
+    assertFine("object O")
+    assertFine("case object O")
+    assertFine("package p {}")
+    assertFine("val v = null")
+    assertFine("val v")
+    assertFine("var v = null")
+    assertFine("var v")
+    assertFine("type A = Any")
+    assertFine("type A")
+    assertFine("def f {}")
+    assertFine("def f")
+    assertFine("def f[T] {}")
+    assertFine("def f(p: Any) {}")
+    assertFine("(p: Any) => ()")
+    assertFine("class C[T]")
+    assertFine("class C(p: Any)")
+    assertFine("class C(val p: Any)")
+    assertFine("class C(var p: Any)")
+    assertFine("null match { case p => }")
+    assertFine("null match { case a @ _ => }")
+    assertFine("for(v <- Nil) {}")
+    assertFine("for(x <- Nil; v = null) {}")
+    assertFine("{ v: Any => }")
   }
   
   def testDistinctNames {
-    assertMatches(messages("class A; class B")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("case class A; case class B")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("trait A; trait B")) {
-      case Nil =>  
-    }
-    assertMatches(messages("object A; object B")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("case object A; case object B")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("package a {}; package b {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("val a = null; val b = null")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("val a; val b")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("var a = null; var b = null")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("var a; var b")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("type A = Any; type B = Any")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("type A; type B")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def a {}; def b {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def a; def b")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f[A, B] {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f(a: Any, b: Any) {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("def f(a: Any)(b: Any) {}")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("(a: Any, b: Any) => ()")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("class C[A, B]")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("class C(a: Any, b: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("class C(val a: Any, val b: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("class C(var a: Any, var b: Any)")) {
-      case Nil =>  
-    }
-    assertMatches(messages("(null, null) match { case (a, b) => }")) { 
-      case Nil =>  
-    }
-    assertMatches(messages("for(a <- Nil; b <- Nil) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("for(x <- Nil; a = null; b = null) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("for(x <- Nil; b = null) {}")) {
-      case Nil =>  
-    }
+    assertFine("class A; class B")
+    assertFine("case class A; case class B")
+    assertFine("trait A; trait B")
+    assertFine("object A; object B")
+    assertFine("case object A; case object B")
+    assertFine("package a {}; package b {}")
+    assertFine("val a = null; val b = null")
+    assertFine("val a, b = null")
+    assertFine("val (a, b) = (null, null)")
+    assertFine("val a; val b")
+    assertFine("var a = null; var b = null")
+    assertFine("var a; var b")
+    assertFine("type A = Any; type B = Any")
+    assertFine("type A; type B")
+    assertFine("def a {}; def b {}")
+    assertFine("def a; def b")
+    assertFine("def f[A, B] {}")
+    assertFine("def f(a: Any, b: Any) {}")
+    assertFine("def f(a: Any)(b: Any) {}")
+    assertFine("(a: Any, b: Any) => ()")
+    assertFine("class C[A, B]")
+    assertFine("class C(a: Any, b: Any)")
+    assertFine("class C(val a: Any, val b: Any)")
+    assertFine("class C(var a: Any, var b: Any)")
+    assertFine("(null, null) match { case (a, b) => }")
+    assertFine("(null, null) match { case (a @ _, b @ _) => }")
+    assertFine("for(a <- Nil; b <- Nil) {}")
+    assertFine("for(x <- Nil; a = null; b = null) {}")
+    assertFine("for(x <- Nil; b = null) {}")
+    assertFine("{ a: Any, b: Any) => }")
   }
 
   def testNameClash {
-    assertMatches(messages("class C; class C")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("case class C; case class C")) { 
-      case Error("C", _) :: Error("C", _) :: Nil => 
-    }
-    assertMatches(messages("trait T; trait T")) {
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("object O; object O")) { 
-      case Error("O", _) :: Error("O", _) :: Nil => 
-    }
-    assertMatches(messages("case object O; case object O")) { 
-      case Error("O", _) :: Error("O", _) :: Nil => 
-    }
-    assertMatches(messages("package p {}; package p {}")) { 
-      case Nil => 
-    }
-    assertMatches(messages("val v = null; val v = null")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("val v; val v")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("var v = null; var v = null")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("var v; var v")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("type A = Any; type A = Any")) { 
-      case Error("A", _) :: Error("A", _) :: Nil => 
-    }
-    assertMatches(messages("type A; type A")) { 
-      case Error("A", _) :: Error("A", _) :: Nil => 
-    }
-    assertMatches(messages("def f {}; def f {}")) { 
-      case Error("f", _) :: Error("f", _) :: Nil => 
-    }
-    assertMatches(messages("def f; def f")) { 
-      case Error("f", _) :: Error("f", _) :: Nil => 
-    }
-    assertMatches(messages("def f[T, T] {}")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("def f(p: Any, p: Any) {}")) { 
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("def f(p: Any)(p: Any) {}")) { 
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("(p: Any, p: Any) => ()")) { 
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("class C[T, T]")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("class C(p: Any, p: Any)")) {
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("class C(val p: Any, val p: Any)")) {
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("class C(var p: Any, var p: Any)")) {
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("(null, null) match { case (p, p) => }")) { 
-      case Error("p", _) :: Error("p", _) :: Nil => 
-    }
-    assertMatches(messages("for(v <- Nil; v <- Nil) {}")) {
-      case Error("v", _) :: Error("v", _) :: Nil =>  
-    }
-    assertMatches(messages("for(x <- Nil; v = null; v = null) {}")) {
-      case Error("v", _) :: Error("v", _) :: Nil =>  
-    }
-    assertMatches(messages("for(v <- Nil; v = null) {}")) {
-      case Error("v", _) :: Error("v", _) :: Nil =>  
-    }
+    assertClashes("class C; class C", "C")
+    assertClashes("case class C; case class C", "C")
+    assertClashes("trait T; trait T", "T")
+    assertClashes("object O; object O", "O")
+    assertClashes("case object O; case object O", "O")
+    assertFine("package p {}; package p {}")
+    assertClashes("val v = null; val v = null", "v")
+    assertClashes("val v, v = null", "v")
+    assertClashes("val (v, v) = (null, null)", "v")
+    assertClashes("val v; val v", "v")
+    assertClashes("var v = null; var v = null", "v")
+    assertClashes("var v; var v", "v")
+    assertClashes("type A = Any; type A = Any", "A")
+    assertClashes("type A; type A", "A")
+    assertClashes("def f {}; def f {}", "f")
+    assertClashes("def f; def f", "f")
+    assertClashes("def f[T, T] {}", "T")
+    assertClashes("def f(p: Any, p: Any) {}", "p")
+    assertClashes("def f(p: Any)(p: Any) {}", "p")
+    assertClashes("(p: Any, p: Any) => ()", "p")
+    assertClashes("class C[T, T]", "T")
+    assertClashes("class C(p: Any, p: Any)", "p")
+    assertClashes("class C(val p: Any, val p: Any)", "p")
+    assertClashes("class C(var p: Any, var p: Any)", "p")
+    assertClashes("(null, null) match { case (p, p) => }", "p")
+    assertClashes("(null, null) match { case (a @ _, a @ _) => }", "a")
+    assertClashes("(null, null) match { case a @ (a @ _, _) => }", "a")
+    assertClashes("for(v <- Nil; v <- Nil) {}", "v")
+    assertClashes("for(x <- Nil; v = null; v = null) {}", "v")
+    assertClashes("for(v <- Nil; v = null) {}", "v")
+    assertClashes("{ (v: Any, v: Any) => }", "v")
   }
   
   def testUnderscore {
-    assertMatches(messages("val f: (Any => Unit) = { case _: AnyVal | _: AnyRef => }")) { 
-      case Nil => 
-    }
+    assertFine("val f: (Any => Unit) = { case _: AnyVal | _: AnyRef => }")
   }
   
   // TODO implement processing of distributed package declarations
@@ -285,310 +137,178 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
   def testGroups {
-    assertMatches(messages("def f(a: Any, a: Any); def f(b: Any, b: Any)")) { 
-      case Error("f", _) :: Error("f", _) :: 
-              Error("a", _) :: Error("a", _) :: 
-              Error("b", _) :: Error("b", _) :: Nil =>  
-    }
+    assertClashes("def f(a: Any, a: Any); def f(b: Any, b: Any)", "f", "a", "b")
   }
   
-   def testScope {
-     assertMatches(messages("{ class C; class C}")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("class X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("case class X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("trait X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("object X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("case object X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("package X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("def X { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("val X = { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("var X = { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("for(x <- Nil) { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("if(true) { class C; class C } else { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("while(true) { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("do { class C; class C } while(true)")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("try { class C; class C } catch { case _ => } finally { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("new { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("null match { case _ => class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("val f: (Any => Unit) = { case _ => class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>
-     }
-     assertMatches(messages("for(v <- Nil) { class C; class C }")) {
-       case Error("C", _) :: Error("C", _) :: Nil =>  
-     }
+   def testScopeInspection {
+     assertClashes("{ class C; class C}", "C")
+     assertClashes("class X { class C; class C }", "C")
+     assertClashes("case class X { class C; class C }", "C")
+     assertClashes("trait X { class C; class C }", "C")
+     assertClashes("object X { class C; class C }", "C")
+     assertClashes("case object X { class C; class C }", "C")
+     assertClashes("package X { class C; class C }", "C")
+     assertClashes("def X { class C; class C }", "C")
+     assertClashes("val X = { class C; class C }", "C")
+     assertClashes("var X = { class C; class C }", "C")
+     assertClashes("for(x <- Nil) { class C; class C }", "C")
+     assertClashes("if(true) { class C; class C }", "C")
+     assertClashes("if(true) {} else { class C; class C }", "C")
+     assertClashes("while(true) { class C; class C }", "C")
+     assertClashes("do { class C; class C } while(true)", "C")
+     assertClashes("try { class C; class C } catch { case _ => }", "C")
+     assertClashes("try {} catch { case _ => } finally { class C; class C }", "C")
+     assertClashes("new { class C; class C }", "C")
+     assertClashes("null match { case _ => class C; class C }", "C")
+     assertClashes("val x: (Any => Unit) = { case _ => class C; class C }", "C")
+     assertClashes("for(x <- Nil) { class C; class C }", "C")
+     assertClashes("{ x: Any => class C; class C }", "C")
    }
   
   def testScopeBoundary {
-    assertMatches(messages("class C; { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; class X { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; case class X { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; trait X { class C }")) {
-      case Nil => 
-    }
-    assertMatches(messages("class C; object X { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; case object X { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; package X { class C }")) { 
-      case Nil => 
-    }    
-    assertMatches(messages("class C; def X { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; val X = { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; var X = { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; for(x <- Nil) { class C }")) { 
-      case Nil => 
-    }    
-    assertMatches(messages("class C; if(true) { class C } else { class C }")) { 
-      case Nil => 
-    }    
-    assertMatches(messages("class C; while(true) { class C }")) { 
-      case Nil => 
-    }    
-    assertMatches(messages("class C; do { class C } while(true)")) { 
-      case Nil => 
-    }    
-    assertMatches(messages("class C; try { class C } catch { case _ => } finally { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; new { class C }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; for(v <- Nil) { class C }")) {
-      case Nil =>   
-    }
-    assertMatches(messages("for(v <- Nil) { val v = null}")) {
-      case Nil =>   
-    }
-    
-    assertMatches(messages("class C; class X[C]")) { 
-      case Nil => 
-    }
-    assertMatches(messages("object C; class X(O: Any)")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class C; def X[C] {}")) { 
-      case Nil => 
-    }
-    assertMatches(messages("object O; def X(O: Any) {}")) { 
-      case Nil => 
-    }
-    assertMatches(messages("null match { case v =>; case v => }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("val f: (Any => Unit) = { case v =>; case v => }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("val v = null; for(v <- Nil) {}")) {
-      case Nil =>   
-    }
-    assertMatches(messages("val v = null; for(x <- Nil; v = null) {}")) {
-      case Nil =>   
-    }
+    assertFine("class C; { class C }")
+    assertFine("class C; class X { class C }")
+    assertFine("class C; case class X { class C }")
+    assertFine("class C; trait X { class C }")
+    assertFine("class C; object X { class C }")
+    assertFine("class C; case object X { class C }")
+    assertFine("class C; package X { class C }")    
+    assertFine("class C; def X { class C }")
+    assertFine("class C; val X = { class C }")
+    assertFine("class C; var X = { class C }")
+    assertFine("class C; for(x <- Nil) { class C }")    
+    assertFine("class C; if(true) { class C } else { class C }")    
+    assertFine("class C; while(true) { class C }")    
+    assertFine("class C; do { class C } while(true)")    
+    assertFine("class C; try { class C } catch { case _ => } finally { class C }")
+    assertFine("class C; new { class C }")
+    assertFine("class C; for(x <- Nil) { class C }")
+  }
+
+  def testScopeBoundaryParameters {
+    assertFine("class C; class X[C]")
+    assertFine("val v = null; class X(v: Any)")
+    assertFine("class C; def X[C] {}")
+    assertFine("val v = null; def X(v: Any) {}")
+    assertFine("val v = null; null match { case v => }")
+    assertFine("null match { case v =>; case v => }")
+    assertFine("val v = null; val x: (Any => Unit) = { case v => }")
+    assertFine("val x: (Any => Unit) = { case v =>; case v => }")
+    assertFine("val v = null; for(v <- Nil) {}")
+    assertFine("val v = null; for(x <- Nil; v = null) {}")
+  }
+  
+  def testParametersBoundary {
+    assertFine("class C[T] { class T }")
+    assertFine("def x[T] { class T }")
+    assertFine("def f(p: Any) { val p = null }")
+    assertFine("for(v <- Nil) { val v = null }")
+    assertFine("for(x <- Nil; v = null) { val v = null }")
+    assertFine("null match ( case v => val v = null }")
+    assertFine("{ v: Any => val v = null }")
   }
   
   def testNestedScopes {
-    assertMatches(messages("class C; { class C; { class C } }")) { 
-      case Nil => 
-    }
-    assertMatches(messages("class X; { class X; { class C; class C } }")) { 
-      case Error("C", _) :: Error("C", _) :: Nil =>
-    }
+    assertFine("class C; { class C; { class C } }")
+    assertClashes("class X; { class X; { class C; class C } }", "C")
   }
   
   def testSameLeveScopeBoundary {
-    assertMatches(messages("{ class C }; { class C }")) { 
-      case Nil => 
-    }
+    assertFine("{ class C }; { class C }")
   }
   
+  //TODO
+//  def testMembers {
+//    assertClashes("class C(p: Any) { val p = null }", "p")
+//    assertClashes("class C(val p: Any) { val p = null }", "p")
+//    assertClashes("class C(var p: Any) { val p = null }", "p")
+//    assertClashes("case class C(p: Any) { val p = null }", "p")
+//    assertClashes("case class C(val p: Any) { val p = null }", "p")
+//    assertClashes("case class C(var p: Any) { val p = null }", "p")
+//  }
+  
   def testTypesClash {
-    assertMatches(messages("class T; trait T")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("class T; type T = Any")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("class T; type T")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
-    assertMatches(messages("class T; case class T")) { 
-      case Error("T", _) :: Error("T", _) :: Nil => 
-    }
+    assertClashes("class T; trait T", "T")
+    assertClashes("class T; type T = Any", "T")
+    assertClashes("class T; type T", "T")
+    assertClashes("class T; case class T", "T")
   }
   
   def testTermsClash {
-    assertMatches(messages("def v {}; def v")) {
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("def v {}; val v = null")) {
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("def v {}; val v")) {
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
-    assertMatches(messages("def v {}; var v = null")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    } 
-    assertMatches(messages("def v {}; var v")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    } 
-    assertMatches(messages("def v {}; object v")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    } 
-    assertMatches(messages("def v {}; case class v")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
+    assertClashes("def v {}; def v", "v")
+    assertClashes("def v {}; val v = null", "v")
+    assertClashes("def v {}; val v", "v")
+    assertClashes("def v {}; var v = null", "v") 
+    assertClashes("def v {}; var v", "v") 
+    assertClashes("def v {}; object v", "v") 
+    assertClashes("def v {}; case class v", "v")
   }
    
   def testTypeAndTerms {
-    assertMatches(messages("class x; val x = null")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; val x")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; var x = null")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; var x")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; def x {}")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; def x")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; object x")) {
-      case Nil => 
-    }
-    assertMatches(messages("class x; case object x")) {
-      case Nil => 
-    }
+    assertFine("class x; val x = null")
+    assertFine("class x; val x")
+    assertFine("class x; var x = null")
+    assertFine("class x; var x")
+    assertFine("class x; def x {}")
+    assertFine("class x; def x")
+    assertFine("class x; object x")
+    assertFine("class x; case object x")
   }
   
   def testTypesOrTermsClash {
-    assertMatches(messages("class X; class X; object X")) {
-      case Error("X", _) :: Error("X", _) :: Nil => 
-    }
-    assertMatches(messages("object X; object X; class X")) {
-      case Error("X", _) :: Error("X", _) :: Nil => 
-    }
+    assertClashes("class X; class X; object X", "X")
+    assertClashes("object X; object X; class X", "X")
   }
   
   def testCaseClassCompanion {
-    assertMatches(messages("case class X; object X")) { 
-      case Nil => 
-    } 
-    assertMatches(messages("case class X; case object X")) { 
-      case Nil => 
-    }
-    assertMatches(messages("case class v; def v {}")) { 
-      case Error("v", _) :: Error("v", _) :: Nil => 
-    }
+    assertFine("case class X; object X") 
+    assertFine("case class X; case object X")
+    assertClashes("case class v; def v {}", "v")
     assertMatches(messages("case class X; object X; def X {}")) { 
       case Error("X", _) :: Error("X", _) :: Error("X", _) :: Nil =>
     }
-    assertMatches(messages("case class X; object X; object X")) { 
-      case Error("X", _) :: Error("X", _) :: Nil =>
-    }
-    assertMatches(messages("case class X; case class X; object X")) { 
-      case Error("X", _) :: Error("X", _) :: Nil =>
-    }
+    assertClashes("case class X; object X; object X", "X")
+    assertClashes("case class X; case class X; object X", "X")
   }
 
   def testFunctionSignature() {
-    assertMatches(messages("def f() {}; def f(p: Any) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("def a(p: Any) {}; def b(p: Any) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("def f(p: AnyRef) {}; def f(p: AnyVal) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("def f(a: Any) {}; def f(a: Any, b: Any) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("def f(a: Any) {}; def f(a: Any)(b: Any) {}")) {
-      case Nil =>  
-    }
-    assertMatches(messages("def f(a: Any)(b: AnyRef) {}; def f(a: Any)(b: AnyVal) {}")) {
-      case Nil =>  
-    }
-     assertMatches(messages("def f(a: Any, b: Any) {}; def f(a: Any)(b: Any) {}")) {
-      case Nil =>  
-    }
+    assertFine("def f() {}; def f(p: Any) {}")
+    assertFine("def a(p: Any) {}; def b(p: Any) {}")
+    assertFine("def f(p: AnyRef) {}; def f(p: AnyVal) {}")
+    assertFine("def f(a: Any) {}; def f(a: Any, b: Any) {}")
+    assertFine("def f(a: Any) {}; def f(a: Any)(b: Any) {}")
+    assertFine("def f(a: Any)(b: AnyRef) {}; def f(a: Any)(b: AnyVal) {}")
+    assertFine("def f(a: Any, b: Any) {}; def f(a: Any)(b: Any) {}")
     
-    assertMatches(messages("def f {}; def f {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>
-    }
-    assertMatches(messages("def f() {}; def f() {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>
-    }
-    assertMatches(messages("def f {}; def f() {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>
-    }
-    assertMatches(messages("def f(p: Any) {}; def f(p: Any) {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>  
-    }
-    assertMatches(messages("def f(a: Any) {}; def f(b: Any) {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>  
-    }
-    assertMatches(messages("def f(a: Any, b: Any) {}; def f(a: Any, b: Any) {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>  
-    }
-    assertMatches(messages("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}")) {
-      case Error("f", _) :: Error("f", _) :: Nil =>  
-    }
+    assertClashes("def f {}; def f {}", "f")
+    assertClashes("def f() {}; def f() {}", "f")
+    assertClashes("def f {}; def f() {}", "f")
+    assertClashes("def f(p: Any) {}; def f(p: Any) {}", "f")
+    assertClashes("def f(a: Any) {}; def f(b: Any) {}", "f")
+    assertClashes("def f(a: Any, b: Any) {}; def f(a: Any, b: Any) {}", "f")
+    assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}", "f")
+  }
+  
+  def testFunctionHolders() {
+    assertFine("class X { def f() {}; def f(p: Any) {} }")
+    assertFine("object X { def f() {}; def f(p: Any) {} }")
+    assertFine("trait X { def f() {}; def f(p: Any) {} }")
+    assertFine("new { def f() {}; def f(p: Any) {} }")
+    
+    assertClashes("def x { def f() {}; def f(p: Any) {} }", "f")
+    assertClashes("if(true) { def f() {}; def f(p: Any) {} }", "f")
+    assertClashes("if(true) {} else { def f() {}; def f(p: Any) {} }", "f")
+    assertClashes("while(true) { def f() {}; def f(p: Any) {} }", "f")
+    assertClashes("do { def f() {}; def f(p: Any) {} } while(true)", "f")
+    assertClashes("for(x <- Nil) { def f() {}; def f(p: Any) {} }", "f")
+  }
+  
+  def testLocalFunctionSignature() {
+    assertClashes("def x { def f() {}; def f(p: Any) {} }", "f")
+    assertClashes("def x { def f(p: AnyVal) {}; def f(p: AnyRef) {} }", "f")
+    assertClashes("def x { def f(a: Any) {}; def f(a: Any, b: Any) {} }", "f")
+    assertClashes("def x { def f(a: Any) {}; def f(a: Any)(b: Any) {} }", "f")
+    assertClashes("def x { def f(a: Any)(b: AnyVal) {}; def f(a: Any)(b: AnyRef) {} }", "f")
   }
   
   // TODO implement function signatures comparison based on types (not on plain text representations)
@@ -603,17 +323,40 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   
   def testMessages {
     assertMatches(messages("class Foo; class Foo")) {
-      case Error(_, m) :: _ if m.contains("Foo") && m.contains("already defined") =>  
+      case Error(_, m) :: _ if m.startsWith("Foo is already defined") =>  
     }
     assertMatches(messages("def f(a: Any, b: Any) {}; def f(a: Any, b: Any) {}")) {
-      case Error(_, m) :: _ if m.contains("f(Any, Any)") =>  
+      case Error(_, m) :: _ if m.startsWith("f(Any, Any) is already defined") =>  
     }
     assertMatches(messages("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}")) {
-      case Error(_, m) :: _ if m.contains("f(Any)(Any)") =>  
+      case Error(_, m) :: _ if m.startsWith("f(Any)(Any) is already defined") =>  
+    }
+    assertMatches(messages("def x { def f(p: Any) {}; def f(p: Any) {} }")) {
+      case Error(_, m) :: _ if m.startsWith("f is already defined") =>  
+    }                           
+    assertMatches(messages("def x { def f(a: Any) {}; def f(a: Any, b: Any) {} }")) {
+      case Error(_, m) :: _ if m.startsWith("f is already defined") =>  
     }
   }
+
+  def clashesOf(code: String) = {
+    messages(code).map {
+      case error: Error => error.element
+      case message => Assert.fail("Unexpected message: " + message)
+    }
+  }
+
+  def assertClashes(code: String, pairs: String*) {
+    val expectation = pairs.flatMap(p => List(p, p))
+    Assert.assertEquals("Incorrect clashed elements", expectation.mkString(", "), clashesOf(code).mkString(", "))
+  }
   
-  protected def messages(@Language("Scala") code: String): List[Message] = {
+  def assertFine(code: String) {
+    val clashes = clashesOf(code)
+    if(!clashes.isEmpty) Assert.fail("Unexpected clashes: " + clashes.mkString(", "))
+  }
+  
+  def messages(@Language("Scala") code: String): List[Message] = {
     val psi = code.parse
     val annotator = new ScopeAnnotator() {}
     val mock = new AnnotatorHolderMock
