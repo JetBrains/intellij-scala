@@ -12,7 +12,7 @@ import lang.psi.api.statements._
 import lang.psi.types.ScType
 import params.{ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.api.base.patterns.ScCaseClause
-import lang.psi.api.expr.{ScForStatement, ScBlock}
+import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -64,7 +64,7 @@ trait ScopeAnnotator {
   }
 
   def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.parameters.isEmpty => {
+    case f: ScFunction if !f.parameters.isEmpty && !f.getParent.isInstanceOf[ScBlockExpr] => {
       def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
       f.getName + f.paramClauses.clauses.map(clause => format(clause.paramTypes)).mkString
     }
