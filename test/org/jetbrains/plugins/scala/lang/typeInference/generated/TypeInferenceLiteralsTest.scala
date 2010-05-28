@@ -13,6 +13,8 @@ class TypeInferenceLiteralsTest extends TypeInferenceTestBase {
 
   def testFloat = doTest
 
+  def testFunctionWithoutParams = doTest
+
   def testInt = doTest
 
   def testLong = doTest
@@ -24,4 +26,6 @@ class TypeInferenceLiteralsTest extends TypeInferenceTestBase {
   def testSymbol = doTest
 
   def testUnaryInt = doTest
+
+  def testUnitType = doTest
 }
