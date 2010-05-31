@@ -88,7 +88,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 unusedImports += importUsed
               }
               case ImportSelectorUsed(sel) => {
-                if (sel.reference.getText == sel.importedName && sel.reference.resolve != null) {
+                if (sel.reference.getText == sel.importedName && sel.reference.multiResolve(false).length > 0) {
                   unusedImports += importUsed
                 }
               }

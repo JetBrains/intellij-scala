@@ -3,63 +3,70 @@ package annotator
 package importsTracker
 
 
-import collection.mutable.HashMap
 import collection.Set
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
+import com.intellij.codeInsight.daemon.impl.RefCountHolder
+import java.lang.String
+import com.intellij.psi._
+import impl.light.LightElement
+import collection.mutable.{ArrayBuffer, HashMap}
 
 /**
- * @author Ilyas, Alexander Podkhalyuzin
+ * @author Alexander Podkhalyuzin
  */
 
+
+/**
+ * Main idea for this class is to use Java class RefCountHolder.
+ * todo: we need own RefCountHolder, this solution is bad
+ * We can give to RefCountHolder our fake Psi with inner real psi.
+ * So usage is same.
+ * todo: possible solution is to make something common
+ */
 class ImportTracker {
-  //todo: remove fields, use putUserData instead
-  private val usedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
-  private val unusedImports: HashMap[ScalaFile, collection.mutable.Set[ImportUsed]] = new HashMap[ScalaFile, collection.mutable.Set[ImportUsed]]
-  private val lock = new Object()
+  private class FakeJavaResolveResult(i: ImportUsed) extends JavaResolveResult {
+    //this methods are important
+    def getCurrentFileResolveScope: PsiElement = FakePsiImportStatementBase(i)
 
-  def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]): Boolean = {
-    lock synchronized {
-      usedImports.get(file) match {
-        case None => {
-          val res = new collection.mutable.HashSet[ImportUsed]()
-          res ++= used.iterator
-          usedImports += Tuple(file, res)
-        }
-        case Some(set: collection.mutable.Set[ImportUsed]) => set ++= used
-      }
-      true
+    //this methods are redundant
+    def isStaticsScopeCorrect: Boolean = false
+    def isAccessible: Boolean = false
+    def isPackagePrefixPackageReference: Boolean = false
+    def getSubstitutor: PsiSubstitutor = null
+    def isValidResult: Boolean = false
+    def getElement: PsiElement = null
+  }
+
+  private case class FakePsiImportStatementBase(i: ImportUsed) extends LightElement(i.e.getManager, i.e.getLanguage)
+          with PsiImportStatementBase {  //nohing is matter for this fake psi element
+    override def toString: String = "FakePsiImportStatementBase " + i
+    def resolve: PsiElement = null
+    def getImportReference: PsiJavaCodeReferenceElement = null
+    def isOnDemand: Boolean = false
+    def copy: PsiElement = null //todo:?
+    def accept(visitor: PsiElementVisitor): Unit = {}
+    def getText: String = "FakePsiImportStatementBase " + i
+  }
+
+  def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
+    val refHolder = RefCountHolder.getInstance(file)
+    for (imp <- used) {
+      refHolder.registerReference(new FakePsiJavaReference, new FakeJavaResolveResult(imp))
     }
   }
 
-  def getUnusedImport(file: ScalaFile): Set[ImportUsed] = {
-    lock synchronized {
-      def foo = {
-        val res = new collection.mutable.HashSet[ImportUsed]()
-        res ++= file.getAllImportUsed.iterator
-        usedImports.get(file) match {
-          case Some(used: Set[ImportUsed]) => {
-            res --= used.iterator
-          }
-          case _ =>
-        }
-        unusedImports += Tuple(file, res)
-        usedImports -= file
-        res
-      }
-      unusedImports.getOrElse(file, foo)
+  def getUnusedImport(file: ScalaFile): Array[ImportUsed] = {
+    val buff = new ArrayBuffer[ImportUsed]
+    val iter = file.getAllImportUsed.iterator
+    val refHolder = RefCountHolder.getInstance(file)
+    while (!iter.isEmpty) {
+      val used = iter.next
+      if (refHolder.isRedundant(FakePsiImportStatementBase(used))) buff += used
     }
-  }
-
-  /**
-   * file is currently annotated, unused imports should be empty from this file
-   */
-  def markFileAnnotated(file: ScalaFile) {
-    lock synchronized {
-      unusedImports -= file
-    }
+    return buff.toArray
   }
 }
 

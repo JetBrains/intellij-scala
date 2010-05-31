@@ -16,7 +16,7 @@ import java.lang.String
  *
  * @author ilyas
  */
-abstract sealed case class ImportUsed(private val e: PsiElement) {
+abstract sealed case class ImportUsed(val e: PsiElement) {
   override def toString: String = e.getText
 }
 
@@ -71,6 +71,6 @@ case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
  *
  * import aaa.bbb.{A => B, C => _ , _}
  */
-case class ImportWildcardSelectorUsed(e: ScImportExpr) extends ImportUsed(e) {
+case class ImportWildcardSelectorUsed(elem: ScImportExpr) extends ImportUsed(elem) {
   override def toString: String = "ImportWildcardSelectorUsed(" + super.toString + ")"
 }

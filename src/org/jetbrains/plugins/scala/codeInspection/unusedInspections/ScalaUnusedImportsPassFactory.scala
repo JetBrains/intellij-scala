@@ -3,17 +3,21 @@ package codeInspection
 package unusedInspections
 
 
-import com.intellij.codeHighlighting.{TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import java.lang.String
+import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPassRegistrar, TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2009
  */
 
-class ScalaUnusedImportsPassFactory extends TextEditorHighlightingPassFactory {
+class ScalaUnusedImportsPassFactory(highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
+        extends TextEditorHighlightingPassFactory {
+  highlightingPassRegistrar.registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL),
+    null, false, -1)
+
   def projectClosed: Unit = {}
 
   def projectOpened: Unit = {}

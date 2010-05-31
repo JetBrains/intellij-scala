@@ -32,6 +32,7 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi._
+import impl.source.tree.TreeUtil
 import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
@@ -50,10 +51,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
         with ControlFlowInspections {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    if (element.getContainingFile != null &&
-            element.getContainingFile.isInstanceOf[ScalaFile])
-      ImportTracker.getInstance(element.getProject).markFileAnnotated(element.getContainingFile.asInstanceOf[ScalaFile])
-
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
     }
@@ -99,9 +96,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       case ml: ScModifierList => {
         ModifierChecker.checkModifiers(ml, holder)
-      }
-      case sFile: ScalaFile => {
-        ImportTracker.getInstance(sFile.getProject).markFileAnnotated(sFile)
       }
       case sTypeParam: ScTypeBoundsOwner => {
         checkTypeParamBounds(sTypeParam, holder)
