@@ -62,10 +62,15 @@ class ImportTracker {
     val buff = new ArrayBuffer[ImportUsed]
     val iter = file.getAllImportUsed.iterator
     val refHolder = RefCountHolder.getInstance(file)
-    while (!iter.isEmpty) {
-      val used = iter.next
-      if (refHolder.isRedundant(FakePsiImportStatementBase(used))) buff += used
+    val runnable = new Runnable {
+      def run {
+        while (!iter.isEmpty) {
+          val used = iter.next
+          if (refHolder.isRedundant(FakePsiImportStatementBase(used))) buff += used
+        }
+      }
     }
+    refHolder.retrieveUnusedReferencesInfo(runnable)
     return buff.toArray
   }
 }
