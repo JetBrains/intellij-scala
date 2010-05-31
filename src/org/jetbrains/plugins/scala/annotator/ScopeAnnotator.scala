@@ -13,6 +13,7 @@ import lang.psi.types.ScType
 import params.{ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
+import lang.psi.api.base.types.ScExistentialClause
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -74,10 +75,7 @@ trait ScopeAnnotator {
   }
  
   def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.parameters.isEmpty && !f.getParent.isInstanceOf[ScBlockExpr] => {
-      def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
-      f.getName + f.paramClauses.clauses.map(clause => format(clause.paramTypes)).mkString
-    }
+    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.fullName
     case _ => element.getName
   }
 
@@ -89,6 +87,7 @@ trait ScopeAnnotator {
             e.isInstanceOf[ScParameters] ||
             e.isInstanceOf[ScTypeParamClause] ||
             e.isInstanceOf[ScCaseClause] ||
-            e.isInstanceOf[ScForStatement]
+            e.isInstanceOf[ScForStatement] ||
+            e.isInstanceOf[ScExistentialClause]
   }
 }

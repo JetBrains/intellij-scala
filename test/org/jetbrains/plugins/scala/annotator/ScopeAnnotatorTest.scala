@@ -141,32 +141,32 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   def testGroups {
     assertClashes("def f(a: Any, a: Any); def f(b: Any, b: Any)", "f", "a", "b")
   }
-  
-   def testScopeInspection {
-     assertClashes("{ class C; class C}", "C")
-     assertClashes("class X { class C; class C }", "C")
-     assertClashes("case class X { class C; class C }", "C")
-     assertClashes("trait X { class C; class C }", "C")
-     assertClashes("object X { class C; class C }", "C")
-     assertClashes("case object X { class C; class C }", "C")
-     assertClashes("package X { class C; class C }", "C")
-     assertClashes("def X { class C; class C }", "C")
-     assertClashes("val X = { class C; class C }", "C")
-     assertClashes("var X = { class C; class C }", "C")
-     assertClashes("for(x <- Nil) { class C; class C }", "C")
-     assertClashes("if(true) { class C; class C }", "C")
-     assertClashes("if(true) {} else { class C; class C }", "C")
-     assertClashes("while(true) { class C; class C }", "C")
-     assertClashes("do { class C; class C } while(true)", "C")
-     assertClashes("try { class C; class C } catch { case _ => }", "C")
-     assertClashes("try {} catch { case _ => } finally { class C; class C }", "C")
-     assertClashes("new { class C; class C }", "C")
-     assertClashes("null match { case _ => class C; class C }", "C")
-     assertClashes("val x: (Any => Unit) = { case _ => class C; class C }", "C")
-     assertClashes("for(x <- Nil) { class C; class C }", "C")
-     assertClashes("{ x: Any => class C; class C }", "C")
-   }
-  
+
+  def testScopeInspection {
+    assertClashes("{ class C; class C}", "C")
+    assertClashes("class X { class C; class C }", "C")
+    assertClashes("case class X { class C; class C }", "C")
+    assertClashes("trait X { class C; class C }", "C")
+    assertClashes("object X { class C; class C }", "C")
+    assertClashes("case object X { class C; class C }", "C")
+    assertClashes("package X { class C; class C }", "C")
+    assertClashes("def X { class C; class C }", "C")
+    assertClashes("val X = { class C; class C }", "C")
+    assertClashes("var X = { class C; class C }", "C")
+    assertClashes("for(x <- Nil) { class C; class C }", "C")
+    assertClashes("if(true) { class C; class C }", "C")
+    assertClashes("if(true) {} else { class C; class C }", "C")
+    assertClashes("while(true) { class C; class C }", "C")
+    assertClashes("do { class C; class C } while(true)", "C")
+    assertClashes("try { class C; class C } catch { case _ => }", "C")
+    assertClashes("try {} catch { case _ => } finally { class C; class C }", "C")
+    assertClashes("new { class C; class C }", "C")
+    assertClashes("null match { case _ => class C; class C }", "C")
+    assertClashes("val x: (Any => Unit) = { case _ => class C; class C }", "C")
+    assertClashes("for(x <- Nil) { class C; class C }", "C")
+    assertClashes("{ x: Any => class C; class C }", "C")
+  }
+
   def testScopeBoundary {
     assertFine("class C; { class C }")
     assertFine("class C; class X { class C }")
@@ -185,6 +185,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("class C; try { class C } catch { case _ => } finally { class C }")
     assertFine("class C; new { class C }")
     assertFine("class C; for(x <- Nil) { class C }")
+    assertFine("class C; val x: C forSome { type C <: Any } = null")
   }
 
   def testScopeBoundaryParameters {
