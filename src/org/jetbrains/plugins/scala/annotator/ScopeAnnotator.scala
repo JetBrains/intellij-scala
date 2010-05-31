@@ -24,13 +24,17 @@ trait ScopeAnnotator {
   def annotateScope(element: PsiElement, holder: AnnotationHolder) {
     if (!isScope(element)) return
 
-    val (types, terms, caseClasses, objects) = definitionsIn(element)
+    val (types, terms, parameters, caseClasses, objects) = definitionsIn(element)
 
-    val clashes = (clashesOf(terms ::: objects) :::
+    val jointTerms = terms ::: parameters
+    
+    val complexClashes = clashesOf(jointTerms ::: objects) :::
             clashesOf(types ::: caseClasses) :::
-            clashesOf(terms ::: caseClasses))
+            clashesOf(jointTerms ::: caseClasses) 
+    
+    val clashes = (complexClashes.distinct diff clashesOf(parameters))
 
-    clashes.distinct.foreach { e =>
+    clashes.foreach { e =>
       holder.createErrorAnnotation(e.getNameIdentifier,
         ScalaBundle.message("id.is.already.defined", nameOf(e)))
     }
@@ -39,9 +43,15 @@ trait ScopeAnnotator {
   private def definitionsIn(element: PsiElement) = {
     var types: Definitions = List()
     var terms: Definitions = List()
+    var parameters: Definitions = List()
     var caseClasses: Definitions = List()
     var objects: Definitions = List()
 
+    if(element.isInstanceOf[ScTemplateBody]) element match {
+      case Parent(Parent(aClass: ScClass)) => parameters :::= aClass.parameters.toList
+      case _ => 
+    } 
+    
     element.children.foreach {
       _.depthFirst(!isScope(_)).foreach {
         case e: ScObject => objects ::= e
@@ -50,11 +60,11 @@ trait ScopeAnnotator {
         case e: ScTypeParam => types ::= e
         case e: ScClass if e.isCase => caseClasses ::= e
         case e: ScTypeDefinition => types ::= e
-//        case e: ScNamedElement => {types ::= e; terms ::= e}
         case _ =>
       }
     }
-    (types, terms, caseClasses, objects)
+    
+    (types, terms, parameters, caseClasses, objects)
   }
 
   private def clashesOf(elements: Definitions): Definitions = {
@@ -62,7 +72,7 @@ trait ScopeAnnotator {
     val clashedNames = names.diff(names.distinct)
     elements.filter(e => clashedNames.contains(nameOf(e)))
   }
-
+ 
   def nameOf(element: ScNamedElement): String = element match {
     case f: ScFunction if !f.parameters.isEmpty && !f.getParent.isInstanceOf[ScBlockExpr] => {
       def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
