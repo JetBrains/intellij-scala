@@ -9,7 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
-import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
 import lang.resolve.ScalaResolveResult
 import lang.psi.types.result.{TypingContext, TypeResult, Success}
@@ -21,6 +20,8 @@ import lang.psi.types.{ScType, Unit}
 import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
 import lang.psi.ScalaPsiElement
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelectors, ScImportStmt}
+import lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -124,9 +125,34 @@ class ScalaImportOptimizer extends ImportOptimizer {
               }
             }
           }
-
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
-          //todo: add deleting unnecessary braces
+
+          file.accept(new ScalaRecursiveElementVisitor {
+            override def visitImportExpr(expr: ScImportExpr) = {
+              expr.selectorSet match {
+                case Some(selectors) if selectors.selectors.length == 1 - (if (selectors.hasWildcard) 1 else 0) => {
+                  if (selectors.hasWildcard) {
+                    val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(expr.reference match {
+                      case Some(ref) => ref.getText + "._"
+                      case _ => "_"
+                    }, expr.getManager)
+                    expr.replace(newImportExpr)
+                  } else {
+                    val selector = selectors.selectors.apply(0)
+                    if (selector.reference.refName == selector.importedName) {
+                      val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(expr.reference match {
+                        case Some(ref) => ref.getText + "." + selector.importedName
+                        case _ => selector.importedName
+                      }, expr.getManager)
+                      expr.replace(newImportExpr)
+                    }
+                  }
+                }
+                case _ =>
+              }
+            }
+          })
+          documentManager.commitDocument(documentManager.getDocument(scalaFile))
           //todo: add removing blank lines (last)
           //todo: add other optimizing
         }

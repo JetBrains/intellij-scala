@@ -33,8 +33,6 @@
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"
         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
-    <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
-    <!--<errorHandler implementation="org.jetbrains.plugins.scala.error.ErrorReportSubmitter"/>-->
     <errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
     <fileTypeFactory implementation="org.jetbrains.plugins.scala.ScalaFileTypeFactory"/>
     <syntaxHighlighter key="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter"/>
@@ -81,6 +79,7 @@
     <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
     <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
     <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaExcludeFromCompletionLookupActionProvider"/>
+    <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
 
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
