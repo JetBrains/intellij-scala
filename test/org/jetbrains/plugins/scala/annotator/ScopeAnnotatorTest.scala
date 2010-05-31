@@ -10,9 +10,9 @@ import junit.framework.Assert
  */
 
 class ScopeAnnotatorTest extends SimpleTestCase {
-  // TODO constructors
-  // TODO imports and renaming
-  // TODO id and scope names?  messages, "C is already defined as type C"
+  // TODO List of explicit clash groups, report scope 
+  // ("Foo is already defined as class Foo, object Foo in object Holder")
+  // TODO Suggest "rename" quick fix 
   
   def testEmpty {
     assertFine("")
@@ -45,6 +45,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("for(v <- Nil) {}")
     assertFine("for(x <- Nil; v = null) {}")
     assertFine("{ v: Any => }")
+    assertFine("class X { def this(x: Any) { this() } }")
   }
   
   def testDistinctNames {
@@ -114,6 +115,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("for(x <- Nil; v = null; v = null) {}", "v")
     assertClashes("for(v <- Nil; v = null) {}", "v")
     assertClashes("{ (v: Any, v: Any) => }", "v")
+    assertClashes("class X { def this(x: Any) { this() }; def this(x: Any) { this() } }", "this")
   }
   
   def testUnderscore {
@@ -309,6 +311,24 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("def f(a: Any) {}; def f(b: Any) {}", "f")
     assertClashes("def f(a: Any, b: Any) {}; def f(a: Any, b: Any) {}", "f")
     assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}", "f")
+  }
+  
+  def testConstructorSignature() {
+    assertFine("class X { def this(x: AnyVal) { this() }; def this(x: AnyRef) { this() } }")
+    assertFine("class X { def this(a: Any) { this() }; def this(a: Any, b: Any) { this() } }")
+    assertFine("class X { def this(a: Any) { this() }; def this(a: Any)(b: Any) { this() } }")
+  }
+  
+  def testPrimaryConstructor() {
+    assertFine("class X(x: AnyVal) { def this(x: AnyRef) { this(null) } }")
+    assertFine("class X(a: Any) { def this(a: Any, b: Any) { this(null) } }")
+    assertFine("class X(a: Any) { def this(a: Any)(b: Any) { this(null) } }")
+    
+    // TODO find clashes with primary constructor
+//    assertClashes("class X { def this() { this() } }", "this")
+//    assertClashes("class X(x: Any) { def this(x: Any) { this(null) } }", "this")
+//    assertClashes("class X(a: Any, b: Any) { def this(a: Any, b: Any) { this(null, null) } }", "this")
+//    assertClashes("class X(a: Any)(b: Any) { def this(a: Any)(b: Any) { this(null)(null) } }", "this")
   }
   
   def testFunctionHolders() {
