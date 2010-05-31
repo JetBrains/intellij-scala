@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import toplevel.imports.ScImportExpr
 
 /**
  * @author ilyas
@@ -37,6 +38,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitGuard(guard: ScGuard) { visitElement(guard) }
   def visitFunction(fun: ScFunction) { visitElement(fun) }
   def visitTypeDefintion(typedef: ScTypeDefinition) { visitElement(typedef) }
+  def visitImportExpr(expr: ScImportExpr) {visitElement(expr)}
 
 
   // Expressions
