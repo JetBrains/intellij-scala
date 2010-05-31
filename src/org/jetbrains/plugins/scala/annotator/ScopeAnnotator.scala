@@ -13,6 +13,7 @@ import lang.psi.types.ScType
 import params.{ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
+import lang.psi.api.base.types.ScExistentialClause
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -89,6 +90,7 @@ trait ScopeAnnotator {
             e.isInstanceOf[ScParameters] ||
             e.isInstanceOf[ScTypeParamClause] ||
             e.isInstanceOf[ScCaseClause] ||
-            e.isInstanceOf[ScForStatement]
+            e.isInstanceOf[ScForStatement] ||
+            e.isInstanceOf[ScExistentialClause]
   }
 }
