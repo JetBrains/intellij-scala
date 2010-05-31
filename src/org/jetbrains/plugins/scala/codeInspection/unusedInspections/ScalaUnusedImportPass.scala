@@ -15,9 +15,11 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import java.util.ArrayList
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.imports.ScImportStmt
 import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportSelectorUsed, ImportExprUsed, ImportUsed}
+import lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr, ScImportStmt}
+import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import lang.psi.api.base.ScReferenceElement
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 15.06.2009
@@ -29,7 +31,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
       val sFile = file.asInstanceOf[ScalaFile]
       val annotationHolder = new AnnotationHolderImpl()
       val tracker = ImportTracker.getInstance(file.getProject)
-      val unusedImports: Set[ImportUsed] = tracker.getUnusedImport(sFile)
+      val unusedImports: Array[ImportUsed] = tracker.getUnusedImport(sFile)
       val annotations = unusedImports.flatMap({
         imp: ImportUsed => {
           val psi: PsiElement = imp match {
