@@ -92,11 +92,11 @@ trait Scratch[T] {
   def useZ[A](a: A)(implicit za: Z[A]): A = a
 
   def testUseZInt {
-    import Implicits.{zInt}
+    import Implicits.zInt
     useZ(1)
   }
   def testUseZString {
-    import Implicits.{zString}
+    import Implicits.zString
     useZ("") + 1
   }
 }
