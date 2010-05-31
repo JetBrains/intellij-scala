@@ -141,7 +141,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Does the function have `=` between the signature and the implementation?
    */
   def hasAssign: Boolean
-
+  
+  def signature: String = {
+    if(parameters.isEmpty) "" else {
+      def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
+      paramClauses.clauses.map(clause => format(clause.paramTypes)).mkString
+    }
+  }
+  
+  def fullName = name + signature  
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitFunction(this)
 }
