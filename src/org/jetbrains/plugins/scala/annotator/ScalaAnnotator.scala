@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator
+class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator with ReferenceAnnotator
         with ControlFlowInspections {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.isInstanceOf[ScExpression]) {
@@ -83,6 +83,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //todo: checkImplementedMethods(x, holder)
       }
       case ref: ScReferenceElement => {
+        if(advancedHighlighting) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
