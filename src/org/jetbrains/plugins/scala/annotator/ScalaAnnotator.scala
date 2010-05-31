@@ -42,6 +42,7 @@ import scala.collection.Set
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, FullSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import com.intellij.openapi.project.DumbAware
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -49,10 +50,11 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
  */
 
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator with ReferenceAnnotator
-        with ControlFlowInspections {
+        with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
+      checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
     }
 
     if (element.isInstanceOf[ScTypeElement]) {
@@ -321,6 +323,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case _ => //do nothing
         }
       }
+    }
+  }
+
+  private def checkExpressionImplicitParameters(expr: ScExpression, holder: AnnotationHolder) {
+    expr.findImplicitParameters match {
+      case Some(seq) => {
+        for (resolveResult <- seq) {
+          if (resolveResult != null) {
+            ImportTracker.getInstance(expr.getProject).registerUsedImports(
+              expr.getContainingFile.asInstanceOf[ScalaFile], resolveResult.importsUsed)
+          }
+        }
+      }
+      case _ =>
     }
   }
 

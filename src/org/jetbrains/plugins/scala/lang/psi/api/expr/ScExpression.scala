@@ -181,7 +181,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     ProgressManager.checkCanceled
-    if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
+    if (ctx != TypingContext.empty) return valueType(ctx)
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && exprTypeModCount == curModCount) {
@@ -193,6 +193,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     return tp
   }
 
+  @volatile
+  private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
   @volatile
   private var exprType: TypeResult[ScType] = null
   @volatile
@@ -227,12 +229,25 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     }
   }
 
+
+  def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
+    ProgressManager.checkCanceled
+    var ip = implicitParameters
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (ip != null && exprTypeModCount == curModCount) {
+      return ip
+    }
+    getType(TypingContext.empty) //to update implicitParameters field
+    return implicitParameters
+  }
+
   private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res = inner.getOrElse(return inner)
     val exp = expectedType //to avoid None.get
     //if (exp == Some(Unit)) return Success(Unit, Some(this))
-    
+
+    //let's update implicitParameters field
     res match {
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
         val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
@@ -241,6 +256,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
               new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
         val exprs = new ArrayBuffer[Expression]
+        val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
           val param = iterator.next
@@ -248,6 +264,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           val collector = new ImplicitParametersCollector(this, paramType)
           val results = collector.collect
           if (results.length == 1) {
+            resolveResults += results(0)
             results(0) match {
               case ScalaResolveResult(patt: ScBindingPattern, subst) => {
                 exprs += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
@@ -265,16 +282,36 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
                 exprs += new Expression(funType)
               }
             }
-          } else exprs += new Expression(Any)
+          } else {
+            resolveResults += null
+            exprs += new Expression(Any)
+          }
         }
+        implicitParameters = Some(resolveResults.toSeq)
         val subst = t.polymorphicTypeSubstitutor
         res = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, subst)
+      }
+      case ScMethodType(retType, params, isImplicit) if isImplicit => {
+        val resolveResults = new ArrayBuffer[ScalaResolveResult]
+        val iterator = params.iterator
+        while (iterator.hasNext) {
+          val param = iterator.next
+          val paramType = param.paramType //we should do all of this with information known before
+          val collector = new ImplicitParametersCollector(this, paramType)
+          val results = collector.collect
+          if (results.length == 1) {
+            resolveResults += results(0)
+          } else {
+            resolveResults += null
+          }
+        }
+        implicitParameters = Some(resolveResults.toSeq)
       }
       case _ =>
     }
 
     res match {
-      case ScMethodType(retType, params, impl) if impl => res = retType
+      case ScMethodType(retType, params, impl) if impl => res = retType //todo: move upper
       case ScTypePolymorphicType(internal, typeParams) if exp != None => {
         def updateRes(expected: ScType) {
           res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
