@@ -75,10 +75,7 @@ trait ScopeAnnotator {
   }
  
   def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.parameters.isEmpty && !f.getParent.isInstanceOf[ScBlockExpr] => {
-      def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
-      f.getName + f.paramClauses.clauses.map(clause => format(clause.paramTypes)).mkString
-    }
+    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.fullName
     case _ => element.getName
   }
 
