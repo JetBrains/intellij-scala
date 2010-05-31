@@ -174,6 +174,12 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testInheritedTypeReturnType {
+    assertMatches(messages("trait T { def f: T }; new T { def f = { return new T }}")) {
+      case Error("return", NeedsResultType()) :: Nil =>
+    }
+  }
+  
   def testTypeReturnWrongType {
     assertMatches(messages("def f: A = { return new B }")) {
       case Error("new B", TypeMismatch()) :: Nil =>
@@ -352,6 +358,13 @@ class FunctionAnnotatorTest extends SimpleTestCase {
       case Error("f", Recursive()) :: Nil =>
     }
   }
+
+  //TODO http://youtrack.jetbrains.net/issue/SCL-1967
+//  def testRecursiveWithInheritedResultType {
+//    assertMatches(messages("trait T { def f: T }; new T { def f = { f }}")) {
+//      case Nil =>
+//    }
+//  }
   
   def testRecursiveAndNeedsResultType {
     assertMatches(messages("def f = { f; return new A }")) {
