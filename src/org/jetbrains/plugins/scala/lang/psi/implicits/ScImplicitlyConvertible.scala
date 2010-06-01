@@ -56,7 +56,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    *  Get all imports used to obtain implicit conversions for given type
    */
   def getImportsForImplicit(t: ScType): Set[ImportUsed] = {
-    implicitMap.find(tp => t.eq(tp._1)).map(s => s._3) match {
+    implicitMap.find(tp => t.equiv(tp._1)).map(s => s._3) match {
       case Some(s) => s
       case None => Set()
     }
