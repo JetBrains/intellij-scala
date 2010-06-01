@@ -85,7 +85,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //todo: checkImplementedMethods(x, holder)
       }
       case ref: ScReferenceElement => {
-//        if(advancedHighlighting) annotateReference(ref, holder)
+        if(advancedHighlighting) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
