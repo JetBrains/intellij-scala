@@ -24,6 +24,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def toString: String = "ThisReference"
 
   protected override def innerType(ctx: TypingContext) = refTemplate match {
+    case Some(td: ScNewTemplateDefinition) => Success(ScDesignatorType(td), Some(this))
     case Some(td) => td.getType(ctx) map { refType =>
       td.selfType match {
         case Some(t) => Bounds.glb(refType, t)
