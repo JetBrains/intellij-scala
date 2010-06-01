@@ -1,24 +1,22 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import collection.mutable.{HashSet, HashMap}
+import collection.mutable.HashSet
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.util.{PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 import controlFlow.ControlFlowInspections
-import highlighter.{AnnotatorHighlighter}
+import highlighter.AnnotatorHighlighter
 import importsTracker._
-import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
 
 
 import lang.psi.api.statements._
-import lang.psi.api.statements.params.{ScClassParameter}
+import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.annotation._
 
-import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -32,17 +30,17 @@ import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi._
-import impl.source.tree.TreeUtil
-import tree.TokenSet
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success}
 import scala.collection.Set
 import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit, Conformance, ScType, FullSignature}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType, FullSignature}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.project.DumbAware
+import org.jaxen.expr.Expr
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -65,10 +63,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       checkAnnotationType(element.asInstanceOf[ScAnnotation], holder)
     }
 
+    if (element.isInstanceOf[ScForStatement]) {
+      checkForStmtUsedTypes(element.asInstanceOf[ScForStatement], holder)
+    }
+
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
-    
     if(advancedHighlighting) annotateScope(element, holder)
-    
+
     element match {
       case f: ScFunctionDefinition => {
         f.getContainingFile match {
@@ -368,6 +369,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
+  }
+
+  private def checkForStmtUsedTypes(f: ScForStatement, holder: AnnotationHolder) {
+
+    ImportTracker.getInstance(f.getProject).registerUsedImports(f.getContainingFile.asInstanceOf[ScalaFile],
+      ScalaPsiUtil.getExprImports(f))
   }
 
   private def checkImportExpr(impExpr: ScImportExpr, holder: AnnotationHolder) {

@@ -5,29 +5,15 @@ package impl
 package expr
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
-import api.statements.ScFunction
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import com.intellij.openapi.progress.ProgressManager
-import api.toplevel.imports.usages.ImportUsed
-import lang.resolve.{ScalaResolveResult}
-import types.result.{Success, Failure, TypeResult, TypingContext}
+import types.result.{Failure, TypeResult, TypingContext}
 import types._
-import collection.mutable.ArrayBuffer
-import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
-import nonvalue.{Parameter, TypeParameter, ScMethodType, ScTypePolymorphicType}
-import lang.resolve.processor.MethodResolveProcessor
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -64,30 +50,28 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
 
-  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
-
-    val failure = Failure("Cannot create expression", Some(this))
-    val exprText = new StringBuilder
+  private def getDesugarisedExprText: Option[String] = {
+    val exprText: StringBuilder = new StringBuilder
     val (enums, gens, guards) = enumerators match {
-      case None => return Failure("No enumerators", Some(this))
+      case None => return None
       case Some(x) => {
         (x.enumerators, x.generators, x.guards)
       }
     }
     if (guards.length == 0 && enums.length == 0 && gens.length == 1) {
       val gen = gens(0)
-      if (gen.rvalue == null)  return failure
+      if (gen.rvalue == null) return None
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
               .append(" { case ").
-      append(gen.pattern.getText).append( "=> ")
+              append(gen.pattern.getText).append("=> ")
       body match {
         case Some(x) => exprText.append(x.getText)
         case _ => exprText.append("{}")
       }
       exprText.append(" } ")
-    } else if (gens.length > 0){
+    } else if (gens.length > 0) {
       val gen = gens(0)
-      if (gen.rvalue == null) return failure
+      if (gen.rvalue == null) return None
       var next = gens(0).getNextSibling
       while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
               !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
@@ -96,10 +80,10 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case guard: ScGuard => {
           exprText.append("for {").append(gen.pattern.getText).
                   append(" <- ((").append(gen.rvalue.getText).append(").filter(").
-                  append(gen.pattern.bindings.map(b => b.name).mkString("(",", ", ")")).append("))")
+                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append("))")
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
-              !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
+                  !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
           if (next != null) exprText.append(";")
           while (next != null) {
             exprText.append(next.getText)
@@ -114,7 +98,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }
         case gen2: ScGenerator => {
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "flatMap " else "foreach ").append("{case ").
-            append(gen.pattern.getText).append(" => ").append("for {")
+                  append(gen.pattern.getText).append(" => ").append("for {")
           while (next != null) {
             exprText.append(next.getText)
             next = next.getNextSibling
@@ -128,7 +112,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("\n}")
         }
         case enum: ScEnumerator => {
-          if (enum.rvalue == null) return failure
+          if (enum.rvalue == null) return None
           exprText.append("for {(").append(enum.pattern.getText).append(", ").append(gen.pattern.getText).
                   append(") <- (for (freshNameForIntelliJIDEA1@(").append(gen.pattern.getText).append(") <- ").
                   append(gen.rvalue.getText).append(") yield {val freshNameForIntelliJIDEA2@(").
@@ -136,7 +120,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                   append("; (freshNameForIntelliJIDEA2, freshNameForIntelliJIDEA1)})")
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
-              !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
+                  !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
           if (next != null) exprText.append(";")
           while (next != null) {
             exprText.append(next.getText)
@@ -152,13 +136,46 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case _ =>
       }
     }
-    try {
-      if (exprText.toString == "") return failure
-      val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText.toString, this.getContext, this)
-      return newExpr.getNonValueType(ctx)
+    Some(exprText.toString)
+  }
+
+  @volatile
+  private var desugarizedExpr: Option[ScExpression] = null
+  @volatile
+  private var desugarizedExprModCount: Long = 0
+
+  def getDesugarisedExpr: Option[ScExpression] = {
+    var res = desugarizedExpr
+    val currModCount = getManager.getModificationTracker.getModificationCount
+    if (res != null && desugarizedExprModCount == currModCount) {
+      return res
     }
-    catch {
-      case e: Exception => return failure
+    res = getDesugarisedExprText match {
+      case Some(text) => {
+        if (text == "") None
+        else {
+          try {
+            Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
+          }
+          catch {
+            case e: Exception => None
+          }
+        }
+      }
+      case _ => None
+    }
+    desugarizedExpr = res
+    desugarizedExprModCount = currModCount
+    res
+  }
+
+  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    val failure = Failure("Cannot create expression", Some(this))
+    getDesugarisedExpr match {
+      case Some(newExpr) => {
+          return newExpr.getNonValueType(ctx)
+      }
+      case None => return failure
     }
   }
 }

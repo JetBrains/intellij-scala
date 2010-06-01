@@ -3,6 +3,8 @@ package lang
 package psi
 
 import api.base._
+import api.ScalaRecursiveElementVisitor
+import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef._
@@ -34,6 +36,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import collection.immutable.Stream
+import lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,6 +61,38 @@ object ScalaPsiUtil {
         tlVal
       }
     }
+  }
+
+  /**
+   *  This method doesn't collect things like
+   *  val a: Type = b //after implicit convesion
+   *  Main task for this method to collect imports used in 'for' statemnts.
+   */
+  def getExprImports(z: ScExpression): Set[ImportUsed] = {
+    var res: Set[ImportUsed] = Set.empty
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitExpression(expr: ScExpression) = {
+        expr match {
+          case f: ScForStatement => {
+            f.getDesugarisedExpr match {
+              case Some(e) => res = res ++ getExprImports(e)
+              case _ =>
+            }
+          }
+          case ref: ScReferenceExpression => {
+            for (rr <- ref.multiResolve(false) if rr.isInstanceOf[ScalaResolveResult]) {
+              res = res ++ rr.asInstanceOf[ScalaResolveResult].importsUsed
+            }
+            super.visitExpression(expr)
+          }
+          case _ => {
+            super.visitExpression(expr)
+          }
+        }
+      }
+    }
+    z.accept(visitor)
+    res
   }
 
   def getPsiElementId(elem: PsiElement): String = {
@@ -313,7 +348,7 @@ object ScalaPsiUtil {
   }
 
   /**
-   * For one classOf use PsiTreeUtil.getParenteOfType instead
+   *  For one classOf use PsiTreeUtil.getParenteOfType instead
    */
   def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
     getParentOfType(element, false, classes: _*)
