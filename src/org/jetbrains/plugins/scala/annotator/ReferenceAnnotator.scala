@@ -24,21 +24,30 @@ trait ReferenceAnnotator {
                 holder.createErrorAnnotation(call.args, f.name + " does not take parameters")
               } else {
                 if(f.parameters.size < call.args.exprs.size) {
-                  holder.createErrorAnnotation(call.args, "Too many arguments for method " + f.fullName)
+                  holder.createErrorAnnotation(call.args, "Too many arguments for method " + nameOf(f))
                 } else {
-                  holder.createErrorAnnotation(call.args, "Not applicable to " + f.signature)
+                  holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f) )
                 }
               }
             }
             case _ => {
               if(!f.parameters.isEmpty) {
-                holder.createErrorAnnotation(reference, "Missing arguments for method " + f.fullName)
+                holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
               }
             }
           }
         }
         case _ =>
       }
+    }
+  }
+  
+  private def nameOf(f: ScFunction) = f.name + signatureOf(f)
+  
+  private def signatureOf(f: ScFunction): String = {
+    if(f.parameters.isEmpty) "" else {
+      def format(types: Seq[ScType]) = "(" + types.map(_.presentableText).mkString(", ") + ")"
+      f.paramClauses.clauses.map(clause => format(clause.paramTypes)).mkString
     }
   }
 }

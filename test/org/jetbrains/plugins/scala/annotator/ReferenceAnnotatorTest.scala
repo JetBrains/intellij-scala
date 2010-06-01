@@ -121,7 +121,9 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
    //TODO test not enoght arguments message
   }
-  // multiple
+  
+  // return signature
+  // multiple *, expanding
   // type parameters
   // too many args
   // not enough arguments
@@ -132,6 +134,7 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   // nfix
   // constructor 
   // inside block expression
+  // java interop
  
   def messages(code: String): List[Message] = {
     val psi = code.parse
