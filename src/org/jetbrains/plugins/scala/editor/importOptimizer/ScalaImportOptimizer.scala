@@ -159,7 +159,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
     var res: collection.mutable.HashSet[ImportUsed] =
-    collection.mutable.HashSet(expr.getTypeAfterImplicitConversion()._2.toSeq : _*)
+    collection.mutable.HashSet(expr.getTypeAfterImplicitConversion().importsUsed.toSeq : _*)
     expr.findImplicitParameters match {
       case Some(seq) => {
         for (rr <- seq if rr != null) {

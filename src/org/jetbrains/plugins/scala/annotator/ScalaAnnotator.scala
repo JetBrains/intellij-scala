@@ -33,7 +33,6 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success}
 import scala.collection.Set
 import scala.Some
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType, FullSignature}
@@ -41,6 +40,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.project.DumbAware
 import org.jaxen.expr.Expr
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeResult, Success}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -311,7 +312,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case Some(tp: ScType) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
-            val (exprType, importUsed) = expr.getTypeAfterImplicitConversion()
+            val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
             val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
             if (!conformance) {
               val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
@@ -360,9 +361,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
             case _ =>
           }
-          val (exprType, importUsed): (TypeResult[ScType], Set[ImportUsed]) = ret.expr match {
+          val ExpressionTypeResult(exprType, importUsed, implicitFunction) = ret.expr match {
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
-            case None => (Success(Unit, None), Set.empty)
+            case None => ExpressionTypeResult(Success(Unit, None), Set.empty, None)
           }
           ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
         }
