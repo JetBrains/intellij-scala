@@ -314,6 +314,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}", "f")
   }
   
+  def testRepeatedParameter() {
+    assertFine("def f(p: Any*) {}; def f(p: Any) {}")
+    assertFine("def f(p: Any) {}; def f(p: Any*) {}")
+    assertClashes("def f(p: Any*) {}; def f(p: Any*) {}", "f")
+  }
+  
   def testConstructorSignature() {
     assertFine("class X { def this(x: AnyVal) { this() }; def this(x: AnyRef) { this() } }")
     assertFine("class X { def this(a: Any) { this() }; def this(a: Any, b: Any) { this() } }")
