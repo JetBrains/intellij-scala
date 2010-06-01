@@ -30,21 +30,22 @@ import caches.CachesUtil
  */
 
 trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
+  import ScExpression._
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
    * @param expectedOption to which type we tring to convert
    */
-  def getTypeAfterImplicitConversion(exp: Option[Option[ScType]] = None, checkImplicits: Boolean = true):
-    (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+  def getTypeAfterImplicitConversion(exp: Option[Option[ScType]] = None, 
+                                     checkImplicits: Boolean = true): ExpressionTypeResult = {
     val expectedOption = exp match {
       case Some(a) => a
       case _ => expectedType
     }
-    def inner: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+    def inner: ExpressionTypeResult = {
       val expected: ScType = expectedOption match {
         case Some(a) => a
-        case _ => return (getType(TypingContext.empty), Set.empty)
+        case _ => return ExpressionTypeResult(getType(TypingContext.empty), Set.empty, None)
       }
       //now we want to change context for this expression, for example
       //we want to imagine that expected type for this expression is...
@@ -71,9 +72,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         }
       }
 
-      def forExpr(expr: ScExpression): (TypeResult[ScType], scala.collection.Set[ImportUsed]) = {
+      def forExpr(expr: ScExpression): ExpressionTypeResult = {
         val tr = expr.getType(TypingContext.empty)
-        val defaultResult: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = (tr, Set.empty)
+        val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
         val tp = tr.getOrElse(return defaultResult)
         //if this result is ok, we do not need to think about implicits
         if (tp.conforms(expected)) return defaultResult
@@ -82,11 +83,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         //this functionality for checking if this expression can be implicitly changed and then
         //it will conform to expected type
         val f: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = expr.implicitMap.filter(_._1.conforms(expected))
-        if (f.length == 1) return (Success(f(0)._1, Some(this)), f(0)._3)
+        if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
         else if (f.length == 0) return defaultResult
         else {
           var res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
-          return (Success(res._1, Some(this)), res._3)
+          return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
         }
       }
 
@@ -198,7 +199,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   @volatile
   private var exprType: TypeResult[ScType] = null
   @volatile
-  private var exprAfterImplicitType: (TypeResult[ScType], scala.collection.Set[ImportUsed]) = null
+  private var exprAfterImplicitType: ExpressionTypeResult = null
   @volatile
   private var expectedTypesCache: Array[ScType] = null
 
@@ -407,4 +408,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     expectedTypesCache = tps
     expectedTypesModCount = getManager.getModificationTracker.getModificationCount
   }
+}
+
+object ScExpression {
+  case class ExpressionTypeResult(tr: TypeResult[ScType],
+                                  importsUsed: scala.collection.Set[ImportUsed],
+                                  implicitFunction: Option[ScFunctionDefinition])
 }
