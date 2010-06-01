@@ -15,12 +15,12 @@ import expr._
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import toplevel.imports.usages.ImportUsed
-import statements.params.ScTypeParam
 import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
 import toplevel.typedef.{ScTypeDefinition, ScClass}
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve._
 import processor.{MethodResolveProcessor, CompletionProcessor, ExpandedExtractorResolveProcessor}
+import statements.params.{ScParameter, ScTypeParam}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -71,7 +71,7 @@ trait ScPattern extends ScalaPsiElement {
         }
         res
       }
-      case Some(ScalaResolveResult(_: ScBindingPattern, _)) => {
+      case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) => {
         val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
         val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(false), ref.getContext match {
           case inf: ScInfixPattern => inf.expectedType

@@ -6,6 +6,7 @@ package processor
 import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
+import params.ScParameter
 import psi.types._
 
 import result.{TypingContext}
@@ -63,6 +64,9 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
         }
         case bind: ScBindingPattern => {
           candidatesSet += new ScalaResolveResult(bind, getSubst(state), getImports(state))
+        }
+        case param: ScParameter => {
+          candidatesSet += new ScalaResolveResult(param, getSubst(state), getImports(state))
         }
         case _ => return true
       }
