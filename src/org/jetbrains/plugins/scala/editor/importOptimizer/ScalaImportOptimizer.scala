@@ -11,16 +11,11 @@ import lang.lexer.ScalaTokenTypes
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.api.toplevel.imports.usages.{ImportUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportExprUsed}
 import lang.resolve.ScalaResolveResult
-import lang.psi.types.result.{TypingContext, TypeResult, Success}
-import lang.psi.api.base.types.ScTypeElement
 import collection.Set
-import annotator.ScalaAnnotator
-import lang.psi.types.{ScType, Unit}
-import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelectors, ScImportStmt}
+import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.api.expr.{ScForStatement, ScBlockExpr, ScReturnStmt, ScExpression}
+import lang.psi.api.expr.{ScForStatement, ScExpression}
 import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 
 /**
