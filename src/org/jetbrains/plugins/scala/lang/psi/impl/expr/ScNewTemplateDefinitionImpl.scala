@@ -36,7 +36,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def getIcon(flags: Int) = Icons.CLASS
 
   protected override def innerType(ctx: TypingContext) = {
-    val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
+    val (holders, aliases) : (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = extendsBlock.templateBody match {
       case Some(b: ScTemplateBody) => (b.holders.toSeq, b.aliases.toSeq)
       case None => (Seq.empty, Seq.empty)
     }
