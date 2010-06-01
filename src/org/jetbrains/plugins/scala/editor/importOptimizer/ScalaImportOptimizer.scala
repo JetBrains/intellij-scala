@@ -14,14 +14,14 @@ import lang.resolve.ScalaResolveResult
 import lang.psi.types.result.{TypingContext, TypeResult, Success}
 import lang.psi.api.base.types.ScTypeElement
 import collection.Set
-import lang.psi.api.expr.{ScBlockExpr, ScReturnStmt, ScExpression}
 import annotator.ScalaAnnotator
 import lang.psi.types.{ScType, Unit}
 import lang.psi.api.statements.{ScVariableDefinition, ScFunction, ScPatternDefinition}
-import lang.psi.ScalaPsiElement
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelectors, ScImportStmt}
 import lang.psi.impl.ScalaPsiElementFactory
+import lang.psi.api.expr.{ScForStatement, ScBlockExpr, ScReturnStmt, ScExpression}
+import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -171,6 +171,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
           res ++= rr.importsUsed
         }
       }
+      case _ =>
+    }
+    expr match {
+      case f: ScForStatement => res ++= ScalaPsiUtil.getExprImports(f)
       case _ =>
     }
     res
