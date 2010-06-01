@@ -10,10 +10,10 @@ import lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
 import lang.psi.types.ScType
-import params.{ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 import lang.psi.api.base.types.ScExistentialClause
+import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -74,11 +74,25 @@ trait ScopeAnnotator {
     elements.filter(e => clashedNames.contains(nameOf(e)))
   }
  
-  def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.fullName
+  private def nameOf(element: ScNamedElement): String = element match {
+    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.name + signatureOf(f)
     case _ => element.getName
   }
+  
+  private def signatureOf(f: ScFunction): String = {
+    if(f.parameters.isEmpty) 
+      "" 
+    else 
+      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+  }
 
+  private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
+    val parts = parameters.zip(types).map {
+      case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
+    }
+    "(" + parts.mkString(", ") + ")"
+  }
+  
   private def isScope(e: PsiElement): Boolean = {
     e.isInstanceOf[ScalaFile] ||
             e.isInstanceOf[ScBlock] ||

@@ -51,7 +51,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
   val typeOf: PsiElement => Option[String] = {
     case e: ScFunction => e.returnType.toOption.map(_.presentableText)
     case e: ScBindingPattern => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
-    case e: ScParameter => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
+    case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption.map(_ .presentableText)
     case e: PsiMethod => e.getReturnType.toOption.map(_ getPresentableText)
     case e: PsiVariable => e.getType.toOption.map(_ getPresentableText)
     case _ => None
