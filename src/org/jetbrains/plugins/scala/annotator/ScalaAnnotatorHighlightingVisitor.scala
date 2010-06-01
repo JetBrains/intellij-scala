@@ -73,11 +73,10 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightV
 
   private def runAnnotator(element: PsiElement): Unit = {
     val dumb: Boolean = DumbService.getInstance(project).isDumb
-
-    var annotator: Annotator = new ScalaAnnotator
-    if (dumb && !(annotator.isInstanceOf[DumbAware])) {
+    if (dumb) {
       return
     }
+    val annotator: Annotator = new ScalaAnnotator
     annotator.annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
       import JavaConversions._
