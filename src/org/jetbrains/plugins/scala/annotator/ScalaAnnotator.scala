@@ -71,7 +71,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
-    if(advancedHighlighting) annotateScope(element, holder)
+    annotateScope(element, holder)
 
     element match {
       case f: ScFunctionDefinition => {
