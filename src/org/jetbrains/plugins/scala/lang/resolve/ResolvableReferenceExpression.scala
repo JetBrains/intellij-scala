@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
+import caches.CachesUtil
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this)
@@ -171,15 +172,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   }
 
   private def collectImplicits(e: ScExpression, processor: BaseProcessor) {
-    for (t <- e.getImplicitTypes) {
-        ProgressManager.checkCanceled
-        val importsUsed = e.getImportsForImplicit(t)
-        var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-        e.getClazzForType(t) match {
-          case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-          case _ =>
-        }
-        processor.processType(t, e, state)
+    for ((t, fun, importsUsed) <- e.implicitMap) {
+      ProgressManager.checkCanceled
+      var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+      state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
+      e.getClazzForType(t) match {
+        case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+        case _ =>
       }
+      processor.processType(t, e, state)
+    }
   }
 }

@@ -101,6 +101,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean FOLD_IMPORT_IN_HEADER = true;
 
   public boolean ENABLE_ERROR_HIGHLIGHTING = false;
+  public boolean SHOW_IMPLICIT_CONVERSIONS = true;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

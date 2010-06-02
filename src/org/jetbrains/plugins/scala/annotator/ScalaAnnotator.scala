@@ -35,13 +35,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import types.ScTypeElement
 import scala.collection.Set
 import scala.Some
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit, ScType, FullSignature}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.project.DumbAware
-import org.jaxen.expr.Expr
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeResult, Success}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
+import java.awt.{Font, Color}
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit, FullSignature}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -111,9 +113,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     super[ControlFlowInspections].annotate(element, holder)
   }
 
-  def isAdvancedHighlightingEnabled(element: PsiElement) = {
+  private def settings(element: PsiElement): ScalaCodeStyleSettings = {
     CodeStyleSettingsManager.getSettings(element.getProject)
-            .getCustomSettings(classOf[ScalaCodeStyleSettings]).ENABLE_ERROR_HIGHLIGHTING
+            .getCustomSettings(classOf[ScalaCodeStyleSettings])
+  }
+
+  def isAdvancedHighlightingEnabled(element: PsiElement) = {
+    settings(element).ENABLE_ERROR_HIGHLIGHTING
   }
   
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
@@ -164,6 +170,35 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
 
+    if (settings(refElement).SHOW_IMPLICIT_CONVERSIONS && resolve.length == 1) {
+      val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
+      refElement match {
+        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
+                e.getParent.asInstanceOf[ScPrefixExpr].operation == e => {
+          resolveResult.implicitFunction match {
+            case Some(fun) => {
+              val pref = e.getParent.asInstanceOf[ScPrefixExpr]
+              val expr = pref.operand
+              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+            }
+            case _ =>
+          }
+        }
+        case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
+                e.getParent.asInstanceOf[ScInfixExpr].operation == e => {
+          resolveResult.implicitFunction match {
+            case Some(fun) => {
+              val inf = e.getParent.asInstanceOf[ScInfixExpr]
+              val expr = if (inf.isLeftAssoc) inf.rOp else inf.lOp
+              highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+            }
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+    }
+
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
@@ -175,6 +210,17 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
+  private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
+                              fun: ScFunctionDefinition, holder: AnnotationHolder): Unit = {
+    val exprText = expr.getText
+    import org.jetbrains.plugins.scala.lang.psi.types.Any
+    val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+    val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
+    val range = refElement.nameId.getTextRange
+    showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)
+  }
+
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     var resolve: Array[ResolveResult] = null
@@ -184,7 +230,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       registerUsedImports(refElement, scalaResult)
     }
     checkAccessForReference(resolve, refElement, holder)
-
+    if (refElement.isInstanceOf[ScExpression] &&
+            settings(refElement).SHOW_IMPLICIT_CONVERSIONS && resolve.length == 1) {
+      val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
+      resolveResult.implicitFunction match {
+        case Some(fun) => {
+          val qualifier = refElement.qualifier match {case Some(qual) => qual}
+          val expr = qualifier.asInstanceOf[ScExpression]
+          highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+        }
+        case _ =>
+      }
+    }
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return 
@@ -298,6 +355,25 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
+  private def showImplicitUsageAnnotation(exprText: String, typeFrom: ScType, typeTo: ScType, fun: ScFunctionDefinition,
+                                          range: TextRange, holder: AnnotationHolder, effectType: EffectType,
+                                          color: Color): Unit = {
+    val tooltip = ScalaBundle.message("implicit.usage.tooltip", exprText,
+      ScType.presentableText(typeFrom),
+      ScType.presentableText(typeTo),
+      PresentationUtil.presentationString(fun))
+    val message = ScalaBundle.message("implicit.usage.message", exprText,
+      ScType.presentableText(typeFrom),
+      ScType.presentableText(typeTo),
+      PresentationUtil.presentationString(fun))
+    val annotation: Annotation = holder.createInfoAnnotation(range
+      /*new TextRange(expr.getTextRange.getEndOffset - 1, expr.getTextRange.getEndOffset)*/ , message)
+    annotation.setEnforcedTextAttributes(new TextAttributes(null, null, color,
+      effectType, Font.PLAIN))
+    annotation.setAfterEndOfLine(false)
+    annotation.setTooltip(tooltip)
+  }
+
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder) {
     expr match {
       case m: ScMatchStmt =>
@@ -313,6 +389,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
             val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
+            if (settings(expr).SHOW_IMPLICIT_CONVERSIONS) {
+              implicitFunction match {
+                case Some(fun) => {
+                  val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+                  val typeTo = exprType.getOrElse(Any)
+                  val exprText = expr.getText
+                  val range = expr.getTextRange
+                  //todo:
+                  //showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+                  // EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)
+                }
+                case None => //do nothing
+              }
+            }
             val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
             if (!conformance) {
               val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",

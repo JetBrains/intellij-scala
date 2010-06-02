@@ -94,6 +94,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JComboBox methodDeclarationComboBox;
   private JComboBox otherComboBox;
   private JCheckBox addFullQualifiedImportsCheckBox;
+  private JCheckBox enableExpetimentalErrorHighlightingCheckBox;
+  private JCheckBox showImplicitConversionsInCheckBox;
 
   //this lock for fast clickers on preview tab to not update it twice in same time
   private final Object LOCK = new Object();
@@ -247,6 +249,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.CLASS_DECLARATION_BRACE = classDeclarationComboBox.getSelectedIndex();
     scalaSettings.METHOD_DECLARATION_BRACE = methodDeclarationComboBox.getSelectedIndex();
     scalaSettings.OTHER_BRACE = otherComboBox.getSelectedIndex();
+    scalaSettings.ENABLE_ERROR_HIGHLIGHTING = enableExpetimentalErrorHighlightingCheckBox.isSelected();
+    scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -343,6 +347,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     }
     if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS != donTUseContinuationCheckBox.isSelected()) {
+      return true;
+    }
+
+    if (scalaSettings.SHOW_IMPLICIT_CONVERSIONS != showImplicitConversionsInCheckBox.isSelected()) {
+      return true;
+    }
+    if (scalaSettings.ENABLE_ERROR_HIGHLIGHTING != enableExpetimentalErrorHighlightingCheckBox.isSelected()) {
       return true;
     }
     if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
@@ -478,6 +489,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(classDeclarationComboBox, settings.CLASS_DECLARATION_BRACE);
     setValue(methodDeclarationComboBox, settings.METHOD_DECLARATION_BRACE);
     setValue(otherComboBox, settings.OTHER_BRACE);
+
+    setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
+    setValue(enableExpetimentalErrorHighlightingCheckBox, settings.ENABLE_ERROR_HIGHLIGHTING);
   }
 
   private static void setValue(JSpinner spinner, int value) {
