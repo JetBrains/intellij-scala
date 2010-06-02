@@ -217,8 +217,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
     val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
     val range = refElement.nameId.getTextRange
-    showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)
+    /*showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
+    val annotation: Annotation = holder.createInfoAnnotation(range, null)
+    val attributes = new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN)
+    annotation.setEnforcedTextAttributes(attributes)
+    annotation.setAfterEndOfLine(false)
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -358,14 +362,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def showImplicitUsageAnnotation(exprText: String, typeFrom: ScType, typeTo: ScType, fun: ScFunctionDefinition,
                                           range: TextRange, holder: AnnotationHolder, effectType: EffectType,
                                           color: Color): Unit = {
-    val tooltip = ScalaBundle.message("implicit.usage.tooltip", exprText,
+    val tooltip = ScalaBundle.message("implicit.usage.tooltip", fun.getName,
       ScType.presentableText(typeFrom),
-      ScType.presentableText(typeTo),
-      PresentationUtil.presentationString(fun))
-    val message = ScalaBundle.message("implicit.usage.message", exprText,
+      ScType.presentableText(typeTo))
+    val message = ScalaBundle.message("implicit.usage.message", fun.getName,
       ScType.presentableText(typeFrom),
-      ScType.presentableText(typeTo),
-      PresentationUtil.presentationString(fun))
+      ScType.presentableText(typeTo))
     val annotation: Annotation = holder.createInfoAnnotation(range
       /*new TextRange(expr.getTextRange.getEndOffset - 1, expr.getTextRange.getEndOffset)*/ , message)
     annotation.setEnforcedTextAttributes(new TextAttributes(null, null, color,
