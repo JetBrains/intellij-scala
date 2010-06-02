@@ -8,6 +8,7 @@ import lang.psi.types.{Signature, ScType}
 import lang.psi.types.result.TypeResult
 import collection.mutable.{ArrayBuffer, HashMap}
 import com.intellij.psi.{PsiNamedElement, PsiType, PsiElement, PsiManager}
+import lang.psi.api.statements.ScFunctionDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,6 +27,8 @@ object CachesUtil {
   val IMPLICIT_PARAM_TYPES_KEY: Key[Map[Thread, List[ScType]]] = Key.create("implicit.param.types.key")
   val CYCLIC_HELPER_KEY: Key[Map[Thread, List[PsiNamedElement]]] = Key.create("cyclic.helper.key")
   val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
+  val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
+  val IMPLICIT_FUNCTION: Key[ScFunctionDefinition] = Key.create("implicit.function")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)

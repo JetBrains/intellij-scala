@@ -18,6 +18,7 @@ import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import stubs.NamedStub
 import stubs.NamedStub
 import stubs.NamedStub
+import templates.ScTemplateBody
 import typedef._
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
@@ -48,7 +49,9 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   override def getPresentation: ItemPresentation = {
-    val clazz = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+    val clazz: ScTemplateDefinition = if (getParent.isInstanceOf[ScTemplateBody])
+      PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+    else null
     var parent: PsiElement = this
     while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
     return new ItemPresentation {

@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang
 package psi
 
 import api.statements.params._
+import api.statements.ScFunction
+import api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
@@ -75,6 +77,23 @@ object PresentationUtil {
         }
         buffer.append(": ")
         buffer.append(presentationString(param.getType, substitutor))
+        buffer.toString
+      }
+      case fun: ScFunction => {
+        val buffer: StringBuilder = new StringBuilder("")
+        fun.getParent match {
+          case body: ScTemplateBody if fun.getContainingClass != null => {
+            val qual = fun.getContainingClass.getQualifiedName
+            if (qual != null) {
+              buffer.append(qual).append(".")
+            }
+          }
+          case _ =>
+        }
+        buffer.append(fun.getName)
+        fun.typeParametersClause match {case Some(tpc) => buffer.append(presentationString(tpc)) case _ =>}
+        buffer.append(presentationString(fun.paramClauses, substitutor)).append(": ")
+        buffer.append(presentationString(fun.returnType.getOrElse(psi.types.Any), substitutor))
         buffer.toString
       }
       case elem: PsiElement => elem.getText

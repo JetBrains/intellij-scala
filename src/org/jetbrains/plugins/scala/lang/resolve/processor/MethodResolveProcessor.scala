@@ -26,6 +26,7 @@ import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, Impo
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 import Compatibility.Expression
 import psi.impl.ScPackageImpl
+import caches.CachesUtil
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -42,6 +43,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case null => None
       case x => Some(x)
     }
+    val implFunction: Option[ScFunctionDefinition] = state.get(CachesUtil.IMPLICIT_FUNCTION) match {
+      case null => None
+      case x => Some(x)
+    }
+    val implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE) match {
+      case null => None
+      case x => Some(x)
+    }
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
       val s = getSubst(state)
@@ -49,7 +58,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case m: PsiMethod => {
           //all this code for implicit overloading reesolution
           //todo: this is bad code, should be rewrited
-          val res = new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass)
+          val res = new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType)
           ((candidatesSet ++ levelSet).find(p => p.hashCode == res.hashCode), implicitConversionClass) match {
             case (Some(oldRes: ScalaResolveResult), Some(newClass)) => {
               val oldClass = oldRes.implicitConversionClass
