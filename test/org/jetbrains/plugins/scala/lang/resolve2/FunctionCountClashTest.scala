@@ -10,7 +10,7 @@ class FunctionCountClashTest extends ResolveTestBase {
     super.getTestDataPath + "function/count/clash/"
   }
 
-  def testEmptyAndNone = doTest
+//  def testEmptyAndNone = doTest
   def testOneAndEmpty = doTest
   def testOneAndNone = doTest
   def testOneAndTwo = doTest

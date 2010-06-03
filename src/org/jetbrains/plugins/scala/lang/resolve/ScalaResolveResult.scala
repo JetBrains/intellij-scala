@@ -19,14 +19,14 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val importsUsed: collection.Set[ImportUsed] = collection.Set[ImportUsed](),
                          val nameShadow: Option[String] = None,
                          val implicitConversionClass: Option[PsiClass] = None,
-                         val applicable: Boolean = true,
+                         val problems: Seq[ApplicabilityProblem] = Seq.empty,
                          val boundClass: PsiClass = null,
                          val implicitFunction: Option[ScFunctionDefinition] = None,
                          val implicitType: Option[ScType] = None) extends ResolveResult {
 
   def getElement = element
 
-  def isApplicable = applicable
+  def isApplicable = problems.isEmpty
 
   def isAccessible = true
 
@@ -36,8 +36,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def isRenamed: Option[String] = nameShadow
 
-  def copy(subst: ScSubstitutor = substitutor, applicable: Boolean = applicable): ScalaResolveResult =
-    new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, applicable, boundClass,
+  def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems): ScalaResolveResult =
+    new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,

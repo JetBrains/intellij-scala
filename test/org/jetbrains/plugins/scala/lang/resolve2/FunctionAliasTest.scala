@@ -11,7 +11,8 @@ class FunctionAliasTest extends ResolveTestBase {
   }
 
   def testApply = doTest
-  def testCallThenApply = doTest
+  // TODO
+//  def testCallThenApply = doTest
   //TODO how to be with syntetic method?
 //  def testEquals = doTest
   //TODO how to be with syntetic method?

@@ -38,10 +38,9 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   }
  
   def testDoesNotTakeParameters {
-    // TODO must not be applicable
-//    assertMatches(messages("def f {}; f()")) {
-//      case Error("()", DoesNotTakeParameters()) :: Nil =>
-//    }
+    assertMatches(messages("def f {}; f()")) {
+      case Error("()", DoesNotTakeParameters()) :: Nil =>
+    }
     assertMatches(messages("def f {}; f(null)")) {
       case Error("(null)", DoesNotTakeParameters()) :: Nil =>
     }
@@ -55,13 +54,16 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   
   def testTooManyArguments {
     assertMatches(messages("def f() {}; f(null)")) {
-      case Error("(null)", TooManyArguments()) :: Nil =>
+      case Error("null", TooManyArguments()) :: Nil =>
     }
-    assertMatches(messages("def f(p: Any) {}; f(null, null)")) {
-      case Error("(null, null)", TooManyArguments()) :: Nil =>
+    assertMatches(messages("def f() {}; f(null, Unit)")) {
+      case Error("null", TooManyArguments()) :: Error("Unit", TooManyArguments()) :: Nil =>
     }
-    assertMatches(messages("def f(a: Any, b: Any) {}; f(null, null, null)")) {
-      case Error("(null, null, null)", TooManyArguments()) :: Nil =>
+    assertMatches(messages("def f(p: Any) {}; f(null, Unit)")) {
+      case Error("Unit", TooManyArguments()) :: Nil =>
+    }
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(null, null, Unit)")) {
+      case Error("Unit", TooManyArguments()) :: Nil =>
     }
     // TODO
 //    assertMatches(messages("def f(a: Any)(b: Any) {}; f(null)(null)(null)")) {
@@ -91,7 +93,7 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("def f(a: Any, b: Any) {}; f(null)")) {
       case Error("(null)", Inapplicable()) :: Nil =>
     }
-    // TODO must not be applicable
+//     TODO must not be applicable
 //    assertMatches(messages("def f(a: Any)(b: Any) {}; f(null)")) {
 //      case Error("(null)", Inapplicable()) :: Nil =>
 //    }
@@ -122,6 +124,13 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
    //TODO test not enoght arguments message
   }
   
+//  def f(implicit p: Int, a: Int) {}
+//  def f(p: Int*, a: Int) {}
+  
+  // * must be last
+  // positional then by name
+  // by name duplicates  
+  
   // return signature
   // multiple *, expanding
   // type parameters
@@ -135,6 +144,8 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   // constructor 
   // inside block expression
   // java interop
+  // syntetic methods (apply, unapply)
+  // braces
  
   def messages(code: String): List[Message] = {
     val psi = code.parse
