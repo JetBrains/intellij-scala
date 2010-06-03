@@ -100,6 +100,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasExplicitType = returnTypeElement.isDefined
 
   def paramClauses: ScParameters
+  
+  def isProcedure = paramClauses.clauses.isEmpty
 
   def returnType: TypeResult[ScType]
 
