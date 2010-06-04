@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-import org.jetbrains.plugins.scala.lang.resolve2.ResolveTestBase
 
 
 /**

@@ -3,7 +3,6 @@ package refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.PsiElement
-import refactoring.extractMethod.{ExtractMethodReturn, ExtractMethodParameter}
 
 /**
  * User: Alexander Podkhalyuzin
