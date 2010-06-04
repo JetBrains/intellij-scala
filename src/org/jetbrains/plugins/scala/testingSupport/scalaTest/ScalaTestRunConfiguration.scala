@@ -220,12 +220,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
         val processHandler = startProcess
         val config = ScalaTestRunConfiguration.this
-        val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala");
+        val consoleProperties = new SMTRunnerConsoleProperties(config);
 
         // console view
-        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner("Scala", 
-          processHandler, consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
-          getConfigurationSettings)
+        val testRunnerConsole: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.attachRunner(processHandler,
+          consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
+          getConfigurationSettings, "Scala")
 
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
       }
