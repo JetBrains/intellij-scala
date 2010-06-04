@@ -12,7 +12,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import scala.collection.JavaConversions._
 import junit.framework.Assert._
 import io.Source
-import scala.util.Properties
+import java.io.File
 
 /**
  * Pavel.Fatin, 14.01.2010
@@ -30,9 +30,8 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   }
 
   def doTest() = {
-    val path: String = getBasePath + getTestName(false) + ".test"
-    val source: Source = Source.fromPath(path)
-    val input: String = source.getLines(Properties.lineSeparator).mkString("\n")
+    val path = getBasePath + getTestName(false) + ".test"
+    val input = Source.fromFile(new File(path)).getLines().mkString("\n")
     myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.replaceAll(marker, ""))
 
     DaemonCodeAnalyzerSettings.getInstance.SHOW_METHOD_SEPARATORS = true
