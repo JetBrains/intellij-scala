@@ -143,7 +143,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         val consoleView = new ConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
         consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
         val builder = new StringBuilder()
-        consoleView.addConsoleUserInputLestener(new ConsoleInputListener {
+        consoleView.addConsoleUserInputListener(new ConsoleInputListener {
           def textEntered(userText: String): Unit = {
             val hist = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
             if (userText != "") {
