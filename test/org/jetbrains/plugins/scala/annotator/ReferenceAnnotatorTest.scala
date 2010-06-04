@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScopeAnnotator, Message}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
 
@@ -127,6 +126,7 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
 //  def f(implicit p: Int, a: Int) {}
 //  def f(p: Int*, a: Int) {}
   
+  // no args for method with def or impl args: def f(); f 
   // * must be last
   // positional then by name
   // by name duplicates  
