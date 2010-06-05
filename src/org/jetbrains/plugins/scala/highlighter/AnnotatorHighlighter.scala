@@ -8,8 +8,8 @@ import lang.psi.api.base.patterns._
 import lang.psi.api.statements._
 import com.intellij.psi._
 import lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import lang.psi.api.expr.{ScAnnotationExpr, ScAnnotation, ScReferenceExpression, ScNameValuePair}
 import lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
 import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.lang.annotation.AnnotationHolder
@@ -17,7 +17,9 @@ import lang.psi.api.base.types.ScSimpleTypeElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.lexer.ScalaTokenTypes
 import stubs.StubElement
-import lang.psi.ScalaStubBasedElementImpl
+import lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
+import a.j.td
+import lang.psi.api.expr._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,6 +60,9 @@ object AnnotatorHighlighter {
       }
       case _: ScTypeAlias => {
         annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
+      }
+      case c: ScClass if referenceIsToCompanionObjectOfClass(refElement) => {
+        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
       }
       case _: ScClass => {
         annotation.setTextAttributes(DefaultHighlighter.CLASS)
@@ -266,6 +271,13 @@ object AnnotatorHighlighter {
     clause.pattern match {
       case Some(x) => visitPattern(x, holder)
       case None =>
+    }
+  }
+  
+  private def referenceIsToCompanionObjectOfClass(r: ScReferenceElement): Boolean = {
+    Option(r.getContext) exists {
+      case _: ScMethodCall | _: ScReferenceExpression => true // These references to 'Foo' should be 'object' references: case class Foo(a: Int); Foo(1); Foo.apply(1).
+      case _ => false
     }
   }
 }
