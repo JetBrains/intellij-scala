@@ -195,6 +195,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
     any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
     any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
+    any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
     val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
       val stringType = new ScDesignatorType(stringClass)
