@@ -350,7 +350,8 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
             def get(param: ScParameter): String = {
               var res: String = param.getName
               param.typeElement foreach {
-                x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
+                x => res += ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
+                if (param.isRepeatedParameter) res += "*"
               }
               return res
             }
