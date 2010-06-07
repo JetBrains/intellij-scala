@@ -18,7 +18,6 @@ import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.lexer.ScalaTokenTypes
 import stubs.StubElement
 import lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
-import a.j.td
 import lang.psi.api.expr._
 
 /**
