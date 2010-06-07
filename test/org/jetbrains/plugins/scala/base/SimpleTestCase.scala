@@ -14,9 +14,9 @@ import junit.framework.{TestCase, Assert}
 abstract class SimpleTestCase extends TestCase {
   val fixture = IdeaTestFixtureFactory.getFixtureFactory.createFixtureBuilder.getFixture
 
-  override def setUp = fixture.setUp
+  override def setUp() = fixture.setUp
 
-  override def tearDown = fixture.tearDown
+  override def tearDown() = fixture.tearDown
 
   def parseText(s: String): ScalaFile = {
     PsiFileFactory.getInstance(fixture.getProject)

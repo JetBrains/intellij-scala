@@ -162,7 +162,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
               val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
               Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
             }
-            case _ => Seq(new MissedParameterClauses(Seq.empty))
+            case _ => Seq(new MissedParametersClause(null))
           }
         }
       }
@@ -172,6 +172,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     c.element match {
       //todo: add values and objects
       //Implicit Application
+      case f: ScFunction if f.hasMalformedSignature => return Seq(new MalformedDefinition)
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.apply(0).isImplicit &&

@@ -22,6 +22,8 @@ import search.GlobalSearchScope
  * @author ven
  */
 object Compatibility {
+  private var seqClass: Option[PsiClass] = None  
+  
   def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = {
     if (r conforms l) {
       true
@@ -54,6 +56,17 @@ object Compatibility {
     }
   }
 
+  def seqClassFor(expr: ScTypedStmt): PsiClass = {
+    seqClass.getOrElse {
+      JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+    }
+  }
+
+  // provides means for dependency injection in tests
+  def mockSeqClass(aClass: PsiClass) {
+    seqClass = Some(aClass)
+  }
+  
   def checkConformance(checkNames: Boolean,
                                  parameters: Seq[Parameter],
                                  exprs: Seq[Expression],
@@ -74,20 +87,26 @@ object Compatibility {
     //optimization:
     val hasRepeated = parameters.find(_.isRepeated) != None
     val maxParams = parameters.length
-    if (exprs.length > maxParams && !hasRepeated) return (Seq(new ApplicabilityProblem), undefSubst)
+    
+    if (exprs.length > maxParams && !hasRepeated) 
+      return (Seq(new ApplicabilityProblem), undefSubst)
+    
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
-    if (exprs.length < minParams) return (Seq(new ApplicabilityProblem), undefSubst)
-
+    if (exprs.length < minParams) 
+      return (Seq(new ApplicabilityProblem), undefSubst)
 
     if (parameters.length == 0) 
       return (if(exprs.length == 0) Seq.empty else Seq(new ApplicabilityProblem), undefSubst)
+    
     var k = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
     val used = new Array[Boolean](parameters.length)
+    var problems: List[ApplicabilityProblem] = Nil
+    
     while (k < parameters.length.min(exprs.length)) {
-      def doNoNamed(expr: Expression): Boolean = {
+      def doNoNamed(expr: Expression): Option[ApplicabilityProblem] = {
         if (namedMode) {
-          return false
+          return Some(new ApplicabilityProblem)
         }
         else {
           val getIt = used.indexOf(false)
@@ -95,18 +114,19 @@ object Compatibility {
           val param: Parameter = parameters(getIt)
           val paramType = param.paramType
           (for (exprType <- expr.getTypeAfterImplicitConversion(Some(paramType), checkWithImplicits)._1) yield {
-            if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) false
-            else {
+            if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) {
+              Some(new TypeMismatch(expr.expr, paramType))
+            } else {
               undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
-              true
+              None
             }
-          }).getOrElse(true)
+          }).getOrElse(None)
         }
       }
 
       exprs(k) match {
         case Expression(expr: ScTypedStmt) if expr.getLastChild.isInstanceOf[ScSequenceArg] => {
-          val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
+          val seqClass: PsiClass = seqClassFor(expr)
           if (seqClass != null) {
             val getIt = used.indexOf(false)
             used(getIt) = true
@@ -120,12 +140,16 @@ object Compatibility {
                 undefSubst += Conformance.undefinedSubst(tp, exprType, checkWeakConformance)
               }
             }
-          } else if (!doNoNamed(Expression(expr))) return (Seq(new ApplicabilityProblem), undefSubst)
+          } else {
+            val problem = doNoNamed(Expression(expr))
+            if (problem.isDefined) problems ::= problem.get 
+          }
         }
         case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.findIndexOf(_.name == name)
           if (ind == -1 || used(ind) == true) {
-            if (!doNoNamed(Expression(assign))) return (Seq(new ApplicabilityProblem), undefSubst)
+            val problem = doNoNamed(Expression(assign))
+            if (problem.isDefined) problems ::= problem.get
           }
           else {
             if (!checkNames) return (Seq(new ApplicabilityProblem), undefSubst)
@@ -144,11 +168,15 @@ object Compatibility {
           }
         }
         case expr: Expression => {
-          if (!doNoNamed(expr)) return (Seq(new ApplicabilityProblem), undefSubst)
+          val problem = doNoNamed(expr)
+          if (problem.isDefined) problems ::= problem.get
         }
       }
       k = k + 1
     }
+    
+    if(!problems.isEmpty) return (problems.reverse, undefSubst) 
+    
     if (exprs.length == parameters.length) return (Seq.empty, undefSubst)
     else if (exprs.length > parameters.length) {
       if (namedMode) return (Seq(new ApplicabilityProblem), undefSubst)
@@ -196,10 +224,7 @@ object Compatibility {
           return (Seq(new DoesNotTakeParameters), new ScUndefinedSubstitutor) 
                   
         val parameters: Seq[ScParameter] = fun.paramClauses.clauses.firstOption.toList.flatMap(_.parameters) 
-
-        if(fun.isProcedure && !argClauses.isEmpty)
-          return (Seq(new DoesNotTakeParameters), new ScUndefinedSubstitutor) 
-        
+      
         //optimization:
         val hasRepeated = parameters.exists(_.isRepeatedParameter)
         val maxParams = if(hasRepeated) scala.Int.MaxValue else parameters.length
@@ -208,13 +233,13 @@ object Compatibility {
         
         if (excess > 0) {
           val arguments = exprs.takeRight(excess).map(_.expr)
-          return (Seq(new ExcessArguments(arguments)), new ScUndefinedSubstitutor)
+          return (arguments.map(ExcessArgument(_)), new ScUndefinedSubstitutor)
         }
         
         val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
         val shortage = minParams - exprs.length  
         if (shortage > 0) 
-          return (Seq(new MissedParameters(Seq.empty)), new ScUndefinedSubstitutor)
+          return (Seq(new MissedParameter(null)), new ScUndefinedSubstitutor)
 
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
