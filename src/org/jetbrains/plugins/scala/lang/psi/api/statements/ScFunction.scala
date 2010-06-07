@@ -52,6 +52,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with ScDeclaredElementsHolder with ScAnnotationsHolder {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
+  def hasMalformedSignature = paramClauses.clauses.exists {
+    _.parameters.dropRight(1).exists(_.isRepeatedParameter)
+  }
+  
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */

@@ -11,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 sealed class ApplicabilityProblem 
 
 // function definition problems
-case class MultipleDefinitions(functions: Seq[ScFunction]) extends ApplicabilityProblem
-case class MultipleDefinitionVariants(functions: Seq[ScFunction]) extends ApplicabilityProblem
+case class MultipleDefinitions extends ApplicabilityProblem
+case class MultipleDefinitionVariants extends ApplicabilityProblem
 case class MalformedDefinition extends ApplicabilityProblem
 
 // call syntax problems
@@ -21,8 +21,8 @@ case class ParameterSpecifiedMultipleTimes extends ApplicabilityProblem
 
 // call applicability problem
 case class DoesNotTakeParameters extends ApplicabilityProblem
-case class ExcessArguments(arguments: Seq[ScExpression]) extends ApplicabilityProblem
-case class MissedParameterClauses(clause: Seq[ScParameterClause]) extends ApplicabilityProblem
-case class MissedParameters(parameter: Seq[ScParameter]) extends ApplicabilityProblem
-case class MissedImplicitParameters(parameter: Seq[ScParameter]) extends ApplicabilityProblem
-case class TypeMismatch(pairs: Seq[(ScParameter, ScExpression)]) extends ApplicabilityProblem
+case class ExcessArgument(argument: ScExpression) extends ApplicabilityProblem
+case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
+case class MissedParameter(parameter: ScParameter) extends ApplicabilityProblem
+case class MissedImplicitParameter(parameter: ScParameter) extends ApplicabilityProblem
+case class TypeMismatch(expression: ScExpression, expectedType: ScType) extends ApplicabilityProblem

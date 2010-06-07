@@ -16,22 +16,7 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   }
   
   def testFine {
-    assertMatches(messages("def f {}; f")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f() {}; f()")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f() {}; f")) {
-      case Nil =>
-    }
     assertMatches(messages("def f(p: Any) {}; f(null)")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: Any, b: Any) {}; f(null, null)")) {
-      case Nil =>
-    }
-    assertMatches(messages("def f(a: Any)(b: Any) {}; f(null)(null)")) {
       case Nil =>
     }
   }
@@ -123,30 +108,6 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
    //TODO test not enoght arguments message
   }
   
-//  def f(implicit p: Int, a: Int) {}
-//  def f(p: Int*, a: Int) {}
-  
-  // no args for method with def or impl args: def f(); f 
-  // * must be last
-  // positional then by name
-  // by name duplicates  
-  
-  // return signature
-  // multiple *, expanding
-  // type parameters
-  // too many args
-  // not enough arguments
-  // type mismatch
-  // default
-  // named
-  // implicits
-  // nfix
-  // constructor 
-  // inside block expression
-  // java interop
-  // syntetic methods (apply, unapply)
-  // braces
- 
   def messages(code: String): List[Message] = {
     val psi = code.parse
     val annotator = new ReferenceAnnotator() {}
