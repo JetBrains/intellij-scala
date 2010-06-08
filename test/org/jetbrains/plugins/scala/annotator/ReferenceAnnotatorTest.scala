@@ -22,90 +22,28 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   }
  
   def testDoesNotTakeParameters {
-    assertMatches(messages("def f {}; f()")) {
-      case Error("()", DoesNotTakeParameters()) :: Nil =>
-    }
-    assertMatches(messages("def f {}; f(null)")) {
-      case Error("(null)", DoesNotTakeParameters()) :: Nil =>
-    }
-    assertMatches(messages("def f {}; f(null, null)")) {
-      case Error("(null, null)", DoesNotTakeParameters()) :: Nil =>
+    assertMatches(messages("def f {}; f(Unit, null)")) {
+      case Error("(Unit, null)", "f does not take parameters") :: Nil =>
     }    
-    assertMatches(messages("def f {}; f(null)(null)")) {
-      case Error("(null)", DoesNotTakeParameters()) :: Nil =>
-    }
   }
   
-  def testTooManyArguments {
-    assertMatches(messages("def f() {}; f(null)")) {
-      case Error("null", TooManyArguments()) :: Nil =>
-    }
-    assertMatches(messages("def f() {}; f(null, Unit)")) {
-      case Error("null", TooManyArguments()) :: Error("Unit", TooManyArguments()) :: Nil =>
-    }
-    assertMatches(messages("def f(p: Any) {}; f(null, Unit)")) {
-      case Error("Unit", TooManyArguments()) :: Nil =>
-    }
-    assertMatches(messages("def f(a: Any, b: Any) {}; f(null, null, Unit)")) {
-      case Error("Unit", TooManyArguments()) :: Nil =>
-    }
-    // TODO
-//    assertMatches(messages("def f(a: Any)(b: Any) {}; f(null)(null)(null)")) {
-//      case Error("(null)(null)(null)", TooManyArguments()) :: Nil =>
-//    }
-  }
-  
-  def testMissingArguments {
-    assertMatches(messages("def f(p: Any) {}; f")) {
-      case Error("f", MissingArguments()) :: Nil =>
-    }
+  def testMissedParametersClause {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
-      case Error("f", MissingArguments()) :: Nil =>
+      case Error("f", "Missing arguments for method f(Any, Any)") :: Nil =>
     }
-    assertMatches(messages("def f(a: Any)(b: Any) {}; f")) {
-      case Error("f", MissingArguments()) :: Nil =>
+  }
+  
+  def testExcessArguments {
+    assertMatches(messages("def f() {}; f(null, Unit)")) {
+      case Error("null", "Too many arguments for method f") ::
+              Error("Unit", "Too many arguments for method f") :: Nil =>
     }
   }
 
-  def testNotEnoughArguments {
-    assertMatches(messages("def f(p: Any) {}; f()")) {
-      case Error("()", Inapplicable()) :: Nil =>
-    }
+  def testMissedParameters {
     assertMatches(messages("def f(a: Any, b: Any) {}; f()")) {
-      case Error("()", Inapplicable()) :: Nil =>
+      case Error("()", "Unspecified value parameters: a: Any, b: Any") :: Nil =>
     }
-    assertMatches(messages("def f(a: Any, b: Any) {}; f(null)")) {
-      case Error("(null)", Inapplicable()) :: Nil =>
-    }
-//     TODO must not be applicable
-//    assertMatches(messages("def f(a: Any)(b: Any) {}; f(null)")) {
-//      case Error("(null)", Inapplicable()) :: Nil =>
-//    }
-  }
-  
-
-  //   def testInapplicable {
-//     assertMatches(messages("def f(p: Any) {}; f()")) {
-//       case Error("(null)", _) :: Nil =>
-//     }
-//
-//     
-//    assertMatches(messages("def f() {}; f(null)")) {
-//      case Error("(null)", _) :: Nil =>
-//    }
-//  }
-  
-  def testMessages() {
-    assertMatches(messages("def f {}; f(null)")) {
-      case Error(_, "f does not take parameters") :: Nil =>
-    }
-    assertMatches(messages("def f(p: Any) {}; f(null, null)")) {
-      case Error(_, "Too many arguments for method f(Any)") :: Nil =>
-    }
-    assertMatches(messages("def f(p: Any) {}; f")) {
-      case Error("f", "Missing arguments for method f(Any)") :: Nil =>
-    }
-   //TODO test not enoght arguments message
   }
   
   def messages(code: String): List[Message] = {
@@ -118,21 +56,5 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
     
     mock.annotations
-  }
-  
-  object Inapplicable {
-    def unapply(message: String) = message.contains("Not applicable")
-  }
-  
-  object DoesNotTakeParameters {
-    def unapply(message: String) = message.contains("not take parameters")
-  }
-  
-  object TooManyArguments {
-    def unapply(message: String) = message.contains("Too many arguments")
-  }
-  
-  object MissingArguments {
-    def unapply(message: String) = message.contains("Missing arguments")
   }
 }
