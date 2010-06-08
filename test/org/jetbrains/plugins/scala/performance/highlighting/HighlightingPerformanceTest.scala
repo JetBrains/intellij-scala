@@ -19,6 +19,8 @@ import util.TestUtils
  */
 
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
+  def testStub {}
+  
 //TODO
 //  def testPerformance {
 //    val text = """
