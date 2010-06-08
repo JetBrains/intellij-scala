@@ -23,8 +23,12 @@ trait ReferenceAnnotator {
         case f: ScFunction => {
           reference.getContext match {
             case call: ScMethodCall => {
+              val missed = for (MissedParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
+              
+              if(!missed.isEmpty) holder.createErrorAnnotation(call.args, "Unspecified value parameters: " + missed.mkString(", "))
+              
               r.problems.foreach {
-                case _: DoesNotTakeParameters => 
+                case DoesNotTakeParameters() => 
                   holder.createErrorAnnotation(call.args, f.name + " does not take parameters")
                 case ExcessArgument(argument) => 
                   holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
@@ -33,6 +37,7 @@ trait ReferenceAnnotator {
                     holder.createErrorAnnotation(expression, 
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }
+                case MissedParameter(_) => // handled above
                 
                 case _ => holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f))
               }

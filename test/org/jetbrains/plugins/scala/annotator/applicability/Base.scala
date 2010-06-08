@@ -4,7 +4,12 @@ package annotator.applicability
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.types._
-import com.intellij.psi.PsiElement
+import lang.psi.api.statements.params.ScParameter
+import lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.{PsiNameIdentifierOwner, PsiElement}
+import lang.psi.api.expr.ScExpression
+import nonvalue.Parameter
+
 /**
  * Pavel.Fatin, 18.05.2010
  */
@@ -16,11 +21,6 @@ abstract class Base extends SimpleTestCase {
   object B extends L with B
   object C extends L with C
   """
-
-  //  override def setUp {
-  //    super.setUp()
-  //    Compatibility.mockSeqClass("trait Seq[+A]".parse(classOf[ScTrait]))
-  //  }
 
   // parametrized
   // synthetic
@@ -58,22 +58,22 @@ abstract class Base extends SimpleTestCase {
   // complex (missed + mismatches, etc)
 
 
-  def problems(code: String): Seq[ApplicabilityProblem] = {
-    for (ref <- (Header + code).parse.depthFirst.filterByType(classOf[ScReferenceElement]).toSeq;
-         result <- ref.advancedResolve.iterator.toSeq;
+  def problems(code: String): List[ApplicabilityProblem] = {
+    for (ref <- (Header + code).parse.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
+         result <- ref.advancedResolve.toList;
          problem <- result.problems)
     yield problem
   }
-
-  object Elements {
-    def unapplySeq(seq: Seq[PsiElement]) = Some(seq.map(_.getText))
+  
+  object Expression {
+    def unapply(e: ScExpression) = e.toOption.map(_.getText)
   }
   
-  object Element {
-    def unapply(e: PsiElement) = Some(e.getText)
+  object Named {
+    def unapply(e: Parameter) = e.toOption.map(_.name)
   }
     
   object Type {
-    def unapply(t: ScType) = Some(t.presentableText)
+    def unapply(t: ScType) = t.toOption.map(_.presentableText)
   }
 }

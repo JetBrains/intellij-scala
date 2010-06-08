@@ -51,16 +51,16 @@ class BasicTest extends Base {
 
   def testTooManyArguments {
     assertMatches(problems("def f() {}; f(A)")) {
-      case ExcessArgument(Element("A")) :: Nil =>
+      case ExcessArgument(Expression("A")) :: Nil =>
     }
     assertMatches(problems("def f() {}; f(A, B)")) {
-      case ExcessArgument(Element("A")) :: ExcessArgument(Element("B")) :: Nil =>
+      case ExcessArgument(Expression("A")) :: ExcessArgument(Expression("B")) :: Nil =>
     }
     assertMatches(problems("def f(p: A) {}; f(A, B)")) {
-      case ExcessArgument(Element("B")) :: Nil =>
+      case ExcessArgument(Expression("B")) :: Nil =>
     }
     assertMatches(problems("def f(a: A, b: B) {}; f(A, B, C)")) {
-      case ExcessArgument(Element("C")) :: Nil =>
+      case ExcessArgument(Expression("C")) :: Nil =>
     }
   }
 
@@ -77,12 +77,24 @@ class BasicTest extends Base {
     }
   }
 
+  def testMissedParameter {
+    assertMatches(problems("def f(a: A) {}; f()")) {
+      case MissedParameter(Named("a")) :: Nil =>
+    }
+    assertMatches(problems("def f(a: A, b: B) {}; f(A)")) {
+      case MissedParameter(Named("b")) :: Nil =>
+    }
+    assertMatches(problems("def f(a: A, b: B) {}; f()")) {
+      case MissedParameter(Named("a")) :: MissedParameter(Named("b")) :: Nil =>
+    }
+  }
+  
   def testTypeMismatch {
     assertMatches(problems("def f(a: A) {}; f(B)")) {
-      case TypeMismatch(Element("B"), Type("A")) :: Nil =>
+      case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }
     assertMatches(problems("def f(a: A, b: B) {}; f(B, A)")) {
-      case TypeMismatch(Element("B"), Type("A")) :: TypeMismatch(Element("A"), Type("B")) :: Nil =>
+      case TypeMismatch(Expression("B"), Type("A")) :: TypeMismatch(Expression("A"), Type("B")) :: Nil =>
     }
   }
 }

@@ -181,7 +181,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
-        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return Seq(new ApplicabilityProblem)
+        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return Seq(new ApplicabilityProblem("1"))
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
@@ -201,7 +201,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         val args = argumentClauses.headOption.toList
         Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
       }
-      case _ => Seq(new ApplicabilityProblem)
+      case _ => Seq(new ApplicabilityProblem("2"))
     }
   }
 

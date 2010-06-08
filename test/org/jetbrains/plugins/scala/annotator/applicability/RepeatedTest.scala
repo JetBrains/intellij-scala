@@ -2,11 +2,18 @@ package org.jetbrains.plugins.scala
 package annotator.applicability
 
 import lang.psi.types._
+import lang.psi.api.toplevel.typedef.ScTrait
+
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 class RepeatedTest extends Base {
+//  override def setUp {
+//    super.setUp()
+//    Compatibility.mockSeqClass("trait Seq[+A]".parse(classOf[ScTrait]))
+//  }
+  
   def testMalformedDefinition {
     assertMatches(problems("def f(a: A*, b: B) {}; f(A, B)")) {
       case MalformedDefinition() :: Nil =>
@@ -93,13 +100,13 @@ class RepeatedTest extends Base {
   
   def testTypeMismatch {
     assertMatches(problems("def f(a: A*) {}; f(B)")) {
-      case TypeMismatch(Element("B"), Type("A")) :: Nil =>
+      case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }
 //    assertMatches(problems("def f(a: A*) {}; f(B, B)")) {
-//      case TypeMismatch(Element("B"), Type("A")) :: TypeMismatch(Element("B"), Type("A")) :: Nil =>
+//      case TypeMismatch(Expression("B"), Type("A")) :: TypeMismatch(Expression("B"), Type("A")) :: Nil =>
 //    }
 //    assertMatches(problems("def f(a: A*) {}; f(A, B)")) {
-//      case TypeMismatch(Element("B"), Type("A")) :: Nil =>
+//      case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
 //    }
 //    assertMatches(problems("def f(a: A*) {}; f(B, A)")) {
 //      case Nil =>
