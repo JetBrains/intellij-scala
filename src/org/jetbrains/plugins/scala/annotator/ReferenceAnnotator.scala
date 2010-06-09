@@ -40,6 +40,8 @@ trait ReferenceAnnotator {
                 case MissedParameter(_) => // simultaneously handled above
                 case PositionalAfterNamedArgument(argument) => 
                   holder.createErrorAnnotation(argument, "Positional after named argument")
+                case ParameterSpecifiedMultipleTimes(assignment) => 
+                  holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
                 
                 case _ => holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f))
               }

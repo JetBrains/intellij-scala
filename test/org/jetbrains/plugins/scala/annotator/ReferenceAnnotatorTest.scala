@@ -53,6 +53,13 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testNamedDuplicates {
+    assertMatches(messages("def f(a: Any) {}; f(a = null, a = Unit)")) {
+      case Error("a", "Parameter specified multiple times") :: 
+              Error("a", "Parameter specified multiple times") :: Nil =>
+    }
+  }
+  
   def messages(code: String): List[Message] = {
     val psi = code.parse
     val annotator = new ReferenceAnnotator() {}

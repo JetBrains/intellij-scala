@@ -7,8 +7,8 @@ import lang.psi.types._
 import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.toplevel.ScNamedElement
 import com.intellij.psi.{PsiNameIdentifierOwner, PsiElement}
-import lang.psi.api.expr.ScExpression
 import nonvalue.Parameter
+import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -72,6 +72,10 @@ abstract class Base extends SimpleTestCase {
   
   object Named {
     def unapply(e: Parameter) = e.toOption.map(_.name)
+  }
+
+  object Assignment {
+    def unapply(e: ScAssignStmt) = e.toOption.map(_.getText)
   }
     
   object Type {
