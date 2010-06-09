@@ -104,23 +104,24 @@ object Compatibility {
     var problems: List[ApplicabilityProblem] = Nil
     
     while (k < parameters.length.min(exprs.length)) {
-      def doNoNamed(expr: Expression): Option[ApplicabilityProblem] = {
+      def doNoNamed(expr: Expression): List[ApplicabilityProblem] = {
         if (namedMode) {
-          return Some(new ApplicabilityProblem("6"))
+          return List(new PositionalAfterNamedArgument(expr.expr))
         }
         else {
           val getIt = used.indexOf(false)
           used(getIt) = true
           val param: Parameter = parameters(getIt)
           val paramType = param.paramType
-          (for (exprType <- expr.getTypeAfterImplicitConversion(Some(paramType), checkWithImplicits)._1) yield {
+          val typeResult = expr.getTypeAfterImplicitConversion(Some(paramType), checkWithImplicits)._1
+          typeResult.toOption.toList.flatMap { exprType =>
             if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) {
-              Some(new TypeMismatch(expr.expr, paramType))
+              List(new TypeMismatch(expr.expr, paramType))
             } else {
               undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
-              None
+              List.empty
             }
-          }).getOrElse(None)
+          }
         }
       }
 
@@ -141,15 +142,13 @@ object Compatibility {
               }
             }
           } else {
-            val problem = doNoNamed(Expression(expr))
-            if (problem.isDefined) problems ::= problem.get 
+            problems :::= doNoNamed(Expression(expr)).reverse 
           }
         }
         case Expression(assign@NamedAssignStmt(name)) => {
           val ind = parameters.findIndexOf(_.name == name)
           if (ind == -1 || used(ind) == true) {
-            val problem = doNoNamed(Expression(assign))
-            if (problem.isDefined) problems ::= problem.get
+            problems :::= doNoNamed(Expression(assign)).reverse
           }
           else {
             if (!checkNames) return (Seq(new ApplicabilityProblem("9")), undefSubst)
@@ -168,8 +167,7 @@ object Compatibility {
           }
         }
         case expr: Expression => {
-          val problem = doNoNamed(expr)
-          if (problem.isDefined) problems ::= problem.get
+          problems :::= doNoNamed(expr).reverse
         }
       }
       k = k + 1

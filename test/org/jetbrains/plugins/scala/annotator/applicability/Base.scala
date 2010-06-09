@@ -22,6 +22,7 @@ abstract class Base extends SimpleTestCase {
   object C extends L with C
   """
 
+  // calls with no braces
   // parametrized
   // synthetic
   // unresolved args

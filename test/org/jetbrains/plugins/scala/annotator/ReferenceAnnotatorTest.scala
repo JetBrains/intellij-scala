@@ -46,6 +46,13 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testPositionalAfterNamed {
+    assertMatches(messages("def f(a: Any, b: Any, c: Any) {}; f(c = null, null, Unit)")) {
+      case Error("null", "Positional after named argument") :: 
+              Error("Unit", "Positional after named argument") :: Nil =>
+    }
+  }
+  
   def messages(code: String): List[Message] = {
     val psi = code.parse
     val annotator = new ReferenceAnnotator() {}
