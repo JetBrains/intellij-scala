@@ -38,6 +38,7 @@ trait ReferenceAnnotator {
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }
                 case MissedParameter(_) => // simultaneously handled above
+                case UnresolvedParameter(_) => // don't show function inapplicability, unresolved 
                 case PositionalAfterNamedArgument(argument) => 
                   holder.createErrorAnnotation(argument, "Positional after named argument")
                 case ParameterSpecifiedMultipleTimes(assignment) => 
