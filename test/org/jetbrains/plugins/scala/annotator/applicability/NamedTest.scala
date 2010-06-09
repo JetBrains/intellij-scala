@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator.applicability
 
-import lang.psi.types.{ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument}
+import lang.psi.types.{UnresolvedParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -71,8 +71,32 @@ class NamedTest extends Base {
               ParameterSpecifiedMultipleTimes(Assignment("b = null")) :: Nil =>
     }
   }
+  
+  def testUnresolvedParameter {
+    assertMatches(problems("def f() {}; f(a = A)")) {
+      case UnresolvedParameter(Assignment("a = A")) :: Nil =>
+    }
+    assertMatches(problems("def f() {}; f(a = A, b = B)")) {
+      case UnresolvedParameter(Assignment("a = A")) :: 
+              UnresolvedParameter(Assignment("b = B")) :: Nil =>
+    }
+    assertMatches(problems("def f(a: A) {}; f(b = A)")) {
+      case UnresolvedParameter(Assignment("b = A")) :: Nil =>
+    }
+    assertMatches(problems("def f(a: A) {}; f(a = A, b = B)")) {
+      case UnresolvedParameter(Assignment("b = B")) :: Nil =>
+    }
+  }
+  
+  def testNamedUnresolvedDuplicates {
+    assertMatches(problems("def f(a: A) {}; f(b = A, b = null)")) {
+      case UnresolvedParameter(Assignment("b = A")) :: 
+              UnresolvedParameter(Assignment("b = null")) ::
+              ParameterSpecifiedMultipleTimes(Assignment("b = A")) ::
+              ParameterSpecifiedMultipleTimes(Assignment("b = null")) :: Nil =>
+    }
+  }
 
-  // unresolved name
   // named with defaults
   // type mismatch
   // missed parameter

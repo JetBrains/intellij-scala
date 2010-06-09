@@ -60,6 +60,12 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testUnresolvedParameter {
+    assertMatches(messages("def f(a: Any) {}; f(b = null)")) {
+      case Nil =>
+    }
+  }
+  
   def messages(code: String): List[Message] = {
     val psi = code.parse
     val annotator = new ReferenceAnnotator() {}

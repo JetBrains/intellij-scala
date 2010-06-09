@@ -234,10 +234,14 @@ object Compatibility {
           return (Seq(new DoesNotTakeParameters), new ScUndefinedSubstitutor) 
                   
         val parameters: Seq[ScParameter] = fun.paramClauses.clauses.firstOption.toList.flatMap(_.parameters) 
-      
+        
         val clashedAssignments = clashedAssignmentsIn(exprs)
-        if(!clashedAssignments.isEmpty) {
-          val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
+                             if !parameters.exists(_.name == name)) yield assignment
+        
+        if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
+          val problems = unresolved.map(new UnresolvedParameter(_)) ++
+                  clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
           return (problems, new ScUndefinedSubstitutor) 
         }
         

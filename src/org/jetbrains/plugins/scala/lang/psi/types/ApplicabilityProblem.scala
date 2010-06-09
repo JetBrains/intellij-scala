@@ -18,6 +18,7 @@ case class MalformedDefinition extends ApplicabilityProblem
 // call syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
 case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
+case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
 
 // call applicability problem
 case class DoesNotTakeParameters extends ApplicabilityProblem
