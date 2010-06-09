@@ -37,7 +37,9 @@ trait ReferenceAnnotator {
                     holder.createErrorAnnotation(expression, 
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }
-                case MissedParameter(_) => // handled above
+                case MissedParameter(_) => // simultaneously handled above
+                case PositionalAfterNamedArgument(argument) => 
+                  holder.createErrorAnnotation(argument, "Positional after named argument")
                 
                 case _ => holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f))
               }

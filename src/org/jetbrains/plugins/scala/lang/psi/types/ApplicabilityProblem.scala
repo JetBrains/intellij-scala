@@ -17,7 +17,7 @@ case class MultipleDefinitionVariants extends ApplicabilityProblem
 case class MalformedDefinition extends ApplicabilityProblem
 
 // call syntax problems
-case class PositionAlfterNamedArguemnt extends ApplicabilityProblem
+case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
 case class ParameterSpecifiedMultipleTimes extends ApplicabilityProblem
 
 // call applicability problem
