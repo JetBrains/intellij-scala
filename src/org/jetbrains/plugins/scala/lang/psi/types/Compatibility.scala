@@ -17,6 +17,7 @@ import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import com.intellij.openapi.progress.ProgressManager
 import search.GlobalSearchScope
+import collection.Seq
 
 /**
  * @author ven
@@ -75,6 +76,13 @@ object Compatibility {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, checkWeakConformance)
     (r._1.isEmpty, r._2)
   }  
+  
+  def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignStmt] = {
+    val pairs = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs) yield (name, assignment)
+    val names = pairs.unzip._1
+    val clashedNames = names.diff(names.distinct)
+    pairs.filter(p => clashedNames.contains(p._1)).map(_._2)    
+  }
   
   def checkConformanceExt(checkNames: Boolean,
                                parameters: Seq[Parameter],
@@ -227,6 +235,12 @@ object Compatibility {
                   
         val parameters: Seq[ScParameter] = fun.paramClauses.clauses.firstOption.toList.flatMap(_.parameters) 
       
+        val clashedAssignments = clashedAssignmentsIn(exprs)
+        if(!clashedAssignments.isEmpty) {
+          val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+          return (problems, new ScUndefinedSubstitutor) 
+        }
+        
         //optimization:
         val hasRepeated = parameters.exists(_.isRepeatedParameter)
         val maxParams = if(hasRepeated) scala.Int.MaxValue else parameters.length
