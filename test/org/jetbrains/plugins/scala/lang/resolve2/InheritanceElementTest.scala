@@ -24,4 +24,5 @@ class InheritanceElementTest extends ResolveTestBase {
   def testTypeAlias = doTest
   def testValue = doTest
   def testVariable = doTest
+  def testFromCompanion = doTest
 }
