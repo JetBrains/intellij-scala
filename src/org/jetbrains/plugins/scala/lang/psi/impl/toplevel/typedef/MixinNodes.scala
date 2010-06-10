@@ -44,42 +44,6 @@ abstract class MixinNodes {
 
   object MultiMap {def empty = new MultiMap}
 
-  /*def mergeSupers (maps : List[(Map, ScSubstitutor)]) : MultiMap = {
-    maps.foldRight(MultiMap.empty) {
-      (current, res) => {
-        for (p <- current._1) {
-          val newSubst = current._2
-          val k = p._1 match {
-            case phys: PhysicalSignature => {
-              new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)) {
-                override def types = phys.types
-              }.asInstanceOf[T]
-            }
-            case full: FullSignature => new FullSignature(full.sig match {
-              case phys: PhysicalSignature => new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst))
-              case sig: Signature => new Signature(sig.name, sig.typesEval, sig.paramLength, sig.typeParams,
-                sig.substitutor.followed(newSubst))
-            }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
-            case t => t
-          }
-          val node = new Node(p._2.info match {
-            case phys: PhysicalSignature => {
-              new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst)).asInstanceOf[T]
-            }
-            case full: FullSignature => new FullSignature(full.sig match {
-              case phys: PhysicalSignature => new PhysicalSignature(phys.method, phys.substitutor.followed(newSubst))
-              case sig: Signature => new Signature(sig.name, sig.typesEval, sig.paramLength, sig.typeParams,
-                sig.substitutor.followed(newSubst))
-            }, newSubst.subst(full.retType), full.element, full.clazz).asInstanceOf[T]
-            case t => t
-          }, p._2.substitutor.followed(newSubst))
-          res.addBinding(k, node)
-        }
-        res
-      }
-    }
-  }*/
-
   def mergeSupers (maps : List[Map]) : MultiMap = {
     val res = MultiMap.empty
     val mapsIterator = maps.iterator

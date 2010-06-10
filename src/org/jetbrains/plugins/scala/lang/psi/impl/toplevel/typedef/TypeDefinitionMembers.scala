@@ -13,7 +13,7 @@ import api.statements.params.ScClassParameter
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import synthetic.{SyntheticClasses, ScSyntheticClass}
+import synthetic.{SyntheticClasses}
 import types._
 import api.toplevel.typedef._
 import api.statements._
