@@ -32,7 +32,7 @@ package object scala {
   }
 
   object Parent {
-    def unapply(e: PsiElement) = {
+    def unapply(e: PsiElement): Option[PsiElement] = {
       if (e == null) {
         None
       } else {
@@ -43,7 +43,7 @@ package object scala {
   }
 
   object Resolved {
-    def unapply(e: PsiReference) = {
+    def unapply(e: PsiReference): Option[PsiElement] = {
       if (e == null) {
         None
       } else {
