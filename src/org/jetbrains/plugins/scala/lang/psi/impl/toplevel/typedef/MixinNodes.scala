@@ -18,7 +18,7 @@ import result.TypingContext
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
-import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition}
+import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
 
 abstract class MixinNodes {
   type T
@@ -213,11 +213,6 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
-    /*CachesUtil.get(
-      clazz, CachesUtil.LINEARIZATION_KEY,
-      new CachesUtil.MyProvider(clazz, {clazz: PsiClass => linearizationInner(clazz)})
-        (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
-      )*/
     clazz match {
       case obj: ScObject if obj.isPackageObject && obj.getQualifiedName == "scala" => {
         return Seq(ScDesignatorType(obj))
@@ -296,11 +291,18 @@ object MixinNodes {
     }
     val buffer = new ListBuffer[ScType]
     val set: HashSet[String] = new HashSet //to add here qualified names of classes
+    def classString(clazz: PsiClass): String = {
+      clazz match {
+        case obj: ScObject => "Object: " + obj.getQualifiedName
+        case tra: ScTrait => "Trait: " + tra.getQualifiedName
+        case _ => "Class: " + clazz.getQualifiedName
+      }
+    }
     def add(tp: ScType) {
       ScType.extractClass(tp) match {
-        case Some(clazz) if clazz.getQualifiedName != null && !set.contains(clazz.getQualifiedName) => {
+        case Some(clazz) if clazz.getQualifiedName != null && !set.contains(classString(clazz)) => {
           tp +: buffer
-          set += clazz.getQualifiedName
+          set += classString(clazz)
         }
         case Some(clazz) if clazz.getTypeParameters.length != 0 => {
           val i = buffer.findIndexOf(newTp => {
