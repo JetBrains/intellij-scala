@@ -74,6 +74,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case _ => false
     }
 
+    if (ScType.extractClass(t).map(_.getQualifiedName) == Some("java.lang.String")) {
+      execute(SyntheticClasses.get(place.getProject).stringPlusMethod, state) //add + method
+    }
+
     t match {
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
