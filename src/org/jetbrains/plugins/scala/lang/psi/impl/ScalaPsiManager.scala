@@ -49,23 +49,23 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
-    var existing = tp.getUserData(ScalaPsiManager.TYPE_VARIABLE_KEY)
+    import Misc.fun2suspension
+    /*var existing = tp.getUserData(ScalaPsiManager.TYPE_VARIABLE_KEY)
     if (existing != null) existing else {
-      import Misc.fun2suspension
 
-      val tv = tp match {
+      val tv = */tp match {
         case stp: ScTypeParam => {
-          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(stp.name, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
+//          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(stp.name, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val inner = stp.typeParameters.map{typeVariable(_)}.toList
           val lower = () => stp.lowerBound.getOrElse(Nothing)
           val upper = () => stp.upperBound.getOrElse(Any)
           // todo rework for error handling!
           val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
-          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
+//          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
           res
         }
         case _ => {
-          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
+//          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val lower = () => Nothing
           val scType = tp.getSuperTypes match {
             case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
@@ -74,17 +74,17 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           }
           val upper = () => scType
           val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
-          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
+//          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
           res
         }
-      }
+      /*}
       synchronized {
         existing = tp.getUserData(ScalaPsiManager.TYPE_VARIABLE_KEY)
         if (existing == null) {
           tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, tv)
           tv
         } else existing
-      }
+      }*/
     }
   }
 }
