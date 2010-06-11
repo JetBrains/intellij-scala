@@ -66,8 +66,15 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testTypeMismatch {
+    assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
+      case Error("B", "Type mismatch, expected: A, actual: B") :: 
+              Error("A", "Type mismatch, expected: B, actual: A") :: Nil =>
+    }
+  }
+  
   def messages(code: String): List[Message] = {
-    val psi = code.parse
+    val psi = ("class A; class B; object A; object B; " + code).parse
     val annotator = new ReferenceAnnotator() {}
     val mock = new AnnotatorHolderMock
 

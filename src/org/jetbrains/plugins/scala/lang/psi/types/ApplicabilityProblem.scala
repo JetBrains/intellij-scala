@@ -8,19 +8,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
  * Pavel.Fatin, 02.06.2010
  */
 
+// must be abstract with no description when completed 
 sealed case class ApplicabilityProblem(description: String = "unknown")
 
-// function definition problems
+// definition syntax problems
 case class MultipleDefinitions extends ApplicabilityProblem
 case class MultipleDefinitionVariants extends ApplicabilityProblem
 case class MalformedDefinition extends ApplicabilityProblem
 
-// call syntax problems
+// application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
 case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
 case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
 
-// call applicability problem
+// applicability problem
 case class DoesNotTakeParameters extends ApplicabilityProblem
 case class ExcessArgument(argument: ScExpression) extends ApplicabilityProblem
 case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
