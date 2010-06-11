@@ -168,6 +168,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
     }
 
+    //todo: is it right to think only about function type?
     //this check for defs without parameter clauses and for values
     def checkType(tp: ScType): Seq[ApplicabilityProblem] = {
       tp match {
@@ -186,7 +187,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
     }
 
     c.element match {
-      //todo: add values and objects
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature => return Seq(new MalformedDefinition)
       case fun: ScFunction  if (typeArgElements.length == 0 ||

@@ -38,4 +38,6 @@ class BugTest extends ResolveTestBase {
 
   def testNamedConstructorParam = doTest
   def testNamedConstructorThisParam = doTest
+
+  def testValueFunctionOverloading = doTest
 }
