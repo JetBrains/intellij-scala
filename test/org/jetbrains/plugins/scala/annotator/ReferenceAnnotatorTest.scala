@@ -9,6 +9,8 @@ import lang.psi.api.base.ScReferenceElement
  */
 
 class ReferenceAnnotatorTest extends SimpleTestCase {
+  val Header = "class A; class B; object A; object B; " 
+  
   def testEmpty {
     assertMatches(messages("")) {
       case Nil =>
@@ -74,7 +76,7 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
   }
   
   def messages(code: String): List[Message] = {
-    val psi = ("class A; class B; object A; object B; " + code).parse
+    val psi = (Header + code).parse
     val annotator = new ReferenceAnnotator() {}
     val mock = new AnnotatorHolderMock
 
