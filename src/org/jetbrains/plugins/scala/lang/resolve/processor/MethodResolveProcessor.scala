@@ -166,7 +166,23 @@ class MethodResolveProcessor(override val ref: PsiElement,
           }
         }
       }
+    }
 
+    //this check for defs without parameter clauses and for values
+    def checkType(tp: ScType): Seq[ApplicabilityProblem] = {
+      tp match {
+        case f@ScFunctionType(_, params) => {
+          val parameters = params.map(new Parameter("", _, false, false))
+          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
+            checkWithImplicits)._1
+        }
+        case p@ScParameterizedType(_, typeArgs) if p.getFunctionType != None => {
+          val parameters = typeArgs.slice(0, typeArgs.length - 1).map(new Parameter("", _, false, false))
+          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
+            checkWithImplicits)._1
+        }
+        case _ => return Seq(DoesNotTakeParameters())
+      }
     }
 
     c.element match {
@@ -189,6 +205,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
               fun.isInstanceOf[PsiNamedElement] => {
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
+      //values
+      case b: ScBindingPattern if argumentClauses.length > 0 => {
+        checkType(b.getType(TypingContext.empty).getOrElse(Any))
+      }
+      //empty parameters list: it's like a value
+      case tp: ScFunction if tp.parameters.length == 0 && argumentClauses.length > 0 => {
+        checkType(tp.getType(TypingContext.empty).getOrElse(Any))
+      }
       //simple application including empty application
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
@@ -201,7 +225,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
         val args = argumentClauses.headOption.toList
         Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
       }
-      case _ => Seq(new ApplicabilityProblem("2"))
+      //for functions => applicaability problem, no type parameters clause
+      case method: PsiMethod => Seq(new ApplicabilityProblem("2"))
+      case _ => Seq.empty
     }
   }
 

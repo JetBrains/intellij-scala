@@ -16,10 +16,10 @@ import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
-import psi.impl.toplevel.synthetic.SyntheticClasses
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.psi.util.PsiTreeUtil
 import toplevel.typedef.ScTemplateDefinition
+import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 
 
 object BaseProcessor {
@@ -75,7 +75,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     if (ScType.extractClass(t).map(_.getQualifiedName) == Some("java.lang.String")) {
-      execute(SyntheticClasses.get(place.getProject).stringPlusMethod, state) //add + method
+      val plusMethod: ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
+      if (plusMethod != null) execute(plusMethod, state) //add + method
     }
 
     t match {
