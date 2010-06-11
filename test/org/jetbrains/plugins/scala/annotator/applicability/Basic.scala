@@ -6,94 +6,88 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-class BasicTest extends Base {
-  def testEmpty {
-    assertMatches(problems("")) {
-      case Nil =>
-    }
-  }
-
+abstract class Basic extends Applicability {
   def testFine {
-    assertMatches(problems("def f {}; f")) {
+    assertProblems("", "") {
       case Nil =>
     }
-    assertMatches(problems("def f() {}; f()")) {
+    assertProblems("()", "()") {
       case Nil =>
     }
-    assertMatches(problems("def f() {}; f")) {
+    assertProblems("()", "") {
       case Nil =>
     }
-    assertMatches(problems("def f(p: A) {}; f(A)")) {
+    assertProblems("(p: A)", "(A)") {
       case Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f(A, B)")) {
+    assertProblems("(a: A, b: B)", "(A, B)") {
       case Nil =>
     }
-    assertMatches(problems("def f(a: A)(b: B) {}; f(A)(B)")) {
+    assertProblems("(a: A)(b: B)", "(A)(B)") {
       case Nil =>
     }
   }
 
   def testDoesNotTakeParameters {
-    assertMatches(problems("def f {}; f()")) {
+    assertProblems("", "()") {
       case DoesNotTakeParameters() :: Nil =>
     }
-    assertMatches(problems("def f {}; f(A)")) {
+    assertProblems("", "(A)") {
       case DoesNotTakeParameters() :: Nil =>
     }
-    assertMatches(problems("def f {}; f(A, B)")) {
+    assertProblems("", "(A, B)") {
       case DoesNotTakeParameters() :: Nil =>
     }
-    assertMatches(problems("def f {}; f(A)(B)")) {
+    assertProblems("", "(A)(B)") {
       case DoesNotTakeParameters() :: Nil =>
     }
   }
 
   def testTooManyArguments {
-    assertMatches(problems("def f() {}; f(A)")) {
+    assertProblems("()", "(A)") {
       case ExcessArgument(Expression("A")) :: Nil =>
     }
-    assertMatches(problems("def f() {}; f(A, B)")) {
+    assertProblems("()", "(A, B)") {
       case ExcessArgument(Expression("A")) :: ExcessArgument(Expression("B")) :: Nil =>
     }
-    assertMatches(problems("def f(p: A) {}; f(A, B)")) {
+    assertProblems("(p: A)", "(A, B)") {
       case ExcessArgument(Expression("B")) :: Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f(A, B, C)")) {
+    assertProblems("(a: A, b: B)", "(A, B, C)") {
       case ExcessArgument(Expression("C")) :: Nil =>
     }
   }
 
   //TODO check misses clauses extraction
   def testMissedParametersClause {
-    assertMatches(problems("def f(p: A) {}; f")) {
+    assertProblems("(p: A)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f")) {
+    assertProblems("(a: A, b: B)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
-    assertMatches(problems("def f(a: A)(b: B) {}; f")) {
+    assertProblems("(a: A)(b: B)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
   }
 
   def testMissedParameter {
-    assertMatches(problems("def f(a: A) {}; f()")) {
+    assertProblems("(a: A)", "()") {
       case MissedParameter(Named("a")) :: Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f(A)")) {
+    assertProblems("(a: A, b: B)", "(A)") {
       case MissedParameter(Named("b")) :: Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f()")) {
+    assertProblems("(a: A, b: B)", "()") {
       case MissedParameter(Named("a")) :: MissedParameter(Named("b")) :: Nil =>
     }
   }
   
   def testTypeMismatch {
-    assertMatches(problems("def f(a: A) {}; f(B)")) {
+    assertProblems("(a: A)", "(B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }
-    assertMatches(problems("def f(a: A, b: B) {}; f(B, A)")) {
+    assertProblems("(a: A, b: B)", "(B, A)") {
       case TypeMismatch(Expression("B"), Type("A")) :: TypeMismatch(Expression("A"), Type("B")) :: Nil =>
     }
   }

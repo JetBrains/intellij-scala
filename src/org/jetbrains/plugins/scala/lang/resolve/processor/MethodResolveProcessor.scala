@@ -28,7 +28,7 @@ import Compatibility.Expression
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
 
-//todo: remove all argumentClauses, we need just one of them
+//todo: remove all argumentClauses, we need just one of them (hmmm... it doesn't seem right)
 class MethodResolveProcessor(override val ref: PsiElement,
                              refName: String,
                              argumentClauses: List[Seq[Expression]],

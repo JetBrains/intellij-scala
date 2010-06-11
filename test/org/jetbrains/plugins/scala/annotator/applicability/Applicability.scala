@@ -6,29 +6,44 @@ import lang.psi.api.base.ScReferenceElement
 import lang.psi.types._
 import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.toplevel.ScNamedElement
-import com.intellij.psi.{PsiNameIdentifierOwner, PsiElement}
 import nonvalue.Parameter
 import lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import junit.framework.Assert
+import lang.psi.api.ScalaFile
+import com.intellij.psi.{PsiClass, PsiNameIdentifierOwner, PsiElement}
+import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Base extends SimpleTestCase {
-  val Header = """
-  trait L; trait A; trait B; trait C; 
+abstract class Applicability extends SimpleTestCase {
+  private val Header = """
+  class Seq[+A] 
+  object Seq { def apply[A](a: A) = new Seq[A] } 
+  trait L; 
+  trait A; trait B; trait C; 
   object A extends L with A
   object B extends L with B
   object C extends L with C
   """
 
+//  override def setUp {
+//    super.setUp()
+//    Compatibility.mockSeqClass("trait Seq[+A]".parse(classOf[ScTrait]))
+//  }
+  
+  // _* for repeated, error - _* is not last
+  
   // calls with no braces
   // parametrized
   // synthetic
   // unresolved args
   // constructors, java methods
   // partially applied
-  // _*
+  
+  // implicit conversions of partially applied to function value
+  
   // duplicates, most specific
   // highlight malformed definition itself
   // setters like foo_=
@@ -58,12 +73,23 @@ abstract class Base extends SimpleTestCase {
   
   // complex (missed + mismatches, etc)
 
+  protected def format(definition: String, application: String): String
 
-  def problems(code: String): List[ApplicabilityProblem] = {
-    for (ref <- (Header + code).parse.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
+  private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
+    for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
          result <- ref.advancedResolve.toList;
          problem <- result.problems)
     yield problem
+  }
+  
+  def assertProblems(definition: String, application: String)(pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+    val code = format(definition, application)
+    val file = (Header + code).parse
+    val seq = file.depthFirst.findByType(classOf[ScClass])
+    Compatibility.mockSeqClass(seq.get)
+    val ps = problemsIn(file)
+    val message = "\n\n             code: " + code + "\n  actual problems: " + ps.toString + "\n"
+    Assert.assertTrue(message, pattern.isDefinedAt(ps))
   }
   
   object Expression {

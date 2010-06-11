@@ -92,12 +92,26 @@ object Compatibility {
     ProgressManager.checkCanceled
     var undefSubst = new ScUndefinedSubstitutor
 
-    //optimization:
-    val hasRepeated = parameters.find(_.isRepeated) != None
-    val maxParams = parameters.length
+    val clashedAssignments = clashedAssignmentsIn(exprs)
+    val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
+                         if !parameters.exists(_.name == name)) yield assignment
+        
+    if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
+      val problems = unresolved.map(new UnresolvedParameter(_)) ++
+              clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+      return (problems, new ScUndefinedSubstitutor) 
+    }
     
-    if (exprs.length > maxParams && !hasRepeated) 
-      return (Seq(new ApplicabilityProblem("3")), undefSubst)
+    //optimization:
+    val hasRepeated = parameters.exists(_.isRepeated)
+    val maxParams = if(hasRepeated) scala.Int.MaxValue else parameters.length
+        
+    val excess = exprs.length - maxParams
+        
+    if (excess > 0) {
+      val arguments = exprs.takeRight(excess).map(_.expr)
+      return (arguments.map(ExcessArgument(_)), undefSubst)
+    }
     
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
     if (exprs.length < minParams) 
@@ -140,11 +154,16 @@ object Compatibility {
             val getIt = used.indexOf(false)
             used(getIt) = true
             val param: Parameter = parameters(getIt)
-            if (!param.isRepeated) return (Seq(new ApplicabilityProblem("7")), undefSubst)
             val paramType = param.paramType
+            
+            if (!param.isRepeated) 
+              return (Seq(new TypeMismatch(expr, paramType)), undefSubst)
+            
             val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
+            
             for (exprType <- expr.getTypeAfterImplicitConversion(Some(Some(tp)), checkWithImplicits).tr) yield {
-              if (!Conformance.conforms(tp, exprType, checkWeakConformance)) return (Seq(new ApplicabilityProblem("8")), undefSubst)
+              if (!Conformance.conforms(tp, exprType, checkWeakConformance)) 
+                return (Seq(new TypeMismatch(expr, tp)), undefSubst)
               else {
                 undefSubst += Conformance.undefinedSubst(tp, exprType, checkWeakConformance)
               }
