@@ -42,4 +42,5 @@ class BugTest extends ResolveTestBase {
   def testValueFunctionOverloading = doTest
   def testClassParameterResolve = doTest
   def testClassParameterResolveTwo = doTest
+  def testAnnonymousFunctionUsage = doTest
 }
