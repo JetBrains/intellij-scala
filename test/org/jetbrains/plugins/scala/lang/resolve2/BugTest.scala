@@ -11,8 +11,7 @@ class BugTest extends ResolveTestBase {
   override def getTestDataPath: String = {
     super.getTestDataPath + "bug/"
   }
-  //TODO
-  //  def testBug1 = doTest
+  def testBug1 = doTest
 
   //TODO answer?
 //  def testIncomplete = doTest
@@ -28,8 +27,7 @@ class BugTest extends ResolveTestBase {
   //TODO ok
 //  def testIntegerEqualiity = doTest
   def testEarlyDefinitionsBefore = doTest
-  //TODO
-//  def testFunctionEmptyParamList = doTest
+  def testFunctionEmptyParamList = doTest
 
   def testCaseClassObjectStaticImport = doTest
   def testBufferPlusPlus = doTest
