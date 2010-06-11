@@ -37,7 +37,7 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSCL1772 = doTest
 
-  //TODO never ever commit test that is a priori broken 
+  //TODO please, don't commit code that a priori break tests 
 //  def testSCL1824 = doTest
 
   def testSameNameGeneric = doTest
