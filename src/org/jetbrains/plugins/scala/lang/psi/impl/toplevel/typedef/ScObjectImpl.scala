@@ -51,9 +51,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    val proceed = super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
-    if (!proceed) return false;
-    true
+    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
 }

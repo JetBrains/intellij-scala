@@ -1,4 +1,5 @@
 class C(a: Int) {
   var a: Int = 1
-  println(/* resolved: false */ a.getClass)
+  //this case is same as for two vals
+  println(/* resolved: true */ a.getClass)
 }

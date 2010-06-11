@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
 import resolve.processor.BaseProcessor
+import statements.params.ScClassParameter
 
 /**
  * @author ven

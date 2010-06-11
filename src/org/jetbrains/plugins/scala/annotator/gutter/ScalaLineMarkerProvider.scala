@@ -14,7 +14,6 @@ import java.util.{Collection, List}
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait}
 import lang.psi.api.toplevel.{ScNamedElement}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.types.FullSignature
@@ -23,6 +22,7 @@ import lang.psi.{ScalaPsiUtil}
 import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, CodeInsightColors}
 import com.intellij.openapi.editor.markup.{SeparatorPlacement, GutterIconRenderer}
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
+import lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTrait}
 
 
 /**
@@ -74,7 +74,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
                      else GutterIcons.IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
-            return new LineMarkerInfo[PsiElement](method, offset, icon, Pass.UPDATE_ALL,
+            return new LineMarkerInfo[PsiElement](method.nameId, offset, icon, Pass.UPDATE_ALL,
               typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
           }
         }
@@ -88,7 +88,8 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
                      else GutterIcons.IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
-            return new LineMarkerInfo[PsiElement](x, offset, icon, Pass.UPDATE_ALL,
+            return new LineMarkerInfo[PsiElement](x match {case v: ScValue => v.getValToken
+              case v: ScVariable => v.getVarToken}, offset, icon, Pass.UPDATE_ALL,
               typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
           }
         }
@@ -131,7 +132,7 @@ private object GutterUtil {
         case _ => GutterIcons.SUBCLASSED_CLASS_MARKER_RENDERER
       }
       val typez = ScalaMarkerType.SUBCLASSED_CLASS
-      val info = new LineMarkerInfo[PsiElement](clazz, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
+      val info = new LineMarkerInfo[PsiElement](clazz.nameId, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
       result.add(info)
     }
   }
@@ -151,7 +152,8 @@ private object GutterUtil {
         val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
                    else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
-        val info = new LineMarkerInfo[PsiElement](member, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
+        val info = new LineMarkerInfo[PsiElement](member match {case memb: ScNamedElement => memb.nameId
+          case _ => member}, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
         result.add(info)
       }
     }
