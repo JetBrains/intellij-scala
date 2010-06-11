@@ -13,7 +13,6 @@ import api.statements.params.ScClassParameter
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import synthetic.{SyntheticClasses}
 import types._
 import api.toplevel.typedef._
 import api.statements._
@@ -28,6 +27,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
 import util._
 import lang.resolve.processor.BaseProcessor
+import synthetic.ScSyntheticClass
 //import Suspension._
 
 object TypeDefinitionMembers {
