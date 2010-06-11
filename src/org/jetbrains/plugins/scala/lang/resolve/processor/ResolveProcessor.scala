@@ -8,11 +8,11 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.Key
 import collection.Set
-import psi.api.base.patterns.{ScBindingPattern}
+import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
-import psi.api.toplevel.typedef.{ScObject}
+import psi.api.toplevel.typedef.ScObject
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import psi.impl.toplevel.synthetic.{ScSyntheticClass}
+import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.impl.ScPackageImpl
 import collection.mutable.HashSet
 

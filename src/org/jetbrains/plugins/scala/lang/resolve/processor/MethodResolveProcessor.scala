@@ -7,7 +7,7 @@ import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import params.ScTypeParam
+import params.{ScParameter, ScTypeParam}
 import psi.types._
 
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
@@ -208,6 +208,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
       //values
       case b: ScBindingPattern if argumentClauses.length > 0 => {
         checkType(b.getType(TypingContext.empty).getOrElse(Any))
+      }
+      case p: ScParameter if argumentClauses.length > 0 => {
+        checkType(p.getType(TypingContext.empty).getOrElse(Any))
       }
       //empty parameters list: it's like a value
       case tp: ScFunction if tp.parameters.length == 0 && argumentClauses.length > 0 => {
