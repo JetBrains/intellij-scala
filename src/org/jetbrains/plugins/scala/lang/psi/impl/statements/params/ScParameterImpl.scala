@@ -18,6 +18,7 @@ import api.expr._
 import psi.types.{ScParameterizedType, ScType, ScFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
+import api.toplevel.typedef.ScClass
 
 /**
  * @author Alexander Podkhalyuzin
@@ -73,8 +74,14 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   override def getUseScope = {
-    val scope = getDeclarationScope
-    if (scope != null) new LocalSearchScope(scope) else GlobalSearchScope.EMPTY_SCOPE
+    getDeclarationScope match {
+      case null => GlobalSearchScope.EMPTY_SCOPE
+      case clazz: ScClass if clazz.isCase => clazz.getUseScope
+      case clazz: ScClass if !asInstanceOf[ScClassParameter].isVal && !asInstanceOf[ScClassParameter].isVar => {
+        new LocalSearchScope(clazz)
+      }
+      case d => d.getUseScope
+    }
   }
 
   def isVarArgs = isRepeatedParameter

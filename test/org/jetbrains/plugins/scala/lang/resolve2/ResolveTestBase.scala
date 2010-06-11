@@ -14,6 +14,7 @@ import java.lang.String
 import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -42,6 +43,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
   override def setUp() {
     super.setUp
+    getProject.getComponent(classOf[SyntheticClasses]).registerClasses
     options = List()
     references = List()
   }
