@@ -81,7 +81,7 @@ object Long extends ValType("Long")
 object Float extends ValType("Float")
 object Double extends ValType("Double")
 object Byte extends ValType("Byte")
-object Short extends ValType("Float")
+object Short extends ValType("Short")
 
 object ScType {
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0): ScType = {if (deep > 2) return Any; psiType match {
