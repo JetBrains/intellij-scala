@@ -45,9 +45,8 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   protected override def innerType(ctx: TypingContext) = {
     val paramTypes = (parameters: Seq[ScParameter]).map(_.getType(ctx))
-    wrap(result)(ScalaBundle.message("no.result.expression.found")) flatMap {r =>
-      collectFailures(paramTypes, Nothing)(new ScFunctionType(r.getType(ctx).getOrElse(Any), _, getProject, getResolveScope))
-    }
+    val resultType = result match {case Some(r) => r.getType(ctx).getOrElse(Any) case _ => Any}
+    collectFailures(paramTypes, Nothing)(new ScFunctionType(resultType, _, getProject, getResolveScope))
   }
 
   private var myControlFlow: Seq[Instruction] = null
