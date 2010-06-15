@@ -116,8 +116,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           clazz.processDeclarations(processor, ResolveState.initial, null, this)
         }
         case td: ScTemplateDefinition => ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) => {
-            td.processDeclarations(processor, ResolveState.initial, null, this)
+          case Some(obj: ScTypeDefinition) => {
+            obj.processDeclarations(processor, ResolveState.initial, null, this)
           }
           case _ =>
         }
