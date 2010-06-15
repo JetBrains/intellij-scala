@@ -115,23 +115,64 @@ abstract class Repeated extends Applicability {
 //    }
   }
 
-  def testExpansion {
+  def testExpansionToRepeated {
     assertProblems("(a: A*)", "(Seq(A): _*)") {
       case Nil =>
     }
     assertProblems("(a: A, b: B*)", "(a, Seq(B): _*)") {
       case Nil =>
-    }
-  } 
+    }                               
+  }
   
-  // not last expansion, twice
-  
-  def testExpansionToNonRepeated {
+  def testExpansionToSingular {
     assertProblems("(a: A)", "(Seq(A): _*)") {
-      case TypeMismatch(Expression("Seq(A): _*"), Type("A")) :: Nil =>
+      case ExpansionForNonRepeatedParameter(Expression("Seq(A): _*")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "(A, Seq(B): _*)") {
-      case TypeMismatch(Expression("Seq(B): _*"), Type("B")) :: Nil =>
+      case ExpansionForNonRepeatedParameter(Expression("Seq(B): _*")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B)", "(Seq(A): _*, Seq(B): _*)") {
+      case ExpansionForNonRepeatedParameter(Expression("Seq(A): _*")) :: 
+              ExpansionForNonRepeatedParameter(Expression("Seq(B): _*")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B*)", "(Seq(A): _*, B)") {
+      case ExpansionForNonRepeatedParameter(Expression("Seq(A): _*")) :: Nil =>
+    }
+  }
+  
+  def testExpansionToSeq {
+    assertProblems("(a: Seq[A])", "(Seq(A): _*)") {
+      case TypeMismatch(Expression("Seq(A): _*"), Type("Seq[Seq[A]]")) :: Nil =>
+    }
+  }
+  
+  def testSeqToRepeated {
+    assertProblems("(a: A*)", "(Seq(A))") {
+      case TypeMismatch(Expression("Seq(A)"), Type("A")) :: Nil =>
+    }
+  }
+  
+  def testSeqToSingular {
+    assertProblems("(a: A)", "(Seq(A))") {
+      case TypeMismatch(Expression("Seq(A)"), Type("A")) :: Nil =>
+    }
+  }
+  
+  def testSeqToSeq {
+    assertProblems("(a: Seq[A])", "(Seq(A))") {
+      case Nil =>
+    }
+  }
+  
+  def testSinglularToSeq {
+    assertProblems("(a: Seq[A])", "(A)") {
+      case TypeMismatch(Expression("A"), Type("Seq[A]")) :: Nil =>
+    }
+  }
+  
+  def testExpansionOfSingular {
+    assertProblems("(a: A*)", "(A: _*)") {
+      case TypeMismatch(Expression("A: _*"), Type("Seq[A]")) :: Nil =>
     }
   }
   

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 
 /**
  * Pavel.Fatin, 02.06.2010
@@ -20,6 +20,7 @@ case class MalformedDefinition extends ApplicabilityProblem
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
 case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
 case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
+case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 
 // applicability problem
 case class DoesNotTakeParameters extends ApplicabilityProblem

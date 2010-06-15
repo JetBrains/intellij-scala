@@ -51,7 +51,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  */
 
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
-        with ParametersAnnotator with ReferenceAnnotator
+        with ParametersAnnotator with ApplicationAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.isInstanceOf[ScExpression]) {

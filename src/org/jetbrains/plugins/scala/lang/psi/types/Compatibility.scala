@@ -157,7 +157,7 @@ object Compatibility {
             val paramType = param.paramType
             
             if (!param.isRepeated) 
-              return (Seq(new TypeMismatch(expr, paramType)), undefSubst)
+              problems ::= new ExpansionForNonRepeatedParameter(expr)
             
             val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
             
