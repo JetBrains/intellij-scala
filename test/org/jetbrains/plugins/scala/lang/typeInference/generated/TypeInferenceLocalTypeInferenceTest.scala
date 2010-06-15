@@ -37,8 +37,7 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSCL1772 = doTest
 
-  //TODO please, don't commit code that a priori breaks tests 
-//  def testSCL1824 = doTest
+  def testSCL1824 = doTest
 
   def testSameNameGeneric = doTest
 
