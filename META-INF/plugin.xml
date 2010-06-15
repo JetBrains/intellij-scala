@@ -215,11 +215,11 @@
     <action id="Scala.EnableErrors" class="org.jetbrains.plugins.scala.actions.EnableErrorHighlightingAction">
       <keyboard-shortcut first-keystroke="alt control shift E" keymap="$default"/>
     </action>
-    <!--<action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
+    <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
         text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
       <keyboard-shortcut first-keystroke="control alt shift I" keymap="$default"/>
       <add-to-group group-id="GoToCodeGroup" anchor="last"/>
-    </action>-->
+    </action>
     <!--<action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
             text="Convert Java File To Scala" description="Rename Java File To Scala">
       <add-to-group group-id="RefactoringMenu" anchor="last"/>
