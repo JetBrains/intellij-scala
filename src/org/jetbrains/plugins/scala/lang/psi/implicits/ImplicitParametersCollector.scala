@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTemplateDefinition}
 import processor.{MostSpecificUtil, BaseProcessor}
 import result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePatter
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import collection.immutable.::
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTemplateDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,31 +22,6 @@ import collection.immutable.::
  */
 
 class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
-  def collectImplicitClasses(tp: ScType): Seq[(PsiClass, ScSubstitutor)] = {
-    tp match {
-      case ScCompoundType(comps, _, _, _) => {
-        comps.flatMap(collectImplicitClasses(_))
-      }
-      case p@ScParameterizedType(des, args) => {
-        (ScType.extractClassType(p) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
-        }) ++ args.flatMap(collectImplicitClasses(_))
-      }
-      case j: JavaArrayType => {
-        val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
-        collectImplicitClasses(parameterizedType.getOrElse(return Seq.empty))
-      }
-      case singl@ScSingletonType(path) => collectImplicitClasses(singl.pathType)
-      case _=> {
-        ScType.extractClassType(tp) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
-        }
-      }
-    }
-  }
-
   def collect: Seq[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
@@ -61,9 +36,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       }
     }
     treeWalkUp(place, null) //collecting all references from scope
-    for ((clazz, subst) <- collectImplicitClasses(tp)) {
-      clazz.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, subst), null, place)
+    for ((clazz, _) <- ScalaPsiUtil.collectImplicitClasses(tp, place)) {
       clazz match {
+        case o: ScObject => {
+          clazz.processDeclarations(processor, ResolveState.initial, null, place)
+        }
         case td: ScTemplateDefinition => ScalaPsiUtil.getCompanionModule(td) match {
           case Some(td: ScTypeDefinition) => {
             td.processDeclarations(processor, ResolveState.initial, null, place)

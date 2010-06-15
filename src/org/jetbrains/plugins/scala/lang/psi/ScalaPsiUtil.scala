@@ -43,6 +43,43 @@ import lang.resolve.ScalaResolveResult
  */
 
 object ScalaPsiUtil {
+  def collectImplicitClasses(tp: ScType, place: PsiElement): Seq[(PsiClass, ScSubstitutor)] = {
+    tp match {
+      case ScCompoundType(comps, _, _, _) => {
+        comps.flatMap(collectImplicitClasses(_, place))
+      }
+      case p@ScParameterizedType(des, args) => {
+        (ScType.extractClassType(p) match {
+          case Some(pair) => Seq(pair)
+          case _ => Seq.empty
+        }) ++ args.flatMap(collectImplicitClasses(_, place))
+      }
+      case j: JavaArrayType => {
+        val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
+        collectImplicitClasses(parameterizedType.getOrElse(return Seq.empty), place)
+      }
+      case singl@ScSingletonType(path) => collectImplicitClasses(singl.pathType, place)
+      case f@ScFunctionType(retType, params) => {
+        (ScType.extractClassType(tp) match {
+          case Some(pair) => Seq(pair)
+          case _ => Seq.empty
+        }) ++ params.flatMap(collectImplicitClasses(_, place)) ++ collectImplicitClasses(retType, place)
+      }
+      case f@ScTupleType(params) => {
+        (ScType.extractClassType(tp) match {
+          case Some(pair) => Seq(pair)
+          case _ => Seq.empty
+        }) ++ params.flatMap(collectImplicitClasses(_, place))
+      }
+      case _=> {
+        ScType.extractClassType(tp) match {
+          case Some(pair) => Seq(pair)
+          case _ => Seq.empty
+        }
+      }
+    }
+  }
+
   def getTypesStream(elems: List[PsiParameter]): Stream[ScType] = {
     if (elems.isEmpty) return Stream.empty
     new Stream[ScType] {
