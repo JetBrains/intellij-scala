@@ -3,7 +3,6 @@ package lang
 package psi
 package implicits
 
-import api.expr.ScExpression
 import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
@@ -20,6 +19,9 @@ import api.statements.params.ScTypeParam
 import com.intellij.psi._
 import collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import lang.resolve.processor.BaseProcessor
+import api.expr.{ScTypedStmt, ScExpression}
+import api.toplevel.ScTypedDefinition
+import api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 
 /**
  * @author ilyas
@@ -69,6 +71,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   private var modCount: Long = 0
 
   def implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
+    expectedType match {
+      case Some(expected) => return buildImplicitMap
+      case None =>
+    }
     var tp = cachedImplicitMap
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && modCount == curModCount) {
@@ -98,7 +104,27 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    val typez: ScType = getType(TypingContext.empty).getOrElse(Nothing)
+    val typez: ScType = getType(TypingContext.empty).getOrElse(return Seq.empty)
+
+    val expandedType: ScType = expectedType match {
+      case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
+      case None => typez
+    }
+    for ((clazz, _) <- ScalaPsiUtil.collectImplicitClasses(expandedType, this)) {
+      clazz match {
+        case o: ScObject => {
+          clazz.processDeclarations(processor, ResolveState.initial, null, this)
+        }
+        case td: ScTemplateDefinition => ScalaPsiUtil.getCompanionModule(td) match {
+          case Some(td: ScTypeDefinition) => {
+            td.processDeclarations(processor, ResolveState.initial, null, this)
+          }
+          case _ =>
+        }
+        case _ =>
+      }
+    }
+
     val result = new ArrayBuffer[(ScType, ScFunctionDefinition, Set[ImportUsed])]
     if (typez == Nothing) return result.toSeq
     if (typez.isInstanceOf[ScUndefinedType]) return result.toSeq
@@ -219,4 +245,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 object ScImplicitlyConvertible {
   val IMPLICIT_RESOLUTION_KEY: Key[PsiClass] = Key.create("implicit.resolution.key")
   val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
+
+  case class Implicit(tp: ScType, fun: ScTypedDefinition, importsUsed: Set[ImportUsed])
 }

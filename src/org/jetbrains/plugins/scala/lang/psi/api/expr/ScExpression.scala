@@ -82,7 +82,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
         //this functionality for checking if this expression can be implicitly changed and then
         //it will conform to expected type
-        val f: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = expr.implicitMap.filter(_._1.conforms(expected))
+        val implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = expr.implicitMap
+        val f: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = implicitMap.filter(_._1.conforms(expected))
         if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
         else if (f.length == 0) return defaultResult
         else {
