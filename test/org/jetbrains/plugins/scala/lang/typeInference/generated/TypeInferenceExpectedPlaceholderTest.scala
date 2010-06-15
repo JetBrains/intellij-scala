@@ -29,6 +29,8 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
 
   def testPrefixedReference = doTest
 
+  def testSCL1734 = doTest
+
   def testTypeConstructor = doTest
 
   def testTypeConstructor2 = doTest

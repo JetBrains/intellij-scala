@@ -96,7 +96,7 @@ private[expr] object ExpectedTypes {
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
-          case Some(_) => Array(t.getType(TypingContext.empty).getOrElse(Any))
+          case Some(te) => Array(te.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }

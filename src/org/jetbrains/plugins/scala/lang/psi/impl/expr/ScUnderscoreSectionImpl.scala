@@ -27,9 +27,14 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       case None => {
         getContext match {
           case typed: ScTypedStmt => {
-            typed.typeElement match {
-              case Some(_) => return typed.getType(ctx)
-              case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
+            overExpr match {
+              case Some(`typed`) => {
+                typed.typeElement match {
+                  case Some(te) => return te.getType(TypingContext.empty)
+                  case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
+                }
+              }
+              case _ =>
             }
           }
           case _ =>
