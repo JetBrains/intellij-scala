@@ -3,13 +3,20 @@ package annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
+import lang.psi.types.Compatibility
+import lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
-class ReferenceAnnotatorTest extends SimpleTestCase {
-  val Header = "class A; class B; object A; object B; " 
+class ApplicationAnnotatorTest extends SimpleTestCase {
+  val Header = """
+  class Seq[+A] 
+  object Seq { def apply[A](a: A) = new Seq[A] } 
+  class A; class B; 
+  object A; object B
+  """ 
   
   def testEmpty {
     assertMatches(messages("")) {
@@ -75,12 +82,29 @@ class ReferenceAnnotatorTest extends SimpleTestCase {
     }
   }
   
+  def testMalformedSignature {
+    assertMatches(messages("def f(a: A*, b: B) {}; f(A, B)")) {
+      case Error("f", "f has malformed definition") :: Nil =>
+    }
+  }
+  
+  def testIncorrectExpansion {
+    assertMatches(messages("def f(a: Any, b: Any) {}; f(Seq(null): _*, Seq(null): _*)")) {
+      case Error("Seq(null): _*", "Expansion for non-repeated parameter") :: 
+              Error("Seq(null): _*", "Expansion for non-repeated parameter") :: Nil =>
+    }
+  }
+  
   def messages(code: String): List[Message] = {
-    val psi = (Header + code).parse
-    val annotator = new ReferenceAnnotator() {}
+    val annotator = new ApplicationAnnotator() {}
     val mock = new AnnotatorHolderMock
 
-    psi.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
+    val file = (Header + code).parse
+    
+    val seq = file.depthFirst.findByType(classOf[ScClass])
+    Compatibility.mockSeqClass(seq.get)
+    
+    file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
       annotator.annotateReference(_, mock)  
     }
     

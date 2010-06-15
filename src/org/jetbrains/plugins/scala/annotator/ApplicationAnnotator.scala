@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
  * Pavel.Fatin, 31.05.2010
  */
 
-trait ReferenceAnnotator {
+trait ApplicationAnnotator {
   def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
     for (result <- reference.multiResolve(false);
          r = result.asInstanceOf[ScalaResolveResult];
@@ -38,7 +38,11 @@ trait ReferenceAnnotator {
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }
                 case MissedParameter(_) => // simultaneously handled above
-                case UnresolvedParameter(_) => // don't show function inapplicability, unresolved 
+                case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
+                case MalformedDefinition() => 
+                  holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
+                case ExpansionForNonRepeatedParameter(expression) =>
+                  holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
                 case PositionalAfterNamedArgument(argument) => 
                   holder.createErrorAnnotation(argument, "Positional after named argument")
                 case ParameterSpecifiedMultipleTimes(assignment) => 
