@@ -12,7 +12,6 @@ import lang.psi.api.expr._
 
 
 import lang.psi.api.statements._
-import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.annotation._
@@ -24,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import params.{ScParameters, ScClassParameter}
 import patterns.{ScInfixPattern, ScBindingPattern}
 import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
@@ -50,7 +50,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  *    Date: 23.06.2008
  */
 
-class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator with ReferenceAnnotator
+class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
+        with ParametersAnnotator with ReferenceAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.isInstanceOf[ScExpression]) {
@@ -74,6 +75,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     annotateScope(element, holder)
 
     element match {
+      case ps: ScParameters => annotateParameters(ps, holder) 
+      
       case f: ScFunctionDefinition => {
         f.getContainingFile match {
           case file: ScalaFile if(file.isCompiled) => // don't annotate compiled files
