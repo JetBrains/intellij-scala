@@ -254,9 +254,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
-      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
+      val res: Array[T] = MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
         case Some(r) => Array(r)
         case None => filtered.toArray
+      }
+      //todo: remove, after scalap fix.
+      refName match {
+        case "_1" | "_2" | "_3" | "_4" | "_5" | "_6" if res.length > 1 => Array(res.apply(0))
+        case _ => res
       }
     }
   }
