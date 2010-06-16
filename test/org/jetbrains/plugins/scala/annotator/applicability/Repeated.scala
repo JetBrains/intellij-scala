@@ -87,6 +87,12 @@ abstract class Repeated extends Applicability {
     }
   }
   
+  def testDoesNotTakeParameters {
+    assertProblems("", "(Seq(A): _*)") {
+      case DoesNotTakeParameters() :: Nil =>
+    }
+  }
+  
   def testMissedArguments {
     assertProblems("(a: A*)", "") {
       case MissedParametersClause(_) :: Nil =>
