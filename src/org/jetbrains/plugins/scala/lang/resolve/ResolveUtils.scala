@@ -6,7 +6,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import lexer.ScalaTokenTypes
 import processor.BaseProcessor
 import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
-import psi.api.expr.ScSuperReference
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -31,6 +30,7 @@ import result.{Success, TypingContext}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.openapi.application.{ApplicationManager, Application}
 import search.GlobalSearchScope
+import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
 
 /**
  * @author ven
@@ -107,6 +107,21 @@ object ResolveUtils {
 
   def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
     if (member.hasModifierProperty("public")) return true
+    def getPlaceTd(place: PsiElement): ScTemplateDefinition = {
+      val td = PsiTreeUtil.getContextOfType(place, classOf[ScTemplateDefinition], true)
+      td match {
+        case n: ScNewTemplateDefinition => {
+           n.extendsBlock.templateParents match {
+             case Some(parents) => {
+               if (PsiTreeUtil.isContextAncestor(parents, place, true)) getPlaceTd(td)
+               else td
+             }
+             case _ => td
+           }
+        }
+        case _ => td
+      }
+    }
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true
@@ -221,8 +236,7 @@ object ResolveUtils {
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
                         (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
-                var placeTd: ScTemplateDefinition = PsiTreeUtil.
-                        getContextOfType(place, classOf[ScTemplateDefinition], true)
+                var placeTd: ScTemplateDefinition = getPlaceTd(place)
                 while (placeTd != null) {
                   if (placeTd.isInheritor(td, true)) return true
                   placeTd.selfTypeElement match {
@@ -246,7 +260,7 @@ object ResolveUtils {
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
-                  placeTd = PsiTreeUtil.getContextOfType(placeTd, classOf[ScTemplateDefinition], true)
+                  placeTd = getPlaceTd(place)
                 }
                 false
               }
@@ -278,8 +292,7 @@ object ResolveUtils {
         else if (member.hasModifierProperty("private")) false
         else if (member.hasModifierProperty("protected")) {
           val clazz = member.getContainingClass
-          var placeTd: ScTemplateDefinition = PsiTreeUtil.
-                  getContextOfType(place, classOf[ScTemplateDefinition], true)
+          var placeTd: ScTemplateDefinition = getPlaceTd(place)
           while (placeTd != null) {
             if (placeTd.isInheritor(clazz, true)) return true
             placeTd.selfTypeElement match {
@@ -303,7 +316,7 @@ object ResolveUtils {
             val companion: ScTemplateDefinition = ScalaPsiUtil.
                     getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && companion.isInheritor (clazz, true)) return true
-            placeTd = PsiTreeUtil.getContextOfType(placeTd, classOf[ScTemplateDefinition], true)
+            placeTd = getPlaceTd(placeTd)
           }
           false
         } else {
