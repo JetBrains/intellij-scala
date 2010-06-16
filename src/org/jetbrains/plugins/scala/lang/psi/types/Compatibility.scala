@@ -186,8 +186,11 @@ object Compatibility {
               case Some(expr: ScExpression) => {
                 val paramType = param.paramType
                 for (exprType <- expr.getTypeAfterImplicitConversion(Some(Some(paramType)), checkWithImplicits).tr)
-                if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) return (Seq(new ApplicabilityProblem("10")), undefSubst)
-                else undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
+                
+                if (!Conformance.conforms(paramType, exprType, checkWeakConformance)) 
+                  problems ::= TypeMismatch(expr, paramType)
+                else 
+                  undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeakConformance)
               }
               case _ => return (Seq(new ApplicabilityProblem("11")), undefSubst)
             }
