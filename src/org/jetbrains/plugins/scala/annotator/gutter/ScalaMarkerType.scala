@@ -23,6 +23,10 @@ import lang.psi.api.toplevel.typedef.{ScTrait, ScMember, ScObject}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
+import lang.lexer.ScalaTokenTypes
+import util.PsiTreeUtil
+import lang.psi.api.toplevel.ScNamedElement
+import lang.psi.api.base.patterns.ScBindingPattern
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +36,14 @@ import lang.psi.types.FullSignature
 object ScalaMarkerType {
   val OVERRIDING_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String] {
     def fun(element: PsiElement): String = {
-      element match {
+      var elem = element
+      element.getNode.getElementType match {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+        }
+        case _ =>
+      }
+      elem match {
         case method: ScFunction => {
           val signatures: Seq[FullSignature] = method.superSignatures
           //removed assertion, because can be change before adding gutter, so just need to return ""
@@ -44,7 +55,7 @@ object ScalaMarkerType {
         }
         case _: ScValue | _: ScVariable => {
           val signatures = new ArrayBuffer[FullSignature]
-          val bindings = element match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
+          val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           assert(signatures.length != 0)
           val clazz = signatures(0).clazz
@@ -57,7 +68,14 @@ object ScalaMarkerType {
     }
   }, new GutterIconNavigationHandler[PsiElement]{
     def navigate(e: MouseEvent, element: PsiElement) {
-      element match {
+      var elem = element
+      element.getNode.getElementType match {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+        }
+        case _ =>
+      }
+      elem match {
         case method: ScFunction => {
           val signatures = method.superSignatures
           val elems = new HashSet[NavigatablePsiElement]
@@ -77,7 +95,7 @@ object ScalaMarkerType {
         }
         case _: ScValue | _: ScVariable => {
           val signatures = new ArrayBuffer[FullSignature]
-          val bindings = element match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
+          val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           val elems = new HashSet[NavigatablePsiElement]
           signatures.foreach(elems += _.element)
@@ -101,7 +119,14 @@ object ScalaMarkerType {
 
   val OVERRIDDEN_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String]{
     def fun(element: PsiElement): String = {
-      element match {
+      var elem = element
+      element.getNode.getElementType match {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+        }
+        case _ =>
+      }
+      elem match {
         case _: PsiMember =>
           if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overriden.by")
@@ -110,7 +135,14 @@ object ScalaMarkerType {
     }
   }, new GutterIconNavigationHandler[PsiElement] {
     def navigate(e: MouseEvent, element: PsiElement): Unit = {
-      val members = element match {
+      var elem = element
+      element.getNode.getElementType match {
+        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
+          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+        }
+        case _ =>
+      }
+      val members = elem match {
         case memb: PsiNamedElement => Array[PsiNamedElement](memb)
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case _ => return
@@ -129,8 +161,12 @@ object ScalaMarkerType {
 
   val SUBCLASSED_CLASS = ScalaMarkerType(new NullableFunction[PsiElement, String]{
     def fun(element: PsiElement): String = {
-      if (!element.isInstanceOf[PsiClass]) return null
-      element match {
+      var elem = element
+      if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+        elem = PsiTreeUtil.getParentOfType(element, classOf[ScNamedElement])
+      }
+      if (!elem.isInstanceOf[PsiClass]) return null
+      elem match {
         case _: ScTrait => ScalaBundle.message("trait.has.implementations")
         case _: ScObject => ScalaBundle.message("object.has.subclasses")
         case _ => ScalaBundle.message("class.has.subclasses")
@@ -138,7 +174,11 @@ object ScalaMarkerType {
     }
   }, new GutterIconNavigationHandler[PsiElement] {
     def navigate(e: MouseEvent, element: PsiElement): Unit = {
-      val clazz = element match {
+      var elem = element
+      if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+        elem = PsiTreeUtil.getParentOfType(element, classOf[ScNamedElement])
+      }
+      val clazz = elem match {
         case x: PsiClass => x
         case _ => return
       }
