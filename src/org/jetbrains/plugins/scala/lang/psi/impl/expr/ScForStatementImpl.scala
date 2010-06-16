@@ -63,7 +63,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       if (gen.rvalue == null) return None
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
               .append(" { case ").
-              append(gen.pattern.getText).append("=> ")
+              append(gen.pattern.getText).append(" => ")
       body match {
         case Some(x) => exprText.append(x.getText)
         case _ => exprText.append("{}")
