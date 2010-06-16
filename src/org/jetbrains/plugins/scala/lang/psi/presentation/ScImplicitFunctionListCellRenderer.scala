@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import javax.swing.JList
 import java.awt.{Container, Color}
 import com.intellij.util.ui.UIUtil
-import com.intellij.ui.LightColors
+import org.jetbrains.plugins.scala.icons.Icons
+import reflect.New
+import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent, Colors, LightColors}
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,19 +23,17 @@ import com.intellij.ui.LightColors
 class ScImplicitFunctionListCellRenderer(actual: ScFunction) extends MethodCellRenderer(true) {
   override def getListCellRendererComponent(list: JList, value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
     val comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-    val bgColor =
-      if (isSelected) UIUtil.getListSelectionBackground
-      else if (value != actual) UIUtil.getListBackground
-      else LightColors.SLIGHTLY_GREEN
     comp match {
       case container: Container => {
-        for (comp <- container.getComponents) {
-          comp.setBackground(bgColor)
+        val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
+        if (value == actual) {
+          colored.clear
+          colored.setIcon(actual.getIcon(0))
+          colored.append(getElementText(actual), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
         }
       }
       case _ =>
     }
-    comp.setBackground(bgColor)
     comp
   }
 
