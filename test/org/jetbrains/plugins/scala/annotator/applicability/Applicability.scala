@@ -27,22 +27,22 @@ abstract class Applicability extends SimpleTestCase {
   object B extends L with B
   object C extends L with C
   """
-
-//  override def setUp {
-//    super.setUp()
-//    Compatibility.mockSeqClass("trait Seq[+A]".parse(classOf[ScTrait]))
-//  }
-  
-  // _* for repeated, error - _* is not last
+ 
   
   // calls with no braces
-  // parametrized
+  // parametrized (shortage, excess, miss, etc)
   // synthetic
   // unresolved args
   // constructors, java methods
   // partially applied
   
   // implicit conversions of partially applied to function value
+  
+  // auto-tupling
+  
+  // named with repeated
+  // named with implicits
+  // named with defaults
   
   // duplicates, most specific
   // highlight malformed definition itself
