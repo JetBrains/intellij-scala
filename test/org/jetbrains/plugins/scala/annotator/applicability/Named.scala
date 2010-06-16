@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator.applicability
 
-import lang.psi.types.{UnresolvedParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument}
+import lang.psi.types._
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -97,8 +97,37 @@ abstract class Named extends Applicability {
     }
   }
 
-  // named with defaults
-  // type mismatch
-  // missed parameter
-  // too many args
+  def testDoesNotTakeParameters {
+    assertProblems("", "(a = A)") {
+      case DoesNotTakeParameters() :: Nil =>
+    }
+    assertProblems("", "(a = A, b = B)") {
+      case DoesNotTakeParameters() :: Nil =>
+    }
+  }
+  
+  def testTooManyArguments {
+    assertProblems("(a: A)", "(A, a = A)") {
+      case ExcessArgument(Expression("a = A")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B)", "(A, B, a = A)") {
+      case ExcessArgument(Expression("a = A")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B)", "(A, B, b = B)") {
+      case ExcessArgument(Expression("b = B")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B)", "(A, B, a = A, b = B)") {
+      case ExcessArgument(Expression("a = A")) :: 
+              ExcessArgument(Expression("b = B")) :: Nil =>
+    }
+  }  
+  
+  def testTypeMismatch {
+    assertProblems("(a: A)", "(a = B)") {
+      case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
+    }
+    assertProblems("(a: A, b: B)", "(a = B, b = A)") {
+      case TypeMismatch(Expression("B"), Type("A")) :: TypeMismatch(Expression("A"), Type("B")) :: Nil =>
+    }
+  }
 }
