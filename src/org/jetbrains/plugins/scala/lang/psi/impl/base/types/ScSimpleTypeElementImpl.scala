@@ -29,9 +29,9 @@ import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import psi.types.Compatibility.Expression
 import lang.resolve.processor.MostSpecificUtil
 import api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
-import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
 import api.toplevel.imports.ScImportExpr
+import api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -55,7 +55,21 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             else lift(new ScTypeConstructorType(aliasDef, s))
           }
           case ScalaResolveResult(synth: ScSyntheticClass, _) => lift(synth.t)
-          case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+          case r: ScalaResolveResult => {
+            //todo: scalap hack
+            if (r.isHacked) {
+              q.bind match {
+                case Some(ScalaResolveResult(obj: ScObject, subst)) => {
+                  ScalaPsiUtil.getCompanionModule(obj) match {
+                    case Some(clazz) => Success(ScProjectionType(ScDesignatorType(clazz), ref), Some(this))
+                    case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+                  }
+                }
+                case _ => Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+              }
+            } else
+              Success(ScProjectionType(new ScSingletonType(q), ref), Some(this))
+          }
         }
         case None => wrap(ref.bind) flatMap {
           case r@ScalaResolveResult(e, s) => e match {

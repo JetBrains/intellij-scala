@@ -3,14 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.presentation
 import com.intellij.ide.util.MethodCellRenderer
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
 import javax.swing.JList
-import java.awt.{Container, Color}
-import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.icons.Icons
-import reflect.New
-import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent, Colors, LightColors}
+import java.awt.Container
+import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent}
 
 /**
  * Created by IntelliJ IDEA.
