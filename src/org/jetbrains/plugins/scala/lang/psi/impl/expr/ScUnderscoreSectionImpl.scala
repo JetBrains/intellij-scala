@@ -34,7 +34,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   case _ => return Failure("Typed statement is not complete for underscore section", Some(this))
                 }
               }
-              case _ =>
+              case _ => return typed.getType(TypingContext.empty)
             }
           }
           case _ =>
