@@ -83,7 +83,11 @@ trait ScopeAnnotator {
     if(f.parameters.isEmpty) 
       "" 
     else 
-      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+      {
+        val c = f.paramClauses.clauses
+        val string = c.firstOption.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+        string
+      }
   }
 
   private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
