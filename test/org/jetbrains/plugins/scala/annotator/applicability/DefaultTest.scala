@@ -6,7 +6,7 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-class DefaultTest extends Applicability {
+class DefaultTest extends ApplicabilityTestBase {
   def testFine {
     assertProblems("(a: A = null)", "()") {
       case Nil =>
