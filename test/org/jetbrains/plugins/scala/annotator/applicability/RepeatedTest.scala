@@ -7,7 +7,7 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-class RepeatedTest extends Applicability {
+class RepeatedTest extends ApplicabilityTestBase {
   def testMalformedDefinition {
     assertProblems("(a: A*, b: B)", "(A, B)") {
       case MalformedDefinition() :: Nil =>

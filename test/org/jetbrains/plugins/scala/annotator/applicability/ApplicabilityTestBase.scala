@@ -17,7 +17,7 @@ import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Applicability extends SimpleTestCase {
+abstract class ApplicabilityTestBase extends SimpleTestCase {
   private val Header = """
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] } 
@@ -76,17 +76,6 @@ abstract class Applicability extends SimpleTestCase {
   
   // complex (missed + mismatches, etc)
 
-  private def format(definition: String, application: String) = {
-    "def f" + definition + " {}; " + "f" + application
-  }
-
-  private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
-    for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
-         result <- ref.advancedResolve.toList;
-         problem <- result.problems)
-    yield problem
-  }
-  
   def assertProblems(definition: String, application: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
     assertProblems("", definition, application)(pattern)
@@ -94,13 +83,51 @@ abstract class Applicability extends SimpleTestCase {
   
   def assertProblems(auxiliary: String, definition: String, application: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
-    val code = format(definition, application)
+    val typified = typify(definition, application)
+      assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
+      assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+//    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))(pattern)
+//    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+  }
+  
+  private def assertProblemsAre(auxiliary: String, code: String)
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
     val file = (Header + "\n" + auxiliary + "\n" + code).parse
     val seq = file.depthFirst.findByType(classOf[ScClass])
     Compatibility.mockSeqClass(seq.get)
     val ps = problemsIn(file)
     val message = "\n\n             code: " + code + "\n  actual problems: " + ps.toString + "\n"
     Assert.assertTrue(message, pattern.isDefinedAt(ps))
+  }
+  
+  private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
+    for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
+         result <- ref.advancedResolve.toList;
+         problem <- result.problems)
+    yield problem
+  }
+  
+  private def formatFunction(definition: String, application: String) = 
+    "def f" + definition + " {}; " + "f" + application
+  
+  private def formatConstructor(definition: String, application: String) = 
+    "class F" + definition + " {}; " + "new F" + application
+
+  private def typify(definition: String, application: String) = {
+    val Parameter = """(\w+):\s*(\w+)""".r
+    
+    val types = for(Parameter(_, t) <- Parameter.findAllIn(definition).toList) yield t
+    val ids = (1 to types.size).map("T" + _)
+
+    val id = ids.toIterator
+    val typedDefinition = Parameter.replaceAllIn(definition, _ match { 
+      case Parameter(n, t) => n + ": " + id.next    
+    })
+    
+    val typeParameters = "[" + ids.mkString(", ") + "]"
+    val typeArguments = "[" + types.mkString(", ") + "]"
+
+    (typeParameters + typedDefinition,  typeArguments + application)
   }
   
   object Expression {
