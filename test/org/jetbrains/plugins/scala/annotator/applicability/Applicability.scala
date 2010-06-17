@@ -29,6 +29,9 @@ abstract class Applicability extends SimpleTestCase {
   """
  
   
+  // following applications f()()
+  // function value applications
+  
   // calls with no braces
   // parametrized (shortage, excess, miss, etc)
   // synthetic
@@ -73,7 +76,9 @@ abstract class Applicability extends SimpleTestCase {
   
   // complex (missed + mismatches, etc)
 
-  protected def format(definition: String, application: String): String
+  private def format(definition: String, application: String) = {
+    "def f" + definition + " {}; " + "f" + application
+  }
 
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
     for (ref <- file.depthFirst.filterByType(classOf[ScReferenceElement]).toList;
@@ -82,9 +87,15 @@ abstract class Applicability extends SimpleTestCase {
     yield problem
   }
   
-  def assertProblems(definition: String, application: String)(pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+  def assertProblems(definition: String, application: String)
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+    assertProblems("", definition, application)(pattern)
+  }
+  
+  def assertProblems(auxiliary: String, definition: String, application: String)
+                    (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
     val code = format(definition, application)
-    val file = (Header + code).parse
+    val file = (Header + "\n" + auxiliary + "\n" + code).parse
     val seq = file.depthFirst.findByType(classOf[ScClass])
     Compatibility.mockSeqClass(seq.get)
     val ps = problemsIn(file)
@@ -96,7 +107,7 @@ abstract class Applicability extends SimpleTestCase {
     def unapply(e: ScExpression) = e.toOption.map(_.getText)
   }
   
-  object Named {
+  object Parameter {
     def unapply(e: Parameter) = e.toOption.map(_.name)
   }
 

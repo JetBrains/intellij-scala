@@ -18,8 +18,10 @@ case class MalformedDefinition extends ApplicabilityProblem
 
 // application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
+// , parameter
 case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
 case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
+// , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 
 // applicability problem
@@ -28,4 +30,5 @@ case class ExcessArgument(argument: ScExpression) extends ApplicabilityProblem
 case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
 case class MissedParameter(parameter: Parameter) extends ApplicabilityProblem
 case class MissedImplicitParameter(parameter: Parameter) extends ApplicabilityProblem
+// expectedType -> parameter
 case class TypeMismatch(expression: ScExpression, expectedType: ScType) extends ApplicabilityProblem
