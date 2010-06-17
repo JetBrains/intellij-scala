@@ -374,6 +374,18 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("class X { def this(a: Any)(b: Foo) {}; def this(a: Any)(b: Bar)( {} }", "this")
   }
   
+  def testTypeErasure {
+    // precheck
+    assertFine("def f(a: Foo) {}; def f(a: Bar) {}")
+    assertClashes("class Holder[T]; def f(a: Holder) {}; def f(a: Holder) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Any]) {}; def f(a: Holder[Any]) {}", "f")
+    
+    assertClashes("class Holder[T]; def f(a: Holder[Foo]) {}; def f(a: Holder[Bar]) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Holder[Foo]]) {}; def f(a: Holder[Holder[Bar]]) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Foo], b: Holder[Bar]) {}; def f(a: Holder[Bar], b: Holder[Foo]) {}", "f")
+    assertClashes("class Holder[A, B]; def f(a: Holder[Foo, Bar]) {}; def f(a: Holder[Bar, Foo]) {}", "f")
+  } 
+  
   // TODO implement function signatures comparison based on types (not on plain text representations)
 //  def testFunctionSignatureTypeConformanceAndErasure {
 //    assertMatches(messages("type Foo = Any; def f(p: Any) {}; def f(p: Foo) {}")) {
