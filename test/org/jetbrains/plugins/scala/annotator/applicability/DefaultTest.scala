@@ -6,7 +6,7 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Default extends Applicability {
+class DefaultTest extends Applicability {
   def testFine {
     assertProblems("(a: A = null)", "()") {
       case Nil =>
@@ -57,28 +57,28 @@ abstract class Default extends Applicability {
   
   def testMissedParameter {
     assertProblems("(a: A, b: B = null)", "()") {
-      case MissedParameter(Named("a")) :: Nil =>
+      case MissedParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B = null, c: C = null)", "()") {
-      case MissedParameter(Named("a")) :: Nil =>
+      case MissedParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B, c: C = null)", "()") {
-      case MissedParameter(Named("a")) :: MissedParameter(Named("b")) ::Nil =>
+      case MissedParameter(Parameter("a")) :: MissedParameter(Parameter("b")) ::Nil =>
     }
     assertProblems("(a: A = null, b: B)", "()") {
-      case MissedParameter(Named("b")) :: Nil =>
+      case MissedParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B)", "(A)") {
-      case MissedParameter(Named("b")) :: Nil =>
+      case MissedParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "()") {
-      case MissedParameter(Named("c")) :: Nil =>
+      case MissedParameter(Parameter("c")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "(A)") {
-      case MissedParameter(Named("c")) :: Nil =>
+      case MissedParameter(Parameter("c")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "(A, B)") {
-      case MissedParameter(Named("c")) :: Nil =>
+      case MissedParameter(Parameter("c")) :: Nil =>
     }
   }
   
