@@ -84,8 +84,8 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   def assertProblems(auxiliary: String, definition: String, application: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
     val typified = typify(definition, application)
-      assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
-      assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+    assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
+    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
 //    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))(pattern)
 //    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
   }
