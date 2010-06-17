@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import caches.ScalaCachesManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
@@ -11,8 +10,10 @@ import psi.api.base._
 import psi.api.expr._
 import psi.api.ScalaFile
 import psi.api.toplevel.ScTypedDefinition
+import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
 import psi.impl.toplevel.synthetic.SyntheticClasses
 import psi.api.toplevel.packaging.ScPackaging
+import psi.ScalaPsiUtil
 import psi.types._
 import resolve._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -20,6 +21,8 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
+import caches.{CachesUtil, ScalaCachesManager}
+
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this)
 
@@ -29,6 +32,34 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement): Unit = {
     res match {
+      case ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
+        td match {
+          case _: ScObject => {
+            td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
+              null, ResolvableStableCodeReferenceElement.this)
+            //todo: hack, remove after decompiler fix
+            ref.getContainingFile match {
+              case sc: ScalaFile if sc.isCompiled => {
+                val candidates = processor.candidates.filter(candidatesFilter)
+                if (candidates.isEmpty) {
+                  ScalaPsiUtil.getCompanionModule(td) match {
+                    case Some(cl) => {
+                      import _root_.java.lang.Boolean
+                      cl.processDeclarations(processor, ResolveState.initial.
+                            put(ScSubstitutor.key, substitutor).put(CachesUtil.HACKED_KEY, Boolean.TRUE),
+                      null, ResolvableStableCodeReferenceElement.this)
+                    }
+                    case _ =>
+                  }
+                }
+              }
+              case _ =>
+            }
+          }
+          case _: ScClass | _: ScTrait => td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
+            null, ResolvableStableCodeReferenceElement.this)
+        }
+      }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
       case other: ScalaResolveResult => {

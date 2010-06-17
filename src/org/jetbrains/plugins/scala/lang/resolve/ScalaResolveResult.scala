@@ -22,7 +22,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val problems: Seq[ApplicabilityProblem] = Seq.empty,
                          val boundClass: PsiClass = null,
                          val implicitFunction: Option[ScFunctionDefinition] = None,
-                         val implicitType: Option[ScType] = None) extends ResolveResult {
+                         val implicitType: Option[ScType] = None,
+                         val isHacked: Boolean = false) extends ResolveResult {
 
   def getElement = element
 
@@ -38,7 +39,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
-      implicitFunction, implicitType)
+      implicitFunction, implicitType, isHacked)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

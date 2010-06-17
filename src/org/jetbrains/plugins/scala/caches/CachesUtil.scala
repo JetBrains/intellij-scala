@@ -29,6 +29,7 @@ object CachesUtil {
   val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
   val IMPLICIT_FUNCTION: Key[ScFunctionDefinition] = Key.create("implicit.function")
+  val HACKED_KEY: Key[java.lang.Boolean] = Key.create("hacked.key")
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)

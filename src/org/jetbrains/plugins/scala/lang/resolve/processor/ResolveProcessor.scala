@@ -15,6 +15,7 @@ import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, Impo
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.impl.ScPackageImpl
 import collection.mutable.HashSet
+import caches.CachesUtil
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -135,27 +136,28 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
+      val hacked = state.get(CachesUtil.HACKED_KEY).toOption.map(_.booleanValue).getOrElse(false)
       if (!isAccessible(named, ref)) return true
       named match {
         case o: ScObject if o.isPackageObject =>
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state), isHacked = hacked))
         case clazz: PsiClass => {
           if (clazz.getQualifiedName != null) {
             if (!qualifiedNamesSet.contains(clazz.getQualifiedName)) {
               if (addResult(new ScalaResolveResult(named, getSubst(state),
-                   getImports(state), boundClass = getBoundClass(state)))) {
+                   getImports(state), boundClass = getBoundClass(state), isHacked = hacked))) {
                 qualifiedNamesSet.add(clazz.getQualifiedName)
               }
             }
           } else {
             addResult(new ScalaResolveResult(named, getSubst(state),
-              getImports(state), boundClass = getBoundClass(state)))
+              getImports(state), boundClass = getBoundClass(state), isHacked = hacked))
           }
         }
         case _ =>
           addResult(new ScalaResolveResult(named, getSubst(state),
-            getImports(state), boundClass = getBoundClass(state)))
+            getImports(state), boundClass = getBoundClass(state), isHacked = hacked))
       }
     }
     return true
