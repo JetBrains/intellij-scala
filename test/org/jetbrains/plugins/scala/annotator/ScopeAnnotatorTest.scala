@@ -14,6 +14,8 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   // ("Foo is already defined as class Foo, object Foo in object Holder")
   // TODO Suggest "rename" quick fix 
   
+  val Header = "class Foo; class Bar; "
+  
   def testEmpty {
     assertFine("")
   }
@@ -119,7 +121,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
   def testUnderscore {
-    assertFine("val f: (Any => Unit) = { case _: AnyVal | _: AnyRef => }")
+    assertFine("val f: (Any => Unit) = { case _: Foo | _: Bar => }")
   }
   
   // TODO implement processing of distributed package declarations
@@ -299,10 +301,9 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   def testFunctionSignature() {
     assertFine("def f() {}; def f(p: Any) {}")
     assertFine("def a(p: Any) {}; def b(p: Any) {}")
-    assertFine("def f(p: AnyRef) {}; def f(p: AnyVal) {}")
+    assertFine("def f(p: Bar) {}; def f(p: Foo) {}")
     assertFine("def f(a: Any) {}; def f(a: Any, b: Any) {}")
-    assertFine("def f(a: Any) {}; def f(a: Any)(b: Any) {}")
-    assertFine("def f(a: Any)(b: AnyRef) {}; def f(a: Any)(b: AnyVal) {}")
+    assertFine("def f(a: Bar)(b: Any) {}; def f(a: Foo)(b: Any) {}")
     assertFine("def f(a: Any, b: Any) {}; def f(a: Any)(b: Any) {}")
     
     assertClashes("def f {}; def f {}", "f")
@@ -321,21 +322,20 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
   def testConstructorSignature() {
-    assertFine("class X { def this(x: AnyVal) { this() }; def this(x: AnyRef) { this() } }")
-    assertFine("class X { def this(a: Any) { this() }; def this(a: Any, b: Any) { this() } }")
-    assertFine("class X { def this(a: Any) { this() }; def this(a: Any)(b: Any) { this() } }")
+    assertFine("class X { def this(x: Foo) {}; def this(x: AnyVal) {} }")
+    assertFine("class X { def this(a: Any) {}; def this(a: Any, b: Any) {} }")
   }
   
   def testPrimaryConstructor() {
-    assertFine("class X(x: AnyVal) { def this(x: AnyRef) { this(null) } }")
-    assertFine("class X(a: Any) { def this(a: Any, b: Any) { this(null) } }")
-    assertFine("class X(a: Any) { def this(a: Any)(b: Any) { this(null) } }")
+    assertFine("class X(x: Foo) { def this(x: Bar) {} }")
+    assertFine("class X(a: Any) { def this(a: Any, b: Any) {} }")
+    assertFine("class X(a: Any) { def this(a: Any)(b: Any) {} }")
     
     // TODO find clashes with primary constructor
-//    assertClashes("class X { def this() { this() } }", "this")
-//    assertClashes("class X(x: Any) { def this(x: Any) { this(null) } }", "this")
-//    assertClashes("class X(a: Any, b: Any) { def this(a: Any, b: Any) { this(null, null) } }", "this")
-//    assertClashes("class X(a: Any)(b: Any) { def this(a: Any)(b: Any) { this(null)(null) } }", "this")
+//    assertClashes("class X { def this() {} }", "this")
+//    assertClashes("class X(x: Any) { def this(x: Any) {} }", "this")
+//    assertClashes("class X(a: Any, b: Any) { def this(a: Any, b: Any) {} }", "this")
+//    assertClashes("class X(a: Any)(b: Any) { def this(a: Any)(b: Any) {} }", "this")
   }
   
   def testFunctionHolders() {
@@ -354,11 +354,37 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   
   def testLocalFunctionSignature() {
     assertClashes("def x { def f() {}; def f(p: Any) {} }", "f")
-    assertClashes("def x { def f(p: AnyVal) {}; def f(p: AnyRef) {} }", "f")
+    assertClashes("def x { def f(p: Foo) {}; def f(p: Bar) {} }", "f")
     assertClashes("def x { def f(a: Any) {}; def f(a: Any, b: Any) {} }", "f")
     assertClashes("def x { def f(a: Any) {}; def f(a: Any)(b: Any) {} }", "f")
-    assertClashes("def x { def f(a: Any)(b: AnyVal) {}; def f(a: Any)(b: AnyRef) {} }", "f")
+    assertClashes("def x { def f(a: Any)(b: Foo) {}; def f(a: Any)(b: Bar) {} }", "f")
   }
+
+  def testFunctionFollowingApplications() {
+    assertClashes("def f(a: Any) {}; def f(a: Any)(b: Any) {}", "f")
+    assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}", "f")
+    assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any, c: Any) {}", "f")
+    assertClashes("def f(a: Any)(b: Bar) {}; def f(a: Any)(b: Foo) {}", "f")
+  }
+
+  def testConstructorFollowingApplications() {
+    assertClashes("class X { def this(a: Any) {}; def this(a: Any)(b: Any)( {} }", "this")
+    assertClashes("class X { def this(a: Any)(b: Any) {}; def this(a: Any)(b: Any)( {} }", "this")
+    assertClashes("class X { def this(a: Any)(b: Any) {}; def this(a: Any)(b: Any, c: Any)( {} }", "this")
+    assertClashes("class X { def this(a: Any)(b: Foo) {}; def this(a: Any)(b: Bar)( {} }", "this")
+  }
+  
+  def testTypeErasure {
+    // precheck
+    assertFine("def f(a: Foo) {}; def f(a: Bar) {}")
+    assertClashes("class Holder[T]; def f(a: Holder) {}; def f(a: Holder) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Any]) {}; def f(a: Holder[Any]) {}", "f")
+    
+    assertClashes("class Holder[T]; def f(a: Holder[Foo]) {}; def f(a: Holder[Bar]) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Holder[Foo]]) {}; def f(a: Holder[Holder[Bar]]) {}", "f")
+    assertClashes("class Holder[T]; def f(a: Holder[Foo], b: Holder[Bar]) {}; def f(a: Holder[Bar], b: Holder[Foo]) {}", "f")
+    assertClashes("class Holder[A, B]; def f(a: Holder[Foo, Bar]) {}; def f(a: Holder[Bar, Foo]) {}", "f")
+  } 
   
   // TODO implement function signatures comparison based on types (not on plain text representations)
 //  def testFunctionSignatureTypeConformanceAndErasure {
@@ -378,7 +404,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
       case Error(_, m) :: _ if m.startsWith("f(Any, Any) is already defined") =>  
     }
     assertMatches(messages("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}")) {
-      case Error(_, m) :: _ if m.startsWith("f(Any)(Any) is already defined") =>  
+      case Error(_, m) :: _ if m.startsWith("f(Any) is already defined") =>  
     }
     assertMatches(messages("def x { def f(p: Any) {}; def f(p: Any) {} }")) {
       case Error(_, m) :: _ if m.startsWith("f is already defined") =>  
@@ -406,7 +432,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
   def messages(@Language("Scala") code: String): List[Message] = {
-    val psi = code.parse
+    val psi = (Header + code).parse
     val annotator = new ScopeAnnotator() {}
     val mock = new AnnotatorHolderMock
 

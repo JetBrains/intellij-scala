@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package annotator.applicability
 
 import lang.psi.types._
-import lang.psi.api.toplevel.typedef.ScTrait
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Repeated extends Applicability {
+class RepeatedTest extends ApplicabilityTestBase {
   def testMalformedDefinition {
     assertProblems("(a: A*, b: B)", "(A, B)") {
       case MalformedDefinition() :: Nil =>

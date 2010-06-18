@@ -7,7 +7,7 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Named extends Applicability {
+class NamedTest extends ApplicabilityTestBase {
   def testFine {
     assertProblems("(a: A)", "(a = A)") {
       case Nil =>
