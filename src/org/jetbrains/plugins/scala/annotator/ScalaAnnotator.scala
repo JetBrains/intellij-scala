@@ -214,7 +214,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
-                              fun: ScFunctionDefinition, holder: AnnotationHolder): Unit = {
+                              fun: PsiNamedElement, holder: AnnotationHolder): Unit = {
     val exprText = expr.getText
     import org.jetbrains.plugins.scala.lang.psi.types.Any
     val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)

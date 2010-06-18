@@ -136,7 +136,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getTypeParameterList = null
 
-  def hasTypeParameters = false
+  def hasTypeParameters = typeParameters.length > 0
 
   def getParameterList: ScParameters = paramClauses
 

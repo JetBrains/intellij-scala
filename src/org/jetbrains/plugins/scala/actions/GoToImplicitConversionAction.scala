@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import com.intellij.openapi.actionSystem.{DataConstants, PlatformDataKeys, AnActionEvent, AnAction}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdapter, JBPopupFactory}
-import com.intellij.psi.{PsiElement, PsiFile}
 import java.util.ArrayList
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import java.awt.Component
@@ -16,6 +15,7 @@ import com.intellij.ide.util.MethodCellRenderer
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiElement, PsiFile}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -95,8 +95,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
                 setMovable(false).setResizable(false).setRequestFocus(true).
                 setItemChoosenCallback(new Runnable {
           def run: Unit = {
-            val method = list.getSelectedValue.asInstanceOf[ScFunctionDefinition]
-            method.navigate(true)
+            val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
+            method match {
+              case n: NavigatablePsiElement => n.navigate(true)
+              case _ => //do nothing
+            }
           }
         }).createPopup.showInBestPositionFor(editor)
       }
@@ -104,7 +107,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     }
   }
 
-  private def collectImplicitExpr(expr: ScExpression): Seq[ScFunctionDefinition] = {
+  private def collectImplicitExpr(expr: ScExpression): Seq[PsiNamedElement] = {
     expr.implicitMap.map(_._2)
   }
 }

@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.presentation
 
-import com.intellij.ide.util.MethodCellRenderer
-import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import javax.swing.JList
 import java.awt.Container
 import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer, MethodCellRenderer}
+import javax.swing.{Icon, JList}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiMethod}
+import java.lang.String
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +19,7 @@ import com.intellij.ui.{SimpleTextAttributes, SimpleColoredComponent}
  * To change this template use File | Settings | File Templates.
  */
 
-class ScImplicitFunctionListCellRenderer(actual: ScFunction) extends MethodCellRenderer(true) {
+class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiElementListCellRenderer[PsiNamedElement] {
   override def getListCellRendererComponent(list: JList, value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
     val comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
     comp match {
@@ -33,15 +36,22 @@ class ScImplicitFunctionListCellRenderer(actual: ScFunction) extends MethodCellR
     comp
   }
 
-  override def getElementText(element: PsiMethod) = {
+  override def getElementText(element: PsiNamedElement) = {
     element match {
       case method: ScFunction => {
         method.getName + PresentationUtil.presentationString(method.paramClauses) + ": " +
                 PresentationUtil.presentationString(method.returnType.
                         getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any))
       }
-      case _ => super.getElementText(element)
+      case b: ScBindingPattern => b.getName + ": " + PresentationUtil.presentationString(b.getType(TypingContext.empty).
+              getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any))
+      case _ => element.getName
     }
   }
 
+  def getIconFlags: Int = {
+    return 0
+  }
+
+  def getContainerText(element: PsiNamedElement, name: String) = null //todo: add package name
 }

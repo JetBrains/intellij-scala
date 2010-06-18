@@ -26,7 +26,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r.element, r.implicitConversionClass, r))).map(_.repr)
   }
 
-  def mostSpecificForImplicit(applicable: Set[(ScType, ScFunctionDefinition, Set[ImportUsed])]): Option[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
+  def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed])]): Option[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r._2, None, r))).map(_.repr)
   }
 

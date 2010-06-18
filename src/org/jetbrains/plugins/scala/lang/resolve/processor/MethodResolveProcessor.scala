@@ -43,7 +43,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case null => None
       case x => Some(x)
     }
-    val implFunction: Option[ScFunctionDefinition] = state.get(CachesUtil.IMPLICIT_FUNCTION) match {
+    val implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION) match {
       case null => None
       case x => Some(x)
     }
