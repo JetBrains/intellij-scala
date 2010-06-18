@@ -5,15 +5,15 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.packaging.ScPackageContainer
-import com.intellij.psi.{PsiElement}
+import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
-import lang.psi.api.base.types.ScExistentialClause
 import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
-import lang.psi.types.{ScFunctionType, ScType}
+import lang.psi.types.ScType
+import lang.psi.api.base.types.{ScRefinement, ScCompoundTypeElement, ScExistentialClause}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -103,6 +103,7 @@ trait ScopeAnnotator {
             e.isInstanceOf[ScTypeParamClause] ||
             e.isInstanceOf[ScCaseClause] ||
             e.isInstanceOf[ScForStatement] ||
-            e.isInstanceOf[ScExistentialClause]
+            e.isInstanceOf[ScExistentialClause] ||
+            e.isInstanceOf[ScRefinement]
   }
 }
