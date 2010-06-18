@@ -21,7 +21,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitConversionClass: Option[PsiClass] = None,
                          val problems: Seq[ApplicabilityProblem] = Seq.empty,
                          val boundClass: PsiClass = null,
-                         val implicitFunction: Option[ScFunctionDefinition] = None,
+                         val implicitFunction: Option[PsiNamedElement] = None,
                          val implicitType: Option[ScType] = None,
                          val isHacked: Boolean = false) extends ResolveResult {
 

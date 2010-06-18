@@ -3,7 +3,6 @@ package lang
 package psi
 package implicits
 
-import api.statements.{ScFunction, ScFunctionDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
@@ -20,8 +19,11 @@ import com.intellij.psi._
 import collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import lang.resolve.processor.BaseProcessor
 import api.expr.{ScTypedStmt, ScExpression}
-import api.toplevel.ScTypedDefinition
-import api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import api.base.patterns.ScBindingPattern
+import api.statements._
+import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import api.toplevel.templates.ScTemplateBody
+import api.toplevel.typedef._
 
 /**
  * @author ilyas
@@ -44,10 +46,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
     implicitMap.find(tp => t.equiv(tp._1)) match {
-      case Some((_, fun, _))=> return {
-        fun.getContainingClass match {
-          case null => None
-          case x => Some(x)
+      case Some((_, fun, _)) => return {
+        fun.getParent match {
+          case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
+          case _ => None
         }
       }
       case _ => None
@@ -65,12 +67,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   }
 
   @volatile
-  private var cachedImplicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = null
+  private var cachedImplicitMap: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = null
 
   @volatile
   private var modCount: Long = 0
 
-  def implicitMap: Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
+  def implicitMap: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     expectedType match {
       case Some(expected) => return buildImplicitMap
       case None =>
@@ -86,7 +88,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     return tp
   }
 
-  private def buildImplicitMap : Seq[(ScType, ScFunctionDefinition, Set[ImportUsed])] = {
+  private def buildImplicitMap : Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     val processor = new CollectImplicitsProcessor
 
     // Collect implicit conversions from bottom to up
@@ -125,100 +127,120 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       }
     }
 
-    val result = new ArrayBuffer[(ScType, ScFunctionDefinition, Set[ImportUsed])]
+    val result = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
     if (typez == Nothing) return result.toSeq
     if (typez.isInstanceOf[ScUndefinedType]) return result.toSeq
     
-    val sigsFound = processor.signatures.filter((sig: Signature) => {
+    val sigsFound = processor.candidates.map((r: ScalaResolveResult) => {
       ProgressManager.checkCanceled
-      val types = sig.types
-      sig.paramLength == 1 && typez.conforms(sig.substitutor.subst(types(0)))
-    }).map((sig: Signature) => sig match {
-      case phys: PhysicalSignature => {
-        var uSubst = Conformance.undefinedSubst(sig.substitutor.subst(sig.types.apply(0)), typez)  //todo: add missed implicit params
-        phys.method match {
-          case fun: ScFunction => {
-            for (tParam <- fun.typeParameters) {
+      lazy val funType: ScParameterizedType = {
+        val fun = "scala.Function1"
+        val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
+        funClass match {
+          case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
+            new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+        }
+      }
+      val subst = r.substitutor
+      val (tp: ScType, retTp: ScType) = r.element match {
+        case f: ScFunction if f.paramClauses.clauses.length > 0 => {
+          val params = f.paramClauses.clauses.apply(0).parameters
+          (subst.subst(params.apply(0).getType(TypingContext.empty).getOrElse(Nothing)),
+           subst.subst(f.returnType.getOrElse(Nothing)))
+        }
+        case f: ScFunction => {
+          Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
+            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+            case _ => (Nothing, Nothing)
+          }
+        }
+        case b: ScBindingPattern => {
+          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).get)).getSubstitutor match {
+            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+            case _ => (Nothing, Nothing)
+          }
+        }
+      }
+      val newSubst = r.element match {
+        case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
+        case _ => ScSubstitutor.empty
+      }
+      if (!typez.conforms(newSubst.subst(tp))) {
+        (false, r, tp, retTp)
+      } else {
+        r.element match {
+          case f: ScFunction if f.hasTypeParameters => {
+            var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
+            for (tParam <- f.typeParameters) {
               val lowerType: ScType = tParam.lowerBound.getOrElse(Nothing)
               if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                sig.substitutor.subst(lowerType))
+                subst.subst(lowerType))
               val upperType: ScType = tParam.upperBound.getOrElse(Any)
               if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                sig.substitutor.subst(upperType))
+                subst.subst(upperType))
+            }
+
+            //todo: pass implicit parameters
+
+            uSubst.getSubstitutor match {
+              case Some(substitutor) => (true, r.copy(subst = substitutor.followed(r.substitutor)),
+                      substitutor.subst(tp), substitutor.subst(retTp))
+              case _ => (false, r, tp, retTp)
             }
           }
-          case method: PsiMethod => //nothing to do
-        }
-        uSubst.getSubstitutor match {
-          case Some(s) =>  (new PhysicalSignature(phys.method, phys.substitutor.followed(s)), true)
-          case _ => (sig, false)
+          case _ => (true, r, tp, retTp)
         }
       }
-      case _ => (sig, true)
     })
 
-    //to prevent infinite recursion
-    val functionContext = PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false)
 
-    for ((sig, pass) <- sigsFound if pass && (sig match {case ps: PhysicalSignature => ps.method != functionContext; case _ => false})) {
-      val set = processor.sig2Method(sig match {case ps: PhysicalSignature => ps.method.asInstanceOf[ScFunctionDefinition]})
-      for ((imports, fun) <- set) {
-        val rt = sig.substitutor.subst(fun.returnType.getOrElse(Any))
-
-        def register(t: ScType) = {
-            result += Tuple(t, fun, imports)
-        }
-        rt match {
-          // This is needed to pass OptimizeImportsImplicitsTest.testImplicitReference2
-          case ct: ScCompoundType => {
-            register(ct)
-            for (t <- ct.components)
-              register(t)
-          }
-          case t => register(t)
-        }
-      }
+    for ((pass, resolveResult, tp, rt) <- sigsFound if pass && //to prevent infinite recursion
+            !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(resolveResult.element), this, false)) {
+      result += Tuple(rt, resolveResult.element, resolveResult.importsUsed)
     }
     result.toSeq
   }
 
 
   import ResolveTargets._
-  private class CollectImplicitsProcessor extends BaseProcessor(Set(METHOD)) {
-    private val signatures2ImplicitMethods = new HashMap[ScFunctionDefinition, Set[Pair[Set[ImportUsed], ScFunctionDefinition]]]
+  private class CollectImplicitsProcessor extends BaseProcessor(Set(METHOD, VAL, VAR)) {
 
-    private val signaturesSet: HashSet[Signature] = new HashSet[Signature] //signatures2ImplicitMethods.keySet.toArray[Signature]
-
-    def signatures: Array[Signature] = signaturesSet.toArray
-
-    def sig2Method = signatures2ImplicitMethods
-
-    def execute(element: PsiElement, state: ResolveState) = {
-
-      val subst: ScSubstitutor = state.get(ScSubstitutor.key) match {
-        case null => ScSubstitutor.empty
-        case s => s
+    def execute(element: PsiElement, state: ResolveState): Boolean = {
+      val subst: ScSubstitutor = getSubst(state)
+      lazy val funType = {
+        val fun = "scala.Function1"
+        val funClass = JavaPsiFacade.getInstance(element.getProject).findClass(fun, element.getResolveScope)
+        funClass match {
+          case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
+            new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
+          case _ => return true
+        }
       }
 
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
-          case f: ScFunctionDefinition
-            // Collect implicit conversions only
-            if f.hasModifierProperty("implicit") &&
-                    f.paramClauses.clauses.length > 0 && f.paramClauses.clauses.apply(0).parameters.length == 1 => {
-            val sign = new PhysicalSignature(f, subst.followed(inferMethodTypesArgs(f, subst)))
-            if (!signatures2ImplicitMethods.contains(f)) {
-              val newFSet = Set((getImports(state), f))
-              signatures2ImplicitMethods += ((f -> newFSet))
-              signaturesSet += sign
-            } else {
-              signatures2ImplicitMethods += ((f -> (signatures2ImplicitMethods(f) + Pair(getImports(state), f))))
-              signaturesSet += sign
-            }
-
-            candidatesSet += new ScalaResolveResult(f, getSubst(state), getImports(state))
+          case f: ScFunction if f.hasModifierProperty("implicit") => {
+            val clauses = f.paramClauses.clauses
+            val followed = subst.followed(inferMethodTypesArgs(f, subst))
+            //filtered cases
+            if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) return true
+            if (clauses.length == 0) {
+              val rt = subst.subst(f.returnType.getOrElse(return true))
+              if (!rt.conforms(funType)) return true
+            } else if (clauses(0).parameters.length != 1 || clauses(0).isImplicit) return true
+            candidatesSet += new ScalaResolveResult(f, subst, getImports(state))
           }
-          //todo add implicit objects
+          case b: ScBindingPattern => {
+            ScalaPsiUtil.nameContext(b) match {
+              case d: ScDeclaredElementsHolder if (d.isInstanceOf[ScValue] || d.isInstanceOf[ScVariable]) &&
+                      d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") => {
+                val tp = subst.subst(b.getType(TypingContext.empty).getOrElse(return true))
+                if (!tp.conforms(funType)) return true
+                candidatesSet += new ScalaResolveResult(b, subst, getImports(state))
+              }
+              case _ => return true
+            }
+          }
           case _ =>
         }
         case _ =>
@@ -227,19 +249,18 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     }
 
-    /**
-     Pick all type parameters by method maps them to the appropriate type arguments, if they are
-     */
-    def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
-      fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-        (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
-      }
+
+  }
+
+  /**
+   Pick all type parameters by method maps them to the appropriate type arguments, if they are
+   */
+  def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
+    fun.typeParameters.foldLeft(ScSubstitutor.empty) {
+      (subst, tp) => subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+        ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst)))
     }
   }
-
-  protected object MyImplicitCollector {
-  }
-
 }
 
 object ScImplicitlyConvertible {
