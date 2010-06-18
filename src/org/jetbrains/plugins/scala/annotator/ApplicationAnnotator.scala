@@ -34,6 +34,7 @@ trait ApplicationAnnotator {
                   holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
                 case TypeMismatch(expression, expectedType) => 
                   for(t <- expression.getType(TypingContext.empty)) {
+                    //TODO show parameter name
                     holder.createErrorAnnotation(expression, 
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }

@@ -9,11 +9,11 @@ import com.intellij.psi.{PsiElement}
 import lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
-import lang.psi.types.ScType
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 import lang.psi.api.base.types.ScExistentialClause
 import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
+import lang.psi.types.{ScFunctionType, ScType}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -21,6 +21,7 @@ import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
 
 trait ScopeAnnotator {
   private type Definitions = List[ScNamedElement]
+  private val TypeParameters = """\[.*\]""".r
 
   def annotateScope(element: PsiElement, holder: AnnotationHolder) {
     if (!isScope(element)) return
@@ -83,12 +84,12 @@ trait ScopeAnnotator {
     if(f.parameters.isEmpty) 
       "" 
     else 
-      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+      f.paramClauses.clauses.firstOption.map(clause => format(clause.parameters, clause.paramTypes)).mkString
   }
 
   private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
     val parts = parameters.zip(types).map {
-      case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
+      case (p, t) => TypeParameters.replaceFirstIn(t.presentableText, "") + (if(p.isRepeatedParameter) "*" else "")
     }
     "(" + parts.mkString(", ") + ")"
   }

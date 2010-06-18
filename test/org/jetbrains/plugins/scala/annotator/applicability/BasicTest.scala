@@ -6,7 +6,7 @@ import lang.psi.types._
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class Basic extends Applicability {
+class BasicTest extends ApplicabilityTestBase {
   def testFine {
     assertProblems("", "") {
       case Nil =>
@@ -73,13 +73,13 @@ abstract class Basic extends Applicability {
 
   def testMissedParameter {
     assertProblems("(a: A)", "()") {
-      case MissedParameter(Named("a")) :: Nil =>
+      case MissedParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "(A)") {
-      case MissedParameter(Named("b")) :: Nil =>
+      case MissedParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "()") {
-      case MissedParameter(Named("a")) :: MissedParameter(Named("b")) :: Nil =>
+      case MissedParameter(Parameter("a")) :: MissedParameter(Parameter("b")) :: Nil =>
     }
   }
   
