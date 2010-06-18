@@ -180,6 +180,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertFine("class C; def X { class C }")
     assertFine("class C; val X = { class C }")
     assertFine("class C; var X = { class C }")
+    assertFine("val v = null; type X = { val v = null }")
     assertFine("class C; for(x <- Nil) { class C }")    
     assertFine("class C; if(true) { class C } else { class C }")    
     assertFine("class C; while(true) { class C }")    
