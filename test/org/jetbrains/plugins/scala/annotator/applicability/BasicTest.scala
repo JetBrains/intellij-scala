@@ -73,13 +73,13 @@ class BasicTest extends ApplicabilityTestBase {
 
   def testMissedParameter {
     assertProblems("(a: A)", "()") {
-      case MissedParameter(Parameter("a")) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "(A)") {
-      case MissedParameter(Parameter("b")) :: Nil =>
+      case MissedValueParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A, b: B)", "()") {
-      case MissedParameter(Parameter("a")) :: MissedParameter(Parameter("b")) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: MissedValueParameter(Parameter("b")) :: Nil =>
     }
   }
   
