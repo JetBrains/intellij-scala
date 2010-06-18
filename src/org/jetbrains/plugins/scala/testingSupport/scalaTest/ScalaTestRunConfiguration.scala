@@ -166,7 +166,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     } catch {
       case e: Exception => //nothing to do
     }
-    val scalaTestVersion: String = if (this.scalaTestVersion) "09" else "10"
+    val scalaTestVersion: String = "10"
 
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
