@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
  * Pavel.Fatin, 02.06.2010
  */
 
-// must be abstract with no description when completed 
+//TODO must be abstract with no description when completed 
 sealed case class ApplicabilityProblem(description: String = "unknown")
 
 // definition syntax problems
@@ -18,17 +18,16 @@ case class MalformedDefinition extends ApplicabilityProblem
 
 // application syntax problems
 case class PositionalAfterNamedArgument(argument: ScExpression) extends ApplicabilityProblem
-// , parameter
+//TODO , parameter
 case class ParameterSpecifiedMultipleTimes(assignment: ScAssignStmt) extends ApplicabilityProblem
 case class UnresolvedParameter(assignment: ScAssignStmt) extends ApplicabilityProblem
-// , parameter
+//TODO , parameter
 case class ExpansionForNonRepeatedParameter(argument: ScExpression) extends ApplicabilityProblem
 
 // applicability problem
 case class DoesNotTakeParameters extends ApplicabilityProblem
 case class ExcessArgument(argument: ScExpression) extends ApplicabilityProblem
 case class MissedParametersClause(clause: ScParameterClause) extends ApplicabilityProblem
-case class MissedParameter(parameter: Parameter) extends ApplicabilityProblem
-case class MissedImplicitParameter(parameter: Parameter) extends ApplicabilityProblem
-// expectedType -> parameter
+case class MissedValueParameter(parameter: Parameter) extends ApplicabilityProblem
+//TODO expectedType -> parameter
 case class TypeMismatch(expression: ScExpression, expectedType: ScType) extends ApplicabilityProblem

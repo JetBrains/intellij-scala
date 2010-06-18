@@ -57,28 +57,28 @@ class DefaultTest extends ApplicabilityTestBase {
   
   def testMissedParameter {
     assertProblems("(a: A, b: B = null)", "()") {
-      case MissedParameter(Parameter("a")) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B = null, c: C = null)", "()") {
-      case MissedParameter(Parameter("a")) :: Nil =>
+      case MissedValueParameter(Parameter("a")) :: Nil =>
     }
     assertProblems("(a: A, b: B, c: C = null)", "()") {
-      case MissedParameter(Parameter("a")) :: MissedParameter(Parameter("b")) ::Nil =>
+      case MissedValueParameter(Parameter("a")) :: MissedValueParameter(Parameter("b")) ::Nil =>
     }
     assertProblems("(a: A = null, b: B)", "()") {
-      case MissedParameter(Parameter("b")) :: Nil =>
+      case MissedValueParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B)", "(A)") {
-      case MissedParameter(Parameter("b")) :: Nil =>
+      case MissedValueParameter(Parameter("b")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "()") {
-      case MissedParameter(Parameter("c")) :: Nil =>
+      case MissedValueParameter(Parameter("c")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "(A)") {
-      case MissedParameter(Parameter("c")) :: Nil =>
+      case MissedValueParameter(Parameter("c")) :: Nil =>
     }
     assertProblems("(a: A = null, b: B = null, c: C)", "(A, B)") {
-      case MissedParameter(Parameter("c")) :: Nil =>
+      case MissedValueParameter(Parameter("c")) :: Nil =>
     }
   }
   

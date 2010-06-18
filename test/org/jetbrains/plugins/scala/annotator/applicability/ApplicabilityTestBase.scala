@@ -4,14 +4,11 @@ package annotator.applicability
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.types._
-import lang.psi.api.statements.params.ScParameter
-import lang.psi.api.toplevel.ScNamedElement
 import nonvalue.Parameter
 import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import junit.framework.Assert
 import lang.psi.api.ScalaFile
-import com.intellij.psi.{PsiClass, PsiNameIdentifierOwner, PsiElement}
-import lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -86,18 +83,19 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     val typified = typify(definition, application)
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
     assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+    //TODO check constructors applications when reolved of constructors will be available
 //    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))(pattern)
 //    assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
   }
-  
-  private def assertProblemsAre(auxiliary: String, code: String)
+
+  private def assertProblemsAre(preface: String, code: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
-    val file = (Header + "\n" + auxiliary + "\n" + code).parse
-    val seq = file.depthFirst.findByType(classOf[ScClass])
-    Compatibility.mockSeqClass(seq.get)
-    val ps = problemsIn(file)
-    val message = "\n\n             code: " + code + "\n  actual problems: " + ps.toString + "\n"
-    Assert.assertTrue(message, pattern.isDefinedAt(ps))
+    val line = if(preface.isEmpty) code else preface + "; " + code
+    val file = (Header + "\n" + line).parse
+    Compatibility.mockSeqClass(file.depthFirst.findByType(classOf[ScClass]).get)
+    val message = "\n\n             code: " + line + 
+            "\n  actual problems: " + problemsIn(file).toString + "\n"
+    Assert.assertTrue(message, pattern.isDefinedAt(problemsIn(file)))
   }
   
   private def problemsIn(file: ScalaFile): List[ApplicabilityProblem] = {
