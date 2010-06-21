@@ -225,7 +225,7 @@ object Compatibility {
         return (Seq.empty, undefSubst)
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used);
-                        if (!b && !parameter.isDefault)) yield MissedParameter(parameter) 
+                        if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter) 
       
       if(!missed.isEmpty) return (missed, undefSubst) 
     }
@@ -281,7 +281,7 @@ object Compatibility {
         val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
         val shortage = obligatory.size - exprs.length  
         if (shortage > 0) 
-          return (obligatory.takeRight(shortage).map(p => MissedParameter(toParameter(p, substitutor))), new ScUndefinedSubstitutor)
+          return (obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p, substitutor))), new ScUndefinedSubstitutor)
 
         val res = checkConformanceExt(true, parameters.map(toParameter(_, substitutor)),
           exprs, checkWithImplicits, checkWeakConformance)

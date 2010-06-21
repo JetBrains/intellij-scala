@@ -23,7 +23,7 @@ trait ApplicationAnnotator {
         case f: ScFunction => {
           reference.getContext match {
             case call: ScMethodCall => {
-              val missed = for (MissedParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
+              val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
               
               if(!missed.isEmpty) holder.createErrorAnnotation(call.args, "Unspecified value parameters: " + missed.mkString(", "))
               
@@ -38,7 +38,7 @@ trait ApplicationAnnotator {
                     holder.createErrorAnnotation(expression, 
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText) 
                   }
-                case MissedParameter(_) => // simultaneously handled above
+                case MissedValueParameter(_) => // simultaneously handled above
                 case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                 case MalformedDefinition() => 
                   holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
