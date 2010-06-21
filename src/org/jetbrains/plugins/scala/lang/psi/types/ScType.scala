@@ -20,6 +20,7 @@ import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import org.jetbrains.annotations.Nullable
 import com.incors.plaf.alloy.de
 import api.base.patterns.ScBindingPattern
+import org.apache.commons.lang.StringEscapeUtils
 
 trait ScType {
   def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -298,10 +299,11 @@ object ScType {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       e match {
         case obj: ScObject if withPoint && obj.getQualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" + e.getName +
+        case e: PsiClass => "<a href=\"psi_element://" + e.getQualifiedName + "\"><code>" +
+                StringEscapeUtils.escapeHtml(e.getName) +
                 "</code></a>" + (if (withPoint) "." else "")
         case pack: PsiPackage if withPoint => ""
-        case _ => e.getName + "."
+        case _ => StringEscapeUtils.escapeHtml(e.getName) + "."
       }
     }
     typeText(t, nameFun(_, false), nameFun(_, true))
