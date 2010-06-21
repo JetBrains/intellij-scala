@@ -409,6 +409,28 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     expectedTypesCache = tps
     expectedTypesModCount = getManager.getModificationTracker.getModificationCount
   }
+
+  def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {
+    val implicits: Seq[PsiNamedElement] = implicitMap.map(_._2)
+    val implicitFunction: Option[PsiElement] = getParent match {
+      case ref: ScReferenceExpression => {
+        val resolve = ref.multiResolve(false)
+        if (resolve.length == 1) {
+          resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
+        } else None
+      }
+      case inf: ScInfixExpr if (inf.isLeftAssoc && this == inf.rOp) || (!inf.isLeftAssoc && this == inf.lOp) => {
+        val resolve = inf.operation.multiResolve(false)
+        if (resolve.length == 1) {
+          resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
+        } else None
+      }
+      case call: ScMethodCall => None //todo:
+      case gen: ScGenerator => None //todo:
+      case _ => getTypeAfterImplicitConversion().implicitFunction
+    }
+    (implicits, implicitFunction)
+  }
 }
 
 object ScExpression {
