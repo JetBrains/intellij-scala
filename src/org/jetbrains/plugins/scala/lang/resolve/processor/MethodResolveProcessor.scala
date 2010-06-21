@@ -149,10 +149,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
     def checkFunction(fun: PsiNamedElement): Seq[ApplicabilityProblem] = {
       fun match {
-        case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
-                fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => Seq.empty
-        case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => Seq.empty
-        case method: PsiMethod if method.getParameterList.getParameters.length == 0 || isUnderscore => Seq.empty
+        case fun: ScFunction if isUnderscore => Seq.empty
+        case fun: ScFun if isUnderscore => Seq.empty
+        case fun: PsiMethod if isUnderscore => Seq.empty
         case _ => {
           expectedOption match {
             case Some(ScFunctionType(retType, params)) => {
@@ -163,7 +162,16 @@ class MethodResolveProcessor(override val ref: PsiElement,
               val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
               Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
             }
-            case _ => Seq(new MissedParametersClause(null))
+            case _ => {
+              fun match {
+                case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
+                        fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => Seq.empty
+                case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => Seq.empty
+                case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
+                        isUnderscore => Seq.empty
+                case _ => Seq(new MissedParametersClause(null))
+              }
+            }
           }
         }
       }
