@@ -8,7 +8,6 @@ import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef.{ScTypeDefinition, ScMember}
-import api.toplevel.{ScNamedElement, ScTypedDefinition}
 import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
@@ -28,11 +27,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import parser.parsing.statements.{Dcl, Def}
-import types._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import lexer.{ScalaTokenTypes, ScalaLexer}
+import types._
+import api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -435,11 +435,12 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     try {
       alias match {
         case alias: ScTypeAliasDefinition => {
-          return "override type " + alias.getName + " = " +
+          return (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
+                  alias.getModifierList.getText + " type " + alias.getName + " = " +
                   ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrElse(Any)))
         }
         case alias: ScTypeAliasDeclaration => {
-          return "type " + alias.getName + " = " + body
+          return alias.getModifierList.getText + " type " + alias.getName + " = " + body
         }
       }
     }
@@ -452,7 +453,10 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor, body: String, isOverride: Boolean,
                                        isVal: Boolean, needsInferType: Boolean): String = {
     var res = ""
-    if (isOverride) res = res + "override "
+    val member = ScalaPsiUtil.nameContext(variable)
+    val m: ScModifierListOwner = member match {case m: ScModifierListOwner => m case _ => null}
+    if (isOverride && (m == null || !m.hasModifierProperty("override"))) res = res + "override "
+    if (m != null) res = res + m.getModifierList.getText + " "
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
     if (needsInferType && ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any))) != "")
