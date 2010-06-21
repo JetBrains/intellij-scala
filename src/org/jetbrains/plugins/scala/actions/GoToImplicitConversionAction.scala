@@ -63,7 +63,10 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         val funs = implicitConversions._1
         if (funs.length == 0) return
         var selectedIndex = -1
-        val implicitFunction: Option[PsiElement] = implicitConversions._2
+        implicitConversions._2 match {
+          case Some(fun) => selectedIndex = funs.findIndexOf(_ == fun)
+          case _ =>
+        }
         val model: DefaultListModel = new DefaultListModel
         for (element <- funs) {
           model.addElement(element)
