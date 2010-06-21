@@ -7,13 +7,13 @@ import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.statements.params.{ScParameter, ScClassParameter}
 import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
-import lang.psi.api.statements.{ScPatternDefinition, ScDeclaration}
 import lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi.PsiElement
 import AnnotatorUtils._
 import quickfix.modifiers.RemoveModifierQuickFix
+import lang.psi.api.statements.{ScTypeAlias, ScPatternDefinition, ScDeclaration}
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -142,7 +142,7 @@ private[annotator] object ModifierChecker {
                     proccessError(ScalaBundle.message("abstract.override.modifier.is.not.allowed"), modifierPsi, holder,
                       new RemoveModifierQuickFix(owner, "abstract"))
                   } else {
-                    checkDublicates(owner, "abstract")
+                    checkDublicates(modifierPsi, "abstract")
                   }
                 }
                 case _ => {
@@ -154,17 +154,26 @@ private[annotator] object ModifierChecker {
             case "override" => {
               owner match {
                 case _: ScTypeDefinition => {
-                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"), modifierPsi, holder,
-                    new RemoveModifierQuickFix(owner, "override"))
+                  proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"), modifierPsi,
+                    holder, new RemoveModifierQuickFix(owner, "override"))
                 }
                 case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] => {
-                  checkDublicates(owner, "override")
+                  checkDublicates(modifierPsi, "override")
                 }
-                case param: ScClassParameter => checkDublicates(owner, "override")
+                case param: ScClassParameter => checkDublicates(modifierPsi, "override")
                 case _ => {
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
                 }
+              }
+            }
+            case "implicit" => {
+              owner match {
+                case _: ScClass | _: ScTrait | _: ScTypeAlias => {
+                  proccessError("'implicit' modifier can be used only for values, variables and methods",
+                    modifierPsi, holder, new RemoveModifierQuickFix(owner, "implicit"))
+                }
+                case _ => checkDublicates(modifierPsi, "implicit")
               }
             }
             case _ =>
