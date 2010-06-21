@@ -36,19 +36,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       }
     }
     treeWalkUp(place, null) //collecting all references from scope
-    for ((clazz, _) <- ScalaPsiUtil.collectImplicitClasses(tp, place)) {
-      clazz match {
-        case o: ScObject => {
-          clazz.processDeclarations(processor, ResolveState.initial, null, place)
-        }
-        case td: ScTemplateDefinition => ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) => {
-            td.processDeclarations(processor, ResolveState.initial, null, place)
-          }
-          case _ =>
-        }
-        case _ =>
-      }
+    for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
+      obj.processDeclarations(processor, ResolveState.initial, null, place)
     }
 
     return processor.candidates.toSeq

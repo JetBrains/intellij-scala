@@ -112,19 +112,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
       case None => typez
     }
-    for ((clazz, _) <- ScalaPsiUtil.collectImplicitClasses(expandedType, this)) {
-      clazz match {
-        case o: ScObject => {
-          clazz.processDeclarations(processor, ResolveState.initial, null, this)
-        }
-        case td: ScTemplateDefinition => ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(obj: ScTypeDefinition) => {
-            obj.processDeclarations(processor, ResolveState.initial, null, this)
-          }
-          case _ =>
-        }
-        case _ =>
-      }
+    for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
+      obj.processDeclarations(processor, ResolveState.initial, null, this)
     }
 
     val result = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]
