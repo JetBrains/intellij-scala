@@ -386,6 +386,19 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("class Holder[T]; def f(a: Holder[Foo], b: Holder[Bar]) {}; def f(a: Holder[Bar], b: Holder[Foo]) {}", "f")
     assertClashes("class Holder[A, B]; def f(a: Holder[Foo, Bar]) {}; def f(a: Holder[Bar, Foo]) {}", "f")
   } 
+
+  def testNoTypeErasureForArray {
+    assertFine("class Array[T]; def f(a: Array[Foo]) {}; def f(a: Array[Bar]) {}")
+    assertFine("class Array[T]; def f(a: Array[Array[Foo]]) {}; def f(a: Array[Array[Bar]]) {}")
+    assertFine("class Array[T]; def f(a: Array[Foo], b: Array[Bar]) {}; def f(a: Array[Bar], b: Array[Foo]) {}")
+    assertFine("class Array[A, B]; def f(a: Array[Foo, Bar]) {}; def f(a: Array[Bar, Foo]) {}")
+    
+    assertClashes("class ArrayFoo[T]; def f(a: ArrayFoo[Foo]) {}; def f(a: ArrayFoo[Bar]) {}", "f")
+    assertClashes("class FooArray[T]; def f(a: FooArray[Foo]) {}; def f(a: FooArray[Bar]) {}", "f")
+    
+    //TODO handle Array[X[T, ...], ...] cases
+//    assertClashes("class Array[T]; def f(a: Array[Holder[Foo]]) {}; def f(a: Array[Holder[Bar]]) {}", "f")
+  } 
   
   // TODO implement function signatures comparison based on types (not on plain text representations)
 //  def testFunctionSignatureTypeConformanceAndErasure {
