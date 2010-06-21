@@ -121,9 +121,6 @@ object ResolveUtils {
         }
         case _ => td
       }
-      if (res != null && placer.getText.equals(res.getText)) {
-        throw new AssertionError(placer.getText)
-      }
       res
     }
     member match {
@@ -264,7 +261,7 @@ object ResolveUtils {
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
-                  placeTd = getPlaceTd(place)
+                  placeTd = getPlaceTd(placeTd)
                 }
                 false
               }

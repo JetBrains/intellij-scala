@@ -59,30 +59,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     val opt = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd)
     opt match {
       case Some((expr, _)) => {
-        val funs = collectImplicitExpr(expr)
+        val implicitConversions = expr.getImplicitConversions
+        val funs = implicitConversions._1
         if (funs.length == 0) return
         var selectedIndex = -1
-        val implicitFunction: Option[PsiElement] = expr.getParent match {
-          case ref: ScReferenceExpression => {
-            val resolve = ref.multiResolve(false)
-            if (resolve.length == 1) {
-              resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
-            } else None
-          }
-          case inf: ScInfixExpr if (inf.isLeftAssoc && expr == inf.rOp) || (!inf.isLeftAssoc && expr == inf.lOp) => {
-            val resolve = inf.operation.multiResolve(false)
-            if (resolve.length == 1) {
-              resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
-            } else None
-          }
-          case call: ScMethodCall => None //todo:
-          case gen: ScGenerator => None //todo:
-          case _ => expr.getTypeAfterImplicitConversion().implicitFunction
-        }
-        implicitFunction match {
-          case Some(fun) => selectedIndex = funs.findIndexOf(_ == fun)
-          case _ =>
-        }
+        val implicitFunction: Option[PsiElement] = implicitConversions._2
         val model: DefaultListModel = new DefaultListModel
         for (element <- funs) {
           model.addElement(element)
@@ -105,9 +86,5 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       }
       case _ => return
     }
-  }
-
-  private def collectImplicitExpr(expr: ScExpression): Seq[PsiNamedElement] = {
-    expr.implicitMap.map(_._2)
   }
 }
