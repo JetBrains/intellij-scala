@@ -14,7 +14,6 @@ import lang.resolve.{ScalaResolveResult, ResolveTargets}
 import types._
 import _root_.scala.collection.Set
 import result.TypingContext
-import api.statements.params.ScTypeParam
 import com.intellij.psi._
 import collection.mutable.{ArrayBuffer, HashMap, HashSet}
 import lang.resolve.processor.BaseProcessor
@@ -24,6 +23,7 @@ import api.statements._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
+import params.{ScParameter, ScTypeParam}
 
 /**
  * @author ilyas
@@ -160,6 +160,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             case _ => (Nothing, Nothing)
           }
         }
+        case param: ScParameter => {
+          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
+                  getSubstitutor match {
+            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+            case _ => (Nothing, Nothing)
+          }
+        }
       }
       val newSubst = r.element match {
         case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
@@ -240,6 +247,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               }
               case _ => return true
             }
+          }
+          case param: ScParameter => {
+            val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
+            if (!tp.conforms(funType)) return true
+            candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
           }
           case _ =>
         }
