@@ -149,7 +149,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
     def checkFunction(fun: PsiNamedElement): Seq[ApplicabilityProblem] = {
       fun match {
-        case fun: ScFunction if fun.parameters.length == 0 || isUnderscore => Seq.empty
+        case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
+                fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => Seq.empty
         case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => Seq.empty
         case method: PsiMethod if method.getParameterList.getParameters.length == 0 || isUnderscore => Seq.empty
         case _ => {

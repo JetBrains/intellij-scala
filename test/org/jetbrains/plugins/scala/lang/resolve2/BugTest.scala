@@ -44,4 +44,6 @@ class BugTest extends ResolveTestBase {
   def testImplicitsApplicability = doTest
 
   def testImplicitChoose = doTest
+
+  def testResolveEmpty = doTest
 }
