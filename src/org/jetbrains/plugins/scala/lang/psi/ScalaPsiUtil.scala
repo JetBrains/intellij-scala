@@ -9,12 +9,12 @@ import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef._
 import api.toplevel.{ScTypedDefinition}
+import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
 import com.intellij.openapi.project.Project
-import impl.toplevel.typedef.TypeDefinitionMembers
 import _root_.org.jetbrains.plugins.scala.lang.psi.types._
 import api.statements._
 import com.intellij.psi._
@@ -32,52 +32,77 @@ import patterns.{ScReferencePattern, ScCaseClause}
 import result.TypingContext
 import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
-import collection.mutable.ArrayBuffer
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import collection.immutable.Stream
 import lang.resolve.ScalaResolveResult
+import collection.mutable.{HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
-  def collectImplicitClasses(tp: ScType, place: PsiElement): Seq[(PsiClass, ScSubstitutor)] = {
-    tp match {
-      case ScCompoundType(comps, _, _, _) => {
-        comps.flatMap(collectImplicitClasses(_, place))
-      }
-      case p@ScParameterizedType(des, args) => {
-        (ScType.extractClassType(p) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
-        }) ++ args.flatMap(collectImplicitClasses(_, place))
-      }
-      case j: JavaArrayType => {
-        val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
-        collectImplicitClasses(parameterizedType.getOrElse(return Seq.empty), place)
-      }
-      case singl@ScSingletonType(path) => collectImplicitClasses(singl.pathType, place)
-      case f@ScFunctionType(retType, params) => {
-        (ScType.extractClassType(tp) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
-        }) ++ params.flatMap(collectImplicitClasses(_, place)) ++ collectImplicitClasses(retType, place)
-      }
-      case f@ScTupleType(params) => {
-        (ScType.extractClassType(tp) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
-        }) ++ params.flatMap(collectImplicitClasses(_, place))
-      }
-      case _=> {
-        ScType.extractClassType(tp) match {
-          case Some(pair) => Seq(pair)
-          case _ => Seq.empty
+  def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScObject] = {
+    def collectParts(tp: ScType, place: PsiElement): Seq[PsiClass] = {
+      tp match {
+        case ScCompoundType(comps, _, _, _) => {
+          comps.flatMap(collectParts(_, place))
+        }
+        case p@ScParameterizedType(des, args) => {
+          (ScType.extractClass(p) match {
+            case Some(pair) => Seq(pair)
+            case _ => Seq.empty
+          }) ++ args.flatMap(collectParts(_, place))
+        }
+        case j: JavaArrayType => {
+          val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
+          collectParts(parameterizedType.getOrElse(return Seq.empty), place)
+        }
+        case singl@ScSingletonType(path) => collectParts(singl.pathType, place)
+        case f@ScFunctionType(retType, params) => {
+          (ScType.extractClass(tp) match {
+            case Some(pair) => Seq(pair)
+            case _ => Seq.empty
+          }) ++ params.flatMap(collectParts(_, place)) ++ collectParts(retType, place)
+        }
+        case f@ScTupleType(params) => {
+          (ScType.extractClass(tp) match {
+            case Some(pair) => Seq(pair)
+            case _ => Seq.empty
+          }) ++ params.flatMap(collectParts(_, place))
+        }
+        case proj@ScProjectionType(projected, ref) => {
+          collectParts(projected, place) ++ (ScType.extractClass(tp) match {
+            case Some(pair) => Seq(pair)
+            case _ => Seq.empty
+          })
+        }
+        case _=> {
+          ScType.extractClass(tp) match {
+            case Some(pair) => Seq(pair)
+            case _ => Seq.empty
+          }
         }
       }
     }
+    val parts = collectParts(tp, place)
+    val res: HashSet[ScObject] = new HashSet
+    for (part <- parts) {
+      for (tp <- MixinNodes.linearization(part, collection.immutable.HashSet.empty)) {
+        ScType.extractClass(tp) match {
+          case Some(obj: ScObject) => res += obj
+          case Some(clazz: PsiClass) => {
+            getCompanionModule(clazz) match {
+              case Some(obj: ScObject) => res += obj
+              case _ => //do nothing
+            }
+          }
+          case _ => //do nothing
+        }
+      }
+    }
+    res.toSeq
   }
 
   def getTypesStream(elems: List[PsiParameter]): Stream[ScType] = {
