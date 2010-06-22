@@ -37,12 +37,19 @@ import formatting.settings.ScalaCodeStyleSettings
 import collection.immutable.Stream
 import lang.resolve.ScalaResolveResult
 import collection.mutable.{HashSet, ArrayBuffer}
+import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
+import com.intellij.openapi.module.Module
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
+  def getModule(element: PsiElement): Module = {
+    var index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+    return index.getModuleForFile(element.getContainingFile.getVirtualFile)
+  }
+
   def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScObject] = {
     def collectParts(tp: ScType, place: PsiElement): Seq[PsiClass] = {
       tp match {

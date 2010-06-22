@@ -63,7 +63,8 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         val funs = implicitConversions._1
         if (funs.length == 0) return
         var selectedIndex = -1
-        implicitConversions._2 match {
+        val conversionFun = implicitConversions._2
+        conversionFun match {
           case Some(fun) => selectedIndex = funs.findIndexOf(_ == fun)
           case _ =>
         }

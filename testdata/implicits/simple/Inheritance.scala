@@ -12,7 +12,6 @@ Seq(any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
     augmentString,
-    conforms,
     convert,
     wrapString),
 Some(convert)
