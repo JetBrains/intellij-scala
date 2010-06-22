@@ -133,7 +133,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   def forFilter(m: PsiMethod, checkWithImplicits: Boolean): Boolean = {
                     Compatibility.compatible(m, subst.followed(undefSubst),
                       argClauses.map(_.map(Compatibility.Expression(_))),
-                      checkWithImplicits, getResolveScope)._1.isEmpty
+                      checkWithImplicits, getResolveScope).problems.isEmpty
                   }
                   var filtered = clazz.getConstructors.filter(forFilter(_, false))
                   val withImplicits = filtered.isEmpty

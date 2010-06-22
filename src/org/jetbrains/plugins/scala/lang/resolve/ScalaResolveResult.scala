@@ -23,7 +23,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val boundClass: PsiClass = null,
                          val implicitFunction: Option[PsiNamedElement] = None,
                          val implicitType: Option[ScType] = None,
-                         val isHacked: Boolean = false) extends ResolveResult {
+                         val isHacked: Boolean = false,
+                         val weakImplicitsUsed: Boolean = false) extends ResolveResult {
 
   def getElement = element
 
@@ -37,7 +38,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
 
   def isRenamed: Option[String] = nameShadow
 
-  def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems): ScalaResolveResult =
+  def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
+           weakImplicitsUsed: Boolean = weakImplicitsUsed): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, isHacked)
 

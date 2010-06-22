@@ -50,7 +50,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val isPO = dataStream.readBoolean
     val isSFC = dataStream.readBoolean
     val fileName = StringRef.toString(dataStream.readName)
-    val methodNames = for (i <- 1 to dataStream.readInt) yield StringRef.toString(dataStream.readName)
+    val length = dataStream.readInt
+    val methodNames = for (i <- 1 to length) yield StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames.toArray, isPO, isSFC)
   }
