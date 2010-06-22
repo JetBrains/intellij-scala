@@ -18,7 +18,6 @@ object Convert2 {
 Seq(any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
-    conforms,
     convert,
     int2Integer,
     int2double,

@@ -12,6 +12,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationFactory}
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import lang.psi.ScalaPsiUtil
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 03.05.2009
@@ -60,7 +62,7 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val testClassPath = parent.getQualifiedName
     runConfiguration.setTestClassPath(testClassPath)
     try {
-      val module = JavaRunConfigurationModule.getModulesForClass(element.getProject, testClassPath).toArray()(0).asInstanceOf[Module]
+      val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
         runConfiguration.setModule(module)
       }

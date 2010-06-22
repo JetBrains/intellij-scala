@@ -5,7 +5,6 @@ package scalaTest
 import _root_.java.lang.String
 import _root_.javax.swing.Icon
 import com.intellij.execution.configurations.{JavaRunConfigurationModule, RunConfiguration, ConfigurationType, ConfigurationFactory}
-import com.intellij.openapi.module.Module
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl
 import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSettings, LocatableConfigurationType}
 import com.intellij.openapi.util.IconLoader
@@ -15,6 +14,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import script.ScalaScriptRunConfigurationFactory
+import lang.psi.ScalaPsiUtil
+import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.facet.FacetManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,7 +60,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
     try {
-      val module = JavaRunConfigurationModule.getModulesForClass(element.getProject, testClassPath).toArray()(0).asInstanceOf[Module]
+      val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
         runConfiguration.setModule(module)
       }

@@ -23,7 +23,6 @@ object Test {
 Seq(a2b,
     any2ArrowAssoc,
     any2Ensuring,
-    any2stringadd,
-    conforms),
+    any2stringadd),
 Some(a2b)
 */

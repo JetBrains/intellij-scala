@@ -56,39 +56,25 @@ class MethodResolveProcessor(override val ref: PsiElement,
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
-          //all this code for implicit overloading reesolution
-          //todo: this is bad code, should be rewrited
-          val res = new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType)
-          ((candidatesSet ++ levelSet).find(p => p.hashCode == res.hashCode), implicitConversionClass) match {
-            case (Some(oldRes: ScalaResolveResult), Some(newClass)) => {
-              val oldClass = oldRes.implicitConversionClass
-              oldClass match {
-                case Some(clazz: PsiClass) if clazz.isInheritor(newClass, true) =>
-                case _ => {
-                  candidatesSet.remove(oldRes)
-                  levelSet.remove(oldRes)
-                  levelSet += res
-                }
-              }
-            }
-            case _ => addResult(res)
-          }
+          addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
           true
         }
         case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
                 ref.getParent.isInstanceOf[ScGenericCall] => {
-          addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass))
+          addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
           true
         }
         case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
                 ScalaPsiUtil.getCompanionModule(cc) == None => {
           addResult(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state), None,
-            implicitConversionClass))
+            implicitConversionClass, implicitFunction = implFunction, implicitType = implType))
           true
         }
         case cc: ScClass if cc.isCase && ScalaPsiUtil.getCompanionModule(cc) == None => {
-          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
+          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
         }
         case cc: ScClass => true
         case o: ScObject if o.isPackageObject => return true // do not resolve to package object
@@ -96,17 +82,21 @@ class MethodResolveProcessor(override val ref: PsiElement,
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
-            addResult(new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass))
+            addResult(new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,
+              implicitFunction = implFunction, implicitType = implType))
           }
           true
         }
         case synthetic: ScSyntheticFunction => {
-          addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass))
+          addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
         }
         case pack: PsiPackage =>
-          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), None, implicitConversionClass))
+          addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
         case _ => {
-          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass))
+          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
+            implicitFunction = implFunction, implicitType = implType))
           true
         }
       }
