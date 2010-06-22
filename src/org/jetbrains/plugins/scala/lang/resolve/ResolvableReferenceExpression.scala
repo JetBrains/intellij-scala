@@ -4,9 +4,8 @@ package resolve
 
 import _root_.com.intellij.openapi.progress.ProgressManager
 import _root_.com.intellij.psi.impl.PsiManagerEx
-import processor.{ConstructorResolveProcessor, MethodResolveProcessor, CompletionProcessor, BaseProcessor}
+import processor._
 import psi.implicits.ScImplicitlyConvertible
-import _root_.com.intellij.psi.{PsiClass, ResolveState, ResolveResult, PsiElement}
 import psi.api.toplevel.imports.usages.ImportUsed
 import psi.types.result.TypingContext
 import psi.types.{ScSubstitutor, ScType}
@@ -16,6 +15,8 @@ import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 import caches.CachesUtil
+import com.intellij.psi._
+import psi.api.expr.ScExpression.ExpressionTypeResult
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this)
@@ -172,15 +173,42 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   }
 
   private def collectImplicits(e: ScExpression, processor: BaseProcessor) {
-    for ((t, fun, importsUsed) <- e.implicitMap) {
-      ProgressManager.checkCanceled
-      var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-      state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
-      e.getClazzForType(t) match {
-        case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-        case _ =>
+    processor match {
+      case _: CompletionProcessor => {
+        for ((t, fun, importsUsed) <- e.implicitMap) {
+          ProgressManager.checkCanceled
+          var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+          state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
+          e.getClazzForType(t) match {
+            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+            case _ =>
+          }
+          processor.processType(t, e, state)
+        }
+        return
       }
-      processor.processType(t, e, state)
+      case _ =>
     }
+    //find applicable implicit conversion
+    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap.filter({
+      case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
+        ProgressManager.checkCanceled
+        val newProc = new ResolveProcessor(processor.kinds, this, refName)
+        newProc.processType(t, e, ResolveState.initial)
+        !newProc.candidates.isEmpty
+      }
+    })
+    val mostSpecificImplicit = if (implicitMap.length == 0) return
+    else if (implicitMap.length == 0) implicitMap.apply(0)
+    else MostSpecificUtil(this, 1).mostSpecificForImplicit(implicitMap.toSet).getOrElse(return)
+    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed])  = mostSpecificImplicit
+    ProgressManager.checkCanceled
+    var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+    state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
+    e.getClazzForType(t) match {
+      case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+      case _ =>
+    }
+    processor.processType(t, e, state)
   }
 }

@@ -215,7 +215,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
       element match {
         case named: PsiNamedElement if kindMatches(element) => named match {
-          case f: ScFunction if f.hasModifierProperty("implicit") => {
+          //there is special case for Predef.conforms method
+          case f: ScFunction if f.hasModifierProperty("implicit") && !isConformsMethod(f)=> {
             val clauses = f.paramClauses.clauses
             val followed = subst.followed(inferMethodTypesArgs(f, subst))
             //filtered cases
@@ -251,6 +252,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
 
 
+  }
+
+  private def isConformsMethod(f: ScFunction): Boolean = {
+    lazy val qual = f.getContainingClass.getQualifiedName
+    f.name == "conforms" && qual != null && qual == "scala.Predef"
   }
 
   /**
