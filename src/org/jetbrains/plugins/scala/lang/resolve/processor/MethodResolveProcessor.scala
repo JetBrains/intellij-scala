@@ -104,7 +104,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     return true
   }
 
-  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean): Seq[ApplicabilityProblem] = {
+  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean): (Seq[ApplicabilityProblem], Boolean) = {
     val substitutor: ScSubstitutor = {
       c.element match {
         case t: ScTypeParametersOwner => {
@@ -137,29 +137,31 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
     } 
 
-    def checkFunction(fun: PsiNamedElement): Seq[ApplicabilityProblem] = {
+    def checkFunction(fun: PsiNamedElement): (Seq[ApplicabilityProblem], Boolean) = {
       fun match {
-        case fun: ScFunction if isUnderscore => Seq.empty
-        case fun: ScFun if isUnderscore => Seq.empty
-        case fun: PsiMethod if isUnderscore => Seq.empty
+        case fun: ScFunction if isUnderscore => (Seq.empty, false)
+        case fun: ScFun if isUnderscore => (Seq.empty, false)
+        case fun: PsiMethod if isUnderscore => (Seq.empty, false)
         case _ => {
           expectedOption match {
             case Some(ScFunctionType(retType, params)) => {
               val args = params.map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
+              val res = Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)
+              (res.problems, res.weakImplicitsUsed)
             }
             case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
               val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)._1
+              val res = Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)
+              (res.problems, res.weakImplicitsUsed)
             }
             case _ => {
               fun match {
                 case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
-                        fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => Seq.empty
-                case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => Seq.empty
+                        fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => (Seq.empty, false)
+                case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => (Seq.empty, false)
                 case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
-                        isUnderscore => Seq.empty
-                case _ => Seq(new MissedParametersClause(null))
+                        isUnderscore => (Seq.empty, false)
+                case _ => (Seq(new MissedParametersClause(null)), false)
               }
             }
           }
@@ -169,34 +171,36 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
     //todo: is it right to think only about function type?
     //this check for defs without parameter clauses and for values
-    def checkType(tp: ScType): Seq[ApplicabilityProblem] = {
+    def checkType(tp: ScType): (Seq[ApplicabilityProblem], Boolean) = {
       tp match {
         case f@ScFunctionType(_, params) => {
           val parameters = params.map(new Parameter("", _, false, false))
-          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
-            checkWithImplicits)._1
+          val res = Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
+            checkWithImplicits)
+          (res.problems, res.weakImplicitsUsed)
         }
         case p@ScParameterizedType(_, typeArgs) if p.getFunctionType != None => {
           val parameters = typeArgs.slice(0, typeArgs.length - 1).map(new Parameter("", _, false, false))
-          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
-            checkWithImplicits)._1
+          val res = Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
+            checkWithImplicits)
+          (res.problems, res.weakImplicitsUsed)
         }
-        case _ => return Seq(DoesNotTakeParameters())
+        case _ => return (Seq(DoesNotTakeParameters()), false)
       }
     }
 
     c.element match {
       //Implicit Application
-      case f: ScFunction if f.hasMalformedSignature => return Seq(new MalformedDefinition)
+      case f: ScFunction if f.hasMalformedSignature => return (Seq(new MalformedDefinition), false)
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.apply(0).isImplicit &&
-              argumentClauses.length == 0 => Seq.empty //special case for cases like Seq.toArray
+              argumentClauses.length == 0 => (Seq.empty, false) //special case for cases like Seq.toArray
       //eta expansion
       case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
-        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return Seq(new ApplicabilityProblem("1"))
+        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return (Seq(new ApplicabilityProblem("1")), false)
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
@@ -219,31 +223,40 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
+        val res = Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)
+        (res.problems, res.weakImplicitsUsed)
       }
       case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.getTypeParameters.length) &&
               tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)._1
+        val res = Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)
+        (res.problems, res.weakImplicitsUsed)
       }
       //for functions => applicaability problem, no type parameters clause
-      case method: PsiMethod => Seq(new ApplicabilityProblem("2"))
-      case _ => Seq.empty
+      case method: PsiMethod => (Seq(new ApplicabilityProblem("2")), false)
+      case _ => (Seq.empty, false)
     }
   }
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
     val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
     
-    var mapped = input.map(r => r.copy(problems = problemsFor(r, false)))
+    var mapped = input.map(r => {
+      val pr = problemsFor(r, false)
+      r.copy(problems = pr._1, weakImplicitsUsed = pr._2)
+    })
     var filtered = mapped.filter(_.isApplicable)
     
     if(filtered.isEmpty) {
-      mapped = input.map(r => r.copy(problems = problemsFor(r, true)))
+      mapped = input.map(r => {
+        val pr = problemsFor(r, true)
+        r.copy(problems = pr._1, weakImplicitsUsed = pr._2)
+      })
       filtered = mapped.filter(_.isApplicable)
     }
 
+    if (!filtered.forall(_.weakImplicitsUsed)) filtered = filtered.filter(!_.weakImplicitsUsed)
     if (filtered.isEmpty) 
       mapped.toArray.map { r =>    
         if (r.element.isInstanceOf[PsiMethod] || r.element.isInstanceOf[ScFun]) 

@@ -30,9 +30,9 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
-    val l = dataStream.readByte
-    val res = new Array[String](l)
-    for (i <- 1 to l) {
+    val length = dataStream.readByte
+    val res = new Array[String](length)
+    for (i <- 1 to length) {
       res(i - 1) = StringRef.toString(dataStream.readName)
     }
     new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, res)

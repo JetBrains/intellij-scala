@@ -125,13 +125,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
         if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) => {
-        val result: Option[ScType] = f.declaredType match {
-          case s: Success[ScType] => Some(s.get)
-          // this is in case if function has super method => recursion has defined type
-          case fail: Failure => f.superMethod match {
-            case Some(fun: ScFunction) => fun.returnType match {case s: Success[ScType] => Some(s.get) case _ => None}
-            case Some(meth: PsiMethod) => Some(ScType.create(meth.getReturnType, meth.getProject, getResolveScope))
-            case _ => None
+        val result: Option[ScType] = {
+          if (f.returnTypeElement == None) Some(Unit)
+          else
+          f.declaredType match {
+            case s: Success[ScType] => Some(s.get)
+            // this is in case if function has super method => recursion has defined type
+            case fail: Failure => {
+              f.superMethod match {
+                case Some(fun: ScFunction) => fun.returnType match {case s: Success[ScType] => Some(s.get) case _ => None}
+                case Some(meth: PsiMethod) => Some(ScType.create(meth.getReturnType, meth.getProject, getResolveScope))
+                case _ => None
+              }
+            }
           }
         }
         if (result == None) return Failure("Cannot infer recursive method type", Some(this))

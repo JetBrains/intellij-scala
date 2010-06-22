@@ -71,7 +71,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     val isDecl = dataStream.readBoolean
     val length = dataStream.readByte
     val annotations = new Array[String](length)
-    for (i <- 0 to length - 1) {
+    for (i <- 0 until length) {
       annotations(i) = dataStream.readName.toString
     }
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]

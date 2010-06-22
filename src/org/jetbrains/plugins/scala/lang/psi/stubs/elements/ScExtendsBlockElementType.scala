@@ -34,7 +34,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScExtendsBlockStub = {
     val n = dataStream.readInt
     val baseClasses = new Array[String](n)
-    for (i <- 0 to n-1) baseClasses(i) = StringRef.toString(dataStream.readName)
+    for (i <- 0 until n) baseClasses(i) = StringRef.toString(dataStream.readName)
     new ScExtendsBlockStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, baseClasses)
   }
 
