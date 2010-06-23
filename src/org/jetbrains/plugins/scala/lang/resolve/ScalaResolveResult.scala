@@ -24,7 +24,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitFunction: Option[PsiNamedElement] = None,
                          val implicitType: Option[ScType] = None,
                          val isHacked: Boolean = false,
-                         val weakImplicitsUsed: Boolean = false) extends ResolveResult {
+                         val weakImplicitsUsed: Boolean = false,
+                         val unitConversionUsed: Boolean = false,
+                         val defaultParameterUsed: Boolean = false,
+                         val hasLiteralNarrowing: Boolean = false) extends ResolveResult {
 
   def getElement = element
 
@@ -39,9 +42,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
   def isRenamed: Option[String] = nameShadow
 
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
-           weakImplicitsUsed: Boolean = weakImplicitsUsed): ScalaResolveResult =
+           weakImplicitsUsed: Boolean = weakImplicitsUsed, unitConversionUsed: Boolean = unitConversionUsed,
+           defaultParameterUsed: Boolean = defaultParameterUsed,
+           hasLiteralNarrowing: Boolean = hasLiteralNarrowing): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
-      implicitFunction, implicitType, isHacked)
+      implicitFunction, implicitType, isHacked, weakImplicitsUsed, unitConversionUsed, defaultParameterUsed,
+      hasLiteralNarrowing)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

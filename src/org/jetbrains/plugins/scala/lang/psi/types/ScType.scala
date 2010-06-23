@@ -27,7 +27,7 @@ trait ScType {
 
   def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
-  def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this)
+  def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
 
   def presentableText = ScType.presentableText(this)
   
