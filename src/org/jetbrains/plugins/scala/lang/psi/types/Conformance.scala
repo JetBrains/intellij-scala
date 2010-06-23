@@ -21,19 +21,6 @@ import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.ScalaResolveResult
 
 object Conformance {
-
-  @deprecated("Use conforms(l, r, true) instead")
-  def weakConforms(l: ScType, r: ScType): Boolean = {
-    (l, r) match {
-      case (Byte, Short | Char | Int | Long | Float | Double) => true
-      case (Short, Int | Long | Float | Double) => true
-      case (Int, Long | Float | Double) => true
-      case (Long, Float | Double) => true
-      case (Float, Double) => true
-      case (_, _) => conforms(l, r)
-    }
-  }
-
   /**
    * Checks, whether the following assignment is correct:
    * val x: l = (y: r) 
@@ -52,7 +39,7 @@ object Conformance {
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
     if (checkWeak) {
-      (l, r) match {
+      (r, l) match {
         case (Byte, Short | Char | Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Short, Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Int, Long | Float | Double) => return (true, undefinedSubst)
@@ -148,6 +135,7 @@ object Conformance {
       case (Singleton, _) => return (false, undefinedSubst)
       case (AnyVal, _: ValType) => return (true, undefinedSubst)
       case (AnyVal, _) => return (false, undefinedSubst)
+      case (_: ValType, _: ValType) => return (false, undefinedSubst)
       case (ScTupleType(comps1: Seq[ScType]), ScTupleType(comps2: Seq[ScType])) => {
         if (comps1.length != comps2.length) return (false, undefinedSubst)
         var i = 0
