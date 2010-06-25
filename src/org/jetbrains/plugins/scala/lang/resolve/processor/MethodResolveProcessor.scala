@@ -182,7 +182,8 @@ object MethodResolveProcessor {
       val z: PsiElement = if (ref.getContext.isInstanceOf[ScGenericCall]) ref.getContext else ref
       (ref, z.getContext) match {
         case (ref: ScReferenceExpression, call: ScMethodCall) if ref.refName == refName => {
-          if (ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call, tp, isShapeResolve, true).length > 0) {
+          if (ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call, tp, isShapeResolve, true).
+                  filter(_.isApplicable).length > 0) {
             ConformanceExtResult(Seq.empty)
           } else {
             ConformanceExtResult(Seq(new DoesNotTakeParameters))
@@ -193,6 +194,18 @@ object MethodResolveProcessor {
     }
 
     c.element match {
+      //case class
+      case cl: ScClass if cl.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
+                ref.getParent.isInstanceOf[ScGenericCall] => {
+        cl.constructor match {
+          case Some(c) => {
+            val args = argumentClauses.headOption.toList
+            Compatibility.compatible(c.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
+              ref.getResolveScope, isShapeResolve)
+          }
+          case None => return ConformanceExtResult(Seq.empty)
+        }
+      }
       //objects
       case obj: PsiClass => return ConformanceExtResult(Seq.empty)
       //Implicit Application
