@@ -343,7 +343,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
       case call: ScMethodCall => None //todo:
       case gen: ScGenerator => None //todo:
-      case _ => getTypeAfterImplicitConversion().implicitFunction
+      case _ => getTypeAfterImplicitConversion(expectedOption = ExpectedTypes.smartExpectedType(this)).implicitFunction
     }
     (implicits, implicitFunction)
   }

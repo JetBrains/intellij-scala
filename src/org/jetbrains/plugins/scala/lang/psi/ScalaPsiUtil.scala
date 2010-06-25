@@ -73,7 +73,7 @@ object ScalaPsiUtil {
     processor.processType(tp, getInvokedExpr, ResolveState.initial)
     var candidates = processor.candidates
 
-    if (!noImplicits && candidates.length == 0) {
+    if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
       for (t <- getInvokedExpr.getImplicitTypes) {
         ProgressManager.checkCanceled
@@ -85,9 +85,9 @@ object ScalaPsiUtil {
         }
         processor.processType(t, getInvokedExpr, state)
       }
+      candidates = processor.candidates
     }
-
-    processor.candidates
+    candidates
   }
 
   def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall, isShape: Boolean): Option[ScType] = {

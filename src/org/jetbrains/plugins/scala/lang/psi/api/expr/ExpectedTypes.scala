@@ -26,6 +26,18 @@ import result.{TypeResult, Success, TypingContext}
  */
 
 private[expr] object ExpectedTypes {
+  /**
+   * Do not use this method inside of resolve or type inference.
+   * Using this leads to SOE.
+   */
+  def smartExpectedType(expr: ScExpression): Option[ScType] = {
+    val types = expectedExprTypes(expr, true)
+    types.length match {
+      case 1 => Some(types(0))
+      case _ => None
+    }
+  }
+  
   def expectedExprType(expr: ScExpression): Option[ScType] = {
     val types = expr.expectedTypes
     types.length match {
@@ -33,7 +45,7 @@ private[expr] object ExpectedTypes {
       case _ => None
     }
   }
-  def expectedExprTypes(expr: ScExpression): Array[ScType] = {
+  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false): Array[ScType] = {
     //this method needs to replace expected type to return type if it's placholder function expression
     def finalize(expr: ScExpression): Array[ScType] = {
       ScUnderScoreSectionUtil.underscores(expr).length match {
@@ -132,7 +144,9 @@ private[expr] object ExpectedTypes {
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tp = callExpression match {
-            case ref: ScReferenceExpression => ref.shapeType
+            case ref: ScReferenceExpression =>
+              if (!withResolvedFunction) ref.shapeType
+              else ref.getNonValueType(TypingContext.empty)
             case _ => callExpression.getNonValueType(TypingContext.empty)
           }
           processArgsExpected(res, expr, i, tp, tuple.exprs.length - 1)
@@ -160,7 +174,7 @@ private[expr] object ExpectedTypes {
           case _ => expr
         }
         val op = infix.operation
-        val tp = op.shapeType
+        val tp = if (!withResolvedFunction) op.shapeType else op.getNonValueType(TypingContext.empty)
         processArgsExpected(res, zExpr, 0, tp, 1)
         res.toArray
       }
@@ -210,8 +224,12 @@ private[expr] object ExpectedTypes {
         val callExpression = args.callExpression
         if (callExpression != null) {
           val tp = callExpression match {
-            case ref: ScReferenceExpression => ref.shapeType
-            case gen: ScGenericCall => gen.shapeType
+            case ref: ScReferenceExpression =>
+              if (!withResolvedFunction) ref.shapeType
+              else ref.getNonValueType(TypingContext.empty)
+            case gen: ScGenericCall =>
+              if (!withResolvedFunction) gen.shapeType
+              else gen.getNonValueType(TypingContext.empty)
             case _ => callExpression.getNonValueType(TypingContext.empty)
           }
           processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
@@ -256,7 +274,7 @@ private[expr] object ExpectedTypes {
         applyForParams(params)
       }
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) => {
-        val subst = /*t.existentialTypeSubstitutor*/ ScalaPsiUtil.undefineSubstitutor(typeParams)
+        val subst = t.polymorphicTypeSubstitutor
         val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
         applyForParams(newParams)
       }
