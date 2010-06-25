@@ -43,6 +43,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
   override def setUp() {
     super.setUp
+    getProject.getComponent(classOf[SyntheticClasses]).registerClasses
     options = List()
     references = List()
   }
