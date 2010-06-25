@@ -6,6 +6,8 @@ package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import base.types.{ScTypeElement, ScTypeArgs}
+import types.result.TypeResult
+import types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -23,4 +25,5 @@ trait ScGenericCall extends ScExpression {
     case _ => Nil
   }
 
+  def shapeType: TypeResult[ScType]
 }

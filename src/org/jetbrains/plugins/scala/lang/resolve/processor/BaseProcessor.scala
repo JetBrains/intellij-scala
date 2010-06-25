@@ -155,12 +155,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         case None => true//nothing to do
       }
 
-      case ft@ScFunctionType(rt, params) if isInApplyCall => {
+      case ft@ScFunctionType(rt, params) => {
         ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
-      }
-
-      case ft@ScFunctionType(rt, params) if params.isEmpty => {
-        processType(rt, place)
       }
 
       case tp@ScTupleType(comps) => {
