@@ -46,7 +46,7 @@ trait ValueType extends ScType{
   def inferValueType: ValueType = this
 }
 
-abstract case class StdType(val name : String, val tSuper : Option[StdType]) extends ValueType {
+abstract case class StdType(val name : String, val tSuper: Option[StdType]) extends ValueType {
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).

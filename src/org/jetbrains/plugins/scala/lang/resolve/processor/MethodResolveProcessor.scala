@@ -17,7 +17,6 @@ import scala._
 import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
 import scala.collection.Set
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import psi.api.expr.{ScMethodCall, ScGenericCall}
 import psi.implicits.{ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import psi.ScalaPsiUtil
@@ -27,15 +26,17 @@ import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
+import psi.api.expr.{ScReferenceExpression, ScMethodCall, ScGenericCall}
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
-                             refName: String,
-                             argumentClauses: List[Seq[Expression]],
-                             typeArgElements: Seq[ScTypeElement],
-                             kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
-                             expectedOption: => Option[ScType] = None,
-                             isUnderscore: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val refName: String,
+                             val argumentClauses: List[Seq[Expression]],
+                             val typeArgElements: Seq[ScTypeElement],
+                             override val kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
+                             val expectedOption: () => Option[ScType] = () => None,
+                             val isUnderscore: Boolean = false,
+                             val isShapeResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -104,7 +105,17 @@ class MethodResolveProcessor(override val ref: PsiElement,
     return true
   }
 
-  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean): ConformanceExtResult = {
+
+
+  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
+    val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
+    MethodResolveProcessor.candidates(this, input)
+  }
+}
+
+object MethodResolveProcessor {
+  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean, proc: MethodResolveProcessor): ConformanceExtResult = {
+    import proc._
     val substitutor: ScSubstitutor = {
       c.element match {
         case t: ScTypeParametersOwner => {
@@ -135,7 +146,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         }
         case _ => c.substitutor
       }
-    } 
+    }
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       fun match {
@@ -143,14 +154,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case fun: ScFun if isUnderscore => ConformanceExtResult(Seq.empty)
         case fun: PsiMethod if isUnderscore => ConformanceExtResult(Seq.empty)
         case _ => {
-          expectedOption match {
+          expectedOption() match {
             case Some(ScFunctionType(retType, params)) => {
               val args = params.map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)
+              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
             }
             case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
               val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope)
+              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
             }
             case _ => {
               fun match {
@@ -167,25 +178,23 @@ class MethodResolveProcessor(override val ref: PsiElement,
       }
     }
 
-    //todo: is it right to think only about function type?
-    //this check for defs without parameter clauses and for values
     def checkType(tp: ScType): ConformanceExtResult = {
-      tp match {
-        case f@ScFunctionType(_, params) => {
-          val parameters = params.map(new Parameter("", _, false, false))
-          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
-            checkWithImplicits)
+      val z: PsiElement = if (ref.getContext.isInstanceOf[ScGenericCall]) ref.getContext else ref
+      (ref, z.getContext) match {
+        case (ref: ScReferenceExpression, call: ScMethodCall) if ref.refName == refName => {
+          if (ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call, tp, isShapeResolve, true).length > 0) {
+            ConformanceExtResult(Seq.empty)
+          } else {
+            ConformanceExtResult(Seq(new DoesNotTakeParameters))
+          }
         }
-        case p@ScParameterizedType(_, typeArgs) if p.getFunctionType != None => {
-          val parameters = typeArgs.slice(0, typeArgs.length - 1).map(new Parameter("", _, false, false))
-          Compatibility.checkConformanceExt(false, parameters, argumentClauses.headOption.getOrElse(Seq.empty),
-            checkWithImplicits)
-        }
-        case _ => return ConformanceExtResult(Seq(DoesNotTakeParameters()))
+        case _ => ConformanceExtResult(Seq.empty)
       }
     }
 
     c.element match {
+      //objects
+      case obj: PsiClass => return ConformanceExtResult(Seq.empty)
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature => return ConformanceExtResult(Seq(new MalformedDefinition))
       case fun: ScFunction  if (typeArgElements.length == 0 ||
@@ -212,20 +221,22 @@ class MethodResolveProcessor(override val ref: PsiElement,
         checkType(p.getType(TypingContext.empty).getOrElse(Any))
       }
       //empty parameters list: it's like a value
-      case tp: ScFunction if tp.parameters.length == 0 && argumentClauses.length > 0 => {
+      case tp: ScFunction if tp.paramClauses.clauses.length == 0 && argumentClauses.length > 0 => {
         checkType(tp.getType(TypingContext.empty).getOrElse(Any))
       }
       //simple application including empty application
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.typeParameters.length) && tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
+          ref.getResolveScope, isShapeResolve)
       }
       case tp: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == tp.getTypeParameters.length) &&
               tp.isInstanceOf[PsiNamedElement] => {
         val args = argumentClauses.headOption.toList
-        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits, ref.getResolveScope)
+        Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
+          ref.getResolveScope, isShapeResolve)
       }
       //for functions => applicaability problem, no type parameters clause
       case method: PsiMethod => ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
@@ -233,46 +244,35 @@ class MethodResolveProcessor(override val ref: PsiElement,
     }
   }
 
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
-    
+  def candidates[T >: ScalaResolveResult : ClassManifest](proc: MethodResolveProcessor,
+                                                                   input: Set[ScalaResolveResult]): Array[T] = {
+    import proc._
     var mapped = input.map(r => {
-      val pr = problemsFor(r, false)
-      r.copy(problems = pr.problems, weakImplicitsUsed = pr.weakImplicitsUsed,
-        unitConversionUsed = pr.unitConversionUsed, hasLiteralNarrowing = pr.hasLiteralNarrowing,
-        defaultParameterUsed = pr.defaultParameterUsed)
+      val pr = problemsFor(r, false, proc)
+      r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
     })
     var filtered = mapped.filter(_.isApplicable)
-    
+
     if(filtered.isEmpty) {
       mapped = input.map(r => {
-        val pr = problemsFor(r, true)
-        r.copy(problems = pr.problems, weakImplicitsUsed = pr.weakImplicitsUsed,
-          unitConversionUsed = pr.unitConversionUsed, hasLiteralNarrowing = pr.hasLiteralNarrowing, 
-          defaultParameterUsed = pr.defaultParameterUsed)
+        val pr = problemsFor(r, true, proc)
+        r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
       })
       filtered = mapped.filter(_.isApplicable)
     }
     //remove default parameters alternatives
-    if (filtered.size >= 1) filtered = filtered.filter(!_.defaultParameterUsed)
-    //now dancing with a tambourine (hack)
-    def priorityLevel(r: ScalaResolveResult): Int = {
-      if (r.unitConversionUsed) return 3
-      if (r.hasLiteralNarrowing) return 2
-      if (r.weakImplicitsUsed) return 1
-      return 0
+    if (filtered.size > 1) filtered = filtered.filter(!_.defaultParameterUsed)
+
+    if (isShapeResolve) {
+      if (filtered.isEmpty) return input.toArray
+      else return filtered.toArray
     }
-    val min = filtered.foldLeft(4)((z, r) => {
-      val level = priorityLevel(r)
-      if (level < z) level
-      else z
-    })
-    filtered = filtered.filter(r => priorityLevel(r) == min)
-    if (filtered.isEmpty) 
-      mapped.toArray.map { r =>    
-        if (r.element.isInstanceOf[PsiMethod] || r.element.isInstanceOf[ScFun]) 
+
+    if (filtered.isEmpty)
+      mapped.toArray.map { r =>
+        if (r.element.isInstanceOf[PsiMethod] || r.element.isInstanceOf[ScFun])
           r
-        else 
+        else
           r.copy(problems = Seq.empty)
       }
     else {
