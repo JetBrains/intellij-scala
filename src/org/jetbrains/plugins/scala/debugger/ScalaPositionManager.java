@@ -182,7 +182,9 @@ public class ScalaPositionManager implements PositionManager {
 
     final PsiClass[] classes = ScalaCachesManager.getInstance(project).getNamesCache().getClassesByFQName(qName, searchScope);
     PsiClass clazz = classes.length == 1 ? classes[0] : null;
-    if (clazz != null && clazz.isValid()) return clazz.getContainingFile();
+    if (clazz != null && clazz.isValid()) {
+      return clazz.getNavigationElement().getContainingFile();
+    }
 
     DirectoryIndex directoryIndex = DirectoryIndex.getInstance(project);
     int dotIndex = qName.lastIndexOf(".");
