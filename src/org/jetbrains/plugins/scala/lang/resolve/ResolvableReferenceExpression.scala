@@ -7,7 +7,6 @@ import _root_.com.intellij.psi.impl.PsiManagerEx
 import processor._
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.imports.usages.ImportUsed
-import psi.types.result.TypingContext
 import psi.types.{ScSubstitutor, ScType}
 import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,12 +16,36 @@ import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 import caches.CachesUtil
 import com.intellij.psi._
 import psi.api.expr.ScExpression.ExpressionTypeResult
+import psi.types.result.{TypeResult, TypingContext}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
-  private object Resolver extends ReferenceExpressionResolver(this)
+  private object Resolver extends ReferenceExpressionResolver(this, false)
+  private object ShapesResolver extends ReferenceExpressionResolver(this, true)
   
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
+  }
+
+  @volatile
+  private var shapeResolveResults: Array[ResolveResult] = null
+  @volatile
+  private var shapeResolveResultsModCount: Long = 0
+
+  def shapeResolve: Array[ResolveResult] = {
+    ProgressManager.checkCanceled
+    var tp = shapeResolveResults
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && shapeResolveResultsModCount == curModCount) {
+      return tp
+    }
+    tp = shapeResolveInner
+    shapeResolveResults = tp
+    shapeResolveResultsModCount = curModCount
+    return tp
+  }
+
+  private def shapeResolveInner: Array[ResolveResult] = {
+    ShapesResolver.resolve(this, false)
   }
 
   def isAssignmentOperator = {
@@ -175,7 +198,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private def collectImplicits(e: ScExpression, processor: BaseProcessor) {
     processor match {
       case _: CompletionProcessor => {
-        for ((t, fun, importsUsed) <- e.implicitMap) {
+        for ((t, fun, importsUsed) <- e.implicitMap()) {
           ProgressManager.checkCanceled
           var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
           state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
@@ -190,7 +213,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
     //find applicable implicit conversion
-    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap.filter({
+    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
       case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
         ProgressManager.checkCanceled
         val newProc = new ResolveProcessor(processor.kinds, this, refName)

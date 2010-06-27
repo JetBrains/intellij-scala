@@ -16,7 +16,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def isAnonymousFunction: Boolean = false
 
-  def exprs : Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
+  def exprs: Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
+  def statements: Seq[ScBlockStatement] =
+    collection.immutable.Seq(findChildrenByClassScala(classOf[ScBlockStatement]).toSeq: _*)
 
   def lastExpr = findLastChild(classOf[ScExpression])
   def lastStatement = findLastChild(classOf[ScBlockStatement])

@@ -38,14 +38,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    * Get all implicit types for given expression
    */
   def getImplicitTypes : List[ScType] = {
-      implicitMap.map(_._1).toList
+      implicitMap().map(_._1).toList
   }
 
   /**
    * returns class which contains function for implicit conversion to type t.
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
-    implicitMap.find(tp => t.equiv(tp._1)) match {
+    implicitMap().find(tp => t.equiv(tp._1)) match {
       case Some((_, fun, _)) => return {
         fun.getParent match {
           case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
@@ -60,7 +60,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    *  Get all imports used to obtain implicit conversions for given type
    */
   def getImportsForImplicit(t: ScType): Set[ImportUsed] = {
-    implicitMap.find(tp => t.equiv(tp._1)).map(s => s._3) match {
+    implicitMap().find(tp => t.equiv(tp._1)).map(s => s._3) match {
       case Some(s) => s
       case None => Set()
     }
@@ -72,9 +72,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   @volatile
   private var modCount: Long = 0
 
-  def implicitMap: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
-    expectedType match {
-      case Some(expected) => return buildImplicitMap
+  def implicitMap(exp: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    exp match {
+      case Some(expected) => return buildImplicitMap(exp)
       case None =>
     }
     var tp = cachedImplicitMap
@@ -82,13 +82,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     if (tp != null && modCount == curModCount) {
       return tp
     }
-    tp = buildImplicitMap
+    tp = buildImplicitMap()
     cachedImplicitMap = tp
     modCount = curModCount
     return tp
   }
 
-  private def buildImplicitMap : Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+  private def buildImplicitMap(exp: Option[ScType] = expectedType): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     val processor = new CollectImplicitsProcessor
 
     // Collect implicit conversions from bottom to up
@@ -108,7 +108,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     val typez: ScType = getType(TypingContext.empty).getOrElse(return Seq.empty)
 
-    val expandedType: ScType = expectedType match {
+    val expandedType: ScType = exp match {
       case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
       case None => typez
     }

@@ -30,6 +30,5 @@ class ScBlockExprImpl(node: ASTNode) extends ScBlockImpl(node) with ScBlockExpr 
 
   override def toString: String = "BlockExpression"
 
-
-  override def isAnonymousFunction: Boolean = findChild(classOf[ScCaseClauses]) != None
+  override def isAnonymousFunction: Boolean = caseClauses != None
 }

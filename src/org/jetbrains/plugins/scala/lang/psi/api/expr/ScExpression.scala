@@ -14,7 +14,6 @@ import resolve.ScalaResolveResult
 import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import collection.mutable.ArrayBuffer
 import statements.params.ScParameter
-import psi.{ScalaPsiUtil}
 import types._
 import nonvalue._
 import collection.{Set, Seq}
@@ -24,6 +23,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import caches.CachesUtil
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
+import psi.{ScalaPsiUtil}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -36,136 +36,37 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
    * Second parameter to return is used imports for this conversion.
    * @param expectedOption to which type we tring to convert
    */
-  def getTypeAfterImplicitConversion(exp: Option[Option[ScType]] = None, 
-                                     checkImplicits: Boolean = true): ExpressionTypeResult = {
-    val expectedOption = exp match {
-      case Some(a) => a
-      case _ => expectedType
-    }
+  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false, 
+                                     expectedOption: Option[ScType] = None): ExpressionTypeResult = {
     def inner: ExpressionTypeResult = {
+      if (isShape) return ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
       val expected: ScType = expectedOption match {
         case Some(a) => a
-        case _ => return ExpressionTypeResult(getType(TypingContext.empty), Set.empty, None)
-      }
-      //now we want to change context for this expression, for example
-      //we want to imagine that expected type for this expression is...
-      def anon(expr: ScExpression): Boolean = {
-        getText.indexOf("_") match {
-          case -1 => false //optimization
-          case _ => {
-            val unders = ScUnderScoreSectionUtil.underscores(this)
-            if (unders.length != 0) {
-              return true
-            }
-          }
-        }
-        expr match {
-          case b: ScBlockExpr if b.isAnonymousFunction => true
-          case b: ScBlockExpr => b.lastExpr match {case Some(x) => anon(x) case _ => false}
-          case p: ScParenthesisedExpr => p.expr match {case Some(x) => anon(x) case _ => false}
-          case i: ScIfStmt if i.elseBranch != None =>
-            anon(i.elseBranch.get) || (i.thenBranch match {case Some(x) => anon(x) case _ => false})
-          case td: ScTryBlock => td.lastExpr match {case Some(x) => anon(x) case _ => false}
-          case m: ScMatchStmt => m.getBranches.foldLeft(false)((x, y) => x || anon(y))
-          case f: ScFunctionExpr =>  f.parameters.exists(p => p.typeElement == None)
-          case _ => false
+        case _ => expectedType match {
+          case Some(a) => a
+          case _ => return ExpressionTypeResult(getType(TypingContext.empty), Set.empty, None)
         }
       }
+      val tr = getType(TypingContext.empty)
+      val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
 
-      def forExpr(expr: ScExpression): ExpressionTypeResult = {
-        val tr = expr.getType(TypingContext.empty)
-        val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
-        val tp = tr.getOrElse(return defaultResult)
-        //if this result is ok, we do not need to think about implicits
-        if (tp.conforms(expected)) return defaultResult
-        if (!checkImplicits) return defaultResult
+      if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
 
-        //this functionality for checking if this expression can be implicitly changed and then
-        //it will conform to expected type
-        val implicitMap: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = expr.implicitMap
-        val f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = implicitMap.filter(_._1.conforms(expected))
-        if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
-        else if (f.length == 0) return defaultResult
-        else {
-          var res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
-          return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
-        }
-      }
+      val tp = tr.getOrElse(return defaultResult)
+      //if this result is ok, we do not need to think about implicits
+      if (tp.conforms(expected)) return defaultResult
 
-      if (exp != None) {
-        //this substitutor is importatant in case for anon functions in currings, to apply to params known information
-        val subst: ScSubstitutor = getContext match {
-          case args: ScArgumentExprList => {
-            args.callExpression match {
-              case call: ScMethodCall => {
-                call.getNonValueType(TypingContext.empty) match {
-                  case Success(tp: ScTypePolymorphicType, _) => tp.polymorphicTypeSubstitutor
-                  case _ => ScSubstitutor.empty
-                }
-              }
-              case _ => ScSubstitutor.empty
-            }
-          }
-          case _ => ScSubstitutor.empty
-        }
-        val tps = expectedOption.toList.toArray.map(_ match {
-          case p@ScParameterizedType(des, typeArgs) => p.getFunctionType match {
-            case Some(ScFunctionType(retType, params)) => ScParameterizedType(des, params.map(subst subst _) ++ Seq(retType))
-            case _ => p
-          }
-          case ScFunctionType(retType, params) => new ScFunctionType(retType, params.map(subst subst _),
-            getProject, getResolveScope)
-          case ScMethodType(retType, params, isImpl) => new ScMethodType(retType,
-            params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
-            getProject, getResolveScope)
-          case ScTypePolymorphicType(ScMethodType(retType, params, isImpl), typeParams) => {
-            ScTypePolymorphicType(new ScMethodType(retType,
-              params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault,p.isRepeated)), isImpl,
-              getProject, getResolveScope),
-              typeParams)
-          }
-          case tp => tp
-        })
-
-        //this is important for thread safe calculations. Because we are using mutable state for expression
-        //todo: possible fix to remove mutable state, and to use TypingContext for type calculation.
-        if (!anon(this)) {
-          var b: java.lang.Boolean = null
-          EXPR_LOCK synchronized {
-            b = getUserData(CachesUtil.EXPRESSION_TYPING_KEY)
-            if (b == null) {
-              putUserData(CachesUtil.EXPRESSION_TYPING_KEY, java.lang.Boolean.TRUE)
-            }
-          }
-          if (b == null) {
-            //save data
-            val data = (expectedTypesCache, expectedTypesModCount, exprType, exprTypeModCount)
-            expectedTypesCache = tps
-            expectedTypesModCount = getManager.getModificationTracker.getModificationCount
-            exprType = null
-            try {
-              forExpr(this)
-            }
-            finally {
-              //load data
-              expectedTypesCache = data._1;expectedTypesModCount = data._2;exprType = data._3;exprTypeModCount = data._4
-              putUserData(CachesUtil.EXPRESSION_TYPING_KEY, null)
-            }
-          } else {
-            val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
-            newExpr.setExpectedTypes(tps)
-            forExpr(newExpr)
-          }
-        } else {
-          val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
-          newExpr.setExpectedTypes(tps)
-          forExpr(newExpr)
-        }
-      } else {
-        forExpr(this)
+      //this functionality for checking if this expression can be implicitly changed and then
+      //it will conform to expected type
+      val f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = implicitMap(expectedOption).filter(_._1.conforms(expected))
+      if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
+      else if (f.length == 0) return defaultResult
+      else {
+        var res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
+        return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
       }
     }
-    if (exp != None || !checkImplicits) return inner //no cache with strange parameters
+    if (!checkImplicits || isShape || expectedOption != None) return inner //no cache with strange parameters
 
     //caching
     var tp = exprAfterImplicitType
@@ -193,6 +94,23 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     exprType = tp
     exprTypeModCount = curModCount
     return tp
+  }
+
+  def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
+    this match {
+      case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>
+        (assign.getRExpression.map(_.getShape(true)._1).getOrElse(Nothing), assign.assignName.get)
+      case expr: ScExpression => {
+        ScalaPsiUtil.isAnonymousExpression(expr) match {
+          case (-1, _) => (Nothing, "")
+          case (i, expr: ScFunctionExpr) =>
+            (new ScFunctionType(expr.result.map(_.getShape(true)._1).getOrElse(Nothing), Seq.fill(i)(Any),
+              getProject, getResolveScope), "")
+          case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any), getProject, getResolveScope), "")
+        }
+      }
+      case _ => (Nothing, "")
+    }
   }
 
   @volatile
@@ -246,8 +164,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res = inner.getOrElse(return inner)
-    val exp = expectedType //to avoid None.get
-    //if (exp == Some(Unit)) return Success(Unit, Some(this))
 
     //let's update implicitParameters field
     res match {
@@ -314,16 +230,16 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
     res match {
       case ScMethodType(retType, params, impl) if impl => res = retType //todo: move upper
-      case ScTypePolymorphicType(internal, typeParams) if exp != None => {
+      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
         def updateRes(expected: ScType) {
           res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams) //here should work in different way:
         }
         if (!fromUnderscoreSection) {
-          updateRes(exp.get)
+          updateRes(expectedType.get)
         } else {
-          exp.get match {
+          expectedType.get match {
             case ScFunctionType(retType, _) => updateRes(retType)
             case _ => //do not update res, we haven't expected type
           }
@@ -411,7 +327,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {
-    val implicits: Seq[PsiNamedElement] = implicitMap.map(_._2)
+    val implicits: Seq[PsiNamedElement] = implicitMap().map(_._2)
     val implicitFunction: Option[PsiElement] = getParent match {
       case ref: ScReferenceExpression => {
         val resolve = ref.multiResolve(false)
@@ -427,7 +343,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
       case call: ScMethodCall => None //todo:
       case gen: ScGenerator => None //todo:
-      case _ => getTypeAfterImplicitConversion().implicitFunction
+      case _ => getTypeAfterImplicitConversion(expectedOption = ExpectedTypes.smartExpectedType(this)).implicitFunction
     }
     (implicits, implicitFunction)
   }
