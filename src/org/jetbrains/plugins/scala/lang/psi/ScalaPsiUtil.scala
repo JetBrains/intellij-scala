@@ -10,6 +10,9 @@ import api.toplevel.templates.{ScTemplateBody}
 import api.toplevel.typedef._
 import api.toplevel.{ScTypedDefinition}
 import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import implicits.ScImplicitlyConvertible
+import caches.CachesUtil
+import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
@@ -35,16 +38,93 @@ import com.intellij.util.ArrayFactory
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import collection.immutable.Stream
-import lang.resolve.ScalaResolveResult
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
+import lang.resolve.{ResolveUtils, ScalaResolveResult}
+import lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolverEnv}
+import annotator.ScalaAnnotator
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
+  def processTypeForUpdateOrApplyCandidates(call: ScMethodCall, tp: ScType, isShape: Boolean,
+                                            noImplicits: Boolean): Array[ScalaResolveResult] = {
+    import call._
+    val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == call
+    val methodName = if (isUpdate) "update" else "apply"
+    val args: Seq[ScExpression] = call.args.exprs ++ (
+            if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
+              case Some(x) => Seq[ScExpression](x)
+              case None =>
+                Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
+                  getManager)) //we can't to not add something => add Nothing expression
+            }
+            else Seq.empty)
+    val typeArgs: Seq[ScTypeElement] = getInvokedExpr match {
+      case gen: ScGenericCall => gen.arguments
+      case _ => Seq.empty
+    }
+    import Compatibility.Expression._
+    val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs,
+      isShapeResolve = isShape)
+    processor.processType(tp, getInvokedExpr, ResolveState.initial)
+    var candidates = processor.candidates
+
+    if (!noImplicits && candidates.forall(!_.isApplicable)) {
+      //should think about implicit conversions
+      for (t <- getInvokedExpr.getImplicitTypes) {
+        ProgressManager.checkCanceled
+        val importsUsed = getInvokedExpr.getImportsForImplicit(t)
+        var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
+        getInvokedExpr.getClazzForType(t) match {
+          case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
+          case _ =>
+        }
+        processor.processType(t, getInvokedExpr, state)
+      }
+      candidates = processor.candidates
+    }
+    candidates
+  }
+
+  def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall, isShape: Boolean): Option[ScType] = {
+    import call._
+
+    val candidates = processTypeForUpdateOrApplyCandidates(call, tp, isShape, false)
+    //now we will check canidate
+    if (candidates.length != 1) None
+    else {
+      candidates(0) match {
+        case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
+          fun match {
+            case fun: ScFun => Some(s.subst(fun.polymorphicType))
+            case fun: ScFunction => Some(s.subst(fun.polymorphicType))
+            case meth: PsiMethod => Some(ResolveUtils.javaPolymorphicType(meth, s, getResolveScope))
+          }
+        }
+        case _ => None
+      }
+    }
+  }
+
+  def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
+    expr.getText.indexOf("_") match {case -1 => case _ => {
+        val seq = ScUnderScoreSectionUtil.underscores(expr)
+        if (seq.length > 0) return (seq.length, expr)
+      }
+    }
+    expr match {
+      case b: ScBlockExpr =>
+        if (b.statements != 1) (-1, expr) else if (b.lastExpr == None) (-1, expr) else isAnonymousExpression(b.lastExpr.get)
+      case p: ScParenthesisedExpr => p.expr match {case Some(x) => isAnonymousExpression(x) case _ => (-1, expr)}
+      case f: ScFunctionExpr =>  (f.parameters.length, expr)
+      case _ => (-1, expr)
+    }
+  }
+
   def getModule(element: PsiElement): Module = {
     var index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     return index.getModuleForFile(element.getContainingFile.getVirtualFile)

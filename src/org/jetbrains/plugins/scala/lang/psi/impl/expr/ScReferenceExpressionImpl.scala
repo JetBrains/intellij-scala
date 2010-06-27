@@ -112,6 +112,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     convertBindToType(bind)
   }
 
+  def shapeType = {
+    convertBindToType(shapeResolve match {
+      case Array(bind: ScalaResolveResult) if bind.isApplicable => Some(bind)
+      case _ => None
+    })
+  }
+
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     def isMethodCall: Boolean = {
       var parent = getContext

@@ -4,10 +4,13 @@ package psi
 package api
 package expr
 
+import base.patterns.ScCaseClauses
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
 trait ScBlockExpr extends ScExpression with ScBlock {
+  def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 }

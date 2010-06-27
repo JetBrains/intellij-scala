@@ -57,6 +57,11 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType else tp.lowerType))),
       Map.empty, Map.empty) //todo: possible check lower type conforms upper type
 
+  def existentialTypeSubstitutor: ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+            ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType)))),
+      Map.empty, Map.empty)
+
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
