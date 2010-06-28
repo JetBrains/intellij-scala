@@ -1,0 +1,14 @@
+class s {
+  def foo = {
+    <begin>x<end>
+  }
+  def x(implicit i: Int) = 33
+}
+------
+class s {
+  def foo = {
+    val value: Int = x
+    value
+  }
+  def x(implicit i: Int) = 33
+}
