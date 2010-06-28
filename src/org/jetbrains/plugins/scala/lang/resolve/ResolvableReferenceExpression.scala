@@ -185,11 +185,17 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   }
 
   private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor) {
+    val shape = processor match {
+      case m: MethodResolveProcessor => m.isShapeResolve
+      case _ => false
+    }
+
     processor.processType(aType, e, ResolveState.initial)
 
     val candidates = processor.candidates
 
-    if (candidates.length == 0 || candidates.forall(!_.isApplicable) || (processor.isInstanceOf[CompletionProcessor] &&
+    if (candidates.length == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
+            (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       collectImplicits(e, processor)
     }

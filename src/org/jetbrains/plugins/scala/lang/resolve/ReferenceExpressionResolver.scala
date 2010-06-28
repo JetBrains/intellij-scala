@@ -96,30 +96,13 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
     val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
       getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore, shapesOnly)
 
-    if (shapesOnly) {
-      val result = reference.doResolve(ref, processor)
+    val result = reference.doResolve(ref, processor)
 
-      if (result.isEmpty && ref.isAssignmentOperator) {
-        reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
-          Nil, isShapeResolve = shapesOnly))
-      } else {
-        result
-      }
+    if (result.isEmpty && ref.isAssignmentOperator) {
+      reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
+        Nil, isShapeResolve = shapesOnly))
     } else {
-      val results = reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult])
-      /*for (res <- results; result = res.asInstanceOf[ScalaResolveResult]) {
-        val state = ResolveState.initial.put(ScSubstitutor.key, result.substitutor).
-                put(CachesUtil.IMPLICIT_FUNCTION, result.implicitFunction.getOrElse(null)).
-                put(CachesUtil.IMPLICIT_TYPE, result.implicitType.getOrElse(null)).
-                put(CachesUtil.HACKED_KEY, new java.lang.Boolean(result.isHacked)).
-                put(ScalaAnnotator.usedImportsKey, collection.mutable.HashSet(result.importsUsed.toSeq: _*)).
-                put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, result.implicitConversionClass.getOrElse(null)).
-                put(BaseProcessor.boundClassKey, result.boundClass).
-                put(ResolverEnv.nameKey, result.nameShadow.getOrElse(null))
-        processor.execute(result.element, state)
-      }
-      processor.candidates*/
-      MethodResolveProcessor.candidates(processor, results.toSet)
+      result
     }
   }
 }
