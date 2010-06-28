@@ -32,7 +32,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   /**
    * Utility method to get generics for apply methods of concrecte class.
    */
-  private def processType(tp: ScType): ScType = {
+  private def processType(tp: ScType, isShape: Boolean): ScType = {
     val curr = getContext match {case call: ScMethodCall => call case _ => this}
     val isUpdate = curr.getContext.isInstanceOf[ScAssignStmt] &&
             curr.getContext.asInstanceOf[ScAssignStmt].getLExpression == curr
@@ -48,7 +48,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             else Seq.empty)
     val typeArgs: Seq[ScTypeElement] = this.arguments
     import Compatibility.Expression._
-    val processor = new MethodResolveProcessor(referencedExpr, methodName, args :: Nil, typeArgs)
+    val processor = new MethodResolveProcessor(referencedExpr, methodName, args :: Nil, typeArgs,
+      isShapeResolve = isShape)
     processor.processType(tp, referencedExpr, ResolveState.initial)
     val candidates = processor.candidates
     if (candidates.length != 1) Nothing
@@ -70,7 +71,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val typeResult = referencedExpr.getNonValueType(ctx)
     var refType = typeResult.getOrElse(return typeResult)
-    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType)
+    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, false)
     refType match {
       case ScTypePolymorphicType(int, tps) => {
         val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p.ptp))), this)
@@ -86,7 +87,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case expr => expr.getNonValueType(TypingContext.empty)
     }
     var refType = typeResult.getOrElse(return typeResult)
-    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType)
+    if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, true)
     refType match {
       case ScTypePolymorphicType(int, tps) => {
         val subst = ScalaPsiUtil.genericCallSubstitutor(tps.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p.ptp))), this)
