@@ -106,7 +106,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       PsiDocumentManager.getInstance(project).commitAllDocuments
       if (!file.isInstanceOf[ScalaFile])
         showErrorMessage(ScalaBundle.message("only.for.scala"), project)
-      
+
       if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
         showErrorMessage(ScalaBundle.message("file.is.not.writable"), project)
 
@@ -128,7 +128,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       val fileEncloser = if (file.asInstanceOf[ScalaFile].isScriptFile()) file
       else {
         var res: PsiElement = file.findElementAt(startOffset)
-        while (!res.isInstanceOf[ScFunction] && res.getParent != null && 
+        while (!res.isInstanceOf[ScFunction] && res.getParent != null &&
                 !res.getParent.isInstanceOf[ScTemplateBody]) res = res.getParent
         if (res == null) {
           for (child <- file.getChildren) {
@@ -164,22 +164,21 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
   }
 
   def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
-                    occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                    replaceAllOccurrences: Boolean, isVariable: Boolean) {
+                           occurrences_ : Array[TextRange], varName: String, varType: ScType,
+                           replaceAllOccurrences: Boolean, isVariable: Boolean) {
     val expression = {
+      def copyExpr = expression_.copy.asInstanceOf[ScExpression]
+      def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expression_.getText + " _", expression_.getManager)
       expression_ match {
         case ref: ScReferenceExpression => {
           ref.resolve match {
-            case fun: ScFunction if fun.parameters.length > 0 => ScalaPsiElementFactory.createExpressionFromText(
-              expression_.getText + " _", expression_.getManager
-              )
-            case meth: PsiMethod if meth.getParameterList.getParameters.length > 0 => ScalaPsiElementFactory.createExpressionFromText(
-              expression_.getText + " _", expression_.getManager
-              )
-            case _ => expression_.copy.asInstanceOf[ScExpression]
+            case fun: ScFunction if fun.paramClauses.clauses.head.isImplicit => copyExpr
+            case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
+            case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
+            case _ => copyExpr
           }
         }
-        case _ => expression_.copy.asInstanceOf[ScExpression]
+        case _ => copyExpr
       }
     }
     val occurrences: Array[TextRange] = if (!replaceAllOccurrences) {
