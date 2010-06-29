@@ -23,7 +23,10 @@ import psi.api.toplevel.imports.usages.ImportUsed
 
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
-    mostSpecificGeneric(applicable.map(r => InnerScalaResolveResult(r.element, r.implicitConversionClass, r))).map(_.repr)
+    mostSpecificGeneric(applicable.map(r => r.innerResolveResult match {
+      case Some(rr) => InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r)
+      case None => InnerScalaResolveResult(r.element, r.implicitConversionClass, r)
+    })).map(_.repr)
   }
 
   def mostSpecificForImplicit(applicable: Set[(ScType, PsiNamedElement, Set[ImportUsed])]): Option[(ScType, PsiNamedElement, Set[ImportUsed])] = {

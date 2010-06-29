@@ -19,15 +19,14 @@ import scala.collection.Set
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.implicits.{ScImplicitlyConvertible}
 import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import psi.ScalaPsiUtil
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
-import psi.api.expr.{ScReferenceExpression, ScMethodCall, ScGenericCall}
-
+import psi.{ScalaPsiElement, ScalaPsiUtil}
+import psi.api.expr._
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
@@ -64,7 +63,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
                 ref.getParent.isInstanceOf[ScGenericCall] => {
           addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType,
+            innerResolveResult = Some(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state),
+              None, implicitConversionClass, implicitFunction = implFunction, implicitType = implType))))
           true
         }
         case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
@@ -116,10 +117,17 @@ class MethodResolveProcessor(override val ref: PsiElement,
 object MethodResolveProcessor {
   private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean, proc: MethodResolveProcessor): ConformanceExtResult = {
     import proc._
+    val realResolveResult = c.innerResolveResult match {
+      case Some(rr) => rr
+      case _ => c
+    }
+    val element = realResolveResult.element
+    val s = realResolveResult.substitutor
+    
     val substitutor: ScSubstitutor = {
-      c.element match {
+      element match {
         case t: ScTypeParametersOwner => {
-          c.substitutor.followed(
+          s.followed(
           if (typeArgElements.length  != 0 && t.typeParameters.length == typeArgElements.length ) {
             ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p =>
               (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
@@ -132,7 +140,7 @@ object MethodResolveProcessor {
           })
         }
         case p: PsiTypeParameterListOwner => {
-          c.substitutor.followed(
+          s.followed(
           if (typeArgElements.length  != 0 && p.getTypeParameters.length == typeArgElements.length) {
             ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
               (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
@@ -144,7 +152,7 @@ object MethodResolveProcessor {
             }
           })
         }
-        case _ => c.substitutor
+        case _ => s
       }
     }
 
@@ -178,34 +186,9 @@ object MethodResolveProcessor {
       }
     }
 
-    def checkType(tp: ScType): ConformanceExtResult = {
-      val z: PsiElement = if (ref.getContext.isInstanceOf[ScGenericCall]) ref.getContext else ref
-      (ref, z.getContext) match {
-        case (ref: ScReferenceExpression, call: ScMethodCall) if ref.refName == refName => {
-          if (ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call, tp, isShapeResolve, true).
-                  filter(_.isApplicable).length > 0) {
-            ConformanceExtResult(Seq.empty)
-          } else {
-            ConformanceExtResult(Seq(new DoesNotTakeParameters))
-          }
-        }
-        case _ => ConformanceExtResult(Seq.empty)
-      }
-    }
 
-    c.element match {
-      //case class
-      case cl: ScClass if cl.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
-                ref.getParent.isInstanceOf[ScGenericCall] => {
-        cl.constructor match {
-          case Some(c) => {
-            val args = argumentClauses.headOption.toList
-            Compatibility.compatible(c.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
-              ref.getResolveScope, isShapeResolve)
-          }
-          case None => return ConformanceExtResult(Seq.empty)
-        }
-      }
+    
+    element match {
       //objects
       case obj: PsiClass => return ConformanceExtResult(Seq.empty)
       //Implicit Application
@@ -225,17 +208,6 @@ object MethodResolveProcessor {
               typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
         checkFunction(fun.asInstanceOf[PsiNamedElement])
-      }
-      //values
-      case b: ScBindingPattern if argumentClauses.length > 0 => {
-        checkType(b.getType(TypingContext.empty).getOrElse(Any))
-      }
-      case p: ScParameter if argumentClauses.length > 0 => {
-        checkType(p.getType(TypingContext.empty).getOrElse(Any))
-      }
-      //empty parameters list: it's like a value
-      case tp: ScFunction if tp.paramClauses.clauses.length == 0 && argumentClauses.length > 0 => {
-        checkType(tp.getType(TypingContext.empty).getOrElse(Any))
       }
       //simple application including empty application
       case tp: ScTypeParametersOwner if (typeArgElements.length == 0 ||
@@ -260,37 +232,81 @@ object MethodResolveProcessor {
   def candidates[T >: ScalaResolveResult : ClassManifest](proc: MethodResolveProcessor,
                                                                    input: Set[ScalaResolveResult]): Array[T] = {
     import proc._
-    var mapped = input.map(r => {
-      val pr = problemsFor(r, false, proc)
-      r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
-    })
-    var filtered = mapped.filter(_.isApplicable)
 
-    if(filtered.isEmpty) {
-      mapped = input.map(r => {
-        val pr = problemsFor(r, true, proc)
+    def expand(r: ScalaResolveResult): Seq[ScalaResolveResult] = {
+      r.element match {
+        case f: ScFunction if f.hasParameterClause => Seq(r)
+        case b: ScTypedDefinition if argumentClauses.length > 0 => {
+          val tp = r.substitutor subst b.getType(TypingContext.empty).getOrElse(return Seq.empty)
+          val processor = new CollectMethodsProcessor(ref, "apply")
+          processor.processType(tp, ref.asInstanceOf[ScalaPsiElement])
+          processor.candidates.map(rr => r.copy(innerResolveResult = Some(rr)))
+        }
+        case _ => Seq(r)
+      }
+    }
+
+    def mapper(applicationImplicits: Boolean): Seq[ScalaResolveResult] = {
+      if (argumentClauses.length > 0) {
+        input.toSeq.flatMap(expand).map {
+          r => {
+            val pr = problemsFor(r, applicationImplicits, proc)
+            r.innerResolveResult match {
+              case Some(rr) => {
+                r.copy(innerResolveResult = Some(rr.copy(problems = pr.problems,
+                  defaultParameterUsed = pr.defaultParameterUsed)))
+              }
+              case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
+            }
+          }
+        }
+      } else input.toSeq.map(r => {
+        val pr = problemsFor(r, applicationImplicits, proc)
         r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
       })
-      filtered = mapped.filter(_.isApplicable)
     }
+    var mapped = mapper(false)
+    var filtered = mapped.filter(_.isApplicableInternal)
+
+    if (filtered.isEmpty) {
+      //check with implicits
+      mapped = mapper(true)
+      filtered = mapped.filter(_.isApplicableInternal)
+    }
+
+    val onlyValues = mapped.forall(_.isApplicable)
+    if (filtered.isEmpty && onlyValues) {
+      //possible implicit conversions in ScMethodCall
+      return input.toArray
+    } else if (!onlyValues) {
+      //in this case all values are not applicable
+      mapped = mapped.map(r => {
+        if (r.isApplicable) {
+          r.innerResolveResult match {
+            case Some(rr) => r.copy(problems = rr.problems)
+            case _ => r
+          }
+        }
+        else r
+      })
+    }
+
     //remove default parameters alternatives
-    if (filtered.size > 1) filtered = filtered.filter(!_.defaultParameterUsed)
+    if (filtered.size > 1) filtered = filtered.filter(r => r.innerResolveResult match {
+      case Some(rr) => !rr.defaultParameterUsed
+      case None => !r.defaultParameterUsed
+    })
 
     if (isShapeResolve) {
       if (filtered.isEmpty) return input.toArray
       else return filtered.toArray
     }
 
-    if (filtered.isEmpty)
-      mapped.toArray.map { r =>
-        if (r.element.isInstanceOf[PsiMethod] || r.element.isInstanceOf[ScFun])
-          r
-        else
-          r.copy(problems = Seq.empty)
-      }
+    if (filtered.isEmpty && mapped.isEmpty) input.toArray
+    else if (filtered.isEmpty) mapped.toArray
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
-      val res: Array[T] = MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered) match {
+      val res: Array[T] = MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered.toSet) match {
         case Some(r) => Array(r)
         case None => filtered.toArray
       }

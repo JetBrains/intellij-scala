@@ -18,6 +18,7 @@ object StdKinds {
   val refExprQualRef = refExprLastRef + PACKAGE
 
   val methodRef = ValueSet(VAL, VAR, METHOD)
+  val methodsOnly = ValueSet(METHOD)
 
   val valuesRef = ValueSet(VAL, VAR)
 

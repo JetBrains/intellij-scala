@@ -337,7 +337,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   
   def testRecursiveUnapplicable {
     assertMatches(messages("def f = { f( new A ) }")) {
-      case Nil =>
+      case Error("f", Recursive()) :: Nil =>
     }
   }
   

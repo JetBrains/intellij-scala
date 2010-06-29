@@ -34,7 +34,8 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
   private def getContextInfo(ref: ResolvableReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
       case generic : ScGenericCall => getContextInfo(ref, generic)
-      case call: ScMethodCall => ContextInfo(Some(call.argumentExpressions), () => None, false)
+      case call: ScMethodCall if !call.isUpdateCall => ContextInfo(Some(call.argumentExpressions), () => None, false)
+      case call: ScMethodCall => ContextInfo(None, () => None, false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType, true)
       case inf: ScInfixExpr if ref == inf.operation => {
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
@@ -70,7 +71,6 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
   }
 
   def resolve(ref: ResolvableReferenceExpression, incomplete: Boolean): Array[ResolveResult] = {
-    //TODO move this knowledge into MethodResolveProcessor
     val name = if(ref.isUnaryOperator) "unary_" + reference.refName else reference.refName
 
     val info = getContextInfo(ref, ref)

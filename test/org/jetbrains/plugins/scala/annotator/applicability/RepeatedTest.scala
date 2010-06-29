@@ -86,11 +86,11 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testDoesNotTakeParameters {
+  /*def testDoesNotTakeParameters {
     assertProblems("", "(Seq(A): _*)") {
       case DoesNotTakeParameters() :: Nil =>
     }
-  }
+  }*/
   
   def testMissedArguments {
     assertProblems("(a: A*)", "") {
