@@ -41,7 +41,6 @@ trait ScImportExpr extends ScalaPsiElement {
       case _ if getNode.getLastChildNode.getLastChildNode != null => Array[String](getNode.getLastChildNode.getLastChildNode.getText)
       case _ => Array[String]()
     }
-
   }
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitImportExpr(this)
