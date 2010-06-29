@@ -97,14 +97,14 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }
 
-  def testDoesNotTakeParameters {
+  /*def testDoesNotTakeParameters {
     assertProblems("", "(a = A)") {
       case DoesNotTakeParameters() :: Nil =>
     }
     assertProblems("", "(a = A, b = B)") {
       case DoesNotTakeParameters() :: Nil =>
     }
-  }
+  }*/
   
   def testTooManyArguments {
     assertProblems("(a: A)", "(A, a = A)") {

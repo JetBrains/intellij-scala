@@ -41,15 +41,40 @@ import collection.immutable.Stream
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
-import lang.resolve.{ResolveUtils, ScalaResolveResult}
-import lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolverEnv}
 import annotator.ScalaAnnotator
+import lang.resolve.processor._
+import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 
 /**
  * User: Alexander Podkhalyuzin
  */
 
 object ScalaPsiUtil {
+  def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value], ref: PsiElement):
+    Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
+    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
+      case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
+        ProgressManager.checkCanceled
+        val newProc = new ResolveProcessor(kinds, ref, refName)
+        newProc.processType(t, e, ResolveState.initial)
+        !newProc.candidates.isEmpty
+      }
+    })
+    val mostSpecificImplicit = if (implicitMap.length == 0) return None
+    else if (implicitMap.length == 0) implicitMap.apply(0)
+    else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet).getOrElse(return None)
+    Some(mostSpecificImplicit)
+  }
+
+  def findCall(place: PsiElement): Option[ScMethodCall] = {
+    place.getContext match {
+      case call: ScMethodCall => Some(call)
+      case p: ScParenthesisedExpr => findCall(p)
+      case g: ScGenericCall => findCall(g)
+      case _ => None
+    }
+  }
+
   def processTypeForUpdateOrApplyCandidates(call: ScMethodCall, tp: ScType, isShape: Boolean,
                                             noImplicits: Boolean): Array[ScalaResolveResult] = {
     import call._

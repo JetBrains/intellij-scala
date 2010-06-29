@@ -28,7 +28,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
 
-  def testDoesNotTakeParameters {
+  /*def testDoesNotTakeParameters {
     assertProblems("", "()") {
       case DoesNotTakeParameters() :: Nil =>
     }
@@ -41,7 +41,7 @@ class BasicTest extends ApplicabilityTestBase {
     assertProblems("", "(A)(B)") {
       case DoesNotTakeParameters() :: Nil =>
     }
-  }
+  }*/
 
   def testTooManyArguments {
     assertProblems("()", "(A)") {

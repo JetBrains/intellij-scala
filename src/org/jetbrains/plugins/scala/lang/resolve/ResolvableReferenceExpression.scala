@@ -17,6 +17,7 @@ import caches.CachesUtil
 import com.intellij.psi._
 import psi.api.expr.ScExpression.ExpressionTypeResult
 import psi.types.result.{TypeResult, TypingContext}
+import psi.ScalaPsiUtil
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -218,19 +219,11 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
       case _ =>
     }
-    //find applicable implicit conversion
-    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
-      case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
-        ProgressManager.checkCanceled
-        val newProc = new ResolveProcessor(processor.kinds, this, refName)
-        newProc.processType(t, e, ResolveState.initial)
-        !newProc.candidates.isEmpty
+    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) =
+      ScalaPsiUtil.findImplicitConversion(e, refName, processor.kinds, this) match {
+        case Some(a) => a
+        case None => return
       }
-    })
-    val mostSpecificImplicit = if (implicitMap.length == 0) return
-    else if (implicitMap.length == 0) implicitMap.apply(0)
-    else MostSpecificUtil(this, 1).mostSpecificForImplicit(implicitMap.toSet).getOrElse(return)
-    val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed])  = mostSpecificImplicit
     ProgressManager.checkCanceled
     var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
     state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)

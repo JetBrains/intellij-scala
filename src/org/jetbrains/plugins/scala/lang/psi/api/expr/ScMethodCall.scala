@@ -29,4 +29,7 @@ trait ScMethodCall extends ScExpression {
   def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitMethodCallExpression(this)
+
+  def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
+                      getContext.asInstanceOf[ScAssignStmt].getLExpression == this
 }

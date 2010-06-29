@@ -24,11 +24,19 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitFunction: Option[PsiNamedElement] = None,
                          val implicitType: Option[ScType] = None,
                          val isHacked: Boolean = false,
-                         val defaultParameterUsed: Boolean = false) extends ResolveResult {
+                         val defaultParameterUsed: Boolean = false,
+                         val innerResolveResult: Option[ScalaResolveResult] = None) extends ResolveResult {
 
   def getElement = element
 
-  def isApplicable = problems.isEmpty
+  def isApplicable: Boolean = problems.isEmpty
+
+  def isApplicableInternal: Boolean = {
+    innerResolveResult match {
+      case Some(r) => r.isApplicable
+      case None => isApplicable
+    }
+  }
 
   def isAccessible = true
 
@@ -39,9 +47,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
   def isRenamed: Option[String] = nameShadow
 
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
-           defaultParameterUsed: Boolean = defaultParameterUsed): ScalaResolveResult =
+           defaultParameterUsed: Boolean = defaultParameterUsed,
+           innerResolveResult: Option[ScalaResolveResult] = innerResolveResult): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
-      implicitFunction, implicitType, isHacked, defaultParameterUsed)
+      implicitFunction, implicitType, isHacked, defaultParameterUsed, innerResolveResult)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

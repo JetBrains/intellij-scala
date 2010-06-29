@@ -51,6 +51,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
+  def hasParameterClause: Boolean = {
+    paramClauses.clauses.length != 0 //todo: look for super method, if it has then this method also has
+  }
 
   def hasMalformedSignature = paramClauses.clauses.exists {
     _.parameters.dropRight(1).exists(_.isRepeatedParameter)
