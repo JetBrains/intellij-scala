@@ -15,6 +15,8 @@ class OverloadingGenerics extends ResolveTestBase {
 //  def testDefaultValue3 = doTest
   def testGenerics1 = doTest
   def testGenerics2 = doTest
+  //TODO
+//  def testGenerics3 = doTest
   def testNoLiteralNarrowing = doTest
   def testSimpleGenercs = doTest
   def testWeakConforms = doTest

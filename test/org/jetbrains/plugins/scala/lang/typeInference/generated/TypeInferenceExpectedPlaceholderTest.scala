@@ -17,6 +17,8 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
 
   def testIntSum = doTest
 
+  def testListOfSeqs = doTest
+
   def testLongCalls = doTest
 
   def testLongInfix = doTest
