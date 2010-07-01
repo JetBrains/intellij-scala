@@ -55,6 +55,11 @@ object PresentationUtil {
         }        
         paramText
       }
+      case param: PsiTypeParameter => {
+        var paramText = param.getName
+        //todo: possibly add supers and extends?
+        paramText
+      }
       case params: PsiParameterList => {
         params.getParameters.map(presentationString(_, substitutor)).mkString("(", ", ", ")")
       }
