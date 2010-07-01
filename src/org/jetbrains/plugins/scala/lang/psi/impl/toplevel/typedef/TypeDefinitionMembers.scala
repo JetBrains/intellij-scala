@@ -48,9 +48,8 @@ object TypeDefinitionMembers {
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (method <- clazz.getMethods if ((!noPrivates ||
-              (!method.isConstructor && !method.hasModifierProperty("private"))) &&
-                      !method.hasModifierProperty("static"))) {
+      for (method <- clazz.getMethods if ((!noPrivates || !method.hasModifierProperty("private")) &&
+              !method.isConstructor && !method.hasModifierProperty("static"))) {
         val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
@@ -75,12 +74,12 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
       for (member <- template.members) {
         member match {
-          case primary: ScPrimaryConstructor if !noPrivates => {
+          /*case primary: ScPrimaryConstructor if !noPrivates => {
             val sig = new PhysicalSignature(primary, subst)
             map += ((sig, new Node(sig, subst)))
-          }
-          case method: ScFunction if !noPrivates || (!method.isConstructor &&
-                  !method.hasModifierProperty("private")) => {
+          }*/
+          case method: ScFunction if (!noPrivates || !method.hasModifierProperty("private")) &&
+                  !method.isConstructor => {
             val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
@@ -190,8 +189,8 @@ object TypeDefinitionMembers {
     }
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (method <- clazz.getMethods if (!noPrivates || (!method.isConstructor &&
-              !method.hasModifierProperty("private"))) && !method.hasModifierProperty("static")) {
+      for (method <- clazz.getMethods if (!noPrivates || !method.hasModifierProperty("private")) &&
+              !method.isConstructor && !method.hasModifierProperty("static")) {
         val phys = new PhysicalSignature(method, subst)
         val psiRet = method.getReturnType
         val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
@@ -255,7 +254,7 @@ object TypeDefinitionMembers {
               }
             }
           }
-          case f: ScFunction if !noPrivates || (!f.isConstructor && !f.hasModifierProperty("private")) => 
+          case f: ScFunction if (!noPrivates || !f.hasModifierProperty("private")) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case _ =>
         }
