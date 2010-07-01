@@ -48,7 +48,9 @@ object TypeDefinitionMembers {
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (method <- clazz.getMethods if !noPrivates || (!method.isConstructor && !method.hasModifierProperty("private"))) {
+      for (method <- clazz.getMethods if ((!noPrivates ||
+              (!method.isConstructor && !method.hasModifierProperty("private"))) &&
+                      !method.hasModifierProperty("static"))) {
         val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
@@ -105,7 +107,8 @@ object TypeDefinitionMembers {
     def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (field <- clazz.getFields if !noPrivates || !field.hasModifierProperty("private")) {
+      for (field <- clazz.getFields if ((!noPrivates || (!field.hasModifierProperty("private"))) &&
+              !field.hasModifierProperty("static"))) {
         map += ((field, new Node(field, subst)))
       }
 
@@ -155,7 +158,8 @@ object TypeDefinitionMembers {
     }
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (inner <- clazz.getInnerClasses if !noPrivates || !inner.hasModifierProperty("private")) {
+      for (inner <- clazz.getInnerClasses if (!noPrivates || !inner.hasModifierProperty("private")) &&
+              !inner.hasModifierProperty("static")) {
         map += ((inner, new Node(inner, subst)))
       }
 
@@ -186,8 +190,8 @@ object TypeDefinitionMembers {
     }
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean) =
-      for (method <- clazz.getMethods if !noPrivates || (!method.isConstructor &&
-              !method.hasModifierProperty("private"))) {
+      for (method <- clazz.getMethods if (!noPrivates || (!method.isConstructor &&
+              !method.hasModifierProperty("private"))) && !method.hasModifierProperty("static")) {
         val phys = new PhysicalSignature(method, subst)
         val psiRet = method.getReturnType
         val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)

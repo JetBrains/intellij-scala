@@ -114,34 +114,33 @@ abstract class MixinNodes {
       case _ => (Seq.empty, ScSubstitutor.empty)
     }
 
-    for (superType <- superTypes) {
-      def workWithType(superType: ScType) {
-        ScType.extractClassType(superType) match {
-          case Some((superClass, s)) =>
-            // Do not include scala.ScalaObject to Predef's base types to prevent SOE
-            if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
-              var newSubst = tp match {
-                case ScDesignatorType(c: ScTemplateDefinition) => combine(s, subst, superClass).bindD(superClass, c)
-                case _ => combine(s, subst, superClass)
-              }
-              val newMap = new Map
-              superClass match {
-                case template : ScTemplateDefinition => {
-                  processScala(template, newSubst, newMap, true)
-                }
-                case syn: ScSyntheticClass => {
-                  processSyntheticScala(syn, newSubst, newMap)
-                }
-                case _ => {
-                  processJava(superClass, newSubst, newMap, true)
-                }
-              }
-              superTypesBuff += newMap
+    val iter = superTypes.iterator
+    while (iter.hasNext) {
+      val superType = iter.next
+      ScType.extractClassType(superType) match {
+        case Some((superClass, s)) =>
+          // Do not include scala.ScalaObject to Predef's base types to prevent SOE
+          if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
+            var newSubst = tp match {
+              case ScDesignatorType(c: ScTemplateDefinition) => combine(s, subst, superClass).bindD(superClass, c)
+              case _ => combine(s, subst, superClass)
             }
-          case _ =>
-        }
+            val newMap = new Map
+            superClass match {
+              case template : ScTemplateDefinition => {
+                processScala(template, newSubst, newMap, true)
+              }
+              case syn: ScSyntheticClass => {
+                processSyntheticScala(syn, newSubst, newMap)
+              }
+              case _ => {
+                processJava(superClass, newSubst, newMap, true)
+              }
+            }
+            superTypesBuff += newMap
+          }
+        case _ =>
       }
-      workWithType(superType)
     }
     val superMap = mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
 
@@ -170,9 +169,9 @@ abstract class MixinNodes {
     res
   }
 
-  def processJava(clazz : PsiClass, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
-  def processScala(template : ScTemplateDefinition, subst : ScSubstitutor, map : Map, noPrivates: Boolean)
-  def processSyntheticScala(clazz : ScSyntheticClass, subst : ScSubstitutor, map : Map)
+  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean)
+  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean)
+  def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map)
 }
 
 object MixinNodes {

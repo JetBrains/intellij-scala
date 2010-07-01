@@ -20,6 +20,7 @@ import _root_.scala.collection.mutable.HashSet
 import com.intellij.psi.util.PsiTreeUtil
 import toplevel.typedef.ScTemplateDefinition
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
+import caches.CachesUtil
 
 
 object BaseProcessor {
@@ -80,9 +81,25 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     t match {
+      case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] => {
+        //not scala from scala
+        var break = true
+        for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
+          if (!execute(method, state)) break = false
+        }
+        for (cl <- e.getInnerClasses if break && cl.hasModifierProperty("static")) {
+          if (!execute(cl, state)) break = false
+        }
+        for (field <- e.getFields if break && field.hasModifierProperty("static")) {
+          if (!execute(field, state)) break = false
+        }
+        break
+      }
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
-      case j: JavaArrayType => processType(j.getParameterizedType(place.getProject, place.getResolveScope).getOrElse(return true), place, state)
+      case j: JavaArrayType =>
+        processType(j.getParameterizedType(place.getProject, place.getResolveScope).
+                getOrElse(return true), place, state)
       case p@ScParameterizedType(des, typeArgs) => {
         p.designator match {
           case ScPolymorphicType(_, _, _, upper) => processType(p.substitutor.subst(upper.v), place)

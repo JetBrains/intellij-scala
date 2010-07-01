@@ -22,6 +22,12 @@ import api.toplevel.typedef.ScClass
 import caches.CachesUtil
 
 case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
+  private var isStaticClass = false
+  def isStatic = isStaticClass
+  def this(elem: PsiNamedElement, isStaticClass: Boolean) {
+    this(elem)
+    this.isStaticClass = isStaticClass
+  }
 }
 
 import _root_.scala.collection.immutable.{Map, HashMap}
