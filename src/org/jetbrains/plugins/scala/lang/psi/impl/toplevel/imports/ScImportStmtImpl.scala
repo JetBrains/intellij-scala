@@ -18,6 +18,9 @@ import psi.stubs.ScImportStmtStub
 import usages._
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor._
+import api.toplevel.typedef.ScTemplateDefinition
+import types.ScDesignatorType
+import collection.immutable.Set
 
 /**
  * @author Alexander Podkhalyuzin
@@ -70,7 +73,16 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             // Update the set of used imports
             val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
             if (importExpr.singleWildcard) {
-              if (!elem.processDeclarations(processor, state.put(ImportUsed.key, newImportsUsed), this, place)) return false
+              (elem, processor) match {
+                case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
+                  if (!processor.processType(new ScDesignatorType(cl, true), place.asInstanceOf[ScalaPsiElement],
+                    state.put(ImportUsed.key, newImportsUsed))) return false
+                }
+                case _ => {
+                  if (!elem.processDeclarations(processor, state.put(ImportUsed.key, newImportsUsed),
+                    this, place)) return false
+                }
+              }
             } else {
               if (!processor.execute(elem, state.put(ImportUsed.key, newImportsUsed))) return false
             }
@@ -130,10 +142,19 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     }
                   }
 
-                  if (!elem.processDeclarations(p1,
-                    // In this case import optimizer should check for used selectors
-                    state.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)),
-                    this, place)) return false
+                  val newImportsUsed: Set[ImportUsed] = Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)
+                  (elem, processor) match {
+                    case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
+                      if (!processor.processType(new ScDesignatorType(cl, true), place.asInstanceOf[ScalaPsiElement],
+                        state.put(ImportUsed.key, newImportsUsed))) return false
+                    }
+                    case _ => {
+                      if (!elem.processDeclarations(p1,
+                        // In this case import optimizer should check for used selectors
+                        state.put(ImportUsed.key, newImportsUsed),
+                        this, place)) return false
+                    }
+                  }
                 }
                 case _ => true
               }

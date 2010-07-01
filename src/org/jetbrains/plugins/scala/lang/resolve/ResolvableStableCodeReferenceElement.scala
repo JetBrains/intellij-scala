@@ -62,6 +62,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
         processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
+      case ScalaResolveResult(clazz: PsiClass, s) => {
+        processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
+      }
       case other: ScalaResolveResult => {
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, ResolvableStableCodeReferenceElement.this)
