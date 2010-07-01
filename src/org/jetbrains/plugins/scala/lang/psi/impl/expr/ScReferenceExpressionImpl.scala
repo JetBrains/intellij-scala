@@ -201,11 +201,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
         s.subst(ScParameterizedType(ScDesignatorType(clazz),
           collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
-      case Some(ScalaResolveResult(clazz: PsiClass, s)) if clazz.getTypeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz),
-          collection.immutable.Seq(clazz.getTypeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
-      case Some(ScalaResolveResult(clazz: PsiClass, s)) => s.subst(ScDesignatorType(clazz))
-      case Some(ScalaResolveResult(field: PsiField, s)) => s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
+      case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
+      case Some(ScalaResolveResult(field: PsiField, s)) =>
+        s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
       case Some(ScalaResolveResult(method: PsiMethod, s)) => {
         ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
       }

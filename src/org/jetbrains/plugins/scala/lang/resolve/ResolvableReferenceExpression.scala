@@ -7,7 +7,6 @@ import _root_.com.intellij.psi.impl.PsiManagerEx
 import processor._
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.imports.usages.ImportUsed
-import psi.types.{ScSubstitutor, ScType}
 import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
@@ -18,6 +17,7 @@ import com.intellij.psi._
 import psi.api.expr.ScExpression.ExpressionTypeResult
 import psi.types.result.{TypeResult, TypingContext}
 import psi.ScalaPsiUtil
+import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -195,6 +195,11 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     val candidates = processor.candidates
 
+    aType match {
+      case d: ScDesignatorType if d.isStatic => return
+      case _ =>
+    }
+    
     if (candidates.length == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {

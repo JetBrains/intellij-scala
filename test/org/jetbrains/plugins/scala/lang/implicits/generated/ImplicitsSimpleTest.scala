@@ -7,6 +7,8 @@ class ImplicitsSimpleTest extends ImplicitsTestBase {
 
   def testInheritance = doTest
 
+  def testIntToBigInt = doTest
+
   def testParam = doTest
 
   def testProjection = doTest
