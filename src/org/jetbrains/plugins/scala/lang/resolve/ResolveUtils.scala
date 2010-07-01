@@ -105,7 +105,19 @@ object ResolveUtils {
     }
   }
 
-  def isAccessible(member: PsiMember, place: PsiElement): Boolean = {
+  def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
+    //this is to make place and member on same level (resolve from library source)
+    var member: PsiMember = memb
+    memb.getContainingFile match {
+      case file: ScalaFile if file.isCompiled => {
+        place.getContainingFile match {
+          case file: ScalaFile if file.isCompiled =>
+          case _ => member = memb.getNavigationElement.asInstanceOf[PsiMember]
+        }
+      }
+      case _ =>
+    }
+
     if (member.hasModifierProperty("public")) return true
     def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
       val td = PsiTreeUtil.getContextOfType(placer, classOf[ScTemplateDefinition], true)
@@ -375,44 +387,12 @@ object ResolveUtils {
           }
           case _ =>
         }
+        val isUnderlined = resolveResult.implicitFunction != None
         element match {
           case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
           case _ =>
         }
-        element match {
-          //scala
-          case fun: ScFunction => {
-            presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
-            presentation.setTailText(presentationString(fun.paramClauses, substitutor))
-          }
-          case fun: ScFun => {
-            presentation.setTypeText(presentationString(fun.retType, substitutor))
-            presentation.setTailText(fun.paramTypes.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
-          }
-          case bind: ScBindingPattern => {
-            presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
-          }
-          case param: ScParameter => {
-            presentation.setTypeText(presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor))
-          }
-          case clazz: PsiClass => {
-            val location: String = clazz.getPresentation.getLocationString
-            presentation.setTailText(" " + location, true)
-          }
-          case alias: ScTypeAliasDefinition => {
-            presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
-          }
-          case method: PsiMethod => {
-            presentation.setTypeText(presentationString(method.getReturnType, substitutor))
-            presentation.setTailText(presentationString(method.getParameterList, substitutor))
-          }
-          case f: PsiField => {
-            presentation.setTypeText(presentationString(f.getType, substitutor))
-          }
-          case _ =>
-        }
-        presentation.setIcon(element.getIcon(0))
-        presentation.setItemText(name + (if (isRenamed == None) "" else " <= " + element.getName) + (element match {
+        val tailText: String = element match {
           case t: ScFun => {
             if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).mkString("[", ", ", "]")
             else ""
@@ -423,11 +403,49 @@ object ResolveUtils {
               case None => ""
             }
           }
-          case p: PsiTypeParameterListOwner => "" //todo:
+          case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 => {
+            p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
+          }
           case _ => ""
-        }))
+        }
+        element match {
+          //scala
+          case fun: ScFunction => {
+            presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
+            presentation.setTailText(tailText + presentationString(fun.paramClauses, substitutor))
+          }
+          case fun: ScFun => {
+            presentation.setTypeText(presentationString(fun.retType, substitutor))
+            presentation.setTailText(tailText + fun.paramTypes.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
+          }
+          case bind: ScBindingPattern => {
+            presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
+          }
+          case param: ScParameter => {
+            presentation.setTypeText(presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor))
+          }
+          case clazz: PsiClass => {
+            val location: String = clazz.getPresentation.getLocationString
+            presentation.setTailText(tailText + " " + location, true)
+          }
+          case alias: ScTypeAliasDefinition => {
+            presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
+          }
+          case method: PsiMethod => {
+            presentation.setTypeText(presentationString(method.getReturnType, substitutor))
+            presentation.setTailText(tailText + presentationString(method.getParameterList, substitutor))
+          }
+          case f: PsiField => {
+            presentation.setTypeText(presentationString(f.getType, substitutor))
+          }
+          case _ =>
+        }
+        presentation.setIcon(element.getIcon(0))
+        presentation.setItemText(name + (if (isRenamed == None) "" else " <= " + element.getName))
         presentation.setStrikeout(isDeprecated)
         presentation.setItemTextBold(isBold)
+        if (ScalaPsiUtil.getSettings(element.getProject).SHOW_IMPLICIT_CONVERSIONS)
+          presentation.setItemTextUnderlined(isUnderlined)
       }
     })
     val returnLookupElement =
