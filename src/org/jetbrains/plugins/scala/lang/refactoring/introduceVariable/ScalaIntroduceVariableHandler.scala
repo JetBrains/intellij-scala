@@ -172,7 +172,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       expression_ match {
         case ref: ScReferenceExpression => {
           ref.resolve match {
-            case fun: ScFunction if fun.paramClauses.clauses.head.isImplicit => copyExpr
+            case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
+                    fun.paramClauses.clauses.head.isImplicit => copyExpr
             case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
             case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
             case _ => copyExpr
