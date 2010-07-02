@@ -24,6 +24,8 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import caches.CachesUtil
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import psi.{ScalaPsiUtil}
+import base.ScLiteral
+import lexer.ScalaTokenTypes
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -248,7 +250,55 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       }
       case _ =>
     }
-    Success(res.inferValueType, Some(this))
+    val valType = res.inferValueType
+    expectedType match {
+      case Some(expected) => {
+        //value discarding
+        if (expected == Unit) return Success(Unit, Some(this))
+        //numeric literal narrowing
+        this match {
+          case l: ScLiteral if l.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER => {
+            try {
+              lazy val i = Integer.parseInt(l.getText)
+              expected match {
+                case types.Char => {
+                  if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
+                    return Success(Char, Some(this))
+                  }
+                }
+                case types.Byte => {
+                  if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
+                    return Success(Byte, Some(this))
+                  }
+                }
+                case types.Short => {
+                  if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
+                    return Success(Short, Some(this))
+                  }
+                }
+                case _ =>
+              }
+            }
+            catch {
+              case _: NumberFormatException => //do nothing
+            }
+          }
+          case _ =>
+        }
+        //numeric widening
+        (valType, expected) match {
+          case (Byte, Short | Int | Long | Float | Double) => return Success(expected, Some(this))
+          case (Short, Int | Long | Float | Double) => return Success(expected, Some(this))
+          case (Char, Int | Long | Float | Double) => return Success(expected, Some(this))
+          case (Int, Long | Float | Double) => return Success(expected, Some(this))
+          case (Long, Float | Double) => return Success(expected, Some(this))
+          case (Float, Double) => return Success(expected, Some(this))
+          case _ =>
+        }
+      }
+      case _ =>
+    }
+    Success(valType, Some(this))
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {

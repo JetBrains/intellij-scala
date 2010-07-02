@@ -40,12 +40,13 @@ trait FunctionAnnotator {
       val unitFunction = !hasAssign || unitType
 
       val explicitReturn = usage.isInstanceOf[ScReturnStmt]
+      val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturnStmt].expr.isEmpty
       val unitReturn = usageType == UnitType
       val anyReturn = usageType == AnyType
 
       if (explicitReturn && hasAssign && !explicitType) {
         needsTypeAnnotation()
-      } else if (unitFunction && explicitReturn && !unitReturn) {
+      } else if (unitFunction && explicitReturn && !emptyReturn) {
         redundantReturnExpression()
       } else if (!unitFunction && !anyReturn && !usageType.conforms(functionType)) {
         typeMismatch()

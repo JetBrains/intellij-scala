@@ -44,7 +44,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
 
   def testUnitReturnUnit {
     assertMatches(messages("def f { return () }")) {
-      case Nil =>
+      case Warning("()", RedundantReturnData()) :: Nil =>
     }
   }  
   
@@ -164,7 +164,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
  
   def testTypeUnitReturnUnit {
     assertMatches(messages("def f: Unit = { return () }")) {
-      case Nil =>
+      case Warning("()", RedundantReturnData()) :: Nil =>
     }
   }
   
