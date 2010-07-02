@@ -106,7 +106,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    val typez: ScType = getType(TypingContext.empty).getOrElse(return Seq.empty)
+    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
 
     val expandedType: ScType = exp match {
       case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
