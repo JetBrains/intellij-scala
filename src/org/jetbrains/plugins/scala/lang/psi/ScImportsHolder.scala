@@ -113,6 +113,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
     var classPackageQualifier = qualifiedName.substring(0, index)
+    var hasRenamedImport = false
 
     //collecting selectors to add into new import statement
     for (imp <- importStatementsInHeader) {
@@ -125,6 +126,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             case _ => ""
           }
           if (qn == classPackageQualifier) {
+            hasRenamedImport ||= expr.selectors.exists(s => s.reference.refName != s.importedName)
             selectors ++= expr.getNames
             expr.deleteExpr
           }
@@ -141,8 +143,9 @@ trait ScImportsHolder extends ScalaPsiElement {
     //creating selectors string (after last '.' in import expression)
     var isPlaceHolderImport = false
     clazz.getName +: selectors
-    if (selectors.exists(_ == "_") ||
-            selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND) {
+    
+    if (!hasRenamedImport &&
+            (selectors.exists(_ == "_") || selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
       selectors.clear
       selectors += "_"
       isPlaceHolderImport = true
