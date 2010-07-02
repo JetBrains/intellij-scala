@@ -46,10 +46,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         case Some(a) => a
         case _ => expectedType match {
           case Some(a) => a
-          case _ => return ExpressionTypeResult(getType(TypingContext.empty), Set.empty, None)
+          case _ => return ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty), Set.empty, None)
         }
       }
-      val tr = getType(TypingContext.empty)
+      val tr = getTypeWithoutImplicits(TypingContext.empty)
       val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
 
       if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
@@ -84,7 +84,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   private val EXPR_LOCK = new Object()
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = {
+  def getTypeWithoutImplicits(ctx: TypingContext): TypeResult[ScType] = {
     ProgressManager.checkCanceled
     if (ctx != TypingContext.empty) return valueType(ctx)
     var tp = exprType
@@ -97,6 +97,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     exprTypeModCount = curModCount
     return tp
   }
+
+  def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
