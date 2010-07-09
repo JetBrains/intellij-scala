@@ -5,7 +5,6 @@ package impl
 package expr
 
 import com.intellij.psi.util.PsiTreeUtil
-import types.{Bounds, ScDesignatorType, Nothing}
 import psi.ScalaPsiElementImpl
 import api.expr._
 import com.intellij.lang.ASTNode
@@ -14,6 +13,7 @@ import types.result.{TypingContext, Failure, Success}
 import api.base.ScConstructor
 import com.intellij.psi.PsiElement
 import api.toplevel.templates.ScTemplateBody
+import types._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,7 +28,13 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     case Some(td) => td.getType(ctx) map { refType =>
       td.selfType match {
         case Some(t) => Bounds.glb(refType, t)
-        case None => refType
+        case None =>
+          val singletonType = ScSingletonType(this)
+          expectedType match {
+            case Some(st@ScSingletonType(_)) if Equivalence.equiv(st, singletonType) => singletonType
+            case _ => refType
+          }
+
       }
     }
     case _ => Failure("Cannot infer type", Some(this))
