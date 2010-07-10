@@ -107,6 +107,11 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     facade.findClass(path, GlobalSearchScope.allScope(project))
   }
 
+  def getClazzes(path: String): Array[PsiClass] = {
+    val facade = JavaPsiFacade.getInstance(project)
+    facade.findClasses(path, GlobalSearchScope.allScope(project))
+  }
+
   def getPackage(path: String): PsiPackage = {
     ScPackageImpl.findPackage(project, path)
   }
@@ -115,12 +120,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     def classNotFoundError {
       throw new ExecutionException("Test class not found.")
     }
-    var clazz: PsiClass = null
+    var classOrObjects: Array[PsiClass] = Array()
     var suiteClass: PsiClass = null
     var pack: PsiPackage = null
     try {
       if (testClassPath != "")
-        clazz = getClazz(testClassPath)
+        classOrObjects = getClazzes(testClassPath)
       else
         pack = getPackage(testPackagePath)
       suiteClass = getClazz(SUITE_PATH)
@@ -128,12 +133,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     catch {
       case e => classNotFoundError
     }
-    if (clazz == null && pack == null) classNotFoundError
+    if (classOrObjects.isEmpty && pack == null) classNotFoundError
     if (suiteClass == null)
       throw new ExecutionException("Specs not specified.")
     val classes = new ArrayBuffer[PsiClass]
-    if (clazz != null) {
-      if (clazz.isInheritor(suiteClass, true)) classes += clazz
+    if (!classOrObjects.isEmpty) {
+      classes ++= classOrObjects.filter(_.isInheritor(suiteClass, true))
     } else {
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
