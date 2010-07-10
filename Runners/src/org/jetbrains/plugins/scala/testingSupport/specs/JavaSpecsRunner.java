@@ -50,16 +50,7 @@ public class JavaSpecsRunner {
     
 
     for (String clazz: classes) {
-      Method method = null;
-      try {
-        method = c.getClass().getMethod("createObject", String.class, scala.reflect.ClassManifest.class);
-      }
-      catch(NoSuchMethodException e) {
-        try {
-          method = c.getClass().getMethod("createObject", String.class, scala.reflect.Manifest.class);
-        }
-        catch(NoSuchMethodException ignore) {}
-      }
+      Method method = findCreateObjectMethod(c);
 
       if (method == null) {
         System.out.println("Scala Plugin internal error: can't find createObject method in org.specs.util.Classes");
@@ -71,7 +62,7 @@ public class JavaSpecsRunner {
         if (!option.isEmpty()) {
           runTest(sysFilter, exFilter, option);
         } else {
-          option = (Option<Specification>) method.invoke(c, clazz, specManifest);
+          option = (Option<Specification>) method.invoke(c, clazz + "$", specManifest);
           if (!option.isEmpty()) {
             runTest(sysFilter, exFilter, option);
           } else {
@@ -88,6 +79,20 @@ public class JavaSpecsRunner {
         e.printStackTrace();
       }
     }
+  }
+
+  private static Method findCreateObjectMethod(Classes$ c) {
+    Method method = null;
+    try {
+      method = c.getClass().getMethod("createObject", String.class, scala.reflect.ClassManifest.class);
+    }
+    catch(NoSuchMethodException e) {
+      try {
+        method = c.getClass().getMethod("createObject", String.class, scala.reflect.Manifest.class);
+      }
+      catch(NoSuchMethodException ignore) {}
+    }
+    return method;
   }
 
   private static void runTest(final String sysFilter, final String exFilter, Option<Specification> option) {
