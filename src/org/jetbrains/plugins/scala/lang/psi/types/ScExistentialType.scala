@@ -81,13 +81,19 @@ case class ScExistentialType(val quantified : ScType,
     val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p.unpack)}
     skolemSubst.subst(quantified)
   }
+
+  override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
+    wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
                                  val lowerBound : ScType, val upperBound : ScType) extends ValueType {
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
+
+  override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
 extends ValueType {
+  override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 }

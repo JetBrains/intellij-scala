@@ -44,6 +44,9 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
     if (params.length == 0) return returnType.inferValueType
     return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType), project, scope)
   }
+
+  override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
+    params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit, project, scope)
 }
 
 case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
@@ -64,6 +67,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
+
+  override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
+    TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
+  }))
 }
 
 case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {

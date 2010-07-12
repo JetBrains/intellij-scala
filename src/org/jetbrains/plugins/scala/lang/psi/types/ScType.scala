@@ -38,6 +38,12 @@ trait ScType {
   def isValue: Boolean
 
   def inferValueType: ValueType
+
+  /**
+   * This method is important for parameters expected type.
+   * There shouldn't be any abstract type in this expected type.
+   */
+  def removeAbstracts = this
 }
 
 trait ValueType extends ScType{

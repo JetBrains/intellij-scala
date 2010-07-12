@@ -51,6 +51,8 @@ case class JavaArrayType(arg: ScType) extends ValueType {
       } else None
     } else None
   }
+
+  override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
@@ -105,6 +107,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case _ => None
     }
   }
+
+  override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
 }
 
 object ScParameterizedType {
@@ -177,6 +181,12 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
 
 case class ScAbstractType(val tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
   def inferValueType = tpt
+
+  def simplifyType: ScType = {
+    if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
+  }
+
+  override def removeAbstracts = simplifyType
 }
 
 private[types] object CyclicHelper {

@@ -274,7 +274,7 @@ private[expr] object ExpectedTypes {
         applyForParams(params)
       }
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) => {
-        val subst = t.polymorphicTypeSubstitutor
+        val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
         applyForParams(newParams)
       }
