@@ -238,7 +238,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         def updateRes(expected: ScType) {
           res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams) //here should work in different way:
+            typeParams, shouldUndefineParameters = false) //here should work in different way:
         }
         if (!fromUnderscoreSection) {
           updateRes(expectedType.get)

@@ -132,14 +132,14 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             case ScFunctionType(_, params) if params.length == f.parameters.length => {
               val i = clause.parameters.indexOf(this)
               if (result != null) result = None
-              else result = Some(params(i))
+              else result = Some(params(i).removeAbstracts)
             }
             case ScParameterizedType(t, args) => {
               ScType.extractDesignated(t) match { //todo: this is hack, scala.Function1 ScProjectionType?
                 case Some((c: PsiClass, _)) if c.getQualifiedName == "scala.Function" + f.parameters.length => {
                   val i = clause.parameters.indexOf(this)
                   if (result != null) result = None
-                  else result = Some(args(i))
+                  else result = Some(args(i).removeAbstracts)
                 }
                 case _ =>
               }

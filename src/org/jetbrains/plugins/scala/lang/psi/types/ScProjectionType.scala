@@ -19,4 +19,6 @@ case class ScProjectionType(projected: ScType, ref: ScReferenceElement) extends 
   def resolveResult = ref.bind
 
   lazy val element: Option[PsiNamedElement] = resolveResult.map(_.element)
+
+  override def removeAbstracts = ScProjectionType(projected.removeAbstracts, ref)
 }

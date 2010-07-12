@@ -57,14 +57,14 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 case ScFunctionType(_, params) if params.length >= unders.length => {
                   if (result != null) {
                     if (params.length == unders.length && !forEqualsParamLength) {
-                      result = Some(params(i))
+                      result = Some(params(i).removeAbstracts)
                       forEqualsParamLength = true
                     } else if (params.length == unders.length) result = None
                   }
-                  else if (params.length > unders.length) result = Some(params(i))
+                  else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
                   else {
                     try
-                    result = Some(params(i))
+                    result = Some(params(i).removeAbstracts)
                     catch {
                       case e: Exception => {
                         "stop"
@@ -79,13 +79,13 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                             args.length >= unders.length + 1 => {
                       if (result != null) {
                         if (args.length == unders.length + 1 && !forEqualsParamLength) {
-                          result = Some(args(i))
+                          result = Some(args(i).removeAbstracts)
                           forEqualsParamLength = true
                         } else if (args.length == unders.length + 1) result = None
                       }
-                      else if (args.length > unders.length + 1) result = Some(args(i))
+                      else if (args.length > unders.length + 1) result = Some(args(i).removeAbstracts)
                       else {
-                        result = Some(args(i))
+                        result = Some(args(i).removeAbstracts)
                         forEqualsParamLength = true
                       }
                     }

@@ -48,6 +48,8 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
     }
   }
 
+  override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts), project, scope)
+
   private def functionTraitName = "scala.Function" + params.length
 
   private var Implicit: Boolean = false
@@ -87,6 +89,8 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
       case _ => None
     }
   }
+
+  override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))
 
   private def tupleTraitName = "scala.Tuple" + components.length
 }

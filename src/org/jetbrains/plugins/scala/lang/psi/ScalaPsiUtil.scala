@@ -289,8 +289,9 @@ object ScalaPsiUtil {
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                  typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty): ScTypePolymorphicType = {
-    val s: ScSubstitutor = undefineSubstitutor(typeParams)
+                                 subst: ScSubstitutor = ScSubstitutor.empty, 
+                                 shouldUndefineParameters: Boolean = true): ScTypePolymorphicType = {
+    val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
     val c = Compatibility.checkConformance(true, paramsWithUndefTypes, exprs, true)
     if (c._1) {

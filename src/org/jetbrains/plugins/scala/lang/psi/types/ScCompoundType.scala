@@ -68,4 +68,6 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
       true
     }
   }
+
+  override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
 }
