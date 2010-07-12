@@ -1,4 +1,4 @@
 def bar(foo: String*) = {
-  foo.map(_.contains("a").toString)
+  /*start*/foo.map(_.contains("a").toString)/*end*/
 }
 //Seq[String]
