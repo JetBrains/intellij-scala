@@ -177,19 +177,20 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
             subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
               new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
+        val polymorphicSubst = t.polymorphicTypeSubstitutor
         val exprs = new ArrayBuffer[Expression]
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
           val param = iterator.next
-          val paramType = s.subst(param.paramType) //we should do all of this with information known before
+          val paramType = t.abstractTypeSubstitutor.subst(param.paramType) //we should do all of this with information known before
           val collector = new ImplicitParametersCollector(this, paramType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
             results(0) match {
               case ScalaResolveResult(patt: ScBindingPattern, subst) => {
-                exprs += new Expression(subst.subst(patt.getType(TypingContext.empty).get))
+                exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
               }
               case ScalaResolveResult(fun: ScFunction, subst) => {
                 val funType = {
@@ -201,7 +202,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
                   }
                   else subst.subst(fun.getType(TypingContext.empty).get)
                 }
-                exprs += new Expression(funType)
+                exprs += new Expression(polymorphicSubst subst funType)
               }
             }
           } else {
@@ -210,8 +211,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           }
         }
         implicitParameters = Some(resolveResults.toSeq)
-        val subst = t.polymorphicTypeSubstitutor
-        res = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, subst)
+        res = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, polymorphicSubst)
       }
       case ScMethodType(retType, params, isImplicit) if isImplicit => {
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
