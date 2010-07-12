@@ -50,6 +50,10 @@ object Conformance {
       }
     }
     (l, r) match {
+      case (ScAbstractType(_, lower, upper), right) =>
+        return conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+      case (left, ScAbstractType(_, lower, upper)) =>
+        return conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
         return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
       case (u2: ScUndefinedType, u1: ScUndefinedType) if u2.level > u1.level =>
@@ -177,6 +181,18 @@ object Conformance {
       case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
         val argsPair = (arg1, arg2)
         argsPair match {
+          case (ScAbstractType(_, lower, upper), right) => {
+            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
+          case (left, ScAbstractType(_, lower, upper)) => {
+            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
@@ -204,6 +220,18 @@ object Conformance {
       }) => {
         val argsPair = (arg, args(0))
         argsPair match {
+          case (ScAbstractType(_, lower, upper), right) => {
+            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
+          case (left, ScAbstractType(_, lower, upper)) => {
+            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
@@ -231,6 +259,18 @@ object Conformance {
       }) => {
         val argsPair = (arg, args(0))
         argsPair match {
+          case (ScAbstractType(_, lower, upper), right) => {
+            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
+          case (left, ScAbstractType(_, lower, upper)) => {
+            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
+            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+          }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
             undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
@@ -283,6 +323,18 @@ object Conformance {
                 //this case filter out such cases like undefined type
                 case _ => {
                   argsPair match {
+                    case (ScAbstractType(_, lower, upper), right) => {
+                      val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+                      if (!t._1) return (false, undefinedSubst)
+                      undefinedSubst = t._2
+                      conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+                    }
+                    case (left, ScAbstractType(_, lower, upper)) => {
+                      val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+                      if (!t._1) return (false, undefinedSubst)
+                      undefinedSubst = t._2
+                      conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+                    }
                     case (u: ScUndefinedType, rt) => {
                       undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
                       undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)

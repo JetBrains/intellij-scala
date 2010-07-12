@@ -175,6 +175,10 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
   def inferValueType: ValueType = tpt
 }
 
+case class ScAbstractType(val tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
+  def inferValueType = tpt
+}
+
 private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
     val currentThread = Thread.currentThread

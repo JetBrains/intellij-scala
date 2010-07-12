@@ -107,6 +107,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case _ => v
       }
     }
+    case u: ScAbstractType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
+      case None => u
+      case Some(v) => v match {
+        case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
+        case _ => v
+      }
+    }
     case tv : ScTypeVariable => tvMap.get((tv.name, "")) match {
       case None => tv
       case Some(v) => v
@@ -153,6 +160,27 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       }
     }
     case pt@ScParameterizedType(u: ScUndefinedType, typeArgs) => {
+      tvMap.get((u.tpt.name, u.tpt.getId)) match {
+        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
+        case _ => {
+          substInternal(u) match {
+            case ScTypeConstructorType(_, tcArgs, aliased) => {
+              val typeArgsIterator = typeArgs.iterator
+              val otherIterator = tcArgs.iterator
+              var s1 = ScSubstitutor.empty
+              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
+                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
+                s1 = s1.bindT((p2.name,p2.getId), p1)
+              }
+              s1.subst(aliased.v)
+            }
+            case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
+            case des => new ScParameterizedType(des, typeArgs map {substInternal _})
+          }
+        }
+      }
+    }
+    case pt@ScParameterizedType(u: ScAbstractType, typeArgs) => {
       tvMap.get((u.tpt.name, u.tpt.getId)) match {
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
