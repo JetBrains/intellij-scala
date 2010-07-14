@@ -35,7 +35,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              override val kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
                              val expectedOption: () => Option[ScType] = () => None,
                              val isUnderscore: Boolean = false,
-                             val isShapeResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val isShapeResolve: Boolean = false,
+                             val constructorResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -51,7 +52,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case null => None
       case x => Some(x)
     }
-    if (nameAndKindMatch(named, state)) {
+    if (nameAndKindMatch(named, state) || constructorResolve) {
       if (!isAccessible(named, ref)) return true
       val s = getSubst(state)
       element match {

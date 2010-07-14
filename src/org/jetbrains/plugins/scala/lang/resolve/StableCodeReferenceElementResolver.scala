@@ -6,7 +6,8 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import processor._
 import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import psi.api.base.ScStableCodeReferenceElement
+import psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
+import psi.types.Compatibility.Expression
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement) extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {

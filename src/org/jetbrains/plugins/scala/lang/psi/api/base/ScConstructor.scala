@@ -9,6 +9,9 @@ import psi.ScalaPsiElement
 import statements.params.ScArguments
 import statements.ScFunction
 import types.{ScSimpleTypeElement, ScTypeElement}
+import com.intellij.psi.PsiMethod
+import resolve.ScalaResolveResult
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -18,5 +21,8 @@ trait ScConstructor extends ScalaPsiElement {
   def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
   def args = findChild(classOf[ScArgumentExprList])
-  def arguments : Seq[ScArgumentExprList] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
+  def arguments: Seq[ScArgumentExprList] =
+    collection.immutable.Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
+
+  def resolveConstructorMethod: Array[ScalaResolveResult]
 }
