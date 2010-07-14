@@ -76,8 +76,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     if (ScType.extractClass(t).map(_.getQualifiedName) == Some("java.lang.String")) {
-      val plusMethod: ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
-      if (plusMethod != null) execute(plusMethod, state) //add + method
+      val plusMethod: ScType => ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
+      if (plusMethod != null) execute(plusMethod(t), state) //add + method
     }
 
     t match {
