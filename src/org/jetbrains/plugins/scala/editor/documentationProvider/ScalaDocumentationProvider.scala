@@ -206,7 +206,10 @@ object ScalaDocumentationProvider {
       case _ => ""
     })
     buffer.append(escapeHtml(param.name))
-    buffer.append(parseType(param, typeToString))
+
+    buffer.append(parseType(param, t => {
+      (if (param.isCallByNameParameter) "=> " else "") + typeToString(t)
+    }))
     if (param.isRepeatedParameter) buffer.append("*")
     if (param.isDefaultParam) {
       buffer.append(" = ")
