@@ -64,8 +64,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 ref.getParent.isInstanceOf[ScGenericCall] => {
           addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType,
-            innerResolveResult = Some(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state),
-              None, implicitConversionClass, implicitFunction = implFunction, implicitType = implType))))
+            innerResolveResult = Some(new ScalaResolveResult(cc.constructor.getOrElse(return true),
+              s, getImports(state), None, implicitConversionClass, implicitFunction = implFunction,
+              implicitType = implType))))
           true
         }
         case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
@@ -115,7 +116,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
 }
 
 object MethodResolveProcessor {
-  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean, proc: MethodResolveProcessor): ConformanceExtResult = {
+  private def problemsFor(c: ScalaResolveResult, checkWithImplicits: Boolean,
+                          proc: MethodResolveProcessor): ConformanceExtResult = {
     import proc._
     val realResolveResult = c.innerResolveResult match {
       case Some(rr) => rr
@@ -174,7 +176,8 @@ object MethodResolveProcessor {
             case _ => {
               fun match {
                 case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
-                        fun.paramClauses.clauses.apply(0).parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
+                        fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
+                        isUnderscore => ConformanceExtResult(Seq.empty)
                 case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
                 case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                         isUnderscore => ConformanceExtResult(Seq.empty)
@@ -201,7 +204,8 @@ object MethodResolveProcessor {
       case fun: ScTypeParametersOwner if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && argumentClauses.length == 0 &&
               fun.isInstanceOf[PsiNamedElement] => {
-        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor) return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
+        if (fun.isInstanceOf[ScFunction] && fun.asInstanceOf[ScFunction].isConstructor)
+          return ConformanceExtResult(Seq(new ApplicabilityProblem("1")))
         checkFunction(fun.asInstanceOf[PsiNamedElement])
       }
       case fun: PsiTypeParameterListOwner if (typeArgElements.length == 0 ||
