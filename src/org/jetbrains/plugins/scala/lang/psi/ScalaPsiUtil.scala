@@ -52,12 +52,17 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 object ScalaPsiUtil {
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value], ref: PsiElement):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
+    lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)
+    //TODO! remove this after find a way to improve implicits according to compiler.
+    val isHardCoded = refName == "+" && exprType.map(_.isInstanceOf[ValType]).getOrElse(false)
     val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
       case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
         ProgressManager.checkCanceled
-        val newProc = new ResolveProcessor(kinds, ref, refName)
-        newProc.processType(t, e, ResolveState.initial)
-        !newProc.candidates.isEmpty
+        if (!isHardCoded || !t.isInstanceOf[ValType]) {
+          val newProc = new ResolveProcessor(kinds, ref, refName)
+          newProc.processType(t, e, ResolveState.initial)
+          !newProc.candidates.isEmpty
+        } else false
       }
     })
     val mostSpecificImplicit = if (implicitMap.length == 0) return None

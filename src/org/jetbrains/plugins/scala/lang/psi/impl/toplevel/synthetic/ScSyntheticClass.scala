@@ -262,11 +262,11 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     if (stringClass != null) {
       scriptSyntheticValues += new ScSyntheticValue(manager, "args",
         JavaArrayType(ScDesignatorType(stringClass)))
-      stringPlusMethod = new ScSyntheticFunction(manager, "+", new ScDesignatorType(stringClass), Seq(Any), Seq.empty)
+      stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any), Seq.empty)
     }
   }
 
-  var stringPlusMethod: ScSyntheticFunction = null
+  var stringPlusMethod: ScType => ScSyntheticFunction = null
   var scriptSyntheticValues: Set[ScSyntheticValue] = new HashSet[ScSyntheticValue]
   var all: Map[String, ScSyntheticClass] = new HashMap[String, ScSyntheticClass]
   var numeric: Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
