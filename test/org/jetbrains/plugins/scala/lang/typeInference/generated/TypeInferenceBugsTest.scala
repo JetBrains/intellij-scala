@@ -7,6 +7,8 @@ class TypeInferenceBugsTest extends TypeInferenceTestBase {
 
   def testMapMap = doTest
 
+  def testMinusByte = doTest
+
   def testSCL1734 = doTest
 
   def testSCL1823 = doTest
