@@ -258,34 +258,41 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         //value discarding
         if (expected == Unit) return Success(Unit, Some(this))
         //numeric literal narrowing
-        this match {
-          case l: ScLiteral if l.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER => {
-            try {
-              lazy val i = Integer.parseInt(l.getText)
-              expected match {
-                case types.Char => {
-                  if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
-                    return Success(Char, Some(this))
-                  }
+        val needsNarrowing = this match {
+          case _: ScLiteral => getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER
+          case p: ScPrefixExpr => p.operand match {
+            case l: ScLiteral =>
+              l.getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER &&
+                Set("+", "-").contains(p.operation.getText)
+            case _ => false
+          }
+          case _ => false
+        }
+        if (needsNarrowing) {
+          try {
+            lazy val i = Integer.parseInt(this.getText)
+            expected match {
+              case types.Char => {
+                if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
+                  return Success(Char, Some(this))
                 }
-                case types.Byte => {
-                  if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
-                    return Success(Byte, Some(this))
-                  }
-                }
-                case types.Short => {
-                  if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
-                    return Success(Short, Some(this))
-                  }
-                }
-                case _ =>
               }
-            }
-            catch {
-              case _: NumberFormatException => //do nothing
+              case types.Byte => {
+                if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
+                  return Success(Byte, Some(this))
+                }
+              }
+              case types.Short => {
+                if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
+                  return Success(Short, Some(this))
+                }
+              }
+              case _ =>
             }
           }
-          case _ =>
+          catch {
+            case _: NumberFormatException => //do nothing
+          }
         }
         //numeric widening
         (valType, expected) match {
