@@ -205,7 +205,7 @@
   <actions>
     <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction"
         text="Scala Class" description="Create new Scala class">
-      <add-to-group group-id="NewGroup" anchor="last"/>
+      <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
     </action>
     <action id="Scala.RunConsole" class="org.jetbrains.plugins.scala.console.RunConsoleAction"
             text="Run Scala Console" description="Run Scala console">
