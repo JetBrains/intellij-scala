@@ -14,4 +14,7 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
     case Some(x) => x.qualName + "."
     case _ => ""
   }) + refName
+
+  def isConstructorReference: Boolean
+  def getConstructor: Option[ScConstructor]
 }

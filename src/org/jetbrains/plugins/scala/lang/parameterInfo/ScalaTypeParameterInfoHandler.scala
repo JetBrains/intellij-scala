@@ -8,7 +8,6 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiType, PsiTypeParameter, PsiClass}
 import com.intellij.util.ArrayUtil
 import java.awt.Color
 import java.lang.{Class, String}
@@ -22,6 +21,8 @@ import psi.api.statements.params.ScTypeParam
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.types.{ScType, ScSubstitutor}
 import resolve.ScalaResolveResult
+import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.02.2009
@@ -180,6 +181,9 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                   simp.reference match {
                     case Some(ref) => {
                       ref.bind match {
+                        case Some(r@ScalaResolveResult(method: PsiMethod, substitutor)) => {
+                          res += Tuple(r.getActualElement, substitutor)
+                        }
                         case Some(ScalaResolveResult(element: PsiClass, substitutor)) => {
                           res += Tuple(element, substitutor)
                         }

@@ -112,7 +112,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     "class F" + definition + " {}; " + "new F" + application
 
   private def typify(definition: String, application: String) = {
-    val Parameter = """(\w+):\s*(\w+)""".r
+    val Parameter = """(\w+):\s*([A-Za-z\[\]]+)""".r
     
     val types = for(Parameter(_, t) <- Parameter.findAllIn(definition).toList) yield t
     val ids = (1 to types.size).map("T" + _)

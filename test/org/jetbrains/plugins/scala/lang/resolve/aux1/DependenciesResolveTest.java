@@ -6,6 +6,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.LocalFileSystem;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
@@ -47,9 +48,9 @@ public class DependenciesResolveTest extends ScalaResolveTestCase {
     PsiReference ref = configureByFile(filePath);
     final PsiElement resolved = ref.resolve();
 
-    assertTrue(resolved instanceof ScClass);
+    assertTrue(resolved instanceof ScPrimaryConstructor);
 
-    final ScClass clazz = (ScClass) resolved;
+    final ScClass clazz = (ScClass) ((ScPrimaryConstructor) resolved).getContainingClass();
     final String name = clazz.getName();
     assertTrue(name.equals("Description"));
 

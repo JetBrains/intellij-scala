@@ -58,8 +58,18 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       else if (q == placePackageName) return 6
       else return 3
     }
+    def getClazzPrecedence(clazz: PsiClass): Int = {
+      val qualifier = clazz.getQualifiedName
+      if (qualifier == null) return 6
+      val index: Int = qualifier.lastIndexOf('.')
+      if (index == -1) return 6
+      val q = qualifier.substring(0, index)
+      if (q == "java.lang") return 1
+      else if (q == "scala") return 2
+      else return 6
+    }
     if (result.importsUsed.size == 0) {
-      ScalaPsiUtil.nameContext(result.getElement) match {
+      ScalaPsiUtil.nameContext(result.getActualElement) match {
         case synthetic: ScSyntheticClass => return 2 //like scala.Int
         case obj: ScObject if obj.isPackageObject => {
           val qualifier = obj.getQualifiedName
@@ -70,17 +80,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           return getPackagePrecedence(qualifier)
         }
         case clazz: PsiClass => {
-          val qualifier = clazz.getQualifiedName
-          if (qualifier == null) return 6
-          val index: Int = qualifier.lastIndexOf('.')
-          if (index == -1) return 6
-          val q = qualifier.substring(0, index)
-          if (q == "java.lang") return 1
-          else if (q == "scala") return 2
-          else return 6
+          return getClazzPrecedence(clazz)
         }
         case _: ScBindingPattern | _: PsiMember => {
-          val clazz = PsiTreeUtil.getParentOfType(result.getElement, classOf[PsiClass])
+          val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
           if (clazz == null) return 6
           else {
             clazz.getQualifiedName match {

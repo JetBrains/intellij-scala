@@ -175,38 +175,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     res.filter(_ != this).toArray
   }
 
-  private[typedef] var lockCompanionRename = false
-  override def setName(name: String): PsiElement = setName(name, true)
-  private[typedef] def setName(name: String, renameCompanion: Boolean): PsiElement = {
-    val id = nameId.getNode
-    val parent = id.getTreeParent
-    def shortName(s: String): String = {
-      if (!s.endsWith(".scala")) return null
-      else return s.substring(0, s.length - 6)
-    }
-    if (id.getText == shortName(id.getPsi.getContainingFile.getName)) {
-      this.getContainingFile match {
-        case x: ScalaFile => x.setName(name + ".scala")
-        case _ =>
-      }
-    }
-
-    lockCompanionRename = true
-    if (renameCompanion) ScalaPsiUtil.getCompanionModule(this) match {
-      case Some(td: ScTypeDefinitionImpl) if !td.lockCompanionRename => RenameUtil.doRename(td, name,
-        RenameUtil.findUsages(td, name, false, false, new _root_.java.util.HashMap[PsiElement, String]()), getProject,
-        new RefactoringElementListener {
-          def elementMoved(newElement: PsiElement): Unit = {}
-
-          def elementRenamed(newElement: PsiElement): Unit = {}
-        })
-      case _ =>
-    }
-    lockCompanionRename = false
-
-    super.setName(name)
-  }
-
   /**
    * Do not use it for scala. Use functions method instead.
    */

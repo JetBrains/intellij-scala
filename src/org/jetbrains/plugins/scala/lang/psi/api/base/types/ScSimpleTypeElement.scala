@@ -19,4 +19,5 @@ trait ScSimpleTypeElement extends ScTypeElement {
 
   def singleton: Boolean
 
+  def findConsturctor: Option[ScConstructor]
 }

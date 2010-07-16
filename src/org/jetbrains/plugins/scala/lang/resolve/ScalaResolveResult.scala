@@ -25,9 +25,20 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitType: Option[ScType] = None,
                          val isHacked: Boolean = false,
                          val defaultParameterUsed: Boolean = false,
-                         val innerResolveResult: Option[ScalaResolveResult] = None) extends ResolveResult {
+                         val innerResolveResult: Option[ScalaResolveResult] = None,
+                         val parentElement: Option[PsiNamedElement] = None) extends ResolveResult {
 
   def getElement = element
+
+  /**
+   * this is important to get precedence information
+   */
+  def getActualElement = {
+    parentElement match {
+      case Some(e) => e
+      case None => element
+    }
+  }
 
   def isApplicable: Boolean = problems.isEmpty
 
@@ -50,7 +61,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
            defaultParameterUsed: Boolean = defaultParameterUsed,
            innerResolveResult: Option[ScalaResolveResult] = innerResolveResult): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
-      implicitFunction, implicitType, isHacked, defaultParameterUsed, innerResolveResult)
+      implicitFunction, implicitType, isHacked, defaultParameterUsed, innerResolveResult, parentElement)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element
