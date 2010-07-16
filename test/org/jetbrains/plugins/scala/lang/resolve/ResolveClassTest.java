@@ -104,15 +104,13 @@ public class ResolveClassTest extends ScalaResolveTestCase {
   public void testWildcardImport() throws Exception {
     PsiReference ref = configureByFile("wild/A.scala");
     PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof ScClass);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "bbb.BB");
+    assertTrue(resolved instanceof ScPrimaryConstructor);
   }
 
   public void testWildcardImport2() throws Exception {
     PsiReference ref = configureByFile("wild2/A.scala");
     PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof ScClass);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "Foo.BB");
+    assertTrue(resolved instanceof ScPrimaryConstructor);
   }
 
   public void testWildcardImport3() throws Exception {

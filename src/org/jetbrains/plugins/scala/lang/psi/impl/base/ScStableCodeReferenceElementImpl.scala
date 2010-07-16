@@ -28,8 +28,8 @@ import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
 import processor.CompletionProcessor
 import result.TypingContext
-import api.base.types.{ScInfixTypeElement, ScSimpleTypeElement}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
+import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -43,6 +43,26 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _ => r.getElement
     }
   })
+
+  def getConstructor = {
+    getContext match {
+      case s: ScSimpleTypeElement => {
+        s.getContext match {
+          case p: ScParameterizedTypeElement => {
+            p.getContext match {
+              case constr: ScConstructor => Some(constr)
+              case _ => None
+            }
+          }
+          case constr: ScConstructor => Some(constr)
+          case _ => None
+        }
+      }
+      case _ => None
+    }
+  }
+
+  def isConstructorReference = !getConstructor.isEmpty
 
   override def toString: String = "CodeReferenceElement"
 

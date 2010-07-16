@@ -4,13 +4,14 @@ package psi
 package api
 package base
 
-import expr.ScArgumentExprList
 import psi.ScalaPsiElement
 import statements.params.ScArguments
 import statements.ScFunction
 import types.{ScSimpleTypeElement, ScTypeElement}
 import com.intellij.psi.PsiMethod
 import resolve.ScalaResolveResult
+import psi.types.ScType
+import expr.{ScNewTemplateDefinition, ScArgumentExprList}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,5 +25,7 @@ trait ScConstructor extends ScalaPsiElement {
   def arguments: Seq[ScArgumentExprList] =
     collection.immutable.Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
 
-  def resolveConstructorMethod: Array[ScalaResolveResult]
+  def expectedType: Option[ScType]
+
+  def newTemplate: Option[ScNewTemplateDefinition]
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve;
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition;
@@ -23,15 +24,15 @@ public class ResolvePackagingsTest extends ScalaResolveTestCase {
   public void testSeparatedPackages() throws Exception {
     PsiReference ref = configureByFile("separated/my/scala/stuff/Main.scala");
     final PsiElement psiElement = ref.resolve();
-    assertTrue(psiElement instanceof ScClass);
-    final ScClass aClass = (ScClass) psiElement;
-    assertEquals(aClass.getQualifiedName(),"my.scala.List");
+    assertTrue(psiElement instanceof ScPrimaryConstructor);
+    final ScPrimaryConstructor aClass = (ScPrimaryConstructor) psiElement;
+    assertEquals(aClass.getContainingClass().getQualifiedName(),"my.scala.List");
   }
 
   public void testSolidPackages() throws Exception {
     PsiReference ref = configureByFile("solid/my/scala/stuff/Main.scala");
     final PsiElement psiElement = ref.resolve();
-    assertTrue(psiElement instanceof ScTypeAliasDefinition);
+    assertTrue(psiElement instanceof ScPrimaryConstructor);
   }
 
 }

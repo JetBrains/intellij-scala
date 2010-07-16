@@ -10,13 +10,13 @@ class FunctionRepeatTest extends ResolveTestBase {
     super.getTestDataPath + "function/repeat/"
   }
 
-  def testArray = doTest
+  def testArraya = doTest
   def testArrayRaw = doTest
   def testEmpty = doTest
   def testNone = doTest
   def testOne = doTest
   def testTwo = doTest
-  def testIncompatibleArray = doTest
+  def testIncompatibleArraya = doTest
   def testIncompatibleOne = doTest
   def testIncompatibleTwo = doTest
 }

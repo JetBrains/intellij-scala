@@ -13,10 +13,10 @@ import com.intellij.refactoring.inline.GenericInlineHandler
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
-import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.refactoring.rename.RenameProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import com.intellij.psi.{PsiMethod, PsiElement, PsiManager}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,6 +28,13 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
   val caretMarker = "/*caret*/"
 
   override protected def rootPath = super.rootPath + "rename/"
+
+  private def substituteElement(element: PsiElement): PsiElement = {
+    element match {
+      case method: PsiMethod if method.isConstructor => method.getContainingClass
+      case _ => element
+    }
+  }
 
   protected def doTest: Unit = {
     import _root_.junit.framework.Assert._
@@ -53,7 +60,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     try {
       ScalaUtils.runWriteAction(new Runnable {
         def run {
-          new RenameProcessor(resolve.getProject, resolve, "NameAfterRename", false, false).run()
+          new RenameProcessor(resolve.getProject, substituteElement(resolve), "NameAfterRename", false, false).run()
         }
       }, resolve.getProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim

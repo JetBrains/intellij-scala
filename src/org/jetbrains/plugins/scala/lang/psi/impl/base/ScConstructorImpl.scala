@@ -15,6 +15,8 @@ import com.intellij.psi.{ResolveState, PsiClass, PsiMethod}
 import psi.types.result.{TypingContext, Success}
 import psi.types.{ScType, ScSubstitutor}
 import api.base.types.{ScTypeElement, ScSimpleTypeElement}
+import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
+import api.expr.ScNewTemplateDefinition
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,26 +27,44 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Constructor"
 
-  //todo cache
-  def resolveConstructorMethod: Array[ScalaResolveResult] = {
-    typeElement match {
-      case element: ScTypeElement => {
-        element.getType(TypingContext.empty) match {
-          case Success(tp: ScType, _) => ScType.extractClassType(tp) match {
-            case Some((clazz, subst)) => {
-              val processor = new MethodResolveProcessor(element, "this",
-                arguments.toList.map(_.exprs.map(new Expression(_))), Seq.empty, StdKinds.methodsOnly,
-                constructorResolve = true)
-              val state: ResolveState = ResolveState.initial.put(ScSubstitutor.key, subst)
-              clazz.getConstructors.foreach(processor.execute(_, state))
-              processor.candidates
+
+  def expectedType: Option[ScType] = {
+    getContext match {
+      case parents: ScClassParents => {
+        if (parents.typeElements.length != 1) None
+        else {
+          parents.getContext match {
+            case e: ScExtendsBlock => {
+              e.getContext match {
+                case n: ScNewTemplateDefinition => {
+                  n.expectedType
+                }
+                case _ => None
+              }
             }
-            case _ => Array.empty
+            case _ => None
           }
-          case _ => Array.empty
         }
       }
-      case _ => return Array.empty //todo: parameterized type element
+      case _ => None
+    }
+  }
+
+  def newTemplate = {
+    getContext match {
+      case parents: ScClassParents => {
+        parents.getContext match {
+          case e: ScExtendsBlock => {
+            e.getContext match {
+              case n: ScNewTemplateDefinition => {
+                Some(n)
+              }
+              case _ => None
+            }
+          }
+        }
+      }
+      case _ => None
     }
   }
 }

@@ -31,7 +31,7 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testFunctionLiteralCall = doTest
 
-  def testHashSetCreation = doTest
+  def testHashaSetCreation = doTest
 
   def testImplicitApply = doTest
 

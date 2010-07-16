@@ -28,7 +28,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiReference ref = configureByFile("nonlocal/BeanProperty.scala");
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
-    assertTrue(resolved instanceof ScClass);
+    assertTrue(resolved instanceof ScPrimaryConstructor);
   }
 
   public void testArrayBufferAdd() throws Exception {

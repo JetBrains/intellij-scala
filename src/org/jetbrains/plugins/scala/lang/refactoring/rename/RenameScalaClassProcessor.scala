@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import java.util.Map
 import java.lang.String
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,7 +15,16 @@ import java.lang.String
 class RenameScalaClassProcessor extends RenameJavaClassProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]): Unit = {
-    //for Scala it's not interesting to rename constructors
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) = {
+    super.prepareRenaming(element, newName, allRenames)
+    element match {
+      case td: ScTypeDefinition => {
+        ScalaPsiUtil.getCompanionModule(td) match {
+          case Some(td) => allRenames.put(td, newName)
+          case _ =>
+        }
+      }
+      case _ =>
+    }
   }
 }

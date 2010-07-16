@@ -17,4 +17,6 @@ trait ScParameterizedTypeElement extends ScTypeElement {
   def typeArgList: ScTypeArgs
 
   def typeElement: ScTypeElement
+
+  def findConstructor: Option[ScConstructor]
 }

@@ -70,6 +70,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
         res match {
+          case method: PsiMethod if method.isConstructor => {
+            if (td == method.getContainingClass) return true
+          }
           case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
             method.getName == "unapplySeq" => {
             val clazz = method.getContainingClass
