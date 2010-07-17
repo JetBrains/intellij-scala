@@ -1,0 +1,12 @@
+// SCL-2091
+class A {
+  def foo = 1 + <begin>1<end>
+}
+-------
+// SCL-2091
+class A {
+  def foo = {
+    val value: Int = 1
+    1 + value
+  }
+}
