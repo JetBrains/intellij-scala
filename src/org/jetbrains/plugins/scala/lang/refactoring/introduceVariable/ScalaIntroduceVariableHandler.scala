@@ -194,7 +194,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
     val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
-      classOf[ScTemplateBody])
+      classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
     var needBraces = false
     var elseBranch = false
     var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
@@ -230,8 +230,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
         case whSt: ScWhileStmt if whSt.body.getOrElse(null) == parExpr => needBraces = true
         case doSt: ScDoStmt if doSt.getExprBody.getOrElse(null) == parExpr => needBraces = true
         case finBl: ScFinallyBlock if finBl.expression.getOrElse(null) == parExpr => needBraces = true
-        case fE: ScFunctionExpr => needBraces = true
-        case clause: ScCaseClause => needBraces = true
+        case fE: ScFunctionExpr =>
+          needBraces = fE.getContext match {
+            case be: ScBlockExpr if be.getChildren.size == 1 => false
+            case _ => true
+          }
+        case clause: ScCaseClause => needBraces = false
         case _ =>
       }
       needBraces
