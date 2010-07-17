@@ -18,6 +18,8 @@ import psi.api.expr.ScExpression.ExpressionTypeResult
 import psi.types.result.{TypeResult, TypingContext}
 import psi.ScalaPsiUtil
 import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
+import collection.mutable.ArrayBuffer
+import psi.api.statements.params.ScParameter
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -112,7 +114,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case args: ScArgumentExprList => {
         val exprs = args.exprs
         args.callReference match {
-          case Some(callReference) => processCallReference(args, callReference, ref, processor)
+          case Some(callReference) => processCallReference(args, callReference, ref, assign, processor)
           case None => processConstructorReference(args, ref, processor)
         }
       }
@@ -163,13 +165,45 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   }
 
   private def processCallReference(args: ScArgumentExprList, callReference: ScReferenceElement,
-          ref: ResolvableReferenceExpression, processor: BaseProcessor) = {
+          ref: ResolvableReferenceExpression, assign: ScAssignStmt, processor: BaseProcessor) = {
     for (variant <- callReference.multiResolve(false)) {
       variant match {
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
-          fun.getParamByName(ref.refName, args.invocationCount - 1) match {
-            case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
-            case None =>
+          if (!processor.isInstanceOf[CompletionProcessor])
+            fun.getParamByName(ref.refName, args.invocationCount - 1) match {
+              case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                      put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+              case None =>
+            }
+          else {
+            //for completion only!
+            if (fun.paramClauses.clauses.length >= args.invocationCount) {
+              val actualClause = fun.paramClauses.clauses(args.invocationCount - 1)
+              val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
+              val exprs = args.exprs
+              var i = 0
+              def tail: Unit = if (!params.isEmpty) params.remove(0)
+              while (exprs(i) != assign) {
+                exprs(i) match {
+                  case assign: ScAssignStmt => {
+                    assign.getLExpression match {
+                      case ref: ScReferenceExpression => {
+                        val ind = params.indexWhere(_.name == ref.refName)
+                        if (ind != -1) params.remove(ind)
+                        else tail
+                      }
+                      case _ => tail
+                    }
+                  }
+                  case _ => tail
+                }
+                i = i + 1
+              }
+              for (param <- params) {
+                processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                      put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+              }
+            }
           }
         }
         case _ =>

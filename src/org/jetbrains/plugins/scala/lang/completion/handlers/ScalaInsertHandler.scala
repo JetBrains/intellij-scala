@@ -6,10 +6,12 @@ package handlers
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
 import com.intellij.psi.{PsiDocumentManager, PsiMethod}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScPostfixExpr}
 import psi.api.statements.{ScFunction, ScFun}
+import psi.api.statements.params.ScParameter
+import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, LookupItem}
+import resolve.ResolveUtils.ScalaLookupObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,16 +27,22 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
     val startOffset = context.getStartOffset
     item.getObject match {
-      case Tuple1(_: PsiMethod) | Tuple1(_: ScFun) => {
+      case ScalaLookupObject(p: ScParameter, isNamed) if isNamed => {
+        val endOffset = startOffset + p.name.length
+        context.setAddCompletionChar(false)
+        document.insertString(endOffset, " = ")
+        editor.getCaretModel.moveToOffset(endOffset + 3)
+      }
+      case ScalaLookupObject(_: PsiMethod, _) | ScalaLookupObject(_: ScFun, _) => {
         val (count, methodName) = item.getObject match {
-          case Tuple1(fun: ScFunction) => {
+          case ScalaLookupObject(fun: ScFunction, _) => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) return
             if (clauses.apply(0).isImplicit) return
             (clauses(0).parameters.length, fun.getName)
           }
-          case Tuple1(method: PsiMethod) => (method.getParameterList.getParametersCount, method.getName)
-          case Tuple1(fun: ScFun) => (fun.paramTypes.length, fun.asInstanceOf[ScSyntheticFunction].name)
+          case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName)
+          case ScalaLookupObject(fun: ScFun, _) => (fun.paramTypes.length, fun.asInstanceOf[ScSyntheticFunction].name)
         }
         if (count > 0) {
           val endOffset = startOffset + methodName.length
@@ -59,7 +67,6 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             }
           }
 
-          var refInv = false
           // for reference invocations
           if (context.getCompletionChar == ' ') {
             context.setAddCompletionChar(false)
@@ -67,7 +74,6 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             editor.getCaretModel.moveToOffset(endOffset + 2)
           } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
             document.insertString(endOffset, "()")
-            refInv = true
             editor.getCaretModel.moveToOffset(endOffset + 1)
             AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
           } else {

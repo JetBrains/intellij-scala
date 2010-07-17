@@ -26,6 +26,7 @@ import search.searches.SuperMethodsSearch
 import com.intellij.openapi.project.IndexNotReadyException
 import lang.psi.{PresentationUtil, ScalaPsiUtil}
 import org.apache.commons.lang.StringEscapeUtils
+import lang.resolve.ResolveUtils.ScalaLookupObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -37,7 +38,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object, element: PsiElement): PsiElement = {
     `object` match {
       case (_, element: PsiElement, _) => element
-      case Tuple1(element: PsiElement) => element
+      case ScalaLookupObject(element: PsiElement, _) => element
       case element: PsiElement => element
       case _ => null
     }

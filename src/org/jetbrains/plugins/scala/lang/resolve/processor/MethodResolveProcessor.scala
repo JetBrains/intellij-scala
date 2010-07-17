@@ -52,6 +52,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case null => None
       case x => Some(x)
     }
+    lazy val isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY) match {
+      case null => false
+      case v => v.booleanValue
+    }
     if (nameAndKindMatch(named, state) || constructorResolve) {
       if (!isAccessible(named, ref)) return true
       val s = getSubst(state)
@@ -100,7 +104,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitFunction = implFunction, implicitType = implType))
         case _ => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter))
           true
         }
       }

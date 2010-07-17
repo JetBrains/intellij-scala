@@ -7,6 +7,7 @@ import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtil
 import collection.JavaConversions
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ class ScalaExcludeFromCompletionLookupActionProvider extends LookupActionProvide
     val o: Object = element.getObject
     var clazz: PsiClass = null
     o match {
-      case Tuple1(cl: PsiClass) => clazz = cl
+      case ScalaLookupObject(cl: PsiClass, _) => clazz = cl
       case _ => //do nothing, this way handled in ExludeFromCompletionLookupActionProvider
     }
     if (clazz != null && clazz.isValid) {
