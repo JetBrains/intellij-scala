@@ -31,6 +31,7 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.openapi.application.{ApplicationManager, Application}
 import search.GlobalSearchScope
 import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
+import java.lang.String
 
 /**
  * @author ven
@@ -370,7 +371,8 @@ object ResolveUtils {
     }
 
     val name: String = isRenamed.getOrElse(element.getName)
-    var lookupBuilder: LookupElementBuilder = LookupElementBuilder.create(Tuple(element), name) //don't add elements to lookup
+    var lookupBuilder: LookupElementBuilder =
+      LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter), name) //don't add elements to lookup
     lookupBuilder = lookupBuilder.setInsertHandler(new ScalaInsertHandler)
     lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
@@ -422,7 +424,12 @@ object ResolveUtils {
             presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
           }
           case param: ScParameter => {
-            presentation.setTypeText(presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor))
+            val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor)
+            if (resolveResult.isNamedParameter) {
+              presentation.setTailText(" = " + str)
+            } else {
+              presentation.setTypeText(str)
+            }
           }
           case clazz: PsiClass => {
             val location: String = clazz.getPresentation.getLocationString
@@ -453,6 +460,8 @@ object ResolveUtils {
       else lookupBuilder
     (returnLookupElement, element, substitutor)
   }
+
+  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean)
 
   def getPlacePackage(place: PsiElement): String = {
     val pack = PsiTreeUtil.getParentOfType(place, classOf[ScPackaging])

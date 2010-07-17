@@ -96,7 +96,7 @@ object ScType {
       val result = classType.resolveGenerics
       result.getElement match {
         case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => Any
+        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => AnyRef
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
           val des = new ScDesignatorType(clazz)

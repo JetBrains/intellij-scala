@@ -54,6 +54,10 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case null => None
       case x => Some(x)
     }
+    lazy val isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY) match {
+      case null => false
+      case v => v.booleanValue
+    }
 
     element match {
       case td: ScTypeDefinition if !names.contains(td.getName) => {
@@ -73,7 +77,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               if (!signatures.contains(sign)) {
                 signatures += sign
                 candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
               }
             }
             case bindingPattern: ScBindingPattern => {
@@ -81,13 +85,13 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               if (!signatures.contains(sign)) {
                 signatures += sign
                 candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
               }
             }
             case _ => {
               if (!names.contains(named.getName)) {
                 candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
                 names += isRenamed.getOrElse(named.getName)
               }
             }

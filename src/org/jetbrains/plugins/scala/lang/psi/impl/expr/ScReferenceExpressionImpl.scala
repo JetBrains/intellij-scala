@@ -75,12 +75,19 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def getVariants: Array[Object] = getVariants(true)
+  def getVariants: Array[Object] = getVariants(true, false)
 
-  override def getVariants(implicits: Boolean): Array[Object] = {
+  override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val tp = wrap(qualifier).flatMap (_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
 
-    doResolve(this, new CompletionProcessor(getKinds(true), implicits)).map(r => {
+    doResolve(this, new CompletionProcessor(getKinds(true), implicits)).filter(r => {
+      if (filterNotNamedVariants) {
+        r match {
+          case res: ScalaResolveResult => res.isNamedParameter
+          case _ => false
+        }
+      } else true
+    }).map(r => {
       r match {
         case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
         case _ => r.getElement
