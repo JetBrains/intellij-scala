@@ -50,4 +50,5 @@ class BugTest extends ResolveTestBase {
   def testImplicitsInShapeIgnored = doTest
 
   def testInfixApply = doTest
+  def testSCL2172 = doTest
 }
