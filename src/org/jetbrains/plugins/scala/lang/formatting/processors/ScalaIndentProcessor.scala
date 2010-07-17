@@ -85,6 +85,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
               | _: ScFinallyBlock | _: ScCatchBlock | _: ScFunction => {
         child.getPsi match {
+          case _: ScBlockExpr => Indent.getNoneIndent
           case _: ScExpression => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
