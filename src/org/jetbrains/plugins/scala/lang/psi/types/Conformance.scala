@@ -364,7 +364,7 @@ object Conformance {
       }
       case (c@ScCompoundType(comps, decls, types, _), _) => {
         return (comps.forall(tp => {
-          val t = conformsInner(r, tp, HashSet.empty, undefinedSubst)
+          val t = conformsInner(tp, r, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
           t._1
         }) && (ScType.extractClassType(r) match {
@@ -421,11 +421,11 @@ object Conformance {
               undefinedSubst = t._2
               t._1
             }) && (
-                    c1.signatureMap.forall {
+                    c.signatureMap.forall {
                       p => {
                         val s1 = p._1
                         val rt1 = p._2
-                        c.signatureMap.get(s1) match {
+                        c1.signatureMap.get(s1) match {
                           case None => comps.find {
                             t => ScType.extractClassType(t) match {
                               case None => false
