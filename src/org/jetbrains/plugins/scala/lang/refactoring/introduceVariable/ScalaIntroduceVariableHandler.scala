@@ -350,7 +350,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
             createStmt = parent.addBefore(createStmt, elem).asInstanceOf[ScMember]
             parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager, "\n").getPsi, elem)
             ScalaPsiUtil.adjustTypes(createStmt)
-          }
+          }          
           if (deleteOccurrence && !replaceAllOccurrences) {
             elem = createStmt.getNextSibling
             while (elem != null && elem.getText.trim == "") elem = elem.getNextSibling

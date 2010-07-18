@@ -9,35 +9,36 @@ import com.intellij.lang.ASTNode
 import psi.stubs.ScSelfTypeElementStub
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import java.lang.String
 import psi.types.result.{TypeResult, Success, TypingContext}
-import psi.types.{ScSubstitutor, ScType, ScCompoundType, ScDesignatorType}
+import psi.types._
+import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
 /**
-* @author Alexander Podkhalyuzin
-*/
+ * @author Alexander Podkhalyuzin
+ */
 
-class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement] with ScSelfTypeElement{
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScSelfTypeElementStub) = {this(); setStub(stub); setNode(null)}
+class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement] with ScSelfTypeElement {
+  def this(node: ASTNode) = {this (); setNode(node)}
+
+  def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNode(null)}
 
   override def toString: String = "SelfType"
 
   def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = typeElement match {
-    case Some(ste) => {
-      val self = ste.getType(ctx)
-      val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
-      assert(parent != null)
-      Success(ScCompoundType(Seq(ScDesignatorType(parent), self.getOrElse(return self)), Seq.empty, Seq.empty, ScSubstitutor.empty),
-        Some(this))
-    }
-    case None => {
-      val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition])
-      assert(parent != null)
-      Success(ScDesignatorType(parent), Some(this))
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
+    val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
+    assert(parent != null)
+    typeElement match {
+      case Some(ste) => {
+        for {
+          templateType <- parent.getType(ctx)
+          selfType <- ste.getType(ctx)
+          ct = ScCompoundType(Seq(templateType, selfType), Seq.empty, Seq.empty, ScSubstitutor.empty)
+        } yield ct
+      }
+      case None => parent.getType(ctx)
     }
   }
 
