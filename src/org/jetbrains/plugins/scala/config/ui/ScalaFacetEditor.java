@@ -146,7 +146,7 @@ public class ScalaFacetEditor {
     labelState.setText("");
     
     String path = fieldHome.getText();
-    if(path.isEmpty()) {
+    if(path.length() == 0) {
       labelState.setText("Please, provide a path to Scala SDK");
       return;
     }
