@@ -20,7 +20,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
-import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import org.jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
@@ -43,6 +42,7 @@ import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUt
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -153,19 +153,13 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
-    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
-    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
-
-    //versions detection for scala compiler and for ScalaTest
-    val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
-    var scalaVersion: String = "27"
-    try {
-      val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      if (vers > 2.79) scalaVersion = "28"
-    } catch {
-      case e: Exception => //nothing to do
-    }
+    val library = ScalaLibrary.findIn(module).getOrElse(
+      throw new ExecutionException("No Scala SDK configured for module " + module.getName))
+    
+    val jarPath = library.libraryPath
+    val compilerJarPath = library.compilerPath
+    
+    val scalaVersion = "28"
     val scalaTestVersion: String = "10"
 
     val rootManager = ModuleRootManager.getInstance(module)
@@ -245,8 +239,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
     val modules = ModuleManager.getInstance(getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         result += module
       }
     }

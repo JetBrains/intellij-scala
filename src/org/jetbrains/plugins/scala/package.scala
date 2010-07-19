@@ -2,6 +2,8 @@ package org.jetbrains.plugins
 
 import scala.lang.psi.RichPsiElement
 import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.openapi.util.Computable
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * Pavel.Fatin, 21.04.2010
@@ -22,7 +24,7 @@ package object scala {
   class RichObject[T](v: T) {
     def toOption: Option[T] = if (v == null) None else Some(v)
   }
-
+  
   class RichIterator[A](delegate: Iterator[A]) {
     def findByType[T <: A](aClass: Class[T]): Option[T] =
       delegate.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
@@ -51,6 +53,18 @@ package object scala {
         if (target == null) None else Some(target)
       }
     }
+  }
+  
+  def inWriteAction[T](body: => T): T = {
+    ApplicationManager.getApplication.runWriteAction(new Computable[T] {
+      def compute: T = body
+    })
+  }
+  
+  def inReadAction[T](body: => T): T = {
+    ApplicationManager.getApplication.runReadAction(new Computable[T] {
+      def compute: T = body
+    })
   }
 }
 

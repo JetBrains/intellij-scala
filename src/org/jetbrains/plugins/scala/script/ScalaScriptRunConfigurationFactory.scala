@@ -8,6 +8,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import javax.swing.Icon
 import java.lang.String
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,8 +26,7 @@ class ScalaScriptRunConfigurationFactory(val typez: ConfigurationType) extends C
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaScriptRunConfiguration]
     val modules = ModuleManager.getInstance(template.getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         configuration.setModule(module)
         return configuration
       }

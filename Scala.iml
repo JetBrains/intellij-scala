@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="false" type="PLUGIN_MODULE" version="4">
   <component name="DevKit.ModuleBuildProperties" url="file://$MODULE_DIR$/META-INF/plugin.xml" />
-  <component name="FacetManager">
-    <facet type="Scala" name="Scala">
-      <configuration>
-        <option name="myScalaCompilerJarPaths">
-          <array>
-            <option value="C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-compiler.jar" />
-          </array>
-        </option>
-        <option name="myScalaSdkJarPaths">
-          <array>
-            <option value="C:/Documents and Settings/Alexander.Podkhalyuz/.IntelliJIdea90/config/plugins/Scala/lib/scala-library.jar" />
-          </array>
-        </option>
-      </configuration>
-    </facet>
-  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/classes/production/Scala" />
     <output-test url="file://$MODULE_DIR$/classes/test/Scala" />

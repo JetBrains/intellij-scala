@@ -24,10 +24,6 @@
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
-  <extensions xmlns="org.jetbrains.idea.maven">
-    <importer implementation="org.jetbrains.plugins.scala.config.maven.ScalaMavenImporter"/>
-  </extensions>
-
   <extensions defaultExtensionNs="com.intellij">
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
@@ -160,20 +156,9 @@
       <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</implementation-class>
-      <interface-class>org.jetbrains.plugins.scala.config.ScalaFacetLoader</interface-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider</implementation-class>
     </component>
   </application-components>
-
-
-  <module-components>
-    <component>
-      <implementation-class>org.jetbrains.plugins.scala.config.ScalaFacetListener</implementation-class>
-    </component>
-  </module-components>
 
   <project-components>
     <component>

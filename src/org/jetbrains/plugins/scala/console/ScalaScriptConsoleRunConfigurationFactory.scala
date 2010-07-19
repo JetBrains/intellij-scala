@@ -6,6 +6,7 @@ import com.intellij.execution.configurations.{RunConfiguration, ConfigurationTyp
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,8 +23,7 @@ class ScalaScriptConsoleRunConfigurationFactory(val typez: ConfigurationType) ex
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaScriptConsoleRunConfiguration]
     val modules = ModuleManager.getInstance(template.getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         configuration.setModule(module)
         return configuration
       }
