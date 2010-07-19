@@ -100,6 +100,7 @@
     <typeHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProvider"/>
     <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
     <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory"/>
+    <classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>
 
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
