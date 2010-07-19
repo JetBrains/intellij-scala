@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parameterInfo
-package functionParameterInfo
+package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
 package generated
 
 class FunctionParameterInfoFunctionTypeTest extends FunctionParameterInfoTestBase {

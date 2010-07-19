@@ -139,14 +139,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  for (exprType <- expr.getType(TypingContext.empty)) {
-                    val getIt = used.indexOf(false)
-                    used(getIt) = true
-                    val param: ScParameter = parameters(getIt)
-                    val paramType = param.getType(TypingContext.empty) getOrElse Nothing
-                    if (!exprType.conforms(paramType)) isGrey = true
-                    buffer.append(paramText(param))
-                  }
+                  val exprType =expr.getType(TypingContext.empty).getOrElse(Nothing)
+                  val getIt = used.indexOf(false)
+                  used(getIt) = true
+                  val param: ScParameter = parameters(getIt)
+                  val paramType = param.getType(TypingContext.empty) getOrElse Nothing
+                  if (!exprType.conforms(paramType)) isGrey = true
+                  buffer.append(paramText(param))
                 }
               }
               if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
@@ -281,29 +280,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               }
             }
           }
-          //this case is redundant because we have extract class type for it
-          /*case ScFunctionType(_, params: Seq[ScType]) => {
-            if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-            val parameters: Array[ScParameter] = new Array[ScParameter](params.length)
-            for (i <- 0 until params.length) {
-              parameters(i) = new ScParameterImpl(null: ASTNode) { //todo: replace this buggy ideology
-                override def getName = "v" + (i + 1)
-
-                override def name(): String = "v" + (i + 1)
-
-                override def getType(ctx: TypingContext): TypeResult[ScType] = {
-                  return Success(params(i), None)
-                }
-
-                override def annotations: Seq[ScAnnotation] = Seq.empty
-
-                override def isRepeatedParameter: Boolean = false
-
-                override def isDefaultParam: Boolean = false
-              }
-            }
-            applyToParameters(collection.immutable.Seq(parameters.toSeq: _*), ScSubstitutor.empty, true)
-          }*/
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
             val clauses = constructor.parameterList.clauses
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
