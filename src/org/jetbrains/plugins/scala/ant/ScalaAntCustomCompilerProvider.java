@@ -9,8 +9,6 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.config.ScalaCompilerUtil;
-import org.jetbrains.plugins.scala.config.ScalaFacet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,26 +102,26 @@ public class ScalaAntCustomCompilerProvider extends ChunkCustomCompilerExtension
    * {@inheritDoc}
    */
   public void generateCustomCompilerTaskRegistration(Project project, GenerationOptions genOptions, CompositeGenerator generator) {
-    // find SDK library with maximum version number in order to use for compiler
-    final Library[] libraries = ScalaCompilerUtil.getAllScalaCompilerLibraries(project);
-    if (libraries.length == 0) {
-      // no SDKs in the project, the task registration is not generated
-      return;
-    }
-    final Collection<String> versions = ScalaCompilerUtil.getScalaCompilerVersions(project);
-    String maxVersion = versions.isEmpty() ? null : Collections.max(versions);
-    Library sdkLib = null;
-    for (Library lib : libraries) {
-      if (maxVersion == null || maxVersion.equals(ScalaCompilerUtil.getScalaCompilerLibVersion(lib))) {
-        sdkLib = lib;
-      }
-    }
-    assert sdkLib != null;
-    String scalaSdkPathRef = BuildProperties.getLibraryPathId(sdkLib.getName());
-    generator.add(new Property(SCALAC_TASK_SDK_PROPERTY, scalaSdkPathRef));
-    Tag taskdef = new Tag("taskdef", Pair.create("name", "scalac"), Pair.create("classname", "scala.tools.ant.Scalac"),
-        Pair.create("classpathref", "${" + SCALAC_TASK_SDK_PROPERTY + "}"));
-    generator.add(taskdef);
+//    // find SDK library with maximum version number in order to use for compiler
+//    final Library[] libraries = ScalaCompilerUtil.getAllScalaCompilerLibraries(project);
+//    if (libraries.length == 0) {
+//      // no SDKs in the project, the task registration is not generated
+//      return;
+//    }
+//    final Collection<String> versions = ScalaCompilerUtil.getScalaCompilerVersions(project);
+//    String maxVersion = versions.isEmpty() ? null : Collections.max(versions);
+//    Library sdkLib = null;
+//    for (Library lib : libraries) {
+//      if (maxVersion == null || maxVersion.equals(ScalaCompilerUtil.getScalaCompilerLibVersion(lib))) {
+//        sdkLib = lib;
+//      }
+//    }
+//    assert sdkLib != null;
+//    String scalaSdkPathRef = BuildProperties.getLibraryPathId(sdkLib.getName());
+//    generator.add(new Property(SCALAC_TASK_SDK_PROPERTY, scalaSdkPathRef));
+//    Tag taskdef = new Tag("taskdef", Pair.create("name", "scalac"), Pair.create("classname", "scala.tools.ant.Scalac"),
+//        Pair.create("classpathref", "${" + SCALAC_TASK_SDK_PROPERTY + "}"));
+//    generator.add(taskdef);
   }
 
   /**
@@ -131,9 +129,9 @@ public class ScalaAntCustomCompilerProvider extends ChunkCustomCompilerExtension
    */
   public boolean hasCustomCompile(ModuleChunk chunk) {
     for (Module m : chunk.getModules()) {
-      if (ScalaFacet.getInstance(m) != null) {
-        return true;
-      }
+//      if (ScalaFacet.getInstance(m) != null) {
+//        return true;
+//      }
     }
     return false;
   }

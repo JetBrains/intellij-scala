@@ -9,6 +9,7 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
 import scalaTest.ScalaTestRunConfiguration
 import com.intellij.openapi.project.Project
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,8 +26,7 @@ class SpecsRunConfigurationFactory(val typez: ConfigurationType) extends Configu
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[SpecsRunConfiguration]
     val modules = ModuleManager.getInstance(template.getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         configuration.setModule(module)
         return configuration
       }

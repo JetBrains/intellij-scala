@@ -53,4 +53,7 @@ public interface Icons {
 
   //Console
   Icon SCALA_CONSOLE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_console.png");
+  
+  Icon ERROR = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/error.png");
+  Icon WARNING = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/warning.png");
 }

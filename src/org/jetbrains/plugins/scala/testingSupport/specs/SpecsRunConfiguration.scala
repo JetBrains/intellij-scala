@@ -22,7 +22,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
-import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
@@ -44,6 +43,7 @@ import scalaTest.ScalaTestRunConfigurationForm
 import script.ScalaScriptRunConfiguration
 import reflect.BeanProperty
 import lang.psi.impl.ScPackageImpl
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -158,19 +158,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
-    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
-    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
-    //versions detection for scala compiler and for ScalaTest
-    val version: String = ScalaConfigUtils.getScalaSDKVersion(jarPath)
-    var scalaVersion: String = "27"
-    try {
-      val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      if (vers > 2.79) scalaVersion = "28"
-    } catch {
-      case e: Exception => //nothing to do
-    }
-
+    val library = ScalaLibrary.findIn(module).getOrElse(
+      throw new ExecutionException("No Scala SDK configured for module " + module.getName))
+    
+    val jarPath = library.libraryPath
+    val compilerJarPath = library.compilerPath
+    
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -206,7 +199,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(if (scalaVersion == "27") MAIN_CLASS else MAIN_CLASS_28)
+        params.setMainClass(MAIN_CLASS_28)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
@@ -244,8 +237,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
     val modules = ModuleManager.getInstance(getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         result += module
       }
     }

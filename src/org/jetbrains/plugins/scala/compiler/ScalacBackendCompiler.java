@@ -38,9 +38,9 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.FastScalacRunner;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
-import org.jetbrains.plugins.scala.config.*;
+import org.jetbrains.plugins.scala.config.ScalaLibrary;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
-import scala.tools.nsc.CompileServer;
+import scala.Option;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -82,8 +82,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final Module[] allModules = scope.getAffectedModules();
 
     // Just skip pure Java projects
-    if (!isScalaProject(allModules)) return true;
-
+    if (!ScalaLibrary.isPresentIn(allModules)) {
+      return true;
+    }
 
     VirtualFile[] scalaFiles = scope.getFiles(ScalaFileType.SCALA_FILE_TYPE, true);
     VirtualFile[] javaFiles = scope.getFiles(StdFileTypes.JAVA, true);
@@ -105,36 +106,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       }
     }
     if (!hasJava) return false; //this compiler work with only Java modules, so we don't need to continue.
-
-
-    boolean isCompilerSetUp = false;
-    boolean isScalaSDKSetUp = false;
-
-    // Check for compiler existence
-    for (Module module : allModules) {
-      if (ScalaCompilerUtil.isScalaCompilerSetUpForModule(module)) {
-        isCompilerSetUp = true;
-        break;
-      }
-    }
-
-    if (!isCompilerSetUp) {
-      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler"), ScalaBundle.message("cannot.compile"));
-      return false;
-    }
-
-    //Check for Scala library existence
-    for (Module module : allModules) {
-      if (ScalaConfigUtils.getScalaSdkJarPath(module).length() > 0) {
-        isScalaSDKSetUp = true;
-        break;
-      }
-    }
-
-    if (!isScalaSDKSetUp) {
-      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.library"), ScalaBundle.message("cannot.compile"));
-      return false;
-    }
 
     Set<Module> nojdkModules = new HashSet<Module>();
     for (Module module : scope.getAffectedModules()) {
@@ -160,18 +131,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       return false;
     }
     return true;
-  }
-
-  private static boolean isScalaProject(Module[] allModules) {
-    boolean isScalaProject = false;
-    for (Module module : allModules) {
-      final FacetManager facetManager = FacetManager.getInstance(module);
-      if (facetManager.getFacetByType(ScalaFacet.ID) != null) {
-        isScalaProject = true;
-        break;
-      }
-    }
-    return isScalaProject;
   }
 
   @NotNull
@@ -245,7 +204,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (toolsJarPath == null) {
       throw new IllegalArgumentException(ScalaBundle.message("javac.error.tools.jar.missing", jdk.getName()));
     }
-    if (!allModulesHaveSameScalaSdk(chunk)) {
+    if (!ScalaLibrary.hasConsistentVersions(chunk.getModules())) {
       throw new IllegalArgumentException(ScalaBundle.message("different.scala.sdk.in.modules"));
     }
 
@@ -268,74 +227,31 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
-    String scalaSdkJarPath = "";
-    String scalaCompilerJarPath = "";
-
-    boolean takeCompilerFromFacet = false;
     final Module[] allModules = chunk.getModules();
-    for (Module module : allModules) {
-      scalaCompilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-      if (scalaCompilerJarPath.length() > 0) {
-        final FacetManager manager = FacetManager.getInstance(module);
-        final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
-        if (facet != null) {
-          final ScalaFacetConfiguration configuration = facet.getConfiguration();
-          final ScalaLibrariesConfiguration libConf = configuration.getMyScalaLibrariesConfiguration();
-          takeCompilerFromFacet = libConf.takeFromSettings;
-        }
-        break;
-      }
-    }
 
-    for (Module module : allModules) {
-      scalaSdkJarPath = ScalaConfigUtils.getScalaSdkJarPath(module);
-      if (scalaSdkJarPath.length() > 0) {
-        break;
-      }
-    }
-
-    //Add Scala SDK jar
-    if (scalaSdkJarPath.length() > 0) {
-      classPathBuilder.append(scalaSdkJarPath);
+//    for (Module module : allModules) {
+//      System.out.print(module.getName());
+//      System.out.print(", ");
+//    }
+//    System.out.println();
+    
+    Option<ScalaLibrary> optionalLibrary = ScalaLibrary.findIn(allModules);
+    if (optionalLibrary.isDefined()) {
+      ScalaLibrary library = optionalLibrary.get();
+      classPathBuilder.append(library.compilerPath());
       classPathBuilder.append(File.pathSeparator);
-    }
-
-    // Special check to compile scala language library
-
-    if (ScalaCompilerUtil.isJarFileContainsClassFile(scalaCompilerJarPath, ScalaCompilerUtil.LAMP_PACKAGE_PATH) || takeCompilerFromFacet) {
-
-      //Normal scala configuration by module or facet settings
-      classPathBuilder.append(scalaCompilerJarPath);
-      classPathBuilder.append(File.pathSeparator);
+      classPathBuilder.append(library.classpath());
     } else {
-      // scala-lang project
-      final Module module = ContainerUtil.find(allModules, new Condition<Module>() {
-        public boolean value(Module module) {
-          return ScalaCompilerUtil.isScalaCompilerSetUpForModule(module);
-        }
-      });
-
-      //todo look for convenient solution to compile scala-lang modules
-      if (module != null) {
-        final Library[] libraries = ScalaCompilerUtil.getScalaCompilerLibrariesByModule(module);
-        if (libraries.length > 0) {
-          for (VirtualFile file : libraries[0].getFiles(OrderRootType.CLASSES)) {
-            classPathBuilder.append(StringUtil.trimEnd(file.getPath(), "!/"));
-            classPathBuilder.append(File.pathSeparator);
-          }
-        }
-      }
+      throw new IllegalArgumentException("Scala SDK not found");
     }
-
 
     commandLine.add(classPathBuilder.toString());
     if (!settings.USE_FSC) commandLine.add(ScalacRunner.class.getName());
     else commandLine.add(FastScalacRunner.class.getName());
 
-    /*for (String s : commandLine) {
-      System.out.print(s);
-      System.out.print(" ");
-    }*/
+//    for (String s : commandLine) {
+//      System.out.println(s);
+//    }
 
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
@@ -449,25 +365,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     } else if (src.getFileType() == StdFileTypes.JAVA && !filesToCompile.contains(src)) {
       stream.println(src.getPath());
     }
-  }
-
-
-  private boolean allModulesHaveSameScalaSdk(ModuleChunk chunk) {
-    if (chunk.getModuleCount() == 0) return false;
-    final Module[] modules = chunk.getModules();
-    final Module first = modules[0];
-    final String firstVersion = ScalaCompilerUtil.getScalaCompilerVersion(ScalaCompilerUtil.getScalaCompilerJarPath(first));
-
-    for (Module module : modules) {
-      final FacetManager manager = FacetManager.getInstance(module);
-      final ScalaFacet facet = manager.getFacetByType(ScalaFacet.ID);
-      if (facet != null) {
-        final String path = ScalaCompilerUtil.getScalaCompilerJarPath(module);
-        final String version = ScalaCompilerUtil.getScalaCompilerVersion(path);
-        if (!version.equals(firstVersion)) return false;
-      }
-    }
-    return true;
   }
 
   public void compileFinished() {

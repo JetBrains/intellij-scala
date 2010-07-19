@@ -33,7 +33,6 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.config.ScalaConfigUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,28 +75,6 @@ public abstract class LibrariesUtil {
         return library.getName();
       }
     });
-  }
-
-  @NotNull
-  public static String getScalaLibraryHome(Library library) {
-    String path = "";
-    if (library instanceof LibraryEx && ((LibraryEx) library).isDisposed()) return path;
-    for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
-      if (ScalaConfigUtils.SCALA_LIB_JAR_NAME_PREFIX.equals(file.getName())) {
-        String jarPath = file.getPresentableUrl();
-        File realFile = new File(jarPath);
-        if (realFile.exists()) {
-          File parentFile = realFile.getParentFile();
-          if (parentFile != null) {
-            File libHome = parentFile.getParentFile();
-            if (libHome != null) {
-              path = libHome.getPath();
-            }
-          }
-        }
-      }
-    }
-    return path;
   }
 
   public static void addLibrary(Library library, Module module) {

@@ -6,7 +6,6 @@ import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.facet.FacetManager
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.openapi.projectRoots.JavaSdkType
-import org.jetbrains.plugins.scala.config.{ScalaCompilerUtil, ScalaConfigUtils}
 import com.intellij.vcsUtil.VcsUtil
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
@@ -16,6 +15,7 @@ import com.intellij.openapi.roots.{ModuleRootManager}
 import java.util.Arrays
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
+import org.jetbrains.plugins.scala.config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,9 +42,11 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
-    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
-    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+    val library = ScalaLibrary.findIn(module).getOrElse(
+      throw new ExecutionException("No Scala SDK configured for module " + module.getName))
+    
+    val jarPath = library.libraryPath
+    val compilerJarPath = library.compilerPath
 
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
@@ -101,8 +103,7 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
 
     val modules = ModuleManager.getInstance(getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         result += module
       }
     }

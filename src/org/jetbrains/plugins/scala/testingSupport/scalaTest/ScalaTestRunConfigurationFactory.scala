@@ -6,8 +6,8 @@ package scalaTest
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
-import script.ScalaScriptRunConfiguration
 import com.intellij.openapi.project.Project
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,7 +25,7 @@ class ScalaTestRunConfigurationFactory(val typez: ConfigurationType) extends Con
     val modules = ModuleManager.getInstance(template.getProject).getModules
     for (module <- modules) {
       val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         configuration.setModule(module)
         return configuration
       }

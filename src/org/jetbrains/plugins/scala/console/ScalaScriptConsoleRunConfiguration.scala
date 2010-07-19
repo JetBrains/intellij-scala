@@ -23,7 +23,6 @@ import java.awt.event.{KeyEvent, InputEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
-import config.{ScalaCompilerUtil, ScalaConfigUtils}
 import icons.Icons
 import java.lang.String
 import javax.swing.filechooser.{FileFilter, FileView}
@@ -43,6 +42,7 @@ import com.intellij.execution.console.{LanguageConsoleViewImpl, LanguageConsoleI
 import java.io._
 import lang.psi.ScalaPsiUtil
 import com.intellij.openapi.util.{TextRange, JDOMExternalizer}
+import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -75,9 +75,11 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val jarPath = ScalaConfigUtils.getScalaSdkJarPath(getModule)
-    val compilerJarPath = ScalaCompilerUtil.getScalaCompilerJarPath(getModule)
-    if (jarPath == "" || compilerJarPath == "") throw new ExecutionException("Scala SDK is not specified")
+    val library = ScalaLibrary.findIn(module).getOrElse(
+      throw new ExecutionException("No Scala SDK configured for module " + module.getName))
+    
+    val jarPath = library.libraryPath
+    val compilerJarPath = library.compilerPath
 
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
@@ -253,8 +255,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
 
     val modules = ModuleManager.getInstance(getProject).getModules
     for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (facetManager.getFacetByType(org.jetbrains.plugins.scala.config.ScalaFacet.ID) != null) {
+      if (ScalaLibrary.isPresentIn(module)) {
         result += module
       }
     }

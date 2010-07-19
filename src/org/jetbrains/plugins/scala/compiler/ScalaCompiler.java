@@ -19,7 +19,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -27,11 +26,10 @@ import com.intellij.util.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.config.ScalaFacet;
+import org.jetbrains.plugins.scala.config.ScalaLibrary;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -97,8 +95,7 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   private static boolean isScalaModule(Module module) {
-    final FacetManager facetManager = FacetManager.getInstance(module);
-    return facetManager.getFacetByType(ScalaFacet.ID) != null;
+    return ScalaLibrary.isPresentIn(module);
   }
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
