@@ -42,6 +42,7 @@
 
   <property name="scala.2.7.lib" value="${base.dir}/SDK/scala-27-lib"/>
 
+  <property name="scalap.jar" value="${base.dir}/SDK/scalap/scalap.jar"/>
   <property name="scala.jar" value="scala-plugin.jar"/>
   <property name="runners.jar" value="scala-plugin-runners.jar"/>
   <property name="temp.jar.dir" value="${base.dir}/tempjar"/>
@@ -128,6 +129,9 @@
   </target>
 
   <target name="make.project" depends="unzip.last.successful.IDEA.build" description="Builds all classes">
+    <copy toDir="${scala.lib}">
+      <fileset file="${scalap.jar}"/>
+    </copy>
 
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
 
