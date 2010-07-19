@@ -1,0 +1,10 @@
+def outer {
+	def inner(p: String) = println(<begin>p.concat("")<end>)
+}
+------
+def outer {
+	def inner(p: String) = {
+    val value: Any = p.concat("")
+    println(value)
+  }
+}
