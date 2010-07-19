@@ -40,9 +40,7 @@ public class ScalaFacetEditor {
   
   public ScalaFacetEditor(Project project) {
     myProject = project;
-  }
-
-  public void init() {
+    
     ButtonsListener buttonsListener = new ButtonsListener();
     buttonExistingSDK.addActionListener(buttonsListener);
     buttonNewSDK.addActionListener(buttonsListener);
@@ -60,7 +58,9 @@ public class ScalaFacetEditor {
     comboLevel.setModel(new DefaultComboBoxModel(LibrariesContainer.LibraryLevel.values()));
     comboLevel.setRenderer(new LevelRenderer());
     comboLevel.addActionListener(new LevelListener());
+  }
 
+  public void init() {
     chooseActiveSection();
     updateExistingButtonState();
     guessHome();
