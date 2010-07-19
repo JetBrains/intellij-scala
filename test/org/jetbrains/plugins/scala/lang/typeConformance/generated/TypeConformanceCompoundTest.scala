@@ -15,6 +15,13 @@ class TypeConformanceCompoundTest extends TypeConformanceTestBase {
 
   def testAWithBWithMissingDef = doTest
 
+  // TODO
+//  def testAWithBWithMissingType = doTest
+
+  def testAWithBWithType = doTest
+
+  def testAWithBWithTypeInC = doTest
+
   def testBugScl1996 = doTest
 
   def testWrongName = doTest
