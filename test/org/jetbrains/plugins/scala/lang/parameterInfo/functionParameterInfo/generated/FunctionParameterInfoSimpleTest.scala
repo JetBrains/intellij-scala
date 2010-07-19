@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package parameterInfo
-package functionParameterInfo
+package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
 package generated
 
 class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
@@ -17,6 +14,8 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testJavaLibrary = doTest
 
   def testLocal = doTest
+
+  def testNohingExprType = doTest
 
   def testScalaLibrary = doTest
 
