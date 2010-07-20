@@ -9,6 +9,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots._
 import collection.Seq
+import com.intellij.execution.ExecutionException
 
 /**
  * Pavel.Fatin, 05.07.2010
@@ -21,16 +22,24 @@ object ScalaLibrary {
     all.filter(_.valid).sortBy(_.name).toArray
   }
   
-  def isPresentIn(module: Module): Boolean = findIn(module).isDefined
+  def isPresentIn(module: Module): Boolean = !findIn(module).isEmpty
   
   def isPresentIn(modules: Array[Module]): Boolean = modules.exists(isPresentIn _)
   
-  def findIn(module: Module): Option[ScalaLibrary] = {
-    val libraries = wrap(moduleLibraries(module), LibraryLevel.MODULE).filter(_.valid)
-    if(libraries.size == 1) Some(libraries.head) else None 
+  @throws(classOf[ExecutionException])
+  def tryToFindIn(module: Module): ScalaLibrary = ScalaLibrary.findIn(module).toList match {
+    case library :: Nil => {
+      library.problems.foreach(error => throw new ExecutionException(error.message))
+      library
+    }
+    case Nil => throw new ExecutionException("No Scala SDK configured for module " + module.getName)
+    case _ => throw new ExecutionException("Multiple Scala SDKs configured for module " + module.getName)
   }
+    
+  private def findIn(module: Module): Array[ScalaLibrary] = 
+    wrap(moduleLibraries(module), LibraryLevel.MODULE).filter(_.valid).toArray
   
-  def findIn(modules: Array[Module]): Option[ScalaLibrary] = modules.flatMap(findIn(_).toSeq).headOption
+  def findIn(modules: Array[Module]): Array[ScalaLibrary] = modules.flatMap(findIn(_).toSeq).toArray
 
   def hasConsistentVersions(modules: Array[Module]): Boolean = 
     modules.flatMap(findIn(_).map(_.version).toSeq).distinct.size < 2 

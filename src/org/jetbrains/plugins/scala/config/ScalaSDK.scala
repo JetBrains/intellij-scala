@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.config
 
 import java.io.File
+
 /**
  * Pavel.Fatin, 06.07.2010
  */
 
 abstract class ScalaSDK extends FileAPI {
-  case class Pack(classes: String, sources: String, properties: String = "")
-  
+  // vals
   // maven scala library
   // wrong path check
   // several libraries for module
@@ -19,6 +19,8 @@ abstract class ScalaSDK extends FileAPI {
   // detailed validation before usage 
   // scalap
   // cache ScalaLibraries for module, lib changes -> expire, cache library validation result 
+  
+  case class Pack(classes: String, sources: String, properties: String = "")
 
   protected val Compiler = Pack("scala-compiler.jar", "scala-compiler-src.jar", "compiler.properties")
   protected val Library = Pack("scala-library.jar", "scala-library-src.jar", "library.properties") 
@@ -27,33 +29,39 @@ abstract class ScalaSDK extends FileAPI {
 
   private val VersionProperty = "version.number"
   
-  private val SinceVersion = "2.8"
+  private val supportedVersion = """^(?:2\.7|2\.8)""".r
   
   def name: String
 
   protected def compilerFile: Option[File]
   
   protected def libraryFile: Option[File]
-  
-  def compilerPath = compilerFile.map(_.getPath).mkString
-  
-  def libraryPath = libraryFile.map(_.getPath).mkString
-  
-  def hasDocs: Boolean
 
-  private def compilerVersion: Option[String] = { 
+  def hasDocs: Boolean
+  
+  def compilerPath: String = compilerFile.map(_.getPath).mkString
+  
+  def libraryPath: String = libraryFile.map(_.getPath).mkString
+
+  def version: String = libraryVersion.getOrElse("Unknown")
+  
+  def valid: Boolean = libraryFile.isDefined
+  
+  private def compilerVersion: Option[String] =  
     compilerFile.flatMap(readProperty(_, Compiler.properties, VersionProperty))
-  }
   
-  private def libraryVersion: Option[String] = { 
+  private def libraryVersion: Option[String] =  
     libraryFile.flatMap(readProperty(_, Library.properties, VersionProperty))
+  
+  def problems: Array[Problem] = {
+    "" match {
+      case _ if libraryFile.isEmpty => Array(NotScalaSDK())  
+      case _ if compilerFile.isEmpty => Array(ComplierMissing(version))  
+      case _ if libraryVersion.isEmpty => Array(InvalidArchive(libraryFile.get))  
+      case _ if compilerVersion.isEmpty => Array(InvalidArchive(compilerFile.get))  
+      case _ if compilerVersion != libraryVersion => Array(InconsistentVersions(libraryVersion.get, compilerVersion.get))
+      case _ if supportedVersion.findFirstIn(version).isEmpty => Array(UnsupportedVersion(version))
+      case _ => Array.empty
+    }
   }
-  
-  def consistent: Boolean = compilerVersion == libraryVersion 
-  
-  def version: Option[String] = compilerVersion
-  
-  def supported: Boolean = version.map(_.startsWith(SinceVersion)).getOrElse(false)
-  
-  def valid: Boolean = version.isDefined && consistent
 }

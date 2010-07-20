@@ -4,7 +4,6 @@ package psi
 package types
 
 import api.base.{ScStableCodeReferenceElement}
-import api.statements.{ScTypeAliasDefinition}
 import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
@@ -21,6 +20,9 @@ import org.jetbrains.annotations.Nullable
 import com.incors.plaf.alloy.de
 import api.base.patterns.ScBindingPattern
 import org.apache.commons.lang.StringEscapeUtils
+import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
+import api.statements.{ScVariable, ScValue, ScFunction, ScTypeAliasDefinition}
+import refactoring.util.ScTypeUtil
 
 trait ScType {
   def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -321,7 +323,7 @@ object ScType {
       (e match {
         case c: PsiClass => {
           val qname = c.getQualifiedName
-          if (qname != null) "_root_." + qname else c.getName
+          if (qname != null && qname != c.getName /* exlude default package*/) "_root_." + qname else c.getName
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.getName
@@ -393,8 +395,65 @@ object ScType {
             inner(upper)
         }
       }
-      case ScCompoundType(comps, decls, typeDecls, substitutor) => {
+      case ScCompoundType(comps, decls, typeDecls, s) => {
         buffer.append(comps.map(typeText(_, nameFun, nameWithPointFun)).mkString(" with "))
+        if (decls.length + typeDecls.length > 0) {
+          if (!comps.isEmpty) buffer.append(" ")
+          buffer.append("{")
+          buffer.append(decls.map {decl =>
+            decl match {
+              case fun: ScFunction => {
+                val buffer = new StringBuilder("")
+                buffer.append("def ").append(fun.name)
+                buffer.append(fun.paramClauses.clauses.map(_.parameters.map(param =>
+                  ScalaDocumentationProvider.parseParameter(param, tp => typeText(s.subst(tp), nameFun, nameWithPointFun))).
+                        mkString("(", ", ", ")")).mkString(""))
+                for (tp <- fun.returnType) {
+                  buffer.append(": ").append(typeText(s.subst(tp), nameFun, nameWithPointFun))
+                }
+                buffer.toString
+              }
+              case v: ScValue => {
+                v.declaredElements.map(td => "val " + td.name + ": " +
+                        typeText(s.subst(td.getType(TypingContext.empty).getOrElse(Any)), nameFun, nameWithPointFun)).
+                        mkString("; ")
+              }
+              case v: ScVariable => {
+                v.declaredElements.map(td => "val " + td.name + ": " +
+                        typeText(s.subst(td.getType(TypingContext.empty).getOrElse(Any)), nameFun, nameWithPointFun)).
+                        mkString("; ")
+              }
+              case _ => ""
+            }
+          }.mkString("; "))
+
+          if (!typeDecls.isEmpty) {
+            if (!decls.isEmpty) buffer.append("; ")
+            buffer.append(typeDecls.map(ta => "type " + ta.getName + (ta.typeParameters.map {param =>
+              var paramText = param.getName
+              if (param.isContravariant) paramText = "-" + paramText
+              else if (param.isCovariant) paramText = "+" + paramText
+              param.lowerBound foreach {
+                case psi.types.Nothing =>
+                case tp: ScType => paramText = paramText + " >: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+              }
+              param.upperBound foreach {
+                case psi.types.Any =>
+                case tp: ScType => paramText = paramText + " <: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+              }
+              param.viewBound foreach {
+                (tp: ScType) => paramText = paramText + " <% " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+              }
+              param.contextBound foreach {
+                (tp: ScType) => paramText = paramText + " : " +
+                        typeText(ScTypeUtil.stripTypeArgs(s.subst(tp)), nameFun, nameWithPointFun)
+              }
+              paramText
+            }).mkString("[", ", ", "]")).mkString("; "))
+          }
+          
+          buffer.append("}")
+        }
       }
       case ScExistentialType(q, wilds) => {
         inner(q)
