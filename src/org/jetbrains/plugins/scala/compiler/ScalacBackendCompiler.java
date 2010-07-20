@@ -7,7 +7,6 @@ import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
-import com.intellij.facet.FacetManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
@@ -21,23 +20,20 @@ import com.intellij.openapi.projectRoots.JavaSdkType;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.MockJdkWrapper;
 import com.intellij.openapi.roots.*;
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
-import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.rt.FastScalacRunner;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
+import org.jetbrains.plugins.scala.config.Problem;
 import org.jetbrains.plugins.scala.config.ScalaLibrary;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import scala.Option;
@@ -235,9 +231,11 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 //    }
 //    System.out.println();
     
-    Option<ScalaLibrary> optionalLibrary = ScalaLibrary.findIn(allModules);
-    if (optionalLibrary.isDefined()) {
-      ScalaLibrary library = optionalLibrary.get();
+    Option<ScalaLibrary> libraryOption = ScalaLibrary.findIn(allModules);
+    if (libraryOption.isDefined()) {
+      ScalaLibrary library = libraryOption.get();
+      Option<Problem> problemOption = library.check();
+      if(problemOption.isDefined()) throw new IllegalArgumentException(problemOption.get().message());
       classPathBuilder.append(library.compilerPath());
       classPathBuilder.append(File.pathSeparator);
       classPathBuilder.append(library.classpath());

@@ -42,11 +42,11 @@ class ScalaDistribution(val home: File) extends ScalaSDK {
   
   override protected val libraryFile = optional(Lib / Library.classes)
   
-  override def name = version.map("Scala-" + _).getOrElse("Unknown")
+  override def name = "Scala-%s".format(version)
   
   override def hasDocs = docs.exists
 
-  def missing = (classes ++ sources).filterNot(_ exists).map(_.getName).mkString(", ")
+  def missing: String = (classes ++ sources).filterNot(_ exists).map(_.getName).mkString(", ")
   
   def createLibrary(name: String, level: LibraryLevel, project: Project, rootModel: ModifiableRootModel): Library = {
       val libraryTable: LibraryTable = level match {
