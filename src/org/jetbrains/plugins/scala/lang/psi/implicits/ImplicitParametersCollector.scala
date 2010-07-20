@@ -78,13 +78,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         else return false
         try {
           c.element match {
-            case patt: ScBindingPattern => {
+            case patt: ScBindingPattern
+              if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false)=> {
               patt.getType(TypingContext.empty) match {
                 case Success(pattType: ScType, _) => subst.subst(pattType) conforms tp
                 case _ => false
               }
             }
-            case fun: ScFunction => {
+            case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
               val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
               fun.getType(TypingContext.empty) match {
                 case Success(funType: ScType, _) => {
