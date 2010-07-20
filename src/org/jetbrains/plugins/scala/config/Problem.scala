@@ -18,3 +18,6 @@ case class InvalidArchive(file: File)
 
 case class InconsistentVersions(library: String, compiler: String) 
         extends Problem("Library / compiler versions mismatch: %s / %s".format(library, compiler))
+
+case class UnsupportedVersion(version: String) 
+        extends Problem("Unsupported Scala version: %s".format(version))

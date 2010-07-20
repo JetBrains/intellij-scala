@@ -29,7 +29,7 @@ abstract class ScalaSDK extends FileAPI {
 
   private val VersionProperty = "version.number"
   
-  private val SinceVersion = "2.8"
+  private val supportedVersion = """^(?:2\.7|2\.8)""".r
   
   def name: String
 
@@ -53,18 +53,15 @@ abstract class ScalaSDK extends FileAPI {
   private def libraryVersion: Option[String] =  
     libraryFile.flatMap(readProperty(_, Library.properties, VersionProperty))
   
-  def supported: Boolean = version.startsWith(SinceVersion)
-  
-  def check: Option[Problem] = {
-    if(libraryFile.isEmpty) return Some(NotScalaSDK())
-    
-    if(compilerFile.isEmpty) return Some(ComplierMissing(version))
-    
-    if(libraryVersion.isEmpty) return Some(InvalidArchive(libraryFile.get))
-    if(compilerVersion.isEmpty) return Some(InvalidArchive(compilerFile.get))
-    
-    if(compilerVersion != libraryVersion) return Some(InconsistentVersions(libraryVersion.get, compilerVersion.get))
-    
-    None
+  def problems: Array[Problem] = {
+    "" match {
+      case _ if libraryFile.isEmpty => Array(NotScalaSDK())  
+      case _ if compilerFile.isEmpty => Array(ComplierMissing(version))  
+      case _ if libraryVersion.isEmpty => Array(InvalidArchive(libraryFile.get))  
+      case _ if compilerVersion.isEmpty => Array(InvalidArchive(compilerFile.get))  
+      case _ if compilerVersion != libraryVersion => Array(InconsistentVersions(libraryVersion.get, compilerVersion.get))
+      case _ if supportedVersion.findFirstIn(version).isEmpty => Array(UnsupportedVersion(version))
+      case _ => Array.empty
+    }
   }
 }

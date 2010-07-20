@@ -161,9 +161,7 @@ public class ScalaFacetEditor {
     
     ScalaDistribution distribution = new ScalaDistribution(home);
 
-    Option<Problem> problemOption = distribution.check();
-    if(problemOption.isDefined()) {
-      Problem problem = problemOption.get();
+    for(Problem problem : distribution.problems()) {
       if(problem instanceof NotScalaSDK) labelState.setText("Not valid Scala SDK");
       if(problem instanceof ComplierMissing) labelState.setText("Compiler missing in Scala SDK");
       if(problem instanceof InvalidArchive) labelState.setText("Invalid archive file");
@@ -176,16 +174,17 @@ public class ScalaFacetEditor {
       labelState.setText("<html><body>Missing SDK files:<br>" + missing + "</html></body>");
       return;
     }
-
-    if(!distribution.supported()) {
-      labelState.setText(distribution.version() + " (unsupported, 2.8+ required)");
+    
+    String version = distribution.version();
+    
+    if(!version.startsWith("2.8")) {
+      labelState.setText(version + " (unsupported, 2.8+ required)");
       labelState.setIcon(Icons.WARNING);
       return;
     }
     
     homeIsValid = true;
-
-    String version = distribution.version();
+    
     if(!distribution.hasDocs()) {
       labelState.setText(version + " (no /docs/api found)");
       labelState.setIcon(Icons.WARNING);

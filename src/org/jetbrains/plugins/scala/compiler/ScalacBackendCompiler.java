@@ -230,18 +230,21 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 //      System.out.print(", ");
 //    }
 //    System.out.println();
+
+    ScalaLibrary[] libraries = ScalaLibrary.findIn(allModules);
     
-    Option<ScalaLibrary> libraryOption = ScalaLibrary.findIn(allModules);
-    if (libraryOption.isDefined()) {
-      ScalaLibrary library = libraryOption.get();
-      Option<Problem> problemOption = library.check();
-      if(problemOption.isDefined()) throw new IllegalArgumentException(problemOption.get().message());
-      classPathBuilder.append(library.compilerPath());
-      classPathBuilder.append(File.pathSeparator);
-      classPathBuilder.append(library.classpath());
-    } else {
-      throw new IllegalArgumentException("Scala SDK not found");
+    if(libraries.length == 0) throw new IllegalArgumentException("No Scala SDK configured for modules");
+    if(libraries.length > 1) throw new IllegalArgumentException("Multiple Scala SDKs configured for modules");
+    
+    ScalaLibrary library = libraries[0];
+
+    for(Problem problem : library.problems()) {
+      throw new IllegalArgumentException(problem.message());
     }
+
+    classPathBuilder.append(library.compilerPath());
+    classPathBuilder.append(File.pathSeparator);
+    classPathBuilder.append(library.classpath());
 
     commandLine.add(classPathBuilder.toString());
     if (!settings.USE_FSC) commandLine.add(ScalacRunner.class.getName());
