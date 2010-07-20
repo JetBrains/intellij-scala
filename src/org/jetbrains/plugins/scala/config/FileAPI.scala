@@ -32,16 +32,21 @@ trait FileAPI {
   
   protected def optional(file: File): Option[File] = if(file.exists) Some(file) else None
   
-  implicit protected def toRichFile(file: File) = new {
-    def /(path: String) = new File(file, path)
-    def /(paths: Seq[String]) = paths.map(new File(file, _))
-    def toLibraryRootURL = VfsUtil.getUrlForLibraryRoot(file)
-    def parent: Option[File] = Option(file.getParent).map(new File(_))
-    def findByName(name: String): Option[File] = file.listFiles.find(_.getName == name)
+  implicit protected def toRichFile(file: File) = new RichFile(file)
+  
+  implicit protected def toRichVirtualFile(virtualFile: VirtualFile) = new RichVirtualFile(virtualFile)
+  
+  
+  class RichFile(delegate: File) {
+    def /(path: String) = new File(delegate, path)
+    def /(paths: Seq[String]) = paths.map(new File(delegate, _))
+    def toLibraryRootURL = VfsUtil.getUrlForLibraryRoot(delegate)
+    def parent: Option[File] = Option(delegate.getParent).map(new File(_))
+    def findByName(name: String): Option[File] = delegate.listFiles.find(_.getName == name)
   }
   
-  implicit protected def toRichVirtualFile(virtualFile: VirtualFile) = new {
-    def toFile = VfsUtil.virtualToIoFile(virtualFile)
-    def namedLike(name: String) = virtualFile.getName.startsWith(FileUtil.getNameWithoutExtension(name))
+  class RichVirtualFile(delegate: VirtualFile) {
+    def toFile = VfsUtil.virtualToIoFile(delegate)
+    def namedLike(name: String) = delegate.getName.startsWith(FileUtil.getNameWithoutExtension(name))
   }
 }
