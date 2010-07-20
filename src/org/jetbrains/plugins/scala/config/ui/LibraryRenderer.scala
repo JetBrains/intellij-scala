@@ -19,7 +19,7 @@ class LibraryRenderer extends DefaultListCellRenderer {
         case LibraryLevel.MODULE => "module-level"
       }
       """<html><body>%s <span style="color: #808080;">(%s, %s)</span>&nbsp;</body></html>"""
-              .format(library.name, library.version.getOrElse("unknown"), levelName)
+              .format(library.name, library.version, levelName)
     }
     val result = super.getListCellRendererComponent(list, html.getOrElse("<No SDK>"), index, isSelected, hasFocus)
     setIcon(if(html.isDefined) Icons.SCALA_SDK else Icons.NO_SCALA_SDK)

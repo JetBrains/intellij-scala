@@ -216,7 +216,7 @@ object ScalaDocumentationProvider {
       buffer.append(" = ")
       param.getDefaultExpression match {
         case Some(expr) => {
-          val text: String = expr.getText
+          val text: String = expr.getText.replace(" /* compiled code */ ", "")
           val cutTo = 20
           buffer.append(text.substring(0, text.length.min(cutTo)))
           if (text.length > cutTo) buffer.append("...")

@@ -5,8 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
-import org.jetbrains.plugins.scala.config.ScalaDistribution;
-import org.jetbrains.plugins.scala.config.ScalaLibrary;
+import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.icons.Icons;
 import scala.Option;
 
@@ -161,31 +160,31 @@ public class ScalaFacetEditor {
     labelState.setIcon(Icons.ERROR);
     
     ScalaDistribution distribution = new ScalaDistribution(home);
-    if(!distribution.valid()) {
-      labelState.setText("Not valid Scala SDK");
+
+    for(Problem problem : distribution.problems()) {
+      if(problem instanceof NotScalaSDK) labelState.setText("Not valid Scala SDK");
+      if(problem instanceof ComplierMissing) labelState.setText("Compiler missing in Scala SDK");
+      if(problem instanceof InvalidArchive) labelState.setText("Invalid archive file");
+      if(problem instanceof InconsistentVersions) labelState.setText("Mismatch of SDK file versions");
       return;
     }
-
+    
     String missing = distribution.missing();
     if(missing.length() > 0) {
       labelState.setText("<html><body>Missing SDK files:<br>" + missing + "</html></body>");
       return;
     }
-
-    if(!distribution.consistent()) {
-      labelState.setText("Mismatch of SDK file versions");
-      return;
-    }
-
-    if(!distribution.supported()) {
-      labelState.setText(distribution.version().get() + " (unsupported, 2.8+ required)");
+    
+    String version = distribution.version();
+    
+    if(!version.startsWith("2.8")) {
+      labelState.setText(version + " (unsupported, 2.8+ required)");
       labelState.setIcon(Icons.WARNING);
       return;
     }
     
     homeIsValid = true;
-
-    String version = distribution.version().get().toString();
+    
     if(!distribution.hasDocs()) {
       labelState.setText(version + " (no /docs/api found)");
       labelState.setIcon(Icons.WARNING);

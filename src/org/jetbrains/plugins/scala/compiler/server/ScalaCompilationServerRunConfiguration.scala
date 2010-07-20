@@ -42,8 +42,7 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val library = ScalaLibrary.findIn(module).getOrElse(
-      throw new ExecutionException("No Scala SDK configured for module " + module.getName))
+    val library = ScalaLibrary.tryToFindIn(module)
     
     val jarPath = library.libraryPath
     val compilerJarPath = library.compilerPath
