@@ -91,7 +91,7 @@ class ScalaLibrary(delegate: Library, val level: LibraryLevel) extends ScalaSDK 
     version.parent.filter(_.getName == "scala-library").flatMap { libraries =>
       libraries.parent.flatMap { root =>
         root.findByName("scala-compiler").flatMap { compilers =>
-          compilers.findByName(version.getName).flatMap(_.listFiles.find(_.getName.endsWith(".jar")))
+          compilers.findByName(version.getName).flatMap(_.listFiles.find(f => f.getName.endsWith(".jar") && !f.getName.contains("sources")))
         }
       }
     }
