@@ -87,6 +87,10 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     val library = ScalaLibrary.findIn(module).getOrElse(
       throw new ExecutionException("No Scala SDK configured for module " + module.getName))
     
+    library.check.foreach { error =>
+      throw new ExecutionException(error.message)
+    }
+    
     val jarPath = library.libraryPath
     val compilerJarPath = library.compilerPath
 
