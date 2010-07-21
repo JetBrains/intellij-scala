@@ -77,6 +77,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
         }
       }
       case tp: ScTypeAlias => {
+        trueResult = true
         return false //todo: we don't know anything about this case, now we can match it only by name
       }
       case _ =>
