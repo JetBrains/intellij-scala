@@ -25,7 +25,6 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
     if (nameAndKindMatch(named, state)) {
-      val hacked = state.get(CachesUtil.HACKED_KEY).toOption.map(_.booleanValue).getOrElse(false)
       if (!isAccessible(named, ref)) return true
       named match {
         case clazz: PsiClass => {
@@ -34,22 +33,20 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
             addResult(new ScalaResolveResult(clazz, subst, getImports(state),
-              boundClass = getBoundClass(state), isHacked = hacked))
+              boundClass = getBoundClass(state)))
           }
           else {
             for (constr <- constructors) {
               addResult(new ScalaResolveResult(constr, subst, getImports(state),
-                boundClass = getBoundClass(state), isHacked = hacked, parentElement = Some(clazz)))
+                boundClass = getBoundClass(state), parentElement = Some(clazz)))
             }
           }
         }
         case ta: ScTypeAliasDeclaration => {
-          addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
-            isHacked = hacked))
+          addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state)))
         }
         case ta: ScTypeAliasDefinition => {
-          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
-                  isHacked = hacked)
+          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state))
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
             return true
@@ -61,7 +58,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               else {
                 for (constr <- constructors) {
                   addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state),
-                    boundClass = getBoundClass(state), isHacked = hacked, parentElement = Some(ta)))
+                    boundClass = getBoundClass(state), parentElement = Some(ta)))
                 }
               }
             }
@@ -82,7 +79,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     else {
       val constr = superCandidates.apply(0)
       Array(new ScalaResolveResult(constr.getActualElement, constr.substitutor,
-        constr.importsUsed, boundClass = constr.boundClass, isHacked = constr.isHacked))
+        constr.importsUsed, boundClass = constr.boundClass))
     }
   }
 }
