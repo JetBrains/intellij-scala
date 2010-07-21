@@ -180,6 +180,17 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             }
           }
         }
+        if (infix.lOp == ref) {
+          val op: String = infix.operation.getText
+          if (op.endsWith(":")) {
+            attachTypes
+          }
+        } else if (infix.rOp == ref) {
+          val op: String = infix.operation.getText
+          if (!op.endsWith(":")) {
+            attachTypes
+          }
+        }
         acceptTypes(typez.toArray[ScType], ref.getVariants, result, ref.getResolveScope)
       }
     })

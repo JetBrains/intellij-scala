@@ -429,7 +429,7 @@ object ScType {
 
           if (!typeDecls.isEmpty) {
             if (!decls.isEmpty) buffer.append("; ")
-            buffer.append(typeDecls.map(ta => "type " + ta.getName + (ta.typeParameters.map {param =>
+            buffer.append(typeDecls.map(ta => "type " + ta.getName + (if (ta.typeParameters.length > 0) (ta.typeParameters.map {param =>
               var paramText = param.getName
               if (param.isContravariant) paramText = "-" + paramText
               else if (param.isCovariant) paramText = "+" + paramText
@@ -449,7 +449,7 @@ object ScType {
                         typeText(ScTypeUtil.stripTypeArgs(s.subst(tp)), nameFun, nameWithPointFun)
               }
               paramText
-            }).mkString("[", ", ", "]")).mkString("; "))
+            }).mkString("[", ", ", "]") else "")).mkString("; "))
           }
           
           buffer.append("}")
