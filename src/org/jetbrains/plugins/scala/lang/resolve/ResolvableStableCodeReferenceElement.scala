@@ -37,24 +37,6 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case _: ScObject => {
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
               null, ResolvableStableCodeReferenceElement.this)
-            //todo: hack, remove after decompiler fix
-            ref.getContainingFile match {
-              case sc: ScalaFile if sc.isCompiled => {
-                val candidates = processor.candidates.filter(candidatesFilter)
-                if (candidates.isEmpty) {
-                  ScalaPsiUtil.getCompanionModule(td) match {
-                    case Some(cl) => {
-                      import _root_.java.lang.Boolean
-                      cl.processDeclarations(processor, ResolveState.initial.
-                            put(ScSubstitutor.key, substitutor).put(CachesUtil.HACKED_KEY, Boolean.TRUE),
-                      null, ResolvableStableCodeReferenceElement.this)
-                    }
-                    case _ =>
-                  }
-                }
-              }
-              case _ =>
-            }
           }
           case _: ScClass | _: ScTrait => td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
             null, ResolvableStableCodeReferenceElement.this)

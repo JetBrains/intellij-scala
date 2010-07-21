@@ -160,21 +160,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case r@ScalaResolveResult(method: PsiMethod, subst) => {
             lift(typeForConstructor(method, subst, r.getActualElement))
           }
-          case r: ScalaResolveResult => {
-            //todo: scalap hack
-            if (r.isHacked) {
-              q.bind match {
-                case Some(ScalaResolveResult(obj: ScObject, subst)) => {
-                  ScalaPsiUtil.getCompanionModule(obj) match {
-                    case Some(clazz) => lift(ScProjectionType(ScDesignatorType(clazz), ref))
-                    case _ => lift(ScProjectionType(new ScSingletonType(q), ref))
-                  }
-                }
-                case _ => lift(ScProjectionType(new ScSingletonType(q), ref))
-              }
-            } else
-              lift(ScProjectionType(new ScSingletonType(q), ref))
-          }
+          case r: ScalaResolveResult => lift(ScProjectionType(new ScSingletonType(q), ref))
         }
         case None => wrap(ref.bind) flatMap {
           case r@ScalaResolveResult(e, s) => e match {
