@@ -36,8 +36,7 @@ object ScalaLibrary {
     case _ => throw new ExecutionException("Multiple Scala SDKs configured for module " + module.getName)
   }
     
-  private def findIn(module: Module): Array[ScalaLibrary] = 
-    wrap(moduleLibraries(module), LibraryLevel.MODULE).filter(_.valid).toArray
+  private def findIn(module: Module) = wrap(moduleLibraries(module), LibraryLevel.MODULE).filter(_.valid)
   
   def findIn(modules: Array[Module]): Array[ScalaLibrary] = modules.flatMap(findIn(_).toSeq).toArray
 
@@ -91,7 +90,7 @@ class ScalaLibrary(delegate: Library, val level: LibraryLevel) extends ScalaSDK 
     version.parent.filter(_.getName == "scala-library").flatMap { libraries =>
       libraries.parent.flatMap { root =>
         root.findByName("scala-compiler").flatMap { compilers =>
-          compilers.findByName(version.getName).flatMap(_.listFiles.find(f => f.getName.endsWith(".jar") && !f.getName.contains("sources")))
+          compilers.findByName(version.getName).flatMap(_.findByName("scala-compiler-%s.jar".format(version.getName)))
         }
       }
     }

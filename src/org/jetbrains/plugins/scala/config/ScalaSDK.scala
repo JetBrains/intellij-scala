@@ -7,17 +7,10 @@ import java.io.File
  */
 
 abstract class ScalaSDK extends FileAPI {
-  // vals
-  // maven scala library
   // wrong path check
-  // several libraries for module
-  // 
   // valid - private? 
   // "get scala" link
   // listen to library changes
-  // remove Options from public API
-  // detailed validation before usage 
-  // scalap
   // cache ScalaLibraries for module, lib changes -> expire, cache library validation result 
   
   case class Pack(classes: String, sources: String, properties: String = "")
