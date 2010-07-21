@@ -25,41 +25,23 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
   }
 
   def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
-    var s = text
-    
-    val document = editor.getDocument
-    PsiDocumentManager.getInstance(project).commitDocument(document)
+    PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
-    var caretOffset = editor.getCaretModel.getOffset
-    var elementAtCaret = file.findElementAt(caretOffset)
+    var offset = editor.getCaretModel.getOffset
+    var element = file.findElementAt(offset)
 
-    if (elementAtCaret.isInstanceOf[PsiElement] && caretOffset > elementAtCaret.getTextOffset) {
-      val tokenType = elementAtCaret.getNode.getElementType
-      if (tokenType == ScalaTokenTypes.tSTRING) {
-        if (rawText != null && rawText.rawText != null) 
-          return rawText.rawText
-        
-        var builder = new StringBuilder(s.length)
-        var settings = CodeStyleSettingsManager.getSettings(project)
-        var breaker = if (settings.BINARY_OPERATION_SIGN_ON_NEXT_LINE) "\\n\"\n+ \"" else "\\n\" +\n\""
-        val lines = LineTokenizer.tokenize(s.toCharArray, false, true)
-
-        var i = 0
-        while (i < lines.length) {
-          var line = lines(i)
-          builder.append(StringUtil.escapeStringCharacters(line))
-          if (i != lines.length - 1) 
-            builder.append(breaker)
-          i += 1
-        }
-        
-        s = builder.toString
-      } else if (tokenType == ScalaTokenTypes.tCHAR) {
-        if (rawText != null && rawText.rawText != null) 
-          return rawText.rawText
+    if (element.isInstanceOf[PsiElement] && offset > element.getTextOffset) {
+      val elementType = element.getNode.getElementType
+      if ((elementType == ScalaTokenTypes.tSTRING || elementType == ScalaTokenTypes.tCHAR) 
+              && rawText != null && rawText.rawText != null) {
+          rawText.rawText
+      } else if (elementType == ScalaTokenTypes.tSTRING) {
+        LineTokenizer.tokenize(text.toCharArray, false, true).mkString("\\n")
+      } else {
+        text
       }
+    } else {
+      text
     }
-
-    s
   }
 }
