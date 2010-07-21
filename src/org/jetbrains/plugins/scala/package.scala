@@ -23,6 +23,7 @@ package object scala {
 
   class RichObject[T](v: T) {
     def toOption: Option[T] = if (v == null) None else Some(v)
+    def getOrElse[H >: T](default: H): H = if (v == null) default else v
   }
   
   class RichIterator[A](delegate: Iterator[A]) {

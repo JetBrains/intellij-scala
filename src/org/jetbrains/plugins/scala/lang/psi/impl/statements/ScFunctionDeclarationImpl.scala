@@ -8,8 +8,8 @@ import stubs.ScFunctionStub
 import com.intellij.lang.ASTNode
 
 import api.statements._
-import types.{ScType}
-import types.result.{Failure, TypingContext, TypeResult}
+import types.result.{Success, TypingContext, TypeResult}
+import types.{Unit, ScType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,10 +24,8 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
   def returnType: TypeResult[ScType] = {
     typeElement match {
       case Some(t) => t.getType(TypingContext.empty)
-      case None => Failure("No return type here", Some(this))
+      case None => Success(Unit, Some(this))
     }
-    //todo: Scala Compiler Bug: NPE on file ScalaTracker.scala (should be checked with fresh stubs)
-    //wrap(typeElement) flatMap (_.getType(TypingContext.empty))
   }
 }
-
+                                         
