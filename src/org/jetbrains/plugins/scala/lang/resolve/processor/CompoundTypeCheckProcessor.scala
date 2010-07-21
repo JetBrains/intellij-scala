@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiNamedElement, PsiMethod, ResolveState, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,17 +30,19 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
     val subst = getSubst(state)
     if (namedElement.getName != decl.name) return true
     element match {
-      case _: ScBindingPattern | _: ScFieldId | _: ScFunction if !element.isInstanceOf[ScFunction] ||
+      case _: ScBindingPattern | _: ScFieldId | _: ScFunction | _: ScParameter if !element.isInstanceOf[ScFunction] ||
         !element.asInstanceOf[ScFunction].hasParameterClause => {
         lazy val bType = subst.subst(element match {
           case b: ScBindingPattern => b.getType(TypingContext.empty).getOrElse(Nothing)
           case f: ScFieldId => f.getType(TypingContext.empty).getOrElse(Nothing)
           case fun: ScFunction => fun.returnType.getOrElse(Nothing)
+          case param: ScParameter => param.getType(TypingContext.empty).getOrElse(Nothing)
         })
         val gType = substitutor.subst(decl match {
           case g: ScBindingPattern => g.getType(TypingContext.empty).getOrElse(Any)
           case g: ScFieldId => g.getType(TypingContext.empty).getOrElse(Any)
           case fun: ScFunction if !fun.hasParameterClause => fun.returnType.getOrElse(Any)
+          case param: ScParameter => param.getType(TypingContext.empty).getOrElse(Any)
           case _ => return true
         })
         val t = Conformance.conformsInner(gType, bType, Set.empty, undefSubst)
