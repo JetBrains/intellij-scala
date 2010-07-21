@@ -5,13 +5,13 @@ package psi
 import api.base._
 import api.ScalaRecursiveElementVisitor
 import api.toplevel.imports.usages.ImportUsed
-import api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
-import api.toplevel.templates.{ScTemplateBody}
+import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
+import com.intellij.psi.scope.PsiScopeProcessor
+import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
-import api.toplevel.{ScTypedDefinition}
+import api.toplevel.ScTypedDefinition
 import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
-import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
@@ -26,13 +26,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
-import tree.TokenSet
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
 import patterns.{ScReferencePattern, ScCaseClause}
-import result.TypingContext
+import result.{TypingContext, Success, TypeResult}
 import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import com.intellij.psi.util._
@@ -41,7 +40,6 @@ import collection.immutable.Stream
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
-import annotator.ScalaAnnotator
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 
@@ -50,6 +48,35 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
  */
 
 object ScalaPsiUtil {
+  def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
+                              lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
+    def processClassType(t: ScType) = ScType.extractClassType(t) match {
+      case Some((c, subst)) => {
+        val currentSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
+        c.processDeclarations(processor, state.put(ScSubstitutor.key, subst.followed(currentSubst)), null, place)
+      }
+      case _ => true
+    }
+
+    lastParent match {
+      case _: ScImportStmt => {
+        typeResult match {
+          case Success(ScCompoundType(comps, holders, aliases, substitutor), _) => {
+            for (t <- comps) if (!processClassType(t)) return false
+            val currentSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
+            val newState = state.put(ScSubstitutor.key, substitutor.followed(currentSubst))
+            for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, newState)) return false
+            for (a <- aliases) if (!processor.execute(a, newState)) return false
+            true
+          }
+          case Success(t, _) => processClassType(t)
+          case _ => true
+        }
+      }
+      case _ => true
+    }
+  }
+
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value], ref: PsiElement):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
     lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)

@@ -19,6 +19,8 @@ import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
 import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.ScalaResolveResult
+import api.toplevel.ScTypedDefinition
+import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
 
 object Conformance {
   /**
@@ -31,7 +33,7 @@ object Conformance {
   def undefinedSubst(l: ScType, r: ScType, checkWeak: Boolean = false): ScUndefinedSubstitutor =
     conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, false, checkWeak)._2
 
-  private def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor,
+  def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor,
                             noBaseTypes: Boolean = false, //todo: remove, not used
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled
@@ -370,79 +372,22 @@ object Conformance {
        U1	with	. . .	with	Un       === comps1
        Un                            === compn
        */
-      case (t1@ScCompoundType(comps1, decls1, typeMembers1, _), t2) => {
-        return (comps1.forall(comp1 => {
-          val t = conformsInner(comp1, t2, HashSet.empty, undefinedSubst)
+      case (t1@ScCompoundType(comps, decls, typeMembers, subst), t2) => {
+        return (comps.forall(comp => {
+          val t = conformsInner(comp, t2, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
           t._1
-        }) && (ScType.extractClassType(t2) match {
-          case Some((clazz2, subst2)) => {
-            if (!decls1.isEmpty || (comps1.isEmpty && decls1.isEmpty && typeMembers1.isEmpty)) { //if decls not empty or it's synthetic created
-              val sigs2 = getSignatureMap(clazz2)
-              for ((sig1, sig1Tpe) <- t1.signatureMap) {  // for every binding d of a value x in R there exists a member binding of x in T which subsumes d
-                sigs2.get(sig1) match {
-                  case None => return (false, undefinedSubst)
-                  case Some(t2) =>
-                    val tt = conformsInner(sig1Tpe, subst2.subst(t2), HashSet.empty, undefinedSubst)
-                    if (!tt._1) return (false, undefinedSubst) else undefinedSubst = tt._2
-                }
-              }
-            }
-            if (!typeMembers1.isEmpty) {
-              val tpeMembers2 = TypeDefinitionMembers.getTypes(clazz2)
-              for (typeMember1 <- typeMembers1) { // for every binding d of a type x in R there exists a member binding of x in T which subsumes d
-                tpeMembers2.get(typeMember1) match {
-                  case None => false
-                  case Some(typeMember2) =>
-                    val substTypeMember2 = typeMember2.substitutor
-                    typeMember2.info match {
-                      case ta: ScTypeAlias =>
-                        val s = substTypeMember2 followed subst2
-                        val tt = conformsInner(typeMember1.upperBound.getOrElse(Any), s.subst(ta.upperBound.getOrElse(Any)), HashSet.empty, undefinedSubst)
-                        if (!tt._1) return (false, undefinedSubst) else undefinedSubst = tt._2
-                        val tt2 = conformsInner(s.subst(ta.lowerBound.getOrElse(Nothing)), typeMember1.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
-                        if (!tt2._1) return (false, undefinedSubst) else undefinedSubst = tt2._2
-                      case inner: PsiClass =>
-                        val des = ScParameterizedType.create(inner, substTypeMember2 followed subst2)
-                        val tt = conformsInner(typeMember1.upperBound.getOrElse(Any), subst2.subst(des), HashSet.empty, undefinedSubst)
-                        if (!tt._1) return (false, undefinedSubst) else undefinedSubst = tt._2
-                        val tt2 = conformsInner(des, typeMember1.lowerBound.getOrElse(Nothing), HashSet.empty, undefinedSubst)
-                        if (!tt2._1) return (false, undefinedSubst) else undefinedSubst = tt2._2
-                    }
-                }
-              }
-            }
-            true
+        }) && decls.forall(decl => {
+          def workWith(t: ScTypedDefinition): Boolean = {
+            val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, subst)
+            processor.processType(t2, t)
+            undefinedSubst = processor.getUndefinedSubstitutor
+            processor.getResult
           }
-          case None => r match {
-            case c2@ScCompoundType(comps2, _, _, _) => t1.signatureMap.forall {
-              case (s1, rt1) =>
-                c2.signatureMap.get(s1) match {
-                  case None => comps2.find {
-                    t => ScType.extractClassType(t) match {
-                      case None => false
-                      case Some((clazz, subst)) => {
-                        val classSigs = getSignatureMap(clazz)
-                        classSigs.get(s1) match {
-                          case None => false
-                          case Some(rt) => {
-                            val t = conformsInner(subst.subst(rt), rt1, HashSet.empty, undefinedSubst)
-                            undefinedSubst = t._2
-                            t._1
-                          }
-                        }
-                      }
-                    }
-                  }
-                  case Some(rt) => {
-                    val t = conformsInner(rt, rt1, HashSet.empty, undefinedSubst)
-                    undefinedSubst = t._2
-                    t._1
-                  }
-                }
-              //todo check for refinement's type decls
-            }
-            case _ => false
+          decl match {
+            case fun: ScFunction => workWith(fun)
+            case v: ScValue => v.declaredElements forall (decl => workWith(decl))
+            case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
           }
         }), undefinedSubst)
       }

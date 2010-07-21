@@ -12,6 +12,7 @@ import lang.lexer._
 import com.intellij.psi._
 import psi.types.result.{Success, TypingContext}
 import psi.types.ScType
+import scope.PsiScopeProcessor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -39,4 +40,8 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     tp => tp.typeElement.getType(ctx)
   }
 
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement) = {
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+  }
 }

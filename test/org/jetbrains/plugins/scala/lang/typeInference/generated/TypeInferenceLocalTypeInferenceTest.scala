@@ -9,6 +9,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testAsInstanceOfOmittedGenerics = doTest
 
+  def testCompoundType = doTest
+
   def testForIndexedSeq = doTest
 
   def testInfixMap = doTest

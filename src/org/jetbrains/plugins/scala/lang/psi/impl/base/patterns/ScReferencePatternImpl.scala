@@ -61,29 +61,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    def processClassType(t: ScType) = ScType.extractClass(t) match {
-      case Some(c) => c.processDeclarations(processor, state, null, place)
-      case _ => true
-    }
-
-    lastParent match {
-      case _: ScImportStmt => {
-        getType(TypingContext.empty) match {
-          case Success(ScCompoundType(comps, holders, aliases, substitutor), _) => {
-            for (t <- comps) if (!processClassType(t)) return false
-            val currentSubst = state.get(ScSubstitutor.key)
-            val newState = state.put(ScSubstitutor.key, substitutor.followed(currentSubst))
-            for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, newState)) return false
-            for (a <- aliases) if (!processor.execute(a, newState)) return false
-            // todo add inner classes!
-            true
-          }
-          case Success(t, _) => processClassType(t)
-          case _ => true
-        }
-      }
-      case _ => true
-    }
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
   }
 
 }

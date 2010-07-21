@@ -12,6 +12,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
 import psi.types.{Bounds, ScType}
+import scope.PsiScopeProcessor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,5 +34,10 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     }
     if (named == null) Failure("Cannot infer type", Some(this))
     else named.getType(ctx)
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
+                                   place: PsiElement) = {
+    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
   }
 }
