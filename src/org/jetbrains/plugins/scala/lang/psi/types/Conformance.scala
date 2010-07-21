@@ -19,8 +19,8 @@ import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
 import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.ScalaResolveResult
-import api.toplevel.ScTypedDefinition
 import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
+import api.toplevel.{ScNamedElement, ScTypedDefinition}
 
 object Conformance {
   /**
@@ -373,22 +373,24 @@ object Conformance {
        Un                            === compn
        */
       case (t1@ScCompoundType(comps, decls, typeMembers, subst), t2) => {
+        def workWith(t: ScNamedElement): Boolean = {
+          val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, subst)
+          processor.processType(t2, t)
+          undefinedSubst = processor.getUndefinedSubstitutor
+          processor.getResult
+        }
         return (comps.forall(comp => {
           val t = conformsInner(comp, t2, HashSet.empty, undefinedSubst)
           undefinedSubst = t._2
           t._1
         }) && decls.forall(decl => {
-          def workWith(t: ScTypedDefinition): Boolean = {
-            val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, subst)
-            processor.processType(t2, t)
-            undefinedSubst = processor.getUndefinedSubstitutor
-            processor.getResult
-          }
           decl match {
             case fun: ScFunction => workWith(fun)
             case v: ScValue => v.declaredElements forall (decl => workWith(decl))
             case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
           }
+        }) && typeMembers.forall(typeMember => {
+          workWith(typeMember)
         }), undefinedSubst)
       }
 

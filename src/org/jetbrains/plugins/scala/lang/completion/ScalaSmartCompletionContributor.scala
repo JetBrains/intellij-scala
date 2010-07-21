@@ -180,33 +180,6 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             }
           }
         }
-        if (infix.lOp == ref) {
-          val op: String = infix.operation.getText
-          if (op.endsWith(":")) {
-            attachTypes
-          } else {
-            for (rOpType <- infix.rOp.getType(TypingContext.empty)) {
-              val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty, ScSubstitutor.empty)
-              compoundType.signatureMap += Tuple2(new Signature(op, Stream.apply(rOpType), 1, ScSubstitutor.empty),
-                types.Any)
-              typez += compoundType
-            }
-          }
-        } else if (infix.rOp == ref) {
-          val op: String = infix.operation.getText
-          if (op.endsWith(":")) {
-            for (lOpType <- infix.lOp.getType(TypingContext.empty)) {
-              val compoundType = ScCompoundType(Seq.empty, Seq.empty, Seq.empty, ScSubstitutor.empty)
-              compoundType.signatureMap += Tuple(new Signature(op, Stream.apply(lOpType), 1, ScSubstitutor.empty),
-                types.Any)
-              typez += compoundType
-            }
-          } else {
-            attachTypes
-          }
-        } else {
-          //operation: nothing to do
-        }
         acceptTypes(typez.toArray[ScType], ref.getVariants, result, ref.getResolveScope)
       }
     })
