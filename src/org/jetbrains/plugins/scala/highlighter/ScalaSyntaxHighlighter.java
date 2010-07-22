@@ -15,9 +15,12 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
+import com.intellij.lexer.LayeredLexer;
 import com.intellij.lexer.Lexer;
+import com.intellij.lexer.StringLiteralLexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
+import com.intellij.psi.StringEscapesTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
@@ -93,6 +96,21 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaTokenTypes.tCHAR,
           ScalaTokenTypes.tSYMBOL
   );
+  
+  // Valid escape in string
+  static final TokenSet tVALID_STRING_ESCAPE = TokenSet.create(
+          StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN
+  );
+  
+  // Invalid character escape in string
+  static final TokenSet tINVALID_CHARACTER_ESCAPE = TokenSet.create(
+          StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN
+  );
+  
+  // Invalid unicode escape in string
+  static final TokenSet tINVALID_UNICODE_ESCAPE = TokenSet.create(
+          StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN
+  );
 
   // Keywords
   public static final TokenSet kRESWORDS = TokenSet.create(
@@ -162,6 +180,9 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_COMMENTS, DefaultHighlighter.DOC_COMMENT);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, kRESWORDS, DefaultHighlighter.KEYWORD);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tNUMBERS, DefaultHighlighter.NUMBER);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tVALID_STRING_ESCAPE, DefaultHighlighter.VALID_STRING_ESCAPE);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tINVALID_CHARACTER_ESCAPE, DefaultHighlighter.INVALID_STRING_ESCAPE);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tINVALID_UNICODE_ESCAPE, DefaultHighlighter.INVALID_STRING_ESCAPE);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSTRINGS, DefaultHighlighter.STRING);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACES, DefaultHighlighter.BRACES);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tBRACKETS, DefaultHighlighter.BRACKETS);
@@ -178,29 +199,44 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   @NotNull
   public Lexer getHighlightingLexer() {
-    return new ScalaLexer() {
-      public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
-        myCurrentLexer = myScalaPlainLexer;
-        myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
-        myBraceStack.clear();
-        myLayeredTagStack.clear();
-        myXmlState = 0;
-        myBuffer = buffer;
-        myBufferEnd = buffer.length();
-        myTokenType = null;
-      }
+    return new CompoundLexer();
+  }
+  
+  private static class CompoundLexer extends LayeredLexer {
+    CompoundLexer() {
+      super(new CustomScalaLexer());
 
-      public IElementType getTokenType() {
-        IElementType type = super.getTokenType();
-        if (type instanceof IXmlLeafElementType ||
-                XML_WHITE_SPACE == type ||
-                type == XML_REAL_WHITE_SPACE ||
-                type == TAG_WHITE_SPACE) {
-          return SCALA_XML_CONTENT;
-        }
-        return type;
+      registerSelfStoppingLayer(new StringLiteralLexer('\"', ScalaTokenTypes.tSTRING),
+                                new IElementType[]{ScalaTokenTypes.tSTRING}, IElementType.EMPTY_ARRAY);
+      
+      registerSelfStoppingLayer(new StringLiteralLexer('\'', ScalaTokenTypes.tSTRING),
+                                new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
+      
+    }
+  }
+  
+  private static class CustomScalaLexer extends ScalaLexer {
+    public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+      myCurrentLexer = myScalaPlainLexer;
+      myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
+      myBraceStack.clear();
+      myLayeredTagStack.clear();
+      myXmlState = 0;
+      myBuffer = buffer;
+      myBufferEnd = buffer.length();
+      myTokenType = null;
+    }
+
+    public IElementType getTokenType() {
+      IElementType type = super.getTokenType();
+      if (type instanceof IXmlLeafElementType ||
+          XML_WHITE_SPACE == type ||
+          type == XML_REAL_WHITE_SPACE ||
+          type == TAG_WHITE_SPACE) {
+        return SCALA_XML_CONTENT;
       }
-    };
+      return type;
+    }
   }
 
   @NotNull

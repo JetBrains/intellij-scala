@@ -38,6 +38,10 @@ public class DefaultHighlighter {
   @NonNls
   static final String STRING_ID = "Scala String";
   @NonNls
+  static final String VALID_STRING_ESCAPE_ID = "Valid escape in string";
+  @NonNls
+  static final String INVALID_STRING_ESCAPE_ID = "Invalid escape in string";
+  @NonNls
   static final String BRACKETS_ID = "Brackets";
   @NonNls
   static final String BRACES_ID = "Scala Braces";
@@ -109,6 +113,8 @@ public class DefaultHighlighter {
   public static TextAttributesKey KEYWORD = createKey(KEYWORD_ID, SyntaxHighlighterColors.KEYWORD);
   public static TextAttributesKey NUMBER = createKey(NUMBER_ID, SyntaxHighlighterColors.NUMBER);
   public static TextAttributesKey STRING = createKey(STRING_ID, SyntaxHighlighterColors.STRING);
+  public static TextAttributesKey VALID_STRING_ESCAPE = createKey(VALID_STRING_ESCAPE_ID, SyntaxHighlighterColors.VALID_STRING_ESCAPE);
+  public static TextAttributesKey INVALID_STRING_ESCAPE = createKey(INVALID_STRING_ESCAPE_ID, SyntaxHighlighterColors.INVALID_STRING_ESCAPE);
   public static TextAttributesKey BRACKETS = createKey(BRACKETS_ID, SyntaxHighlighterColors.BRACKETS);
   public static TextAttributesKey BRACES = createKey(BRACES_ID, SyntaxHighlighterColors.BRACES);
   public static TextAttributesKey PARENTHESES = createKey(PARENTHESES_ID, SyntaxHighlighterColors.PARENTHS);
