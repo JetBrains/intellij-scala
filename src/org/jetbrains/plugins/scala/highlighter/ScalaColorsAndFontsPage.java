@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.application.options.colors.InspectionColorSettingsPage;
+import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
+import com.intellij.openapi.options.OptionsBundle;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
 import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
@@ -44,6 +46,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.KEYWORD_ID, DefaultHighlighter.KEYWORD),
         new AttributesDescriptor(DefaultHighlighter.NUMBER_ID, DefaultHighlighter.NUMBER),
         new AttributesDescriptor(DefaultHighlighter.STRING_ID, DefaultHighlighter.STRING),
+        new AttributesDescriptor(DefaultHighlighter.VALID_STRING_ESCAPE_ID, DefaultHighlighter.VALID_STRING_ESCAPE),
+        new AttributesDescriptor(DefaultHighlighter.INVALID_STRING_ESCAPE_ID, DefaultHighlighter.INVALID_STRING_ESCAPE),
         new AttributesDescriptor(DefaultHighlighter.ASSIGN_ID, DefaultHighlighter.ASSIGN),
         new AttributesDescriptor(DefaultHighlighter.PARENTHESES_ID, DefaultHighlighter.PARENTHESES),
         new AttributesDescriptor(DefaultHighlighter.BRACES_ID, DefaultHighlighter.BRACES),
@@ -102,7 +106,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "<keyword>class</keyword> <class>ScalaClass</class><par>(</par><param>x</param><colon>:</colon> <predef>Int</predef><par>)</par>" +
         " <keyword>extends</keyword>" +
         " <class>ScalaObject</class> <brace>{</brace>\n" +
-        "  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>\"String\"</string>\n" +
+        "  <keyword>val</keyword> <val>field</val> <assign>=</assign> <string>\"Some<validescape>\\n</validescape>Strin<invalidescape>\\g</invalidescape>\"</string>\n" +
         "  <keyword>def</keyword> <methoddecl>foo</methoddecl><par>(</par><param>x</param><colon>:</colon> <predef>Float</predef><comma>," +
         "</comma> <param>y</param><colon>:</colon> <predef>Float</predef><par>)</par> <assign>=</assign> <brace>{</brace>\n" +
         "    <keyword>def</keyword> <methoddecl>empty</methoddecl> <assign>=</assign> <number>2</number>\n" +
@@ -144,6 +148,8 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("colon", DefaultHighlighter.COLON);
     map.put("scaladoc", DefaultHighlighter.DOC_COMMENT);
     map.put("string", DefaultHighlighter.STRING);
+    map.put("validescape", DefaultHighlighter.VALID_STRING_ESCAPE);
+    map.put("invalidescape", DefaultHighlighter.INVALID_STRING_ESCAPE);
     map.put("typeparam", DefaultHighlighter.TYPEPARAM);
     map.put("assign", DefaultHighlighter.ASSIGN);
     map.put("bracket", DefaultHighlighter.BRACKETS);
