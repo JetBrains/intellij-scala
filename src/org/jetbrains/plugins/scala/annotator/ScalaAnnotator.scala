@@ -51,7 +51,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  */
 
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
-        with ParametersAnnotator with ApplicationAnnotator
+        with ParametersAnnotator with ApplicationAnnotator with AssignmentAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     if (element.isInstanceOf[ScExpression]) {
@@ -75,6 +75,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     annotateScope(element, holder)
 
     element match {
+      case a: ScAssignStmt => annotateAssignment(a, holder, advancedHighlighting)
+      
       case ps: ScParameters => annotateParameters(ps, holder) 
       
       case f: ScFunctionDefinition => {
