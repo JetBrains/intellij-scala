@@ -15,7 +15,7 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] } 
   class A; class B; 
-  object A; object B
+  object A extends A; object B extends B
   """ 
   
   def testEmpty {
