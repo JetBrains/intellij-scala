@@ -37,12 +37,14 @@ trait AssignmentAnnotator {
       
     e.parentsInFile.findByType(classOf[ScPatternDefinition]).isDefined
   }
-  
+
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
-    if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return
+    if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return // named argument
     
     val l = assignment.getLExpression
     val r = assignment.getRExpression
+
+    if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
 
     val reassignment = l.asOptionOf(classOf[ScReferenceElement]).flatMap(_.resolve.toOption).find(isReadonly).isDefined            
     
