@@ -121,7 +121,13 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
       case Error("v = B", ReassignmentToVal()) :: Nil =>
     }
   }
-  
+
+  def testNamedParameterClause {
+    assertMatches(messages("def blerg(a: Any)= 0; blerg(a = 0)")) {
+      case Nil =>
+    }
+  }
+
   def messages(@Language("Scala") code: String): List[Message] = {
     val assignment = (Header + code).parse.depthFirst.findByType(classOf[ScAssignStmt]).get
     
