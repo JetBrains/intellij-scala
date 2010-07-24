@@ -128,6 +128,12 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testUpdateOkay {
+    assertMatches(messages("val a = new { def update(x: Int): Unit = () }; a() = 1)")) {
+      case Nil =>
+    }
+  }
+
   def messages(@Language("Scala") code: String): List[Message] = {
     val assignment = (Header + code).parse.depthFirst.findByType(classOf[ScAssignStmt]).get
     
