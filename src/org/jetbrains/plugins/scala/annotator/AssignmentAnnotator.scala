@@ -10,8 +10,8 @@ import lang.psi.api.statements.{ScPatternDefinition, ScValue, ScFunction}
 import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScParameter}
-import lang.psi.api.expr.{ScEnumerator, ScGenerator, ScAssignStmt, ScMethodCall}
 import lang.psi.api.base.patterns.ScCaseClause
+import lang.psi.api.expr._
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -37,11 +37,15 @@ trait AssignmentAnnotator {
       
     e.parentsInFile.findByType(classOf[ScPatternDefinition]).isDefined
   }
-  
+
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
+    if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return // named argument
+    
     val l = assignment.getLExpression
     val r = assignment.getRExpression
-    
+
+    if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
+
     val reassignment = l.asOptionOf(classOf[ScReferenceElement]).flatMap(_.resolve.toOption).find(isReadonly).isDefined            
     
     if(reassignment) {
