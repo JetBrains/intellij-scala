@@ -20,8 +20,7 @@ object BaseTypes {
         reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll) ++
                 Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
       case ScDesignatorType(ta: ScTypeAliasDefinition) => BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty))
-      case ScThisType(td: ScTemplateDefinition) =>
-        reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
+      case ScThisType(tp) => BaseTypes.get(tp)
       case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
       case a: JavaArrayType => Seq(types.Any)

@@ -199,7 +199,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(obj: ScObject, s)) => {
         val parentClazz = ScalaPsiUtil.getPlaceTd(obj)
         if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), obj, ScSubstitutor.empty)
+          ScProjectionType(ScThisType(parentClazz.getType(TypingContext.empty).
+                    getOrElse(return Failure("No clazz type found", Some(this)))), obj, ScSubstitutor.empty)
         else ScDesignatorType(obj)
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {

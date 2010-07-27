@@ -81,8 +81,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     t match {
-      case ScThisType(clazz: PsiClass) => {
-        processElement(clazz, ScSubstitutor.empty, place, state)
+      case ScThisType(tp) => {
+        processType(tp, place, state)
       }
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] => {
         //not scala from scala

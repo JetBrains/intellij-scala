@@ -7,6 +7,8 @@ import com.intellij.psi.{PsiElement, PsiClass, PsiNamedElement}
 import api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import resolve.ResolveUtils
+import api.expr.ScNewTemplateDefinition
+import result.TypingContext
 
 
 /**
@@ -22,17 +24,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, subst)
 
   override def updateThisType(place: PsiElement): ScType = {
-    projected match {
-      case t@ScThisType(clazz1) => {
-        t.updateThisType(place) match {
-          case t@ScThisType(clazz2) => {
-            ScProjectionType(t, element, Bounds.superSubstitutor(clazz1, clazz2, subst).getOrElse(return ScProjectionType(t, element, subst)))
-          }
-          case t => ScProjectionType(t, element, subst)
-        }
-      }
-      case t => ScProjectionType(t.updateThisType(place), element, subst)
-    }
+    ScProjectionType(projected.updateThisType(place), element, subst)
   }
 }
 
@@ -50,14 +42,25 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
  *
  * So when expression is typed, we should replace all such types be return value.
  */
-case class ScThisType(clazz: PsiClass) extends ValueType {
+case class ScThisType(tp: ScType) extends ValueType {
   override def updateThisType(place: PsiElement): ScType = {
-    var td: ScTemplateDefinition = ScalaPsiUtil.getPlaceTd(place)
-    while (td != null) {
-      if (td.isInheritor(clazz, true)) return ScThisType(td)
-      td = ScalaPsiUtil.getPlaceTd(td)
+    def workWithClazz(clazz: ScTemplateDefinition): ScType = {
+      var td: ScTemplateDefinition = ScalaPsiUtil.getPlaceTd(place)
+      while (td != null) {
+        if (td == clazz || td.isInheritor(clazz, true)) return ScThisType(td.getType(TypingContext.empty).getOrElse(return tp))
+        td = ScalaPsiUtil.getPlaceTd(td)
+      }
+      tp.updateThisType(place)
     }
-    ScDesignatorType(clazz)
+    tp match {
+      case ScParameterizedType(ScDesignatorType(clazz: ScTemplateDefinition), _) => {
+        workWithClazz(clazz)
+      }
+      case ScDesignatorType(clazz: ScTemplateDefinition) => {
+        workWithClazz(clazz)
+      }
+      case _ => tp.updateThisType(place)
+    }
   }
 }
 
