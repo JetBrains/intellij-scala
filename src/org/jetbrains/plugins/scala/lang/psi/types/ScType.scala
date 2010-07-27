@@ -9,7 +9,6 @@ import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import nonvalue.NonValueType
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.{ScClass, ScObject}
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import api.base.patterns.ScBindingPattern
@@ -17,6 +16,7 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import api.statements.{ScVariable, ScValue, ScFunction, ScTypeAliasDefinition}
 import refactoring.util.ScTypeUtil
+import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 
 trait ScType {
   def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -42,6 +42,8 @@ trait ScType {
   def removeAbstracts = this
 
   def updateThisType(place: PsiElement): ScType = this
+
+  def updateThisType(tp: ScType): ScType = this
 }
 
 trait ValueType extends ScType{
@@ -343,7 +345,15 @@ object ScType {
       case ScFunctionType(ret, params) => {
         buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
       }
-      case ScThisType(clazz) => buffer.append(nameWithPointFun(clazz)).append("this.type")
+      case ScThisType(tp) => {
+        tp match {
+          case ScDesignatorType(clazz: ScTypeDefinition) => buffer.append(nameWithPointFun(clazz)).append("this.type")
+          case ScParameterizedType(ScDesignatorType(clazz: ScTypeDefinition), _) =>
+            buffer.append(nameWithPointFun(clazz)).append("this.type")
+          case _ => buffer.append("this.type")
+        }
+
+      }
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, e, s) => {  //todo:
