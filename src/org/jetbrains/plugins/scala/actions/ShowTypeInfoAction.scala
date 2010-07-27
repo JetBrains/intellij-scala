@@ -23,9 +23,12 @@ import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
  */
 
 class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
-  def actionPerformed(e: AnActionEvent) = {
+  def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     val editor = PlatformDataKeys.EDITOR.getData(context)
+    
+    if(editor == null) return
+    
     val file = PsiUtilBase.getPsiFileInEditor(editor, PlatformDataKeys.PROJECT.getData(context))
 
     if (editor.getSelectionModel.hasSelection) {
