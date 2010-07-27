@@ -203,7 +203,6 @@ object ScalaPsiUtil {
           val parameterizedType = j.getParameterizedType(place.getProject, place.getResolveScope)
           collectParts(parameterizedType.getOrElse(return Seq.empty), place)
         }
-        case singl@ScSingletonType(path) => collectParts(singl.pathType, place)
         case f@ScFunctionType(retType, params) => {
           (ScType.extractClass(tp) match {
             case Some(pair) => Seq(pair)
@@ -216,7 +215,7 @@ object ScalaPsiUtil {
             case _ => Seq.empty
           }) ++ params.flatMap(collectParts(_, place))
         }
-        case proj@ScProjectionType(projected, ref) => {
+        case proj@ScProjectionType(projected, _, _) => {
           collectParts(projected, place) ++ (ScType.extractClass(tp) match {
             case Some(pair) => Seq(pair)
             case _ => Seq.empty
@@ -444,6 +443,27 @@ object ScalaPsiUtil {
       }
       case _ => elem.getNextSibling
     }
+  }
+
+  def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
+    val td = PsiTreeUtil.getContextOfType(placer, classOf[ScTemplateDefinition], true)
+    if (td == null) return null
+    val res = td.extendsBlock.templateParents match {
+      case Some(parents) => {
+        if (PsiTreeUtil.isContextAncestor(parents, placer, true)) getPlaceTd(td)
+        else td
+      }
+      case _ => td
+    }
+    res
+  }
+
+  def typesCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScType]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, String), ScType]
+    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+      map += Tuple(tp(i), typeArgs(i))
+    }
+    new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
   }
 
   def genericCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {

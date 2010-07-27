@@ -106,6 +106,23 @@ object ResolveUtils {
     }
   }
 
+  def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
+    val td = PsiTreeUtil.getContextOfType(placer, classOf[ScTemplateDefinition], true)
+    val res = td match {
+      case n: ScNewTemplateDefinition => {
+         n.extendsBlock.templateParents match {
+           case Some(parents) => {
+             if (PsiTreeUtil.isContextAncestor(parents, placer, true)) getPlaceTd(td)
+             else td
+           }
+           case _ => td
+         }
+      }
+      case _ => td
+    }
+    res
+  }
+
   def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
     //this is to make place and member on same level (resolve from library source)
     var member: PsiMember = memb
@@ -120,22 +137,7 @@ object ResolveUtils {
     }
 
     if (member.hasModifierProperty("public")) return true
-    def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
-      val td = PsiTreeUtil.getContextOfType(placer, classOf[ScTemplateDefinition], true)
-      val res = td match {
-        case n: ScNewTemplateDefinition => {
-           n.extendsBlock.templateParents match {
-             case Some(parents) => {
-               if (PsiTreeUtil.isContextAncestor(parents, placer, true)) getPlaceTd(td)
-               else td
-             }
-             case _ => td
-           }
-        }
-        case _ => td
-      }
-      res
-    }
+    
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true

@@ -11,7 +11,6 @@ import api.toplevel.ScNamedElement
 import com.intellij.psi.impl.PsiManagerEx
 
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import com.intellij.psi.{PsiNamedElement, PsiMember, ResolveResult, PsiElement}
 import com.intellij.util.IncorrectOperationException
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
@@ -19,9 +18,10 @@ import api.base.types._
 import psi.types._
 
 import com.intellij.lang.ASTNode
-import resolve._
+import lang.resolve._
 import processor.{CompletionProcessor, ResolveProcessor, BaseProcessor}
-import result.{Success, TypingContext}
+import result.{TypeResult, Failure, Success, TypingContext}
+import com.intellij.psi._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -33,12 +33,18 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   protected def innerType(ctx: TypingContext) = {
     def lift(t: ScType) = Success(t, Some(this))
-    wrap(bind) flatMap {
-      case ScalaResolveResult(alias: ScTypeAliasDefinition, s) =>
-        if (alias.typeParameters == 0) alias.aliasedType(ctx) map {s.subst(_)}
-        else lift(new ScTypeConstructorType(alias, s))
-      case ScalaResolveResult(alias: ScTypeAliasDeclaration, s) => lift(new ScTypeAliasType(alias, s))
-      case _ => typeElement.getType(ctx) map {ScProjectionType(_, this)}
+    bind match {
+      case Some(ScalaResolveResult(elem, subst)) => {
+        val te: TypeResult[ScType] = typeElement.getType(ctx)
+        te match {
+          case Success(ScDesignatorType(pack: PsiPackage), a) => {
+            Success(ScDesignatorType(elem), Some(this))
+          }
+          case _ =>
+            te map {ScProjectionType(_, elem, subst)}
+        }
+      }
+      case _ => Failure("Cannot Resolve reference", Some(this))
     }
   }
 

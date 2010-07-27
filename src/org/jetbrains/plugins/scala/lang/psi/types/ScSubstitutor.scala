@@ -79,13 +79,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _),
       f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {substInternal _}, t1.getProject)
-    case ScProjectionType(ScDesignatorType(clazz: PsiClass), ref) => {
-      dependentMap.get(clazz) match {
-        case Some(el) => ScProjectionType(ScDesignatorType(el), ref)
-        case _ => t
-      }
-    }
-    case ScProjectionType(proj, ref) => new ScProjectionType(substInternal(proj), ref)
+    case ScProjectionType(proj, element, subst) => new ScProjectionType(substInternal(proj), element, subst)
     case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType), params.map(p => {
       Parameter(p.name, substInternal(p.paramType), p.isDefault, p.isRepeated)
     }), isImplicit, m.project, m.scope)
@@ -118,41 +112,12 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case None => tv
       case Some(v) => v
     }
-    case ScDesignatorType(e) => e match {
-      case c: PsiClass => {
-        val cc = c.getContainingClass
-        if (cc != null) {
-          outerMap.get(cc) match {
-            case Some(p) => new ScProjectionType(p._1, p._2)
-            case None => t
-          }
-        } else t
-      }
-      case _ => t
-    }
-    case ScTypeAliasType(alias, args, lower, upper) => aliasesMap.get(alias.name) match {
-      case Some(t) => t.v
-      case None => {
-        import Misc.fun2suspension
-        new ScTypeAliasType(alias, args, () => substInternal(lower.v), () => substInternal(upper.v))
-      }
-    }
     case JavaArrayType(arg) => JavaArrayType(substInternal(arg))
     case pt@ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
       tvMap.get((tpt.name, tpt.getId)) match {
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
           substInternal(tpt) match {
-            case ScTypeConstructorType(_, tcArgs, aliased) => {
-              val typeArgsIterator = typeArgs.iterator
-              val otherIterator = tcArgs.iterator
-              var s1 = ScSubstitutor.empty
-              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
-                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
-                s1 = s1.bindT((p2.name, p2.getId), p1)
-              }
-              s1.subst(aliased.v)
-            }
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
             case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
@@ -164,16 +129,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
           substInternal(u) match {
-            case ScTypeConstructorType(_, tcArgs, aliased) => {
-              val typeArgsIterator = typeArgs.iterator
-              val otherIterator = tcArgs.iterator
-              var s1 = ScSubstitutor.empty
-              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
-                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
-                s1 = s1.bindT((p2.name,p2.getId), p1)
-              }
-              s1.subst(aliased.v)
-            }
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
             case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
@@ -185,16 +140,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
         case _ => {
           substInternal(u) match {
-            case ScTypeConstructorType(_, tcArgs, aliased) => {
-              val typeArgsIterator = typeArgs.iterator
-              val otherIterator = tcArgs.iterator
-              var s1 = ScSubstitutor.empty
-              while (typeArgsIterator.hasNext && otherIterator.hasNext) {
-                val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
-                s1 = s1.bindT((p2.name,p2.getId), p1)
-              }
-              s1.subst(aliased.v)
-            }
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
             case des => new ScParameterizedType(des, typeArgs map {substInternal _})
           }
@@ -203,16 +148,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     }
     case ScParameterizedType (des, typeArgs) => {
       substInternal(des) match {
-        case ScTypeConstructorType(_, tcArgs, aliased) => {
-          val typeArgsIterator = typeArgs.iterator
-          val otherIterator = tcArgs.iterator
-          var s1 = ScSubstitutor.empty
-          while (typeArgsIterator.hasNext && otherIterator.hasNext) {
-            val (p1, p2) = (substInternal(typeArgsIterator.next), otherIterator.next)
-            s1 = s1.bindT((p2.name, p2.getId), p1)
-          }
-          s1.subst(aliased.v)
-        }
         case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
         case des => new ScParameterizedType(des, typeArgs map {substInternal _})
       }
@@ -305,15 +240,11 @@ object ScUndefinedSubstitutor {
      case f@ScFunctionType(ret, params) => new ScFunctionType(removeUndefindes(ret),
       collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*), f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {removeUndefindes _}, t1.getProject)
-    case ScProjectionType(proj, ref) => new ScProjectionType(removeUndefindes(proj), ref)
+    case ScProjectionType(proj, element, subst) => new ScProjectionType(removeUndefindes(proj), element, subst)
     case tpt : ScTypeParameterType => tpt
     case u: ScUndefinedType => u.tpt
     case tv : ScTypeVariable => tv
     case ScDesignatorType(e) => tp
-    case ScTypeAliasType(alias, args, lower, upper) => {
-      import Misc.fun2suspension
-      new ScTypeAliasType(alias, args, () => removeUndefindes(lower.v), () => removeUndefindes(upper.v))
-    }
     case JavaArrayType(arg) => JavaArrayType(removeUndefindes(arg))
     case ScParameterizedType (des, typeArgs) => ScParameterizedType(removeUndefindes(des),
       collection.immutable.Seq(typeArgs.map(removeUndefindes _).toSeq: _*))

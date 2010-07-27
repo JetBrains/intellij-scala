@@ -35,10 +35,8 @@ object Bounds {
 
       case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)
-      case (ScPolymorphicType(_, Nil, _, upper), _) => lub(upper.v, t2)
-      case (_, ScPolymorphicType(_, Nil, _, upper)) => lub(t1, upper.v)
-      case (s: ScSingletonType, _) => lub(s.pathType, t2)
-      case (_, s: ScSingletonType) => lub(t1, s.pathType)
+      case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2)
+      case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v)
       case (ex : ScExistentialType, _) => lub(ex.skolem, t2)
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
       case (_: ValType, _: ValType) => types.AnyVal

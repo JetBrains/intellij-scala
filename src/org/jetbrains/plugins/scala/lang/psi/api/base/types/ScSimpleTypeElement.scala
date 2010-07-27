@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
 trait ScSimpleTypeElement extends ScTypeElement {
 
-  def reference = findChild(classOf[ScStableCodeReferenceElement])
-  def pathElement = findChildByClassScala(classOf[ScPathElement])
+  def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
+  def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
   def singleton: Boolean
 

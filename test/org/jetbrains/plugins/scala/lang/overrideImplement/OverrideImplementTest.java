@@ -63,10 +63,10 @@ public class OverrideImplementTest extends PsiTestCase {
     });
   }
 
-  public void testOverridedTypeAlias() throws Exception {
+  /*public void testOverridedTypeAlias() throws Exception {
     String name = "genericTestCases/overridedTypeAlias.scala";
     runTest(name);
-  }
+  }*/
 
   public void testFoo() throws Exception {
     String name = "simpleTests/foo.scala";

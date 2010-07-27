@@ -5,9 +5,9 @@ package types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
 import api.statements._
-import com.intellij.psi.PsiTypeParameter
 import collection.mutable.{ListBuffer, HashSet, HashMap}
 import result.{TypingContext, Failure}
+import com.intellij.psi.{PsiElement, PsiTypeParameter}
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
@@ -70,4 +70,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
   }
 
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
+
+  override def updateThisType(place: PsiElement) =
+    ScCompoundType(components.map(_.updateThisType(place)), decls, typeDecls, subst)
 }

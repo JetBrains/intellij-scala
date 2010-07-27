@@ -7,7 +7,6 @@ package expr
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import api.statements._
 import api.toplevel.imports.usages.ImportUsed
-import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.IncorrectOperationException
 import params.ScParameter
@@ -37,6 +36,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import api.base.ScReferenceElement
 import api.{ScalaElementVisitor, ScalaFile}
+import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 
 
 /**
@@ -195,6 +195,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (seqClass != null) {
           ScParameterizedType(ScDesignatorType(seqClass), Seq(computeType))
         } else computeType
+      }
+      case Some(ScalaResolveResult(obj: ScObject, s)) => {
+        val parentClazz = ScalaPsiUtil.getPlaceTd(obj)
+        if (parentClazz != null)
+          ScProjectionType(ScThisType(parentClazz), obj, ScSubstitutor.empty)
+        else ScDesignatorType(obj)
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
         val result = typed.getType(TypingContext.empty)

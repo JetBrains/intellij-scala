@@ -10,6 +10,7 @@ import com.intellij.openapi.diagnostic.Logger;
 /**
  * @author ilyas
  */
+//todo: remove this unneccessary class (if migrate from 9 to 10). It does nothing.
 class ScalacDependencyProcessor implements DependencyProcessor {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacDependencyProcessor");

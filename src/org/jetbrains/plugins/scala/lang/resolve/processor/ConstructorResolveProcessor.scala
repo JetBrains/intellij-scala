@@ -32,13 +32,11 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
-            addResult(new ScalaResolveResult(clazz, subst, getImports(state),
-              boundClass = getBoundClass(state)))
+            addResult(new ScalaResolveResult(clazz, subst, getImports(state), boundClass = getBoundClass(state)))
           }
           else {
             for (constr <- constructors) {
-              addResult(new ScalaResolveResult(constr, subst, getImports(state),
-                boundClass = getBoundClass(state), parentElement = Some(clazz)))
+              addResult(new ScalaResolveResult(constr, subst, getImports(state), parentElement = Some(clazz), boundClass = getBoundClass(state)))
             }
           }
         }
@@ -57,8 +55,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               if (constructors.isEmpty) addResult(r)
               else {
                 for (constr <- constructors) {
-                  addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state),
-                    boundClass = getBoundClass(state), parentElement = Some(ta)))
+                  addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state), parentElement = Some(ta), boundClass = getBoundClass(state)))
                 }
               }
             }

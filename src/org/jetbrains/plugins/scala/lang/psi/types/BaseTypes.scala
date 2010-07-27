@@ -8,18 +8,36 @@ import resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import com.intellij.openapi.progress.ProgressManager
+import types.Conformance.AliasType
+import api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 
 object BaseTypes {
   def get(t : ScType, notAll: Boolean = false) : Seq[ScType] = {
     ProgressManager.checkCanceled
     t match {
-      case classT@ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
-      case classT@ScDesignatorType(c : PsiClass) =>
+      case ScDesignatorType(td : ScTemplateDefinition) => reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
+      case ScDesignatorType(c : PsiClass) =>
         reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll) ++
                 Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
-      case ScPolymorphicType(_, Nil, _, upper) => get(upper.v, notAll)
+      case ScDesignatorType(ta: ScTypeAliasDefinition) => BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty))
+      case ScThisType(td: ScTemplateDefinition) =>
+        reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll) ++ Seq(tp) else Seq(tp)))
+      case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
       case a: JavaArrayType => Seq(types.Any)
+      case ScProjectionType(_, ta: ScTypeAliasDefinition, subst) =>
+        BaseTypes.get(subst.subst(ta.aliasedType.getOrElse(return Seq.empty)))
+      case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        BaseTypes.get(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))
+      }
+      case ScParameterizedType(ScProjectionType(_, ta: ScTypeAliasDefinition, subst), args) => {
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        val s = subst.followed(genericSubst)
+        BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)))
+      }
       case p : ScParameterizedType => {
         ScType.extractClass(p.designator) match {
           case Some(td: ScTypeDefinition) =>
@@ -32,15 +50,14 @@ object BaseTypes {
           case _ => Seq.empty
         }
       }
-      case sin : ScSingletonType => get(sin.pathType, notAll)
       case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
       case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
-      case proj@ScProjectionType(p, _) => proj.resolveResult match {
-        case Some(ScalaResolveResult(td : ScTypeDefinition, s)) => reduce(td.superTypes.flatMap{tp =>
+      case proj@ScProjectionType(p, elem, s) => elem match {
+        case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>
           if (!notAll) BaseTypes.get(s.subst(tp)) ++ Seq(s.subst(tp))
           else Seq(s.subst(tp))
         })
-        case Some(ScalaResolveResult(c : PsiClass, s)) =>
+        case c : PsiClass =>
           reduce(c.getSuperTypes.flatMap {st =>
             {
               val proj = c.getProject

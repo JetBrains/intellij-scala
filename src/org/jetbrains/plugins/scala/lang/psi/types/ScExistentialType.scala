@@ -5,6 +5,7 @@ package types
 
 import _root_.scala.collection.immutable.HashSet
 import api.toplevel.ScTypeParametersOwner
+import com.intellij.psi.PsiElement
 
 /** 
 * @author ilyas
@@ -27,7 +28,7 @@ object ScExistentialTypeReducer {
     t match {
       case ScFunctionType(ret, params) => params.foldLeft(collectNames(ret)) {(curr, p) => curr ++ collectNames(p)}
       case ScTupleType(comps) => comps.foldLeft(Set.empty[String]) {(curr, p) => curr ++ collectNames(p)}
-      case ScTypeAliasType(alias, _, _, _) => HashSet.empty + alias.name
+      //case ScTypeAliasType(alias, _, _, _) => HashSet.empty + alias.name
       case ScDesignatorType(elem) => HashSet.empty + elem.getName
       case JavaArrayType(arg) => collectNames(arg)
       case ScParameterizedType (des, typeArgs) =>
@@ -49,14 +50,14 @@ object ScExistentialTypeReducer {
     case ScParameterizedType (des, typeArgs) => des match {
       case ScDesignatorType(owner : ScTypeParametersOwner) => {
         val newArgs = (owner.typeParameters.toArray zip typeArgs).map ({case (tp, ta) => ta match {
-          case tat : ScTypeAliasType => wilds.find{_.name == tat.name} match {
+          /*case tat : ScTypeAliasType => wilds.find{_.name == tat.name} match {
             case Some(wild) => {
               if (tp.isCovariant) wild.upperBound
               else if (tp.isContravariant) wild.lowerBound
               else tat
             }
             case None => tat
-          }
+          }*/
           case targ => targ
           }
         })
@@ -84,6 +85,9 @@ case class ScExistentialType(val quantified : ScType,
 
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
+
+  override def updateThisType(place: PsiElement) = ScExistentialType(quantified.updateThisType(place),
+    wildcards.map(_.updateThisType(place).asInstanceOf[ScExistentialArgument]))
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
@@ -91,9 +95,14 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
 
   override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
+  override def updateThisType(place: PsiElement) =
+    ScExistentialArgument(name, args, lowerBound.updateThisType(place), upperBound.updateThisType(place))
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
 extends ValueType {
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
+
+  override def updateThisType(place: PsiElement) =
+    ScSkolemizedType(name, args, lower.updateThisType(place), upper.updateThisType(place))
 }

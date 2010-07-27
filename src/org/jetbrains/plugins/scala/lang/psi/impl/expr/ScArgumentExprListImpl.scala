@@ -204,10 +204,6 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             }
             case _ => None
           }
-          case proj: ScProjectionType => proj.resolveResult match {
-            case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
-            case _ => None
-          }
           case _ => None //todo: Singleton type, Tuple type?
         }
         extract match {

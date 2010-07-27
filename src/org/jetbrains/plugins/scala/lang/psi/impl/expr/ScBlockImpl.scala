@@ -84,7 +84,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
             }
             case _ => t
           }
-          case ScProjectionType(p, ref) => new ScProjectionType(existize(p), ref)
+          case ScProjectionType(p, elem, subst) => new ScProjectionType(existize(p), elem, subst)
           case ScCompoundType(comps, decls, types, s) =>
             new ScCompoundType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), decls, types, s)
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
@@ -97,7 +97,6 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
                 new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound), existize(ex.upperBound))
             })
           }
-          case singl: ScSingletonType => existize(singl.pathType)
           case _ => t
         }
         val t = existize(e.getType(TypingContext.empty).getOrElse(Any))
