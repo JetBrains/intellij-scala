@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import collection.immutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.Suspension
-import com.intellij.psi.PsiTypeParameter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import com.intellij.psi.{PsiElement, PsiTypeParameter}
 
 /**
  * @author ilyas
@@ -47,11 +47,13 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
     params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit, project, scope)
+
+  override def updateThisType(place: PsiElement) = new ScMethodType(returnType.updateThisType(place),
+    params.map(p => Parameter(p.name, p.paramType.updateThisType(place), p.isDefault, p.isRepeated)), isImplicit, project, scope)
 }
 
 case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
-  if (internalType.isInstanceOf[ScTypeConstructorType] ||
-      internalType.isInstanceOf[ScTypePolymorphicType]) {
+  if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
 
@@ -71,12 +73,16 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
     TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
   }))
+
+  override def updateThisType(place: PsiElement) = ScTypePolymorphicType(internalType.updateThisType(place), typeParameters.map(tp => {
+    TypeParameter(tp.name, tp.lowerType.updateThisType(place), tp.upperType.updateThisType(place), tp.ptp)
+  }))
 }
 
-case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {
+/*case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {
   def inferValueType: ValueType = {
     //todo: implement
     throw new UnsupportedOperationException("Type Constuctors not implemented yet")
   }
   //todo: equiv
-}
+}*/

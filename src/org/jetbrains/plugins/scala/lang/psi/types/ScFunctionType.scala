@@ -3,11 +3,11 @@ package lang
 package psi
 package types
 
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.{ScClass, ScTrait}
 import decompiler.DecompilerUtil
+import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
 
 /**
 * @author ilyas
@@ -50,6 +50,9 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
 
   override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts), project, scope)
 
+  override def updateThisType(place: PsiElement) =
+    new ScFunctionType(returnType.updateThisType(place), params.map(_.updateThisType(place)), project, scope)
+
   private def functionTraitName = "scala.Function" + params.length
 
   private var Implicit: Boolean = false
@@ -91,6 +94,8 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
   }
 
   override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))
+
+  override def updateThisType(place: PsiElement) = ScTupleType(components.map(_.updateThisType(place)))
 
   private def tupleTraitName = "scala.Tuple" + components.length
 }

@@ -60,21 +60,10 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     //Find cyclic type references
     argTypesWrapped.find(_.isCyclic) match {
       case Some(_) => fails(new ScParameterizedType(res, Seq(argTypesgetOrElseped.toSeq: _*)))
-      case None => res match {
-        case tp: ScTypeConstructorType => {
-          val map = new HashMap[(String, String), ScType]
-          for (i <- 0 until argTypesgetOrElseped.length.min(tp.args.size)) {
-            map += Tuple((tp.args.apply(i).name, tp.args.apply(i).getId), argTypesgetOrElseped(i))
-          }
-          val subst = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
-          fails(subst.subst(tp.aliased.v))
-        }
-        case _ => {
-          val typeArgs = typeArgList.typeArgs.map(_.getType(ctx))
-          val result = new ScParameterizedType(res, typeArgs.map(_.getOrElse(Any)))
-          (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
-        }
-      }
+      case None =>
+        val typeArgs = typeArgList.typeArgs.map(_.getType(ctx))
+        val result = new ScParameterizedType(res, typeArgs.map(_.getOrElse(Any)))
+        (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
     }
   }
 }

@@ -12,6 +12,7 @@ import statements.ScFunction
 import com.intellij.psi.PsiMethod
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
 * @author Alexander Podkhalyuzin
@@ -46,8 +47,13 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
     val clauses = parameters.clauses
     val clazz = getParent.asInstanceOf[ScTypeDefinition]
     val typeParameters = clazz.typeParameters
-    val returnType: ScType = if (typeParameters.length == 0) ScDesignatorType(clazz) else {
-      ScParameterizedType(ScDesignatorType(clazz), typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
+    val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
+    val designatorType: ScType =
+      if (parentClazz != null)
+        ScProjectionType(ScThisType(parentClazz), clazz, ScSubstitutor.empty)
+      else ScDesignatorType(clazz)
+    val returnType: ScType = if (typeParameters.length == 0) designatorType else {
+      ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
     }
     if (clauses.length == 0) return new ScMethodType(returnType, Seq.empty, false, getProject, getResolveScope)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>

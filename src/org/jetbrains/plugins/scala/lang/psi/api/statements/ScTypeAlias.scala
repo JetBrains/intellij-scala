@@ -11,6 +11,7 @@ import psi.ScalaPsiElement
 import toplevel.ScPolymorphicElement
 import toplevel.typedef.{ScDocCommentOwner, ScMember}
 import types.ScType
+import base.types.ScExistentialClause
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,5 +25,12 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = m match {
     case t : ScTypeAlias => t.name == name
     case _ => false
+  }
+
+  def isExistentialTypeAlias: Boolean = {
+    getContext match {
+      case _: ScExistentialClause => true
+      case _ => false
+    }
   }
 }

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStab
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -54,7 +55,7 @@ object Equivalence {
       case (r, AnyRef) => equivInner(r, l, undefinedSubst)
       case (p: ScProjectionType, t: StdType) => {
         p.element match {
-          case Some(synth: ScSyntheticClass) => equivInner(synth.t, t, undefinedSubst)
+          case synth: ScSyntheticClass => equivInner(synth.t, t, undefinedSubst)
           case _ => (false, undefinedSubst)
         }
       }
@@ -164,17 +165,35 @@ object Equivalence {
         }
       }
       case (p: ScParameterizedType, ScTupleType(components)) => equivInner(r, l, undefinedSubst)
-      case (ScDesignatorType(element), ScDesignatorType(element1)) => (element == element1, undefinedSubst)
-      case (ScDesignatorType(element), ScSingletonType(path: ScPathElement)) => path match {
-        case ref: ScStableCodeReferenceElement => {
-          ref.bind match {
-            case Some(ScalaResolveResult(el: PsiNamedElement, _)) => (el == element, undefinedSubst)
-            case _ => (false, undefinedSubst)
-          }
-        }
-        case _ => (false, undefinedSubst)
+      case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAliasDefinition, subst), args), _) => {
+        val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return equivInner(genericSubst.subst(lBound), r, undefinedSubst)
       }
-      case (ScSingletonType(path: ScPathElement), ScDesignatorType(element)) => equivInner(r, l, undefinedSubst)
+      case (_, ScParameterizedType(ScProjectionType(projected, a: ScTypeAliasDefinition, subst), args)) => {
+        val uBound = subst.subst(a.upperBound.getOrElse(return (false, undefinedSubst)))
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return equivInner(l, genericSubst.subst(uBound), undefinedSubst)
+      }
+      case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
+        val lBound = a.lowerBound.getOrElse(return (false, undefinedSubst))
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return equivInner(genericSubst.subst(lBound), r, undefinedSubst)
+      }
+      case (_, ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args)) => {
+        val uBound = a.upperBound.getOrElse(return (false, undefinedSubst))
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return equivInner(l, genericSubst.subst(uBound), undefinedSubst)
+      }
+      case (ScDesignatorType(a: ScTypeAliasDefinition), _) =>
+        equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), r, undefinedSubst)
+      case (_, ScDesignatorType(a: ScTypeAliasDefinition)) =>
+        equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), l, undefinedSubst)
+      case (ScDesignatorType(element), ScDesignatorType(element1)) => (element == element1, undefinedSubst)
       case (JavaArrayType(arg), JavaArrayType(arg2)) => equivInner (arg, arg2, undefinedSubst)
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 => {
         ScType.extractClass(des) match {
@@ -196,31 +215,6 @@ object Equivalence {
         }
         return (true, undefinedSubst)
       }
-      case (l@ScTypeConstructorType(alias, args, aliased), tct : ScTypeConstructorType) => {
-        if (alias != tct.alias) return (false, undefinedSubst)
-        val s = args.zip(tct.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
-        val t = equivInner(l.lower.v, s.subst(tct.lower.v), undefinedSubst)
-        if (!t._1) return (false, undefinedSubst)
-        undefinedSubst = t._2
-        equivInner(l.upper.v, s.subst(tct.upper.v), undefinedSubst)
-      }
-      case (ScTypeAliasType(alias, args, lower, upper), tat : ScTypeAliasType) => {
-        if (alias != tat.alias) return (false, undefinedSubst)
-
-        val s = args.zip(tat.args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._2.name, p._2.getId), p._1)}
-
-        (CyclicHelper.compute(alias, tat.alias)(() => {
-          val t = equivInner(lower.v, s.subst(tat.lower.v), undefinedSubst)
-          if (!t._1) (false, undefinedSubst)
-          else {
-            undefinedSubst = t._2
-            equivInner(upper.v, s.subst(tat.upper.v), undefinedSubst)
-          }
-        }) match {
-          case None => (true, undefinedSubst)
-          case Some(b) => b
-        })
-      }
       case (ScTypeParameterType(name, args, lower, upper, param), stp: ScTypeParameterType) => {
         if (r eq this) return (true, undefinedSubst)
         (CyclicHelper.compute(param, stp.param)(() => {
@@ -235,56 +229,15 @@ object Equivalence {
           case Some(b) => b
         })
       }
-      case (ScProjectionType(projected, ref), ScProjectionType(p1, ref1)) => {
-        if (ref1.refName != ref.refName) return (false, undefinedSubst)
+      case (ScProjectionType(projected, a: ScTypeAliasDefinition, subst), _) => {
+        equivInner(subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), r, undefinedSubst)
+      }
+      case (_, ScProjectionType(projected, a: ScTypeAliasDefinition, subst)) => {
+        equivInner(l, subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), undefinedSubst)
+      }
+      case (ScProjectionType(projected, element, subst), ScProjectionType(p1, element1, subst1)) => {
+        if (element != element1) return (false, undefinedSubst)
         equivInner(projected, p1, undefinedSubst)
-      }
-      case (l@ScProjectionType(projected, ref), ScDesignatorType(des)) => projected match {
-        case ScSingletonType(path) => {
-          l.resolveResult match {
-            case Some(ScalaResolveResult(el: PsiNamedElement, _)) => {
-              (el == des, undefinedSubst)
-            }
-            case _ => (false, undefinedSubst)
-          }
-        }
-        case ScDesignatorType(_) => l.resolveResult match {
-          case Some(ScalaResolveResult(el: PsiNamedElement, _)) => (el == des, undefinedSubst)
-          case _ => (false, undefinedSubst)
-        }
-        case _ => (false, undefinedSubst)
-      }
-      case (d: ScDesignatorType, p: ScProjectionType) => equivInner(r, l, undefinedSubst)
-      case (l@ScProjectionType(projected, ref), ScSingletonType(path: ScPathElement)) => path match {
-        case ref: ScStableCodeReferenceElement => {
-          ref.bind match {
-            case Some(ScalaResolveResult(el, _)) => {
-              l.resolveResult match {
-                case Some(ScalaResolveResult(el2, _)) => (el2 == el, undefinedSubst)
-                case _ => (false, undefinedSubst)
-              }
-            }
-            case _ => (false, undefinedSubst)
-          }
-        }
-        case _ => (false, undefinedSubst)
-      }
-      case (s: ScSingletonType, p: ScProjectionType) => equivInner(r, l, undefinedSubst)
-      case (ScSingletonType(path), ScSingletonType(path1)) => {
-        def equiv(e1: ScPathElement, e2: ScPathElement): Boolean = {
-          (e1, e2) match {
-            case (r1: ScReferenceElement, r2: ScReferenceElement) =>
-              (r1.resolve, r2.resolve) match {
-                case (null, _) => false
-                case (_, null) => false
-                case (p1, p2) => p1 == p2
-              }
-            case (t1: ScThisReference, t2: ScThisReference) => t1.refTemplate == t2.refTemplate
-            case (s1: ScSuperReference, s2: ScSuperReference) => s1.drvTemplate == s2.drvTemplate
-            case _ => false
-          }
-        }
-        (equiv(path, path1), undefinedSubst)
       }
       case (ScMethodType(returnType, params, ismplicit), m: ScMethodType) => {
         if (m.params.length != params.length) return (false, undefinedSubst)

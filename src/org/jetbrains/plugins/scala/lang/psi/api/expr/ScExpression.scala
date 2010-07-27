@@ -140,10 +140,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   private def typeWithUnderscore(ctx: TypingContext): TypeResult[ScType] = {
     getText.indexOf("_") match {
-      case -1 => innerType(ctx) //optimization
+      case -1 => thisTypeUpdatedInnerType(ctx) //optimization
       case _ => {
         val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) innerType(ctx)
+        if (unders.length == 0) thisTypeUpdatedInnerType(ctx)
         else {
           new Success(new ScMethodType(valueType(ctx, true).getOrElse(Any),
             unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false, getProject,
@@ -151,6 +151,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         }
       }
     }
+  }
+
+  def thisTypeUpdatedInnerType(ctx: TypingContext): TypeResult[ScType] = {
+    innerType(ctx).map(_.updateThisType(this))
   }
 
 
@@ -166,7 +170,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
   }
 
   private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
-    val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
+    val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else thisTypeUpdatedInnerType(ctx)
     var res = inner.getOrElse(return inner)
 
     //let's update implicitParameters field

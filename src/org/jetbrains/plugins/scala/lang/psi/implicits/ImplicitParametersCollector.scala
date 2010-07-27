@@ -131,7 +131,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                 if (subst.subst(funType) conforms tp) Conformance.undefinedSubst(tp, subst.subst(funType))
                 else {
                   subst.subst(funType) match {
-                    case ScFunctionType(ret, params) => Conformance.undefinedSubst(tp, ret)
+                    case ScFunctionType(ret, params) => Conformance.undefinedSubst(tp, ret) //todo: check is implicit first parameter clause
                   }
                 }
               }

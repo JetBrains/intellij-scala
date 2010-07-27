@@ -14,26 +14,16 @@ import nonvalue.NonValueType
 import psi.impl.ScalaPsiManager
 import result.TypingContext
 import api.base.{ScStableCodeReferenceElement, ScPathElement}
-import resolve.ScalaResolveResult
+import lang.resolve.ScalaResolveResult
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiPackage, PsiTypeParameterListOwner, PsiNamedElement}
 import api.toplevel.typedef.ScClass
 import caches.CachesUtil
 
-case class ScDesignatorType(val element: PsiNamedElement) extends ValueType {
-  private var isStaticClass = false
-  //You can use this method to check if it's Java class,
-  // which is used for getting static context => no implicit conversion
-  def isStatic = isStaticClass
-  def this(elem: PsiNamedElement, isStaticClass: Boolean) {
-    this(elem)
-    this.isStaticClass = isStaticClass
-  }
-}
+
 
 import _root_.scala.collection.immutable.{Map, HashMap}
-import com.intellij.psi.{PsiTypeParameter, PsiClass}
+import com.intellij.psi._
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -55,6 +45,10 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   }
 
   override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
+
+  override def updateThisType(place: PsiElement) = {
+    JavaArrayType(arg.updateThisType(place))
+  }
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
@@ -75,7 +69,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       res
     }
     designator match {
-      case ScPolymorphicType(_, args, _, _) => {
+      case ScTypeParameterType(_, args, _, _, _) => {
         forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
       }
       case _ => ScType.extractDesignated(designator) match {
@@ -111,6 +105,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
+
+  override def updateThisType(place: PsiElement) = ScParameterizedType(designator.updateThisType(place),
+    typeArgs.map(_.updateThisType(place)))
 }
 
 object ScParameterizedType {
@@ -120,32 +117,9 @@ object ScParameterizedType {
     }).toSeq : _*))
 }
 
-abstract case class ScPolymorphicType(name : String, args : List[ScTypeParameterType],
-                                     lower : Suspension[ScType], upper : Suspension[ScType]) extends ValueType
-
-case class ScTypeConstructorType(alias : ScTypeAliasDefinition, override val args : List[ScTypeParameterType],
-                                 aliased : Suspension[ScType])
-extends ScPolymorphicType(alias.name, args, aliased, aliased) {
-
-  def this(tad : ScTypeAliasDefinition, s : ScSubstitutor) =
-    this(tad, tad.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(tad.aliasedType(TypingContext.empty).getOrElse(Any))}))
-}
-
-case class ScTypeAliasType(alias : ScTypeAlias, override val args : List[ScTypeParameterType],
-                           override val lower : Suspension[ScType], override val upper : Suspension[ScType])
-extends ScPolymorphicType(alias.name, args, lower, upper) {
-
-  def this(ta : ScTypeAlias, s : ScSubstitutor) =
-    this(ta, ta.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(ta.lowerBound.getOrElse(Nothing))}),
-      new Suspension[ScType]({() => s.subst(ta.upperBound.getOrElse(Any))}))
-}
-
-case class ScTypeParameterType(override val name: String, override val args: List[ScTypeParameterType],
-                              override val lower: Suspension[ScType], override val upper: Suspension[ScType],
-                              param: PsiTypeParameter)
-extends ScPolymorphicType(name, args, lower, upper) {
+case class ScTypeParameterType(val name: String, val args: List[ScTypeParameterType],
+                              val lower: Suspension[ScType], val upper: Suspension[ScType],
+                              param: PsiTypeParameter) extends ValueType {
   def this(tp : ScTypeParam, s : ScSubstitutor) =
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
       new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrElse(Nothing))}),
@@ -171,25 +145,7 @@ extends ScPolymorphicType(name, args, lower, upper) {
   }
 }
 
-case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
-  var level = 0
-  def this(tpt: ScTypeParameterType, level: Int) {
-    this(tpt)
-    this.level = level
-  }
 
-  def inferValueType: ValueType = tpt
-}
-
-case class ScAbstractType(val tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
-  def inferValueType = tpt
-
-  def simplifyType: ScType = {
-    if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
-  }
-
-  override def removeAbstracts = simplifyType
-}
 
 private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {

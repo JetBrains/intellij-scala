@@ -3,21 +3,15 @@ package lang
 package psi
 package types
 
-import api.base.{ScStableCodeReferenceElement}
-import com.intellij.psi.util.PsiTypesUtil
 import decompiler.DecompilerUtil
 import impl.ScalaPsiManager
 import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import nonvalue.NonValueType
-import resolve.ScalaResolveResult
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import api.expr.{ScSuperReference, ScThisReference}
 import api.toplevel.typedef.{ScClass, ScObject}
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
-import org.jetbrains.annotations.Nullable
-import com.incors.plaf.alloy.de
 import api.base.patterns.ScBindingPattern
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
@@ -46,6 +40,8 @@ trait ScType {
    * There shouldn't be any abstract type in this expected type.
    */
   def removeAbstracts = this
+
+  def updateThisType(place: PsiElement): ScType = this
 }
 
 trait ValueType extends ScType{
@@ -182,8 +178,8 @@ object ScType {
                     {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
-      case ScParameterizedType(ScProjectionType(pr, ref), args) => ref.bind.map(_.getElement) match {
-        case Some(c: PsiClass) => if (c.getQualifiedName == "scala.Array" && args.length == 1)
+      case ScParameterizedType(ScProjectionType(pr, element, subst), args) => element match {
+        case c: PsiClass => if (c.getQualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
@@ -194,10 +190,8 @@ object ScType {
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
 
-      case ScProjectionType(pr, ref) => ref.bind match {
-        case Some(result) if result.isCyclicReference => javaObj
-        case Some(result) if result.getElement.isInstanceOf[PsiClass] => {
-          val clazz = result.getElement.asInstanceOf[PsiClass]
+      case ScProjectionType(pr, element, subst) => element match {
+        case clazz: PsiClass => {
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
             case _ => {
@@ -206,8 +200,7 @@ object ScType {
             }
           }
         }
-        case Some(res) if res.getElement.isInstanceOf[ScTypeAliasDefinition] => {
-          val elem = res.getElement.asInstanceOf[ScTypeAliasDefinition]
+        case elem: ScTypeAliasDefinition => {
           elem.aliasedType(TypingContext.empty) match {
             case Success(t, _) => toPsi(t, project, scope)
             case Failure(_, _) => javaObj
@@ -225,8 +218,10 @@ object ScType {
   def extractClass(t: ScType): Option[PsiClass] = t match {
     case n: NonValueType => extractClass(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz)
-    case proj@ScProjectionType(p, _) => proj.resolveResult match {
-      case Some(ScalaResolveResult(c: PsiClass, _)) => Some(c)
+    case proj@ScProjectionType(p, element, subst) => element match {
+      case c: PsiClass => Some(c)
+      case t: ScTypeAliasDefinition =>
+        extractClass(subst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
       case _ => None
     }
     case p@ScParameterizedType(t1, _) => {
@@ -254,8 +249,10 @@ object ScType {
   def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, _) => proj.resolveResult match {
-      case Some(ScalaResolveResult(c: PsiClass, s)) => Some((c, s))
+    case proj@ScProjectionType(p, elem, subst) => elem match {
+      case c: PsiClass => Some((c, subst))
+      case t: ScTypeAliasDefinition =>
+        extractClassType(subst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
       case _ => None
     }
     case p@ScParameterizedType(t1, _) => {
@@ -282,10 +279,7 @@ object ScType {
 
   def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, _) => proj.resolveResult match {
-      case Some(ScalaResolveResult(e, s)) => Some((e, s))
-      case _ => None
-    }
+    case proj@ScProjectionType(p, e, s) => Some((e, s))
     case p@ScParameterizedType(t1, _) => {
       extractClassType(t1) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
@@ -344,22 +338,17 @@ object ScType {
     }
 
     def inner(t: ScType): Unit = t match {
+      case ScAbstractType(tpt, lower, upper) => buffer.append("AbstractType").append(tpt.name.capitalize)
       case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => {
         buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
       }
+      case ScThisType(clazz) => buffer.append(nameWithPointFun(clazz)).append("this.type")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, ref) => {
-        val refName = ref.resolve match {
-          case named: PsiNamedElement => named.getName
-          case _ => ref.refName
-        }
+      case ScProjectionType(p, e, s) => {  //todo:
+        val refName = e.getName
         p match {
-          case ScSingletonType(path: ScStableCodeReferenceElement) => path.bind match {
-            case Some(res) => buffer.append(nameWithPointFun(res.getElement)).append(refName)
-            case None => inner(p); buffer.append(".").append(refName)
-          }
           case ScDesignatorType(pack: PsiPackage) => buffer.append(nameWithPointFun(pack)).append(refName)
           case ScDesignatorType(obj: ScObject) => buffer.append(nameWithPointFun(obj)).append(refName)
           case ScDesignatorType(v: ScBindingPattern) => buffer.append(nameWithPointFun(v)).append(refName)
@@ -373,7 +362,7 @@ object ScType {
       }
       case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
-      case ScPolymorphicType(name, _, _, _) => buffer.append(name)
+      case ScTypeParameterType(name, _, _, _, _) => buffer.append(name)
       case ScUndefinedType(tpt: ScTypeParameterType) => buffer.append("NotInfered").append(tpt.name)
       case ScExistentialArgument(name, args, lower, upper) => {
         buffer.append(name)
@@ -460,46 +449,6 @@ object ScType {
         buffer.append(" forSome{");
         appendSeq(wilds, "; ");
         buffer.append("}")
-      }
-      case ScSingletonType(path: ScStableCodeReferenceElement) => {
-        path.bind match {
-          case Some(r: ScalaResolveResult) => buffer.append(nameFun(r.getElement))
-          case _ => buffer.append(path.qualName)
-        }
-        buffer.append(".type")
-      }
-      case ScSingletonType(path: ScThisReference) => {//todo: this can become super etc.
-        path.refTemplate match {
-          case Some(clazz: PsiClass) => {
-            buffer.append(clazz.getName).append(".this")
-          }
-          case _ => {
-            path.reference match {
-              case Some(ref: ScStableCodeReferenceElement) => buffer.append(ref.refName).append(".this")
-              case None => buffer.append("this")
-            }
-          }
-        }
-        buffer.append(".type")
-      }
-      case ScSingletonType(path: ScSuperReference) => {//todo: this can become super etc.
-        path.staticSuper match {
-          case Some(tp: ScType) => inner(tp)
-          case None => {
-            path.drvTemplate match {
-              case Some(clazz: PsiClass) => {
-                buffer.append(clazz.getName).append(".super")
-              }
-              case _ => {
-                path.qualifier match {
-                  case Some(ref: ScStableCodeReferenceElement) => buffer.append(ref.refName).append(".super")
-                  case None => buffer.append("super")
-                }
-              }
-            }
-            buffer.append(".type")
-          }
-        }
       }
       case _ => null //todo
     }

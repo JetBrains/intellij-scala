@@ -18,9 +18,7 @@ import api.toplevel.typedef._
 import api.statements._
 import result.TypingContext
 import types.PhysicalSignature
-import _root_.scala.collection.mutable.ListBuffer
 import com.intellij.openapi.util.Key
-import _root_.scala.collection.mutable.HashMap
 import fake.FakePsiMethod
 import api.toplevel.ScTypedDefinition
 import com.intellij.openapi.progress.ProgressManager
@@ -28,7 +26,6 @@ import com.intellij.openapi.util.text.StringUtil
 import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
-//import Suspension._
 
 object TypeDefinitionMembers {
 
@@ -389,11 +386,11 @@ object TypeDefinitionMembers {
                 if (n.supers.length > 0 && !processor.execute(n.supers.apply(0).info, state.put(ScSubstitutor.key,
                   n.supers.apply(0).substitutor followed subst))) return false
               }
-            } else tail
+            } else if (!tail) return false
           }
-          case _ => tail
+          case _ => if (!tail) return false
         }
-        def tail {
+        def tail: Boolean = {
           if (v1 && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
           //this is for Java: to find methods, which is vals in Scala
           if (v2) {
@@ -465,6 +462,7 @@ object TypeDefinitionMembers {
               case _ =>
             }
           }
+          true
         }
       }
     }

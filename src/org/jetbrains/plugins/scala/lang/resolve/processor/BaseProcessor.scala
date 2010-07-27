@@ -81,6 +81,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     t match {
+      case ScThisType(clazz: PsiClass) => {
+        processElement(clazz, ScSubstitutor.empty, place, state)
+      }
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] => {
         //not scala from scala
         var break = true
@@ -96,59 +99,26 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         break
       }
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
-      case ScPolymorphicType(_, Nil, _, upper) => processType(upper.v, place)
+      case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state)
       case p@ScParameterizedType(des, typeArgs) => {
         p.designator match {
-          case ScPolymorphicType(_, _, _, upper) => processType(p.substitutor.subst(upper.v), place)
+          case ScTypeParameterType(_, _, _, upper, _) => processType(p.substitutor.subst(upper.v), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
           case _ => p.designated match {
             case Some(des) => processElement(des, p.substitutor, place, state)
             case None => true
           }
         }
       }
-      //resolve dependent types case
-      case proj@ScProjectionType(des, ref) => proj.resolveResult match {
-        case Some(res) => {
-          val clazz = PsiTreeUtil.getContextOfType(res.element, classOf[PsiClass], true)
-          val subst = if (clazz != null) {
-            des match {
-              case ScDesignatorType(c: PsiClass) if c != clazz =>
-                {
-                  Bounds.superSubstitutor(clazz, c, res.substitutor.bindD(clazz, c)) match {
-                    case Some(s) => {
-                      if (c.isInstanceOf[ScTemplateDefinition]) {
-                        Bounds.putAliases(c.asInstanceOf[ScTemplateDefinition], s)
-                      } else s
-                    }
-                    case _ => res.substitutor.bindD(clazz, c)
-                  }
-                }
-              case ScDesignatorType(elem) if elem != clazz => res.substitutor.bindD(clazz, elem)
-              case s@ScSingletonType(path) => {
-                s.pathType match {
-                  case ScDesignatorType(c: PsiClass) => {
-                    Bounds.superSubstitutor(clazz, c, res.substitutor.bindD(clazz, c)) match {
-                      case Some(s) => {
-                        if (c.isInstanceOf[ScTemplateDefinition]) {
-                          Bounds.putAliases(c.asInstanceOf[ScTemplateDefinition], s)
-                        } else s
-                      }
-                      case _ => res.substitutor.bindD(clazz, c)
-                    }
-                  }
-                  case ScDesignatorType(elem) if elem != clazz => res.substitutor.bindD(clazz, elem)
-                  case _ => res.substitutor
-                }
-              }
-              case _ => res.substitutor
-            }
-          } else res.substitutor
-          processElement(res.element, subst, place, state)
-        }
-        case None => true
+      case ScProjectionType(projectd, ta: ScTypeAlias, subst) => {
+        val upper = ta.upperBound.getOrElse(return true)
+        processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+      }
+      case proj@ScProjectionType(des, elem, subst) => {
+        val clazz = PsiTreeUtil.getContextOfType(elem, classOf[PsiClass], true)
+        processElement(elem, subst, place, state)
       }
 
       case StdType(name, tSuper) => (SyntheticClasses.get(place.getProject).byName(name): @unchecked) match {
@@ -173,11 +143,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       }
 
       case ft@ScFunctionType(rt, params) => {
-        ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
+        ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)
       }
 
       case tp@ScTupleType(comps) => {
-        tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place)).getOrElse(true)
+        tp.resolveTupleTrait(place.getProject).map(processType((_: ScType), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)
       }
 
       case comp@ScCompoundType(components, declarations, types, substitutor) => {
@@ -201,23 +171,15 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         if (!TypeDefinitionMembers.processDeclarations(comp, this, newState, null, place)) return false
         true
       }
-      case singl: ScSingletonType => {
-        // See test ThisTypeCompound.
-        val qual = place match {
-          case ref: ScReferenceExpression => ref.qualifier
-          case _ => None
-        }
-        processType(singl.pathTypeInContext(qual), place)
-      }
-      case ex: ScExistentialType => processType(ex.skolem, place)
-      case z: ScExistentialArgument => processType(z.upperBound, place); processType(z.lowerBound, place)
+      case ex: ScExistentialType => processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+      case z: ScExistentialArgument => processType(z.upperBound, place, state.put(ScSubstitutor.key, ScSubstitutor.empty)); processType(z.lowerBound, place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       case _ => true
     }
   }
 
   private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = {
     e match {
-      case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place)
+      case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
 
       //need to process scala way
       case clazz: PsiClass =>
