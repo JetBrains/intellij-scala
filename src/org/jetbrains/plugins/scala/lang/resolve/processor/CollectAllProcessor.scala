@@ -17,7 +17,8 @@ class CollectAllProcessor(override val kinds: Set[ResolveTargets.Value],
       named match {
         case pack: PsiPackage =>
           candidatesSet += new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state))
-        case _ =>  candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+        case _ =>  candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state),
+          boundClass = getBoundClass(state))
       }
     }
     true
