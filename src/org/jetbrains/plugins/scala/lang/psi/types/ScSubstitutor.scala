@@ -45,6 +45,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   private var follower: ScSubstitutor = null
 
+  def getFollower: ScSubstitutor = follower
+
   override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ", " + outerMap + ")" +
     (if (follower != null) " followed " + follower.toString else "")
 
@@ -64,8 +66,12 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap + Tuple(outer, elem), follower)
   def incl(s: ScSubstitutor) =
     new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap, dependentMap, follower)
-  def followed(s: ScSubstitutor) : ScSubstitutor = new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap,
-    if (follower != null) follower followed s else s)
+  def followed(s: ScSubstitutor): ScSubstitutor = {
+    if (follower == null && tvMap.size + aliasesMap.size + outerMap.size + dependentMap.size == 0) return s
+    else if (s.getFollower == null && s.tvMap.size + s.outerMap.size + s.aliasesMap.size + s.dependentMap.size == 0) return this
+    else return new ScSubstitutor(tvMap, aliasesMap, outerMap, dependentMap,
+      if (follower != null) follower followed s else s)
+  }
 
   def subst(t: ScType): ScType = try {
     if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
@@ -89,7 +95,6 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       }))
     }
 
-    //todo: ScTypeConstructor
     case tpt : ScTypeParameterType => tvMap.get((tpt.name, tpt.getId)) match {
       case None => tpt
       case Some(v) => v
