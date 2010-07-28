@@ -8,7 +8,6 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
 import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}

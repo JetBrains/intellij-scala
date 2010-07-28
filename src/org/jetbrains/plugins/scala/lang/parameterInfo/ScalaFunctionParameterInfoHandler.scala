@@ -30,7 +30,6 @@ import psi.api.statements.{ScFunction}
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
-import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.{ScalaPsiUtil}
 import result.{Success, TypeResult, TypingContext}
 
