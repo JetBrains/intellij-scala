@@ -64,7 +64,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
 }
 
 import com.intellij.psi.PsiMethod
-class PhysicalSignature(val method : PsiMethod, override val substitutor : ScSubstitutor)
+class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubstitutor)
   extends Signature(method.getName, ScalaPsiUtil.getTypesStream(method.getParameterList.getParameters.toList),
                      method.getParameterList.getParameters.length,
                      method.getTypeParameters,
