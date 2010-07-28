@@ -202,6 +202,12 @@ object Conformance {
           case _ => return (false, undefinedSubst)
         }
       }
+      case (ScThisType(l), _) => {
+        return conformsInner(l, r, visited, subst, noBaseTypes)
+      }
+      case (_, ScThisType(r)) => {
+        return conformsInner(l, r, visited, subst, noBaseTypes)
+      }
       case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args), _) => {
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.

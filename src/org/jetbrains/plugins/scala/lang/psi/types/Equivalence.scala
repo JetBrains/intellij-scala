@@ -108,6 +108,9 @@ object Equivalence {
           (true, undefinedSubst)
         }
       }
+      case (ScThisType(tp1), ScThisType(tp2)) => {
+        return equivInner(tp1, tp2, undefinedSubst)
+      }
       case (l@ScExistentialType(quantified, wildcards), ex : ScExistentialType) => {
         val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
         val list = wildcards.zip(ex.wildcards)
