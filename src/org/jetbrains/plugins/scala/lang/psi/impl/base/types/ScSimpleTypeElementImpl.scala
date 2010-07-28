@@ -204,8 +204,7 @@ object ScSimpleTypeElementImpl {
       case thisRef: ScThisReference => {
         thisRef.refTemplate match {
           case Some(template) => {
-            return Success(ScThisType(template.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(path)))), Some(path))
+            return Success(ScThisType(template), Some(path))
           }
           case _ => return Failure("Cannot find template for this reference", Some(thisRef))
         }
@@ -214,8 +213,7 @@ object ScSimpleTypeElementImpl {
         val template = superRef.drvTemplate.getOrElse(
             return Failure("Cannot find enclosing container", Some(superRef))
           )
-        return Success(ScThisType(template.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(path)))), Some(path))
+        return Success(ScThisType(template), Some(path))
       }
     }
   }
@@ -247,8 +245,7 @@ object ScSimpleTypeElementImpl {
           case Some(thisRef: ScThisReference) => {
             thisRef.refTemplate match {
               case Some(template) => {
-                return Success(ScProjectionType(ScThisType(template.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(ref)))), resolvedElement, subst), Some(ref))
+                return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
               }
               case _ => return Failure("Cannot find template for this reference", Some(thisRef))
             }
@@ -257,8 +254,7 @@ object ScSimpleTypeElementImpl {
             val template = superRef.drvTemplate.getOrElse(
                 return Failure("Cannot find enclosing container", Some(superRef))
               )
-            return Success(ScProjectionType(ScThisType(template.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(ref)))), resolvedElement, subst), Some(ref))
+            return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
           }
           case None => {
             if (boundClass == null) return Success(ScDesignatorType(resolvedElement), Some(ref))
@@ -266,8 +262,7 @@ object ScSimpleTypeElementImpl {
               var td = ScalaPsiUtil.getPlaceTd(ref)
               while (td != null) {
                 if (td == boundClass || td.isInheritor(boundClass, true))
-                  return Success(ScProjectionType(ScThisType(td.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(ref)))), resolvedElement, subst), Some(ref))
+                  return Success(ScProjectionType(ScThisType(td), resolvedElement, subst), Some(ref))
                 td = ScalaPsiUtil.getPlaceTd(td)
               }
               return Success(ScProjectionType(ScDesignatorType(boundClass), resolvedElement, subst), Some(ref))

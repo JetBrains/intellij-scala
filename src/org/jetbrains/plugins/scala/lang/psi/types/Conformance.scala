@@ -20,7 +20,7 @@ import collection.Seq
 import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
 import api.toplevel.{ScNamedElement, ScTypedDefinition}
-import result.TypeResult
+import result.{TypingContext, TypeResult}
 
 object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
@@ -202,11 +202,11 @@ object Conformance {
           case _ => return (false, undefinedSubst)
         }
       }
-      case (ScThisType(l), _) => {
-        return conformsInner(l, r, visited, subst, noBaseTypes)
+      case (ScThisType(clazz), _) => {
+        return conformsInner(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return (false, undefinedSubst)), r, visited, subst, noBaseTypes)
       }
-      case (_, ScThisType(r)) => {
-        return conformsInner(l, r, visited, subst, noBaseTypes)
+      case (_, ScThisType(clazz)) => {
+        return conformsInner(l, clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, subst, noBaseTypes)
       }
       case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args), _) => {
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))

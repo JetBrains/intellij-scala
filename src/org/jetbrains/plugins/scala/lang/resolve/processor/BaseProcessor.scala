@@ -14,6 +14,7 @@ import statements.{ScTypeAlias}
 import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
+import result.TypingContext
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
@@ -81,8 +82,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
 
     t match {
-      case ScThisType(tp) => {
-        processType(tp, place, state)
+      case ScThisType(clazz) => {
+        val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
+        processType(clazz.selfType match {
+          case Some(selfType) => Bounds.glb(clazzType, selfType)
+          case _ => clazzType
+        }, place, state)
       }
       case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] => {
         //not scala from scala

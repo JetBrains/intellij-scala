@@ -345,15 +345,8 @@ object ScType {
       case ScFunctionType(ret, params) => {
         buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
       }
-      case ScThisType(tp) => {
-        tp match {
-          case ScDesignatorType(clazz: ScTypeDefinition) => buffer.append(nameWithPointFun(clazz)).append("this.type")
-          case ScParameterizedType(ScDesignatorType(clazz: ScTypeDefinition), _) =>
-            buffer.append(nameWithPointFun(clazz)).append("this.type")
-          case _ => buffer.append("this.type")
-        }
-
-      }
+      case ScThisType(clazz: ScTypeDefinition) => buffer.append(nameWithPointFun(clazz)).append("this.type")
+      case ScThisType(clazz) => buffer.append("this.type")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, e, s) => {  //todo:
