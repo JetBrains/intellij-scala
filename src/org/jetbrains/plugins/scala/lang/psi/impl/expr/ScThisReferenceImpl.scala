@@ -24,8 +24,14 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def toString: String = "ThisReference"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = refTemplate match {
-    case Some(td) => Success(ScThisType(td.getType(TypingContext.empty).
-                    getOrElse(return Failure("No clazz type found", Some(this)))), Some(this))
+    case Some(td) => {
+      val innerType: ScType = td.getType(TypingContext.empty).
+              getOrElse(return Failure("No clazz type found", Some(this)))
+      expectedType match {
+        case Some(ScThisType(_)) => Success(ScThisType(innerType), Some(this))
+        case _ => Success(innerType, Some(this))
+      }
+    }
     case _ => Failure("Cannot infer type", Some(this))
   }
 
