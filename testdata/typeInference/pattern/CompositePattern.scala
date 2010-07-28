@@ -12,4 +12,4 @@ object CompositePattern {
     }
   }
 }
-//CompositePattern.C
+//CompositePattern.this.type#C
