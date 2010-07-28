@@ -4,16 +4,11 @@ package psi
 package api
 package base
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import statements.ScFunction
 import com.intellij.psi.PsiMethod
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
-import com.intellij.psi.util.PsiTreeUtil
-import result.TypingContext
 
 /**
 * @author Alexander Podkhalyuzin
@@ -51,8 +46,7 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
     val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
     val designatorType: ScType =
       if (parentClazz != null)
-        ScProjectionType(ScThisType(parentClazz.getType(TypingContext.empty).getOrElse(ScDesignatorType(clazz))),
-          clazz, ScSubstitutor.empty)
+        ScProjectionType(ScThisType(parentClazz), clazz, ScSubstitutor.empty)
       else ScDesignatorType(clazz)
     val returnType: ScType = if (typeParameters.length == 0) designatorType else {
       ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))

@@ -42,9 +42,9 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
  *
  * So when expression is typed, we should replace all such types be return value.
  */
-case class ScThisType(tp: ScType) extends ValueType {
+case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
   override def updateThisType(place: PsiElement): ScType = {
-    def workWithClazz(clazz: ScTemplateDefinition): ScType = {
+    /*def workWithClazz(clazz: ScTemplateDefinition): ScType = {
       var td: ScTemplateDefinition = ScalaPsiUtil.getPlaceTd(place)
       while (td != null) {
         if (td == clazz || td.isInheritor(clazz, true)) return ScThisType(td.getType(TypingContext.empty).getOrElse(return tp))
@@ -60,7 +60,8 @@ case class ScThisType(tp: ScType) extends ValueType {
         workWithClazz(clazz)
       }
       case _ => tp.updateThisType(place)
-    }
+    }*/
+    this //todo:
   }
 }
 

@@ -8,6 +8,7 @@ import resolve.ScalaResolveResult
 import _root_.scala.collection.mutable.{Set, HashMap, MultiMap}
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import com.intellij.openapi.progress.ProgressManager
+import result.TypingContext
 import types.Conformance.AliasType
 import api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 
@@ -20,7 +21,7 @@ object BaseTypes {
         reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll) ++
                 Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
       case ScDesignatorType(ta: ScTypeAliasDefinition) => BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty))
-      case ScThisType(tp) => BaseTypes.get(tp)
+      case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty))
       case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
       case a: JavaArrayType => Seq(types.Any)
