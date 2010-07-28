@@ -52,6 +52,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def getType(ctx: TypingContext): TypeResult[ScType]
 
+  def getTypeWithProjections(ctx: TypingContext): TypeResult[ScType]
+
   def members(): Seq[ScMember] = extendsBlock.members
   def functions(): Seq[ScFunction] = extendsBlock.functions
   def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases

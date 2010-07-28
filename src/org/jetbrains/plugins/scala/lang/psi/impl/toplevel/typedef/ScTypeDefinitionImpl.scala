@@ -43,10 +43,10 @@ import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
-import result.{Success, TypingContext}
+import result.{TypeResult, Failure, Success, TypingContext}
 import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
-import collection.Iterable
 import com.intellij.openapi.progress.ProgressManager
+import collection.{Seq, Iterable}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -62,6 +62,20 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     else {
       Success(ScParameterizedType(ScDesignatorType(this), typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
     }
+  }
+
+  def getTypeWithProjections(ctx: TypingContext): TypeResult[ScType] = {
+    def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
+    def innerType = if (typeParameters.length == 0) ScDesignatorType(this)
+                    else ScParameterizedType(ScDesignatorType(this), args)
+    val parentClazz = ScalaPsiUtil.getPlaceTd(this)
+    if (parentClazz != null) {
+      val innerProjection: ScProjectionType = ScProjectionType(parentClazz.getType(TypingContext.empty).getOrElse(
+        return Failure("Cannot resolve parent class", Some(this))),
+        this, ScSubstitutor.empty)
+      Success(if (typeParameters.length == 0) innerProjection
+              else ScParameterizedType(innerProjection, args), Some(this))
+    } else Success(innerType, Some(this))
   }
 
   override def getModifierList: ScModifierList = super[ScTypeDefinition].getModifierList
