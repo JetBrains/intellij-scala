@@ -21,6 +21,8 @@ import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
 import api.toplevel.{ScNamedElement, ScTypedDefinition}
 import result.{TypingContext, TypeResult}
+import api.base.patterns.ScBindingPattern
+import api.base.ScFieldId
 
 object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
@@ -207,6 +209,15 @@ object Conformance {
       }
       case (_, ScThisType(clazz)) => {
         return conformsInner(l, clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, subst, noBaseTypes)
+      }
+      case (_, ScDesignatorType(v: ScBindingPattern)) => {
+        return conformsInner(l, v.getType(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
+      }
+      case (_, ScDesignatorType(v: ScParameter)) => {
+        return conformsInner(l, v.getType(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
+      }
+      case (_, ScDesignatorType(v: ScFieldId)) => {
+        return conformsInner(l, v.getType(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
       }
       case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args), _) => {
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
@@ -535,6 +546,9 @@ object Conformance {
       case (_, ScProjectionType(projected, ta: ScTypeAlias, subst)) => {
         val uBound = subst.subst(ta.upperBound.getOrElse(return (false, undefinedSubst)))
         return conformsInner(l, uBound, visited, undefinedSubst)
+      }
+      case (ScProjectionType(projected1, elem1, subst1), ScProjectionType(projected2, elem2, subst2)) if elem1 == elem2 => {
+        return conformsInner(projected1, projected2, visited, undefinedSubst)
       }
       case (_, proj: ScProjectionType) => {
         proj.element match {
