@@ -242,7 +242,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ => false
     }
 
-    processor.processType(aType, e, ResolveState.initial)
+    processor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, aType))
 
     val candidates = processor.candidates
 
@@ -287,6 +287,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
       case _ =>
     }
+    state = state.put(BaseProcessor.FROM_TYPE_KEY, t)
     processor.processType(t, e, state)
   }
 }

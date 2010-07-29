@@ -40,29 +40,18 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
-    val implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY) match {
-      case null => None
-      case x => Some(x)
-    }
-    val implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION) match {
-      case null => None
-      case x => Some(x)
-    }
-    val implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE) match {
-      case null => None
-      case x => Some(x)
-    }
-    lazy val isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY) match {
-      case null => false
-      case v => v.booleanValue
-    }
+    def implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY).toOption
+    def implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION).toOption
+    def implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE).toOption
+    def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.map(_.booleanValue).getOrElse(false)
+    def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
     if (nameAndKindMatch(named, state) || constructorResolve) {
       if (!isAccessible(named, ref)) return true
       val s = getSubst(state)
       element match {
         case m: PsiMethod => {
           addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType, fromType = fromType))
           true
         }
         case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
@@ -71,18 +60,18 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitFunction = implFunction, implicitType = implType,
             innerResolveResult = Some(new ScalaResolveResult(cc.constructor.getOrElse(return true),
               s, getImports(state), None, implicitConversionClass, implicitFunction = implFunction,
-              implicitType = implType))))
+              implicitType = implType, fromType = fromType)), fromType = fromType))
           true
         }
         case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
                 ScalaPsiUtil.getCompanionModule(cc) == None => {
           addResult(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state), None,
-            implicitConversionClass, implicitFunction = implFunction, implicitType = implType))
+            implicitConversionClass, implicitFunction = implFunction, implicitType = implType, fromType = fromType))
           true
         }
         case cc: ScClass if cc.isCase && ScalaPsiUtil.getCompanionModule(cc) == None => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType, fromType = fromType))
         }
         case cc: ScClass => true
         case o: ScObject if o.isPackageObject => return true // do not resolve to package object
@@ -91,20 +80,21 @@ class MethodResolveProcessor(override val ref: PsiElement,
             val m = sign.method
             val subst = sign.substitutor
             addResult(new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,
-              implicitFunction = implFunction, implicitType = implType))
+              implicitFunction = implFunction, implicitType = implType, fromType = fromType))
           }
           true
         }
         case synthetic: ScSyntheticFunction => {
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType, fromType = fromType))
         }
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType))
+            implicitFunction = implFunction, implicitType = implType, fromType = fromType))
         case _ => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter))
+            implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
+            fromType = fromType))
           true
         }
       }
