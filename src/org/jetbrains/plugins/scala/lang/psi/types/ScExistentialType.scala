@@ -88,6 +88,9 @@ case class ScExistentialType(val quantified : ScType,
 
   override def updateThisType(place: PsiElement) = ScExistentialType(quantified.updateThisType(place),
     wildcards.map(_.updateThisType(place).asInstanceOf[ScExistentialArgument]))
+
+  override def updateThisType(tp: ScType) = ScExistentialType(quantified.updateThisType(tp),
+    wildcards.map(_.updateThisType(tp).asInstanceOf[ScExistentialArgument]))
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
@@ -97,6 +100,9 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
   override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
   override def updateThisType(place: PsiElement) =
     ScExistentialArgument(name, args, lowerBound.updateThisType(place), upperBound.updateThisType(place))
+
+  override def updateThisType(tp: ScType) =
+    ScExistentialArgument(name, args, lowerBound.updateThisType(tp), upperBound.updateThisType(tp))
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
@@ -105,4 +111,7 @@ extends ValueType {
 
   override def updateThisType(place: PsiElement) =
     ScSkolemizedType(name, args, lower.updateThisType(place), upper.updateThisType(place))
+
+  override def updateThisType(tp: ScType) =
+    ScSkolemizedType(name, args, lower.updateThisType(tp), upper.updateThisType(tp))
 }

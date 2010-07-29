@@ -28,6 +28,8 @@ object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
 
   val boundClassKey: Key[PsiClass] = Key.create("bound.class.key")
+
+  val FROM_TYPE_KEY: Key[ScType] = Key.create("from.type.key")
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {

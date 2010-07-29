@@ -49,6 +49,10 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   override def updateThisType(place: PsiElement) = {
     JavaArrayType(arg.updateThisType(place))
   }
+
+  override def updateThisType(tp: ScType) = {
+    JavaArrayType(arg.updateThisType(tp))
+  }
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
@@ -108,6 +112,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   override def updateThisType(place: PsiElement) = ScParameterizedType(designator.updateThisType(place),
     typeArgs.map(_.updateThisType(place)))
+
+  override def updateThisType(tp: ScType) = ScParameterizedType(designator.updateThisType(tp),
+    typeArgs.map(_.updateThisType(tp)))
 }
 
 object ScParameterizedType {

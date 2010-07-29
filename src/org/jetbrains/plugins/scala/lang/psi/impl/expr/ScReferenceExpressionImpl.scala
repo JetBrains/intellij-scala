@@ -135,6 +135,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         case _ => false
       }
     }
+    val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val inner: ScType = bind match {
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
@@ -222,6 +223,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
-    Success(inner, Some(this))
+    Success(if (fromType != None) inner.updateThisType(fromType.get) else inner, Some(this))
   }
 }

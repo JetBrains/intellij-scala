@@ -73,4 +73,7 @@ case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclared
 
   override def updateThisType(place: PsiElement) =
     ScCompoundType(components.map(_.updateThisType(place)), decls, typeDecls, subst)
+
+  override def updateThisType(tp: ScType) =
+    ScCompoundType(components.map(_.updateThisType(tp)), decls, typeDecls, subst)
 }

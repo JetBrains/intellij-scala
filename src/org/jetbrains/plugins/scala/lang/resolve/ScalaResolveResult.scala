@@ -26,7 +26,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val defaultParameterUsed: Boolean = false,
                          val innerResolveResult: Option[ScalaResolveResult] = None,
                          val parentElement: Option[PsiNamedElement] = None,
-                         val isNamedParameter: Boolean = false) extends ResolveResult {
+                         val isNamedParameter: Boolean = false,
+                         val fromType: Option[ScType] = None) extends ResolveResult {
 
   def getElement = element
 
@@ -62,7 +63,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
            innerResolveResult: Option[ScalaResolveResult] = innerResolveResult): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
-      isNamedParameter)
+      isNamedParameter, fromType)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

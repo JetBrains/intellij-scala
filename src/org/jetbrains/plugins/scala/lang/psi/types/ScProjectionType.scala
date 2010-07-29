@@ -26,6 +26,10 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   override def updateThisType(place: PsiElement): ScType = {
     ScProjectionType(projected.updateThisType(place), element, subst)
   }
+
+  override def updateThisType(tp: ScType): ScType = {
+    ScProjectionType(projected.updateThisType(tp), element, subst)
+  }
 }
 
 /**
@@ -62,6 +66,22 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
       case _ => tp.updateThisType(place)
     }*/
     this //todo:
+  }
+
+  override def updateThisType(tp: ScType): ScType = {
+    ScType.extractClass(tp) match {
+      case Some(cl) if cl == clazz => return tp
+      case _ =>
+    }
+    BaseTypes.get(tp).find(tp => {
+      ScType.extractClass(tp) match {
+        case Some(cl) if cl == clazz => true
+        case _ => false
+      }
+    }) match {
+      case Some(_) => tp
+      case _ => this
+    }
   }
 }
 

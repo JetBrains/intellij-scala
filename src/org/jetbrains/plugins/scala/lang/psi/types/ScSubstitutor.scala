@@ -41,12 +41,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ")" +
     (if (follower != null) " followed " + follower.toString else "")
 
-  def bindT(name : (String, String), t: ScType) = {
-    /*if (name._1 == "M" && ScType.presentableText(t).startsWith("Nothing[M")) {
-      "stop"
-    }*/
+  def bindT(name : (String, String), t: ScType) =
     new ScSubstitutor(tvMap + ((name, t)), aliasesMap, follower)
-  }
   def bindA(name: String, t: ScType) =
     new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))),follower)
   def bindA(name: String, f: () => ScType) =
