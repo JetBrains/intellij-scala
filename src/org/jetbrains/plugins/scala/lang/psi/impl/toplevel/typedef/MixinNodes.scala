@@ -162,7 +162,7 @@ abstract class MixinNodes {
             case None =>
           }
         }
-        res = new ScSubstitutor(res.tvMap, aliasesMap, res.outerMap)
+        res = new ScSubstitutor(res.tvMap, aliasesMap)
       }
       case _ => ()
     }
