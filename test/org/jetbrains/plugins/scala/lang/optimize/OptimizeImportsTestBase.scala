@@ -51,7 +51,10 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {
-      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception => {
+        val z = e
+        assert(false, e.getMessage + "\n" + e.getStackTrace)
+      }
     }
     finally {
       ScalaUtils.runWriteAction(new Runnable {

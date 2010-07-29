@@ -156,7 +156,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       }
 
       case comp@ScCompoundType(components, declarations, types, substitutor) => {
-        val oldSubst = state.get(ScSubstitutor.key)
+        val oldSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
         val newState = state.put(ScSubstitutor.key, substitutor.followed(oldSubst))
         if (kinds.contains(VAR) || kinds.contains(VAL) || kinds.contains(METHOD)) {
           for (declaration <- declarations) {
