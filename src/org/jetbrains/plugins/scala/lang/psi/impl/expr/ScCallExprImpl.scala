@@ -24,6 +24,7 @@ trait ScCallExprImpl extends ScExpression {
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val bind = operation.bind
+    val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     bind match {
       case Some(r) => {
         val s = r.substitutor
@@ -33,6 +34,7 @@ trait ScCallExprImpl extends ScExpression {
           case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s, getResolveScope)
           case _ => Any
         }
+        tp  = if (fromType != None) tp.updateThisType(fromType.get) else tp
 
         tp = tp match {
           case ScMethodType(ret, _, _) => ret
