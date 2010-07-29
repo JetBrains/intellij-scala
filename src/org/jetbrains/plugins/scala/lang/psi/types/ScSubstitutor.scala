@@ -24,15 +24,13 @@ object ScSubstitutor {
 }
 
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
-                    val aliasesMap: Map[String, Suspension[ScType]],
-                    val outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]]) {
-  def this() = this(Map.empty, Map.empty, Map.empty)
+                    val aliasesMap: Map[String, Suspension[ScType]]) {
+  def this() = this(Map.empty, Map.empty)
 
   def this(tvMap: Map[(String, String), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
-                    outerMap: Map[PsiClass, Tuple2[ScType, ScReferenceElement]],
                     follower: ScSubstitutor) = {
-    this(tvMap, aliasesMap, outerMap)
+    this(tvMap, aliasesMap)
     this.follower = follower
   }
 
@@ -40,27 +38,23 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   def getFollower: ScSubstitutor = follower
 
-  override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ", " + outerMap + ")" +
+  override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ")" +
     (if (follower != null) " followed " + follower.toString else "")
 
   def bindT(name : (String, String), t: ScType) = {
     /*if (name._1 == "M" && ScType.presentableText(t).startsWith("Nothing[M")) {
       "stop"
     }*/
-    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, outerMap, follower)
+    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, follower)
   }
   def bindA(name: String, t: ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), outerMap, follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))),follower)
   def bindA(name: String, f: () => ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), outerMap, follower)
-  def bindO(outer: PsiClass, t: ScType, ref : ScReferenceElement) =
-    new ScSubstitutor(tvMap, aliasesMap, outerMap + ((outer, (t, ref))), follower)
-  def incl(s: ScSubstitutor) =
-    new ScSubstitutor(s.tvMap ++ tvMap, s.aliasesMap ++ aliasesMap, s.outerMap ++ outerMap, follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), follower)
   def followed(s: ScSubstitutor): ScSubstitutor = {
-    if (follower == null && tvMap.size + aliasesMap.size + outerMap.size == 0) return s
-    else if (s.getFollower == null && s.tvMap.size + s.outerMap.size + s.aliasesMap.size == 0) return this
-    else return new ScSubstitutor(tvMap, aliasesMap, outerMap,
+    if (follower == null && tvMap.size + aliasesMap.size  == 0) return s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0) return this
+    else return new ScSubstitutor(tvMap, aliasesMap,
       if (follower != null) follower followed s else s)
   }
 
@@ -153,11 +147,11 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case ex@ScExistentialType(q, wildcards) => {
       //remove bound names
       val trunc = aliasesMap -- ex.boundNames
-      new ScExistentialType(new ScSubstitutor(tvMap, trunc, outerMap, follower).substInternal(q), wildcards)
+      new ScExistentialType(new ScSubstitutor(tvMap, trunc, follower).substInternal(q), wildcards)
     }
     case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
       ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
-        new ScSubstitutor(tvMap, aliasesMap, outerMap)
+        new ScSubstitutor(tvMap, aliasesMap)
         ))
     }
     case _ => t
@@ -169,7 +163,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case ScUndefinedType(tpt) if tps.contains(tpt.param) => false
         case _ => true
       }
-    }), aliasesMap, outerMap, if (follower != null) follower.removeUndefines(tps) else null)
+    }), aliasesMap, if (follower != null) follower.removeUndefines(tps) else null)
   }
 }
 

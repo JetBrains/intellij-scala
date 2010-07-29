@@ -343,7 +343,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                     map += Tuple(tp(i), typeArgs(i).calcType)
                   }
-                  new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                  new ScSubstitutor(Map(map.toSeq: _*), Map.empty)
                 }
                 def collectForType(typez: ScType) {
                   ScType.extractClassType(typez) match {
@@ -449,7 +449,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                               for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                                 map += Tuple(tp(i), typeArgs(i).calcType)
                               }
-                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                              val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty)
                               res += ((constr, substitutor.followed(subst), i))
                             }
                             case _ => res += ((constr, subst, i))
@@ -476,7 +476,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
                               map += Tuple(tp(i), typeArgs(i).calcType)
                             }
-                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, Map.empty)
+                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty)
                             res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
                           }
                           case _ => res += ((new PhysicalSignature(constructor, subst), i))

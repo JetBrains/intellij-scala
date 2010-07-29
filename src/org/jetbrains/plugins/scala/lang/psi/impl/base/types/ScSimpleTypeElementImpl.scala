@@ -105,7 +105,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, tp) =>
             ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))}),
-            Map.empty, Map.empty)
+            Map.empty)
           return appSubst.subst(res)
         }
         case _ =>
@@ -146,7 +146,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
                   if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType
                   else tp.lowerType))),
-            Map.empty, Map.empty)
+            Map.empty)
           pts.subst(res)
         }
         case None => res
