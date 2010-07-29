@@ -14,9 +14,9 @@ import com.intellij.openapi.project.{DumbServiceImpl, Project}
 import api.base.patterns.ScBindingPattern
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import api.statements.{ScVariable, ScValue, ScFunction, ScTypeAliasDefinition}
 import refactoring.util.ScTypeUtil
 import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
+import api.statements._
 
 trait ScType {
   def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -214,43 +214,13 @@ object ScType {
     }
   }
 
-  /**
-   * Faster then extractClassType
-   */
-  def extractClass(t: ScType): Option[PsiClass] = t match {
-    case n: NonValueType => extractClass(n.inferValueType)
-    case ScDesignatorType(clazz: PsiClass) => Some(clazz)
-    case proj@ScProjectionType(p, element, subst) => element match {
-      case c: PsiClass => Some(c)
-      case t: ScTypeAliasDefinition =>
-        extractClass(subst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
-      case _ => None
-    }
-    case p@ScParameterizedType(t1, _) => {
-      extractClass(t1) match {
-        case Some(c) => Some(c)
-        case None => None
-      }
-    }
-    case tuple@ScTupleType(comp) => {
-      tuple.resolveTupleTrait match {
-        case Some(clazz) => extractClass(clazz)
-        case _ => None
-      }
-    }
-    case fun: ScFunctionType => {
-      fun.resolveFunctionTrait match {
-        case Some(tp) => extractClass(tp)
-        case _ => None
-      }
-    }
-    case std@StdType(_, _) => Some(std.asClass(DecompilerUtil.obtainProject).getOrElse(return None))
-    case _ => None
-  }
+  def extractClass(t: ScType): Option[PsiClass] = extractClassType(t).map(_._1)
 
   def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
+    case ScDesignatorType(ta: ScTypeAliasDefinition) =>
+      extractClassType(ta.aliasedType(TypingContext.empty).getOrElse(return None))
     case proj@ScProjectionType(p, elem, subst) => elem match {
       case c: PsiClass => Some((c, subst))
       case t: ScTypeAliasDefinition =>
