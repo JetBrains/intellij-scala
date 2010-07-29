@@ -75,10 +75,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case expr: ScReferenceExpression => expr.nameId.getText == "apply"
       case _ => false
     }
-
-    if (ScType.extractClass(t).map(_.getQualifiedName) == Some("java.lang.String")) {
-      val plusMethod: ScType => ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
-      if (plusMethod != null) execute(plusMethod(t), state) //add + method
+    t match {
+      case ScDesignatorType(clazz: PsiClass) if clazz.getQualifiedName == "java.lang.String" => {
+        val plusMethod: ScType => ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
+        if (plusMethod != null) execute(plusMethod(t), state) //add + method
+      }
+      case _ =>
     }
 
     t match {
