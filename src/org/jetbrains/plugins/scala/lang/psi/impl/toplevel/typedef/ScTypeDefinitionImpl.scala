@@ -47,6 +47,9 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
 import com.intellij.openapi.progress.ProgressManager
 import collection.{Seq, Iterable}
+import api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
+import api.statements.params.ScClassParameter
+import com.intellij.openapi.util.text.StringUtil
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -159,7 +162,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     val filterFun = (m: PsiMethod) => m.getName == name
-    (if (checkBases) getAllMethods else functions.toArray[PsiMethod]).filter(filterFun)
+    val arrayOfMethods: Array[PsiMethod] = if (checkBases) getAllMethods else functions.toArray[PsiMethod]
+    arrayOfMethods.filter(filterFun)
   }
 
   override def checkDelete() {
@@ -238,6 +242,67 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
             case o: PsiModifierListOwner => o.hasModifierProperty _
             case _ => (s: String) => false
           })
+
+          //todo: this is duplicate
+          context match {
+            case annotated: ScAnnotationsHolder => {
+              val annotations = annotated.annotations
+              annotated.hasAnnotation("scala.reflect.BeanProperty") match {
+                case Some(_) => {
+                  context match {
+                    case value: ScValue => {
+                      buffer += new FakePsiMethod(t, "get" + t.getName.capitalize,
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _)
+                    }
+                    case variable: ScVariable => {
+                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _)
+                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _)
+                    }
+                    case param: ScClassParameter if param.isVal => {
+                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
+                    }
+                    case param: ScClassParameter if param.isVar => {
+                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
+                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _)
+                    }
+                    case _ =>
+                  }
+                }
+                case _ =>
+              }
+
+              annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
+                case Some(_) => {
+                  context match {
+                    case value: ScValue => {
+                      buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _)
+                    }
+                    case variable: ScVariable => {
+                      buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _)
+                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _)
+                    }
+                    case param: ScClassParameter => {
+                      if (param.isVal || param.isVar) buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
+                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
+                      if (param.isVal) buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
+                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _)
+                    }
+                    case _ =>
+                  }
+                }
+                case None =>
+              }
+            }
+            case _ =>
+          }
         }
         case _ =>
       }
