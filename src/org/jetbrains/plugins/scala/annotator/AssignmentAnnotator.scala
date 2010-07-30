@@ -35,7 +35,7 @@ trait AssignmentAnnotator {
       return true
     }
       
-    e.parentsInFile.findByType(classOf[ScPatternDefinition]).isDefined
+    e.parentsInFile.takeWhile(!_.isInstanceOf[ScBlock]).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
