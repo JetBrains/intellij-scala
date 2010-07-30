@@ -152,4 +152,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasAssign: Boolean
   
   override def accept(visitor: ScalaElementVisitor) = visitor.visitFunction(this)
+
+  def getGetterOrSetterFunction: Option[ScFunction] = {
+    getContainingClass match {
+      case clazz: ScTemplateDefinition => {
+        if (getName.endsWith("_=")) {
+          clazz.functions.find(_.getName == getName.substring(0, getName.length - 2))
+        } else if (!hasParameterClause) {
+          clazz.functions.find(_.getName == getName + "_=")
+        } else None
+      }
+      case _ => None
+    }
+  }
 }
