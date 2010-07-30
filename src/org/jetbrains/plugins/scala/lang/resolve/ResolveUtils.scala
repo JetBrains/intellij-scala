@@ -425,6 +425,9 @@ object ResolveUtils {
           case bind: ScBindingPattern => {
             presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
           }
+          case f: ScFieldId => {
+            presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrElse(Any), substitutor))
+          }
           case param: ScParameter => {
             val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor)
             if (resolveResult.isNamedParameter) {
