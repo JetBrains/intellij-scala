@@ -277,8 +277,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     isInheritorInner(baseClass, this, deep, Set.empty)
   }
 
-  def functionsByName(name: String) =
-    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
+  
 
   def signaturesByName(name: String): Iterable[PhysicalSignature] =
     for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
@@ -332,17 +331,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored
   override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = {
-    val functions = functionsByName(name).filter(_.getContainingClass == this)
-    val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
-    for {(_, n) <- TypeDefinitionMembers.getMethods(this)
-         substitutor = n.info.substitutor
-         method = n.info.method
-         if method.getName == name &&
-                 method.getContainingClass == this
-    } {
-      res.add(new Pair[PsiMethod, PsiSubstitutor](method, ScalaPsiUtil.getPsiSubstitutor(substitutor, getProject, getResolveScope)))
-    }
-    res
+    super[ScTypeDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
   }
 
   override def getInnerClasses: Array[PsiClass] = {
