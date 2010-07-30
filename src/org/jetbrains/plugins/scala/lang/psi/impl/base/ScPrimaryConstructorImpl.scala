@@ -46,7 +46,7 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
     getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
   }
 
-  override def getName: String = "this"
+  override def getName: String = getContainingClass.getName
 
   def getNameIdentifier: PsiIdentifier = null
 
