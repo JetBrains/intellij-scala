@@ -39,7 +39,7 @@ object ScalaElementPresentation {
   def getMethodPresentableText(function: ScFunction): String = getMethodPresentableText(function, true)
   def getMethodPresentableText(function: ScFunction, short: Boolean): String = {
     val presentableText: StringBuffer = new StringBuffer
-      presentableText.append(function.getName)
+    presentableText.append(if (!function.isConstructor) function.getName else "this")
 
     function.typeParametersClause match {
       case Some(clause) => presentableText.append(clause.getText)

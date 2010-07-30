@@ -20,6 +20,7 @@ import javax.swing._
 import psi.api.statements.ScFunction
 import psi.api.toplevel.ScNamedElement
 import psi.impl.search.ScalaOverridengMemberSearch
+import psi.api.base.ScPrimaryConstructor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -44,7 +45,9 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
 
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
+    element match {case x: ScPrimaryConstructor => return x.getContainingClass case _ =>}
     val function: ScFunction = element match {case x: ScFunction => x case _ => return element}
+    if (function.isConstructor) return function.getContainingClass
     val signs = function.superSignatures
     if (signs.length == 0) return function
     val dialog = new WarningDialog(function.getProject, function.getName, signs.length)

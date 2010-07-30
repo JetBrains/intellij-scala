@@ -16,7 +16,6 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) = {
-    super.prepareRenaming(element, newName, allRenames)
     element match {
       case td: ScTypeDefinition => {
         ScalaPsiUtil.getCompanionModule(td) match {
