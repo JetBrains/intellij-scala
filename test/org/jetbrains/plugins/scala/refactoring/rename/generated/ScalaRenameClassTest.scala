@@ -9,7 +9,13 @@ class ScalaRenameClassTest extends ScalaRenameTestBase {
 
   def testClassImports = doTest
 
+  def testConstructor1 = doTest
+
+  def testConstructor2 = doTest
+
   def testObjectApply = doTest
+
+  def testRenameConstructor = doTest
 
   def testcircle = doTest
 }
