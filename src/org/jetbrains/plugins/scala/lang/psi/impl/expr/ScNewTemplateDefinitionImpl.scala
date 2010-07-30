@@ -102,4 +102,8 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indecies
     isInheritorInner(baseClass, this, deep, Set.empty)
   }
+
+  override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean) = {
+    super[ScNewTemplateDefinition].findMethodsAndTheirSubstitutorsByName(name, checkBases)
+  }
 }

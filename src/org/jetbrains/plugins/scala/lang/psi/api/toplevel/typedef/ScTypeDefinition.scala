@@ -30,7 +30,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def getQualifiedNameForDebugger: String
 
-  def functionsByName(name: String): Iterable[PsiMethod]
+
   
   def signaturesByName(name: String): Iterable[PhysicalSignature]
 

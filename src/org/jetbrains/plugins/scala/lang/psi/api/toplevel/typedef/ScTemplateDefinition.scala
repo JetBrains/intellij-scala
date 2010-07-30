@@ -7,7 +7,6 @@ package typedef
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, ResolveState, PsiClass}
 import com.intellij.util.ArrayFactory
 import impl.ScalaPsiElementFactory
 import impl.toplevel.typedef.TypeDefinitionMembers
@@ -20,6 +19,8 @@ import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
 import resolve.processor.BaseProcessor
 import statements.params.ScClassParameter
+import java.util.ArrayList
+import com.intellij.psi.{PsiSubstitutor, PsiElement, ResolveState, PsiClass}
 
 /**
  * @author ven
@@ -153,5 +154,25 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def deleteMember(member: ScMember): Unit = {
     member.getParent.getNode.removeChild(member.getNode)
+  }
+
+  def functionsByName(name: String) =
+    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
+
+  //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored
+  override def findMethodsAndTheirSubstitutorsByName
+      (name: String, checkBases: Boolean): java.util.List[com.intellij.openapi.util.Pair[PsiMethod, PsiSubstitutor]] = {
+    import com.intellij.openapi.util.Pair
+    val functions = functionsByName(name).filter(_.getContainingClass == this)
+    val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
+    for {(_, n) <- TypeDefinitionMembers.getMethods(this)
+         substitutor = n.info.substitutor
+         method = n.info.method
+         if method.getName == name &&
+                 method.getContainingClass == this
+    } {
+      res.add(new Pair[PsiMethod, PsiSubstitutor](method, ScalaPsiUtil.getPsiSubstitutor(substitutor, getProject, getResolveScope)))
+    }
+    res
   }
 }
