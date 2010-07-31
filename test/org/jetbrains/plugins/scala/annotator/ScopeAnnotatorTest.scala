@@ -398,7 +398,12 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     
     //TODO handle Array[X[T, ...], ...] cases
 //    assertClashes("class Array[T]; def f(a: Array[Holder[Foo]]) {}; def f(a: Array[Holder[Bar]]) {}", "f")
-  } 
+  }
+
+  def testEarlyDefinitions {
+    assertFine("new { val a = 1} with AnyRef; new { val a = 1} with AnyRef")
+    assertClashes("new { val a = 1; val a = 2} with AnyRef", "a")
+  }
   
   // TODO implement function signatures comparison based on types (not on plain text representations)
 //  def testFunctionSignatureTypeConformanceAndErasure {
