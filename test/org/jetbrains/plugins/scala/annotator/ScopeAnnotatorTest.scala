@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
 import junit.framework.Assert
+import lang.psi.types.{ScProjectionType, ScDesignatorType}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -403,6 +404,19 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   def testEarlyDefinitions {
     assertFine("new { val a = 1} with AnyRef; new { val a = 1} with AnyRef")
     assertClashes("new { val a = 1; val a = 2} with AnyRef", "a")
+  }
+
+  def testCaseClause {
+    assertClashes("{case (a, a) => ()}", "a")
+    assertClashes("{case (a, (b, a)) => ()}", "a")
+    assertClashes("{case a | a => ()}", "a")
+    assertFine("{case a => val a = 1}")
+    assertFine("{case a => {(); val a = 1}}")
+  }
+  
+  def testListOfPatterns {
+    assertClashes("val (a, a) = ()", "a")
+    assertClashes("val (a, (b, a)) = ()", "a")    
   }
   
   // TODO implement function signatures comparison based on types (not on plain text representations)

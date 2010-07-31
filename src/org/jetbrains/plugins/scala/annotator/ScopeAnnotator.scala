@@ -9,11 +9,11 @@ import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
 import lang.psi.api.base.patterns.ScCaseClause
-import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
 import lang.psi.types.ScType
 import lang.psi.api.base.types.{ScRefinement, ScCompoundTypeElement, ScExistentialClause}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition, ScNamedElement}
+import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -29,11 +29,11 @@ trait ScopeAnnotator {
     val (types, terms, parameters, caseClasses, objects) = definitionsIn(element)
 
     val jointTerms = terms ::: parameters
-    
+
     val complexClashes = clashesOf(jointTerms ::: objects) :::
             clashesOf(types ::: caseClasses) :::
-            clashesOf(jointTerms ::: caseClasses) 
-    
+            clashesOf(jointTerms ::: caseClasses)
+
     val clashes = (complexClashes.distinct diff clashesOf(parameters))
 
     clashes.foreach { e =>
@@ -51,9 +51,9 @@ trait ScopeAnnotator {
 
     if(element.isInstanceOf[ScTemplateBody]) element match {
       case Parent(Parent(aClass: ScClass)) => parameters :::= aClass.parameters.toList
-      case _ => 
-    } 
-    
+      case _ =>
+    }
+
     element.children.foreach {
       _.depthFirst(!isScope(_)).foreach {
         case e: ScObject => objects ::= e
@@ -65,7 +65,7 @@ trait ScopeAnnotator {
         case _ =>
       }
     }
-    
+
     (types, terms, parameters, caseClasses, objects)
   }
 
@@ -74,39 +74,33 @@ trait ScopeAnnotator {
     val clashedNames = names.diff(names.distinct)
     elements.filter(e => clashedNames.contains(nameOf(e)))
   }
- 
+
   private def nameOf(element: ScNamedElement): String = element match {
     case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.name + signatureOf(f)
     case _ => element.getName
   }
-  
+
   private def signatureOf(f: ScFunction): String = {
-    if(f.parameters.isEmpty) 
-      "" 
-    else 
+    if(f.parameters.isEmpty)
+      ""
+    else
       f.paramClauses.clauses.firstOption.map(clause => format(clause.parameters, clause.paramTypes)).mkString
   }
 
   private def eraseType(s: String) = if(s.startsWith("Array[")) s else TypeParameters.replaceFirstIn(s, "")
-  
+
   private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
     val parts = parameters.zip(types).map {
       case (p, t) => eraseType(t.presentableText) + (if(p.isRepeatedParameter) "*" else "")
     }
     "(" + parts.mkString(", ") + ")"
   }
-  
-  private def isScope(e: PsiElement): Boolean = {
-    e.isInstanceOf[ScalaFile] ||
-            e.isInstanceOf[ScBlock] ||
-            e.isInstanceOf[ScTemplateBody] ||
-            e.isInstanceOf[ScPackageContainer] ||
-            e.isInstanceOf[ScParameters] ||
-            e.isInstanceOf[ScTypeParamClause] ||
-            e.isInstanceOf[ScCaseClause] ||
-            e.isInstanceOf[ScForStatement] ||
-            e.isInstanceOf[ScExistentialClause] ||
-            e.isInstanceOf[ScEarlyDefinitions] ||
-            e.isInstanceOf[ScRefinement]
+
+  private def isScope(e: PsiElement): Boolean = e match {
+    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
+            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+            _: ScEarlyDefinitions | _: ScRefinement => true
+    case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
+    case _ => false
   }
 }
