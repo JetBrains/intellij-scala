@@ -3,17 +3,12 @@ package lang
 package psi
 package types
 
-import com.intellij.psi.{PsiElement, PsiClass, PsiNamedElement}
-import api.toplevel.typedef.ScTemplateDefinition
-import com.intellij.psi.util.PsiTreeUtil
-import resolve.ResolveUtils
-import api.expr.ScNewTemplateDefinition
-import result.TypingContext
-
+import com.intellij.psi.{PsiElement, PsiNamedElement}
+import api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 
 /**
-* @author ilyas
-*/
+ * @author ilyas
+ */
 
 /**
  * This type means type projection:
@@ -36,11 +31,11 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
  * This type means type, which depends on place, where you want to get expression type.
  * For example
  *
- * class A {
+ * class A       {
  *   def foo: this.type = this
  * }
  *
- * class B extneds A {
+ * class B extneds A       {
  *   val z = foo // <- type in this place is B.this.type, not A.this.type
  * }
  *
@@ -96,7 +91,24 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   // which is used for getting static context => no implicit conversion
   def isStatic = isStaticClass
   def this(elem: PsiNamedElement, isStaticClass: Boolean) {
-    this(elem)
+    this (elem)
     this.isStaticClass = isStaticClass
+  }
+}
+
+// SLS 3.2.3
+//
+// A type designator refers to a named value type. It can be simple or
+// qualified. All such type designators are shorthands for type projections.
+//
+// Specifically, the unqualified type name `t` where `t` is bound in some
+// class, object, or package `C` is taken as a shorthand for
+// `C.this.type#t`. If `t` is not bound in a class, object, or package, then `t` is taken as a
+// shorthand for `ε.type#t`
+//
+object ExpandDesignatorToProjection {
+  def unapply(t: ScDesignatorType): Option[ScProjectionType] = t.element match {
+    case m: ScMember => Some(ScProjectionType(ScDesignatorType(m.getContainingClass), m, ScSubstitutor.empty))
+    case _ => None
   }
 }
