@@ -17,21 +17,28 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import refactoring.util.ScTypeUtil
 import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import api.statements._
+import api.toplevel.ScTypedDefinition
 
 trait ScType {
-  def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
+  final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
 
-  def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
+  /**
+   * Checks, whether the following assignment is correct:
+   * val x: t = (y: this)
+   */
+  final def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
 
-  def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
+  final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
 
-  def presentableText = ScType.presentableText(this)
+  final def presentableText = ScType.presentableText(this)
   
-  def canonicalText = ScType.canonicalText(this)
+  final def canonicalText = ScType.canonicalText(this)
   
   override def toString = presentableText
 
   def isValue: Boolean
+
+  final def isStable: Boolean = ScType.isStable(this)
 
   def inferValueType: ValueType
 
@@ -427,5 +434,17 @@ object ScType {
     }
     inner(t)
     buffer.toString
+  }
+
+  // TODO: Review this against SLS 3.2.1
+  def isStable(t: ScType): Boolean = {
+    t match {
+      case x if t.conforms(Singleton) => true // TODO: this is always false, fix conforms().
+      case ScThisType(_) => true
+      case ScProjectionType(projected, element: ScTypedDefinition, _) => isStable(projected) && element.isStable
+      // TODO: Is this needed?
+      case ExpandDesignatorToProjection(projection) => isStable(projection)
+      case _ => false
+    }
   }
 }

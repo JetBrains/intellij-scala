@@ -197,6 +197,8 @@ object Equivalence {
       case (_, ScDesignatorType(a: ScTypeAliasDefinition)) =>
         equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), l, undefinedSubst)
       case (ScDesignatorType(element), ScDesignatorType(element1)) => (element == element1, undefinedSubst)
+      case (l, ExpandDesignatorToProjection(projection)) => equivInner(l, projection, undefinedSubst)
+      case (ExpandDesignatorToProjection(projection), r) => equivInner(projection, l, undefinedSubst)
       case (JavaArrayType(arg), JavaArrayType(arg2)) => equivInner (arg, arg2, undefinedSubst)
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 => {
         ScType.extractClass(des) match {
