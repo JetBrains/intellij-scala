@@ -6,12 +6,12 @@ import com.intellij.execution.{RunManager, Location, RunnerAndConfigurationSetti
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import config.ScalaFacet
 import console.ScalaScriptConsoleRunConfigurationFactory
 import icons.Icons
 import javax.swing.Icon
 import java.lang.String
 import lang.psi.api.ScalaFile
-import config.ScalaLibrary
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,7 +39,7 @@ class ScalaScriptConfigurationType extends LocatableConfigurationType {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.getName, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
         val module = ModuleUtil.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)
-        if (module == null || !ScalaLibrary.isPresentIn(module)) return null
+        if (module == null || !ScalaFacet.isPresentIn(module)) return null
         conf.setModule(module)
         conf.setScriptPath(scalaFile.getVirtualFile.getPath)
         return settings

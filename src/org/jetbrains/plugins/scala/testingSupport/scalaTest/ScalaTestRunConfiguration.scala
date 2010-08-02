@@ -42,7 +42,8 @@ import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUt
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
-import config.ScalaLibrary
+import config.ScalaFacet
+import collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -153,12 +154,19 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val library = ScalaLibrary.tryToFindIn(module)
-    
-    val jarPath = library.libraryPath
-    val compilerJarPath = library.compilerPath
-    
-    val scalaVersion = "28"
+    val facet = ScalaFacet.findIn(module).getOrElse {
+      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    }
+
+    //versions detection for scala compiler and for ScalaTest
+    val version: String = facet.version
+    var scalaVersion: String = "27"
+    try {
+      val vers = java.lang.Double.parseDouble(version.substring(0,3))
+      if (vers > 2.79) scalaVersion = "28"
+    } catch {
+      case e: Exception => //nothing to do
+    }
     val scalaTestVersion: String = "10"
 
     val rootManager = ModuleRootManager.getInstance(module)
@@ -185,15 +193,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[JavaSpecsRunner])
         params.getClassPath.add(rtJarPath)
 
-        val sdkJar = VcsUtil.getVirtualFile(jarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(sdkJar)
-        }
-
-        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(compilerJar)
-        }
+        params.getClassPath.addAllFiles(facet.files)
 
         params.getClassPath.add(getClassPath(module))
 
@@ -233,17 +233,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaTestRunConfiguration(getProject, getFactory, getName)
 
-  def getValidModules: java.util.List[Module] = {
-    val result = new ArrayBuffer[Module]
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        result += module
-      }
-    }
-    return Arrays.asList(result.toArray: _*)
-  }
+  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaTestRunConfigurationEditor(project, this)
 

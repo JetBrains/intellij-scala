@@ -43,7 +43,8 @@ import scalaTest.ScalaTestRunConfigurationForm
 import script.ScalaScriptRunConfiguration
 import reflect.BeanProperty
 import lang.psi.impl.ScPackageImpl
-import config.ScalaLibrary
+import config.ScalaFacet
+import collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -158,11 +159,20 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val library = ScalaLibrary.tryToFindIn(module)
+    val facet = ScalaFacet.findIn(module).getOrElse {
+      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    }
     
-    val jarPath = library.libraryPath
-    val compilerJarPath = library.compilerPath
-    
+    //versions detection for scala compiler and for ScalaTest
+    val version: String = facet.version
+    var scalaVersion: String = "27"
+    try {
+      val vers = java.lang.Double.parseDouble(version.substring(0,3))
+      if (vers > 2.79) scalaVersion = "28"
+    } catch {
+      case e: Exception => //nothing to do
+    }
+
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
@@ -185,20 +195,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
 
-        val sdkJar = VcsUtil.getVirtualFile(jarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(sdkJar)
-        }
-
-        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(compilerJar)
-        }
+        params.getClassPath.addAllFiles(facet.files)
 
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(MAIN_CLASS_28)
+        params.setMainClass(if (scalaVersion == "27") MAIN_CLASS else MAIN_CLASS_28)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
@@ -231,17 +233,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new SpecsRunConfiguration(getProject, getFactory, getName)
 
-  def getValidModules: java.util.List[Module] = {
-    val result = new ArrayBuffer[Module]
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        result += module
-      }
-    }
-    return Arrays.asList(result.toArray: _*)
-  }
+  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SpecsRunConfigurationEditor(project, this)
 

@@ -1,40 +1,55 @@
 package org.jetbrains.plugins.scala.config
 
-import java.io.File
 import java.util.jar.JarFile
 import java.util.Properties
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.openapi.util.io.FileUtil
+import io.Source
+import java.io.{StringReader, File}
 
 /**
  * Pavel.Fatin, 07.07.2010
  */
 
-trait FileAPI {
-  protected def readProperty(archive: File, bundle: String, property: String) = {
-    val file = new JarFile(archive)
-    try {
-      Option(file.getEntry(bundle)).flatMap(entry => Option(file.getInputStream(entry))).flatMap { stream =>
-          val properties = new Properties()
-          try {
-            properties.load(stream)
-          } finally {
-            stream.close()
-          }
-          Option(properties.getProperty(property))
+object FileAPI {
+  def readProperty(archive: File, bundle: String, property: String) = {
+    readEntry(archive, bundle).flatMap { content =>
+      val reader = new StringReader(content)
+      try {
+        val properties = new Properties()
+        properties.load(reader)
+        Option(properties.getProperty(property))
+      } finally {
+        reader.close()
       }
-    } finally {
-      file.close()
     }
   }
   
-  protected def file(path: String) = new File(path)
+  def readEntry(archive: File, entry: String) = {
+    var file: JarFile = null
+    try {
+      file = new JarFile(archive)
+      Option(file.getEntry(entry)).flatMap(entry => Option(file.getInputStream(entry))).flatMap { stream =>
+          try {
+            Some(Source.fromInputStream(stream).mkString)
+          } finally {
+            stream.close()
+          }
+      }
+    } catch {
+      case _ => None
+    } finally {
+      if(file != null) file.close()
+    }
+  }
   
-  protected def optional(file: File): Option[File] = if(file.exists) Some(file) else None
+  def file(path: String) = new File(path)
   
-  implicit protected def toRichFile(file: File) = new RichFile(file)
+  def optional(file: File): Option[File] = if(file.exists) Some(file) else None
   
-  implicit protected def toRichVirtualFile(virtualFile: VirtualFile) = new RichVirtualFile(virtualFile)
+  implicit def toRichFile(file: File) = new RichFile(file)
+  
+  implicit def toRichVirtualFile(virtualFile: VirtualFile) = new RichVirtualFile(virtualFile)
   
   
   class RichFile(delegate: File) {

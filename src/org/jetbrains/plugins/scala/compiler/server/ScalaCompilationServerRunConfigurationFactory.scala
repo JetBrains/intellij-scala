@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.facet.FacetManager
 import com.intellij.execution.configurations.{ConfigurationType, ConfigurationFactory, RunConfiguration}
-import org.jetbrains.plugins.scala.config.ScalaLibrary
+import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,14 +20,10 @@ class ScalaCompilationServerRunConfigurationFactory(val typez: ConfigurationType
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaCompilationServerRunConfiguration]
-    val modules = ModuleManager.getInstance(template.getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        configuration.setModule(module)
-        return configuration
-      }
+    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
+      configuration.setModule _
     }
-    return configuration
+    configuration
   }
 
   private def initDefault(configuration: ScalaCompilationServerRunConfiguration): Unit = {
