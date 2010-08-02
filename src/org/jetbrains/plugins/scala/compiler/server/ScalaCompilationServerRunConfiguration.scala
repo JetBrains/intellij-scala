@@ -15,7 +15,8 @@ import com.intellij.openapi.roots.{ModuleRootManager}
 import java.util.Arrays
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
-import org.jetbrains.plugins.scala.config.ScalaLibrary
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,10 +43,9 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val library = ScalaLibrary.tryToFindIn(module)
-    
-    val jarPath = library.libraryPath
-    val compilerJarPath = library.compilerPath
+    val facet = ScalaFacet.findIn(module).getOrElse {
+      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    }
 
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
@@ -66,17 +66,9 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
 //        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
-
-        val sdkJar = VcsUtil.getVirtualFile(jarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(sdkJar)
-        }
-
-        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(compilerJar)
-        }
-
+        
+        params.getClassPath.addAllFiles(facet.files)
+        
         params.setMainClass(MAIN_CLASS)
         return params
       }
@@ -97,17 +89,7 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaCompilationServerRunConfiguration(getProject, getFactory, getName)
 
-  def getValidModules: java.util.List[Module] = {
-    val result = new ArrayBuffer[Module]
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        result += module
-      }
-    }
-    return Arrays.asList(result.toArray: _*)
-  }
+  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(project).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaCompilationServerRunConfigurationEditor(project, this)
 

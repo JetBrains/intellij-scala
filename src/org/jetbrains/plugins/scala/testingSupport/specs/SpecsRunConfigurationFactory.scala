@@ -9,7 +9,7 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
 import scalaTest.ScalaTestRunConfiguration
 import com.intellij.openapi.project.Project
-import config.ScalaLibrary
+import config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,13 +24,9 @@ class SpecsRunConfigurationFactory(val typez: ConfigurationType) extends Configu
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[SpecsRunConfiguration]
-    val modules = ModuleManager.getInstance(template.getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        configuration.setModule(module)
-        return configuration
-      }
+    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
+      configuration.setModule _
     }
-    return configuration
+    configuration
   }
 }

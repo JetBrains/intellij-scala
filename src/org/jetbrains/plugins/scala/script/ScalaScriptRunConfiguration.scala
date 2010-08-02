@@ -36,7 +36,8 @@ import util.{ScalaUtils}
 import com.intellij.vcsUtil.VcsUtil
 import java.util.{Arrays, Collection}
 import org.jdom.Element
-import config.ScalaLibrary
+import config.ScalaFacet
+import collection.JavaConversions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,10 +85,9 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val library = ScalaLibrary.tryToFindIn(module)
-    
-    val jarPath = library.libraryPath
-    val compilerJarPath = library.compilerPath
+    val facet = ScalaFacet.findIn(module).getOrElse {
+      throw new ExecutionException("No Scala facet configured for module " + module.getName)
+    }
 
     val rootManager = ModuleRootManager.getInstance(module);
     val sdk = rootManager.getSdk();
@@ -110,15 +110,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
 
-        val sdkJar = VcsUtil.getVirtualFile(jarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(sdkJar)
-        }
-
-        val compilerJar = VcsUtil.getVirtualFile(compilerJarPath)
-        if (sdkJar != null) {
-          params.getClassPath.add(compilerJar)
-        }
+        params.getClassPath.addAllFiles(facet.files)
 
         params.setMainClass(MAIN_CLASS)
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
@@ -152,17 +144,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaScriptRunConfiguration(getProject, getFactory, getName)
 
-  def getValidModules: java.util.List[Module] = {
-    val result = new ArrayBuffer[Module]
-
-    val modules = ModuleManager.getInstance(getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        result += module
-      }
-    }
-    return Arrays.asList(result.toArray: _*)
-  }
+  def getValidModules: java.util.List[Module] = ScalaFacet.findModulesIn(getProject).toList
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptRunConfigurationEditor(project, this)
 

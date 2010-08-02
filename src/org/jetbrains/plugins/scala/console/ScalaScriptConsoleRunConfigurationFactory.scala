@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.{RunConfiguration, ConfigurationTyp
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
-import config.ScalaLibrary
+import config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,13 +21,8 @@ class ScalaScriptConsoleRunConfigurationFactory(val typez: ConfigurationType) ex
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaScriptConsoleRunConfiguration]
-    val modules = ModuleManager.getInstance(template.getProject).getModules
-    for (module <- modules) {
-      if (ScalaLibrary.isPresentIn(module)) {
-        configuration.setModule(module)
-        return configuration
-      }
+    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
+      configuration.setModule _
     }
-    return configuration
-  }
+    configuration  }
 }

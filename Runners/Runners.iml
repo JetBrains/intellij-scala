@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="GLOBAL" />
+        <option name="compilerLibraryName" value="scala-compiler" />
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -7,7 +15,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Scala SDK" level="application" />
+    <orderEntry type="library" name="scala-library" level="application" />
+    <orderEntry type="library" name="scala-compiler" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="specs_2.8.0.RC2-1.6.5-SNAPSHOT.jar" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="scalatest-1.2-scala-2.8.0.RC2-SNAPSHOT" level="project" />
   </component>
