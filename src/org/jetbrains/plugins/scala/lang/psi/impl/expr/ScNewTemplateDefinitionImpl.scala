@@ -70,7 +70,7 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     res.filter(_ != this).toArray
   }
 
-  def getTypeWithProjections(ctx: TypingContext) = getType(ctx) //no projections for new template definition
+  def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false) = getType(ctx) //no projections for new template definition
 
   //todo: it's copy for ScTypeDefinitionImpl
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
