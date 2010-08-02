@@ -67,14 +67,16 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     }
   }
 
-  def getTypeWithProjections(ctx: TypingContext): TypeResult[ScType] = {
+  def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
     def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
     def innerType = if (typeParameters.length == 0) ScDesignatorType(this)
                     else ScParameterizedType(ScDesignatorType(this), args)
     val parentClazz = ScalaPsiUtil.getPlaceTd(this)
     if (parentClazz != null) {
-      val innerProjection: ScProjectionType = ScProjectionType(parentClazz.getType(TypingContext.empty).getOrElse(
-        return Failure("Cannot resolve parent class", Some(this))),
+      val innerProjection: ScProjectionType = ScProjectionType(if (!thisProjections)
+        parentClazz.getTypeWithProjections(TypingContext.empty, false).getOrElse(
+        return Failure("Cannot resolve parent class", Some(this)))
+        else ScThisType(parentClazz),
         this, ScSubstitutor.empty)
       Success(if (typeParameters.length == 0) innerProjection
               else ScParameterizedType(innerProjection, args), Some(this))

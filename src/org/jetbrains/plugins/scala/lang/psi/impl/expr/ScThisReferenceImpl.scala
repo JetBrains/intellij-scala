@@ -25,7 +25,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = refTemplate match {
     case Some(td) => {
-      lazy val innerType: ScType = td.getType(TypingContext.empty).map(tp => {
+      lazy val innerType: ScType = td.getTypeWithProjections(TypingContext.empty, true).map(tp => {
         td.selfType match {
           case Some(selfType) => Bounds.glb(tp, selfType)
           case _ => tp
