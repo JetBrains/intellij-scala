@@ -157,11 +157,19 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getTypeNoResolve: PsiType = PsiType.VOID
 
   def isDefaultParam: Boolean = {
+    if (baseDefaultParam) return true
+    getSuperParameter match {
+      case Some(param) => param.isDefaultParam
+      case _ => false
+    }
+  }
+
+  def baseDefaultParam: Boolean = {
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].isDefaultParam
     }
-    return findChildByType(ScalaTokenTypes.tASSIGN) != null
+    findChildByType(ScalaTokenTypes.tASSIGN) != null
   }
 
   def isRepeatedParameter: Boolean = {
@@ -173,5 +181,38 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case Some(p: ScParameterType) => p.isRepeatedParameter
       case None => false
     }
+  }
+
+  def getSuperParameter: Option[ScParameter] = {
+    getParent match {
+      case clause: ScParameterClause => {
+        lazy val i = clause.parameters.indexOf(this)
+        clause.getParent match {
+          case p: ScParameters => {
+            lazy val j = p.clauses.indexOf(clause)
+            p.getParent match {
+              case fun: ScFunction => {
+                fun.superMethod match {
+                  case Some(method: ScFunction) => {
+                    return Some(method.paramClauses.clauses.apply(j).parameters.apply(i))
+                  }
+                  case _ => return None
+                }
+              }
+              case _ => return None
+            }
+          }
+          case _ => return None
+        }
+      }
+      case _ => return None
+    }
+  }
+
+  def getDefaultExpression: Option[ScExpression] = {
+    val res = findChild(classOf[ScExpression])
+    if (res == None) {
+      getSuperParameter.flatMap(_.getDefaultExpression)
+    } else res
   }
 }
