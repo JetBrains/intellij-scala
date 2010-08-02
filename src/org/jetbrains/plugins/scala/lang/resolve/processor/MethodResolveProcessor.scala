@@ -305,14 +305,9 @@ object MethodResolveProcessor {
     else if (filtered.isEmpty) mapped.toArray
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
-      val res: Array[T] = MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered.toSet) match {
+      MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered.toSet) match {
         case Some(r) => Array(r)
         case None => filtered.toArray
-      }
-      //todo: remove, after scalap fix.
-      refName match {
-        case "_1" | "_2" | "_3" | "_4" | "_5" | "_6" if res.length > 1 => Array(res.apply(0))
-        case _ => res
       }
     }
   }
