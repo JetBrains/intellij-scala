@@ -244,7 +244,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       resolveResult.implicitFunction match {
         case Some(fun) => {
-          val qualifier = refElement.qualifier match {case Some(qual) => qual}
+          val qualifier = refElement.qualifier.get
           val expr = qualifier.asInstanceOf[ScExpression]
           highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
         }
