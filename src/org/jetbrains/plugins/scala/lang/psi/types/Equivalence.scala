@@ -52,7 +52,7 @@ object Equivalence {
           case _ => (false, undefinedSubst)
         }
       }
-      case (r, AnyRef) => equivInner(r, l, undefinedSubst)
+      case (l, AnyRef) => equivInner(r, l, undefinedSubst)
       case (p: ScProjectionType, t: StdType) => {
         p.element match {
           case synth: ScSyntheticClass => equivInner(synth.t, t, undefinedSubst)

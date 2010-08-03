@@ -6,8 +6,9 @@ package scalaTest
 import com.intellij.execution.configurations.{RunConfiguration, ConfigurationType, ConfigurationFactory}
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.module.ModuleManager
+import script.ScalaScriptRunConfiguration
 import com.intellij.openapi.project.Project
-import config.ScalaLibrary
+import config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,14 +23,9 @@ class ScalaTestRunConfigurationFactory(val typez: ConfigurationType) extends Con
 
   override def createConfiguration(name: String, template: RunConfiguration): RunConfiguration = {
     val configuration = (super.createConfiguration(name, template)).asInstanceOf[ScalaTestRunConfiguration]
-    val modules = ModuleManager.getInstance(template.getProject).getModules
-    for (module <- modules) {
-      val facetManager = FacetManager.getInstance(module)
-      if (ScalaLibrary.isPresentIn(module)) {
-        configuration.setModule(module)
-        return configuration
-      }
+    ScalaFacet.findModulesIn(template.getProject).headOption.foreach {
+      configuration.setModule _
     }
-    return configuration
+    configuration
   }
 }

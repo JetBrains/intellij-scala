@@ -4,7 +4,6 @@ import com.intellij.compiler.CompilerException;
 import com.intellij.compiler.impl.javaCompiler.BackendCompiler;
 import com.intellij.compiler.impl.javaCompiler.BackendCompilerWrapper;
 import com.intellij.compiler.make.CacheCorruptedException;
-import com.intellij.facet.FacetManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompileScope;
@@ -26,7 +25,7 @@ import com.intellij.util.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.config.ScalaLibrary;
+import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
@@ -95,7 +94,7 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   private static boolean isScalaModule(Module module) {
-    return ScalaLibrary.isPresentIn(module);
+    return ScalaFacet.isPresentIn(module);
   }
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
