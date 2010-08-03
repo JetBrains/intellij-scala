@@ -18,7 +18,8 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
     val literal = startOffsets.zip(endOffsets).forall {
       case (a, b) =>
         val e = file.findElementAt(a);
-        e.isInstanceOf[PsiElement] && e.getNode.getElementType == ScalaTokenTypes.tSTRING &&
+        e != null && e.isInstanceOf[PsiElement] && e.getNode != null &&
+                e.getNode.getElementType == ScalaTokenTypes.tSTRING &&
                 a > e.getTextRange.getStartOffset && b < e.getTextRange.getEndOffset
     }
     if (literal) StringUtil.unescapeStringCharacters(text) else null
