@@ -12,13 +12,13 @@ import _root_.scala.collection.mutable.LinkedHashSet
 import api.statements.ScTypeAliasDefinition
 import api.toplevel.ScNamedElement
 import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
-import com.intellij.psi.{PsiClass}
 import psi.types._
 import result.TypingContext
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
+import com.intellij.psi.{PsiElement, PsiClass}
 
 abstract class MixinNodes {
   type T
@@ -81,21 +81,24 @@ abstract class MixinNodes {
     primarySupers
   }
 
-  def build(clazz: PsiClass) : (Map, Map) = build(ScDesignatorType(clazz))
+  def build(clazz: PsiClass): (Map, Map) = build(ScDesignatorType(clazz))
 
-  def build(tp : ScType) : (Map, Map) = {
+  def build(tp : ScType): (Map, Map) = {
     var isPredef = false
+    var place: Option[PsiElement] = None
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
       case ScDesignatorType(template: ScTypeDefinition) => {
-        processScala(template, ScSubstitutor.empty, map, false)
+        place = Some(template.getLastChild)
+        processScala(template, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
         (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(template : ScTemplateDefinition) => {
-        processScala(template, ScSubstitutor.empty, map, false)
+        place = Some(template.getLastChild)
+        processScala(template, ScSubstitutor.empty, map, place)
         (MixinNodes.linearization(template, collection.immutable.HashSet.empty), Bounds.putAliases(template, ScSubstitutor.empty))
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
@@ -103,7 +106,8 @@ abstract class MixinNodes {
         (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType], ScSubstitutor.empty)
       }
       case ScDesignatorType(clazz: PsiClass) => {
-        processJava(clazz, ScSubstitutor.empty, map, false)
+        place = Some(clazz.getLastChild)
+        processJava(clazz, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
         (if (!lin.isEmpty) lin.tail else lin, ScSubstitutor.empty)
       }
@@ -128,13 +132,13 @@ abstract class MixinNodes {
             val newMap = new Map
             superClass match {
               case template : ScTemplateDefinition => {
-                processScala(template, newSubst, newMap, true)
+                processScala(template, newSubst, newMap, place)
               }
               case syn: ScSyntheticClass => {
                 processSyntheticScala(syn, newSubst, newMap)
               }
               case _ => {
-                processJava(superClass, newSubst, newMap, true)
+                processJava(superClass, newSubst, newMap, place)
               }
             }
             superTypesBuff += newMap
@@ -169,8 +173,8 @@ abstract class MixinNodes {
     res
   }
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, noPrivates: Boolean)
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, noPrivates: Boolean)
+  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
+  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map)
 }
 

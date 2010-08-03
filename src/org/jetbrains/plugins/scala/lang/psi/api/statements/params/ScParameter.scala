@@ -39,9 +39,13 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isCallByNameParameter: Boolean
 
+  def baseDefaultParam: Boolean
+
   def isDefaultParam: Boolean
 
-  def getDefaultExpression: Option[ScExpression] = findChild(classOf[ScExpression])
+  def getDefaultExpression: Option[ScExpression]
 
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType]
+
+  def getSuperParameter: Option[ScParameter]
 }

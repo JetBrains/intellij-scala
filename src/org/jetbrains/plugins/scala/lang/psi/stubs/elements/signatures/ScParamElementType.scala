@@ -23,7 +23,8 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
       case Some(t) => t.getText()
       case None => ""
     }
-    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable, psi.isDefaultParam, psi.isRepeatedParameter)
+    new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable, psi.baseDefaultParam,
+      psi.isRepeatedParameter)
   }
 
   def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
