@@ -112,11 +112,12 @@ object ScType {
             case Array() => des
             case _ if classType.isRaw => {
               new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
+                val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
                 new ScExistentialArgument("_", Nil, Nothing,
-                  tp.getSuperTypes.length match {
+                  arrayOfTypes.length match {
                     case 0 => Any
-                    case 1 => create(tp.getSuperTypes.apply(0), project, scope, deep + 1)
-                    case _ => ScCompoundType(tp.getSuperTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                    case 1 => create(arrayOfTypes.apply(0), project, scope, deep + 1)
+                    case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
                   })
               }}): _*))
             }
