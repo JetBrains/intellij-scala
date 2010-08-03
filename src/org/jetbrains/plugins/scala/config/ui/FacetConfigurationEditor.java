@@ -148,7 +148,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
    }
   
   public void setCompilerLibraryBy(String name, LibrariesContainer.LibraryLevel level) {
-    boolean none = name.isEmpty() || level == null;
+    boolean none = name.length() == 0 || level == null;
     comboCompilerLibrary.setSelectedItem(none ? null : findLibraryEntryBy(name, level));
   }
   
