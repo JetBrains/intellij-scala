@@ -395,16 +395,17 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   private boolean allModulesHaveSameScalaSdk(ModuleChunk chunk) {
     if (chunk.getModuleCount() == 0) return false;
     final Module[] modules = chunk.getModules();
-    final Module first = modules[0];
-    final ScalaFacet facet = (ScalaFacet) ScalaFacet.findIn(first).get();
-    final String firstVersion = facet.version();
-
+    String firstVersion = null;
     for (Module module : modules) {
       Option<ScalaFacet> facetOption = ScalaFacet.findIn(module);
       if (facetOption.isDefined()) {
         final ScalaFacet f = (ScalaFacet) facetOption.get();
         String version = f.version();
-        if (!version.equals(firstVersion)) return false;
+        if (firstVersion == null) {
+          firstVersion = version;
+        } else {
+          if (!version.equals(firstVersion)) return false;
+        }
       }
     }
     return true;
