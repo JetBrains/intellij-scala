@@ -5,7 +5,7 @@ import java.util.Properties
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.openapi.util.io.FileUtil
 import io.Source
-import java.io.{StringReader, File}
+import java.io.{StringBufferInputStream, File}
 
 /**
  * Pavel.Fatin, 07.07.2010
@@ -14,13 +14,13 @@ import java.io.{StringReader, File}
 object FileAPI {
   def readProperty(archive: File, bundle: String, property: String) = {
     readEntry(archive, bundle).flatMap { content =>
-      val reader = new StringReader(content)
+      val stream = new StringBufferInputStream(content)
       try {
         val properties = new Properties()
-        properties.load(reader)
+        properties.load(stream)
         Option(properties.getProperty(property))
       } finally {
-        reader.close()
+        stream.close()
       }
     }
   }
