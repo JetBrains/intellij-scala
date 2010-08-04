@@ -73,7 +73,9 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         if (searches != null && searches.find(_.equiv(tp)) == None)
           c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
                   +(currentThread -> (tp :: searches)))
-        else if (searches == null)
+        else if (searches == null && userData != null)
+          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.+(currentThread -> List(tp)))
+        else if (searches == null && userData == null)
           c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, Map(currentThread -> List(tp)))
         else return false
         try {

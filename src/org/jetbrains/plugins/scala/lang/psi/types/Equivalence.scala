@@ -219,7 +219,7 @@ object Equivalence {
         return (true, undefinedSubst)
       }
       case (ScTypeParameterType(name, args, lower, upper, param), stp: ScTypeParameterType) => {
-        if (r eq this) return (true, undefinedSubst)
+        if (r eq l) return (true, undefinedSubst)
         (CyclicHelper.compute(param, stp.param)(() => {
           val t = equivInner(lower.v, stp.lower.v, undefinedSubst)
           if (!t._1) (false, undefinedSubst)

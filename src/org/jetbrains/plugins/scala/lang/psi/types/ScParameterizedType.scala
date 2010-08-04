@@ -22,8 +22,8 @@ import caches.CachesUtil
 
 
 
-import _root_.scala.collection.immutable.{Map, HashMap}
 import com.intellij.psi._
+import collection.immutable.{::, Map, HashMap}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -158,24 +158,30 @@ private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
     val currentThread = Thread.currentThread
     def setup(pn1: PsiNamedElement, pn2: PsiNamedElement): Boolean = {
-      var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
-      var searches: List[PsiNamedElement] = if (userData == null) null else userData.getOrElse(currentThread, null)
-      if (searches != null && searches.find(_ == pn2) == None)
-        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
-                +(currentThread -> (pn2 :: searches)))
-      else if (searches == null)
-        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, Map(currentThread -> List(pn2)))
-      else return false
-      true
+      synchronized {
+        var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
+        var searches: List[PsiNamedElement] = if (userData == null) null else userData.getOrElse(currentThread, null)
+        if (searches != null && searches.find(_ == pn2) == None)
+          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
+                  +(currentThread -> (pn2 :: searches)))
+        else if (searches == null && userData != null)
+          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.+(currentThread -> List(pn2)))
+        else if (searches == null && userData == null)
+          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, Map(currentThread -> List(pn2)))
+        else return false
+        true
+      }
     }
 
     def close(pn1: PsiNamedElement, pn2: PsiNamedElement) = {
-      var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
-      var searches = userData.getOrElse(currentThread, null)
-      if (searches != null && searches.length > 0)
-        pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
-                +(currentThread -> searches.tail))
-      else {} //do nothing
+      synchronized {
+        var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
+        var searches = userData.getOrElse(currentThread, null)
+        if (searches != null && searches.length > 0)
+          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
+                  +(currentThread -> searches.tail))
+        else {} //do nothing
+      }
     }
     if (!setup(pn1, pn2)) return None
     if (pn1 != pn2 && !setup(pn2, pn1)) return None
