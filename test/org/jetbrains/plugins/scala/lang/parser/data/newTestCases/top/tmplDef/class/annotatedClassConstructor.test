@@ -20,11 +20,12 @@ ScalaFile
                 CodeReferenceElement
                   PsiElement(identifier)('bad')
       PsiWhiteSpace(' ')
-      AccessModifier
-        PsiElement(private)('private')
-        PsiElement([)('[')
-        PsiElement(identifier)('C')
-        PsiElement(])(']')
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+          PsiElement([)('[')
+          PsiElement(identifier)('C')
+          PsiElement(])(']')
       PsiWhiteSpace(' ')
       Parameters
         ParametersClause

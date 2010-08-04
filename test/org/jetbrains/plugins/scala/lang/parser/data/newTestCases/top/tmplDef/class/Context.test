@@ -14,8 +14,9 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
-      AccessModifier
-        PsiElement(private)('private')
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
       PsiWhiteSpace(' ')
       Parameters
         <empty list>
