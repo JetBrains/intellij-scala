@@ -65,6 +65,8 @@ class BugTest extends ResolveTestBase {
   def testSCL2169 = doTest
   def testSCL2239 = doTest
   def testSCL2257 = doTest
+  //TODO Java AnyRef
+  //def testSCL2238 = doTest
 
   def testThisTypeSelfType = doTest
 }
