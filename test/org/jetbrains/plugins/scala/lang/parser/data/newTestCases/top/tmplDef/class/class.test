@@ -16,6 +16,8 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
+      Modifiers
+        <empty list>
       Parameters
         <empty list>
     ExtendsBlock
@@ -32,6 +34,8 @@ ScalaFile
     PsiElement(identifier)('b')
     PrimaryConstructor
       AnnotationsList
+        <empty list>
+      Modifiers
         <empty list>
       Parameters
         <empty list>
@@ -50,6 +54,8 @@ ScalaFile
     PrimaryConstructor
       AnnotationsList
         <empty list>
+      Modifiers
+        <empty list>
       Parameters
         <empty list>
     ExtendsBlock
@@ -67,6 +73,8 @@ ScalaFile
     PsiElement(identifier)('d')
     PrimaryConstructor
       AnnotationsList
+        <empty list>
+      Modifiers
         <empty list>
       Parameters
         <empty list>
