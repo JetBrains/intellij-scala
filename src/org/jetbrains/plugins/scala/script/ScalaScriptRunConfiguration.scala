@@ -53,18 +53,26 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   private var scriptPath = ""
   private var scriptArgs = ""
   private var javaOptions = ""
+  private var workingDirectory = {
+    val base = getProject.getBaseDir
+    if (base != null) base.getPath
+    else ""
+  }
 
   def getScriptPath = scriptPath
   def getScriptArgs = scriptArgs
   def getJavaOptions = javaOptions
+  def getWorkingDirectory: String = workingDirectory
   def setScriptPath(s: String): Unit = scriptPath = s
   def setScriptArgs(s: String): Unit = scriptArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
+  def setWorkingDirectory(s: String): Unit = workingDirectory = s
 
   def apply(params: ScalaScriptRunConfigurationForm) {
     setScriptArgs(params.getScriptArgs)
     setScriptPath(params.getScriptPath)
     setJavaOptions(params.getJavaOptions)
+    setWorkingDirectory(params.getWorkingDirectory)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -105,6 +113,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
+        params.setWorkingDirectory(getWorkingDirectory)
 //        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
 //        params.getVMParametersList.add(SCALA_HOME  + scalaSdkPath)
         params.getVMParametersList.add(CLASSPATH)
@@ -154,6 +163,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     JDOMExternalizer.write(element, "path", getScriptPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getScriptArgs)
+    JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -162,6 +172,8 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     scriptPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     scriptArgs = JDOMExternalizer.readString(element, "params")
+    val pp = JDOMExternalizer.readString(element, "workingDirectory")
+    if (pp != null) workingDirectory = pp
   }
 
   private def getClassPath(module: Module): String = {
