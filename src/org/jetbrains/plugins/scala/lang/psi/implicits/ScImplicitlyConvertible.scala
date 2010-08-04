@@ -121,77 +121,80 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     if (typez.isInstanceOf[ScUndefinedType]) return result.toSeq
     
     val sigsFound = processor.candidates.map((r: ScalaResolveResult) => {
-      ProgressManager.checkCanceled
-      lazy val funType: ScParameterizedType = {
-        val fun = "scala.Function1"
-        val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
-        funClass match {
-          case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
-            new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
-        }
-      }
-      val subst = r.substitutor
-      val (tp: ScType, retTp: ScType) = r.element match {
-        case f: ScFunction if f.paramClauses.clauses.length > 0 => {
-          val params = f.paramClauses.clauses.apply(0).parameters
-          (subst.subst(params.apply(0).getType(TypingContext.empty).getOrElse(Nothing)),
-           subst.subst(f.returnType.getOrElse(Nothing)))
-        }
-        case f: ScFunction => {
-          Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
-            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+      if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
+        ProgressManager.checkCanceled
+        lazy val funType: ScParameterizedType = {
+          val fun = "scala.Function1"
+          val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
+          funClass match {
+            case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
+              new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
           }
         }
-        case b: ScBindingPattern => {
-          Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).get)).getSubstitutor match {
-            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+        val subst = r.substitutor
+        val (tp: ScType, retTp: ScType) = r.element match {
+          case f: ScFunction if f.paramClauses.clauses.length > 0 => {
+            val params = f.paramClauses.clauses.apply(0).parameters
+            (subst.subst(params.apply(0).getType(TypingContext.empty).getOrElse(Nothing)),
+             subst.subst(f.returnType.getOrElse(Nothing)))
+          }
+          case f: ScFunction => {
+            Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
+              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case _ => (Nothing, Nothing)
+            }
+          }
+          case b: ScBindingPattern => {
+            Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).get)).getSubstitutor match {
+              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case _ => (Nothing, Nothing)
+            }
+          }
+          case param: ScParameter => {
+            Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
+                    getSubstitutor match {
+              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case _ => (Nothing, Nothing)
+            }
           }
         }
-        case param: ScParameter => {
-          Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
-                  getSubstitutor match {
-            case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
-            case _ => (Nothing, Nothing)
+        val newSubst = r.element match {
+          case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
+          case _ => ScSubstitutor.empty
+        }
+        if (!typez.conforms(newSubst.subst(tp))) {
+          (false, r, tp, retTp)
+        } else {
+          r.element match {
+            case f: ScFunction if f.hasTypeParameters => {
+              var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
+              for (tParam <- f.typeParameters) {
+                val lowerType: ScType = tParam.lowerBound.getOrElse(Nothing)
+                if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                  subst.subst(lowerType))
+                val upperType: ScType = tParam.upperBound.getOrElse(Any)
+                if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
+                  subst.subst(upperType))
+              }
+
+              //todo: pass implicit parameters
+
+              uSubst.getSubstitutor match {
+                case Some(substitutor) => (true, r.copy(subst = substitutor.followed(r.substitutor)),
+                        substitutor.subst(tp), substitutor.subst(retTp))
+                case _ => (false, r, tp, retTp)
+              }
+            }
+            case _ => (true, r, tp, retTp)
           }
         }
-      }
-      val newSubst = r.element match {
-        case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
-        case _ => ScSubstitutor.empty
-      }
-      if (!typez.conforms(newSubst.subst(tp))) {
-        (false, r, tp, retTp)
       } else {
-        r.element match {
-          case f: ScFunction if f.hasTypeParameters => {
-            var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
-            for (tParam <- f.typeParameters) {
-              val lowerType: ScType = tParam.lowerBound.getOrElse(Nothing)
-              if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                subst.subst(lowerType))
-              val upperType: ScType = tParam.upperBound.getOrElse(Any)
-              if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
-                subst.subst(upperType))
-            }
-
-            //todo: pass implicit parameters
-
-            uSubst.getSubstitutor match {
-              case Some(substitutor) => (true, r.copy(subst = substitutor.followed(r.substitutor)),
-                      substitutor.subst(tp), substitutor.subst(retTp))
-              case _ => (false, r, tp, retTp)
-            }
-          }
-          case _ => (true, r, tp, retTp)
-        }
+        (false, r, null: ScType, null: ScType)
       }
     })
 
 
-    for ((pass, resolveResult, tp, rt) <- sigsFound if pass && //to prevent infinite recursion
-            !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(resolveResult.element), this, false)) {
+    for ((pass, resolveResult, tp, rt) <- sigsFound if pass) {
       result += Tuple(rt, resolveResult.element, resolveResult.importsUsed)
     }
     result.toSeq
