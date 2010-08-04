@@ -19,15 +19,20 @@ public class ScalaScriptRunConfigurationForm {
   private TextFieldWithBrowseButton textFieldWithBrowseButton1;
   private RawCommandLineEditor scriptArgsEditor;
   private RawCommandLineEditor javaOptionsEditor;
+  private TextFieldWithBrowseButton workingDirectoryField;
 
   public ScalaScriptRunConfigurationForm(final Project project, final ScalaScriptRunConfiguration configuration) {
     myProject = project;
     myConfiguration = configuration;
     addFileChooser("Select scala script file", textFieldWithBrowseButton1, project);
+    addFileChooser("Choose Working Directory", workingDirectoryField, project);
     scriptArgsEditor.setName("Scala script program arguments");
     scriptArgsEditor.setDialogCaption("Scala script program arguments editor");
     javaOptionsEditor.setName("VM options");
     javaOptionsEditor.setDialogCaption("VM opotions editor");
+    VirtualFile baseDir = project.getBaseDir();
+    String path = baseDir != null ? baseDir.getPath() : "";
+    workingDirectoryField.setText(path);
   }
 
   public JPanel getPanel() {
@@ -62,6 +67,15 @@ public class ScalaScriptRunConfigurationForm {
     setScriptArgs(configuration.getScriptArgs());
     setScriptPath(configuration.getScriptPath());
     setJavaOptions(configuration.getJavaOptions());
+    setWorkingDirectory(configuration.getWorkingDirectory());
+  }
+
+  public String getWorkingDirectory() {
+    return workingDirectoryField.getText();
+  }
+
+  public void setWorkingDirectory(String s) {
+    workingDirectoryField.setText(s);
   }
 
   private FileChooserDescriptor addFileChooser(final String title,
