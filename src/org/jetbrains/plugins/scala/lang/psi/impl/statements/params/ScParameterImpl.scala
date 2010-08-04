@@ -64,7 +64,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def paramType: Option[ScParameterType] = findChild(classOf[ScParameterType])
 
-  def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner])
+  def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
   def getTypeElement = null
 
@@ -76,6 +76,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   override def getUseScope = {
     getDeclarationScope match {
       case null => GlobalSearchScope.EMPTY_SCOPE
+      case expr: ScFunctionExpr => new LocalSearchScope(expr)
       case clazz: ScClass if clazz.isCase => clazz.getUseScope
       case clazz: ScClass if isInstanceOf[ScClassParameter] && !asInstanceOf[ScClassParameter].isVal &&
               !asInstanceOf[ScClassParameter].isVar => {
