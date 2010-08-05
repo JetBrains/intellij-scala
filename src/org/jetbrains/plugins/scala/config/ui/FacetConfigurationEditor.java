@@ -6,14 +6,12 @@ import com.intellij.facet.ui.FacetValidatorsManager;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.plugins.scala.config.CompilerPlugin;
-import org.jetbrains.plugins.scala.config.ConfigurationData;
-import org.jetbrains.plugins.scala.config.LibraryEntry;
+import org.jetbrains.plugins.scala.config.*;
+import org.jetbrains.plugins.scala.config.LibraryDescriptor;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -60,8 +58,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myEditorContext = editorContext;
     myValidatorsManager = validatorsManager;
 
-    comboCompilerLibrary.setModel(new DefaultComboBoxModel(LibraryEntry.compilers(myEditorContext.getProject())));
-    comboCompilerLibrary.setRenderer(new LibraryEntryRenderer());
+    comboCompilerLibrary.setRenderer(new LibraryRenderer());
 
     CompilerPluginsTableModel model = new CompilerPluginsTableModel();
     model.setItems(myPlugins);
@@ -102,6 +99,16 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myMoveDownPluginAction.update();
   }
 
+  @Override
+  public JComponent getPreferredFocusedComponent() {
+    return comboCompilerLibrary;
+  }
+
+  @Override
+  public void onTabEntering() {
+    updateLibrariesList();
+  }
+
   private CompilerPluginsTableModel getPluginsModel() {
     return (CompilerPluginsTableModel) tablePlugins.getModel();
   }
@@ -130,33 +137,60 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
 
   public void reset() {
-    setCompilerLibraryBy(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel());
+    updateLibrariesList();
+    
+    setCompilerLibraryById(new LibraryId(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel()));
     fieldCompilerOptions.setText(myData.getCompilerOptions());
 
     myPlugins = new ArrayList(CompilerPlugin.fromPaths(myData.getPluginPaths(), myEditorContext.getModule()));
     getPluginsModel().setItems(myPlugins);
   }
 
+  private void updateLibrariesList() {
+    LibraryId id = getCompilerLibraryId();
+
+    comboCompilerLibrary.setModel(new DefaultComboBoxModel(
+        LibraryDescriptor.compilersFor(myEditorContext.getProject())));
+
+    setCompilerLibraryById(id);
+  }
+
   private String getCompilerLibraryName() {
-    LibraryEntry compilerLibrary = (LibraryEntry) comboCompilerLibrary.getSelectedItem();
-    return compilerLibrary == null ? "" : compilerLibrary.name();  
+    LibraryId id = getCompilerLibraryId();
+    return id == null ? "" : id.name();
+  }
+
+  private LibraryLevel getCompilerLibraryLevel() {
+    LibraryId id = getCompilerLibraryId();
+    return id == null ? null : id.level();
   }
   
-  private LibrariesContainer.LibraryLevel getCompilerLibraryLevel() {
-     LibraryEntry compilerLibrary = (LibraryEntry) comboCompilerLibrary.getSelectedItem();
-     return compilerLibrary == null ? null : compilerLibrary.level();  
-   }
-  
-  public void setCompilerLibraryBy(String name, LibrariesContainer.LibraryLevel level) {
-    boolean none = name.length() == 0 || level == null;
-    comboCompilerLibrary.setSelectedItem(none ? null : findLibraryEntryBy(name, level));
+  private LibraryId getCompilerLibraryId() {
+    LibraryDescriptor descriptor = (LibraryDescriptor) comboCompilerLibrary.getSelectedItem();
+    return descriptor == null ? LibraryId.empty() : descriptor.id();  
   }
   
-  public LibraryEntry findLibraryEntryBy(String name, LibrariesContainer.LibraryLevel level) {
+  public void setCompilerLibraryById(LibraryId id) {
+    if(id.isEmpty()) {
+      comboCompilerLibrary.addItem(null);
+      comboCompilerLibrary.setSelectedItem(null);
+    } else {
+      LibraryDescriptor descriptor = findLibraryDescriptorFor(id);
+      if(descriptor == null) {
+        LibraryDescriptor newId = LibraryDescriptor.createFor(id);
+        comboCompilerLibrary.addItem(newId);
+        comboCompilerLibrary.setSelectedItem(newId);
+      } else {
+        comboCompilerLibrary.setSelectedItem(descriptor);
+      }
+    }
+  }
+  
+  public LibraryDescriptor findLibraryDescriptorFor(LibraryId id) {
     DefaultComboBoxModel model = (DefaultComboBoxModel) comboCompilerLibrary.getModel();
     for (int i = 0; i < model.getSize(); i++) {
-      LibraryEntry entry = (LibraryEntry) model.getElementAt(i);
-      if(name.equals(entry.name()) && level.equals(entry.level())) {
+      LibraryDescriptor entry = (LibraryDescriptor) model.getElementAt(i);
+      if(entry != null && entry.id().equals(id)) {
         return entry;
       }
     }

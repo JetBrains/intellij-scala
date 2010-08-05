@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.config.ui;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import org.jetbrains.plugins.scala.config.*;
@@ -36,8 +35,6 @@ public class ScalaSupportWizard {
 
   private Project myProject;
   
-  private boolean homeIsValid;
-
   
   public ScalaSupportWizard(Project project) {
     myProject = project;
@@ -56,12 +53,12 @@ public class ScalaSupportWizard {
     fieldCompilerName.getDocument().addDocumentListener(compilerUpdater);
     fieldLibraryName.getDocument().addDocumentListener(libraryUpdater);
     
-    comboCompilerLevel.setModel(new DefaultComboBoxModel(new LibrariesContainer.LibraryLevel[] {
-        LibrariesContainer.LibraryLevel.GLOBAL, LibrariesContainer.LibraryLevel.PROJECT}));
+    comboCompilerLevel.setModel(new DefaultComboBoxModel(
+        new LibraryLevel[] {LibraryLevel.Global, LibraryLevel.Project}));
     comboCompilerLevel.setRenderer(new LevelRenderer());
     comboCompilerLevel.addActionListener(compilerUpdater);
     
-    comboLibraryLevel.setModel(new DefaultComboBoxModel(LibrariesContainer.LibraryLevel.values()));
+    comboLibraryLevel.setModel(new DefaultComboBoxModel(LibraryLevel.values()));
     comboLibraryLevel.setRenderer(new LevelRenderer());
     comboLibraryLevel.addActionListener(libraryUpdater);
   }
@@ -80,23 +77,15 @@ public class ScalaSupportWizard {
   public String getHome() {
     return fieldHome.getText().trim();
   }
-  
-  public LibrariesContainer.LibraryLevel getCompilerLevel() {
-    return (LibrariesContainer.LibraryLevel) comboCompilerLevel.getSelectedItem();
-  }
-  
-  public LibrariesContainer.LibraryLevel getLibraryLevel() {
-    return (LibrariesContainer.LibraryLevel) comboLibraryLevel.getSelectedItem();
-  }
 
-  public String getCompilerName() {
-    return fieldCompilerName.getText().trim();
+  public LibraryId getCompilerLibraryId() {
+    return new LibraryId(fieldCompilerName.getText().trim(), (LibraryLevel) comboCompilerLevel.getSelectedItem());
   }
   
-  public String getLibraryName() {
-    return fieldLibraryName.getText().trim();
-  }
-
+  public LibraryId getStandardLibraryId() {
+    return new LibraryId(fieldLibraryName.getText().trim(), (LibraryLevel) comboLibraryLevel.getSelectedItem());
+  } 
+  
   public void updateSectionsState() {
     setEnabled(choiceNew.isSelected(),
         fieldHome, 
@@ -123,8 +112,6 @@ public class ScalaSupportWizard {
   }
 
   private void updateHomeState() {
-    homeIsValid = false;
-    
     fieldHome.getTextField().setForeground(DEFAULT_COLOR);
     fieldHome.getTextField().setToolTipText(null);
     
@@ -148,11 +135,28 @@ public class ScalaSupportWizard {
     
     ScalaDistribution distribution = new ScalaDistribution(home);
 
-    for(Problem problem : distribution.problems()) {
-      if(problem instanceof NotScalaSDK) labelState.setText("(not valid Scala home)");
-      if(problem instanceof ComplierMissing) labelState.setText("(compiler missing)");
-      if(problem instanceof InvalidArchive) labelState.setText("(invalid archive file)");
-      if(problem instanceof InconsistentVersions) labelState.setText("(mismatch of file versions)");
+    if(!distribution.valid()) {
+      labelState.setText("(not valid Scala home)");
+      return;
+    }
+    
+    if(distribution.libraryPath().length() == 0) {
+      labelState.setText("(compiler missing)");
+      return;
+    }
+    
+    if(distribution.compilerVersion().length() == 0) {
+      labelState.setText("(invalid compiler file)");
+      return;
+    }
+    
+    if(distribution.libraryVersion().length() == 0) {
+      labelState.setText("(invalid library file)");
+      return;
+    }
+    
+    if(!distribution.compilerVersion().equals(distribution.libraryVersion())) {
+      labelState.setText("(mismatch of file versions)");
       return;
     }
     
@@ -170,8 +174,6 @@ public class ScalaSupportWizard {
       return;
     }
     
-    homeIsValid = true;
-    
     if(!distribution.hasDocs()) {
       labelState.setText("(version " + version + ", no /docs/scala-devel-docs/api)");
       labelState.setIcon(Icons.WARNING);
@@ -180,11 +182,11 @@ public class ScalaSupportWizard {
       labelState.setIcon(null);
     }
 
-    fieldCompilerName.setText(
-        LibraryEntry.uniqueName("scala-compiler-" + distribution.version(), getCompilerLevel(), myProject));
+    fieldCompilerName.setText(Libraries.uniqueName("scala-compiler-" + distribution.compilerVersion(), 
+        getCompilerLibraryId().level(), myProject));
 
-    fieldLibraryName.setText(
-        LibraryEntry.uniqueName("scala-library-" + distribution.version(), getLibraryLevel(), myProject));
+    fieldLibraryName.setText(Libraries.uniqueName("scala-library-" + distribution.libraryVersion(),
+        getStandardLibraryId().level(), myProject));
   }
 
   public JComponent getComponent() {
@@ -222,7 +224,7 @@ public class ScalaSupportWizard {
 
     public void actionPerformed(ActionEvent e) {
       if(nameClashes()) {
-        myNameField.setText(LibraryEntry.uniqueName(getName(), getLevel(), myProject));
+        myNameField.setText(Libraries.uniqueName(getName(), getLevel(), myProject));
       }
       updateFiledState();
     }
@@ -234,15 +236,15 @@ public class ScalaSupportWizard {
     }
 
     private boolean nameClashes() {
-      return LibraryEntry.nameClashes(getName(), getLevel(), myProject);
+      return Libraries.nameClashes(getName(), getLevel(), myProject);
     }
 
     private String getName() {
       return myNameField.getText().trim();
     }
 
-    private LibrariesContainer.LibraryLevel getLevel() {
-      return (LibrariesContainer.LibraryLevel) myLevelField.getSelectedItem();
+    private LibraryLevel getLevel() {
+      return (LibraryLevel) myLevelField.getSelectedItem();
     }
   }
 }
