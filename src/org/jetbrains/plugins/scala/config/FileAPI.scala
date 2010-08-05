@@ -43,6 +43,17 @@ object FileAPI {
     }
   }
   
+  def exists(archive: File, entry: String): Boolean = {
+    try {
+      val file = new JarFile(archive)
+      val result = file.getEntry(entry) != null
+      file.close()
+      return result
+    } catch {
+      case _ => return false
+    }
+  }
+  
   def file(path: String) = new File(path)
   
   def optional(file: File): Option[File] = if(file.exists) Some(file) else None

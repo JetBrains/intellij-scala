@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.config.LibraryDescriptor
 class LibraryRenderer extends DefaultListCellRenderer {
   val Empty = """<html><body><span style="color: #ff0000;">&lt;none&gt;</span></body></html>"""
   val NotFound = """<html><body><span style="color: #ff0000;">%s [not found]</span></body></html>"""
-  val Invalid = """<html><body>%s <span style="color: #808080;">(unknown)</body></html>"""
+  val Unknown = """<html><body>%s <span style="color: #808080;">(unknown)</body></html>"""
   val Normal = """<html><body>%s <span style="color: #808080;">(version %s)</span>&nbsp;</body></html>"""
 
   def nameOf(level: LibraryLevel) = level match {
@@ -24,10 +24,10 @@ class LibraryRenderer extends DefaultListCellRenderer {
   def htmlFor(descriptor: Option[LibraryDescriptor]) = descriptor match {
     case Some(LibraryDescriptor(id, data)) => data match {
       case Some(data) => { 
-        if(data.valid) 
-          Normal.format(id.name, data.version) 
+        if(data.version.isEmpty) 
+          Unknown.format(id.name)
         else 
-          Invalid.format(id.name)
+          Normal.format(id.name, data.version.get)
       }
       case None => NotFound.format(id.name)
     }

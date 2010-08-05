@@ -47,7 +47,7 @@ class ScalaFacet(module: Module, name: String,
 
   def classpath: String = compiler.map(_.classpath).mkString
 
-  def version: String = compiler.map(_.version).mkString
+  def version: String = compiler.flatMap(_.version).mkString
   
   def options: String = getConfiguration.getState.compilerOptions
   

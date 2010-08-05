@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.config.ui;
 
-import com.intellij.facet.ui.FacetEditorContext;
-import com.intellij.facet.ui.FacetEditorTab;
-import com.intellij.facet.ui.FacetValidatorsManager;
+import com.intellij.facet.ui.*;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
@@ -12,12 +10,10 @@ import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.config.LibraryDescriptor;
+import scala.Option;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,11 +88,38 @@ public class FacetConfigurationEditor extends FacetEditorTab {
       }
     });
     
+    myValidatorsManager.registerValidator(new FacetEditorValidator() {
+      @Override
+      public ValidationResult check() {
+        return checCompilerLibrary((LibraryDescriptor) comboCompilerLibrary.getSelectedItem());
+      }
+    }, comboCompilerLibrary);
+    
+    
     myAddPluginAction.update();
     myRemovePluginAction.update();
     myEditPluginAction.update();
     myMoveUpPluginAction.update();
     myMoveDownPluginAction.update();
+  }
+  
+  private static ValidationResult checCompilerLibrary(LibraryDescriptor descriptor) {
+    if(descriptor == null) 
+      return new ValidationResult("No compiler library selected");
+
+    String libraryName = "Compiler library";
+        
+    if(descriptor.data().isEmpty())
+      return new ValidationResult(libraryName + ": "+ " not found");
+
+    CompilerLibraryData compilerLibraryData = (CompilerLibraryData) descriptor.data().get();
+    
+    Option<String> compilerLibraryProblem = compilerLibraryData.problem();
+        
+    if(compilerLibraryProblem.isDefined()) 
+      return new ValidationResult(libraryName + ": " + compilerLibraryProblem.get());
+      
+    return ValidationResult.OK;
   }
 
   @Override
