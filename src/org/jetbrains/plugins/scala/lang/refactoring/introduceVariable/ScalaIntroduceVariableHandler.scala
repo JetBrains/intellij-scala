@@ -129,7 +129,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
       else {
         var res: PsiElement = file.findElementAt(startOffset)
         while (!res.isInstanceOf[ScFunction] && res.getParent != null &&
-                !res.getParent.isInstanceOf[ScTemplateBody]) res = res.getParent
+                !res.getParent.isInstanceOf[ScTemplateBody] &&
+                !res.getParent.isInstanceOf[ScEarlyDefinitions]) res = res.getParent
         if (res == null) {
           for (child <- file.getChildren) {
             val textRange: TextRange = child.getTextRange
