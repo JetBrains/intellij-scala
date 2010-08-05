@@ -227,7 +227,7 @@ object Compatibility {
           if (!conforms) {
             return ConformanceExtResult(Seq(new ApplicabilityProblem("14")), undefSubst, defaultParameterUsed)
           } else {
-            undefSubst = Conformance.undefinedSubst(paramType, exprType, true)
+            undefSubst += Conformance.undefinedSubst(paramType, exprType, true)
           }
         }
         k = k + 1
