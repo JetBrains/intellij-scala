@@ -24,8 +24,8 @@ public class ScalaScriptRunConfigurationForm {
   public ScalaScriptRunConfigurationForm(final Project project, final ScalaScriptRunConfiguration configuration) {
     myProject = project;
     myConfiguration = configuration;
-    addFileChooser("Select scala script file", textFieldWithBrowseButton1, project);
-    addFileChooser("Choose Working Directory", workingDirectoryField, project);
+    addFileChooser("Select scala script file", textFieldWithBrowseButton1, project, false);
+    addFileChooser("Choose Working Directory", workingDirectoryField, project, true);
     scriptArgsEditor.setName("Scala script program arguments");
     scriptArgsEditor.setDialogCaption("Scala script program arguments editor");
     javaOptionsEditor.setName("VM options");
@@ -80,11 +80,11 @@ public class ScalaScriptRunConfigurationForm {
 
   private FileChooserDescriptor addFileChooser(final String title,
                                                final TextFieldWithBrowseButton textField,
-                                               final Project project) {
-    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false) {
+                                               final Project project, final Boolean directories) {
+    final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(!directories, directories, false, false, false, false) {
       @Override
       public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-        return super.isFileVisible(file, showHiddenFiles) && (file.isDirectory() || "scala".equals(file.getExtension()));
+        return super.isFileVisible(file, showHiddenFiles) && file.isDirectory() && (!directories || "scala".equals(file.getExtension()));
       }
     };
     fileChooserDescriptor.setTitle(title);
