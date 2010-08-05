@@ -218,7 +218,7 @@ object ScSimpleTypeElementImpl {
     }
   }
   def calculateReferenceType(ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
-    lazy val (resolvedElement, subst, boundClass) = ref.bind match {
+    val (resolvedElement, subst, boundClass) = ref.bind match {
       case Some(r@ScalaResolveResult(n: PsiMethod, subst)) if n.isConstructor =>
         (n.getContainingClass, subst, r.boundClass)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.boundClass)
