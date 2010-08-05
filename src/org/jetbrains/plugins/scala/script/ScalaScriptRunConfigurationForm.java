@@ -84,7 +84,7 @@ public class ScalaScriptRunConfigurationForm {
     final FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(!directories, directories, false, false, false, false) {
       @Override
       public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-        return super.isFileVisible(file, showHiddenFiles) && file.isDirectory() && (!directories || "scala".equals(file.getExtension()));
+        return super.isFileVisible(file, showHiddenFiles) && (file.isDirectory() || (!directories && "scala".equals(file.getExtension())));
       }
     };
     fileChooserDescriptor.setTitle(title);
