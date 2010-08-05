@@ -121,8 +121,8 @@ object InfixExpr {
 
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
-    if (priority(id1) < priority(id2)) return true //  a * b + c  =((a * b) + c)
-    else if (priority(id1) > priority(id2)) return false //  a + b * c = (a + (b * c))
+    if (priority(id1, true) < priority(id2, true)) return true //  a * b + c  =((a * b) + c)
+    else if (priority(id1, true) > priority(id2, true)) return false //  a + b * c = (a + (b * c))
     else if (associate(id1) == associate(id2))
       if (associate(id1) == -1) return true
       else return false
@@ -131,7 +131,7 @@ object InfixExpr {
       return false
     }
   }
-  private def opeq(id1: String, id2: String): Boolean = priority(id1) == priority(id2)
+  private def opeq(id1: String, id2: String): Boolean = priority(id1, true) == priority(id2, true)
   //Associations of operator
   def associate(id: String): Int = {
     id.charAt(id.length - 1) match {
