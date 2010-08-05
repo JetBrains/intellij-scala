@@ -107,16 +107,6 @@
       <properties />
     </buildFile>
   </component>
-  <component name="ArtifactManager">
-    <artifact name="Runners:jar">
-      <output-path>$PROJECT_DIR$/Runners</output-path>
-      <root id="root">
-        <element id="archive" name="Runners.jar">
-          <element id="module-output" name="Runners" />
-        </element>
-      </root>
-    </artifact>
-  </component>
   <component name="CodeStyleProjectProfileManger">
     <option name="PROJECT_PROFILE" />
     <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
