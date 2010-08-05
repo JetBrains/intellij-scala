@@ -9,7 +9,6 @@ import java.lang.String
 import org.jetbrains.idea.maven.project._
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer.LibraryLevel
 
 /**
  * Pavel.Fatin, 03.08.2010
@@ -45,9 +44,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
       model.addRoot(VfsUtil.pathToUrl(compilerPath), OrderRootType.CLASSES)
       model.addRoot(VfsUtil.pathToUrl(libraryPath), OrderRootType.CLASSES)
       
-      val settings = facet.getConfiguration.getState
-      settings.compilerLibraryName = library.getName
-      settings.compilerLibraryLevel = LibraryLevel.PROJECT
+      facet.setCompilerLibraryId(LibraryId(library.getName, LibraryLevel.Project))
     }
   }
 

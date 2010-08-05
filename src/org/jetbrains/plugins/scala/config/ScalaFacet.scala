@@ -37,9 +37,9 @@ object ScalaFacet{
 class ScalaFacet(module: Module, name: String, 
                  configuration: ScalaFacetConfiguration, underlyingFacet: Facet[_ <: FacetConfiguration]) 
         extends Facet[ScalaFacetConfiguration](ScalaFacet.Type, module, name, configuration, underlyingFacet) {
-  private def compiler = Option(getConfiguration.getState.compilerLibraryName).flatMap { name =>
-    LibraryEntry.compilerByName(module.getProject, name)
-  }
+  
+  private def compiler = Libraries.findBy(getCompilerLibraryId, module.getProject)
+          .map(new CompilerLibraryData(_))
 
   def configured: Boolean = compiler.isDefined
 
@@ -53,5 +53,16 @@ class ScalaFacet(module: Module, name: String,
   
   def plugins: Array[String] = getConfiguration.getState.pluginPaths.map { path =>
       new CompilerPlugin(path, module).file.getPath
+  }
+  
+  def setCompilerLibraryId(id: LibraryId): Unit = {
+    val data = getConfiguration.getState
+    data.compilerLibraryName = id.name
+    data.compilerLibraryLevel = id.level
+  }
+
+  def getCompilerLibraryId: LibraryId = {
+    val data = getConfiguration.getState
+    return new LibraryId(data.compilerLibraryName, data.compilerLibraryLevel)
   }
 } 

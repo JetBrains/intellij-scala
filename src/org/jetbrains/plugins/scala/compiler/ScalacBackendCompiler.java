@@ -252,7 +252,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
 
     ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
+    
+    if(facets.length == 0) throw new IllegalArgumentException("No Scala facets found");
+    
     for(ScalaFacet facet : facets) {
+      if(!facet.configured()) throw new IllegalArgumentException("Scala facets is not properly configured");
+      
       classPathBuilder.append(facet.classpath());
       classPathBuilder.append(File.pathSeparator);
       break;
@@ -271,8 +276,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
       commandLine.add(fileWithParams.getPath());
 
-//      for (String s : commandLine) System.out.println(s);
-//      System.out.println(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
+      for (String s : commandLine) System.out.println(s);
+      System.out.println(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
     } catch (IOException e) {
       LOG.error(e);
     }

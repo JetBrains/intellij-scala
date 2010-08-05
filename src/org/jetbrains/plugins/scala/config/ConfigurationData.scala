@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.config
 
 import reflect.BeanProperty
-import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer.LibraryLevel
-
+import org.jetbrains.annotations.Nullable
 
 /**
  * Pavel.Fatin, 26.07.2010
@@ -13,6 +12,7 @@ class ConfigurationData() {
   var compilerLibraryName = ""
 
   @BeanProperty
+  @Nullable
   var compilerLibraryLevel: LibraryLevel = _
   
   @BeanProperty
