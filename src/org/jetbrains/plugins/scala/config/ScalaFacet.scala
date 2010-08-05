@@ -16,8 +16,6 @@ object ScalaFacet{
   
   def isPresentIn(module: Module) =  findIn(module).isDefined
   
-  def isCompilerConfiguredFor(module: Module) = findIn(module).flatMap(_.compiler).isDefined
-  
   def findIn(module: Module) = Option(FacetManager.getInstance(module).getFacetByType(Id)) 
   
   def findIn(modules: Array[Module]): Array[ScalaFacet] = modules.flatMap(findIn(_).toList)
@@ -38,10 +36,8 @@ class ScalaFacet(module: Module, name: String,
                  configuration: ScalaFacetConfiguration, underlyingFacet: Facet[_ <: FacetConfiguration]) 
         extends Facet[ScalaFacetConfiguration](ScalaFacet.Type, module, name, configuration, underlyingFacet) {
   
-  private def compiler = Libraries.findBy(getCompilerLibraryId, module.getProject)
+  def compiler = Libraries.findBy(getCompilerLibraryId, module.getProject)
           .map(new CompilerLibraryData(_))
-
-  def configured: Boolean = compiler.isDefined
 
   def files: Seq[File] = compiler.toList.flatMap(_.files)
 
