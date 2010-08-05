@@ -1,0 +1,19 @@
+lb += "c" -> 3
+-------
+ScalaFile
+  InfixExpression
+    ReferenceExpression
+      PsiElement(identifier)('lb')
+    PsiWhiteSpace(' ')
+    ReferenceExpression
+      PsiElement(identifier)('+=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      Literal
+        PsiElement(string content)('"c"')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('->')
+      PsiWhiteSpace(' ')
+      Literal
+        PsiElement(integer)('3')

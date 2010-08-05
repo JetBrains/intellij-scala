@@ -136,7 +136,13 @@ object ParserUtils extends ParserUtilsBase {
   }
 
   //Defines priority
-  def priority(id: String): Int = {
+  def priority(id: String, assignments: Boolean = false): Int = {
+    if (assignments) {
+      id.charAt(id.length - 1) match {
+        case '=' if id != "<=" && id != ">=" && id != "!=" => return 4
+        case _ =>
+      }
+    }
     id.charAt(0) match {
       case '~' | '#' | '@' | '$' | '?' | '\\' => 0
       case '*' | '/' | '%' => 1
