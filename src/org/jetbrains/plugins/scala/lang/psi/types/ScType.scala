@@ -329,10 +329,27 @@ object ScType {
       case ScDesignatorType(e) => buffer.append(nameFun(e))
       case ScProjectionType(p, e, s) => {  //todo:
         val refName = e.getName
+        def appendPointType {
+          e match {
+            case obj: ScObject => buffer.append(".type")
+            case v: ScBindingPattern => buffer.append(".type")
+            case _ =>
+          }
+        }
         p match {
           case ScDesignatorType(pack: PsiPackage) => buffer.append(nameWithPointFun(pack)).append(refName)
-          case ScDesignatorType(obj: ScObject) => buffer.append(nameWithPointFun(obj)).append(refName)
-          case ScDesignatorType(v: ScBindingPattern) => buffer.append(nameWithPointFun(v)).append(refName)
+          case ScDesignatorType(obj: ScObject) => {
+            buffer.append(nameWithPointFun(obj)).append(refName)
+            appendPointType
+          }
+          case ScDesignatorType(v: ScBindingPattern) => {
+            buffer.append(nameWithPointFun(v)).append(refName)
+            appendPointType
+          }
+          case ScThisType(obj: ScObject) => {
+            buffer.append(nameWithPointFun(obj)).append(refName)
+            appendPointType
+          }
           case _ => inner(p); buffer.append("#").append(refName)
         }
       }

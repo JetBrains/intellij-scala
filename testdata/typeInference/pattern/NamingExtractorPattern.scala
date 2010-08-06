@@ -7,4 +7,4 @@ object NamingExtractorPattern {
     case a@A(3) => /*start*/a/*end*/
   }
 }
-//NamingExtractorPattern.this.type#A
+//NamingExtractorPattern.A
