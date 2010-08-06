@@ -136,8 +136,9 @@
             <option name="LABEL_INDENT_ABSOLUTE" value="false" />
           </value>
         </option>
+        <option name="FIELD_NAME_PREFIX" value="my" />
         <ScalaCodeStyleSettings>
-          <option name="ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY" value="true" />
+          <option name="PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE" value="false" />
           <option name="DONT_SHOW_CONVERSION_DIALOG" value="true" />
           <option name="ENABLE_ERROR_HIGHLIGHTING" value="true" />
         </ScalaCodeStyleSettings>
@@ -722,6 +723,14 @@
         <default-constraints vsize-policy="6" hsize-policy="0" anchor="0" fill="2" />
       </item>
     </group>
+    <group name="h">
+      <item class="com.intellij.ui.components.labels.LinkLabel" icon="/com/intellij/uiDesigner/icons/label.png" removable="true" auto-create-binding="false" can-attach-label="false">
+        <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="0" />
+      </item>
+      <item class="com.intellij.ui.table.TableView" icon="/com/intellij/uiDesigner/icons/table.png" removable="true" auto-create-binding="false" can-attach-label="false">
+        <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="0" />
+      </item>
+    </group>
   </component>
   <component name="ProjectDetails">
     <option name="projectName" value="Scala" />
@@ -786,7 +795,7 @@
       <module fileurl="file://$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" filepath="$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA SDK" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA sdk" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="ProjectRunConfigurationManager">
@@ -818,6 +827,9 @@
         <option name="DEBUG_PORT" value="62237" />
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Profile ">
+        <option name="myExternalizedOptions" value="&#13;&#10;snapshots-dir=&#13;&#10;additional-options2=onexit\=snapshot&#13;&#10;" />
       </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />

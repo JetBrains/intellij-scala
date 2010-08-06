@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.config.LibraryDescriptor
  */
 
 class LibraryRenderer extends DefaultListCellRenderer {
-  val Empty = """<html><body><span style="color: #ff0000;">&lt;none&gt;</span></body></html>"""
-  val NotFound = """<html><body><span style="color: #ff0000;">%s [not found]</span></body></html>"""
-  val Unknown = """<html><body>%s <span style="color: #808080;">(unknown)</body></html>"""
+  val Empty = """<html><body><span style="color: #ff0000;">&lt;none&gt;</span>&nbsp;</body></html>"""
+  val NotFound = """<html><body><span style="color: #ff0000;">%s [not found]</span>&nbsp;</body></html>"""
+  val Unknown = """<html><body>%s&nbsp;</html>"""
   val Normal = """<html><body>%s <span style="color: #808080;">(version %s)</span>&nbsp;</body></html>"""
 
   def nameOf(level: LibraryLevel) = level match {
