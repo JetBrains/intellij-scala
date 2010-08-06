@@ -3,4 +3,4 @@ object A {
     /*start*/this/*end*/
   }
 }
-//A.this.type#B
+//A.B

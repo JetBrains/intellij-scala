@@ -4,4 +4,4 @@ object O {
   }
 }
 ()
-//O.this.type#C
+//O.C

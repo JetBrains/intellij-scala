@@ -4,4 +4,4 @@ object TypedUnderscore {
   }
   class B
 }
-//(TypedUnderscore.this.type#B) => TypedUnderscore.this.type#B
+//(TypedUnderscore.B) => TypedUnderscore.B
