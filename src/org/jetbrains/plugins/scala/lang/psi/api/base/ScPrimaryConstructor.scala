@@ -39,7 +39,6 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
 
   def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType = {
-    //todo: infer result type of recursive methods from super methods
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses
     val returnType: ScType = result.getOrElse({
