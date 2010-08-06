@@ -21,6 +21,7 @@ import lang.resolve.processor._
 import api.toplevel.typedef.ScTemplateDefinition
 import types.ScDesignatorType
 import collection.immutable.Set
+import base.types.ScSimpleTypeElementImpl
 
 /**
  * @author Alexander Podkhalyuzin
@@ -43,62 +44,56 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    var i = 0
-    while (i < importExprs.length) {
-      val importExpr = importExprs(i)
+    val importsIterator = importExprs.iterator
+    while (importsIterator.hasNext) {
+      val importExpr = importsIterator.next
       ProgressManager.checkCanceled
       if (importExpr == lastParent) return true
-      val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] = importExpr.reference match {
-        case Some(ref) => {
-          val arrayOfResults = ref.multiResolve(false)
-          val usages = new Array[(PsiElement, collection.Set[ImportUsed])](arrayOfResults.length)
-          var i = 0
-          while (i < arrayOfResults.length) {
-            usages(i) = arrayOfResults(i) match {
-              case s: ScalaResolveResult => (s.getElement, s.importsUsed)
-              case r: ResolveResult => (r.getElement, Set[ImportUsed]())
-            }
-            i = i + 1
-          }
-          usages
-        }
-        case _ => Array()
+      val ref = importExpr.reference match {
+        case Some(ref) => ref
+        case _ => return true
       }
-      var j = 0
-      while (j < elemsAndUsages.length) {
-        val (elem, importsUsed) = elemsAndUsages(j)
+      val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] =
+        ref.multiResolve(false).map(_ match {
+          case s: ScalaResolveResult => (s.getElement, s.importsUsed)
+          case r: ResolveResult => (r.getElement, Set[ImportUsed]())
+        })
+      val elemsIterator = elemsAndUsages.iterator
+      while (elemsIterator.hasNext) {
+        val (elem, importsUsed) = elemsIterator.next
         ProgressManager.checkCanceled
         importExpr.selectorSet match {
           case None =>
             // Update the set of used imports
             val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
+            var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed)
+            ScSimpleTypeElementImpl.calculateReferenceType(ref, false).foreach { tp =>
+              newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+            }
             if (importExpr.singleWildcard) {
               (elem, processor) match {
                 case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
                   if (!processor.processType(new ScDesignatorType(cl, true), place.asInstanceOf[ScalaPsiElement],
-                    state.put(ImportUsed.key, newImportsUsed))) return false
+                    newState)) return false
                 }
                 case _ => {
-                  if (!elem.processDeclarations(processor, state.put(ImportUsed.key, newImportsUsed),
-                    this, place)) return false
+                  if (!elem.processDeclarations(processor, newState, this, place)) return false
                 }
               }
             } else {
-              if (!processor.execute(elem, state.put(ImportUsed.key, newImportsUsed))) return false
+              if (!processor.execute(elem, newState)) return false
             }
           case Some(set) => {
             val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
-            var selectors: Array[ScImportSelector] = set.selectors
-            var k = 0
-            while (k < selectors.length) {
-              val selector = selectors(k)
+            set.selectors foreach {
+              selector =>
               ProgressManager.checkCanceled
               var results: Array[ResolveResult] = selector.reference.multiResolve(false)
-              var l = 0
-              while (l < results.length) { //Resolve the name imported by selector
-                // Collect shadowed elements
-                val result = results(l)
-                shadowed += ((selector, result.getElement))
+              results foreach {
+                result =>
+                //Resolve the name imported by selector
+                //Collect shadowed elements
+                  shadowed += ((selector, result.getElement))
                 if (!processor.execute(result.getElement,
                   (state.put(ResolverEnv.nameKey, selector.importedName).
                           put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
@@ -107,9 +102,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                           ))) {
                   return false
                 }
-                l = l + 1
               }
-              k = k + 1
             }
 
             // There is total import from stable id
@@ -158,15 +151,11 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 }
                 case _ => true
               }
-
             }
           }
         }
-        j = j + 1
       }
-      i = i + 1
     }
-
     true
   }
 }
