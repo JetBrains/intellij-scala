@@ -19,8 +19,8 @@ import lang.psi.types.ScType
  */
 
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
-                                  typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value])
-        extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds) {
+                                  typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value], shapeResolve: Boolean)
+        extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds, isShapeResolve = shapeResolve) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)

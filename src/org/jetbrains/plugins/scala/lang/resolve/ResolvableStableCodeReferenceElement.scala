@@ -22,9 +22,11 @@ import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import caches.{CachesUtil, ScalaCachesManager}
+import com.intellij.openapi.progress.ProgressManager
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
-  private object Resolver extends StableCodeReferenceElementResolver(this)
+  private object Resolver extends StableCodeReferenceElementResolver(this, false)
+  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true)
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
@@ -111,5 +113,27 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       }
       case _ => true
     }
+  }
+
+  @volatile
+  private var shapeResolveResults: Array[ResolveResult] = null
+  @volatile
+  private var shapeResolveResultsModCount: Long = 0
+
+  def shapeResolve: Array[ResolveResult] = {
+    ProgressManager.checkCanceled
+    var tp = shapeResolveResults
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && shapeResolveResultsModCount == curModCount) {
+      return tp
+    }
+    tp = shapeResolveInner
+    shapeResolveResults = tp
+    shapeResolveResultsModCount = curModCount
+    return tp
+  }
+
+  private def shapeResolveInner: Array[ResolveResult] = {
+    ShapesResolver.resolve(this, false)
   }
 }

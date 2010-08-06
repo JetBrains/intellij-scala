@@ -7,17 +7,18 @@ package expr
 import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
-import toplevel.ScTypedDefinition
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import lang.resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
 import types._
 import com.intellij.psi.util.PsiTreeUtil
-import base.types.{ScSequenceArg, ScTypeElement}
 import com.intellij.psi._
-import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
+import nonvalue.{TypeParameter, Parameter, ScTypePolymorphicType, ScMethodType}
+import toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import result.{TypeResult, Success, TypingContext}
+import base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScSequenceArg, ScTypeElement}
+import collection.immutable.HashMap
 
 /**
  * @author ilyas
@@ -233,6 +234,15 @@ private[expr] object ExpectedTypes {
             case _ => callExpression.getNonValueType(TypingContext.empty)
           }
           processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
+        } else {
+          //it's constructor
+          args.getParent match {
+            case constr: ScConstructor => {
+              val j = constr.arguments.indexOf(args)
+              processArgsExpected(res, expr, i, constr.shapeType(j), args.exprs.length - 1)
+            }
+            case _ =>
+          }
         }
         res.toArray
       }

@@ -12,6 +12,7 @@ import com.intellij.psi.PsiMethod
 import resolve.ScalaResolveResult
 import psi.types.ScType
 import expr.{ScNewTemplateDefinition, ScArgumentExprList}
+import psi.types.result.TypeResult
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,4 +29,6 @@ trait ScConstructor extends ScalaPsiElement {
   def expectedType: Option[ScType]
 
   def newTemplate: Option[ScNewTemplateDefinition]
+
+  def shapeType(i: Int): TypeResult[ScType]
 }

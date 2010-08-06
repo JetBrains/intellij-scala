@@ -72,22 +72,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val clazz = constr.getContainingClass
       val tp = parentElement match {
         case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return Nothing))
-        case _ => parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref).getOrElse(return Nothing), clazz, subst)
+        case _ => parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, false).getOrElse(return Nothing), clazz, subst)
       }
       val res = subst.subst(tp)
-      lazy val params: Seq[Seq[Parameter]] = constr match {
-        case fun: ScFunction =>
-          fun.paramClauses.clauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
-            p.isRepeatedParameter)))
-        case f: ScPrimaryConstructor =>
-          f.parameterList.clauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
-            p.isRepeatedParameter)))
-        case m: PsiMethod =>
-          Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
-            ScType.create(p.getType, getProject, getResolveScope), false, p.isVarArgs)))
-      }
       var typeParameters: Seq[TypeParameter] = parentElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
           tp.typeParameters.map(tp => new TypeParameter(tp.name,
@@ -109,6 +96,21 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           return appSubst.subst(res)
         }
         case _ =>
+      }
+
+
+      val params: Seq[Seq[Parameter]] = constr match {
+        case fun: ScFunction =>
+          fun.paramClauses.clauses.map(_.parameters.map(p => new Parameter(p.name,
+            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
+            p.isRepeatedParameter)))
+        case f: ScPrimaryConstructor =>
+          f.parameterList.clauses.map(_.parameters.map(p => new Parameter(p.name,
+            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
+            p.isRepeatedParameter)))
+        case m: PsiMethod =>
+          Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
+            ScType.create(p.getType, getProject, getResolveScope), false, p.isVarArgs)))
       }
 
       findConsturctor match {
@@ -160,7 +162,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         }
         case Some(ScalaResolveResult(tp: PsiTypeParameter, _)) => lift(ScalaPsiManager.typeVariable(tp))
         case Some(r@ScalaResolveResult(synth: ScSyntheticClass, _)) => lift(synth.t)
-        case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref)
+        case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
       }
       /*ref.qualifier match {
         case Some(q) => wrap(ref.bind) flatMap {
@@ -192,15 +194,15 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
         }
       }*/
-      case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement)
+      case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement, false)
     }
   }
 }
 
 object ScSimpleTypeElementImpl {
-  def calculateReferenceType(path: ScPathElement): TypeResult[ScType] = {
+  def calculateReferenceType(path: ScPathElement, shapesOnly: Boolean): TypeResult[ScType] = {
     path match {
-      case ref: ScStableCodeReferenceElement => calculateReferenceType(ref)
+      case ref: ScStableCodeReferenceElement => calculateReferenceType(ref, shapesOnly)
       case thisRef: ScThisReference => {
         thisRef.refTemplate match {
           case Some(template) => {
@@ -217,8 +219,12 @@ object ScSimpleTypeElementImpl {
       }
     }
   }
-  def calculateReferenceType(ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
-    val (resolvedElement, subst, boundClass) = ref.bind match {
+  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
+    val shapeResolve: Option[ScalaResolveResult] = ref.shapeResolve match {
+      case Array(r: ScalaResolveResult) => Some(r)
+      case _ => None
+    }
+    val (resolvedElement, subst, boundClass) = (if (!shapesOnly) ref.bind else shapeResolve) match {
       case Some(r@ScalaResolveResult(n: PsiMethod, subst)) if n.isConstructor =>
         (n.getContainingClass, subst, r.boundClass)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.boundClass)
@@ -231,7 +237,7 @@ object ScSimpleTypeElementImpl {
             return Success(ScDesignatorType(resolvedElement), Some(ref))
           }
           case _ => {
-            calculateReferenceType(qual) match {
+            calculateReferenceType(qual, shapesOnly) match {
               case failure: Failure => return failure
               case Success(tp, _) => {
                 return Success(ScProjectionType(tp, resolvedElement, subst), Some(ref))
