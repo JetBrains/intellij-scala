@@ -22,8 +22,6 @@ abstract class LibraryData(protected val delegate: Library, name: String,
   
   private def jars: Seq[File] = files.filter(_.getName.startsWith(prefix))
   
-  def complete: Boolean = jar.map(exists(_, marker)).getOrElse(false)
-
   def problem: Option[String] = {
     if(jar.isEmpty) 
       return Some("no %s*.jar found".format(prefix))
@@ -34,7 +32,7 @@ abstract class LibraryData(protected val delegate: Library, name: String,
     if(version.isEmpty) 
       return Some("unable to read %s version".format(jar.get.getName))
     
-    if(!complete) 
+    if(!jar.map(exists(_, marker)).getOrElse(false)) 
       return Some("no %s classes found in %s".format(name, jar.get.getName))
     
     None
@@ -44,7 +42,9 @@ abstract class LibraryData(protected val delegate: Library, name: String,
 class CompilerLibraryData(delegate: Library) extends LibraryData(delegate, "Scala compiler", 
   "scala-compiler", "compiler.properties", "scala/tools/nsc/Main.class") {
   
-  override def problem = {
+  override def problem: Option[String] = {
+    if(files.exists(_.isDirectory)) return None
+    
     val standardLibraryData = new StandardLibraryData(delegate)
     super.problem.orElse(standardLibraryData.problem).orElse {
       val standardLibraryVersion = standardLibraryData.version
