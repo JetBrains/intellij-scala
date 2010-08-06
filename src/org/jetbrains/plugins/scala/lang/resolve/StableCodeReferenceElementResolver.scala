@@ -9,7 +9,7 @@ import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
 import psi.types.Compatibility.Expression
 
-class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement)
+class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {
     val kinds = ref.getKinds(false)
@@ -17,7 +17,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
     val proc = if (ref.isConstructorReference) {
       val constr = ref.getConstructor.get
       new ConstructorResolveProcessor(ref, ref.refName, constr.arguments.toList.map(_.exprs.map(new Expression(_))),
-        Seq.empty /*todo*/, kinds)
+        Seq.empty /*todo*/, kinds, shapeResolve)
     } else ref.getContext match {
       //last ref may import many elements with the same name
       case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) =>

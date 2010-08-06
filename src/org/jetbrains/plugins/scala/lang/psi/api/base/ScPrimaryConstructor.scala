@@ -37,20 +37,24 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
    */
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
-  def methodType: ScMethodType = {
+  def methodType: ScType = methodType(None)
+  def methodType(result: Option[ScType]): ScType = {
     //todo: infer result type of recursive methods from super methods
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses
-    val clazz = getParent.asInstanceOf[ScTypeDefinition]
-    val typeParameters = clazz.typeParameters
-    val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
-    val designatorType: ScType =
-      if (parentClazz != null)
-        ScProjectionType(ScThisType(parentClazz), clazz, ScSubstitutor.empty)
-      else ScDesignatorType(clazz)
-    val returnType: ScType = if (typeParameters.length == 0) designatorType else {
-      ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
-    }
+    val returnType: ScType = result.getOrElse({
+      val clazz = getParent.asInstanceOf[ScTypeDefinition]
+      val typeParameters = clazz.typeParameters
+      val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
+      val designatorType: ScType =
+        if (parentClazz != null)
+          ScProjectionType(ScThisType(parentClazz), clazz, ScSubstitutor.empty)
+        else ScDesignatorType(clazz)
+      if (typeParameters.length == 0) designatorType
+      else {
+        ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
+      }
+    })
     if (clauses.length == 0) return new ScMethodType(returnType, Seq.empty, false, getProject, getResolveScope)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
       new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit, getProject, getResolveScope)
