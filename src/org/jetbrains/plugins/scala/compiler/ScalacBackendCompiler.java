@@ -103,19 +103,39 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (!hasJava) return false; //this compiler work with only Java modules, so we don't need to continue.
 
 
-    boolean isCompilerSetUp = false;
-    boolean isScalaSDKSetUp = false;
+    ScalaFacet facet = null;
 
     // Check for compiler existence
     for (Module module : allModules) {
-      if (ScalaFacet.isCompilerConfiguredFor(module)) {
-        isCompilerSetUp = true;
+      Option<ScalaFacet> facetOption = ScalaFacet.findIn(module);
+      if (facetOption.isDefined()) {
+        facet = facetOption.get();
         break;
       }
     }
 
-    if (!isCompilerSetUp) {
-      Messages.showErrorDialog(myProject, ScalaBundle.message("cannot.compile.scala.files.no.compiler"), ScalaBundle.message("cannot.compile"));
+    if (facet == null) {
+      Messages.showErrorDialog(myProject, 
+          ScalaBundle.message("cannot.compile.scala.files.no.facet"),
+          ScalaBundle.message("cannot.compile"));
+      return false;
+    }
+
+    Option<CompilerLibraryData> compilerOption = facet.compiler();
+    
+    if (compilerOption.isEmpty()) {
+      Messages.showErrorDialog(myProject, 
+          ScalaBundle.message("cannot.compile.scala.files.no.compiler"), 
+          ScalaBundle.message("cannot.compile"));
+      return false;
+    }
+    
+    Option<String> problemOption = compilerOption.get().problem();
+    
+    if (problemOption.isDefined()) {
+      Messages.showErrorDialog(myProject, 
+          ScalaBundle.message("cannot.compile.scala.files.compiler.problem", problemOption.get()), 
+          ScalaBundle.message("cannot.compile"));
       return false;
     }
 
@@ -250,14 +270,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
-
     ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
     
-    if(facets.length == 0) throw new IllegalArgumentException("No Scala facets found");
-    
     for(ScalaFacet facet : facets) {
-      if(!facet.configured()) throw new IllegalArgumentException("Scala facets is not properly configured");
-      
       classPathBuilder.append(facet.classpath());
       classPathBuilder.append(File.pathSeparator);
       break;
@@ -276,8 +291,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
       commandLine.add(fileWithParams.getPath());
 
-      for (String s : commandLine) System.out.println(s);
-      System.out.println(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
+//      for (String s : commandLine) System.out.println(s);
+//      System.out.println(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
     } catch (IOException e) {
       LOG.error(e);
     }
