@@ -470,7 +470,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkForStmtUsedTypes(f: ScForStatement, holder: AnnotationHolder) {
-
     ImportTracker.getInstance(f.getProject).registerUsedImports(f.getContainingFile.asInstanceOf[ScalaFile],
       ScalaPsiUtil.getExprImports(f))
   }
