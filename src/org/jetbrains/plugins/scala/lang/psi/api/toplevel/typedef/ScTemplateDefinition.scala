@@ -13,14 +13,13 @@ import impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
-import types.{ScType, ScSubstitutor}
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
 import resolve.processor.BaseProcessor
 import statements.params.ScClassParameter
 import java.util.ArrayList
 import com.intellij.psi.{PsiSubstitutor, PsiElement, ResolveState, PsiClass}
+import types.{ScThisType, ScType, ScSubstitutor, Any}
 
 /**
  * @author ven
@@ -76,15 +75,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
+                                  oldState: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement) : Boolean = {
+    var state = oldState
     // Process selftype reference
     selfTypeElement match {
       case Some(se) if se.getName != "_" => if (!processor.execute(se, state)) return false
       case _ =>
     }
-
+    state = state.put(BaseProcessor.FROM_TYPE_KEY, ScThisType(this))
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {

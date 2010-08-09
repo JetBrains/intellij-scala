@@ -53,6 +53,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         case Some(ref) => ref
         case _ => return true
       }
+      val refType = ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
       val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] =
         ref.multiResolve(false).map(_ match {
           case s: ScalaResolveResult => (s.getElement, s.importsUsed)
@@ -67,7 +68,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
             // Update the set of used imports
             val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
             var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed)
-            ScSimpleTypeElementImpl.calculateReferenceType(ref, false).foreach { tp =>
+            refType.foreach { tp =>
               newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
             }
             if (importExpr.singleWildcard) {
@@ -94,12 +95,12 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 //Resolve the name imported by selector
                 //Collect shadowed elements
                   shadowed += ((selector, result.getElement))
-                if (!processor.execute(result.getElement,
-                  (state.put(ResolverEnv.nameKey, selector.importedName).
-                          put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
-                          put(BaseProcessor.boundClassKey,
-                    result match {case result: ScalaResolveResult => result.boundClass case _ => null})
-                          ))) {
+                  var newState: ResolveState = state.put(ResolverEnv.nameKey, selector.importedName).
+                          put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))
+                  refType.foreach {tp =>
+                    newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                  }
+                  if (!processor.execute(result.getElement, newState)) {
                   return false
                 }
               }
@@ -121,7 +122,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                       // Register shadowing import selector
                       val elementIsShadowed = shadowed.find(p => elem.equals(p._2))
 
-                      val newState = elementIsShadowed match {
+                      var newState = elementIsShadowed match {
                         case Some((selector, elem)) => {
                           val oldImports = state.get(ImportUsed.key)
                           val newImports = if (oldImports == null) Set[ImportUsed]() else oldImports
@@ -131,20 +132,28 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                         case None => state
                       }
 
+                      refType.foreach {tp =>
+                        newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                      }
+
                       if (elementIsShadowed != None) true else processor.execute(element, newState)
                     }
                   }
 
                   val newImportsUsed: Set[ImportUsed] = Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)
+                  var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed)
+                  refType.foreach {tp =>
+                    newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                  }
                   (elem, processor) match {
                     case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] => {
                       if (!processor.processType(new ScDesignatorType(cl, true), place.asInstanceOf[ScalaPsiElement],
-                        state.put(ImportUsed.key, newImportsUsed))) return false
+                        newState)) return false
                     }
                     case _ => {
                       if (!elem.processDeclarations(p1,
                         // In this case import optimizer should check for used selectors
-                        state.put(ImportUsed.key, newImportsUsed),
+                        newState,
                         this, place)) return false
                     }
                   }

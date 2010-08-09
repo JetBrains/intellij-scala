@@ -350,8 +350,7 @@ object TypeDefinitionMembers {
       map
     }
 
-    val boundsState = state.put(BaseProcessor.boundClassKey, clazz)
-    if (!processDeclarations(processor, boundsState, lastParent, place, valuesMap, methodMap, getTypes(clazz),
+    if (!processDeclarations(processor, state, lastParent, place, valuesMap, methodMap, getTypes(clazz),
       clazz.isInstanceOf[ScObject])) {
       return false
     }
