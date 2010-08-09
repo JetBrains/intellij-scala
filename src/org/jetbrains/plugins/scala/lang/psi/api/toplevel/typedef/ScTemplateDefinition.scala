@@ -19,7 +19,7 @@ import resolve.processor.BaseProcessor
 import statements.params.ScClassParameter
 import java.util.ArrayList
 import com.intellij.psi.{PsiSubstitutor, PsiElement, ResolveState, PsiClass}
-import types.{ScThisType, ScType, ScSubstitutor, Any}
+import types._
 
 /**
  * @author ven
@@ -84,7 +84,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       case Some(se) if se.getName != "_" => if (!processor.execute(se, state)) return false
       case _ =>
     }
-    state = state.put(BaseProcessor.FROM_TYPE_KEY, ScThisType(this))
+    state = state.put(BaseProcessor.FROM_TYPE_KEY,
+      if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
+      else ScDesignatorType(this))
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
