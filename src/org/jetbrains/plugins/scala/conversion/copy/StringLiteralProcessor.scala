@@ -6,8 +6,8 @@ import java.lang.String
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.editor.{RawText, Editor}
 import com.intellij.openapi.util.text.{LineTokenizer, StringUtil}
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * Pavel.Fatin, 21.07.2010
@@ -15,10 +15,9 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 
 class StringLiteralProcessor extends CopyPastePreProcessor {
   def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String) = {
-    val literal = startOffsets.zip(endOffsets).forall {
-      case (a, b) =>
+    val literal = startOffsets.zip(endOffsets).forall { case (a, b) =>
         val e = file.findElementAt(a);
-        e != null && e.isInstanceOf[PsiElement] && e.getNode != null &&
+        e.isInstanceOf[PsiElement] && e.getLanguage == ScalaFileType.SCALA_LANGUAGE && e.getNode != null &&
                 e.getNode.getElementType == ScalaTokenTypes.tSTRING &&
                 a > e.getTextRange.getStartOffset && b < e.getTextRange.getEndOffset
     }
@@ -29,10 +28,10 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
 
     var offset = editor.getCaretModel.getOffset
-    var element = file.findElementAt(offset)
+    var e = file.findElementAt(offset)
 
-    if (element.isInstanceOf[PsiElement] && offset > element.getTextOffset) {
-      val elementType = element.getNode.getElementType
+    if (e.isInstanceOf[PsiElement] && e.getLanguage == ScalaFileType.SCALA_LANGUAGE && offset > e.getTextOffset) {
+      val elementType = if(e.getNode == null) null else e.getNode.getElementType
       if ((elementType == ScalaTokenTypes.tSTRING || elementType == ScalaTokenTypes.tCHAR) 
               && rawText != null && rawText.rawText != null) {
           rawText.rawText
