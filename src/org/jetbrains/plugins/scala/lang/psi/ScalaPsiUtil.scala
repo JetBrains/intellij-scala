@@ -458,6 +458,13 @@ object ScalaPsiUtil {
     res
   }
 
+  def isPlaceTdAncestor(td: ScTemplateDefinition, placer: PsiElement): Boolean = {
+    val newTd = getPlaceTd(placer)
+    if (newTd == null) return false
+    if (newTd == td) return true
+    isPlaceTdAncestor(td, newTd)
+  }
+
   def typesCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScType]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, String), ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
