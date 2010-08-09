@@ -212,4 +212,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   protected def getBoundClass(state: ResolveState): PsiClass = {
     state.get(BaseProcessor.boundClassKey)
   }
+
+  protected def getFromType(state: ResolveState): Option[ScType] = {
+    state.get(BaseProcessor.FROM_TYPE_KEY).toOption
+  }
 }

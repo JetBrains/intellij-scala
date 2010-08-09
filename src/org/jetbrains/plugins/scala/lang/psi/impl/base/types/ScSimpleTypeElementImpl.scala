@@ -224,10 +224,10 @@ object ScSimpleTypeElementImpl {
       case Array(r: ScalaResolveResult) => Some(r)
       case _ => None
     }
-    val (resolvedElement, subst, boundClass) = (if (!shapesOnly) ref.bind else shapeResolve) match {
+    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind else shapeResolve) match {
       case Some(r@ScalaResolveResult(n: PsiMethod, subst)) if n.isConstructor =>
-        (n.getContainingClass, subst, r.boundClass)
-      case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.boundClass)
+        (n.getContainingClass, subst, r.fromType)
+      case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.fromType)
       case _ => return Failure("Cannot resolve reference", Some(ref))
     }
     ref.qualifier match {
@@ -263,16 +263,8 @@ object ScSimpleTypeElementImpl {
             return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
           }
           case None => {
-            if (boundClass == null) return Success(ScDesignatorType(resolvedElement), Some(ref))
-            else {
-              var td = ScalaPsiUtil.getPlaceTd(ref)
-              while (td != null) {
-                if (td == boundClass || td.isInheritor(boundClass, true))
-                  return Success(ScProjectionType(ScThisType(td), resolvedElement, subst), Some(ref))
-                td = ScalaPsiUtil.getPlaceTd(td)
-              }
-              return Success(ScProjectionType(ScDesignatorType(boundClass), resolvedElement, subst), Some(ref))
-            }
+            return Success(ScProjectionType(fromType.getOrElse(return Success(ScDesignatorType(resolvedElement),
+              Some(ref))), resolvedElement, subst), Some(ref))
           }
         }
       }
