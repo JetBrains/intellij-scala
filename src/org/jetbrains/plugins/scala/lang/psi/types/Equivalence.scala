@@ -271,7 +271,7 @@ object Equivalence {
                 typeParameters.zip(p.typeParameters).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
             List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
-        }), Map.empty)
+        }), Map.empty, None)
         equivInner(subst.subst(internalType), p.internalType, undefinedSubst)
       }
       case _ => (false, undefinedSubst)

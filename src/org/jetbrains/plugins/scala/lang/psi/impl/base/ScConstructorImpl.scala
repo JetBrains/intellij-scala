@@ -119,7 +119,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                   val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map {
                     case (arg, tp) =>
                       ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))
-                  }), Map.empty)
+                  }), Map.empty, None)
                   return Success(appSubst.subst(res), Some(this))
                 }
                 case _ => return Success(ScTypePolymorphicType(res, typeParameters), Some(this))

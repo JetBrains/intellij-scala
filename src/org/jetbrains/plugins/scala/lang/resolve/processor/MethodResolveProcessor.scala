@@ -47,7 +47,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
     if (nameAndKindMatch(named, state) || constructorResolve) {
       if (!isAccessible(named, ref)) return true
-      val s = getSubst(state)
+      val s = fromType match {
+        case Some(tp) => getSubst(state).addUpdateThisType(tp)
+        case _ => getSubst(state)
+      }
       element match {
         case m: PsiMethod => {
           addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,

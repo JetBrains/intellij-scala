@@ -34,7 +34,7 @@ trait ScCallExprImpl extends ScExpression {
           case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s, getResolveScope)
           case _ => Any
         }
-        tp  = if (fromType != None) tp.updateThisType(fromType.get) else tp
+        //tp  = if (fromType != None) tp.updateThisType(fromType.get) else tp
 
         tp = tp match {
           case ScMethodType(ret, _, _) => ret
