@@ -13,10 +13,12 @@ import org.jetbrains.plugins.scala.config.LibraryDescriptor;
 import scala.Option;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.event.*;
 import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,8 +26,8 @@ import java.util.List;
  */
 public class FacetConfigurationEditor extends FacetEditorTab {
   private JPanel panelContent;
-  private JComboBox comboCompilerLibrary;
-  private RawCommandLineEditor fieldCompilerOptions;
+  private JComboBox myCompilerLibrary;
+  private RawCommandLineEditor myCompilerOptions;
   private JButton addButton;
   private JButton removeButton;
   private JButton editButton;
@@ -33,6 +35,14 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JButton moveDownButton;
   private MyTableView<CompilerPlugin> tablePlugins;
   private JPanel panelPlugins;
+  private JTextField myMaximumHeapSize;
+  private JCheckBox myEnableWarnings;
+  private JCheckBox myDeprecationWarnings;
+  private JCheckBox myOptimiseBytecode;
+  private JCheckBox myUncheckedWarnings;
+  private JComboBox myDebuggingInfoLevel;
+  private JCheckBox myExplainTypeErrors;
+  private JCheckBox myEnableContinuations;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -54,8 +64,15 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myEditorContext = editorContext;
     myValidatorsManager = validatorsManager;
 
-    comboCompilerLibrary.setRenderer(new LibraryRenderer());
+    myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
+    myCompilerLibrary.setRenderer(new LibraryRenderer());
 
+    myEnableWarnings.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateCheckboxesState();
+      }
+    });
+    
     CompilerPluginsTableModel model = new CompilerPluginsTableModel();
     model.setItems(myPlugins);
     tablePlugins.setModel(model);
@@ -91,9 +108,9 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
       public ValidationResult check() {
-        return checCompilerLibrary((LibraryDescriptor) comboCompilerLibrary.getSelectedItem());
+        return checCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
       }
-    }, comboCompilerLibrary);
+    }, myCompilerLibrary);
     
     
     myAddPluginAction.update();
@@ -102,7 +119,13 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myMoveUpPluginAction.update();
     myMoveDownPluginAction.update();
   }
-  
+
+  private void updateCheckboxesState() {
+    boolean enabled = myEnableWarnings.isSelected();
+    myDeprecationWarnings.setEnabled(enabled);
+    myUncheckedWarnings.setEnabled(enabled);
+  }
+
   private static ValidationResult checCompilerLibrary(LibraryDescriptor descriptor) {
     if(descriptor == null || descriptor.data().isEmpty()) 
       return ValidationResult.OK;
@@ -121,7 +144,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
 
   @Override
   public JComponent getPreferredFocusedComponent() {
-    return comboCompilerLibrary;
+    return myCompilerLibrary;
   }
 
   @Override
@@ -143,24 +166,54 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
 
   public boolean isModified() {
-    return !myData.getCompilerLibraryName().equals(getCompilerLibraryName()) ||
-        myData.getCompilerLibraryLevel() != getCompilerLibraryLevel() ||
-        !myData.getCompilerOptions().equals(fieldCompilerOptions.getText()) ||
-        !Arrays.equals(myData.getPluginPaths(), CompilerPlugin.toPaths(myPlugins));
+    ConfigurationData data = new ConfigurationData();
+    update(data);
+    return !myData.equals(data);
   }
 
   public void apply() throws ConfigurationException {
-    myData.setCompilerLibraryName(getCompilerLibraryName());
-    myData.setCompilerLibraryLevel(getCompilerLibraryLevel());
-    myData.setCompilerOptions(fieldCompilerOptions.getText());
-    myData.setPluginPaths(CompilerPlugin.toPaths(myPlugins));
+    update(myData);
+  }
+
+  private void update(ConfigurationData data) {
+    data.setCompilerLibraryName(getCompilerLibraryName());
+    data.setCompilerLibraryLevel(getCompilerLibraryLevel());
+
+    try {
+      data.setMaximumHeapSize(Integer.parseInt(myMaximumHeapSize.getText()));
+    } catch(NumberFormatException e){
+      data.setMaximumHeapSize(myData.getMaximumHeapSize());
+    }
+
+    data.setWarnings(myEnableWarnings.isSelected());
+    data.setDeprecationWarnings(myDeprecationWarnings.isSelected());
+    data.setUncheckedWarnings(myUncheckedWarnings.isSelected());
+    data.setOptimiseBytecode(myOptimiseBytecode.isSelected());
+    data.setExplainTypeErrors(myExplainTypeErrors.isSelected());
+    data.setContinuations(myEnableContinuations.isSelected());
+    
+    data.setDebuggingInfoLevel((DebuggingInfoLevel) myDebuggingInfoLevel.getSelectedItem());
+    data.setCompilerOptions(myCompilerOptions.getText());
+
+    data.setPluginPaths(CompilerPlugin.toPaths(myPlugins));
+    
+    updateCheckboxesState();
   }
 
   public void reset() {
     updateLibrariesList();
-    
     setCompilerLibraryById(new LibraryId(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel()));
-    fieldCompilerOptions.setText(myData.getCompilerOptions());
+    myMaximumHeapSize.setText(Integer.toString(myData.getMaximumHeapSize()));
+    
+    myEnableWarnings.setSelected(myData.getWarnings());
+    myDeprecationWarnings.setSelected(myData.getDeprecationWarnings());
+    myUncheckedWarnings.setSelected(myData.getUncheckedWarnings());
+    myOptimiseBytecode.setSelected(myData.getOptimiseBytecode());
+    myExplainTypeErrors.setSelected(myData.getExplainTypeErrors());
+    myEnableContinuations.setSelected(myData.getContinuations());
+    
+    myDebuggingInfoLevel.setSelectedItem(myData.getDebuggingInfoLevel());
+    myCompilerOptions.setText(myData.getCompilerOptions());
 
     myPlugins = new ArrayList(CompilerPlugin.fromPaths(myData.getPluginPaths(), myEditorContext.getModule()));
     getPluginsModel().setItems(myPlugins);
@@ -169,7 +222,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private void updateLibrariesList() {
     LibraryId id = getCompilerLibraryId();
 
-    comboCompilerLibrary.setModel(new DefaultComboBoxModel(
+    myCompilerLibrary.setModel(new DefaultComboBoxModel(
         LibraryDescriptor.compilersFor(myEditorContext.getProject())));
 
     setCompilerLibraryById(id);
@@ -186,28 +239,28 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
   
   private LibraryId getCompilerLibraryId() {
-    LibraryDescriptor descriptor = (LibraryDescriptor) comboCompilerLibrary.getSelectedItem();
+    LibraryDescriptor descriptor = (LibraryDescriptor) myCompilerLibrary.getSelectedItem();
     return descriptor == null ? LibraryId.empty() : descriptor.id();  
   }
   
   public void setCompilerLibraryById(LibraryId id) {
     if(id.isEmpty()) {
-      comboCompilerLibrary.addItem(null);
-      comboCompilerLibrary.setSelectedItem(null);
+      myCompilerLibrary.addItem(null);
+      myCompilerLibrary.setSelectedItem(null);
     } else {
       LibraryDescriptor descriptor = findLibraryDescriptorFor(id);
       if(descriptor == null) {
         LibraryDescriptor newId = LibraryDescriptor.createFor(id);
-        comboCompilerLibrary.addItem(newId);
-        comboCompilerLibrary.setSelectedItem(newId);
+        myCompilerLibrary.addItem(newId);
+        myCompilerLibrary.setSelectedItem(newId);
       } else {
-        comboCompilerLibrary.setSelectedItem(descriptor);
+        myCompilerLibrary.setSelectedItem(descriptor);
       }
     }
   }
   
   public LibraryDescriptor findLibraryDescriptorFor(LibraryId id) {
-    DefaultComboBoxModel model = (DefaultComboBoxModel) comboCompilerLibrary.getModel();
+    DefaultComboBoxModel model = (DefaultComboBoxModel) myCompilerLibrary.getModel();
     for (int i = 0; i < model.getSize(); i++) {
       LibraryDescriptor entry = (LibraryDescriptor) model.getElementAt(i);
       if(entry != null && entry.id().equals(id)) {

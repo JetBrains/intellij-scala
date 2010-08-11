@@ -1,49 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.jetbrains.plugins.scala.config.ui.FacetConfigurationEditor">
-  <grid id="27dc6" binding="panelContent" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panelContent" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="504" height="553"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <component id="60fae" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Compiler library:"/>
-        </properties>
-      </component>
-      <hspacer id="a4d70">
-        <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </hspacer>
-      <component id="7f26d" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Compiler options:"/>
-        </properties>
-      </component>
-      <component id="2c3cc" class="com.intellij.ui.RawCommandLineEditor" binding="fieldCompilerOptions">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <minimum-size width="250" height="-1"/>
-          </grid>
-        </constraints>
-        <properties/>
-      </component>
       <grid id="7f109" binding="panelPlugins" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="3" vgap="-1">
         <margin top="3" left="3" bottom="3" right="3"/>
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-        <border type="none" title="Compiler plugins"/>
+        <border type="none" title="Scala compiler plugins"/>
         <children>
           <grid id="e1da8" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
@@ -115,19 +86,144 @@
           </scrollpane>
         </children>
       </grid>
-      <vspacer id="d6335">
+      <grid id="6b1f1" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="3" left="3" bottom="3" right="3"/>
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
-            <minimum-size width="-1" height="10"/>
-          </grid>
-        </constraints>
-      </vspacer>
-      <component id="eecd" class="javax.swing.JComboBox" binding="comboCompilerLibrary">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
-      </component>
+        <border type="none" title="Scala compiler instantiation"/>
+        <children>
+          <component id="60fae" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="eecd"/>
+              <text value="Compiler &amp;library:"/>
+            </properties>
+          </component>
+          <component id="eecd" class="javax.swing.JComboBox" binding="myCompilerLibrary">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="309b7" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="84ea2"/>
+              <text value="Maximum &amp;heap size, MB"/>
+            </properties>
+          </component>
+          <component id="84ea2" class="javax.swing.JTextField" binding="myMaximumHeapSize">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <columns value="5"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="e9bc2" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="3" left="3" bottom="3" right="3"/>
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none" title="Scala compiler options"/>
+        <children>
+          <component id="7f26d" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Additional command-line &amp;parameters:"/>
+            </properties>
+          </component>
+          <component id="2c3cc" class="com.intellij.ui.RawCommandLineEditor" binding="myCompilerOptions">
+            <constraints>
+              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <minimum-size width="250" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <dialogCaption value="Additional command-line parameters for Scala compiler"/>
+            </properties>
+          </component>
+          <component id="d5418" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <labelFor value="6d369"/>
+              <text value="Debugging info &amp;level:"/>
+            </properties>
+          </component>
+          <component id="6d369" class="javax.swing.JComboBox" binding="myDebuggingInfoLevel">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="c8b5e" class="javax.swing.JCheckBox" binding="myEnableWarnings">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Enable &amp;warnings"/>
+              <toolTipText value="Generate warnings"/>
+            </properties>
+          </component>
+          <component id="79f24" class="javax.swing.JCheckBox" binding="myDeprecationWarnings">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Deprecation warnings"/>
+              <toolTipText value="Indicate whether source should be compiled with deprecation information"/>
+            </properties>
+          </component>
+          <component id="121a2" class="javax.swing.JCheckBox" binding="myUncheckedWarnings">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Unchecked warnings"/>
+              <toolTipText value="Enable detailed unchecked warnings "/>
+            </properties>
+          </component>
+          <component id="92ed7" class="javax.swing.JCheckBox" binding="myOptimiseBytecode">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Optimise bytecode"/>
+              <toolTipText value="Generates faster bytecode by applying optimisations to the program"/>
+            </properties>
+          </component>
+          <component id="ecfdc" class="javax.swing.JCheckBox" binding="myExplainTypeErrors">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="&amp;Explain type errors"/>
+              <toolTipText value="Explain type errors in more detail"/>
+            </properties>
+          </component>
+          <component id="75b6f" class="javax.swing.JCheckBox" binding="myEnableContinuations">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Enable &amp;continuations"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>
