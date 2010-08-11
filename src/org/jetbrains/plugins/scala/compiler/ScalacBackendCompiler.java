@@ -259,14 +259,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     //For debug
      //commandLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009");
 
-    ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
 
     commandLine.add(XSS_COMPILER_PROPERTY);
-    
-    for(ScalaFacet facet : facets) {
-      commandLine.addAll(Arrays.asList(facet.javaParameters()));
-    }
-    
+    commandLine.add("-Xmx" + settings.MAXIMUM_HEAP_SIZE + "m");
     CompilerUtil.addLocaleOptions(commandLine, false);
 
     commandLine.add("-cp");
@@ -274,6 +269,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final StringBuilder classPathBuilder = new StringBuilder();
     classPathBuilder.append(rtJarPath).append(File.pathSeparator);
     classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
+
+    ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
     
     for(ScalaFacet facet : facets) {
       classPathBuilder.append(facet.classpath());
@@ -285,11 +282,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (!settings.USE_FSC) commandLine.add(ScalacRunner.class.getName());
     else commandLine.add(FastScalacRunner.class.getName());
 
-    String[] parameters = facets.length > 0 ? facets[0].compilerParameters() : new String[] {};
+    String options = facets.length > 0 ? facets[0].options() : "";
+    String[] plugins = facets.length > 0 ? facets[0].plugins() : new String[] {};
     
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
-      fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject, parameters);
+      fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject, options, plugins);
 
       commandLine.add(fileWithParams.getPath());
 
@@ -302,7 +300,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
 
   private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, 
-                                               Project myProject, String[] parameters)
+                                               Project myProject, String options, String[] plugins)
       throws FileNotFoundException {
 
     PrintStream printer = new PrintStream(new FileOutputStream(fileWithParameters));
@@ -316,10 +314,14 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     printer.println(VERBOSE_PROPERTY);
 //    printer.println(DEBUG_PROPERTY);
     //printer.println(WARNINGS_PROPERTY);
-//    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
+    printer.println(DEBUG_INFO_LEVEL_PROPEERTY);
 
-    for(String parameter : parameters)
-      printer.println(parameter);
+    if(options.length() > 0)
+      printer.println(options);
+    
+    for(String plugin : plugins) {
+      printer.println("-Xplugin:" + plugin);
+    }
     
     printer.println(DESTINATION_COMPILER_PROPERTY);
     
@@ -467,5 +469,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         return super.processMessageLine(callback);
       }
     };
+  }
+
+  public Charset getEncoding() {
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
+    final Charset encoding = settings.getNonDefaultEncoding();
+    if (encoding == null) {
+      return CharsetToolkit.getDefaultSystemCharset();
+    } else {
+      return encoding;
+    }
   }
 }
