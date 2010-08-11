@@ -470,7 +470,7 @@ object ScalaPsiUtil {
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
       map += Tuple(tp(i), typeArgs(i))
     }
-    new ScSubstitutor(Map(map.toSeq: _*), Map.empty)
+    new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
   def genericCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
@@ -478,7 +478,7 @@ object ScalaPsiUtil {
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
       map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
     }
-    new ScSubstitutor(Map(map.toSeq: _*), Map.empty)
+    new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
   def genericCallSubstitutor(tp: Seq[(String, String)], gen: ScGenericCall): ScSubstitutor = {

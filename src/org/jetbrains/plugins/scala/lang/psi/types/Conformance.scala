@@ -130,7 +130,7 @@ object Conformance {
         val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
                   new ScTypeParameterType(tuple._2.name, List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
-        }), Map.empty)
+        }), Map.empty, None)
         val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2

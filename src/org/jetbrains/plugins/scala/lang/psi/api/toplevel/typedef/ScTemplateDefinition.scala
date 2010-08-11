@@ -79,6 +79,15 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                                   lastParent: PsiElement,
                                   place: PsiElement) : Boolean = {
     var state = oldState
+    //exception cases
+    this match {
+      case s: ScTypeParametersOwner => s.typeParametersClause match {
+        case Some(tpc) if PsiTreeUtil.isContextAncestor(tpc, place, false) => return true
+        case _ =>
+      }
+      case _ =>
+    }
+
     // Process selftype reference
     selfTypeElement match {
       case Some(se) if se.getName != "_" => if (!processor.execute(se, state)) return false
@@ -111,26 +120,27 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case _ =>
           eb.earlyDefinitions match {
             case Some(ed) if PsiTreeUtil.isContextAncestor(ed, place, true) =>
-            case _ => selfTypeElement match {
-              case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) => ste.typeElement match {
-                case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
-                  case (b : BaseProcessor, s: ScalaPsiElement) => {
-                    if (!b.processType(t.getType(TypingContext.empty).getOrElse(Any), s, state)) return false
+            case _ =>
+              extendsBlock match {
+                case e: ScExtendsBlock if e != null => {
+                  selfTypeElement match {
+                    case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) && ste.getTextOffset < place.getTextOffset => ste.typeElement match {
+                      case Some(t) => (processor, place) match {   //todo rewrite for all PsiElements and processors
+                        case (b : BaseProcessor, s: ScalaPsiElement) => {
+                          if (!b.processType(t.getType(TypingContext.empty).getOrElse(Any), s, state)) return false
+                        }
+                        case _ =>
+                      }
+                      case None =>
+                    }
+                    case _ =>
                   }
-                  case _ =>
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                  }
                 }
-                case None =>
+                case _ => true
               }
-              case _ =>
-            }
-            extendsBlock match {
-              case e: ScExtendsBlock if e != null => {
-                if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                  if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
-                }
-              }
-              case _ => true
-            }
           }
           true
       }

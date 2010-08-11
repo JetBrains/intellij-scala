@@ -24,13 +24,15 @@ object ScSubstitutor {
 }
 
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
-                    val aliasesMap: Map[String, Suspension[ScType]]) {
-  def this() = this(Map.empty, Map.empty)
+                    val aliasesMap: Map[String, Suspension[ScType]],
+                    val updateThisType: Option[ScType]) {
+  def this() = this(Map.empty, Map.empty, None)
 
   def this(tvMap: Map[(String, String), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
+                    updateThisType: Option[ScType],
                     follower: ScSubstitutor) = {
-    this(tvMap, aliasesMap)
+    this(tvMap, aliasesMap, updateThisType)
     this.follower = follower
   }
 
@@ -42,15 +44,18 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     (if (follower != null) " followed " + follower.toString else "")
 
   def bindT(name : (String, String), t: ScType) =
-    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, follower)
+    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
   def bindA(name: String, t: ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))),follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), updateThisType, follower)
   def bindA(name: String, f: () => ScType) =
-    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+  def addUpdateThisType(tp: ScType): ScSubstitutor = {
+    this followed (new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+  }
   def followed(s: ScSubstitutor): ScSubstitutor = {
-    if (follower == null && tvMap.size + aliasesMap.size  == 0) return s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0) return this
-    else return new ScSubstitutor(tvMap, aliasesMap,
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) return s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) return this
+    else return new ScSubstitutor(tvMap, aliasesMap, updateThisType,
       if (follower != null) follower followed s else s)
   }
 
@@ -74,6 +79,26 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
         TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
       }))
+    }
+    case ScThisType(clazz) => {
+      updateThisType match {
+        case Some(tp) => {
+          ScType.extractClass(tp) match {
+            case Some(cl) if cl == clazz => return tp
+            case _ =>
+          }
+          BaseTypes.get(tp).find(tp => {
+            ScType.extractClass(tp) match {
+              case Some(cl) if cl == clazz => true
+              case _ => false
+            }
+          }) match {
+            case Some(_) => return tp
+            case _ => return t
+          }
+        }
+        case _ => return t
+      }
     }
 
     case tpt : ScTypeParameterType => tvMap.get((tpt.name, tpt.getId)) match {
@@ -143,11 +168,11 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case ex@ScExistentialType(q, wildcards) => {
       //remove bound names
       val trunc = aliasesMap -- ex.boundNames
-      new ScExistentialType(new ScSubstitutor(tvMap, trunc, follower).substInternal(q), wildcards)
+      new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q), wildcards)
     }
     case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
       ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
-        new ScSubstitutor(tvMap, aliasesMap)
+        new ScSubstitutor(tvMap, aliasesMap, updateThisType)
         ))
     }
     case _ => t
@@ -159,7 +184,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case ScUndefinedType(tpt) if tps.contains(tpt.param) => false
         case _ => true
       }
-    }), aliasesMap, if (follower != null) follower.removeUndefines(tps) else null)
+    }), aliasesMap, updateThisType, if (follower != null) follower.removeUndefines(tps) else null)
   }
 }
 

@@ -223,6 +223,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
-    Success(if (fromType != None) inner.updateThisType(fromType.get) else inner, Some(this))
+    Success(/*if (fromType != None) inner.updateThisType(fromType.get) else*/ inner, Some(this))
   }
 }
