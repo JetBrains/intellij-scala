@@ -18,7 +18,7 @@ class ConfigurationData() {
   var maximumHeapSize = 512     
   
   @BeanProperty
-  var vmOptions = "-Xss1024k -server"
+  var vmOptions = "-Xss1m -server"
   
   @BeanProperty
   var warnings = true
