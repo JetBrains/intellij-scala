@@ -3,23 +3,21 @@ package config
 
 import java.io.File
 import FileAPI._
-import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, ApplicationLibraryTable}
-import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.roots.{ModifiableRootModel, JavadocOrderRootType, OrderRootType}
-import com.intellij.openapi.roots.libraries.Library.ModifiableModel
-
 /**
  * Pavel.Fatin, 01.07.2010
  */
 
 object ScalaDistribution {
   def findHome: Option[String] = {
-    Option(System.getenv("SCALA_HOME")).orElse {
+    Option(System.getenv("SCALA_HOME")) orElse {
       Option(System.getenv("PATH")).flatMap {
         _.split(File.pathSeparator)
                 .find(_.toLowerCase.contains("scala"))
                 .map(_.replaceFirst(File.separator + "?bin$", ""))
       }
+    } orElse {
+      optional(new File("""C:\Program Files\scala\""")).map(_.getPath)
     }
   }
 }
