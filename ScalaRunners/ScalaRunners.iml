@@ -5,6 +5,8 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="scala-2.8-RC1" />
+        <option name="maximumHeapSize" value="512" />
+        <option name="vmOptions" value="-Xss1024k -server" />
       </configuration>
     </facet>
   </component>

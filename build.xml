@@ -175,7 +175,7 @@
             target="jvm-1.5"
             force="changed"
             fork="true"
-            jvmargs="-Xmx724M -Xss32m -XX:MaxPermSize=200M -server">
+            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
       <classpath>
         <path refid="scala.runners.path"/>
       </classpath>
@@ -235,7 +235,7 @@
             target="jvm-1.5"
             force="changed"
             fork="true"
-            jvmargs="-Xmx724M -Xss32m -XX:MaxPermSize=200M -server">
+            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
       <classpath>
         <path  refid="base.path"/>
         <path location="${main.dest}"/>
