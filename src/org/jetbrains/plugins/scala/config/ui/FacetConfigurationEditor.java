@@ -59,6 +59,9 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private static final FileChooserDescriptor CHOOSER_DESCRIPTOR = 
       new FileChooserDescriptor(false, false, true, true, false, true);
   
+  static {
+    CHOOSER_DESCRIPTOR.setDescription("Select Scala compiler plugin JAR");
+  }
   
   public FacetConfigurationEditor(ConfigurationData data, FacetEditorContext editorContext, FacetValidatorsManager validatorsManager) {
     myData = data;
