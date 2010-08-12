@@ -6,6 +6,8 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
         <option name="compilerLibraryName" value="scala-compiler" />
+        <option name="maximumHeapSize" value="1024" />
+        <option name="vmOptions" value="-Xms768m -Xss1024k -server" />
       </configuration>
     </facet>
   </component>

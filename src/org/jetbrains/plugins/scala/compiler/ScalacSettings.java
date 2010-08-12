@@ -27,13 +27,6 @@ import java.nio.charset.Charset;
     }
 )
 public class ScalacSettings implements PersistentStateComponent<ScalacSettings>, ProjectComponent {
-  public String ADDITIONAL_OPTIONS_STRING = "";
-  public int MAXIMUM_HEAP_SIZE = 256;
-  public boolean GENERATE_NO_WARNINGS = false;
-  public boolean DEPRECATION = true;
-  public boolean UNCHECKED = true;
-  public boolean OPTIMISE = false;
-  public boolean NO_GENERICS = false;
   public boolean SCALAC_BEFORE = true;
   public boolean USE_FSC = false;
   public String SERVER_PORT = "";
@@ -71,21 +64,6 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
 
   public String getOptionsString() {
     StringBuilder options = new StringBuilder();
-    if (DEPRECATION) {
-      options.append("-deprecation ");
-    }
-    if (GENERATE_NO_WARNINGS) {
-      options.append("-nowarn ");
-    }
-    if (UNCHECKED) {
-      options.append("-unchecked ");
-    }
-    if (NO_GENERICS) {
-      options.append("-Yno-generic-signatures ");
-    }
-    if (OPTIMISE) {
-      options.append("-optimise ");
-    }
 
     //fsc options
     if (USE_FSC) {
@@ -99,63 +77,11 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
         options.append("-server:").append(SERVER_PORT).append(" ");
       }
     }
-    boolean isEncodingSet = false;
-    final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
-    while (tokenizer.hasMoreTokens()) {
-      String token = tokenizer.nextToken();
-      if ("-deprecation".equals(token)) {
-        continue;
-      }
-      if ("-nowarn".equals(token)) {
-        continue;
-      }
-      if ("-unchecked".equals(token)) {
-        continue;
-      }
-      if ("-optimise".equals(token)) {
-        continue;
-      }
-      if ("-reset".equals(token)) {
-        continue;
-      }
-      if ("-shutdown".equals(token)) {
-        continue;
-      }
-      if (token.startsWith("-server")) {
-        continue;
-      }
-      options.append(token);
-      options.append(" ");
-      if ("-encoding".equals(token)) {
-        isEncodingSet = true;
-      }
-    }
-    if (!isEncodingSet) {
-      final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
-      if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
-        options.append("-encoding ");
-        options.append(ideCharset.name());
-      }
+    final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
+    if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
+      options.append("-encoding ");
+      options.append(ideCharset.name());
     }
     return options.toString();
-  }
-
-  /**
-   * @return The encoding that will be passed in the -encoding command line option to scalac, or null if
-   *         defaults will be used.
-   */
-  public Charset getNonDefaultEncoding() {
-    final StringTokenizer tokenizer = new StringTokenizer(ADDITIONAL_OPTIONS_STRING, " \t\r\n");
-    while (tokenizer.hasMoreTokens()) {
-      String token = tokenizer.nextToken();
-      if ("-encoding".equals(token)) {
-        return Charset.forName(tokenizer.nextToken());
-      }
-    }
-    Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
-    if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
-      return ideCharset;
-    }
-    return null;
   }
 }

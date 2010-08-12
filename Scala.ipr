@@ -844,12 +844,6 @@
       </value>
     </option>
   </component>
-  <component name="ScalacSettings">
-    <option name="MAXIMUM_HEAP_SIZE" value="768" />
-    <option name="DEPRECATION" value="false" />
-    <option name="UNCHECKED" value="false" />
-    <option name="NO_GENERICS" value="true" />
-  </component>
   <component name="SvnBranchConfigurationManager">
     <option name="myConfigurationMap">
       <map>

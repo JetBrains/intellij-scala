@@ -45,10 +45,13 @@ class ScalaFacet(module: Module, name: String,
 
   def version: String = compiler.flatMap(_.version).mkString
   
-  def options: String = getConfiguration.getState.compilerOptions
+  def javaParameters: Array[String] = getConfiguration.getState.javaParameters 
   
-  def plugins: Array[String] = getConfiguration.getState.pluginPaths.map { path =>
-      new CompilerPlugin(path, module).file.getPath
+  def compilerParameters: Array[String] = {
+    val plugins = getConfiguration.getState.pluginPaths.map { path =>
+      "-Xplugin:" + new CompilerPlugin(path, module).file.getPath
+    }
+    getConfiguration.getState.compilerParameters ++ plugins
   }
   
   def setCompilerLibraryId(id: LibraryId): Unit = {
