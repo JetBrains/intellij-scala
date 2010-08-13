@@ -467,7 +467,7 @@ object ScalaPsiUtil {
 
   def typesCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScType]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, String), ScType]
-    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+    for (i <- 0 to math.min(tp.length, typeArgs.length) - 1) {
       map += Tuple(tp(i), typeArgs(i))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)

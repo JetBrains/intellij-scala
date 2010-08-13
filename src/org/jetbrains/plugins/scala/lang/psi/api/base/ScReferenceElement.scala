@@ -39,7 +39,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
-    val isQuoted = refName.startsWith("`")
+    val isQuoted = nameId.getText.startsWith("`")
     val id = nameId.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id,
