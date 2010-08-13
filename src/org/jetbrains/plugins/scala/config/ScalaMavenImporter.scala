@@ -41,7 +41,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
                     changes: MavenProjectChanges, mavenProjectToModuleName: Map[MavenProject, String], 
                     postTasks: List[MavenProjectsProcessorTask]) = {
     validConfigurationIn(mavenProject).foreach { configuration =>
-      val libraryName = "Maven: org.scala-lang:scala-compiler-bundle:" + configuration.compilerVersion.mkString
+      val libraryName = "Maven: org.scala-lang:scala-compiler-bundle:" + configuration.scalaVersion.mkString
       
       val library = {
         val existingLibrary = modelsProvider.getLibraryByName(libraryName)
@@ -75,10 +75,14 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
   override def resolve(project: MavenProject, nativeMavenProject: NativeMavenProject, embedder: MavenEmbedderWrapper) = {
     validConfigurationIn(project).foreach { configuration =>
       val repositories = project.getRemoteRepositories
+
       val compilerId = configuration.compilerId
-      
       embedder.resolve(compilerId, "pom", null, repositories)
       embedder.resolve(compilerId, "jar", null, repositories)
+      
+      val libraryId = configuration.libraryId
+      embedder.resolve(libraryId, "pom", null, repositories)
+      embedder.resolve(libraryId, "jar", null, repositories)
       
       configuration.plugins.foreach { pluginId =>
         embedder.resolve(pluginId, "pom", null, repositories)
@@ -91,26 +95,27 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     Some(new ScalaConfiguration(project)).filter(_.valid)
   
   def setupFacet(f: ScalaFacet, mavenProject: MavenProject): Unit = {}
+}
 
 private class ScalaConfiguration(project: MavenProject) {
-  def compilerId = new MavenId("org.scala-lang", "scala-compiler", compilerVersion.mkString)
-  
-  def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
-  
+  def compilerId = new MavenId("org.scala-lang", "scala-compiler", scalaVersion.mkString)
+
+  def libraryId = new MavenId("org.scala-lang", "scala-library", scalaVersion.mkString)
+
   private def compilerConfiguration =
     project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.map(_.getConfigurationElement)
 
   private def standardLibrary = project.findDependencies("org.scala-lang", "scala-library").headOption
 
-  def compilerVersion: Option[String] = compilerConfiguration.flatMap { configuration =>
+  def scalaVersion: Option[String] = compilerConfiguration.flatMap { configuration =>
     val explicitVersion = configuration.getChild("scalaVersion").toOption.map(_.getTextTrim)
     explicitVersion.orElse(standardLibrary.map(_.getVersion))
   }
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
-  def compilerOptions: Seq[String] = elements("args", "arg").map(_.getTextTrim) 
-  
+  def compilerOptions: Seq[String] = elements("args", "arg").map(_.getTextTrim)
+
   def plugins: Seq[MavenId] = {
     elements("compilerPlugins", "compilerPlugin").flatMap { plugin =>
       plugin.getChildTextTrim("groupId").toOption
@@ -120,16 +125,15 @@ private class ScalaConfiguration(project: MavenProject) {
       }
     }
   }
-  
-  private def elements(root: String, name: String): Seq[Element] = 
+
+  private def elements(root: String, name: String): Seq[Element] =
     element(root).toSeq.flatMap(elements(_, name))
-  
+
   private def elements(root: Element, name: String): Seq[Element] =
     root.getChildren(name).map(_.asInstanceOf[Element])
 
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
-  
-  def valid = compilerVersion.isDefined
-}
+
+  def valid = scalaVersion.isDefined
 }
