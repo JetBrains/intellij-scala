@@ -65,10 +65,12 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     }
   }
 
+  def getModifiersStrings: Array[String] = ScModifierListImpl.AllModifiers.filter(hasModifierProperty(_))
 
-  def getModifiersStrings: Array[String] = {
-    Array("override", "private", "protected", "public", "final", "implicit", "abstract", "sealed", "lazy", "case").
-      filter(hasModifierProperty(_))
+  def hasExplicitModifiers: Boolean = {
+    val access = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
+    lazy val mods = findChildrenByType(TokenSets.MODIFIERS)
+    access != null || mods.size > 0
   }
 
   def hasExplicitModifier(name: String) = false
@@ -162,4 +164,8 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
     null
   }
+}
+
+object ScModifierListImpl {
+  private val AllModifiers: Array[String] = Array("override", "private", "protected", "public", "final", "implicit", "abstract", "sealed", "lazy", "case")
 }

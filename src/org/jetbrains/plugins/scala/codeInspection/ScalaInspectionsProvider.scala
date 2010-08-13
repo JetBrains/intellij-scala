@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 
 
+import caseClassParamInspection.CaseClassParamInspection
 import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.openapi.components.ApplicationComponent
 import deprecation.ScalaDeprecationInspection
@@ -26,6 +27,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[FileNameInspection]
     res += classOf[PackageNameInspection]
     res += classOf[ScalaDeprecationInspection]
+    res += classOf[CaseClassParamInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }
