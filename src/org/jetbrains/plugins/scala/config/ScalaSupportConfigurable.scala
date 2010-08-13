@@ -28,7 +28,7 @@ class ScalaSupportConfigurable(editor: ScalaSupportWizard) extends FrameworkSupp
         ScalaFacet.createIn(module) { facet =>
           val id = editor.getCompilerLibraryId
           val compilerLibrary = distribution.createCompilerLibrary(id, rootModel)
-          facet.setCompilerLibraryId(id)
+          facet.compilerLibraryId = id
         }
       }
       case _ =>

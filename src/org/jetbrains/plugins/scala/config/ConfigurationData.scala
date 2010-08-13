@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.config
 
 import reflect.BeanProperty
 import org.jetbrains.annotations.Nullable
+import scala.util.matching.Regex
+
 /**
  * Pavel.Fatin, 26.07.2010
  */
@@ -50,24 +52,62 @@ class ConfigurationData() {
   def javaParameters: Array[String] = parse(vmOptions) ++ Array("-Xmx%dm".format(maximumHeapSize))
   
   def compilerParameters: Array[String] = {
-    val switches = Array(!warnings -> "nowarn", deprecationWarnings -> "deprecation",
-      uncheckedWarnings -> "unchecked", optimiseBytecode -> "optimise",
-      explainTypeErrors -> "explaintypes", continuations -> "P:continuations:enable")
-    val switchesOptions = switches.collect { 
-      case (enabled, name) if enabled => name   
-    }                                               
-    val debuggingOptions = Array("g:%s".format(debuggingInfoLevel.getOption))
-    parse(compilerOptions) ++ (switchesOptions ++ debuggingOptions).map("-" + _) 
+    val propertiesNames = Properties.filter(_.value).map(_.name)
+    val debuggingOption = "-g:%s".format(debuggingInfoLevel.getOption)
+    parse(compilerOptions) ++ (propertiesNames ++ Array(debuggingOption)) 
   }
   
   private def parse(options: String): Array[String] = {
     val trimmed = options.trim
     if(trimmed.isEmpty) Array.empty else trimmed.split("\\s+") 
   }
+
+  def updateJavaParameters(parameters: Seq[String]) {
+    val (size, remainder) = extract("(?i)-Xmx(\\d+)m".r, parameters)
+    size.foreach { digits =>
+      maximumHeapSize = digits.toInt
+    }
+    vmOptions = remainder.mkString(" ")
+  }
   
-  private def data = Array(compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions, warnings, 
-    deprecationWarnings, uncheckedWarnings, optimiseBytecode, explainTypeErrors, continuations, 
-    debuggingInfoLevel, compilerOptions) ++ pluginPaths
+  def updateCompilerParameters(parameters: Seq[String]) {
+    val names = Properties.map(_.name)
+    val (knowns, unknowns) = parameters.partition(names.contains(_))
+    Properties.foreach { property =>
+      property.value = knowns.contains(property.name)
+    }
+    val (level, remainder) = extract("-g:(\\w+)".r, unknowns)
+    level.flatMap(name => DebuggingInfoLevel.values.find(_.getOption == name)).foreach { 
+      debuggingInfoLevel = _
+    }
+    compilerOptions = remainder.mkString(" ")
+  }
+  
+  def extract(pattern: Regex, parameters: Seq[String]) = {
+    val levels = parameters.collect {
+      case parameter @ pattern(value) => (parameter, value)    
+    }
+    val (objects, values) = levels.unzip
+    (values.headOption, parameters diff objects)
+  }
+  
+  private class Property(val name: String, getter: => Boolean, setter: Boolean => Unit) {
+    def value = getter
+    def value_=(b: Boolean) = setter(b)
+  }
+  
+  private object Warnings extends Property("-nowarn", !warnings, b => warnings = !b)
+  private object DeprecationWarnings extends Property("-deprecation", deprecationWarnings, deprecationWarnings = _)
+  private object UncheckedWarnings extends Property("-unchecked", uncheckedWarnings, uncheckedWarnings = _)
+  private object OptimiseBytecode extends Property("-optimise", optimiseBytecode, optimiseBytecode = _)
+  private object ExplainTypeErrors extends Property("-explaintypes", explainTypeErrors, explainTypeErrors = _)
+  private object Continuations extends Property("-P:continuations:enable", continuations, continuations = _)
+  
+  private val Properties = Array(
+    Warnings, DeprecationWarnings, UncheckedWarnings, OptimiseBytecode, ExplainTypeErrors, Continuations) 
+  
+  private def data = Array(compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions, 
+    debuggingInfoLevel, compilerOptions) ++ Properties.map(_.value) ++ pluginPaths
   
   override def equals(obj: Any): Boolean = data.sameElements(obj.asInstanceOf[ConfigurationData].data)
 }
