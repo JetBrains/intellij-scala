@@ -11,5 +11,5 @@ package statements
 */
 
 trait ScTypeAliasDeclaration extends ScTypeAlias with ScDeclaration {
-  def declaredElements = Seq.singleton(this)
+  def declaredElements = Seq(this)
 }

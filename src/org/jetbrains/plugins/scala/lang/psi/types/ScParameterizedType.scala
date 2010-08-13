@@ -124,8 +124,8 @@ object ScParameterizedType {
     }).toSeq : _*))
 }
 
-case class ScTypeParameterType(val name: String, val args: List[ScTypeParameterType],
-                              val lower: Suspension[ScType], val upper: Suspension[ScType],
+case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
+                              lower: Suspension[ScType], upper: Suspension[ScType],
                               param: PsiTypeParameter) extends ValueType {
   def this(tp : ScTypeParam, s : ScSubstitutor) =
     this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},

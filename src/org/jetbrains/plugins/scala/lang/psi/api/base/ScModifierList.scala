@@ -21,4 +21,6 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   def accessModifier = findChild(classOf[ScAccessModifier])
 
   def getModifiersStrings: Array[String]
+
+  def hasExplicitModifiers: Boolean
 }
