@@ -6,4 +6,6 @@ class ScalaRenameParameterTest extends ScalaRenameTestBase {
   override def rootPath: String = super.rootPath + "parameter/"
 
   def testnaming = doTest
+
+  def testStableRef = doTest
 }
