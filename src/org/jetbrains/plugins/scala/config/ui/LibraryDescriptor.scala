@@ -11,7 +11,7 @@ object LibraryDescriptor {
     def list(level: LibraryLevel) = Libraries.findBy(level, project).map { library =>
       LibraryDescriptor(LibraryId(library.getName, level), Some(new CompilerLibraryData(library)))
     }
-    (list(LibraryLevel.Global) ++ list(LibraryLevel.Project)).sortBy(_.id.name)
+    (list(LibraryLevel.Global) ++ list(LibraryLevel.Project)).sortBy(_.id.name.toLowerCase)
   }
   
   def createFor(id: LibraryId) = LibraryDescriptor(id, None)
