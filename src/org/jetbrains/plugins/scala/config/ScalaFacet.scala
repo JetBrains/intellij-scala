@@ -36,7 +36,7 @@ class ScalaFacet(module: Module, name: String,
                  configuration: ScalaFacetConfiguration, underlyingFacet: Facet[_ <: FacetConfiguration]) 
         extends Facet[ScalaFacetConfiguration](ScalaFacet.Type, module, name, configuration, underlyingFacet) {
   
-  def compiler = Libraries.findBy(getCompilerLibraryId, module.getProject)
+  def compiler = Libraries.findBy(compilerLibraryId, module.getProject)
           .map(new CompilerLibraryData(_))
 
   def files: Seq[File] = compiler.toList.flatMap(_.files)
@@ -45,7 +45,11 @@ class ScalaFacet(module: Module, name: String,
 
   def version: String = compiler.flatMap(_.version).mkString
   
-  def javaParameters: Array[String] = getConfiguration.getState.javaParameters 
+  def javaParameters: Array[String] = getConfiguration.getState.javaParameters
+  
+  def javaParameters_=(parameters: Array[String]) {
+    getConfiguration.getState.updateJavaParameters(parameters)
+  }
   
   def compilerParameters: Array[String] = {
     val plugins = getConfiguration.getState.pluginPaths.map { path =>
@@ -54,13 +58,23 @@ class ScalaFacet(module: Module, name: String,
     getConfiguration.getState.compilerParameters ++ plugins
   }
   
-  def setCompilerLibraryId(id: LibraryId): Unit = {
+  def compilerParameters_=(parameters: Array[String]) {
+    getConfiguration.getState.updateCompilerParameters(parameters)
+  }
+  
+  def pluginPaths: Array[String] = getConfiguration.getState.pluginPaths 
+  
+  def pluginPaths_=(paths: Array[String]) = {
+    getConfiguration.getState.pluginPaths = paths
+  } 
+  
+  def compilerLibraryId_=(id: LibraryId) {
     val data = getConfiguration.getState
     data.compilerLibraryName = id.name
     data.compilerLibraryLevel = id.level
   }
 
-  def getCompilerLibraryId: LibraryId = {
+  def compilerLibraryId: LibraryId = {
     val data = getConfiguration.getState
     return new LibraryId(data.compilerLibraryName, data.compilerLibraryLevel)
   }
