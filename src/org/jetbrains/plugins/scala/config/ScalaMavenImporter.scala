@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.OrderRootType
 import collection.JavaConversions._
 import org.jdom.Element
 import FileAPI._
+
 /**
  * Pavel.Fatin, 03.08.2010
  */
@@ -41,7 +42,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
                     changes: MavenProjectChanges, mavenProjectToModuleName: Map[MavenProject, String], 
                     postTasks: List[MavenProjectsProcessorTask]) = {
     validConfigurationIn(mavenProject).foreach { configuration =>
-      val libraryName = "Maven: org.scala-lang:scala-compiler-bundle:" + configuration.scalaVersion.mkString
+      val libraryName = "Maven: org.scala-lang:scala-compiler-bundle:" + configuration.compilerVersion.mkString
       
       val library = {
         val existingLibrary = modelsProvider.getLibraryByName(libraryName)
@@ -98,16 +99,16 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
 }
 
 private class ScalaConfiguration(project: MavenProject) {
-  def compilerId = new MavenId("org.scala-lang", "scala-compiler", scalaVersion.mkString)
+  def compilerId = new MavenId("org.scala-lang", "scala-compiler", compilerVersion.mkString)
 
-  def libraryId = new MavenId("org.scala-lang", "scala-library", scalaVersion.mkString)
+  def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
   private def compilerConfiguration =
     project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.map(_.getConfigurationElement)
 
   private def standardLibrary = project.findDependencies("org.scala-lang", "scala-library").headOption
 
-  def scalaVersion: Option[String] = compilerConfiguration.flatMap { configuration =>
+  def compilerVersion: Option[String] = compilerConfiguration.flatMap { configuration =>
     val explicitVersion = configuration.getChild("scalaVersion").toOption.map(_.getTextTrim)
     explicitVersion.orElse(standardLibrary.map(_.getVersion))
   }
@@ -135,5 +136,5 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
 
-  def valid = scalaVersion.isDefined
+  def valid = compilerVersion.isDefined
 }
