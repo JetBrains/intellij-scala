@@ -7,6 +7,7 @@ import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.openapi.components.ApplicationComponent
 import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
+import inference.SupsiciousInferredTypeInspection
 import java.lang.String
 import packageNameInspection.PackageNameInspection
 import referenceInspections.CyclicReferencesInspection
@@ -28,6 +29,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[PackageNameInspection]
     res += classOf[ScalaDeprecationInspection]
     res += classOf[CaseClassParamInspection]
+    res += classOf[SupsiciousInferredTypeInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }
