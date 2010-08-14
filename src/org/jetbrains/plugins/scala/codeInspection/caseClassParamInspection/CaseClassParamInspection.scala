@@ -3,14 +3,11 @@ package codeInspection
 package caseClassParamInspection
 
 import collection.mutable.ArrayBuffer
-import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection._
-import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.psi.PsiFile
 import java.lang.String
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
 /**
