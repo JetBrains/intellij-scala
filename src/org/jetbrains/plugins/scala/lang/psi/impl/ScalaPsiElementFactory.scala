@@ -213,6 +213,13 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     else classDef.members()(0).asInstanceOf[ScVariable]
   }
 
+  def createValFromVarDeclaration(varDef: ScVariableDefinition, manager: PsiManager): ScValue = {
+    val text = "class a {" + varDef.getText.replaceAll("^var", "val") + " }"
+    val dummyFile = createScalaFile(text, manager)
+    val classDef = dummyFile.typeDefinitions()(0)
+    classDef.members()(0).asInstanceOf[ScValue]
+  }
+
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
     val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
     val dummyFile = createScalaFile(text, manager)

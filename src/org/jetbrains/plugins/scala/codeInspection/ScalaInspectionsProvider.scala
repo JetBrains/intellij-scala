@@ -15,6 +15,7 @@ import unresolvedInspection.UnresolvedReferencesInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.impl.ApplicationImpl
+import varCouldBeValInspection.VarCouldBeValInspection
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,6 +32,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[CaseClassParamInspection]
     res += classOf[SupsiciousInferredTypeInspection]
     res += classOf[SuspiciousNewLineInMethodCall]
+    res += classOf[VarCouldBeValInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }
