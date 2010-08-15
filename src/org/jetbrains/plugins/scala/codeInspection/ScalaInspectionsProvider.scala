@@ -11,6 +11,7 @@ import inference.SupsiciousInferredTypeInspection
 import java.lang.String
 import packageNameInspection.PackageNameInspection
 import referenceInspections.CyclicReferencesInspection
+import sugar.FunctionTupleSyntacticSugarInspection
 import unresolvedInspection.UnresolvedReferencesInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
@@ -33,6 +34,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[SupsiciousInferredTypeInspection]
     res += classOf[SuspiciousNewLineInMethodCall]
     res += classOf[VarCouldBeValInspection]
+    res += classOf[FunctionTupleSyntacticSugarInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }
