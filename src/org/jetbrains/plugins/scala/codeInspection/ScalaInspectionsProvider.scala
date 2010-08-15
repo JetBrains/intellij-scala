@@ -30,6 +30,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[ScalaDeprecationInspection]
     res += classOf[CaseClassParamInspection]
     res += classOf[SupsiciousInferredTypeInspection]
+    res += classOf[SuspiciousNewLineInMethodCall]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[UnresolvedReferencesInspection]
     }
