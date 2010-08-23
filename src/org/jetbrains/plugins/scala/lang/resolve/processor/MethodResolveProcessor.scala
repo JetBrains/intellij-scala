@@ -3,7 +3,6 @@ package lang
 package resolve
 package processor
 
-import psi.api.base.ScReferenceElement
 import psi.api.statements._
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -27,6 +26,7 @@ import caches.CachesUtil
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
 import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
+import psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
@@ -177,9 +177,12 @@ object MethodResolveProcessor {
                         fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                         isUnderscore => ConformanceExtResult(Seq.empty)
                 case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
+                case c: ScPrimaryConstructor 
+                  if(c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)) => 
+                  ConformanceExtResult(Seq.empty) 
                 case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                         isUnderscore => ConformanceExtResult(Seq.empty)
-                case _ => ConformanceExtResult(Seq(new MissedParametersClause(null)))
+                case _ => ConformanceExtResult(Seq(MissedParametersClause(null)))
               }
             }
           }
@@ -194,6 +197,7 @@ object MethodResolveProcessor {
       case obj: PsiClass => return ConformanceExtResult(Seq.empty)
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature => return ConformanceExtResult(Seq(new MalformedDefinition))
+      case c: ScPrimaryConstructor if c.hasMalformedSignature => return ConformanceExtResult(Seq(new MalformedDefinition))
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.apply(0).isImplicit &&
