@@ -45,12 +45,14 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
     if (e == null) None else Some(e)
   }
 
-  protected override def innerType(ctx: TypingContext) = (thenBranch, elseBranch) match {
-    case (Some(t), Some(e)) => for (tt <- t.getType(TypingContext.empty); 
-                                    et <- e.getType(TypingContext.empty)) yield {
-      Bounds.lub(tt, et)
+  protected override def innerType(ctx: TypingContext) = {
+    (thenBranch, elseBranch) match {
+      case (Some(t), Some(e)) => for (tt <- t.getType(TypingContext.empty);
+                                      et <- e.getType(TypingContext.empty)) yield {
+        Bounds.lub(tt, et)
+      }
+      case (Some(t), None) => t.getType(TypingContext.empty).map(tt => Bounds.lub(tt, types.Unit))
+      case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
     }
-    case (Some(t), None) => Success(types.Unit, Some(this))
-    case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
   }
 }

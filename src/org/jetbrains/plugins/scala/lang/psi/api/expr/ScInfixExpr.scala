@@ -5,6 +5,7 @@ package api
 package expr
 
 import types.ScType
+import parser.util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -12,14 +13,19 @@ import types.ScType
 
 trait ScInfixExpr extends ScExpression {
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
+
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
     case re : ScReferenceExpression => re
   }
+
   def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
+
   def isLeftAssoc: Boolean = {
     val opText = operation.getText
     opText.endsWith(":")
   }
+
+  def isAssignmentOperator = ParserUtils.isAssignmentOperator(operation.getText)
 
   /**
    * Return possible applications without using resolve of reference to this call (to avoid SOE)

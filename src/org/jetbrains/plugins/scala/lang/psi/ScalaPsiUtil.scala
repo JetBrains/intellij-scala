@@ -3,17 +3,18 @@ package lang
 package psi
 
 import api.base._
-import api.ScalaRecursiveElementVisitor
+import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
+import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
+import api.toplevel.packaging.ScPackageContainer
+import api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
-import api.toplevel.ScTypedDefinition
 import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import api.expr._
 import api.expr.xml.ScXmlExpr
 
@@ -804,4 +805,13 @@ object ScalaPsiUtil {
       case _ => false
     }
   }
+
+  def isScope(element: PsiElement): Boolean = element match {
+    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
+            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+            _: ScEarlyDefinitions | _: ScRefinement => true
+    case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
+    case _ => false
+  }
+
 }

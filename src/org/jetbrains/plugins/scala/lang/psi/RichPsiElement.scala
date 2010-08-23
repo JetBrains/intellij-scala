@@ -75,4 +75,8 @@ trait RichPsiElement {
   
   def breadthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] = 
     new BreadthFirstIterator(delegate, predicate)
+
+  def isScope: Boolean = ScalaPsiUtil.isScope(delegate)
+
+  def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope(_))
 }

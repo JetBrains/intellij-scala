@@ -24,7 +24,7 @@ trait ScopeAnnotator {
   private val TypeParameters = """\[.*\]""".r
 
   def annotateScope(element: PsiElement, holder: AnnotationHolder) {
-    if (!isScope(element)) return
+    if (!element.isScope) return
 
     val (types, terms, parameters, caseClasses, objects) = definitionsIn(element)
 
@@ -55,7 +55,7 @@ trait ScopeAnnotator {
     }
 
     element.children.foreach {
-      _.depthFirst(!isScope(_)).foreach {
+      _.depthFirst(!_.isScope).foreach {
         case e: ScObject => objects ::= e
         case e: ScTypedDefinition => terms ::= e
         case e: ScTypeAlias => types ::= e
@@ -94,13 +94,5 @@ trait ScopeAnnotator {
       case (p, t) => eraseType(t.presentableText) + (if(p.isRepeatedParameter) "*" else "")
     }
     "(" + parts.mkString(", ") + ")"
-  }
-
-  private def isScope(e: PsiElement): Boolean = e match {
-    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
-            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
-            _: ScEarlyDefinitions | _: ScRefinement => true
-    case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
-    case _ => false
   }
 }
