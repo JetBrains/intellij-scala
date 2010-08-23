@@ -84,8 +84,9 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
     
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
     assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
-    // TODO uncomment
-//    assertProblemsAre(auxiliary, formatConstructor(definition, application))(pattern)
+
+    assertProblemsAre(auxiliary, formatConstructor(definition, application))(pattern)
+    // TODO Uncomment and solve problems with primary constructors substitutors
 //    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))((pattern))
   }
 

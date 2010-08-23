@@ -307,13 +307,37 @@ object Compatibility {
           if (constructor.parameterList.clauses.length == 0) Seq.empty
           else constructor.parameterList.clauses.apply(0).parameters
 
+        val clashedAssignments = clashedAssignmentsIn(exprs)
+        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
+                             if !parameters.exists(_.name == name)) yield assignment
+
+        if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
+          val problems = unresolved.map(new UnresolvedParameter(_)) ++
+                  clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
+          return ConformanceExtResult(problems)
+        }
+
         //optimization:
-        val hasRepeated = parameters.find(_.isRepeatedParameter) != None
-        val maxParams = parameters.length
-        if (exprs.length > maxParams && !hasRepeated)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("16")))
-        val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
-        if (exprs.length < minParams) return ConformanceExtResult(Seq(new ApplicabilityProblem("17")))
+        val hasRepeated = parameters.exists(_.isRepeatedParameter)
+        val maxParams: Int = if(hasRepeated) scala.Int.MaxValue else parameters.length
+
+        val excess = exprs.length - maxParams
+
+        if (excess > 0) {
+          val part = exprs.takeRight(excess).map(_.expr)
+          return ConformanceExtResult(part.map(ExcessArgument(_)))
+        }
+        
+        val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
+        val shortage = obligatory.size - exprs.length;
+        
+        if (shortage > 0) { 
+          val part = obligatory.takeRight(shortage).map { p =>
+            val t = p.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any)
+            Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter) 
+          }
+          return ConformanceExtResult(part.map(new MissedValueParameter(_)))
+        }
 
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
