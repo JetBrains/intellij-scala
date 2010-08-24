@@ -84,7 +84,7 @@ trait ScopeAnnotator {
     if(f.parameters.isEmpty)
       ""
     else
-      f.paramClauses.clauses.firstOption.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
   }
 
   private def eraseType(s: String) = if(s.startsWith("Array[")) s else TypeParameters.replaceFirstIn(s, "")
@@ -93,6 +93,6 @@ trait ScopeAnnotator {
     val parts = parameters.zip(types).map {
       case (p, t) => eraseType(t.presentableText) + (if(p.isRepeatedParameter) "*" else "")
     }
-    "(" + parts.mkString(", ") + ")"
+    "(%s)".format(parts.mkString(", "))
   }
 }
