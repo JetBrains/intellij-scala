@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Runners/Runners.iml" filepath="$PROJECT_DIR$/Runners/Runners.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Scala.iml" filepath="$PROJECT_DIR$/Scala.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Scala2.7Runners/Scala2.7Runners.iml" filepath="$PROJECT_DIR$/Scala2.7Runners/Scala2.7Runners.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" filepath="$PROJECT_DIR$/ScalaRunners/ScalaRunners.iml" />
+    </modules>
+  </component>
+</project>
+
