@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="specs_2.8.0.RC2-1.6.5-SNAPSHOT.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SDK/lib/specs_2.8.0.RC2-1.6.5-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/SDK/lib/specs_2.8.0.RC2-1.6.5-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
