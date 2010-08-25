@@ -9,7 +9,7 @@
     5) Restore Git config (core/autocrlf = true)  
 */
 
-// Update befor using the script
+// Update before using the script
 val Root = "d:/plugin/scala-plugin/"
 val NamePattern = """.*\.(scala|java|xml|properties|iml|ipr|ft|test|form|build|flex|html|log|skeleton)$""".r
 
