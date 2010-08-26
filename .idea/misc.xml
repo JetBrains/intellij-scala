@@ -20,7 +20,7 @@
     <option name="LOCALE" />
     <option name="OPEN_IN_BROWSER" value="true" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA sdk" project-jdk-type="IDEA JDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA SDK" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />

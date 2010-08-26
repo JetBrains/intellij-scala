@@ -27,7 +27,7 @@ class PackageNameInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Inspection for files with package statement which not correspond to package structure"
 
-  override def getID: String = "Package Name"
+  override def getID: String = "PackageName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {

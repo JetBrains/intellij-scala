@@ -40,7 +40,7 @@ class SuspiciousNewLineInMethodCall extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Detects new-lines in method calls that are not inferred as semi-colons"
 
-  override def getID: String = getShortName
+  override def getID: String = "SuspiciousNewLineInMethodCall"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()

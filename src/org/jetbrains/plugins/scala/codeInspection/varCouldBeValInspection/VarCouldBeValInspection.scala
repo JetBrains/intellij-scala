@@ -23,7 +23,7 @@ class VarCouldBeValInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Detects local 'var'-s that are never assigned to."
 
-  override def getID: String = getShortName
+  override def getID: String = "VarCouldBeVal"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()
