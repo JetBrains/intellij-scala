@@ -34,7 +34,12 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightV
   override def visit(element: PsiElement, holder: HighlightInfoHolder): Unit = {
     myHolder = holder
     assert(!myAnnotationHolder.hasAnnotations(), myAnnotationHolder)
-    element.accept(this)
+    if (element.isInstanceOf[PsiErrorElement]) {
+      visitErrorElement(element.asInstanceOf[PsiErrorElement])
+    }
+    else {
+      runAnnotator(element)
+    }
   }
 
   override def analyze(action: Runnable, updateWholeFile: Boolean, file: PsiFile): Boolean = {
@@ -67,10 +72,6 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightV
     return new ScalaAnnotatorHighlightVisitor(project)
   }
 
-  override def visitElement(element: PsiElement): Unit = {
-    runAnnotator(element)
-  }
-
   private def runAnnotator(element: PsiElement): Unit = {
     val dumb: Boolean = DumbService.getInstance(project).isDumb
     if (dumb) {
@@ -87,7 +88,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightV
     }
   }
 
-  override def visitErrorElement(element: PsiErrorElement): Unit = {
+  def visitErrorElement(element: PsiErrorElement): Unit = {
     for (errorFilter <- myErrorFilters) {
       if (!errorFilter.shouldHighlightErrorElement(element)) return
     }

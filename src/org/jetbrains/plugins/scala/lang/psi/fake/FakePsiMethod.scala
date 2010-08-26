@@ -65,11 +65,7 @@ class FakePsiMethod(
 
   def hasTypeParameters: Boolean = false
 
-  def accept(visitor: PsiElementVisitor): Unit = {}
-
-  def copy: PsiElement = new FakePsiMethod(navElement, name, params, retType, hasModifier)
-
-  def getText: String = throw new IncorrectOperationException
+  override def copy: PsiElement = new FakePsiMethod(navElement, name, params, retType, hasModifier)
 
   def getParameterList: PsiParameterList = new FakePsiParameterList(manager, language, params)
 
@@ -136,13 +132,11 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
 
   def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def getText: String = tp.toString
+  override def getText: String = tp.toString
 
   override def toString: String = tp.toString
 
-  def accept(visitor: PsiElementVisitor): Unit = {}
-
-  def copy: PsiElement = new FakePsiTypeElement(manager, language, tp)
+  override def copy: PsiElement = new FakePsiTypeElement(manager, language, tp)
 }
 
 class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScType, name: String)
@@ -171,11 +165,9 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
   def getName: String = name
 
-  def copy: PsiElement = new FakePsiParameter(manager, language, paramType, name)
+  override def copy: PsiElement = new FakePsiParameter(manager, language, paramType, name)
 
-  def accept(visitor: PsiElementVisitor): Unit = {}
-
-  def getText: String = "param: " + getTypeElement.getText
+  override def getText: String = "param: " + getTypeElement.getText
 
   override def toString: String = getText
 
@@ -192,19 +184,17 @@ class FakePsiParameterList(manager: PsiManager, language: Language, params: Arra
 
   def getParametersCount: Int = params.length
 
-  def accept(visitor: PsiElementVisitor): Unit = {}
-
   def getParameterIndex(parameter: PsiParameter): Int = getParameters.findIndexOf(_ == parameter)
 
-  def getText: String = getParameters.map(_.getText).mkString("(", ", ", ")")
+  override def getText: String = getParameters.map(_.getText).mkString("(", ", ", ")")
 
   override def toString: String = "FakePsiParameterList"
 
-  def copy: PsiElement = new FakePsiParameterList(manager, language, params)
+  override def copy: PsiElement = new FakePsiParameterList(manager, language, params)
 }
 
 class FakePsiReferenceList(manager: PsiManager, language: Language, role: PsiReferenceList.Role) extends LightElement(manager, language) with PsiReferenceList {
-  def getText: String = ""
+  override def getText: String = ""
 
   def getRole: PsiReferenceList.Role = role
 
@@ -214,7 +204,5 @@ class FakePsiReferenceList(manager: PsiManager, language: Language, role: PsiRef
 
   override def toString: String = ""
 
-  def accept(visitor: PsiElementVisitor): Unit = {}
-
-  def copy: PsiElement = new FakePsiReferenceList(manager, language, role)
+  override def copy: PsiElement = new FakePsiReferenceList(manager, language, role)
 }

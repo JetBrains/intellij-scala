@@ -39,7 +39,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   def checkSetName(s: String) {
     throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
-  def getText = ""
+  override def getText = ""
   override def toString = "Scala Synthetic Package " + getQualifiedName
   def getDirectories(scope: GlobalSearchScope) = PsiDirectory.EMPTY_ARRAY
   def getModifierList = null
@@ -47,8 +47,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   def getAnnotationList = null
   def getName = name
   def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
-  def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
-  def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+  override def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
   def occursInPackagePrefixes = VirtualFile.EMPTY_ARRAY
 

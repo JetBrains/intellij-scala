@@ -26,7 +26,7 @@ class ScalaMoveHandler extends MoveHandlerDelegate {
     MoveRefactoringUtil.moveClass(project, elements, targetContainer, callback)
   }
 
-  override def isValidTarget(psiElement: PsiElement): Boolean = psiElement match {
+  override def isValidTarget(psiElement: PsiElement, sources: Array[PsiElement]): Boolean = psiElement match {
     case _: PsiDirectory => true
     case _ => false
   }

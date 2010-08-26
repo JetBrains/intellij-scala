@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.compiler.CompilerConfigurationImpl;
 import com.intellij.compiler.OutputParser;
 import com.intellij.compiler.impl.CompilerUtil;
-import com.intellij.compiler.impl.javaCompiler.DependencyProcessor;
 import com.intellij.compiler.impl.javaCompiler.ExternalCompiler;
 import com.intellij.compiler.impl.javaCompiler.ModuleChunk;
 import com.intellij.compiler.impl.javaCompiler.javac.JavacSettings;
@@ -220,11 +219,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
   @Override
   public Set<FileType> getCompilableFileTypes() {
     return COMPILABLE_FILE_TYPES;
-  }
-
-  @Override
-  public DependencyProcessor getDependencyProcessor() {
-    return new ScalacDependencyProcessor();
   }
 
   private void createStartupCommandImpl(ModuleChunk chunk, ArrayList<String> commandLine, String outputPath) throws IOException {

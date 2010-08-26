@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.specs;
 
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.configuration.BrowseModuleValueActionListener;
-import com.intellij.execution.junit2.configuration.ClassBrowser;
-import com.intellij.execution.junit2.configuration.ConfigurationModuleSelector;
+import com.intellij.execution.ui.ClassBrowser;
+import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
@@ -184,7 +184,7 @@ public class SpecsRunConfigurationForm {
                               final TextFieldWithBrowseButton textField,
                               final Project project) {
      ClassBrowser browser = new ClassBrowser(project, title) {
-       protected TreeClassChooser.ClassFilterWithScope getFilter() throws NoFilterException {
+       protected TreeClassChooser.ClassFilterWithScope getFilter() throws ClassBrowser.NoFilterException {
          return new TreeClassChooser.ClassFilterWithScope() {
            public GlobalSearchScope getScope() {
              return GlobalSearchScope.allScope(project);

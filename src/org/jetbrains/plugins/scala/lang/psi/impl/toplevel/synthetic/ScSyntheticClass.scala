@@ -33,10 +33,10 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
   def getName = name
-  def getText = ""
+  override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
-  def copy = throw new IncorrectOperationException("nonphysical element")
-  def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+  override def copy = throw new IncorrectOperationException("nonphysical element")
+  override def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
 
   def nameId(): PsiElement = null

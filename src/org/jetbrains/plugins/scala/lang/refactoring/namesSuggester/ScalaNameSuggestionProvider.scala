@@ -5,7 +5,6 @@ package namesSuggester
 
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.codeStyle.SuggestedNameInfo
-import java.util.{Collection, List}
 import com.intellij.psi.PsiElement
 
 import com.intellij.refactoring.rename.NameSuggestionProvider
@@ -13,6 +12,8 @@ import psi.api.expr.ScExpression
 import psi.api.toplevel.ScTypedDefinition
 import psi.types.result.TypingContext
 import psi.types._
+import java.lang.String
+import java.util.{Set, Collection, List}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ import psi.types._
 class ScalaNameSuggestionProvider extends NameSuggestionProvider {
   def completeName(element: PsiElement, nameSuggestionContext: PsiElement, prefix: String): Collection[LookupElement] = null
 
-  def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: List[String]): SuggestedNameInfo = {
+  def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: Set[String]): SuggestedNameInfo = {
     val array = element match {
       case typed: ScTypedDefinition => NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrElse(Any))
       case expr: ScExpression => NameSuggester.suggestNames(expr)

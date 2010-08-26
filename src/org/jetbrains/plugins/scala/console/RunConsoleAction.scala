@@ -50,7 +50,7 @@ class RunConsoleAction extends AnAction {
         val configurationType = ConfigurationTypeUtil.findConfigurationType(classOf[ScalaScriptConsoleConfigurationType])
         val settings = runManagerEx.getConfigurationSettings(configurationType)
 
-        def execute(setting: RunnerAndConfigurationSettingsImpl) {
+        def execute(setting: RunnerAndConfigurationSettings) {
           val configuration = setting.getConfiguration.asInstanceOf[ScalaScriptConsoleRunConfiguration]
           runManagerEx.setActiveConfiguration(setting)
           val runExecutor = DefaultRunExecutor.getRunExecutorInstance

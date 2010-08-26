@@ -3,7 +3,6 @@ package config
 
 import org.jetbrains.idea.maven.importing.{FacetImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
 import com.intellij.openapi.module.Module
-import org.jetbrains.idea.maven.embedder.MavenEmbedderWrapper
 import org.apache.maven.project.{MavenProject => NativeMavenProject}
 import java.util.{List, Map}
 import java.lang.String
@@ -12,6 +11,8 @@ import com.intellij.openapi.roots.OrderRootType
 import collection.JavaConversions._
 import org.jdom.Element
 import FileAPI._
+import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
+import org.jetbrains.idea.maven.facade.{NativeMavenProjectHolder, MavenEmbedderWrapper}
 
 /**
  * Pavel.Fatin, 03.08.2010
@@ -73,21 +74,21 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     library
   }
 
-  override def resolve(project: MavenProject, nativeMavenProject: NativeMavenProject, embedder: MavenEmbedderWrapper) = {
+  override def resolve(project: MavenProject, nativeMavenProject: NativeMavenProjectHolder, embedder: MavenEmbedderWrapper) = {
     validConfigurationIn(project).foreach { configuration =>
       val repositories = project.getRemoteRepositories
 
       val compilerId = configuration.compilerId
-      embedder.resolve(compilerId, "pom", null, repositories)
-      embedder.resolve(compilerId, "jar", null, repositories)
+      embedder.resolve(new MavenArtifactInfo(compilerId, "pom", null), repositories)
+      embedder.resolve(new MavenArtifactInfo(compilerId, "jar", null), repositories)
       
       val libraryId = configuration.libraryId
-      embedder.resolve(libraryId, "pom", null, repositories)
-      embedder.resolve(libraryId, "jar", null, repositories)
+      embedder.resolve(new MavenArtifactInfo(libraryId, "pom", null), repositories)
+      embedder.resolve(new MavenArtifactInfo(libraryId, "jar", null), repositories)
       
       configuration.plugins.foreach { pluginId =>
-        embedder.resolve(pluginId, "pom", null, repositories)
-        embedder.resolve(pluginId, "jar", null, repositories)
+        embedder.resolve(new MavenArtifactInfo(pluginId, "pom", null), repositories)
+        embedder.resolve(new MavenArtifactInfo(pluginId, "jar", null), repositories)
       }
     }
   }
