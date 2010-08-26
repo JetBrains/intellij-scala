@@ -27,7 +27,7 @@
   <property name="runners.dest" location="${production.dest}/Runners"/>
 
   <property name="idea.lib" value="${idea.home}/lib"/>
-  <property name="java.lib" value="${jdk.home}/lib"/>
+  <property name="java.lib" value="${java.home}/lib"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
   <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-aux-lib"/>
 
