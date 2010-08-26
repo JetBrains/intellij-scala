@@ -24,7 +24,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Detects explicit references to FunctionN and TupleN that could be replaced with syntactic sugar"
 
-  override def getID: String = getShortName
+  override def getID: String = "SyntacticSugar"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()

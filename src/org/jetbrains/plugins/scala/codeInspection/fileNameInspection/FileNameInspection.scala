@@ -28,7 +28,7 @@ class FileNameInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Inspection for files without type definition with corresponding name"
 
-  override def getID: String = "File Name"
+  override def getID: String = "FileName"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()

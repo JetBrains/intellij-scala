@@ -22,7 +22,7 @@ class SupsiciousInferredTypeInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Detects inferred types of Any or AnyVal"
 
-  override def getID: String = getShortName
+  override def getID: String = "SuspiciousInferredType"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()

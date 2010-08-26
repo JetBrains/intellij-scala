@@ -22,7 +22,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
 
   override def getStaticDescription: String = "Inspection for redundant 'val' modifier on case class parameters"
 
-  override def getID: String = "Case Class Param"
+  override def getID: String = "CaseClassParam"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()

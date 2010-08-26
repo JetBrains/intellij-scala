@@ -36,7 +36,7 @@ class CyclicReferencesInspection extends LocalInspectionTool {
   override def getStaticDescription: String =
     """This inspection reports all cyclic references, which lead to compile error."""
 
-  override def getID: String = "Cyclic Referneces"
+  override def getID: String = "CyclicReferneces"
 
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
