@@ -3,23 +3,23 @@ package lang
 package refactoring
 
 
-import com.intellij.lang.refactoring.DefaultRefactoringSupportProvider
+import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringActionHandler
 import extractMethod.ScalaExtractMethodHandler
 import introduceVariable.ScalaIntroduceVariableHandler
 import psi.api.toplevel.typedef.ScTypeDefinition
 import rename.ScalaInplaceVariableRenamer
-import com.intellij.refactoring.extractMethod.ExtractMethodHandler
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 29.03.2009
  */
 
-class ScalaRefactoringSupportProvider extends DefaultRefactoringSupportProvider {
-  override def doInplaceRenameFor(element: PsiElement, context: PsiElement): Boolean =
+class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
+  override def isInplaceRenameAvailable(element: PsiElement, context: PsiElement) = {
     ScalaInplaceVariableRenamer.myRenameInPlace(element, context)
+  }
 
   override def getIntroduceConstantHandler: RefactoringActionHandler = null
 

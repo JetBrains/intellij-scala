@@ -103,8 +103,8 @@ class ScalaInlineHandler extends InlineHandler {
         }
       }
 
-      def getConflicts(reference: PsiReference, referenced: PsiElement): java.util.Map[PsiElement, String] =
-        new java.util.HashMap[PsiElement, String]()
+      def getConflicts(reference: PsiReference, referenced: PsiElement): com.intellij.util.containers.MultiMap[PsiElement, String] =
+        new com.intellij.util.containers.MultiMap[PsiElement, String]()
     }
   }
 

@@ -25,7 +25,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
   }
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
+  override def invoke(project: Project, editor: Editor, file: PsiFile) {
     file.elementAt(editor.getCaretModel.getOffset).foreach(complete(Update, _))
   }
 

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lift.runner;
 
 import com.intellij.execution.Location;
 import com.intellij.execution.RunManagerEx;
+import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
 import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
@@ -15,7 +16,7 @@ import com.intellij.openapi.roots.SourceFolder;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.idea.maven.project.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenGeneralSettings;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -92,12 +93,12 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
     return new MavenRunnerParameters(true, parent.getPath(), goals, profiles);
   }
 
-  private static RunnerAndConfigurationSettingsImpl createRunnerAndConfigurationSettings(MavenGeneralSettings generalSettings,
+  private static RunnerAndConfigurationSettings createRunnerAndConfigurationSettings(MavenGeneralSettings generalSettings,
                                                                                          MavenRunnerSettings runnerSettings,
                                                                                          MavenRunnerParameters params,
                                                                                          Project project) {
     MavenRunConfigurationType type = ConfigurationTypeUtil.findConfigurationType(MavenRunConfigurationType.class);
-    final RunnerAndConfigurationSettingsImpl settings = RunManagerEx.getInstanceEx(project)
+    final RunnerAndConfigurationSettings settings = RunManagerEx.getInstanceEx(project)
         .createConfiguration(MavenRunConfigurationType.generateName(project, params), type.getConfigurationFactories()[0]);
     MavenRunConfiguration runConfiguration = (MavenRunConfiguration) settings.getConfiguration();
     runConfiguration.setRunnerParameters(params);
@@ -107,7 +108,7 @@ public class LiftRunConfigurationProducer extends RuntimeConfigurationProducer i
   }
 
 
-  protected RunnerAndConfigurationSettingsImpl createConfigurationByElement(final Location location, final ConfigurationContext context) {
+  protected RunnerAndConfigurationSettings createConfigurationByElement(final Location location, final ConfigurationContext context) {
     final Module module = context.getModule();
     if (module == null || !ScalaUtils.isSuitableModule(module)) return null;
 

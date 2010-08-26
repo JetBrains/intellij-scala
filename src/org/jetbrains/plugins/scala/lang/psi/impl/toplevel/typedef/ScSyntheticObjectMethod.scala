@@ -41,10 +41,9 @@ class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, membe
     def getParametersCount: Int = 0
     def getParameterIndex(parameter: PsiParameter): Int = 0
     def getParameters: Array[PsiParameter] = PsiParameter.EMPTY_ARRAY
-    def copy = throw new IncorrectOperationException("nonphysical element")
-    def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+    override def copy = throw new IncorrectOperationException("nonphysical element")
     override def getContainingFile = field.getContainingFile
-    def getText = ""
+    override def getText = ""
     override def toString = "SyntheticParameterList"
   }
 
@@ -54,10 +53,9 @@ class ScSyntheticObjectMethod(manager: PsiManager, field: PsiNamedElement, membe
   }
 
   def getThrowsList: PsiReferenceList = new LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiReferenceList {
-    def copy = throw new IncorrectOperationException("nonphysical element")
-    def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
+    override def copy = throw new IncorrectOperationException("nonphysical element")
     override def getContainingFile = field.getContainingFile
-    def getText = ""
+    override def getText = ""
     override def toString = "SyntheticParameterList"
     def getReferencedTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
     def getRole = PsiReferenceList.Role.THROWS_LIST
