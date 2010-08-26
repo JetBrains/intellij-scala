@@ -155,8 +155,6 @@
 
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
-            target="1.6"
-            source="1.6"
             debug="true">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.java"/>
@@ -172,7 +170,6 @@
 
     <scalac srcdir="${base.dir}"
             destdir="${runners.dest}"
-            target="jvm-1.6"
             force="changed"
             fork="true"
             jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
@@ -185,7 +182,6 @@
 
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
-            target="1.6"
             debug="true">
       <classpath>
         <path refid="scala.runners.path"/>
@@ -203,7 +199,6 @@
 
     <scalac srcdir="${base.dir}"
             destdir="${runners.dest}"
-            target="jvm-1.6"
             force="changed">
       <classpath>
         <path refid="scala.2.7.runners.path"/>
@@ -214,7 +209,6 @@
 
     <javac2 srcdir="${base.dir}"
             destdir="${runners.dest}"
-            target="1.6"
             debug="true">
       <classpath>
         <path refid="scala.2.7.runners.path"/>
@@ -232,7 +226,6 @@
 
     <scalac srcdir="${base.dir}"
             destdir="${main.dest}"
-            target="jvm-1.6"
             force="changed"
             fork="true"
             jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
@@ -247,7 +240,6 @@
 
     <javac2 srcdir="${base.dir}"
             destdir="${main.dest}"
-            target="1.6"
             debug="true">
       <classpath>
         <path  refid="base.path"/>
@@ -328,7 +320,6 @@
 
     <scalac srcdir="${base.dir}/test"
             destdir="${test.dest}"
-            target="jvm-1.6"
             force="changed"
             fork="false">
       <classpath refid="base.path"/>
