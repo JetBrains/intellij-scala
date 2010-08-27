@@ -19,15 +19,20 @@ import java.util.ArrayList
 import com.intellij.openapi.util.Comparing
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import java.lang.String
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
 
-  def findClass(qName: String, scope: GlobalSearchScope) =
+  /*def findClass(qName: String, scope: GlobalSearchScope) =
     ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
 
   def findClasses(qName: String, scope: GlobalSearchScope) = {
     ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope)
-  }
+  }*/
+
+  def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
+
+  def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = null
 
   override def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
 }
