@@ -354,8 +354,7 @@
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
 
-    <junit fork="yes"
-           dir="${base.dir}"
+    <junit dir="${base.dir}"
            showoutput="yes"
            printsummary="yes"
            haltonfailure="no"
