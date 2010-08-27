@@ -15,24 +15,25 @@ import com.intellij.openapi.module.Module
 import com.intellij.psi._
 import impl.file.PsiPackageImpl
 import impl.{JavaPsiFacadeImpl, PsiManagerEx}
-import java.util.ArrayList
 import com.intellij.openapi.util.Comparing
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import java.lang.String
+import java.util.{Set, ArrayList}
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
+  def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    Array.empty
+  }
 
-  /*def findClass(qName: String, scope: GlobalSearchScope) =
-    ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qName, scope)
+  def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = {
+    null
+  }
 
-  def findClasses(qName: String, scope: GlobalSearchScope) = {
-    ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qName, scope)
-  }*/
+  override def findPackage(qName: String): PsiPackage =
+    ScalaPsiManager.instance(project).syntheticPackage(qName)
 
-  def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
-
-  def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = null
-
-  override def findPackage(qName: String): PsiPackage = ScalaPsiManager.instance(project).syntheticPackage(qName)
+  override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+    ScalaCachesManager.getInstance(project).getNamesCache.getClassNames(psiPackage, scope)
+  }
 }

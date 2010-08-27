@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala.caches;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.stubs.StubIndex;
@@ -23,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author ilyas
@@ -105,6 +103,17 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
       }
     }
     return null;
+  }
+
+  public Set<String> getClassNames(PsiPackage psiPackage, GlobalSearchScope scope) {
+    String qual = psiPackage.getQualifiedName();
+    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY(), qual,
+        myProject, new ScalaSourceFilterScope(scope, myProject));
+    HashSet<String> strings = new HashSet<String>();
+    for (PsiClass clazz : classes) {
+      strings.add(clazz.getName());
+    }
+    return strings;
   }
 
   @NotNull

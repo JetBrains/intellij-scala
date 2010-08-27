@@ -30,6 +30,7 @@
         <option name="FIELD_NAME_PREFIX" value="my" />
         <ScalaCodeStyleSettings>
           <option name="PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE" value="false" />
+          <option name="ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY" value="true" />
           <option name="DONT_SHOW_CONVERSION_DIALOG" value="true" />
           <option name="ENABLE_ERROR_HIGHLIGHTING" value="true" />
         </ScalaCodeStyleSettings>

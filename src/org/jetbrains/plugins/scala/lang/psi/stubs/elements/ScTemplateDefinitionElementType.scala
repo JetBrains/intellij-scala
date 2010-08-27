@@ -68,13 +68,15 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     if (fqn != null) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       sink.occurrence[PsiClass, java.lang.Integer](JavaFullClassNameIndex.KEY, fqn.hashCode)
+      val i = fqn.lastIndexOf(".")
+      if (i == -1) {
+        sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, "")
+      } else {
+        sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, fqn.substring(0, i))
+      }
     }
     if (stub.isPackageObject) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, fqn.hashCode)
     }
-    /*val methodNames = stub.methodNames
-    for (name <- methodNames) {
-      sink.occurrence(ScalaIndexKeys.METHOD_NAME_TO_CLASS_KEY, name)
-    }*/
   }
 }
