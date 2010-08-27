@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.psi.impl.file.PsiPackageImpl
-import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiElement, ResolveState, PsiPackage}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager
 import toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, BaseProcessor}
+import com.intellij.psi._
+import impl.{JavaPsiFacadeImpl, PsiManagerEx}
+import scope.{NameHint, PsiScopeProcessor}
 
 /**
  * User: Alexander Podkhalyuzin

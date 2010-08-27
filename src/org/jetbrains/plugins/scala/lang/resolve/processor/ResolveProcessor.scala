@@ -20,6 +20,8 @@ import caches.CachesUtil
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) {
+  def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
+
   protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
   /**
