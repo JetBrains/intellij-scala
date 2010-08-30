@@ -61,6 +61,7 @@ class SuspiciousNewLineInMethodCall extends LocalInspectionTool {
             val whitespace = es.drop(1).dropRight(1)
             whitespace.exists(_.getText.contains("\n"))
           } => addError(x)
+          // TODO "Map(\n1 -> 2)" is incorrectly highlighted.
           case mc: ScArgumentExprList if {
             val prev = mc.exprs.headOption.flatMap(first => Option(first.getPrevSibling))
             prev.exists(_.getText.contains("\n"))
