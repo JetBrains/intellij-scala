@@ -100,8 +100,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               set.selectors foreach {
                 selector =>
                 ProgressManager.checkCanceled
-                var results: Array[ResolveResult] = selector.reference.multiResolve(false)
-                results foreach {
+                selector.reference.multiResolve(false) foreach {
                   result =>
                   //Resolve the name imported by selector
                   //Collect shadowed elements
