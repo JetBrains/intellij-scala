@@ -38,7 +38,9 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     result.add(if (goalConfigValue == null) defaultDir else goalConfigValue)
   }
 
-  def reimportFacet(modelsProvider: MavenModifiableModelsProvider, module: Module, rootModel: MavenRootModelAdapter, 
+  override def isApplicable(mavenProject: MavenProject) = super.isApplicable(mavenProject) && mavenProject.getPackaging != "pom"
+
+  def reimportFacet(modelsProvider: MavenModifiableModelsProvider, module: Module, rootModel: MavenRootModelAdapter,
                     facet: ScalaFacet, mavenTree: MavenProjectsTree, mavenProject: MavenProject, 
                     changes: MavenProjectChanges, mavenProjectToModuleName: Map[MavenProject, String], 
                     postTasks: List[MavenProjectsProcessorTask]) = {
@@ -137,7 +139,5 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
 
-  def valid = compilerVersion.isDefined && !pomPackaging
-
-  def pomPackaging = project.getPackaging == "pom"
+  def valid = compilerVersion.isDefined
 }
