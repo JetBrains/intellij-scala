@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, Bas
 import com.intellij.psi._
 import impl.{JavaPsiFacadeImpl, PsiManagerEx}
 import scope.{NameHint, PsiScopeProcessor}
+import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,9 +20,17 @@ import scope.{NameHint, PsiScopeProcessor}
 
 class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
+  private var scope = GlobalSearchScope.allScope(getProject)
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (!super[PsiPackageImpl].processDeclarations(processor, state, lastParent, place)) return false
+    scope = place.getResolveScope
+    try {
+      if (!super[PsiPackageImpl].processDeclarations(processor, state, lastParent, place)) return false
+    }
+    finally {
+      scope = GlobalSearchScope.allScope(getProject)
+    }
 
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
@@ -52,6 +61,13 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
 
   override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = {
     super.getSubPackages(scope).map(ScPackageImpl(_))
+  }
+
+  override def containsClassNamed(name: String): Boolean = {
+    val facade: JavaPsiFacade = JavaPsiFacade.getInstance(getProject)
+    val packQual: String = getQualifiedName
+    val qual = if (packQual != "") packQual + "." + name else name
+    facade.findClass(qual, scope) != null
   }
 }
 
