@@ -137,5 +137,7 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
 
-  def valid = compilerVersion.isDefined
+  def valid = compilerVersion.isDefined && !pomPackaging
+
+  def pomPackaging = project.getPackaging == "pom"
 }
