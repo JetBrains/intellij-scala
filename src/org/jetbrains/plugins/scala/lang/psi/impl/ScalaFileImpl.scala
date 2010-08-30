@@ -79,7 +79,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         val entry = entryIterator.next
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
-        for (file <- files) {
+        val filesIterator = files.iterator
+        while (!filesIterator.isEmpty) {
+          val file = filesIterator.next
           val source = file.findFileByRelativePath(relPath)
           if (source != null) {
             val psiSource = getManager.findFile(source)
@@ -96,18 +98,24 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         val entry = entryIterator.next
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
-        for (file <- files) {
+        val filesIterator = files.iterator
+        while (filesIterator.hasNext) {
+          val file = filesIterator.next
           if (typeDefinitions.length == 0) return this
           val qual = typeDefinitions.apply(0).getQualifiedName
           def scanFile(file: VirtualFile): Option[PsiElement] = {
-            var children: Array[VirtualFile] = file.getChildren
+            val children: Array[VirtualFile] = file.getChildren
             if (children != null) {
-              for (child <- children) {
+              val childIterator = children.iterator
+              while (childIterator.hasNext) {
+                val child = childIterator.next
                 if (child.getName == sourceFile) {
                   val psiSource = getManager.findFile(child)
                   psiSource match {
                     case o: PsiClassOwner => {
-                      for (clazz <- o.getClasses) {
+                      val clazzIterator = o.getClasses.iterator
+                      while (clazzIterator.hasNext) {
+                        val clazz = clazzIterator.next
                         if (qual == clazz.getQualifiedName) {
                           return Some(o)
                         }
