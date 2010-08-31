@@ -26,7 +26,7 @@ import varCouldBeValInspection.VarCouldBeValInspection
 class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationComponent {
   def getInspectionClasses: Array[java.lang.Class[_]] = {
     val res = new ArrayBuffer[java.lang.Class[_]]
-    res += classOf[CyclicReferencesInspection]
+    //todo: res += classOf[CyclicReferencesInspection]
     res += classOf[FileNameInspection]
     res += classOf[PackageNameInspection]
     res += classOf[ScalaDeprecationInspection]
