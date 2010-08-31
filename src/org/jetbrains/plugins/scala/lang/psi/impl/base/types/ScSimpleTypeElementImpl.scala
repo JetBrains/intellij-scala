@@ -220,11 +220,12 @@ object ScSimpleTypeElementImpl {
     }
   }
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
-    val shapeResolve: Option[ScalaResolveResult] = ref.shapeResolve match {
-      case Array(r: ScalaResolveResult) => Some(r)
-      case _ => None
-    }
-    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind else shapeResolve) match {
+    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind else {
+      ref.shapeResolve match {
+        case Array(r: ScalaResolveResult) => Some(r)
+        case _ => None
+      }
+    }) match {
       case Some(r@ScalaResolveResult(n: PsiMethod, subst)) if n.isConstructor =>
         (n.getContainingClass, subst, r.fromType)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.fromType)
