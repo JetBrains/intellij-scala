@@ -41,13 +41,18 @@ class VarCouldBeValInspection extends LocalInspectionTool {
             x.contexts.take(1).toList match {
               case (x: ScTemplateDefinition) :: _ => // ignore members, just local vars.
               case _ =>
-                import collection.JavaConversions._
-                val assigns = for{
-                  decElem <- x.declaredElements.iterator
-                  usage <- ReferencesSearch.search(decElem).iterator
-                  if isAssignment(usage)
-                } yield usage
-                if (assigns isEmpty) addError(x)
+                //15% faster then previous, more functional approach
+                var assigns = false
+                val decElemIterator = x.declaredElements.iterator
+                while (decElemIterator.hasNext && !assigns) {
+                  val decElem = decElemIterator.next
+                  val usageIterator = ReferencesSearch.search(decElem).iterator
+                  while (usageIterator.hasNext && !assigns) {
+                    val usage = usageIterator.next
+                    if (isAssignment(usage)) assigns = true
+                  }
+                }
+                if (!assigns) addError(x)
             }
           case _ =>
         }
