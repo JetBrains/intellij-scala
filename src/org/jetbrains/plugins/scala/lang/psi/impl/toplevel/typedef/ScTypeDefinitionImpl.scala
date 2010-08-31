@@ -103,7 +103,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     val name = getName
     if (classParent == null) {
-      for (c <- getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses) {
+      val classes: Array[PsiClass] = getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses
+      val classesIterator = classes.iterator
+      while (classesIterator.hasNext) {
+        val c = classesIterator.next
         if (name == c.getName && hasSameScalaKind(c)) return c
       }
     } else {

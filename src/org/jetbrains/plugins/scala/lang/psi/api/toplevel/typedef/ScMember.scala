@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi.stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
 import com.intellij.psi.impl.source.PsiFileImpl
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -49,13 +50,24 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _ => this
   }
 
-  private def getSourceMirrorMember = getParent match {
+  private def getSourceMirrorMember: ScMember = getParent match {
     case tdb: ScTemplateBody => tdb.getParent match {
       case eb: ScExtendsBlock => eb.getParent match {
         case td: ScTypeDefinition => td.getNavigationElement match {
-          case c: ScTypeDefinition => c.members.find(isSimilarMemberForNavigation(_, true)) match {
-            case Some(m) => m
-            case None => c.members.find(isSimilarMemberForNavigation(_, false)) match {case Some(m) => m case _ => this}
+          case c: ScTypeDefinition => {
+            val membersIterator = c.members.iterator
+            val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
+            while (membersIterator.hasNext) {
+              val member = membersIterator.next
+              if (isSimilarMemberForNavigation(member, false)) buf += member
+            }
+            if (buf.length == 0) this
+            else if (buf.length == 1) buf(0)
+            else {
+              val filter = buf.filter(isSimilarMemberForNavigation(_, true))
+              if (filter.length == 0) buf(0)
+              else filter(0)
+            }
           }
           case _ => this
         }
