@@ -27,6 +27,7 @@ import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
+import api.ScalaFile
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -193,9 +194,11 @@ object TypeDefinitionMembers {
       for (method <- clazz.getMethods if isAccessible(place, method) &&
               !method.isConstructor && !method.hasModifierProperty("static")) {
         val phys = new PhysicalSignature(method, subst)
-        val psiRet = method.getReturnType
-        val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
-        val sig = new FullSignature(phys, subst.subst(retType), method, clazz)
+        val sig = new FullSignature(phys, new Suspension(() => {
+          val psiRet = method.getReturnType
+          val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
+          subst.subst(retType)
+        }), method, clazz)
         map += ((sig, new Node(sig, subst)))
       }
 
@@ -210,7 +213,7 @@ object TypeDefinitionMembers {
               val phys = new PhysicalSignature(m, subst)
               val psiRet = m.getReturnType
               val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
-              val sig = new FullSignature(phys, subst.subst(retType), m, obj)
+              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, obj)
               map += ((sig, new Node(sig, subst)))
             }
           }
@@ -220,8 +223,8 @@ object TypeDefinitionMembers {
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) = {
-      def addSignature(s: Signature, ret: ScType, elem: NavigatablePsiElement) {
-        val full = new FullSignature(s, ret, elem, template)
+      def addSignature(s: Signature, ret: => ScType, elem: NavigatablePsiElement) {
+        val full = new FullSignature(s, new Suspension(() => ret), elem, template)
         map += ((full, new Node(full, subst)))
       }
 
@@ -229,7 +232,7 @@ object TypeDefinitionMembers {
         member match {
           case _var: ScVariable if isAccessible(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              val t = dcl.getType(TypingContext.empty).getOrElse(Any)
+              lazy val t = dcl.getType(TypingContext.empty).getOrElse(Any)
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst), t, dcl)
               addSignature(new Signature(dcl.name + "_", Stream.apply(t), 1, subst), Unit, dcl)
             }
@@ -246,10 +249,10 @@ object TypeDefinitionMembers {
             for (param <- parameters if isAccessible(place, param)) {
               if (!param.isVal && !param.isVar && place != None && place.get == template.getLastChild && !isCase) {
                 //this is class parameter without val or var, it's like private val
-                val t = param.getType(TypingContext.empty).getOrElse(Any)
+                lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
               } else if (isAccessible(place, param)) {
-                val t = param.getType(TypingContext.empty).getOrElse(Any)
+                lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
                 if (!param.isStable) addSignature(new Signature(param.name + "_", Stream.apply(t), 1, subst), Unit, param)
               }

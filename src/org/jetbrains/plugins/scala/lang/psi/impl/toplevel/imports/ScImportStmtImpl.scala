@@ -65,14 +65,13 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case Some(ScalaResolveResult(p: PsiPackage, _)) => Failure("no failure", Some(this))
           case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, false)
         }
-        val elemsAndUsages: Array[(PsiElement, collection.Set[ImportUsed])] =
-          ref.multiResolve(false).map(_ match {
+        val resolve: Array[ResolveResult] = ref.multiResolve(false)
+        val resolveIterator = resolve.iterator
+        while (resolveIterator.hasNext) {
+          val (elem, importsUsed) = resolveIterator.next match {
             case s: ScalaResolveResult => (s.getElement, s.importsUsed)
             case r: ResolveResult => (r.getElement, Set[ImportUsed]())
-          })
-        val elemsIterator = elemsAndUsages.iterator
-        while (elemsIterator.hasNext) {
-          val (elem, importsUsed) = elemsIterator.next
+          }
           ProgressManager.checkCanceled
           importExpr.selectorSet match {
             case None =>

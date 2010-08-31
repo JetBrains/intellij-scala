@@ -607,7 +607,7 @@ object Conformance {
     val iterator = TypeDefinitionMembers.getSignatures(clazz).iterator
     while (iterator.hasNext) {
       val (full, _) = iterator.next
-      m += ((full.sig, full.retType))
+      m += ((full.sig, full.retType.v))
     }
     m
   }

@@ -498,7 +498,7 @@ object ScalaPsiUtil {
       case _ => return empty
     }
     val clazz = context.asInstanceOf[PsiMember].getContainingClass
-    val s = new FullSignature(namedElementSig(x), typed.getType(TypingContext.empty).getOrElse(Any),
+    val s = new FullSignature(namedElementSig(x), new Suspension(() => typed.getType(TypingContext.empty).getOrElse(Any)),
       x.asInstanceOf[NavigatablePsiElement], clazz)
     val t = (TypeDefinitionMembers.getSignatures(clazz).get(s): @unchecked) match {
     //partial match

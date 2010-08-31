@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang._
 import processor.{CompletionProcessor, BaseProcessor}
 import psi.api.base._
 import psi.api.expr._
-import psi.api.ScalaFile
 import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
+import psi.api.{ScPackage, ScalaFile}
 import psi.impl.toplevel.synthetic.SyntheticClasses
 import psi.api.toplevel.packaging.ScPackaging
 import psi.ScalaPsiUtil
