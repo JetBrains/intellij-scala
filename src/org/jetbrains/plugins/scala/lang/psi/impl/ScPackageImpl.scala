@@ -20,21 +20,13 @@ import java.lang.String
 
 class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
-  private var scope = GlobalSearchScope.allScope(getProject)
-
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    scope = place.getResolveScope
-    try {
-      if (!super[PsiPackageImpl].processDeclarations(processor, state, lastParent, place)) return false
-    }
-    finally {
-      scope = GlobalSearchScope.allScope(getProject)
-    }
+    if (!pack.processDeclarations(processor, state, lastParent, place)) return false
 
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
-      // Process synthetic classes for scala._ package
+      //Process synthetic classes for scala._ package
       if (pack.getQualifiedName == "scala") {
         for (synth <- SyntheticClasses.get(getProject).getAll) {
           processor.execute(synth, ResolveState.initial)
@@ -61,13 +53,6 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
 
   override def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = {
     super.getSubPackages(scope).map(ScPackageImpl(_))
-  }
-
-  override def containsClassNamed(name: String): Boolean = {
-    val facade: JavaPsiFacade = JavaPsiFacade.getInstance(getProject)
-    val packQual: String = getQualifiedName
-    val qual = if (packQual != "") packQual + "." + name else name
-    facade.findClass(qual, scope) != null
   }
 }
 
