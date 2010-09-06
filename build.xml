@@ -27,7 +27,7 @@
   <property name="runners.dest" location="${production.dest}/Runners"/>
 
   <property name="idea.lib" value="${idea.home}/lib"/>
-  <property name="java.lib" value="${java.home}/lib"/>
+  <property name="jdk.lib" value="${java.home}/lib"/>
   <property name="tools.jar" value="${java.home}/lib/tools.jar"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
   <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-aux-lib"/>
@@ -75,7 +75,7 @@
     <fileset dir="${scala.aux.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${java.lib}">
+    <fileset dir="${jdk.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -90,7 +90,7 @@
     <fileset dir="${scala.aux.scala.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${java.lib}">
+    <fileset dir="${jdk.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -105,7 +105,7 @@
     <fileset dir="${scala.2.7.lib}">
       <include name="**/*.jar"/>
     </fileset>
-    <fileset dir="${java.lib}">
+    <fileset dir="${jdk.lib}">
       <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${idea.lib}">
@@ -369,7 +369,7 @@
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
-        <fileset dir="${java.lib}">
+        <fileset dir="${java.home}/../lib">
           <includesfile name="tools.jar"/>
         </fileset>
       </classpath>
