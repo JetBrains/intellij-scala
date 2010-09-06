@@ -325,10 +325,10 @@ object ResolveUtils {
             case _ => return false
           }
           val placeEnclosing: PsiElement = ScalaPsiUtil.
-                  getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                  getContextOfType(place, true, classOf[ScPackaging], classOf[PsiClassOwner])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
-            case file: ScalaFile => file.getPackageName
+            case file: PsiClassOwner => file.getPackageName
             case pack: ScPackaging => pack.fullPackageName
           }
           return placePackageName.startsWith(packageName)
