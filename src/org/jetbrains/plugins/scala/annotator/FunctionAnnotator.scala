@@ -17,7 +17,7 @@ import lang.psi.api.base.ScReferenceElement
 
 trait FunctionAnnotator {
   def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, highlightErrors: Boolean) {
-    if (function.hasAssign && !function.hasExplicitType) {
+    if (!function.hasExplicitType) {
       function.depthFirst.foreach {
         case ref: ScReferenceElement if ref.isReferenceTo(function) => {
           for (target <- ref.advancedResolve; if target.isApplicable) {
