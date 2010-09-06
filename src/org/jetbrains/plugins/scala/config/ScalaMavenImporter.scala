@@ -3,9 +3,7 @@ package config
 
 import org.jetbrains.idea.maven.importing.{FacetImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
 import com.intellij.openapi.module.Module
-import org.apache.maven.project.{MavenProject => NativeMavenProject}
 import java.util.{List, Map}
-import java.lang.String
 import org.jetbrains.idea.maven.project._
 import com.intellij.openapi.roots.OrderRootType
 import collection.JavaConversions._
