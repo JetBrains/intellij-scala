@@ -60,9 +60,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def definedReturnType: TypeResult[ScType] = {
-    if (!hasAssign) return Success(Unit, Some(this))
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
+      case _ if !hasAssign => return Success(Unit, Some(this))
       case _ => {
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
@@ -74,7 +74,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
     }
   }
-  
+
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
