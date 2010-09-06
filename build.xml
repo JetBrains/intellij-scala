@@ -369,8 +369,8 @@
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
-        <fileset>
-          <includesfile name="${tools.jar}"/>
+        <fileset dir="${java.lib}">
+          <includesfile name="tools.jar"/>
         </fileset>
       </classpath>
 
