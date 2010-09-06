@@ -108,7 +108,7 @@ object Conformance {
         var i = 0
         while (i < params1.length) {
           if (params1(i).isRepeated != params2(i).isRepeated) return (false, undefinedSubst)
-          t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst)
+          t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst, true)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1

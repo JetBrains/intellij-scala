@@ -119,8 +119,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     findChild(classOf[ScTypeElement])
   }
-  
-  def hasExplicitType = !definedReturnType.isEmpty
+
+  def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
+
+  def hasExplicitType = returnTypeElement.isDefined
 
   def paramClauses: ScParameters
   

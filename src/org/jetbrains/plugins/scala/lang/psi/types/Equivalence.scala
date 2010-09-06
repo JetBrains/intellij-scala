@@ -29,7 +29,11 @@ object Equivalence {
     var undefinedSubst = subst
 
     (l, r) match {
-      case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
+      case (u1: ScUndefinedType, _) =>
+        return (false, undefinedSubst)
+      case (_, u2: ScUndefinedType) =>
+        return (false, undefinedSubst)
+      /*case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
         return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level < u1.level =>
         return (true, undefinedSubst.addUpper((u1.tpt.name, u1.tpt.getId), u2))
@@ -44,7 +48,7 @@ object Equivalence {
         undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
         undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
         return (true, undefinedSubst)
-      }
+      }*/
       case (l: StdType, r: StdType) => (l == r, undefinedSubst)
       case (AnyRef, r) => {
         ScType.extractClass(r) match {
