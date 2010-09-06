@@ -369,9 +369,6 @@
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
-        <fileset dir="${java.home}/../lib">
-          <includesfile name="tools.jar"/>
-        </fileset>
       </classpath>
 
       <jvmarg value="-Xbootclasspath/p:./SDK/boot/boot.jar"/>
