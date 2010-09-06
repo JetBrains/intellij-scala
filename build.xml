@@ -28,6 +28,7 @@
 
   <property name="idea.lib" value="${idea.home}/lib"/>
   <property name="java.lib" value="${java.home}/lib"/>
+  <property name="tools.jar" value="${java.home}/lib/tools.jar"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
   <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-aux-lib"/>
 
@@ -354,6 +355,8 @@
     <mkdir dir="${test.dist}/config"/>
     <mkdir dir="${test.dist}/system"/>
 
+    <echo message="${tools.jar}"/>
+
     <junit fork="yes"
            dir="${base.dir}"
            showoutput="yes"
@@ -366,6 +369,9 @@
         <path location="${main.dest}"/>
         <path location="${runners.dest}"/>
         <path location="${test.dest}"/>
+        <fileset>
+          <includesfile name="${tools.jar}"/>
+        </fileset>
       </classpath>
 
       <jvmarg value="-Xbootclasspath/p:./SDK/boot/boot.jar"/>
