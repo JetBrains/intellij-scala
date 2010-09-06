@@ -32,6 +32,8 @@ import com.intellij.openapi.application.{ApplicationManager, Application}
 import search.GlobalSearchScope
 import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
 import java.lang.String
+import com.intellij.lang.StdLanguages
+import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 
 /**
  * @author ven
@@ -107,6 +109,10 @@ object ResolveUtils {
   }
 
   def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
+    if (place.getLanguage == StdLanguages.JAVA) {
+      return JavaResolveUtil.isAccessible(memb, memb.getContainingClass, memb.getModifierList, place, null, null)
+    }
+
     import ScalaPsiUtil.getPlaceTd
     //this is to make place and member on same level (resolve from library source)
     var member: PsiMember = memb
@@ -325,10 +331,10 @@ object ResolveUtils {
             case _ => return false
           }
           val placeEnclosing: PsiElement = ScalaPsiUtil.
-                  getContextOfType(place, true, classOf[ScPackaging], classOf[PsiClassOwner])
+                  getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
-            case file: PsiClassOwner => file.getPackageName
+            case file: ScalaFile => file.getPackageName
             case pack: ScPackaging => pack.fullPackageName
           }
           return placePackageName.startsWith(packageName)
