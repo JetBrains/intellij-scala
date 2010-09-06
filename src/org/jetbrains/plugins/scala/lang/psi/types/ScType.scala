@@ -59,7 +59,7 @@ trait ValueType extends ScType{
   def inferValueType: ValueType = this
 }
 
-abstract case class StdType(val name : String, val tSuper: Option[StdType]) extends ValueType {
+abstract case class StdType(name : String, tSuper: Option[StdType]) extends ValueType {
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).
@@ -106,7 +106,15 @@ object ScType {
         case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => AnyRef
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
-          val des = new ScDesignatorType(clazz)
+          def constructTypeForClass(clazz: PsiClass): ScType = {
+            val containingClass: PsiClass = clazz.getContainingClass
+            if (containingClass == null) {
+              return ScDesignatorType(clazz)
+            } else {
+              return ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
+            }
+          }
+          val des = constructTypeForClass(clazz)
           val substitutor = result.getSubstitutor
           tps match {
             case Array() => des
@@ -349,6 +357,11 @@ object ScType {
           case ScThisType(obj: ScObject) => {
             buffer.append(nameWithPointFun(obj)).append(refName)
             appendPointType
+          }
+          case ScDesignatorType(clazz: PsiClass) if clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
+                  e.isInstanceOf[PsiModifierListOwner] &&
+                  e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") => {
+            buffer.append(nameWithPointFun(clazz)).append(refName)
           }
           case _ => inner(p); buffer.append("#").append(refName)
         }
