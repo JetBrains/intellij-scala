@@ -58,6 +58,22 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasMalformedSignature = paramClauses.clauses.exists {
     _.parameters.dropRight(1).exists(_.isRepeatedParameter)
   }
+
+  def definedReturnType: TypeResult[ScType] = {
+    if (!hasAssign) return Success(Unit, Some(this))
+    returnTypeElement match {
+      case Some(ret) => ret.getType(TypingContext.empty)
+      case _ => {
+        superMethod match {
+          case Some(f: ScFunction) => f.definedReturnType
+          case Some(m: PsiMethod) => {
+            Success(ScType.create(m.getReturnType, getProject, getResolveScope), Some(this))
+          }
+          case _ => Failure("No defined return type", Some(this))
+        }
+      }
+    }
+  }
   
   /**
    * Returns pure `function' type as it was defined as a field with functional value
@@ -104,7 +120,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     findChild(classOf[ScTypeElement])
   }
   
-  def hasExplicitType = returnTypeElement.isDefined
+  def hasExplicitType = !definedReturnType.isEmpty
 
   def paramClauses: ScParameters
   

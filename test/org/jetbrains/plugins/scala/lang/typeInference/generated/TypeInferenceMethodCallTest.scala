@@ -47,6 +47,8 @@ class TypeInferenceMethodCallTest extends TypeInferenceTestBase {
 
   def testPrivateElementFromContext = doTest
 
+  def testRecursive = doTest
+
   def testReduceLeft = doTest
 
   def testSCL1760 = doTest
