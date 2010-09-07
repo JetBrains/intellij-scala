@@ -64,7 +64,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
       if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
       else if (f.length == 0) return defaultResult
       else {
-        var res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
+        val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
         return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
       }
     }
@@ -155,7 +155,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled
-    var ip = implicitParameters
+    val ip = implicitParameters
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (ip != null && exprTypeModCount == curModCount) {
       return ip
