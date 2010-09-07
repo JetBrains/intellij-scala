@@ -27,6 +27,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     this match {
       case st: StubBasedPsiElement[_] =>  st.getStub match {
         case namedStub: NamedStub[_] => namedStub.getName
+        case _ if nameId == null => throw new AssertionError("NameId is null for type definition: " + st.getText)
         case _ => nameId.getText
       }
       case _ => nameId.getText
