@@ -90,12 +90,7 @@ object Conformance {
       case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), tp))
       case _ => {
         val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
-        if (isEquiv._1) {
-          isEquiv._2.getSubstitutor match {
-            case Some(s) => if (s.subst(l).equiv(s.subst(r))) return isEquiv
-            case _ =>
-          }
-        }
+        if (isEquiv._1) return isEquiv
       }
     }
 
@@ -108,7 +103,7 @@ object Conformance {
         var i = 0
         while (i < params1.length) {
           if (params1(i).isRepeated != params2(i).isRepeated) return (false, undefinedSubst)
-          t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst, true)
+          t = Equivalence.equivInner(params1(i).paramType, params2(i).paramType, undefinedSubst, false)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
@@ -291,7 +286,7 @@ object Conformance {
             else undefinedSubst = y._2
           }
           case _ => {
-            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst)
+            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
           }
@@ -335,7 +330,7 @@ object Conformance {
             else undefinedSubst = y._2
           }
           case _ => {
-            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst)
+            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
           }
@@ -379,7 +374,7 @@ object Conformance {
             else undefinedSubst = y._2
           }
           case _ => {
-            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst)
+            val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
           }
@@ -448,7 +443,7 @@ object Conformance {
                       else undefinedSubst = y._2
                     }
                     case _ => {
-                      val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst)
+                      val t = Equivalence.equivInner(argsPair._1, argsPair._2, undefinedSubst, false)
                       if (!t._1) return (false, undefinedSubst)
                       undefinedSubst = t._2
                     }
