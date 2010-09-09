@@ -69,6 +69,14 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
             new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), tp.lowerType, tp.upperType)))), Map.empty, None)
 
+  def typeParameterTypeSubstitutor: ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+            new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))), Map.empty, None)
+
+  def existentialTypeSubstitutor: ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+            ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType)))), Map.empty, None)
+
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
   }

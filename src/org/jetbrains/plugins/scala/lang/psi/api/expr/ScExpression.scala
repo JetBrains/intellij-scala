@@ -177,12 +177,14 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
               new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
         }
         val polymorphicSubst = t.polymorphicTypeSubstitutor
+        val existentialSubst = t.existentialTypeSubstitutor
+        val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
         val exprs = new ArrayBuffer[Expression]
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
           val param = iterator.next
-          val paramType = t.abstractTypeSubstitutor.subst(param.paramType) //we should do all of this with information known before
+          val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
           val collector = new ImplicitParametersCollector(this, paramType)
           val results = collector.collect
           if (results.length == 1) {
