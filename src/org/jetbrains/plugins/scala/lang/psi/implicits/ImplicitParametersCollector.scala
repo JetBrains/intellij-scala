@@ -36,6 +36,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       }
     }
     treeWalkUp(place, null) //collecting all references from scope
+    //todo: check for candidates, if not found, continue
     for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
       obj.processDeclarations(processor, ResolveState.initial, null, place)
     }

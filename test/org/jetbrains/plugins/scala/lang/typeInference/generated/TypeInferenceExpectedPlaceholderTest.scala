@@ -7,6 +7,8 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
 
   def testAmbiguousFunctions = doTest
 
+  def testFooPlusFoo = doTest
+
   def testGenericFunction = doTest
 
   def testGenericTypedPlaceholder = doTest

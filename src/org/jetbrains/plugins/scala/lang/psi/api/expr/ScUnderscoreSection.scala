@@ -29,11 +29,11 @@ trait ScUnderscoreSection extends ScExpression {
         case args: ScArgumentExprList => {
           if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
           args.getContext match {
-            case call: ScMethodCall => Some(call)
+            case call: ScMethodCall => go(call, false)
             case constr: ScConstructor => {
               PsiTreeUtil.getContextOfType(constr, classOf[ScNewTemplateDefinition], true) match {
                 case null => None
-                case n: ScNewTemplateDefinition => Some(n)
+                case n: ScNewTemplateDefinition => go(n, false)
               }
             }
             case _ => None

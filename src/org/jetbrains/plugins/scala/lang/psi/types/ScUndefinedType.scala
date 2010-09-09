@@ -10,7 +10,7 @@ import nonvalue.NonValueType
  * In conformance using ScUndefinedSubstitutor you can accumulate imformation
  * about possible generic type.
  */
-case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
+case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   var level = 0
   def this(tpt: ScTypeParameterType, level: Int) {
     this(tpt)
@@ -25,7 +25,7 @@ case class ScUndefinedType(val tpt: ScTypeParameterType) extends NonValueType {
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-case class ScAbstractType(val tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
+case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
   def inferValueType = tpt
 
   def simplifyType: ScType = {
