@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import stubs.elements.wrappers.DummyASTNode
 import com.intellij.psi.impl.source.tree.{SharedImplUtil, CompositeElement}
 import com.intellij.psi.{PsiElementVisitor, PsiElement, StubBasedPsiElement}
+import com.intellij.psi.tree.{TokenSet, IElementType}
 
 /**
 @author ven
@@ -44,6 +45,14 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
       case null => super.getNextSibling
       case _ => child.getNextSibling
     }
+  }
+
+  override def findLastChildByType(t: IElementType) = {
+    super[ScalaPsiElement].findLastChildByType(t)
+  }
+
+  override def findLastChildByType(t: TokenSet) = {
+    super[ScalaPsiElement].findLastChildByType(t)
   }
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
@@ -109,6 +118,14 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
       return stub.getParentStub.getPsi
     }
     SharedImplUtil.getParent(getNode)
+  }
+
+  override def findLastChildByType(t: IElementType) = {
+    super[ScalaPsiElement].findLastChildByType(t)
+  }
+
+  override def findLastChildByType(t: TokenSet) = {
+    super[ScalaPsiElement].findLastChildByType(t)
   }
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.template.impl
 
 import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
+import java.lang.String
 
 /**
  * User: Alexander Podkhalyuzin
@@ -10,4 +11,6 @@ import com.intellij.codeInsight.template.impl.DefaultLiveTemplatesProvider
 
 class ScalaDefaultLiveTemplatesProvider extends DefaultLiveTemplatesProvider {
   def getDefaultLiveTemplateFiles: Array[String] = Array[String]("/liveTemplates/scala")
+
+  def getHiddenLiveTemplateFiles: Array[String] = Array.empty
 }

@@ -11,14 +11,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
+import java.lang.Boolean
+import com.intellij.openapi.util.Ref
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.11.2009
  */
 
-class ScalaCopyPastePostProcessor extends CopyPastePostProcessor {
-  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, value: TextBlockTransferableData): Unit = {
+class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
+  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData): Unit = {
     val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION) return
     if (value == null) return
