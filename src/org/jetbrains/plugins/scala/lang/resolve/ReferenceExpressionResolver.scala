@@ -8,11 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import processor.{ResolverEnv, BaseProcessor, MethodResolveProcessor}
 import psi.types.Compatibility.Expression
 import psi.types.Compatibility.Expression._
-import psi.types.{ScFunctionType, ScSubstitutor, ScType}
 import com.intellij.psi.{ResolveState, ResolveResult, PsiElement}
 import caches.CachesUtil
 import psi.implicits.ScImplicitlyConvertible
 import annotator.ScalaAnnotator
+import psi.types.{ScParameterizedType, ScFunctionType, ScSubstitutor, ScType}
 
 class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shapesOnly: Boolean) 
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
@@ -87,6 +87,7 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
           if (unders.length != 0) {
             info.expectedType.apply match {
               case Some(ScFunctionType(ret, _)) => Some(ret)
+              case Some(p: ScParameterizedType) if p.getFunctionType != None => Some(p.typeArgs.last)
               case x => x
             }
           } else info.expectedType.apply
