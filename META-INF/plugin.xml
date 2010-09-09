@@ -26,7 +26,7 @@
 
   <extensions xmlns="org.jetbrains.idea.maven">
    <importer implementation="org.jetbrains.plugins.scala.config.ScalaMavenImporter"/>
- </extensions>
+  </extensions>
   
   <extensions defaultExtensionNs="com.intellij">
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
