@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiUtil
 import collection.JavaConversions
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
+import com.intellij.codeInsight.lookup.LookupElementAction.Result
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,8 +36,9 @@ class ScalaExcludeFromCompletionLookupActionProvider extends LookupActionProvide
   }
 
   private class ExcludeFromCompletionAction(project: Project, s: String) extends LookupElementAction(null, "Exclude '" + s + "' from completion") {
-    def performLookupAction: Unit = {
+    def performLookupAction: Result = {
       AddImportAction.excludeFromImport(project, s)
+      return Result.HIDE_LOOKUP
     }
   }
 }
