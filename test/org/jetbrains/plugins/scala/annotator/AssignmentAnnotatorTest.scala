@@ -144,6 +144,12 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testVarInsideTemplateAssignedToVal {
+    assertMatches(messages("val outer = new { var a = (); a = () }")) {
+      case Nil =>
+    }
+  }
+
   def messages(@Language("Scala") code: String): List[Message] = {
     val assignment = (Header + code).parse.depthFirst.findByType(classOf[ScAssignStmt]).get
     
