@@ -105,14 +105,12 @@ private class ScalaConfiguration(project: MavenProject) {
   def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
   private def compilerConfiguration =
-    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.map(_.getConfigurationElement)
+    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.flatMap(_.getConfigurationElement.toOption)
 
   private def standardLibrary = project.findDependencies("org.scala-lang", "scala-library").headOption
 
-  def compilerVersion: Option[String] = compilerConfiguration.flatMap { configuration =>
-    val explicitVersion = configuration.getChild("scalaVersion").toOption.map(_.getTextTrim)
-    explicitVersion.orElse(standardLibrary.map(_.getVersion))
-  }
+  def compilerVersion: Option[String] =
+    element("scalaVersion").map(_.getTextTrim).orElse(standardLibrary.map(_.getVersion))
 
   def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim)
 
