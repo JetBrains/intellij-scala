@@ -395,7 +395,7 @@ object ScType {
             inner(upper)
         }
       }
-      case ScCompoundType(comps, decls, typeDecls, s) => {
+      case c@ScCompoundType(comps, decls, typeDecls, s) => {
         buffer.append(comps.map(typeText(_, nameFun, nameWithPointFun)).mkString(" with "))
         if (decls.length + typeDecls.length > 0) {
           if (!comps.isEmpty) buffer.append(" ")
@@ -409,19 +409,25 @@ object ScType {
                   ScalaDocumentationProvider.parseParameter(param, tp => typeText(s.subst(tp), nameFun, nameWithPointFun))).
                         mkString("(", ", ", ")")).mkString(""))
                 for (tp <- fun.returnType) {
-                  buffer.append(": ").append(typeText(s.subst(tp), nameFun, nameWithPointFun))
+                  val scType: ScType = s.subst(tp)
+                  val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
+                  buffer.append(": ").append(text)
                 }
                 buffer.toString
               }
               case v: ScValue => {
-                v.declaredElements.map(td => "val " + td.name + ": " +
-                        typeText(s.subst(td.getType(TypingContext.empty).getOrElse(Any)), nameFun, nameWithPointFun)).
-                        mkString("; ")
+                v.declaredElements.map(td => {
+                  val scType: ScType = s.subst(td.getType(TypingContext.empty).getOrElse(Any))
+                  val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
+                  "val " + td.name + ": " + text
+                }).mkString("; ")
               }
               case v: ScVariable => {
-                v.declaredElements.map(td => "val " + td.name + ": " +
-                        typeText(s.subst(td.getType(TypingContext.empty).getOrElse(Any)), nameFun, nameWithPointFun)).
-                        mkString("; ")
+                v.declaredElements.map(td => {
+                  val scType: ScType = s.subst(td.getType(TypingContext.empty).getOrElse(Any))
+                  val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
+                  "var " + td.name + ": " + text
+                }).mkString("; ")
               }
               case _ => ""
             }

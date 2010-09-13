@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.caches;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.DumbServiceImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -106,6 +107,7 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   }
 
   public Set<String> getClassNames(PsiPackage psiPackage, GlobalSearchScope scope) {
+    if (DumbServiceImpl.getInstance(myProject).isDumb()) return new HashSet<String>();
     String qual = psiPackage.getQualifiedName();
     final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY(), qual,
         myProject, new ScalaSourceFilterScope(scope, myProject));

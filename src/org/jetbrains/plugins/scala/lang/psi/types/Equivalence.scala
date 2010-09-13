@@ -65,6 +65,7 @@ object Equivalence {
       }
       case (t: StdType, p: ScProjectionType) => equivInner(r, l, undefinedSubst, falseUndef)
       case (l@ScCompoundType(components, decls, typeDecls, subst), r: ScCompoundType) => {
+        if (r == l) return (true, undefinedSubst)
         if (components.length != r.components.length) return (false, undefinedSubst)
         val list = components.zip(r.components)
         val iterator = list.iterator
