@@ -3,53 +3,75 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaration
 import api.statements._
-import collection.mutable.{ListBuffer, HashSet, HashMap}
+import collection.mutable.{ListBuffer, HashMap}
 import result.{TypingContext, Failure}
-import com.intellij.psi.{PsiElement, PsiTypeParameter}
+import com.intellij.psi.PsiElement
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType(val components: Seq[ScType], val decls: Seq[ScDeclaredElementsHolder],
-                          val typeDecls: Seq[ScTypeAlias], val subst: ScSubstitutor) extends ValueType {
+case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
+                          typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor) extends ValueType {
+  type Bounds = Pair[ScType, ScType]
+
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureMap = new HashMap[Signature, ScType] {
+  val signatureMapVal = new HashMap[Signature, ScType] {
     override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.paramLength
   }
+  private val typesVal = new HashMap[String, Bounds]
+  private val problemsVal: ListBuffer[Failure] = new ListBuffer
 
-  type Bounds = Pair[ScType, ScType]
-  val types = new HashMap[String, Bounds]
-
-  for (typeDecl <- typeDecls) {
-    types += ((typeDecl.name, (typeDecl.lowerBound.getOrElse(Nothing), typeDecl.upperBound.getOrElse(Any))))
+  def problems: ListBuffer[Failure] = {
+    init
+    problemsVal
   }
 
-  val problems : ListBuffer[Failure] = new ListBuffer
+  def types = {
+    init
+    typesVal
+  }
 
-  for (decl <- decls) {
-    decl match {
-      case fun: ScFunction =>
-        signatureMap += ((new PhysicalSignature(fun, subst), fun.getType(TypingContext.empty).getOrElse(Any)))
-      case varDecl: ScVariable => {
-        varDecl.typeElement match {
-          case Some(te) => for (e <- varDecl.declaredElements) {
-            val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
-            varType match {case f@Failure(_, _) => problems += f; case _ =>}
-            signatureMap += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrElse(Any)))
-            signatureMap += ((new Signature(e.name + "_", Stream(varType.getOrElse(Any)), 1, subst), Unit)) //setter
-          }
-          case None =>
-        }
+  def signatureMap = {
+    init
+    signatureMapVal
+  }
+
+  private var isInitialized = false
+  private def init {
+    synchronized {
+      if (isInitialized) return
+      isInitialized = true
+
+      for (typeDecl <- typeDecls) {
+        typesVal += ((typeDecl.name, (typeDecl.lowerBound.getOrElse(Nothing), typeDecl.upperBound.getOrElse(Any))))
       }
-      case valDecl: ScValue => valDecl.typeElement match {
-        case Some(te) => for (e <- valDecl.declaredElements) {
-          val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
-          valType match {case f@Failure(_, _) => problems += f; case _ =>}
-          signatureMap += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrElse(Any)))
+
+
+      for (decl <- decls) {
+        decl match {
+          case fun: ScFunction =>
+            signatureMapVal += ((new PhysicalSignature(fun, subst), fun.getType(TypingContext.empty).getOrElse(Any)))
+          case varDecl: ScVariable => {
+            varDecl.typeElement match {
+              case Some(te) => for (e <- varDecl.declaredElements) {
+                val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
+                varType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
+                signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrElse(Any)))
+                signatureMapVal += ((new Signature(e.name + "_", Stream(varType.getOrElse(Any)), 1, subst), Unit)) //setter
+              }
+              case None =>
+            }
+          }
+          case valDecl: ScValue => valDecl.typeElement match {
+            case Some(te) => for (e <- valDecl.declaredElements) {
+              val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
+              valType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
+              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrElse(Any)))
+            }
+            case None =>
+          }
         }
-        case None =>
       }
     }
   }
