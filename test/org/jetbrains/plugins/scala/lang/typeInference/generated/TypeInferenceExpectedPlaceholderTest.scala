@@ -42,4 +42,6 @@ class TypeInferenceExpectedPlaceholderTest extends TypeInferenceTestBase {
   def testTypeConstructor3 = doTest
 
   def testTypedPlaceholder = doTest
+
+  def testUppercase = doTest
 }
