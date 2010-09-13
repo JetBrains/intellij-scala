@@ -20,6 +20,8 @@ import com.intellij.openapi.progress.ProgressManager
 import java.lang.String
 import api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import caches.ScalaCachesManager
+import tree.{IElementType, TokenSet}
+import com.intellij.util.ArrayFactory
 
 /**
  * @author Alexander Podkhalyuzin
@@ -79,7 +81,18 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     parentPackageName(this)
   }
 
-  def typeDefs = findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
+  def typeDefs = {
+    val stub = getStub
+    if (stub != null) {
+      stub.getChildrenByType(TokenSet.create(
+        ScalaElementTypes.OBJECT_DEF,
+        ScalaElementTypes.CLASS_DEF,
+        ScalaElementTypes.TRAIT_DEF
+        ), new ArrayFactory[ScTypeDefinition] {
+        def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
+      })
+    } else findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
+  }
 
   def declaredElements = {
     val _prefix = prefix
