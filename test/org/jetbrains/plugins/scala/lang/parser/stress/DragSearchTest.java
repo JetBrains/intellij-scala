@@ -76,7 +76,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
     Language language = ScalaFileType.SCALA_LANGUAGE;
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(new ScalaLexer(), language, fileText);
-    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(psiBuilder);
+    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(myProject, psiBuilder);
     new ScalaParser().parse(ScalaElementTypes.FILE(), dragBuilder);
 
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();

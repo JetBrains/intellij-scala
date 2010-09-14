@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.stress;
 
 import com.intellij.lang.*;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
@@ -12,13 +13,18 @@ import com.intellij.util.diff.FlyweightCapableTreeStructure;
  * @author ilyas
  */
 public class DragBuilderWrapper implements PsiBuilder {
-
+  final Project myProject;
   final PsiBuilder myBuilder;
   final DragStorage myStorage;
 
-  public DragBuilderWrapper(PsiBuilder builder) {
+  public DragBuilderWrapper(Project project, PsiBuilder builder) {
+    myProject = project;
     myBuilder = builder;
     myStorage = new DragStorage();
+  }
+
+  public Project getProject() {
+    return myProject;
   }
 
   public void advanceLexer() {
