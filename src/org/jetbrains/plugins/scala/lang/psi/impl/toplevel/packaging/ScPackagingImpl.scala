@@ -22,6 +22,7 @@ import api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import caches.ScalaCachesManager
 import tree.{IElementType, TokenSet}
 import com.intellij.util.ArrayFactory
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -91,7 +92,16 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
         ), new ArrayFactory[ScTypeDefinition] {
         def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
       })
-    } else findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
+    } else {
+      val buffer = new ArrayBuffer[ScTypeDefinition]
+      var curr = getFirstChild
+      while (curr != null) {
+        if (curr.isInstanceOf[ScTypeDefinition]) buffer += curr.asInstanceOf[ScTypeDefinition]
+        curr = curr.getNextSibling
+      }
+      buffer.toSeq
+      //findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
+    }
   }
 
   def declaredElements = {

@@ -11,10 +11,20 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
     getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None}
   def pathQualifier = getFirstChild match {case s: ScPathElement => Some(s) case _ => None}
 
-  def qualName: String = (qualifier match {
-    case Some(x) => x.qualName + "."
-    case _ => ""
-  }) + refName
+  def qualName: String = {
+    val builder = new StringBuilder
+    def inner(s: ScStableCodeReferenceElement) {
+      builder.insert(0, s.refName)
+      s.qualifier match {
+        case Some(x) => {
+          builder.insert(0, ".")
+          inner(x)
+        }
+        case None =>
+      }
+    }
+    builder.toString
+  }
 
   def isConstructorReference: Boolean
   def getConstructor: Option[ScConstructor]

@@ -79,9 +79,12 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superMethod: Option[PsiMethod] = {
     val clazz = getContainingClass
-    if (clazz != null)
-      TypeDefinitionMembers.getMethods(clazz).
-          get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return None).primarySuper.map(_.info.method)
+    if (clazz != null) {
+      val option = TypeDefinitionMembers.getMethods(clazz).
+          get(new PhysicalSignature(this, ScSubstitutor.empty))
+      if (option == None) return None
+      option.get.primarySuper.map(_.info.method)
+    }
     else None
   }
 

@@ -106,7 +106,9 @@ object ScSyntheticPackage {
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
           def getQualifiedName = fqn
 
-          def getClasses = Array(pkgs.flatMap(p => if (p.fqn.length == fqn.length) p.typeDefs else Seq.empty): _*)
+          def getClasses = {
+            Array(pkgs.flatMap(p => if (p.fqn.length == fqn.length) p.typeDefs else Seq.empty): _*)
+          }
 
           def getClasses(scope: GlobalSearchScope) =
             getClasses.filter{clazz => scope.contains(clazz.getContainingFile.getVirtualFile)}

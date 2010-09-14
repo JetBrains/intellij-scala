@@ -42,7 +42,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   private def isAsSpecificAs[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
-      params.lastOption.getOrElse(return false).isRepeated
+      val lastOption: Option[Parameter] = params.lastOption
+      if (lastOption == None) return false
+      lastOption.get.isRepeated
     }
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {

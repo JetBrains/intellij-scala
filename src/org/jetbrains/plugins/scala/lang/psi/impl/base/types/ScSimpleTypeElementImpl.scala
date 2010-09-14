@@ -264,8 +264,8 @@ object ScSimpleTypeElementImpl {
             return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
           }
           case None => {
-            return Success(ScProjectionType(fromType.getOrElse(return Success(ScDesignatorType(resolvedElement),
-              Some(ref))), resolvedElement, subst), Some(ref))
+            if (fromType == None) return Success(ScDesignatorType(resolvedElement), Some(ref))
+            return Success(ScProjectionType(fromType.get, resolvedElement, subst), Some(ref))
           }
         }
       }
