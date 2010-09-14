@@ -31,7 +31,8 @@ import api.ScalaFile
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
-    ResolveUtils.isAccessible(member, place.getOrElse(return true))
+    if (place == None) return true
+    ResolveUtils.isAccessible(member, place.get)
   }
 
   def isAbstract(s: PhysicalSignature) = s.method match {

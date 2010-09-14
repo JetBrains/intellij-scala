@@ -15,6 +15,7 @@ import toplevel.typedef.ScTypeDefinition
 import statements.{ScFunction}
 import com.intellij.openapi.progress.ProgressManager
 import refactoring.util.ScalaNamesUtil
+import java.lang.String
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,7 +27,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def nameId: PsiElement
 
-  def refName: String = nameId.getText.replace("`", "")
+  def refName: String = {
+    val text: String = nameId.getText
+    if (text.charAt(0) == '`' && text.length > 1) text.substring(1, text.length - 1)
+    else text
+  }
 
   def getElement = this
 

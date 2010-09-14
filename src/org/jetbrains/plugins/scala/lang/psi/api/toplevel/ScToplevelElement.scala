@@ -54,6 +54,15 @@ trait ScToplevelElement extends ScalaPsiElement {
       stub.getChildrenByType[ScPackaging](ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
         def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
       })
-    } else collection.immutable.Seq(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
+    } else {
+      val buffer = new ArrayBuffer[ScPackaging]
+      var curr = getFirstChild
+      while (curr != null) {
+        if (curr.isInstanceOf[ScPackaging]) buffer += curr.asInstanceOf[ScPackaging]
+        curr = curr.getNextSibling
+      }
+      buffer.toSeq
+      //collection.immutable.Seq(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
+    }
   }
 }
