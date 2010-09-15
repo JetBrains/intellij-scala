@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.config
+package org.jetbrains.plugins.scala.config.ui
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.config._
 
 /**
  * Pavel.Fatin, 04.08.2010
