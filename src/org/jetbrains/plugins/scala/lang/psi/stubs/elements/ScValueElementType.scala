@@ -47,12 +47,12 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScValueStub = {
     val isDecl = dataStream.readBoolean
     val namesLength = dataStream.readInt
-    val names = new Array[String](namesLength)
-    for (i <- 0 to (namesLength - 1)) names(i) = StringRef.toString(dataStream.readName)
+    val names = new Array[StringRef](namesLength)
+    for (i <- 0 until namesLength) names(i) = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    val typeText = StringRef.toString(dataStream.readName)
-    val bodyText = StringRef.toString(dataStream.readName)
-    val bindingsText = StringRef.toString(dataStream.readName)
+    val typeText = dataStream.readName
+    val bodyText = dataStream.readName
+    val bindingsText = dataStream.readName
     new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText)
   }
 

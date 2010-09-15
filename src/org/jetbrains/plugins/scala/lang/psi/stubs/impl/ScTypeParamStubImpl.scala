@@ -50,6 +50,20 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     this.contravariant = contravariant
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          name: StringRef, upperText: StringRef, lowerText: StringRef, viewText: Array[StringRef], contextBoundText: Array[StringRef],
+          covariant: Boolean, contravariant: Boolean) {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.name = name
+    this.upperText = upperText
+    this.lowerText = lowerText
+    this.viewText = viewText
+    this.contextBoundText = contextBoundText
+    this.covariant = covariant
+    this.contravariant = contravariant
+  }
+
   def isCovariant: Boolean = covariant
 
   def isContravariant: Boolean = contravariant

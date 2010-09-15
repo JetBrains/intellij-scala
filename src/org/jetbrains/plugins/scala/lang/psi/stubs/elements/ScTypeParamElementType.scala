@@ -51,9 +51,9 @@ class ScTypeParamElementType[Func <: ScTypeParam]
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamStub = {
-    val name = StringRef.toString(dataStream.readName)
-    val upperText = StringRef.toString(dataStream.readName)
-    val lowerText = StringRef.toString(dataStream.readName)
+    val name = dataStream.readName
+    val upperText = dataStream.readName
+    val lowerText = dataStream.readName
     val contravariant = dataStream.readBoolean
     val covariant = dataStream.readBoolean
     val viewText = deserialiseArray(dataStream)
@@ -62,10 +62,10 @@ class ScTypeParamElementType[Func <: ScTypeParam]
       upperText, lowerText, viewText, contextBoundText, covariant, contravariant)
   }
 
-  def deserialiseArray(dataStream: StubInputStream): Array[String] = {
+  def deserialiseArray(dataStream: StubInputStream): Array[StringRef] = {
     val n = dataStream.readInt
-    val refs = new Array[String](n)
-    for (i <- 0 until n) refs(i) = StringRef.toString(dataStream.readName)
+    val refs = new Array[StringRef](n)
+    for (i <- 0 until n) refs(i) = dataStream.readName
     refs
   }
 

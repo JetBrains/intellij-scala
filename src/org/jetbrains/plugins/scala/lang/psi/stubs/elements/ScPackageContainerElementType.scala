@@ -30,8 +30,8 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScPackageContainerStub = {
-    val prefix = StringRef.toString(dataStream.readName)
-    val ownNamePart = StringRef.toString(dataStream.readName)
+    val prefix = dataStream.readName
+    val ownNamePart = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     new ScPackageContainerStubImpl(parent, this, prefix, ownNamePart)
   }

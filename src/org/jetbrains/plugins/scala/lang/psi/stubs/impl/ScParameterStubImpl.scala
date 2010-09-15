@@ -34,6 +34,17 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     this.repeated = repeated
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          name: StringRef, typeText: StringRef, stable: Boolean, default: Boolean, repeated: Boolean) = {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.name = name
+    this.typeText = typeText
+    this.stable = stable
+    this.default = default
+    this.repeated = repeated
+  }
+
   def getName: String = StringRef.toString(name)
 
   def getTypeText: String = StringRef.toString(typeText)

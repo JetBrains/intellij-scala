@@ -26,4 +26,11 @@ class ScModifiersStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.modifiers = modifiers.map(StringRef.fromString(_))
   }
+
+  def this(parent : StubElement[ParentPsi],
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          modifiers: Array[StringRef]) {
+    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.modifiers = modifiers
+  }
 }

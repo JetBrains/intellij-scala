@@ -19,6 +19,13 @@ extends StubBaseWrapper[ScExtendsBlock](parent, elemType) with ScExtendsBlockStu
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          base: Array[StringRef]) {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    baseClasses = base
+  }
+
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           base: Array[String]) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     baseClasses = base.map(StringRef.fromString(_))

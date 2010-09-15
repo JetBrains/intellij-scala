@@ -45,6 +45,19 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     this.assign = assign
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          name: StringRef, isDeclaration: Boolean, annotations: Array[StringRef], typeText: StringRef, bodyText: StringRef,
+          assign: Boolean) = {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.name = name
+    this.declaration = isDeclaration
+    this.annotations = annotations
+    this.typeText = typeText
+    this.bodyText = bodyText
+    this.assign = assign
+  }
+
   def getName: String = StringRef.toString(name)
 
   def isDeclaration = declaration

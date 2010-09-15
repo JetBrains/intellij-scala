@@ -85,6 +85,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         case Some(tp) => {
           ScType.extractClass(tp) match {
             case Some(cl) if cl == clazz => return tp
+            case Some(cl) => {
+              if (cl.isInheritor(clazz, true)) return tp
+              else return t
+            }
             case _ =>
           }
           BaseTypes.get(tp).find(tp => {

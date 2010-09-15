@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import collection.mutable.ArrayBuffer
+import api.toplevel.packaging.ScPackaging
 
 
 /** 
@@ -44,6 +46,15 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
       stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM, new ArrayFactory[ScTypeParam] {
         def create(count: Int): Array[ScTypeParam] = new Array[ScTypeParam](count)
       }).toSeq
-    } else findChildrenByClass(classOf[ScTypeParam]).toSeq
+    } else {
+      val buffer = new ArrayBuffer[ScTypeParam]
+      var curr = getFirstChild
+      while (curr != null) {
+        if (curr.isInstanceOf[ScTypeParam]) buffer += curr.asInstanceOf[ScTypeParam]
+        curr = curr.getNextSibling
+      }
+      buffer.toSeq
+      //findChildrenByClass(classOf[ScTypeParam]).toSeq
+    }
   }
 }

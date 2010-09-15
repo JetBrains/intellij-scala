@@ -36,9 +36,9 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
-    val name = StringRef.toString(dataStream.readName)
+    val name = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    val typeText = StringRef.toString(dataStream.readName)
+    val typeText = dataStream.readName
     val stable = dataStream.readBoolean
     val default = dataStream.readBoolean
     val repeated = dataStream.readBoolean

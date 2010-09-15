@@ -45,6 +45,18 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     this.containerText = StringRef.fromString(containerText)
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          names: Array[StringRef], isDeclaration: Boolean, typeText: StringRef, bodyText: StringRef,
+          containerText: StringRef) = {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.names = names
+    this.declaration = isDeclaration
+    this.typeText = typeText
+    this.bodyText = bodyText
+    this.containerText = containerText
+  }
+
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it if unused
 
   def isDeclaration = declaration
