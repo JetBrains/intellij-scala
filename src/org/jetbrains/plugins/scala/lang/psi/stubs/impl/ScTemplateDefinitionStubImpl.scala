@@ -43,6 +43,23 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     _isScriptFileClass = isScriptFileClass
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          name: StringRef,
+          qualName: StringRef,
+          sourceFileName: StringRef,
+          methodNames: Array[StringRef],
+          isPackageObject: Boolean,
+          isScriptFileClass: Boolean) {
+    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    mySourceFileName = sourceFileName
+    myName = name
+    myQualName = qualName
+    myMethodNames = methodNames
+    this._isPackageObject = isPackageObject
+    _isScriptFileClass = isScriptFileClass
+  }
+
 
   def isPackageObject: Boolean = _isPackageObject
 

@@ -120,7 +120,7 @@ object ResolveUtils {
       case file: ScalaFile if file.isCompiled => {
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
-          case _ => member = memb.getNavigationElement.asInstanceOf[PsiMember]
+          case _ => member = memb.getOriginalElement.asInstanceOf[PsiMember]
         }
       }
       case _ =>

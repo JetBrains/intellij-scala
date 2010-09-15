@@ -31,7 +31,7 @@ extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScReferencePatternStub = {
-    val name = StringRef.toString(dataStream.readName)
+    val name = dataStream.readName
     new ScReferencePatternStubImpl(parentStub.asInstanceOf[StubElement[_ <: PsiElement]], this, name)
   }
 

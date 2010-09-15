@@ -31,6 +31,15 @@ extends StubBaseWrapper[ScPackageContainer](parent, elemType) with ScPackageCont
     myOwnNamePart = StringRef.fromString(ownNamePart)
   }
 
+  def this(parent : StubElement[ParentPsi],
+          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          prefix : StringRef,
+          ownNamePart : StringRef) {
+    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    myPrefix = prefix
+    myOwnNamePart = ownNamePart
+  }
+
   def prefix = StringRef.toString(myPrefix)
   def ownNamePart = StringRef.toString(myOwnNamePart)
 }

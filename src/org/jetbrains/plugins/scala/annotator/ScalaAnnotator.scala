@@ -124,9 +124,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   def isAdvancedHighlightingEnabled(element: PsiElement) = {
-    settings(element).ENABLE_ERROR_HIGHLIGHTING
+    settings(element). ENABLE_ERROR_HIGHLIGHTING
   }
-  
+
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {

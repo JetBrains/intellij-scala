@@ -67,16 +67,16 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
-    val name = StringRef.toString(dataStream.readName)
+    val name = dataStream.readName
     val isDecl = dataStream.readBoolean
     val length = dataStream.readByte
-    val annotations = new Array[String](length)
+    val annotations = new Array[StringRef](length)
     for (i <- 0 until length) {
-      annotations(i) = dataStream.readName.toString
+      annotations(i) = dataStream.readName
     }
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    val returnTypeText = StringRef.toString(dataStream.readName)
-    val bodyText = StringRef.toString(dataStream.readName)
+    val returnTypeText = dataStream.readName
+    val bodyText = dataStream.readName
     val assign = dataStream.readBoolean
     new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign)
   }

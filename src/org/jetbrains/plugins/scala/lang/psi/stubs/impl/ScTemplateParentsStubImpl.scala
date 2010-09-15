@@ -33,6 +33,13 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
     this.typesStirng = typesString.map(StringRef.fromString(_))
   }
 
+  def this(parent: StubElement[ParentPsi],
+          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+          typesString: Array[StringRef]) = {
+    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
+    this.typesStirng = typesString
+  }
+
   def getTemplateParentsTypesTexts: Array[String] = typesStirng.map(StringRef.toString(_))
 
 

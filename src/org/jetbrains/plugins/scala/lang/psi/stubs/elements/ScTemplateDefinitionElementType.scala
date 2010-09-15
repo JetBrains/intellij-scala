@@ -46,15 +46,16 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
-    val name = StringRef.toString(dataStream.readName)
-    val qualName = StringRef.toString(dataStream.readName)
+    val name = dataStream.readName
+    val qualName = dataStream.readName
     val isPO = dataStream.readBoolean
     val isSFC = dataStream.readBoolean
-    val fileName = StringRef.toString(dataStream.readName)
+    val fileName = dataStream.readName
     val length = dataStream.readInt
-    val methodNames = for (i <- 1 to length) yield StringRef.toString(dataStream.readName)
+    val methodNames = new Array[StringRef](length)
+    for (i <- 0 until length) methodNames(i) = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames.toArray, isPO, isSFC)
+    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
