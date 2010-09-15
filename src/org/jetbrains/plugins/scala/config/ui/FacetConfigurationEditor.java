@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.config.*;
-import org.jetbrains.plugins.scala.config.LibraryDescriptor;
+import org.jetbrains.plugins.scala.config.ui.LibraryDescriptor;
 import scala.Option;
 
 import javax.swing.*;

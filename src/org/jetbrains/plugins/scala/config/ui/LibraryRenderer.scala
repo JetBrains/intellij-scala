@@ -3,7 +3,6 @@ package ui
 
 import javax.swing.{DefaultListCellRenderer, JList}
 import com.intellij.util.Icons
-import org.jetbrains.plugins.scala.config.LibraryDescriptor
 
 /**
  * Pavel.Fatin, 05.07.2010
