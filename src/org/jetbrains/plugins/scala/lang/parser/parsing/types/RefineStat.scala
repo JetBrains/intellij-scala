@@ -5,10 +5,9 @@ package parsing
 package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
+import statements.{EmptyDcl, Dcl, Def}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
@@ -23,7 +22,9 @@ object RefineStat {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
         if (!Def.parse(builder,false)){
-          Dcl.parse(builder,false)
+          if (!Dcl.parse(builder,false)) {
+            EmptyDcl.parse(builder, false)
+          }
         }
         return true
       }
@@ -33,7 +34,8 @@ object RefineStat {
           return true
         }
         else {
-          return false
+          EmptyDcl.parse(builder, false)
+          return true
         }
       }
       case _ => {

@@ -6,9 +6,9 @@ package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Dcl
+import statements.{EmptyDcl, Dcl}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
@@ -24,7 +24,9 @@ object ExistentialDclSeq {
   def parse(builder: PsiBuilder) {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
-        Dcl parse (builder,false)
+        if (!Dcl. parse (builder,false)) {
+          EmptyDcl.parse(builder, false)
+        }
       }
       case _ => {
         builder error ScalaBundle.message("wrong.existential.declaration")
@@ -36,7 +38,9 @@ object ExistentialDclSeq {
       builder.advanceLexer //Ate semi
       builder.getTokenType match {
         case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
-          Dcl parse (builder,false)
+          if (!Dcl.parse(builder, false)) {
+            EmptyDcl.parse(builder, false)
+          }
         }
         case _ => {
           builder error ScalaBundle.message("wrong.existential.declaration")
