@@ -67,6 +67,13 @@ object TypeDcl {
       case _ => {} //nothing
     }
     returnMarker.drop
-    return true
+    builder.getTokenType match {
+      case ScalaTokenTypes.tASSIGN => {
+        builder.advanceLexer
+        builder error ScalaBundle.message("wrong.type")
+        return true
+      }
+      case _ => return true
+    }
   }
 }

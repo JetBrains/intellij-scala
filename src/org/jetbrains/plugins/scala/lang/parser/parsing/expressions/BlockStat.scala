@@ -8,9 +8,9 @@ import base.Import
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.TokenSet
 import lexer.ScalaTokenTypes
-import statements.{Dcl, Def}
 import top.TmplDef
 import com.intellij.lang.PsiBuilder.Marker
+import statements.{EmptyDcl, Dcl, Def}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,7 +41,11 @@ object BlockStat {
           if (Dcl.parse(builder)) {
             builder error ErrMsg("wrong.declaration.in.block")
             return true
-          } else return false
+          } else {
+            EmptyDcl.parse(builder)
+            builder error ErrMsg("wrong.declaration.in.block")
+            return true
+          }
         }
       }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
@@ -55,7 +59,13 @@ object BlockStat {
                 builder error ErrMsg("wrong.declaration.in.block")
                 return true
               }
-              else return false
+              else {
+                if (EmptyDcl.parse(builder)) {
+                  builder error ErrMsg("wrong.declaration.in.block")
+                  return true
+                } else
+                  return false
+              }
             }
           }
         }

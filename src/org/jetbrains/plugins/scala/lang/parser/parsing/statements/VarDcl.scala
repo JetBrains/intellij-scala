@@ -39,17 +39,25 @@ object VarDcl {
             builder.advanceLexer //Ate :
             if (Type.parse(builder)) {
               returnMarker.drop
-              return true
             }
             else {
               builder error ScalaBundle.message("wrong.type")
               returnMarker.drop
-              return true
             }
           }
           case _ => {
             builder error ScalaBundle.message("wrong.var.declaration")
             returnMarker.drop
+          }
+        }
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tASSIGN => {
+            builder.advanceLexer
+            builder.error("Expected expression")
+            return true
+          }
+          case _ => {
             return true
           }
         }

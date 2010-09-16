@@ -39,17 +39,25 @@ object ValDcl {
             builder.advanceLexer //Ate :
             if (Type.parse(builder)) {
               returnMarker.drop
-              return true
             }
             else {
               builder error ErrMsg("wrong.type")
               returnMarker.drop
-              return true
             }
           }
           case _ => {
             builder error ErrMsg("wrong.val.declaration")
             returnMarker.drop
+          }
+        }
+
+        builder.getTokenType match {
+          case ScalaTokenTypes.tASSIGN => {
+            builder.advanceLexer
+            builder.error("Expected expression")
+            return true
+          }
+          case _ => {
             return true
           }
         }

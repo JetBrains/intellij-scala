@@ -34,6 +34,8 @@ object TemplateStat {
           return true
         } else if (Dcl parse builder) {
           return true
+        } else if (EmptyDcl parse builder) {
+          return true
         } else if (Expr.parse (builder)) {
           return true
         } else {
