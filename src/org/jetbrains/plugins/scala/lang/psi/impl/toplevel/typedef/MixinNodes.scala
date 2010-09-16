@@ -125,7 +125,7 @@ abstract class MixinNodes {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
-            var newSubst = tp match {
+            val newSubst = tp match {
               case ScDesignatorType(c: ScTemplateDefinition) => combine(s, subst, superClass)
               case _ => combine(s, subst, superClass)
             }

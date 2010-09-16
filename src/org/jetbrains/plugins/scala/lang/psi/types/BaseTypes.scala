@@ -25,23 +25,26 @@ object BaseTypes {
       case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll)
       case a: JavaArrayType => Seq(types.Any)
-      case ScProjectionType(_, ta: ScTypeAliasDefinition, subst) =>
-        BaseTypes.get(subst.subst(ta.aliasedType.getOrElse(return Seq.empty)))
+      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+        BaseTypes.get(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
+                aliasedType.getOrElse(return Seq.empty)))
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) => {
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         BaseTypes.get(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))
       }
-      case ScParameterizedType(ScProjectionType(_, ta: ScTypeAliasDefinition, subst), args) => {
+      case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
-        val s = subst.followed(genericSubst)
-        BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)))
+                typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp)
+                )), args)
+        val s = p.actualSubst.followed(genericSubst)
+        BaseTypes.get(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].aliasedType.getOrElse(return Seq.empty)))
       }
       case p : ScParameterizedType => {
         ScType.extractClass(p.designator) match {
           case Some(td: ScTypeDefinition) =>
-            reduce(td.superTypes.flatMap {tp => if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll) ++ Seq(p.substitutor.subst(tp)) else Seq(p.substitutor.subst(tp))})
+            reduce(td.superTypes.flatMap {tp => if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll) ++ Seq(p.substitutor.subst(tp)) else Seq(p
+                    .substitutor.subst(tp))})
           case Some(clazz) => {
             val s = p.substitutor
             reduce(clazz.getSuperTypes.flatMap {t => if (!notAll) BaseTypes.get(s.subst(ScType.create(t, clazz.getProject)), notAll) ++
