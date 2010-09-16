@@ -5,6 +5,9 @@ package types
 
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import api.statements.ScTypeAlias
+import resolve.{ResolveTargets, StdKinds}
+import resolve.processor.{BaseProcessor, ResolveProcessor}
 
 /**
  * @author ilyas
@@ -24,6 +27,41 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
 
   override def updateThisType(tp: ScType): ScType = {
     ScProjectionType(projected.updateThisType(tp), element, subst)
+  }
+  def getActualElement = {
+    element match {
+      case a: ScTypeAlias => {
+        val name = a.getName
+        import ResolveTargets._
+        val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
+        proc.processType(projected, a)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
+          (candidates(0).element.asInstanceOf[ScTypeAlias], candidates(0).substitutor)
+        } else {
+          (element, subst)
+        }
+      }
+      case _ => (element, subst)
+    }
+  }
+
+  lazy val (actualElement, actualSubst) = {
+    element match {
+      case a: ScTypeAlias => {
+        val name = a.getName
+        import ResolveTargets._
+        val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
+        proc.processType(projected, a)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
+          (candidates(0).element.asInstanceOf[ScTypeAlias], candidates(0).substitutor)
+        } else {
+          (element, subst)
+        }
+      }
+      case _ => (element, subst)
+    }
   }
 }
 

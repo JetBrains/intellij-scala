@@ -173,13 +173,17 @@ object Equivalence {
         }
       }
       case (p: ScParameterizedType, ScTupleType(components)) => equivInner(r, l, undefinedSubst, falseUndef)
-      case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAliasDefinition, subst), args), _) => {
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = proj.actualSubst
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         return equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
-      case (_, ScParameterizedType(ScProjectionType(projected, a: ScTypeAliasDefinition, subst), args)) => {
+      case (_, ScParameterizedType(proj@ScProjectionType(projected, _, _), args)) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = proj.actualSubst
         val uBound = subst.subst(a.upperBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
@@ -237,14 +241,18 @@ object Equivalence {
           case Some(b) => b
         })
       }
-      case (ScProjectionType(projected, a: ScTypeAliasDefinition, subst), _) => {
+      case (proj@ScProjectionType(projected, _, _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = proj.actualSubst
         equivInner(subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), r, undefinedSubst, falseUndef)
       }
-      case (_, ScProjectionType(projected, a: ScTypeAliasDefinition, subst)) => {
+      case (_, proj@ScProjectionType(projected, _, _)) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = proj.actualSubst
         equivInner(l, subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), undefinedSubst, falseUndef)
       }
-      case (ScProjectionType(projected, element, subst), ScProjectionType(p1, element1, subst1)) => {
-        if (element != element1) return (false, undefinedSubst)
+      case (proj1@ScProjectionType(projected, element, subst), proj2@ScProjectionType(p1, element1, subst1)) => {
+        if (proj1.actualElement != proj2.actualElement) return (false, undefinedSubst)
         equivInner(projected, p1, undefinedSubst, falseUndef)
       }
       case (ScMethodType(returnType, params, ismplicit), m: ScMethodType) => {
