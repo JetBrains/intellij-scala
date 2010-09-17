@@ -121,13 +121,15 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
       }
-      case ScProjectionType(projectd, ta: ScTypeAlias, subst) => {
+      case proj@ScProjectionType(projectd, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       }
       case proj@ScProjectionType(des, elem, subst) => {
-        val clazz = PsiTreeUtil.getContextOfType(elem, classOf[PsiClass], true)
-        processElement(elem, subst, place, state)
+        val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(des)) followed proj.actualSubst
+        processElement(proj.actualElement, s, place, state)
       }
 
       case StdType(name, tSuper) => (SyntheticClasses.get(place.getProject).byName(name): @unchecked) match {
