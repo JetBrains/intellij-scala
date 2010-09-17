@@ -31,7 +31,8 @@ object Bounds {
           collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*),
           fun.getProject, fun.getScope)
       case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*), t1.getProject)
+        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*),
+          t1.getProject, t1.getScope)
 
       case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)

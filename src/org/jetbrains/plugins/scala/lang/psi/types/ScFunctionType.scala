@@ -70,13 +70,17 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
 
 case class ScTupleType private (components: Seq[ScType]) extends ValueType {
   private var project: Project = null
+  private var scope: GlobalSearchScope = GlobalSearchScope.allScope(getProject)
   def getProject: Project = {
     if (project != null) project else DecompilerUtil.obtainProject
   }
 
-  def this(components: Seq[ScType], project: Project) = {
+  def getScope = scope
+
+  def this(components: Seq[ScType], project: Project, scope: GlobalSearchScope) = {
     this(components)
     this.project = project
+    this.scope = scope
   }
 
   def resolveTupleTrait: Option[ScParameterizedType] = resolveTupleTrait(getProject)
@@ -84,8 +88,7 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
   def resolveTupleTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
         val psiFacade = JavaPsiFacade.getInstance(project)
-        val allScope = GlobalSearchScope.allScope(project)
-        Option(psiFacade.findClass(tupleTraitName, allScope))
+        Option(psiFacade.findClass(tupleTraitName, getScope))
     }
     findClass(tupleTraitName) match {
       case Some(t: ScClass) => {
