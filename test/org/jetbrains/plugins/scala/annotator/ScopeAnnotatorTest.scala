@@ -4,7 +4,6 @@ package annotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
 import junit.framework.Assert
-import lang.psi.types.{ScProjectionType, ScDesignatorType}
 
 /**
  * Pavel.Fatin, 18.05.2010

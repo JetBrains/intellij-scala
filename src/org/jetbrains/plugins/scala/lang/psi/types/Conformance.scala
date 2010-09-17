@@ -29,14 +29,18 @@ object Conformance {
   def isAliasType(tp: ScType): Option[AliasType] = {
     tp match {
       case ScDesignatorType(ta: ScTypeAlias) => Some(AliasType(ta, ta.lowerBound, ta.upperBound))
-      case ScProjectionType(_, ta: ScTypeAlias, subst) =>
+      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAlias] =>
+        val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
+        val subst: ScSubstitutor = p.actualSubst
         Some(AliasType(ta, ta.lowerBound.map(subst.subst(_)), ta.upperBound.map(subst.subst(_))))
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) => {
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst(_)), ta.upperBound.map(genericSubst.subst(_))))
       }
-      case ScParameterizedType(ScProjectionType(_, ta: ScTypeAlias, subst), args) => {
+      case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] => {
+        val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
+        val subst: ScSubstitutor = p.actualSubst
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(ta.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         val s = subst.followed(genericSubst)
@@ -221,7 +225,9 @@ object Conformance {
         val s = subst.followed(genericSubst)
         return conformsInner(s.subst(lBound), r, visited, undefinedSubst)
       }
-      case (_, ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args)) => {
+      case (_, ScParameterizedType(proj@ScProjectionType(projected, _, _), args)) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         val uBound = subst.subst(a.upperBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
@@ -501,7 +507,9 @@ object Conformance {
       }
 
       case (ScSkolemizedType(_, _, lower, _), _) => return conformsInner(lower, r, HashSet.empty, undefinedSubst)
-      case (ScProjectionType(projected, ta: ScTypeAlias, subst), _) => {
+      case (proj@ScProjectionType(projected, _, _), _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         if (!ta.isExistentialTypeAlias) {
           val lower = ta.lowerBound.getOrElse(return (false, undefinedSubst))
           return conformsInner(subst.subst(lower), r, visited, undefinedSubst)
@@ -538,11 +546,14 @@ object Conformance {
       }
       case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
       case (_, ex: ScExistentialType) => return conformsInner(l, ex.skolem, HashSet.empty, undefinedSubst)
-      case (_, ScProjectionType(projected, ta: ScTypeAlias, subst)) => {
+      case (_, proj@ScProjectionType(projected, _, _)) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         val uBound = subst.subst(ta.upperBound.getOrElse(return (false, undefinedSubst)))
         return conformsInner(l, uBound, visited, undefinedSubst)
       }
-      case (ScProjectionType(projected1, elem1, subst1), ScProjectionType(projected2, elem2, subst2)) if elem1 == elem2 => {
+      case (proj1@ScProjectionType(projected1, elem1, subst1), proj2@ScProjectionType(projected2, elem2, subst2))
+        if proj1.actualElement == proj2.actualElement => {
         return conformsInner(projected1, projected2, visited, undefinedSubst)
       }
       case (_, proj: ScProjectionType) => {

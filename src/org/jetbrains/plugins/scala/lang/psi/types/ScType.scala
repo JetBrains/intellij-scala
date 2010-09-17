@@ -196,7 +196,7 @@ object ScType {
                     {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
-      case ScParameterizedType(ScProjectionType(pr, element, subst), args) => element match {
+      case ScParameterizedType(proj@ScProjectionType(pr, element, subst), args) => proj.actualElement match {
         case c: PsiClass => if (c.getQualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsi(args(0), project, scope))
         else {
@@ -208,7 +208,7 @@ object ScType {
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
 
-      case ScProjectionType(pr, element, subst) => element match {
+      case proj@ScProjectionType(pr, element, subst) => proj.actualElement match {
         case clazz: PsiClass => {
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
@@ -237,10 +237,10 @@ object ScType {
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
       extractClassType(ta.aliasedType(TypingContext.empty).getOrElse(return None))
-    case proj@ScProjectionType(p, elem, subst) => elem match {
+    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
       case c: PsiClass => Some((c, subst))
       case t: ScTypeAliasDefinition =>
-        extractClassType(subst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+        extractClassType(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
       case _ => None
     }
     case p@ScParameterizedType(t1, _) => {
@@ -267,7 +267,7 @@ object ScType {
 
   def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, e, s) => Some((e, s))
+    case proj@ScProjectionType(p, e, s) => Some((proj.actualElement, proj.actualSubst))
     case p@ScParameterizedType(t1, _) => {
       extractClassType(t1) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
@@ -335,7 +335,9 @@ object ScType {
       case ScThisType(clazz) => buffer.append("this.type")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case ScProjectionType(p, e, s) => {  //todo:
+      case proj@ScProjectionType(p, el, su) => {  //todo:
+        val e = proj.actualElement
+        val s = proj.actualSubst
         val refName = e.getName
         def appendPointType {
           e match {
