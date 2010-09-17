@@ -359,12 +359,11 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  //TODO http://youtrack.jetbrains.net/issue/SCL-1967
-//  def testRecursiveWithInheritedResultType {
-//    assertMatches(messages("trait T { def f: T }; new T { def f = { f }}")) {
-//      case Nil =>
-//    }
-//  }
+  def testRecursiveWithInheritedResultType {
+    assertMatches(messages("trait T { def f: T }; new T { def f = { f }}")) {
+      case Nil =>
+    }
+  }
   
   def testRecursiveAndNeedsResultType {
     assertMatches(messages("def f = { f; return new A }")) {
