@@ -21,6 +21,7 @@ import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve._
 import processor.{MethodResolveProcessor, CompletionProcessor, ExpandedExtractorResolveProcessor}
 import statements.params.{ScParameter, ScTypeParam}
+import psi.impl.base.types.ScSimpleTypeElementImpl
 
 /**
  * @author Alexander Podkhalyuzin
@@ -57,7 +58,7 @@ trait ScPattern extends ScalaPsiElement {
 
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
-    var bind: Option[ScalaResolveResult] = ref.bind match {
+    val bind: Option[ScalaResolveResult] = ref.bind match {
       case Some(ScalaResolveResult(ta: ScTypeAliasDefinition, substitutor)) => {
         val alType = ta.aliasedType(TypingContext.empty)
         var res: Option[ScalaResolveResult] = null
@@ -96,7 +97,8 @@ trait ScPattern extends ScalaPsiElement {
             if (clauses.length == 0) None
             else {
               val subst = if (clazz.typeParameters.length == 0) substitutor else {
-                val clazzType = ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(tp =>
+                val clazzType = ScParameterizedType(ScSimpleTypeElementImpl.
+                        calculateReferenceType(ref, false).getOrElse(ScDesignatorType(clazz)), clazz.getTypeParameters.map(tp =>
                   ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, substitutor)
                   case _ => new ScTypeParameterType(tp, substitutor)})))
                 expected match {

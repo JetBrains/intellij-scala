@@ -15,6 +15,8 @@ import lang.resolve.ScalaResolveResult
 import api.base.ScPrimaryConstructor
 import api.statements.ScFunction
 import result.{TypeResult, TypingContext}
+import api.statements.params.ScTypeParam
+import types.ScSimpleTypeElementImpl
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -83,15 +85,44 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     }
   }
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = wrap(ref.bind) map { r =>
-    r.element match {
-      case td : ScClass if td.typeParameters.length > 0 => ScParameterizedType.create(td, r.substitutor)
-      case td: ScClass => new ScDesignatorType(td)
-      case obj : ScObject => new ScDesignatorType(obj)
-      case fun: ScFunction /*It's unapply method*/ if (fun.getName == "unapply" || fun.getName == "unapplySeq") && fun.parameters.length == 1 => {
-        return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty)
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+    wrap(ref.bind) map {r =>
+      r.element match {
+        case td: ScClass if td.typeParameters.length > 0 => {
+          val refType: ScType = ScSimpleTypeElementImpl.
+                  calculateReferenceType(ref, false).getOrElse(ScDesignatorType(td))
+          val newSubst = {
+            val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
+              ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, r.substitutor)
+              case _ => new ScTypeParameterType(tp, r.substitutor)})))
+            val emptySubst: ScSubstitutor = new ScSubstitutor(Map(td.typeParameters.map(tp =>
+              ((tp.name, ScalaPsiUtil.getPsiElementId(tp)), Any)): _*), Map.empty, None)
+            expectedType match {
+              case Some(tp) => {
+                val t = Conformance.conforms(tp, clazzType)
+                if (t) {
+                  val undefSubst = Conformance.undefinedSubst(tp, clazzType)
+                  undefSubst.getSubstitutor match {
+                    case Some(newSubst) => newSubst followed emptySubst
+                    case _ => emptySubst
+                  }
+                } else emptySubst
+              }
+              case _ => emptySubst
+            }
+          }
+          new ScParameterizedType(refType, collection.immutable.Seq(td.getTypeParameters.map({
+            tp => newSubst.subst(ScalaPsiManager.typeVariable(tp))
+          }).toSeq : _*))
+        }
+        case td: ScClass => new ScDesignatorType(td)
+        case obj: ScObject => new ScDesignatorType(obj)
+        case fun: ScFunction /*It's unapply method*/ if (fun.getName == "unapply" || fun.getName == "unapplySeq") &&
+                fun.parameters.length == 1 => {
+          return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty)
+        }
+        case _ => Nothing
       }
-      case _ => Nothing
     }
   }
 

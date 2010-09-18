@@ -4,30 +4,20 @@ package psi
 package impl
 package base
 
-import api.ScalaFile
-import api.toplevel.packaging.ScPackaging
-import caches.ScalaCachesManager
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import psi.api.base._
-import psi.types._
 import psi.impl.ScalaPsiElementFactory
 import resolve._
-import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
-import api.toplevel.ScTypedDefinition
 import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
 import processor.CompletionProcessor
-import result.TypingContext
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 

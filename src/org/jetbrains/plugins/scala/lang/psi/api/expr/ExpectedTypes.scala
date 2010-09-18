@@ -287,7 +287,18 @@ private[expr] object ExpectedTypes {
         applyForParams(newParams)
       }
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) => {
-
+        val applyProc = new ResolveProcessor(StdKinds.methodsOnly, expr, "apply")
+        applyProc.processType(anotherType, expr)
+        val cand = applyProc.candidates
+        if (cand.length == 1) {
+          cand(0) match {
+            case ScalaResolveResult(fun: ScFunction, s) => {
+              val subst = s followed t.abstractTypeSubstitutor
+              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), length)
+            }
+            case _ =>
+          }
+        }
       }
       case Success(anotherType, _) => {
         val applyProc = new ResolveProcessor(StdKinds.methodsOnly, expr, "apply")
