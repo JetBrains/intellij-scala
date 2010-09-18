@@ -194,10 +194,7 @@ private[expr] object ExpectedTypes {
       }
       //SLS[4.6]
       case v: ScFunctionDefinition if v.body.getOrElse(null: ScExpression) == expr => {
-        v.returnTypeElement match {
-          case Some(_) => Array(v.returnType.getOrElse(Any))
-          case _ => Array.empty
-        }
+        v.getInheritedReturnType.toArray
       }
       //default parameters
       case param: ScParameter => {
