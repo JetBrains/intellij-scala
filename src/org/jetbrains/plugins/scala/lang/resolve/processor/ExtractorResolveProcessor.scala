@@ -31,7 +31,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
         case o: ScObject if o.isPackageObject => return true
         case clazz: ScClass if clazz.isCase => {
           candidatesSet.clear
-          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+          candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state), fromType = getFromType(state))
           return false //find error  about existing unapply in companion during annotation under case class
         }
         case ta: ScTypeAliasDefinition => {
@@ -40,7 +40,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
             ScType.extractClassType(tp) match {
               case Some((clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase => {
                 candidatesSet.clear
-                candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state))
+                candidatesSet += new ScalaResolveResult(named, getSubst(state), getImports(state), fromType = getFromType(state))
                 return false
               }
               case _ =>
@@ -51,22 +51,22 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           for (sign <- obj.signaturesByName("unapply")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
+            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state), fromType = getFromType(state))
           }
           //unapply has bigger priority then unapplySeq
           if (candidatesSet.isEmpty)
           for (sign <- obj.signaturesByName("unapplySeq")) {
             val m = sign.method
             val subst = sign.substitutor
-            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state))
+            candidatesSet += new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state), fromType = getFromType(state))
           }
           return true
         }
         case bind: ScBindingPattern => {
-          candidatesSet += new ScalaResolveResult(bind, getSubst(state), getImports(state))
+          candidatesSet += new ScalaResolveResult(bind, getSubst(state), getImports(state), fromType = getFromType(state))
         }
         case param: ScParameter => {
-          candidatesSet += new ScalaResolveResult(param, getSubst(state), getImports(state))
+          candidatesSet += new ScalaResolveResult(param, getSubst(state), getImports(state), fromType = getFromType(state))
         }
         case _ => return true
       }
