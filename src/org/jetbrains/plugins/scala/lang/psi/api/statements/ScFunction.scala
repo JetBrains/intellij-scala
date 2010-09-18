@@ -18,6 +18,7 @@ import psi.stubs.ScFunctionStub
 import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 /**
  * @author Alexander Podkhalyuzin
@@ -50,6 +51,23 @@ trait ScFun extends ScTypeParametersOwner {
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder {
+  /**
+   * This method is important for expected type evaluation.
+   */
+  def getInheritedReturnType: Option[ScType] = {
+    returnTypeElement match {
+      case Some(_) => returnType.toOption
+      case None => {
+        superMethod match {
+          case Some(fun: ScFunction) => fun.returnType.toOption
+          case Some(fun: ScSyntheticFunction) => Some(fun.retType)
+          case Some(fun: PsiMethod) => Some(ScType.create(fun.getReturnType, getProject, getResolveScope))
+          case _ => None
+        }
+      }
+    }
+  }
+
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
   def hasParameterClause: Boolean = {
     paramClauses.clauses.length != 0 //todo: look for super method, if it has then this method also has
