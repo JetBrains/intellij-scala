@@ -51,9 +51,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  */
 
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
-        with ParametersAnnotator with ApplicationAnnotator with AssignmentAnnotator
+        with ParametersAnnotator with ApplicationAnnotator
+        with AssignmentAnnotator with VariableDefinitionAnnotator with PatternDefinitionAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
+    val advancedHighlighting = isAdvancedHighlightingEnabled(element)
+
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
       checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
@@ -71,7 +74,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       checkForStmtUsedTypes(element.asInstanceOf[ScForStatement], holder)
     }
 
-    val advancedHighlighting = isAdvancedHighlightingEnabled(element)
+    if (element.isInstanceOf[ScVariableDefinition]) {
+      annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, advancedHighlighting)
+    }
+
+    if (element.isInstanceOf[ScPatternDefinition]) {
+      annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, advancedHighlighting)
+    }
+
     annotateScope(element, holder)
 
     element match {
