@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import collection.immutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.Suspension
@@ -9,6 +8,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.{PsiElement, PsiTypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import result.TypingContext
 
 /**
  * @author ilyas
@@ -21,7 +22,11 @@ trait NonValueType extends ScType {
   def isValue = false
 }
 
-case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean)
+case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean) {
+  def this(param: ScParameter) {
+    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam, param.isRepeatedParameter)
+  }
+}
 case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp: PsiTypeParameter)
 case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: ScType,
                                     isCovariant: Boolean, ptp: PsiTypeParameter) {

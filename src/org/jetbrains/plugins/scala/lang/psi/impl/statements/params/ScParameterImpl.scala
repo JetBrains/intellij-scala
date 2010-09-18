@@ -98,7 +98,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   // todo rewrite to handle errors
   def getType(ctx: TypingContext) : TypeResult[ScType] = {
-    var computeType: ScType = {
+    val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
         stub.asInstanceOf[ScParameterStub].getTypeText match {
