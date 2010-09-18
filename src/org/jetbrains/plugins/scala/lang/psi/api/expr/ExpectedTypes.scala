@@ -8,7 +8,6 @@ import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import lang.resolve.ScalaResolveResult
 import base.{ScConstructor, ScReferenceElement}
 import collection.mutable.ArrayBuffer
 import types._
@@ -19,6 +18,8 @@ import toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import result.{TypeResult, Success, TypingContext}
 import base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScSequenceArg, ScTypeElement}
 import collection.immutable.HashMap
+import lang.resolve.processor.ResolveProcessor
+import lang.resolve.{StdKinds, ScalaResolveResult}
 
 /**
  * @author ilyas
@@ -285,7 +286,23 @@ private[expr] object ExpectedTypes {
         val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
         applyForParams(newParams)
       }
-      case _ => //todo:
+      case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) => {
+
+      }
+      case Success(anotherType, _) => {
+        val applyProc = new ResolveProcessor(StdKinds.methodsOnly, expr, "apply")
+        applyProc.processType(anotherType, expr)
+        val cand = applyProc.candidates
+        if (cand.length == 1) {
+          cand(0) match {
+            case ScalaResolveResult(fun: ScFunction, subst) => {
+              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), length)
+            }
+            case _ =>
+          }
+        }
+      }
+      case _ =>
     }
   }
 }
