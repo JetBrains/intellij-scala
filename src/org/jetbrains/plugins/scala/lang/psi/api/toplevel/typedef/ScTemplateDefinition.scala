@@ -20,6 +20,8 @@ import statements.params.ScClassParameter
 import java.util.ArrayList
 import com.intellij.psi.{PsiSubstitutor, PsiElement, ResolveState, PsiClass}
 import types._
+import impl.toplevel.synthetic.ScSyntheticFunction
+import fake.FakePsiMethod
 
 /**
  * @author ven
@@ -55,6 +57,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
   def members(): Seq[ScMember] = extendsBlock.members
+  def syntheticMembers(): Seq[FakePsiMethod] = Seq.empty
   def functions(): Seq[ScFunction] = extendsBlock.functions
   def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases
 

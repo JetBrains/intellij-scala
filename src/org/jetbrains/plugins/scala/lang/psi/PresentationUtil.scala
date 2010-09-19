@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentati
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import types.nonvalue.Parameter
 import types.{ScParameterizedType, ScType, ScSubstitutor}
 import refactoring.util.ScTypeUtil
 
@@ -30,6 +31,14 @@ object PresentationUtil {
         buffer.toString
       }
       case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
+      case param: Parameter => {
+        val builder = new StringBuilder
+        builder.append(param.name)
+        builder.append(": " + presentationString(param.paramType, substitutor))
+        if (param.isRepeated) builder.append("*")
+        if (param.isDefault) builder.append(" = _")
+        builder.toString
+      }
       case tp: ScType => ScType.presentableText(substitutor.subst(tp))
       case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
       case tp: ScTypeParamClause => {

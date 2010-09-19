@@ -157,7 +157,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             val scalaResult: ScalaResolveResult = result.asInstanceOf[ScalaResolveResult]
             scalaResult match {
               case ScalaResolveResult(fun: ScFun, subst: ScSubstitutor) => {
-                if (fun.paramTypes.length == 1) typez += subst.subst(fun.paramTypes.apply(0))
+                if (fun.parameters.length == 1) typez += subst.subst(fun.parameters.apply(0).paramType)
               }
               case ScalaResolveResult(fun: PsiMethod, subst: ScSubstitutor) => {
                 fun match {

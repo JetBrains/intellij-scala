@@ -22,6 +22,7 @@ import java.awt.Color
 import java.lang.{Class, String}
 import java.util.Set
 import lexer.ScalaTokenTypes
+import nonvalue.Parameter
 import psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
@@ -32,6 +33,7 @@ import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.impl.statements.params.ScParameterImpl
 import psi.{ScalaPsiUtil}
 import result.{Success, TypeResult, TypingContext}
+import psi.fake.FakePsiMethod
 
 /**
  * User: Alexander Podkhalyuzin
@@ -240,6 +242,33 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val length = clause.parameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
                   applyToParameters(parameters, subst, true)
+                }
+              }
+              case method: FakePsiMethod => {
+                if (method.params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                else {
+                  buffer.append(method.params.
+                          map((param: Parameter) => {
+                    val buffer: StringBuilder = new StringBuilder("")
+                    val paramType = param.paramType
+                    val name = param.name
+                    if (name != "") {
+                      buffer.append(name)
+                      buffer.append(": ")
+                    }
+                    buffer.append(ScType.presentableText(paramType))
+                    if (param.isRepeated) buffer.append("*")
+
+                    if (param.isDefault) buffer.append(" = _")
+
+                    val isBold = if (method.params.indexOf(param) == index || (param.isRepeated && method.params.indexOf(param) <= index)) true
+                    else {
+                      //todo: check type
+                      false
+                    }
+                    val paramText = buffer.toString
+                    if (isBold) "<b>" + paramText + "</b>" else paramText
+                  }).mkString(", "))
                 }
               }
               case method: PsiMethod => {

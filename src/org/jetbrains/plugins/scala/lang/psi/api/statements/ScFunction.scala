@@ -29,12 +29,12 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 trait ScFun extends ScTypeParametersOwner {
   def retType: ScType
 
-  def paramTypes: Seq[ScType]
+  def parameters: Seq[Parameter]
 
   def typeParameters: Seq[ScTypeParam]
 
   def methodType: ScMethodType = {
-    new ScMethodType(retType, paramTypes.map(Parameter("", _, false, false)), false, getProject, getResolveScope)
+    new ScMethodType(retType, parameters, false, getProject, getResolveScope)
   }
 
   def polymorphicType: ScType = {

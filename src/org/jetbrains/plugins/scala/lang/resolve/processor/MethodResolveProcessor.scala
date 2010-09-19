@@ -176,7 +176,7 @@ object MethodResolveProcessor {
                 case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
                         fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                         isUnderscore => ConformanceExtResult(Seq.empty)
-                case fun: ScFun if fun.paramTypes.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
+                case fun: ScFun if fun.parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
                 case c: ScPrimaryConstructor 
                   if(c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)) => 
                   ConformanceExtResult(Seq.empty) 

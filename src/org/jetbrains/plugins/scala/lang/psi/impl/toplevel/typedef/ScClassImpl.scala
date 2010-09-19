@@ -5,7 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
@@ -15,7 +14,12 @@ import stubs.ScTemplateDefinitionStub
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
 import com.intellij.openapi.progress.ProgressManager
-import collection.mutable.ArrayBuffer;
+import collection.mutable.ArrayBuffer
+import synthetic.ScSyntheticFunction
+import types.{ScThisType, ScSubstitutor}
+import types.nonvalue.Parameter
+import types.result.TypingContext
+import fake.FakePsiMethod;
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -101,5 +105,23 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       case _ =>
     }
     return buffer.toArray
+  }
+
+  override def syntheticMembers(): scala.Seq[FakePsiMethod] = {
+    val buf = new ArrayBuffer[FakePsiMethod]
+    if (isCase && parameters.length > 0) {
+      val signs = TypeDefinitionMembers.getSignatures(this)
+      var hasCopy = false
+      for (sign <- signs.iterator if !hasCopy) {
+        if (sign._1.sig.name == "copy") hasCopy = true
+      }
+      if (!hasCopy) {
+        buf += new FakePsiMethod(this, "copy", parameters.map(p =>
+          Parameter(p.name, p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any), true,
+            p.isRepeatedParameter)).toArray,
+          ScThisType(this), s => s == "public")
+      }
+    }
+    buf.toSeq
   }
 }
