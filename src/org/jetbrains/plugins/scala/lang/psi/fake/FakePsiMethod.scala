@@ -19,6 +19,7 @@ import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod,
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types._
+import nonvalue.Parameter
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,8 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 class FakePsiMethod(
         val navElement: PsiElement,
         name: String,
-        params: Array[ScType],
-        retType: ScType,
+        val params: Array[Parameter],
+        val retType: ScType,
         hasModifier: String => Boolean
         ) extends {
     val project: Project = navElement.getProject
@@ -139,7 +140,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
   override def copy: PsiElement = new FakePsiTypeElement(manager, language, tp)
 }
 
-class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScType, name: String)
+class FakePsiParameter(manager: PsiManager, language: Language, parameter: Parameter, name: String)
         extends LightElement(manager, language) with PsiParameter {
   def getDeclarationScope: PsiElement = null
 
@@ -157,7 +158,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
   def getInitializer: PsiExpression = null
 
-  def getType: PsiType = ScType.toPsi(paramType, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
+  def getType: PsiType = ScType.toPsi(parameter.paramType, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
 
   def isVarArgs: Boolean = false
 
@@ -165,7 +166,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
   def getName: String = name
 
-  override def copy: PsiElement = new FakePsiParameter(manager, language, paramType, name)
+  override def copy: PsiElement = new FakePsiParameter(manager, language, parameter, name)
 
   override def getText: String = "param: " + getTypeElement.getText
 
@@ -175,10 +176,10 @@ class FakePsiParameter(manager: PsiManager, language: Language, paramType: ScTyp
 
   def hasModifierProperty(name: String): Boolean = false
 
-  def getTypeElement: PsiTypeElement = new FakePsiTypeElement(manager, language, paramType)
+  def getTypeElement: PsiTypeElement = new FakePsiTypeElement(manager, language, parameter.paramType)
 }
 
-class FakePsiParameterList(manager: PsiManager, language: Language, params: Array[ScType])
+class FakePsiParameterList(manager: PsiManager, language: Language, params: Array[Parameter])
         extends LightElement(manager, language) with PsiParameterList {
   def getParameters: Array[PsiParameter] = params.map(new FakePsiParameter(manager, language, _, "param"))
 

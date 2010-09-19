@@ -19,7 +19,8 @@ import psi.types.result.{TypeResult, TypingContext}
 import psi.ScalaPsiUtil
 import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
-import psi.api.statements.params.{ScParameters, ScParameter}
+import psi.fake.FakePsiMethod
+import psi.api.statements.params.{ScParameterClause, ScParameters, ScParameter}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -221,6 +222,17 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           else {
             //for completion only!
             funCollectNamedCompletions(fun.paramClauses, args, assign, processor, subst)
+          }
+        }
+        case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => {
+          if (!processor.isInstanceOf[CompletionProcessor]) {
+            val clausePosition = args.invocationCount - 1
+            val paramByName = clausePosition match {
+              case 1 => fun.params.find(p => p.name == ref.refName)
+              case _ => None
+            }
+          } else {
+            //todo:
           }
         }
         case _ =>

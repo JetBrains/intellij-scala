@@ -16,6 +16,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import types._
 import api.toplevel.typedef._
 import api.statements._
+import nonvalue.Parameter
 import result.TypingContext
 import types.PhysicalSignature
 import com.intellij.openapi.util.Key
@@ -336,6 +337,13 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+      clazz match {
+        case td: ScTemplateDefinition => map.++=(td.syntheticMembers.map(fun => {
+          val f = new PhysicalSignature(fun, ScSubstitutor.empty)
+          (f, new MethodNodes.Node(f, ScSubstitutor.empty))
+        }))
+        case _ =>
+      }
       map
     }
     def valuesMap: ValueNodes.Map = {
@@ -419,6 +427,7 @@ object TypeDefinitionMembers {
           if (v2) {
             n.info match {
               case t: ScTypedDefinition => {
+                implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
                 val context = ScalaPsiUtil.nameContext(t)
                 if (!processor.execute(new FakePsiMethod(t, context match {
                   case o: PsiModifierListOwner => o.hasModifierProperty _

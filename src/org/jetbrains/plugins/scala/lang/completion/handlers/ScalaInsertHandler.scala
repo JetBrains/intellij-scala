@@ -42,7 +42,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             (clauses(0).parameters.length, fun.getName)
           }
           case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName)
-          case ScalaLookupObject(fun: ScFun, _) => (fun.paramTypes.length, fun.asInstanceOf[ScSyntheticFunction].name)
+          case ScalaLookupObject(fun: ScFun, _) => (fun.parameters.length, fun.asInstanceOf[ScSyntheticFunction].name)
         }
         if (count > 0) {
           val endOffset = startOffset + methodName.length

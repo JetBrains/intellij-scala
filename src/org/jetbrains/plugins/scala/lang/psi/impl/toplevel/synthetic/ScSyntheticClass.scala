@@ -15,6 +15,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import api.statements.ScFun
 import api.statements.ScFunction
 import types._
+import nonvalue.Parameter
 import resolve._
 
 import com.intellij.util.IncorrectOperationException
@@ -138,12 +139,12 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 }
 
 class ScSyntheticFunction(manager: PsiManager, val name: String,
-                          val retType: ScType, val paramTypes: Seq[ScType],
+                          val retType: ScType, val parameters: Seq[Parameter],
                           typeParameterNames : Seq[String])
 extends SyntheticNamedElement(manager, name) with ScFun {
   
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[ScType]) =
-    this(manager, name, retType, paramTypes, Seq.empty)
+    this(manager, name, retType, paramTypes.map(Parameter("", _, false, false)), Seq.empty)
 
   val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
   override def typeParameters = typeParams
@@ -210,7 +211,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
     anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
-      override val paramTypes: Seq[ScType] = Seq(ScalaPsiManager.typeVariable(typeParams(0)))
+      override val parameters: Seq[Parameter] = Seq(Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false))
       override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 
@@ -262,7 +263,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     if (stringClass != null) {
       scriptSyntheticValues += new ScSyntheticValue(manager, "args",
         JavaArrayType(ScDesignatorType(stringClass)))
-      stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any), Seq.empty)
+      stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
     }
   }
 

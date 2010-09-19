@@ -34,6 +34,7 @@ import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
 import java.lang.String
 import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
+import psi.fake.FakePsiMethod
 
 /**
  * @author ven
@@ -87,9 +88,10 @@ object ResolveUtils {
       }).toSeq: _*), m.getProject, scope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
-    val retType: ScType = returnType match {
-      case None =>s.subst(ScType.create(m.getReturnType, m.getProject, scope))
-      case Some(x) => x
+    val retType: ScType = (m, returnType) match {
+      case (f: FakePsiMethod, None) => s.subst(f.retType)
+      case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
+      case (_, Some(x)) => x
     }
     new ScMethodType(retType, m.getParameterList.getParameters.map((param: PsiParameter) => {
       var psiType = param.getType
@@ -410,7 +412,7 @@ object ResolveUtils {
           }
           case fun: ScFun => {
             presentation.setTypeText(presentationString(fun.retType, substitutor))
-            presentation.setTailText(tailText + fun.paramTypes.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
+            presentation.setTailText(tailText + fun.parameters.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
           }
           case bind: ScBindingPattern => {
             presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))

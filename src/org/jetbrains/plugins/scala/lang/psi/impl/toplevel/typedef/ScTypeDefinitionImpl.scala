@@ -43,6 +43,7 @@ import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
+import nonvalue.Parameter
 import result.{TypeResult, Failure, Success, TypingContext}
 import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
 import com.intellij.openapi.progress.ProgressManager
@@ -237,11 +238,14 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       val method = methodsIterator.next._1.method
       buffer += method
     }
+
+    buffer ++= syntheticMembers
     val valsIterator = TypeDefinitionMembers.getVals(this).iterator
     while (valsIterator.hasNext) {
       val t = valsIterator.next._1
       t match {
         case t: ScTypedDefinition => {
+          implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
           val context = ScalaPsiUtil.nameContext(t)
           buffer += new FakePsiMethod(t, context match {
             case o: PsiModifierListOwner => o.hasModifierProperty _

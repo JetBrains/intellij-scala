@@ -19,7 +19,7 @@ class RenameFakeMethodProcessor extends RenamePsiElementProcessor {
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
       case f: FakePsiMethod => {
-        f.navElement
+        null
       }
       case _ => element
     }
