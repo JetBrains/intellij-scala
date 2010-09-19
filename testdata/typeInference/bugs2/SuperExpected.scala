@@ -9,6 +9,6 @@ class K {
 class S extends K {
   override def foo = a
 
-  foo
+  /*start*/foo/*end*/
 }
 //A[Int]
