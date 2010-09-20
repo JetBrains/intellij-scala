@@ -242,6 +242,7 @@ object ScalaOIUtil {
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
+            case x: PsiModifierListOwner if x.hasModifierProperty("final") =>
             case x: ScPatternDefinition if x.getContainingClass != clazz => {
               var flag = false
               for (signe <- clazz.allMethods if signe.method.getContainingClass == clazz) {
