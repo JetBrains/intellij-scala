@@ -364,7 +364,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
       case Nil =>
     }
   }
-  
+
   def testRecursiveAndNeedsResultType {
     assertMatches(messages("def f = { f; return new A }")) {
       case Error("f", Recursive()) :: Error("return", NeedsResultType()) :: Nil =>
@@ -384,12 +384,13 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   }
   
   def messages(@Language("Scala") code: String): List[Message] = {
-    val function = (Header + code).parse.depthFirst.findByType(classOf[ScFunctionDefinition]).get
-    
     val annotator = new FunctionAnnotator() {}
     val mock = new AnnotatorHolderMock
-    
-    annotator.annotateFunction(function, mock, true)
+
+    (Header + code).parse.depthFirst.filterByType(classOf[ScFunctionDefinition]).foreach {
+      annotator.annotateFunction(_, mock, true)
+    }
+
     mock.annotations
   }
   
