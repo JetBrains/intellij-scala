@@ -210,5 +210,5 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     hasAnnotation("scala.deprecated") != None
   }
 
-  override def getName = if (isConstructor) getContainingClass.getName else super.getName
+  override def getName = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
 }
