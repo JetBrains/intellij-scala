@@ -57,6 +57,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
 
+    val compiled = element.getContainingFile match {
+      case file: ScalaFile => file.isCompiled
+      case _ => false
+    }
+
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
       checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
@@ -78,7 +83,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, advancedHighlighting)
     }
 
-    if (element.isInstanceOf[ScPatternDefinition]) {
+    if (!compiled && element.isInstanceOf[ScPatternDefinition]) {
       annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, advancedHighlighting)
     }
 
@@ -89,11 +94,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       
       case ps: ScParameters => annotateParameters(ps, holder) 
       
-      case f: ScFunctionDefinition => {
-        f.getContainingFile match {
-          case file: ScalaFile if(file.isCompiled) => // don't annotate compiled files
-          case _ => annotateFunction(f, holder, advancedHighlighting)  
-        }
+      case f: ScFunctionDefinition if !compiled => {
+        annotateFunction(f, holder, advancedHighlighting)
       }
       
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
