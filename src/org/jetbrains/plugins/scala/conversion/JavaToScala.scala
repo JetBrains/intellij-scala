@@ -59,8 +59,9 @@ object JavaToScala {
       }
       case r: PsiReturnStatement => res.append("return ").append(convertPsiToText(r.getReturnValue))
       case a: PsiAssertStatement => {
-        res.append("assert(").append(a.getAssertCondition)
-        if (a.getAssertDescription != null) res.append(", ").append(a.getAssertDescription)
+        res.append("assert(").append(convertPsiToText(a.getAssertCondition))
+        val v = a.getAssertDescription
+        if (v != null) res.append(", ").append(convertPsiToText(v))
         res.append(")")
       }
       case b: PsiBreakStatement => {

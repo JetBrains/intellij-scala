@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.actions;
 
 import com.intellij.ide.fileTemplates.*;
-import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
