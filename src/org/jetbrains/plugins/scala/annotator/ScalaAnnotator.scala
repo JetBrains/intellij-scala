@@ -94,7 +94,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       
       case ps: ScParameters => annotateParameters(ps, holder) 
       
-      case f: ScFunctionDefinition if !compiled => {
+      case f: ScFunctionDefinition if !compiled && !f.isConstructor => {
         annotateFunction(f, holder, advancedHighlighting)
       }
       
