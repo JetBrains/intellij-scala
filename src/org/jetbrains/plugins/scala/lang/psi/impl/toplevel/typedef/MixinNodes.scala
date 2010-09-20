@@ -112,7 +112,7 @@ abstract class MixinNodes {
         (if (!lin.isEmpty) lin.tail else lin, ScSubstitutor.empty)
       }
       case cp: ScCompoundType => {
-        //todo: add processing comp refinement
+        processRefinement(cp, map, place)
         (MixinNodes.linearization(cp), ScSubstitutor.empty)
       }
       case _ => (Seq.empty, ScSubstitutor.empty)
@@ -176,6 +176,7 @@ abstract class MixinNodes {
   def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map)
+  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
 }
 
 object MixinNodes {
