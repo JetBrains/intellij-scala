@@ -99,7 +99,7 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubs
     }
 }
 
-case class FullSignature(sig: Signature, retType: Suspension[ScType], element: NavigatablePsiElement, clazz: PsiClass) {
+case class FullSignature(sig: Signature, retType: Suspension[ScType], element: NavigatablePsiElement, clazz: Option[PsiClass]) {
   override def hashCode: Int = sig.hashCode
 
   override def equals(obj: Any): Boolean = obj match {

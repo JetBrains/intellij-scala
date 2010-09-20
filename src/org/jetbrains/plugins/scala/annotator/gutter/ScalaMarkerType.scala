@@ -48,8 +48,9 @@ object ScalaMarkerType {
           val signatures: Seq[FullSignature] = method.superSignatures
           //removed assertion, because can be change before adding gutter, so just need to return ""
           if (signatures.length != 0) return ""
-          val clazz = signatures(0).clazz
-          assert(clazz != null)
+          val optionClazz = signatures(0).clazz
+          assert(optionClazz != None)
+          val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
         }
@@ -58,8 +59,9 @@ object ScalaMarkerType {
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           assert(signatures.length != 0)
-          val clazz = signatures(0).clazz
-          assert(clazz != null)
+          val optionClazz = signatures(0).clazz
+          assert(optionClazz != None)
+          val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
         }
