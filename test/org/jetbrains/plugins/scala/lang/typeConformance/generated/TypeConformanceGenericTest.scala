@@ -35,6 +35,5 @@ class TypeConformanceGenericTest extends TypeConformanceTestBase {
 
   def testTypeBounds5 = doTest
 
-  // TODO SCL-2295
-//  def testTypeBounds6 = doTest
+  def testTypeBounds6 = doTest
 }

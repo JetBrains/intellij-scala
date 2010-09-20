@@ -5,14 +5,11 @@ package resolve
 import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import processor.{ResolverEnv, BaseProcessor, MethodResolveProcessor}
+import processor.MethodResolveProcessor
 import psi.types.Compatibility.Expression
 import psi.types.Compatibility.Expression._
-import com.intellij.psi.{ResolveState, ResolveResult, PsiElement}
-import caches.CachesUtil
-import psi.implicits.ScImplicitlyConvertible
-import annotator.ScalaAnnotator
-import psi.types.{ScParameterizedType, ScFunctionType, ScSubstitutor, ScType}
+import com.intellij.psi.{ResolveResult, PsiElement}
+import psi.types.{ScParameterizedType, ScFunctionType, ScType}
 
 class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shapesOnly: Boolean) 
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {

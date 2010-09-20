@@ -238,7 +238,7 @@ object ScType {
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
       extractClassType(ta.aliasedType(TypingContext.empty).getOrElse(return None))
     case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
-      case c: PsiClass => Some((c, subst))
+      case c: PsiClass => Some((c, proj.actualSubst))
       case t: ScTypeAliasDefinition =>
         extractClassType(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
       case _ => None

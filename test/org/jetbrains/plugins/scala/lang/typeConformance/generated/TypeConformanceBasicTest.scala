@@ -11,6 +11,8 @@ class TypeConformanceBasicTest extends TypeConformanceTestBase {
 
   def testBasicNonConformance = doTest
 
+  def testDependentEnumBaseTypes = doTest
+
   def testFunctionFalseConformance = doTest
 
   def testFunctionPlaceholderMatch = doTest

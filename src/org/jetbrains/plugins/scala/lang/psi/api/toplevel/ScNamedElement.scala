@@ -4,19 +4,14 @@ package psi
 package api
 package toplevel
 
-import com.intellij.navigation.{ItemPresentation, NavigationItem}
+import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import expr.ScNewTemplateDefinition
 import impl.toplevel.synthetic.JavaIdentifier
 import impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import psi.ScalaPsiElement
-import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import stubs.NamedStub
-import stubs.NamedStub
 import stubs.NamedStub
 import templates.ScTemplateBody
 import typedef._

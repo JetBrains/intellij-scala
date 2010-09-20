@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.fake
 
 import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import com.intellij.openapi.util.Key
 import java.util.List
 import com.intellij.psi._
 import java.lang.String
@@ -16,7 +13,6 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.lang.Language
 import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
@@ -33,7 +29,7 @@ class FakePsiMethod(
         hasModifier: String => Boolean
         ) extends {
     val project: Project = navElement.getProject
-    val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
+    val scope: GlobalSearchScope = navElement.getResolveScope
     val manager = navElement.getManager
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod{
