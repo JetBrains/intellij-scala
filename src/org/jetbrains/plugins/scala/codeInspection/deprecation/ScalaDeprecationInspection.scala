@@ -30,8 +30,8 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
       if (!context.isInstanceOf[PsiDocCommentOwner]) return
       if (!(context.asInstanceOf[PsiDocCommentOwner]).isDeprecated) return
-      var description: String = "Symbol " + name + " is deprecated"
-      res += manager.createProblemDescriptor(elementToHighlight, description, false, ProblemHighlightType.LIKE_DEPRECATED)
+      val description: String = "Symbol " + name + " is deprecated"
+      res += manager.createProblemDescriptor(elementToHighlight, description, true, ProblemHighlightType.LIKE_DEPRECATED)
     }
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitFunction(fun: ScFunction): Unit = {
