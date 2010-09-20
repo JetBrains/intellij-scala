@@ -19,6 +19,7 @@ import psi.types.{ScParameterizedType, ScType, ScFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
 import api.toplevel.typedef.ScClass
+import types.Conformance.AliasType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -129,24 +130,30 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case f: ScFunctionExpr => {
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
         for (tp <- f.expectedTypes if result != None) {
-          tp match {
-            case ScFunctionType(_, params) if params.length == f.parameters.length => {
-              val i = clause.parameters.indexOf(this)
-              if (result != null) result = None
-              else result = Some(params(i).removeAbstracts)
-            }
-            case ScParameterizedType(t, args) => {
-              ScType.extractDesignated(t) match { //todo: this is hack, scala.Function1 ScProjectionType?
-                case Some((c: PsiClass, _)) if c.getQualifiedName == "scala.Function" + f.parameters.length => {
-                  val i = clause.parameters.indexOf(this)
-                  if (result != null) result = None
-                  else result = Some(args(i).removeAbstracts)
+          def applyForFunction(tp: ScType) {
+            tp match {
+              case ScFunctionType(_, params) if params.length == f.parameters.length => {
+                val i = clause.parameters.indexOf(this)
+                if (result != null) result = None
+                else result = Some(params(i).removeAbstracts)
+              }
+              case p: ScParameterizedType if p.getFunctionType != None => {
+                applyForFunction(p.getFunctionType.get)
+              }
+              case _ => {
+                Conformance.isAliasType(tp) match {
+                  case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
+                    val res: TypeResult[ScType] = ta.aliasedType
+                    if (!res.isEmpty) {
+                      applyForFunction(res.get)
+                    }
+                  }
+                  case _ =>
                 }
-                case _ =>
               }
             }
-            case _ =>
           }
+          applyForFunction(tp)
         }
         if (result == null) result = None
         result

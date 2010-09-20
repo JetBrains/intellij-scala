@@ -17,7 +17,7 @@ import types._
 import api.toplevel.typedef._
 import api.statements._
 import nonvalue.Parameter
-import result.TypingContext
+import result.{Failure, TypingContext}
 import types.PhysicalSignature
 import com.intellij.openapi.util.Key
 import fake.FakePsiMethod
@@ -28,7 +28,6 @@ import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
-import api.ScalaFile
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -90,6 +89,18 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+
+    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+      for (decl <- cp.decls) {
+        decl match {
+          case fun: ScFunction if isAccessible(place, fun) => {
+            val sig = new PhysicalSignature(fun, cp.subst)
+            map += ((sig, new Node(sig, cp.subst)))
+          }
+          case _ =>
+        }
+      }
+    }
   }
 
   import com.intellij.psi.PsiNamedElement
@@ -145,6 +156,21 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+
+    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+      for (decl <- cp.decls) decl match {
+        case valDecl: ScValue if isAccessible(place, valDecl) =>
+          for (e <- valDecl.declaredElements) {
+            map += ((e, new Node(e, cp.subst)))
+          }
+        case varDecl: ScVariable if isAccessible(place, varDecl) => {
+          for (e <- varDecl.declaredElements) {
+            map += ((e, new Node(e, cp.subst)))
+          }
+        }
+        case _ =>
+      }
+    }
   }
 
   import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -178,6 +204,12 @@ object TypeDefinitionMembers {
         }
       }
     }
+
+    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+      for (alias <- cp.typeDecls if isAccessible(place, alias)) {
+        map += ((alias, new Node(alias, cp.subst)))
+      }
+    }
   }
 
   object SignatureNodes extends MixinNodes {
@@ -200,7 +232,7 @@ object TypeDefinitionMembers {
           val psiRet = method.getReturnType
           val retType = if (psiRet == null) Unit else ScType.create(psiRet, method.getProject)
           subst.subst(retType)
-        }), method, clazz)
+        }), method, Some(clazz))
         map += ((sig, new Node(sig, subst)))
       }
 
@@ -215,7 +247,7 @@ object TypeDefinitionMembers {
               val phys = new PhysicalSignature(m, subst)
               val psiRet = m.getReturnType
               val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
-              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, obj)
+              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj))
               map += ((sig, new Node(sig, subst)))
             }
           }
@@ -226,7 +258,7 @@ object TypeDefinitionMembers {
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) = {
       def addSignature(s: Signature, ret: => ScType, elem: NavigatablePsiElement) {
-        val full = new FullSignature(s, new Suspension(() => ret), elem, template)
+        val full = new FullSignature(s, new Suspension(() => ret), elem, Some(template))
         map += ((full, new Node(full, subst)))
       }
 
@@ -262,6 +294,33 @@ object TypeDefinitionMembers {
           }
           case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
+          case _ =>
+        }
+      }
+    }
+
+    def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
+      val subst = cp.subst
+      def addSignature(s: Signature, ret: => ScType, elem: NavigatablePsiElement) {
+        val full = new FullSignature(s, new Suspension(() => ret), elem, None)
+        map += ((full, new Node(full, subst)))
+      }
+      for (decl <- cp.decls) {
+        decl match {
+          case fun: ScFunction if isAccessible(place, fun) => {
+            val sign = new PhysicalSignature(fun, subst)
+            addSignature(sign, fun.returnType.getOrElse(Any), fun)
+          }
+          case _var: ScVariable if isAccessible(place, _var) =>
+            for (dcl <- _var.declaredElements) {
+              lazy val t = dcl.getType(TypingContext.empty).getOrElse(Any)
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), t, dcl)
+              addSignature(new Signature(dcl.name + "_", Stream.apply(t), 1, subst), Unit, dcl)
+            }
+          case _val: ScValue if isAccessible(place, _val) =>
+            for (dcl <- _val.declaredElements) {
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
+            }
           case _ =>
         }
       }
@@ -517,8 +576,8 @@ object TypeDefinitionMembers {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
-    //static inner classes
-    if (isObject && shouldProcessJavaInnerClasses(processor)) {
+    //inner classes
+    if (shouldProcessJavaInnerClasses(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
