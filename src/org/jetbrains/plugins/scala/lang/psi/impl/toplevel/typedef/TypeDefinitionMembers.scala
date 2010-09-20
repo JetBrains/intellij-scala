@@ -28,7 +28,6 @@ import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
-import api.ScalaFile
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -517,8 +516,8 @@ object TypeDefinitionMembers {
         if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
-    //static inner classes
-    if (isObject && shouldProcessJavaInnerClasses(processor)) {
+    //inner classes
+    if (shouldProcessJavaInnerClasses(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
