@@ -87,7 +87,7 @@
      <copy toDir="${base.dir}/classes/production/Scala/testdata">
        <fileset dir="${base.dir}/testdata"/>
      </copy>
-    <copy toDir="${base.dir}/classes/test/Scala/testData">
+    <copy toDir="${base.dir}/classes/test/Scala/testdata">
        <fileset dir="${base.dir}/testdata"/>
      </copy>
   </target>

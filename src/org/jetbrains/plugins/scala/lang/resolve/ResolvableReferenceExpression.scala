@@ -14,13 +14,12 @@ import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
 import caches.CachesUtil
 import com.intellij.psi._
-import psi.api.expr.ScExpression.ExpressionTypeResult
-import psi.types.result.{TypeResult, TypingContext}
+import psi.types.result.TypingContext
 import psi.ScalaPsiUtil
 import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
-import psi.api.statements.params.{ScParameterClause, ScParameters, ScParameter}
+import psi.api.statements.params.{ScParameters, ScParameter}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)

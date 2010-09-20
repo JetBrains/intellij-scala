@@ -28,25 +28,9 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   override def updateThisType(tp: ScType): ScType = {
     ScProjectionType(projected.updateThisType(tp), element, subst)
   }
-  def getActualElement = {
-    element match {
-      case a: ScTypeAlias => {
-        val name = a.getName
-        import ResolveTargets._
-        val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
-        proc.processType(projected, a)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
-          (candidates(0).element.asInstanceOf[ScTypeAlias], candidates(0).substitutor)
-        } else {
-          (element, subst)
-        }
-      }
-      case _ => (element, subst)
-    }
-  }
 
   lazy val (actualElement, actualSubst) = {
+    val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
     element match {
       case a: ScTypeAlias => {
         val name = a.getName
@@ -57,10 +41,10 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
           (candidates(0).element.asInstanceOf[ScTypeAlias], candidates(0).substitutor)
         } else {
-          (element, subst)
+          (element, emptySubst followed subst)
         }
       }
-      case _ => (element, subst)
+      case _ => (element, emptySubst followed subst)
     }
   }
 }
