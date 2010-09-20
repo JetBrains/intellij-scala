@@ -79,7 +79,7 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
         if (faultyContainer != null && faultyContainer.isValid()) {
           FileBasedIndex.getInstance().requestReindex(faultyContainer);
         }
-        return null;
+        return PsiClass.EMPTY_ARRAY;
       }
       psiClass = (PsiClass) element;
       if (fqn.equals(psiClass.getQualifiedName())) {
