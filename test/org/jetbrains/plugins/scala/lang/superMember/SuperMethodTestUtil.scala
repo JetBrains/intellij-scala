@@ -22,11 +22,14 @@ object SuperMethodTestUtil {
         val signs = method.superSignatures
         val res: StringBuilder = new StringBuilder("")
         for (sign <- signs) {
-          res.append(sign.clazz.getQualifiedName + "." +
-          (sign.element match {
-            case x: PsiNamedElement => x.getName
-            case _ => "Something"
-          }) + "\n")
+          val s = sign.clazz match {
+            case Some(clazz) => clazz.getQualifiedName + "."
+            case _ => ""
+          }
+          res.append(s + (sign.element match {
+                    case x: PsiNamedElement => x.getName
+                    case _ => "Something"
+                  }) + "\n")
         }
         resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString
       }

@@ -52,7 +52,9 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case _ =>
     }
 
-    val argTypesWrapped = typeArgList.typeArgs.map {_.getType(ctx)}
+    val args: scala.Seq[ScTypeElement] = typeArgList.typeArgs
+    if (args.length == 0) return tr
+    val argTypesWrapped = args.map {_.getType(ctx)}
     val argTypesgetOrElseped = argTypesWrapped.map {_.getOrElse(Any)}
     def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(Success(t, Some(this)))(_.apply(_))
     val lift: (ScType) => Success[ScType] = Success(_, Some(this))
@@ -61,7 +63,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     argTypesWrapped.find(_.isCyclic) match {
       case Some(_) => fails(new ScParameterizedType(res, Seq(argTypesgetOrElseped.toSeq: _*)))
       case None =>
-        val typeArgs = typeArgList.typeArgs.map(_.getType(ctx))
+        val typeArgs = args.map(_.getType(ctx))
         val result = new ScParameterizedType(res, typeArgs.map(_.getOrElse(Any)))
         (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
     }
