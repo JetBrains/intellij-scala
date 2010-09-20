@@ -7,6 +7,8 @@ class TypeInferenceExpectedParamTest extends TypeInferenceTestBase {
 
   def testComlexCase = doTest
 
+  def testComplexCombination = doTest
+
   def testCurrings = doTest
 
   def testCurringsUnderCall = doTest

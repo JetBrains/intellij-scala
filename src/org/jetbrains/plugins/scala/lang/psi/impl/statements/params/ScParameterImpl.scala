@@ -130,22 +130,24 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case f: ScFunctionExpr => {
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
         for (tp <- f.expectedTypes if result != None) {
-          def applyForFunction(tp: ScType) {
+          def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp match {
+              case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, false)
               case ScFunctionType(_, params) if params.length == f.parameters.length => {
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
                 else result = Some(params(i).removeAbstracts)
               }
+              case _: ScFunctionType => //nothing to do
               case p: ScParameterizedType if p.getFunctionType != None => {
-                applyForFunction(p.getFunctionType.get)
+                applyForFunction(p.getFunctionType.get, checkDeep)
               }
               case _ => {
                 Conformance.isAliasType(tp) match {
                   case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
                     val res: TypeResult[ScType] = ta.aliasedType
                     if (!res.isEmpty) {
-                      applyForFunction(res.get)
+                      applyForFunction(res.get, checkDeep)
                     }
                   }
                   case _ =>
@@ -153,7 +155,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
               }
             }
           }
-          applyForFunction(tp)
+          applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)
         }
         if (result == null) result = None
         result

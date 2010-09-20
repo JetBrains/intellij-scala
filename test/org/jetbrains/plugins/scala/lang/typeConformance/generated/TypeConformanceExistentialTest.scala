@@ -11,6 +11,8 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
 
   def testInnerPlaceHolder = doTest
 
+  def testInnerPlaceholderBack = doTest
+
   def testLowerUpperBouns = doTest
 
   def testToExistential = doTest
