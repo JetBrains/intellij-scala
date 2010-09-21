@@ -319,6 +319,22 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("def f(a: Any, b: Any) {}; def f(a: Any, b: Any) {}", "f")
     assertClashes("def f(a: Any)(b: Any) {}; def f(a: Any)(b: Any) {}", "f")
   }
+
+  //TODO thoughtfully consider type parameters and return type
+  // (all functions with type parameters are simply excluded now)
+  def testFunctionTypeParameters() {
+    assertFine("def f[A] = new Foo; def f[A, B] = new Bar")
+
+//    assertClashes("def f[A] = new Foo; def f[A] = new Bar", "f")
+//    assertClashes("def f[A] = new Foo; def f[B] = new Bar", "f")
+//    assertClashes("def f[A] = new Foo; def f[A, B] = new Foo", "f")
+//
+    assertFine("def f = new Foo; def f[A] = new Bar")
+//    assertClashes("def f = new Foo; def f[A] = new Foo", "f")
+//
+    assertFine("val f = new Foo; def f[A] = new Bar")
+//    assertClashes("val f = new Foo; def f[A] = new Foo", "f")
+  }
   
   def testRepeatedParameter() {
     assertFine("def f(p: Any*) {}; def f(p: Any) {}")
