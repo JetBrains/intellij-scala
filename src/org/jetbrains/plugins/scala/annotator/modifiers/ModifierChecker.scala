@@ -9,11 +9,11 @@ import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import com.intellij.lang.annotation.AnnotationHolder
-import lang.psi.api.toplevel.ScModifierListOwner
 import com.intellij.psi.PsiElement
 import AnnotatorUtils._
 import quickfix.modifiers.RemoveModifierQuickFix
 import lang.psi.api.statements.{ScTypeAlias, ScPatternDefinition, ScDeclaration}
+import lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -157,7 +157,8 @@ private[annotator] object ModifierChecker {
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"), modifierPsi,
                     holder, new RemoveModifierQuickFix(owner, "override"))
                 }
-                case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] => {
+                case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] ||
+                  member.getParent.isInstanceOf[ScEarlyDefinitions] => {
                   checkDublicates(modifierPsi, "override")
                 }
                 case param: ScClassParameter => checkDublicates(modifierPsi, "override")
