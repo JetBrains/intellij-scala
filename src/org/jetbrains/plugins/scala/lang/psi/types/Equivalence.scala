@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 
 /**
  * User: Alexander Podkhalyuzin
@@ -283,7 +284,10 @@ object Equivalence {
         val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++
                 typeParameters.zip(p.typeParameters).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
-            List.empty, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+            tuple._2.ptp match {
+              case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
+              case _ => Nil
+            }, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
         }), Map.empty, None)
         equivInner(subst.subst(internalType), p.internalType, undefinedSubst, falseUndef)
       }
