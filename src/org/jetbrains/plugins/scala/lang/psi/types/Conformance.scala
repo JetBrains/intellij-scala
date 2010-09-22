@@ -220,6 +220,11 @@ object Conformance {
           case _ => return (true, undefinedSubst)
         }
       }
+      case (tpt1: ScTypeParameterType, tpt2: ScTypeParameterType) => {
+        val res = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
+        if (res._1) return res
+        return conformsInner(l, tpt2.upper.v, HashSet.empty, undefinedSubst)
+      }
       case (tpt: ScTypeParameterType, _) => return conformsInner(tpt.lower.v, r, HashSet.empty, undefinedSubst)
       case (_, tpt: ScTypeParameterType) => return conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       case (Null, _) => return (r == Nothing, undefinedSubst)
