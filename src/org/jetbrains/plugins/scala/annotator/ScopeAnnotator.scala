@@ -57,6 +57,7 @@ trait ScopeAnnotator {
     element.children.foreach {
       _.depthFirst(!_.isScope).foreach {
         case e: ScObject => objects ::= e
+        case e: ScFunction => if(e.typeParameters.isEmpty) terms ::= e
         case e: ScTypedDefinition => terms ::= e
         case e: ScTypeAlias => types ::= e
         case e: ScTypeParam => types ::= e
