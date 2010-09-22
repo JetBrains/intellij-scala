@@ -157,34 +157,27 @@ object MethodResolveProcessor {
     }
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
-      fun match {
-        case fun: ScFunction if isUnderscore => ConformanceExtResult(Seq.empty)
-        case fun: ScFun if isUnderscore => ConformanceExtResult(Seq.empty)
-        case fun: PsiMethod if isUnderscore => ConformanceExtResult(Seq.empty)
+      expectedOption() match {
+        case Some(ScFunctionType(retType, params)) => {
+          val args = params.map(new Expression(_))
+          Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
+        }
+        case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
+          val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
+          Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
+        }
         case _ => {
-          expectedOption() match {
-            case Some(ScFunctionType(retType, params)) => {
-              val args = params.map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
-            }
-            case Some(p@ScParameterizedType(des, typeArgs)) if p.getFunctionType != None => {
-              val args = typeArgs.slice(0, typeArgs.length - 1).map(new Expression(_))
-              Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
-            }
-            case _ => {
-              fun match {
-                case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
-                        fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
-                        isUnderscore => ConformanceExtResult(Seq.empty)
-                case fun: ScFun if fun.parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
-                case c: ScPrimaryConstructor 
-                  if(c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)) => 
-                  ConformanceExtResult(Seq.empty) 
-                case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
-                        isUnderscore => ConformanceExtResult(Seq.empty)
-                case _ => ConformanceExtResult(Seq(MissedParametersClause(null)))
-              }
-            }
+          fun match {
+            case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
+                    fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
+                    isUnderscore => ConformanceExtResult(Seq.empty)
+            case fun: ScFun if fun.parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
+            case c: ScPrimaryConstructor
+              if(c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)) =>
+              ConformanceExtResult(Seq.empty)
+            case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
+                    isUnderscore => ConformanceExtResult(Seq.empty)
+            case _ => ConformanceExtResult(Seq(MissedParametersClause(null)))
           }
         }
       }
