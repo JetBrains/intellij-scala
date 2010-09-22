@@ -45,9 +45,9 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Type')
-        PsiErrorElement:';' or newline expected
-          <empty list>
-        PsiWhiteSpace(' ')
-        PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiErrorElement:Expected expression
+            <empty list>
         PsiWhiteSpace(' \n')
         PsiElement(})('}')

@@ -130,7 +130,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case JavaArrayType(arg) => JavaArrayType(substInternal(arg))
     case pt@ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
       tvMap.get((tpt.name, tpt.getId)) match {
-        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
+        case Some(param: ScParameterizedType) if pt != param => {
+          if (tpt.args.length == 0) {
+            substInternal(param) //to prevent types like T[A][A]
+          } else {
+            ScParameterizedType(param.designator, typeArgs.map(substInternal))
+          }
+        }
         case _ => {
           substInternal(tpt) match {
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
@@ -141,7 +147,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     }
     case pt@ScParameterizedType(u: ScUndefinedType, typeArgs) => {
       tvMap.get((u.tpt.name, u.tpt.getId)) match {
-        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
+        case Some(param: ScParameterizedType) if pt != param => {
+          if (u.tpt.args.length == 0) {
+            substInternal(param) //to prevent types like T[A][A]
+          } else {
+            ScParameterizedType(param.designator, typeArgs.map(substInternal))
+          }
+        }
         case _ => {
           substInternal(u) match {
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
@@ -152,7 +164,13 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     }
     case pt@ScParameterizedType(u: ScAbstractType, typeArgs) => {
       tvMap.get((u.tpt.name, u.tpt.getId)) match {
-        case Some(param: ScParameterizedType) if pt != param => substInternal(param) //to prevent types like T[A][A]
+        case Some(param: ScParameterizedType) if pt != param => {
+          if (u.tpt.args.length == 0) {
+            substInternal(param) //to prevent types like T[A][A]
+          } else {
+            ScParameterizedType(param.designator, typeArgs.map(substInternal))
+          }
+        }
         case _ => {
           substInternal(u) match {
             case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {substInternal _})
