@@ -5,4 +5,4 @@ case class MA[M[_], A](ma: M[A])
 def eitherMA[A, B](e: Either[A, B]): MA[Partial[Either, A]#Apply, B] = new MA[Partial[Either, A]#Apply, B](e)
 val l: Either[Int, Boolean] = Left(1)
 /*start*/eitherMA(l).ma/*end*/
-//Either[Int, Boolean]
+//Partial[Either, Int]#Apply[Boolean]

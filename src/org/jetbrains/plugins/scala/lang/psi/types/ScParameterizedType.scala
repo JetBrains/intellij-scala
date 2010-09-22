@@ -127,28 +127,39 @@ object ScParameterizedType {
 case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
                               lower: Suspension[ScType], upper: Suspension[ScType],
                               param: PsiTypeParameter) extends ValueType {
-  def this(tp : ScTypeParam, s : ScSubstitutor) =
-    this(tp.name, tp.typeParameters.toList.map{new ScTypeParameterType(_, s)},
-      new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrElse(Nothing))}),
-      new Suspension[ScType]({() => s.subst(tp.upperBound.getOrElse(Any))}),
-      tp)
-
-  def this(ptp: PsiTypeParameter, s: ScSubstitutor) =
-    this(ptp.getName, ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s)),
-      new Suspension[ScType]({() =>
-              s.subst(
-        ScCompoundType(collection.immutable.Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
-                ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty))
-      }),
-      new Suspension[ScType]({() =>
-              s.subst(
-        ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty, ScSubstitutor.empty))
-      }),
-      ptp
-    )
+  def this(ptp: PsiTypeParameter, s: ScSubstitutor) = {
+    this(ptp match {case tp: ScTypeParam => tp.name case _ => ptp.getName},
+         ptp match {case tp: ScTypeParam => tp.typeParameters.toList.map{new ScTypeParameterType(_, s)}
+           case _ => ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s))},
+         ptp match {case tp: ScTypeParam =>
+             new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrElse(Nothing))})
+           case _ => new Suspension[ScType]({() => s.subst(
+             ScCompoundType(collection.immutable.Seq(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
+                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty))
+         })},
+         ptp match {case tp: ScTypeParam =>
+             new Suspension[ScType]({() => s.subst(tp.upperBound.getOrElse(Any))})
+           case _ => new Suspension[ScType]({() => s.subst(
+             ScCompoundType(ptp.getSuperTypes.map(ScType.create(_, ptp.getProject)).toSeq, Seq.empty, Seq.empty, ScSubstitutor.empty))
+         })}, ptp)
+  }
 
   def getId: String = {
     ScalaPsiUtil.getPsiElementId(param)
+  }
+
+  def isCovariant = {
+    param match {
+      case tp: ScTypeParam => tp.isCovariant
+      case _ => false
+    }
+  }
+
+  def isConravariant = {
+    param match {
+      case tp: ScTypeParam => tp.isContravariant
+      case _ => false
+    }
   }
 }
 
