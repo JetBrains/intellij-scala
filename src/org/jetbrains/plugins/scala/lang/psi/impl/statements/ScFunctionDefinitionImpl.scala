@@ -39,7 +39,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
     if (getStub == null) {
       body match {
-        case Some(x) if x == lastParent =>
+        case Some(x) if x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
           for (p <- parameters) {
             ProgressManager.checkCanceled
             if (!processor.execute(p, state)) return false
