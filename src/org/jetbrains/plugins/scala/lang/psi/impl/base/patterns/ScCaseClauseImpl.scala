@@ -37,13 +37,11 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
           true
         }
         expr match {
-          case Some(e) if e == lastParent => if (!process) return false
+          case Some(e) if e.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
           case _ =>
             guard match {
-              case Some(g) if g == lastParent => if (!process) return false
-              case _ => {
-                if (lastParent.getParent.isInstanceOf[JavaDummyHolder] && !process) return false
-              }
+              case Some(g) if g.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
+              case _ =>
             }
         }
       }
