@@ -80,7 +80,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case guard: ScGuard => {
           exprText.append("for {").append(gen.pattern.getText).
                   append(" <- ((").append(gen.rvalue.getText).append(").filter(").
-                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append("))")
+                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ").
+                  append(guard.expr.map(_.getText).getOrElse("true")).append("))")
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
                   !next.isInstanceOf[ScGenerator]) next = next.getNextSibling

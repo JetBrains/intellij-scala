@@ -17,6 +17,8 @@ class TypeInferenceBugs2Test extends TypeInferenceTestBase {
 
   def testInnerConstructorPattern2 = doTest
 
+  def testSCL1983 = doTest
+
   def testSCL2014 = doTest
 
   def testSCL2024A = doTest
