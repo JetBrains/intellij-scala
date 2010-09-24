@@ -98,12 +98,16 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Short")
 
 object ScType {
-  def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0): ScType = {if (deep > 2) return Any; psiType match {
+  def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
+             paramTopLevel: Boolean = false): ScType = {if (deep > 2) return Any; psiType match {
     case classType: PsiClassType => {
       val result = classType.resolveGenerics
       result.getElement match {
         case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => AnyRef
+        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => {
+          if (!paramTopLevel) AnyRef
+          else Any
+        }
         case clazz if clazz != null => {
           val tps = clazz.getTypeParameters
           def constructTypeForClass(clazz: PsiClass): ScType = {

@@ -294,7 +294,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                     }
                     buffer.append(": ")
-                    buffer.append(ScType.presentableText(subst.subst(ScType.create(paramType, method.getProject))))
+                    buffer.append(ScType.presentableText(subst.subst(
+                      ScType.create(paramType, method.getProject, paramTopLevel = true)
+                    )))
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
                     else {
