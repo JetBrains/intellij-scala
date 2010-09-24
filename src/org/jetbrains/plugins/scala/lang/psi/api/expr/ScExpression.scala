@@ -17,7 +17,6 @@ import statements.params.ScParameter
 import types._
 import nonvalue._
 import collection.{Set, Seq}
-import statements.{ScFunctionDefinition, ScFunction}
 import resolve.processor.MostSpecificUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
@@ -26,6 +25,8 @@ import com.intellij.psi.{PsiNamedElement, PsiElement, PsiInvalidElementAccessExc
 import psi.{ScalaPsiUtil}
 import base.ScLiteral
 import lexer.ScalaTokenTypes
+import types.Conformance.AliasType
+import statements.{ScTypeAliasDefinition, ScFunctionDefinition, ScFunction}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -229,12 +230,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           }
         }
         implicitParameters = Some(resolveResults.toSeq)
+        res = retType
       }
       case _ =>
     }
 
     res match {
-      case ScMethodType(retType, params, impl) if impl => res = retType //todo: move upper
       case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
         def updateRes(expected: ScType) {
           res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
@@ -250,6 +251,75 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           }
         }
 
+      }
+      case _ =>
+    }
+    res match {
+      case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0 => {
+        def updateRes(exp: Option[ScType]) {
+          exp match {
+            case Some(expected) => {
+              expected match {
+                case ScFunctionType(_, params) =>
+                case p: ScParameterizedType if p.getFunctionType != None =>
+                case _ => {
+                  Conformance.isAliasType(expected) match {
+                    case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
+                      ta.aliasedType match {
+                        case Success(ScFunctionType(_, _), _) =>
+                        case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
+                        case _ => res = ScTypePolymorphicType(retType, tp)
+                      }
+                    }
+                    case _ => res = ScTypePolymorphicType(retType, tp)
+                  }
+                }
+              }
+            }
+            case _ => res = ScTypePolymorphicType(retType, tp)
+          }
+        }
+        if (!fromUnderscoreSection) {
+          updateRes(expectedType)
+        } else {
+          expectedType match {
+            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))
+            case _ => res = ScTypePolymorphicType(retType, tp)
+          }
+        }
+      }
+      case ScMethodType(retType, params, _) if params.length == 0 => {
+        def updateRes(exp: Option[ScType]) {
+          exp match {
+            case Some(expected) => {
+              expected match {
+                case ScFunctionType(_, params) =>
+                case p: ScParameterizedType if p.getFunctionType != None =>
+                case _ => {
+                  Conformance.isAliasType(expected) match {
+                    case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
+                      ta.aliasedType match {
+                        case Success(ScFunctionType(_, _), _) =>
+                        case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
+                        case _ => res = retType
+                      }
+                    }
+                    case _ => res = retType
+                  }
+                }
+              }
+            }
+            case _ => res = retType
+          }
+        }
+        if (!fromUnderscoreSection) {
+          updateRes(expectedType)
+        } else {
+          expectedType match {
+            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))
+            case _ => res = retType
+          }
+        }
       }
       case _ =>
     }

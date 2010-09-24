@@ -46,7 +46,6 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
   }
 
   def inferValueType: ValueType = {
-    if (params.length == 0) return returnType.inferValueType
     return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType), project, scope)
   }
 
