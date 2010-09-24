@@ -47,5 +47,7 @@ class TypeInferenceBugs2Test extends TypeInferenceTestBase {
 
   def testSCL2375 = doTest
 
+  def testSCL2381 = doTest
+
   def testSuperExpected = doTest
 }
