@@ -33,4 +33,4 @@ object param3 {
 }
 /*start*/(simple.c, param1.c, param2.c, param3.c)/*end*/
 
-//(S1, S2, S2, S2)
+//(S2, S2, S2, S2)
