@@ -11,6 +11,8 @@ import com.intellij.psi.{GenericsUtil, PsiClass}
 import collection.mutable.{ArrayBuffer, Set, HashSet}
 import api.statements.ScTypeAliasDefinition
 import result.TypingContext
+import com.intellij.psi.util.InheritanceUtil
+import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 
 object Bounds {
 
@@ -42,39 +44,54 @@ object Bounds {
       case (_, ex : ScExistentialType) => lub(t1, ex.skolem)
       case (_: ValType, _: ValType) => types.AnyVal
       case (JavaArrayType(arg1), JavaArrayType(arg2)) => {
-        JavaArrayType(calcForTypeParamWithotVariance(arg1, arg2))
+        JavaArrayType(calcForTypeParamWithoutVariance(arg1, arg2))
       }
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
         case Some(q) => q.getQualifiedName == "scala.Array"
         case _ => false
       }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithotVariance(arg, args(0))))
+        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
       }
       case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
         case Some(q) => q.getQualifiedName == "scala.Array"
         case _ => false
       }) => {
-        ScParameterizedType(des, Seq(calcForTypeParamWithotVariance(arg, args(0))))
+        ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
       }
-      case _ => (ScType.extractClassType(t1), ScType.extractClassType(t2)) match {
-        case (Some((clazz1, subst1)), Some((clazz2, subst2))) => {
-          val set = new HashSet[ScType]
-          val supers = GenericsUtil.getLeastUpperClasses(clazz1, clazz2) //todo: rewrite it for scala (to have for compound types)
-          for (sup <- supers) {
-            set += getTypeForAppending(clazz1, subst1, clazz2, subst2, sup, depth)
+      case _ => {
+        val aOptions: Seq[Option[(PsiClass, ScSubstitutor)]] = {
+          t1 match {
+            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(ScType.extractClassType(_))
+            case _ => Seq(ScType.extractClassType(t1))
           }
-          set.toArray match {
+        }
+        val bOptions: Seq[Option[(PsiClass, ScSubstitutor)]] = {
+          t2 match {
+            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(ScType.extractClassType(_))
+            case _ => Seq(ScType.extractClassType(t2))
+          }
+        }
+        if (aOptions.contains(None) || bOptions.contains(None)) Any
+        else {
+          val buf = new ArrayBuffer[ScType]
+          val supers = getLeastUpperClasses(aOptions.map(_.get._1).toArray, bOptions.map(_.get._1).toArray)
+          for (sup <- supers) {
+            val tp = getTypeForAppending(aOptions(sup._2).get._1, aOptions(sup._2).get._2,
+              bOptions(sup._3).get._1, bOptions(sup._3).get._2, sup._1, depth)
+            if (tp != Any) buf += tp
+          }
+          buf.toArray match {
             case a: Array[ScType] if a.length == 0 => Any
             case a: Array[ScType] if a.length == 1 => a(0)
             case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
           }
         }
-        case _ => Any //todo: compound types
+        //todo: refinement for compound types
       }
     }
   }
 
-  private def calcForTypeParamWithotVariance(substed1: ScType, substed2: ScType): ScType = {
+  private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType): ScType = {
     if (substed1 equiv substed2) substed1 else Any
   }
 
@@ -95,7 +112,7 @@ object Bounds {
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
-            case _ => calcForTypeParamWithotVariance(substed1, substed2) //todo: _ >: substed1 with substed2
+            case _ => calcForTypeParamWithoutVariance(substed1, substed2) //todo: _ >: substed1 with substed2
           })
         }
         return ScParameterizedType(ScDesignatorType(baseClass), resTypeArgs.toSeq)
@@ -135,7 +152,7 @@ object Bounds {
     }
   }
 
-  def putAliases(template : ScTemplateDefinition, s : ScSubstitutor): ScSubstitutor = {
+  def putAliases(template: ScTemplateDefinition, s: ScSubstitutor): ScSubstitutor = {
     var run = s
     for (alias <- template.aliases) {
       alias match {
@@ -145,5 +162,50 @@ object Bounds {
       }
     }
     run
+  }
+
+  def getLeastUpperClasses(aClasses: Array[PsiClass], bClasses: Array[PsiClass]): Array[(PsiClass, Int, Int)] = {
+    val res = new ArrayBuffer[(PsiClass, Int, Int)]
+    def addClass(aClass: PsiClass, x: Int, y: Int) {
+      var i = 0
+      var break = false
+      while (!break && i < res.length) {
+        val clazz = res(i)._1
+        if (InheritanceUtil.isInheritorOrSelf(clazz, aClass, true)) {
+          break = true
+        } else if (aClass.isInheritor(clazz, true)) {
+          res(i) = (aClass, x, y)
+          break = true
+        }
+        i = i + 1
+      }
+      if (!break) {
+        res += Tuple(aClass, x, y)
+      }
+    }
+    def checkClasses(aClasses: Array[PsiClass], baseIndex: Int = -1) {
+      if (aClasses.length == 0) return
+      val aIter = aClasses.iterator
+      var i = 0
+      while (aIter.hasNext) {
+        val aClass = aIter.next
+        val bIter = bClasses.iterator
+        var break = false
+        var j = 0
+        while (!break && bIter.hasNext) {
+          val bClass = bIter.next
+          if (InheritanceUtil.isInheritorOrSelf(bClass, aClass, true)) {
+            addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
+            break = true
+          } else {
+            checkClasses(aClass.getSupers, i)
+          }
+          j += 1
+        }
+        i += 1
+      }
+    }
+    checkClasses(aClasses)
+    return res.toArray
   }
 }
