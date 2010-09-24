@@ -254,7 +254,7 @@ object ScalaPsiUtil {
     new Stream[ScType] {
       override def head: ScType = elems.head match {
         case scp : ScParameter => scp.getType(TypingContext.empty).getOrElse(Nothing)
-        case p => ScType.create(p.getType, p.getProject)
+        case p => ScType.create(p.getType, p.getProject, paramTopLevel = true)
       }
 
       override def isEmpty: Boolean = false

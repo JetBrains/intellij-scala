@@ -170,7 +170,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                   case method: PsiMethod => {
                     if (method.getParameterList.getParametersCount == 1) {
                       typez += subst.subst(ScType.create(method.getParameterList.getParameters.apply(0).getType,
-                        method.getProject, ref.getResolveScope))
+                        method.getProject, ref.getResolveScope, paramTopLevel = true))
                     }
                   }
                 }

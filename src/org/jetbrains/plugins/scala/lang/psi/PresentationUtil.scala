@@ -83,14 +83,12 @@ object PresentationUtil {
           if (element != null) buffer.append("@").append(element.getText)
         }
         if (lastSize != buffer.length) buffer.append(" ")
-        val paramType = param.getType
-
         val name = param.getName
         if (name != null) {
           buffer.append(name)
         }
         buffer.append(": ")
-        buffer.append(presentationString(param.getType, substitutor))
+        buffer.append(presentationString(param.getType, substitutor)) //todo: create param type, java.lang.Object => Any
         buffer.toString
       }
       case fun: ScFunction => {

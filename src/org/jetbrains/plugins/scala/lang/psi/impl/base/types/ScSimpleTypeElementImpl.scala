@@ -110,7 +110,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             p.isRepeatedParameter)))
         case m: PsiMethod =>
           Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
-            ScType.create(p.getType, getProject, getResolveScope), false, p.isVarArgs)))
+            ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true), false, p.isVarArgs)))
       }
 
       findConsturctor match {

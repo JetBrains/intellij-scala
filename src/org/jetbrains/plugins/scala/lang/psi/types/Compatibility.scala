@@ -354,7 +354,7 @@ object Compatibility {
           return ConformanceExtResult(Seq(new ApplicabilityProblem("19")))
 
         checkConformanceExt(false, parameters.map {param: PsiParameter => Parameter("", {
-          val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope))
+          val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
           if (param.isVarArgs) tp match {
             case ScParameterizedType(_, args) if args.length == 1 => args(0)
             case JavaArrayType(arg) => arg

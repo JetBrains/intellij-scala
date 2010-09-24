@@ -175,7 +175,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   }
                   case method: PsiMethod if invocationCount == 1=> {
                     buffer += method.getParameterList.getParameters.map({p: PsiParameter => {
-                            val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject, getResolveScope))
+                            val tp: ScType = subst.subst(ScType.create(p.getType, p.getProject, getResolveScope,
+                              paramTopLevel = true))
                             ("", if (!p.isVarArgs) tp else tp match {
                               case ScParameterizedType(_, args) if args.length == 1=> args(0)
                               case JavaArrayType(arg) => arg
@@ -238,7 +239,8 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
             for (constr: PsiMethod <- clazz.getConstructors) {
               val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
               for (param: PsiParameter <- constr.getParameterList.getParameters) {
-                add += Tuple("", subst.subst(ScType.create(param.getType, getProject, getResolveScope)))
+                add += Tuple("", subst.subst(ScType.create(param.getType, getProject, getResolveScope,
+                  paramTopLevel = true)))
               }
               res += add.toArray
             }
