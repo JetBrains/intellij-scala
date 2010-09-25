@@ -41,10 +41,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeRes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
-import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit, FullSignature}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -88,6 +86,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
     if (element.isInstanceOf[ScMethodCall]) {
       annotateMethodCall(element.asInstanceOf[ScMethodCall], holder)
+    }
+    if (element.isInstanceOf[ScSelfInvocation]) {
+      checkSelfInvocation(element.asInstanceOf[ScSelfInvocation], holder)
     }
 
     annotateScope(element, holder)
@@ -237,12 +238,21 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
     val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
     val range = refElement.nameId.getTextRange
-    /*showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-      EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
     val annotation: Annotation = holder.createInfoAnnotation(range, null)
     val attributes = new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN)
     annotation.setEnforcedTextAttributes(attributes)
     annotation.setAfterEndOfLine(false)
+  }
+
+  private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
+    self.bind match {
+      case Some(elem) =>
+      case None => {
+        val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
+          "Cannot find constructor for this call")
+        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      }
+    }
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {

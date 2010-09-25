@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
-import com.intellij.psi.{PsiElement, PsiReference}
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
-import lang.parser.ScalaElementTypes
-import lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import lang.psi.api.expr.ScSelfInvocation
+import com.intellij.psi.util.PsiTreeUtil
+import lang.psi.api.toplevel.typedef.ScClass
+import lang.resolve.processor.MethodResolveProcessor
+import lang.psi.types.Compatibility.Expression
+import lang.resolve.StdKinds
+import com.intellij.psi.{ResolveState, PsiMethod, PsiClass, PsiElement}
+import lang.psi.api.statements.ScFunction
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,7 +23,18 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
 
-    //todo: this keyword navigation
+    if (sourceElement.getNode.getElementType == ScalaTokenTypes.kTHIS) {
+      sourceElement.getParent match {
+        case self: ScSelfInvocation => {
+          self.bind match {
+            case Some(elem) => return elem
+            case None => return null
+          }
+        }
+        case _ => return null
+      }
+    }
+
     null
   }
 }
