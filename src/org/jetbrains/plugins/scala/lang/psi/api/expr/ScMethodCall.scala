@@ -6,6 +6,7 @@ package expr
 
 import statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import types.ApplicabilityProblem
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -32,4 +33,6 @@ trait ScMethodCall extends ScExpression {
 
   def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
                       getContext.asInstanceOf[ScAssignStmt].getLExpression == this
+
+  def applicationProblems: Seq[ApplicabilityProblem]
 }

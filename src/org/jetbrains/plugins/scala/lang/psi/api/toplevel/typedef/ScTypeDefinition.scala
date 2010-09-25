@@ -23,7 +23,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def isTopLevel = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition]) 
   
   def getPath: String = {
-    var qualName = getQualifiedName;
+    val qualName = getQualifiedName;
     val index = qualName.lastIndexOf('.');
     if (index < 0) "" else qualName.substring(0, index);
   }

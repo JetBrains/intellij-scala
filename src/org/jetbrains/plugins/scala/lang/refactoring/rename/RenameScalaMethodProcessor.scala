@@ -29,7 +29,9 @@ import collection.mutable.ArrayBuffer
  */
 
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
-  override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScFunction]
+  override def canProcessElement(element: PsiElement): Boolean = {
+    element.isInstanceOf[ScFunction] || element.isInstanceOf[ScPrimaryConstructor]
+  }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]): Unit = {
     val function = element match {case x: ScFunction => x case _ => return}

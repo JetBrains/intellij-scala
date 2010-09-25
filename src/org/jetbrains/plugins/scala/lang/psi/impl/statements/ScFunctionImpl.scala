@@ -212,4 +212,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   override def getName = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
+
+  override def setName(name: String): PsiElement = {
+    if (isConstructor) return this
+    else super.setName(name)
+  }
 }
