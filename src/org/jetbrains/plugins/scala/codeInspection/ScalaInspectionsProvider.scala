@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 
 
+import allErrorsInspection.AnnotatorBasedErrorInspection
 import caseClassParamInspection.CaseClassParamInspection
 import com.intellij.codeInspection.InspectionToolProvider
 import com.intellij.openapi.components.ApplicationComponent
@@ -12,7 +13,6 @@ import java.lang.String
 import packageNameInspection.PackageNameInspection
 import referenceInspections.CyclicReferencesInspection
 import sugar.FunctionTupleSyntacticSugarInspection
-import unresolvedInspection.UnresolvedReferencesInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.impl.ApplicationImpl
@@ -36,7 +36,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     res += classOf[VarCouldBeValInspection]
     res += classOf[FunctionTupleSyntacticSugarInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
-      res += classOf[UnresolvedReferencesInspection]
+      res += classOf[AnnotatorBasedErrorInspection]
     }
     res.toArray
   }
