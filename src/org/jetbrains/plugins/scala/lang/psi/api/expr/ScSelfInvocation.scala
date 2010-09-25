@@ -5,6 +5,7 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -12,4 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScSelfInvocation extends ScalaPsiElement {
+  def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
+
+  def bind: Option[PsiElement]
+
+  def thisElement: PsiElement = getFirstChild
 }
