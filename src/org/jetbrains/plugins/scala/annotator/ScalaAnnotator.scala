@@ -248,9 +248,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     self.bind match {
       case Some(elem) =>
       case None => {
-        val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
-          "Cannot find constructor for this call")
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        if (isAdvancedHighlightingEnabled(self)) {
+          val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
+            "Cannot find constructor for this call")
+          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        }
       }
     }
   }
