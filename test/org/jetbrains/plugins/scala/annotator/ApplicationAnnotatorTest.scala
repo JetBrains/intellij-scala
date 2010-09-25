@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
 import lang.psi.types.Compatibility
 import lang.psi.api.toplevel.typedef.ScClass
+import lang.psi.api.expr.ScMethodCall
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -106,6 +107,10 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
     
     file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
       annotator.annotateReference(_, mock)  
+    }
+
+    file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
+      annotator.annotateMethodCall(_, mock)
     }
     
     mock.annotations

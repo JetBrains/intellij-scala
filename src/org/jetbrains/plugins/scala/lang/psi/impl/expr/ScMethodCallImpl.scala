@@ -36,22 +36,47 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   override def toString: String = "MethodCall"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    var nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
+    val nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
     val res = nonValueType match {
-      case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => retType
-      case Success(ScMethodType(retType, _, _), _) => retType
+      case Success(ScFunctionType(retType: ScType, params: Seq[ScType]), _) => {
+        applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params.zipWithIndex.map {case (tp, i) => {
+          new Parameter("v" + (i + 1), tp, false, false)
+        }}, argumentExpressions.map(Expression(_)), true, false).problems
+        retType
+      }
+      case Success(ScMethodType(retType, params, _), _) => {
+        applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params,
+          argumentExpressions.map(Expression(_)), true, false).problems
+        retType
+      }
       case Success(ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams), _) => {
         val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
-        ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
+        val c = ScalaPsiUtil.localTypeInferenceWithApplicability(retType, params, exprs, typeParams)
+        applicabilityProblemsVar = c._2
+        c._1
       }
       case Success(tp: ScType, _) => ScalaPsiUtil.processTypeForUpdateOrApply(tp, this, false).getOrElse(Nothing) match {
-        case ScFunctionType(retType: ScType, params: Seq[ScType]) => retType
-        case ScMethodType(retType, _, _) => retType
+        case ScFunctionType(retType: ScType, params: Seq[ScType]) => {
+          applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params.zipWithIndex.map {case (tp, i) => {
+            new Parameter("v" + (i + 1), tp, false, false)
+          }}, argumentExpressions.map(Expression(_)), true, false).problems
+          retType
+        }
+        case ScMethodType(retType, params, _) => {
+          applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params,
+            argumentExpressions.map(Expression(_)), true, false).problems
+          retType
+        }
         case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
           val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
-          ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
+          val c = ScalaPsiUtil.localTypeInferenceWithApplicability(retType, params, exprs, typeParams)
+          applicabilityProblemsVar = c._2
+          c._1
         }
-        case tp => tp
+        case tp => {
+          applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
+          tp
+        }
       }
       case x => return x
     }
@@ -59,5 +84,10 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
     Success(res, Some(this))
   }
 
+  private var applicabilityProblemsVar: Seq[ApplicabilityProblem] = Seq.empty
 
+  def applicationProblems: scala.Seq[ApplicabilityProblem] = {
+    getType(TypingContext.empty) //update applicabilityProblemsVar if needs
+    applicabilityProblemsVar
+  }
 }

@@ -13,7 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
  */
 
 class RenameScalaClassProcessor extends RenameJavaClassProcessor {
-  override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
+  override def canProcessElement(element: PsiElement): Boolean = {
+    element.isInstanceOf[ScTypeDefinition]
+  }
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) = {
     element match {
@@ -21,6 +23,10 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor {
         ScalaPsiUtil.getCompanionModule(td) match {
           case Some(td) => allRenames.put(td, newName)
           case _ =>
+        }
+        val file = td.getContainingFile
+        if (file != null && file.getName == td.getName + ".scala") {
+          allRenames.put(file, newName + ".scala")
         }
       }
       case _ =>

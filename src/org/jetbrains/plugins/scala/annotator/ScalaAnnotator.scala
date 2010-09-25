@@ -86,6 +86,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (!compiled && element.isInstanceOf[ScPatternDefinition]) {
       annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, advancedHighlighting)
     }
+    if (element.isInstanceOf[ScMethodCall]) {
+      annotateMethodCall(element.asInstanceOf[ScMethodCall], holder)
+    }
 
     annotateScope(element, holder)
 
@@ -136,7 +139,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   def isAdvancedHighlightingEnabled(element: PsiElement) = {
-    settings(element). ENABLE_ERROR_HIGHLIGHTING
+    settings(element).ENABLE_ERROR_HIGHLIGHTING
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}

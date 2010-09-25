@@ -323,11 +323,18 @@ object ScalaPsiUtil {
                                  typeParams: Seq[TypeParameter],
                                  subst: ScSubstitutor = ScSubstitutor.empty, 
                                  shouldUndefineParameters: Boolean = true): ScTypePolymorphicType = {
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
+  }
+
+  def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                 typeParams: Seq[TypeParameter],
+                                 subst: ScSubstitutor = ScSubstitutor.empty,
+                                 shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
-    val c = Compatibility.checkConformance(true, paramsWithUndefTypes, exprs, true)
-    if (c._1) {
-      val un: ScUndefinedSubstitutor = c._2
+    val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
+    (if (c.problems.isEmpty) {
+      val un: ScUndefinedSubstitutor = c.undefSubst
       ScTypePolymorphicType(retType, typeParams.map(tp => {
         var lower = tp.lowerType
         var upper = tp.upperType
@@ -341,7 +348,7 @@ object ScalaPsiUtil {
       }))
     } else {
       ScTypePolymorphicType(retType, typeParams)
-    }
+    }, c.problems)
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
