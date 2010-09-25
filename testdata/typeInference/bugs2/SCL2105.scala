@@ -1,6 +1,12 @@
 package aasdf
 
-import javax.swing.{JPanel, JButton, JLabel}
+trait SwingConstants
+trait Accessible
+class JComponent
+class JPanel extends JComponent with Accessible
+class AbstractButton extends JComponent with SwingConstants
+class JButton extends AbstractButton with Accessible
+class JLabel extends JComponent with SwingConstants with Accessible
 
 object Test
 {

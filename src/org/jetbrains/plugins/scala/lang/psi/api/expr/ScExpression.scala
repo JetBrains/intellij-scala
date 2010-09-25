@@ -236,25 +236,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
     }
 
     res match {
-      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
-        def updateRes(expected: ScType) {
-          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
-              Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false) //here should work in different way:
-        }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType.get)
-        } else {
-          expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType)
-            case _ => //do not update res, we haven't expected type
-          }
-        }
-
-      }
-      case _ =>
-    }
-    res match {
       case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0 => {
         def updateRes(exp: Option[ScType]) {
           exp match {
@@ -283,12 +264,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           updateRes(expectedType)
         } else {
           expectedType match {
-            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))
+            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType)) //todo: another functions
             case _ => res = ScTypePolymorphicType(retType, tp)
           }
         }
       }
       case ScMethodType(retType, params, _) if params.length == 0 => {
+        //todo: duplicate
         def updateRes(exp: Option[ScType]) {
           exp match {
             case Some(expected) => {
@@ -316,13 +298,34 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           updateRes(expectedType)
         } else {
           expectedType match {
-            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))
+            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))  //todo: another functions
             case _ => res = retType
           }
         }
       }
       case _ =>
     }
+
+    res match {
+      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
+        def updateRes(expected: ScType) {
+          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
+              Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
+            typeParams, shouldUndefineParameters = false) //here should work in different way:
+        }
+        if (!fromUnderscoreSection) {
+          updateRes(expectedType.get)
+        } else {
+          expectedType.get match {
+            case ScFunctionType(retType, _) => updateRes(retType)
+            case _ => //do not update res, we haven't expected type
+          }
+        }
+
+      }
+      case _ =>
+    }
+
     val valType = res.inferValueType
     expectedType match {
       case Some(expected) => {
