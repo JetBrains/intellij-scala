@@ -9,7 +9,6 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.lookup.{LookupItem, LookupElement}
 import com.intellij.codeInsight.template._
 
-import com.intellij.psi.PsiDocumentManager
 import java.lang.String
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.ScTypedDefinition
@@ -17,6 +16,8 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.types.ScType
 import util.MacroUtil
 import lang.psi.types.result.TypingContext
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiDocumentManager}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,7 +42,17 @@ class ScalaVariableOfTypeMacro extends Macro {
     file match {
       case file: ScalaFile => {
         val element = file.findElementAt(offset)
-        val variants = MacroUtil.getVariablesForScope(element)
+        val variants = MacroUtil.getVariablesForScope(element).filter(r => {
+          val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
+          if (clazz == null) true
+          else {
+            clazz.getQualifiedName match {
+              case "scala.Predef" => false
+              case "scala" => false
+              case _ => true
+            }
+          }
+        })
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition => {
@@ -89,7 +100,17 @@ class ScalaVariableOfTypeMacro extends Macro {
     file match {
       case file: ScalaFile => {
         val element = file.findElementAt(offset)
-        val variants = MacroUtil.getVariablesForScope(element)
+        val variants = MacroUtil.getVariablesForScope(element).filter(r => {
+          val clazz = PsiTreeUtil.getParentOfType(r.element, classOf[PsiClass])
+          if (clazz == null) true
+          else {
+            clazz.getQualifiedName match {
+              case "scala.Predef" => false
+              case "scala" => false
+              case _ => true
+            }
+          }
+        })
         for (variant <- variants) {
           variant.getElement match {
             case typed: ScTypedDefinition => {
