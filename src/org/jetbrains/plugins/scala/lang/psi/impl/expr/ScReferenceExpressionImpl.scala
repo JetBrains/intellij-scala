@@ -41,7 +41,7 @@ import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 
 /**
  * @author AlexanderPodkhalyuzin
-* Date: 06.03.2008
+ * Date: 06.03.2008
  */
 
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableReferenceExpression {
@@ -66,8 +66,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val qualName = c.getQualifiedName
         if (qualName != null) {
           org.jetbrains.plugins.scala.annotator.intention.
-                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                addImportForClass(c, ref = this)
+                  ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
+                  addImportForClass(c, ref = this)
         }
         this
       }
@@ -78,7 +78,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(true, false)
 
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
-    val tp = wrap(qualifier).flatMap (_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
+    val tp = wrap(qualifier).flatMap(_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
 
     doResolve(this, new CompletionProcessor(getKinds(true), implicits)).filter(r => {
       if (filterNotNamedVariants) {
@@ -170,8 +170,17 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case None => return Failure("No declared type found", Some(this))
           }
           case _ => {
-            val result = refPatt.getType(TypingContext.empty)
-            s.subst(result.getOrElse(return result))
+            val stableTypeRequired = {
+              val expectedTypeIsStable = expectedType.exists {_.isStable}
+              // TODO there are 4 cases in SLS 6.4, this is #2
+              expectedTypeIsStable
+            }
+            if (stableTypeRequired) {
+              ScDesignatorType(refPatt)
+            } else {
+              val result = refPatt.getType(TypingContext.empty)
+              s.subst(result.getOrElse(return result))
+            }
           }
         }
       }
@@ -214,6 +223,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
-    Success(/*if (fromType != None) inner.updateThisType(fromType.get) else*/ inner, Some(this))
+    Success( /*if (fromType != None) inner.updateThisType(fromType.get) else*/ inner, Some(this))
   }
 }

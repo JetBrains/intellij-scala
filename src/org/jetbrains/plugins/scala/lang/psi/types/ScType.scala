@@ -11,13 +11,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import result.{Failure, Success, TypingContext}
 import com.intellij.openapi.project.{DumbServiceImpl, Project}
-import api.base.patterns.ScBindingPattern
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import refactoring.util.ScTypeUtil
 import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import api.statements._
 import api.toplevel.ScTypedDefinition
+import api.base.patterns.{ScReferencePattern, ScBindingPattern}
 
 trait ScType {
   final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -31,9 +31,9 @@ trait ScType {
   final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
 
   final def presentableText = ScType.presentableText(this)
-  
+
   final def canonicalText = ScType.canonicalText(this)
-  
+
   override def toString = presentableText
 
   def isValue: Boolean
@@ -53,20 +53,20 @@ trait ScType {
   def updateThisType(tp: ScType): ScType = this
 }
 
-trait ValueType extends ScType{
+trait ValueType extends ScType {
   def isValue = true
 
   def inferValueType: ValueType = this
 }
 
-abstract case class StdType(name : String, tSuper: Option[StdType]) extends ValueType {
+abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).
    * @param project in which project to find this class
    * @return If possible class to represent this type.
    */
-  def asClass(project : Project): Option[ScSyntheticClass] = {
+  def asClass(project: Project): Option[ScSyntheticClass] = {
     if (SyntheticClasses.get(project).isClassesRegistered)
       Some(SyntheticClasses.get(project).byName(name).get)
     else None
@@ -99,76 +99,79 @@ object Short extends ValType("Short")
 
 object ScType {
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
-             paramTopLevel: Boolean = false): ScType = {if (deep > 2) return Any; psiType match {
-    case classType: PsiClassType => {
-      val result = classType.resolveGenerics
-      result.getElement match {
-        case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
-        case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => {
-          if (!paramTopLevel) AnyRef
-          else Any
-        }
-        case clazz if clazz != null => {
-          val tps = clazz.getTypeParameters
-          def constructTypeForClass(clazz: PsiClass): ScType = {
-            val containingClass: PsiClass = clazz.getContainingClass
-            if (containingClass == null) {
-              return ScDesignatorType(clazz)
-            } else {
-              return ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
-            }
+             paramTopLevel: Boolean = false): ScType = {
+    if (deep > 2) return Any;
+    psiType match {
+      case classType: PsiClassType => {
+        val result = classType.resolveGenerics
+        result.getElement match {
+          case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+          case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => {
+            if (!paramTopLevel) AnyRef
+            else Any
           }
-          val des = constructTypeForClass(clazz)
-          val substitutor = result.getSubstitutor
-          tps match {
-            case Array() => des
-            case _ if classType.isRaw => {
-              new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
-                val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
-                new ScExistentialArgument("_", Nil, Nothing,
-                  arrayOfTypes.length match {
-                    case 0 => Any
-                    case 1 => create(arrayOfTypes.apply(0), project, scope, deep + 1)
-                    case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
-                  })
+          case clazz if clazz != null => {
+            val tps = clazz.getTypeParameters
+            def constructTypeForClass(clazz: PsiClass): ScType = {
+              val containingClass: PsiClass = clazz.getContainingClass
+              if (containingClass == null) {
+                return ScDesignatorType(clazz)
+              } else {
+                return ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
+              }
+            }
+            val des = constructTypeForClass(clazz)
+            val substitutor = result.getSubstitutor
+            tps match {
+              case Array() => des
+              case _ if classType.isRaw => {
+                new ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
+                  val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
+                  new ScExistentialArgument("_", Nil, Nothing,
+                    arrayOfTypes.length match {
+                      case 0 => Any
+                      case 1 => create(arrayOfTypes.apply(0), project, scope, deep + 1)
+                      case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, deep + 1)), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                    })
               }}): _*))
+              }
+              case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
+                        (tp => {
+                val psiType = substitutor.substitute(tp)
+                if (psiType != null) ScType.create(psiType, project, scope, deep + 1)
+                else ScalaPsiManager.typeVariable(tp)
+              }).toSeq: _*))
             }
-            case _ => new ScParameterizedType(des, collection.immutable.Seq(tps.map
-                      (tp => {
-              val psiType = substitutor.substitute(tp)
-              if (psiType != null) ScType.create(psiType, project, scope, deep + 1)
-              else ScalaPsiManager.typeVariable(tp)
-            }).toSeq : _*))
           }
+          case _ => Nothing
         }
-        case _ => Nothing
       }
-    }
-    case arrayType: PsiArrayType => {
-      JavaArrayType(create(arrayType.getComponentType, project, scope))
-    }
+      case arrayType: PsiArrayType => {
+        JavaArrayType(create(arrayType.getComponentType, project, scope))
+      }
 
-    case PsiType.VOID => Unit
-    case PsiType.BOOLEAN => Boolean
-    case PsiType.CHAR => Char
-    case PsiType.INT => Int
-    case PsiType.LONG => Long
-    case PsiType.FLOAT => Float
-    case PsiType.DOUBLE => Double
-    case PsiType.BYTE => Byte
-    case PsiType.SHORT => Short
-    case PsiType.NULL => Null
-    case wild : PsiWildcardType => new ScExistentialArgument("_", Nil,
-      if(wild.isSuper) create(wild.getSuperBound, project, scope, deep + 1) else Nothing,
-      if(wild.isExtends) create(wild.getExtendsBound, project, scope, deep + 1) else Any)
-    case capture : PsiCapturedWildcardType =>
-      val wild = capture.getWildcard
-      new ScSkolemizedType("_", Nil,
-        if(wild.isSuper) create(capture.getLowerBound, project, scope) else Nothing,
-        if(wild.isExtends) create(capture.getUpperBound, project, scope) else Any)
-    case null => Any//new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
-    case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
-  }}
+      case PsiType.VOID => Unit
+      case PsiType.BOOLEAN => Boolean
+      case PsiType.CHAR => Char
+      case PsiType.INT => Int
+      case PsiType.LONG => Long
+      case PsiType.FLOAT => Float
+      case PsiType.DOUBLE => Double
+      case PsiType.BYTE => Byte
+      case PsiType.SHORT => Short
+      case PsiType.NULL => Null
+      case wild: PsiWildcardType => new ScExistentialArgument("_", Nil,
+        if (wild.isSuper) create(wild.getSuperBound, project, scope, deep + 1) else Nothing,
+        if (wild.isExtends) create(wild.getExtendsBound, project, scope, deep + 1) else Any)
+      case capture: PsiCapturedWildcardType =>
+        val wild = capture.getWildcard
+        new ScSkolemizedType("_", Nil,
+          if (wild.isSuper) create(capture.getLowerBound, project, scope) else Nothing,
+          if (wild.isExtends) create(capture.getUpperBound, project, scope) else Any)
+      case null => Any //new ScExistentialArgument("_", Nil, Nothing, Any) // raw type argument from java
+      case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
+    }
+  }
 
   def toPsi(t: ScType, project: Project, scope: GlobalSearchScope): PsiType = {
     if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
@@ -287,7 +290,8 @@ object ScType {
       case pack: PsiPackage => ""
       case _ => e.getName + "."
     }
-  }})
+  }
+  })
 
   def urlText(t: ScType) = {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
@@ -309,7 +313,7 @@ object ScType {
       (e match {
         case c: PsiClass => {
           val qname = c.getQualifiedName
-          if (qname != null && qname != c.getName /* exlude default package*/) "_root_." + qname else c.getName
+          if (qname != null && qname != c.getName /* exlude default package*/ ) "_root_." + qname else c.getName
         }
         case p: PsiPackage => "_root_." + p.getQualifiedName
         case _ => e.getName
@@ -333,13 +337,17 @@ object ScType {
       case ScAbstractType(tpt, lower, upper) => buffer.append("AbstractType").append(tpt.name.capitalize)
       case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => {
-        buffer.append("("); appendSeq(params, ", "); buffer.append(") => "); inner(ret)
+        buffer.append("(");
+        appendSeq(params, ", ");
+        buffer.append(") => ");
+        inner(ret)
       }
       case ScThisType(clazz: ScTypeDefinition) => buffer.append(nameWithPointFun(clazz)).append("this.type")
       case ScThisType(clazz) => buffer.append("this.type")
       case ScTupleType(comps) => buffer.append("("); appendSeq(comps, ", "); buffer.append(")")
+      case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern)) => buffer.append(nameFun(e)).append(".type")
       case ScDesignatorType(e) => buffer.append(nameFun(e))
-      case proj@ScProjectionType(p, el, su) => {  //todo:
+      case proj@ScProjectionType(p, el, su) => { //todo:
         val e = proj.actualElement
         val s = proj.actualSubst
         val refName = e.getName
@@ -375,7 +383,10 @@ object ScType {
       case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get)
       case p: ScParameterizedType if p.getFunctionType != None => inner(p.getFunctionType.get)
       case ScParameterizedType(des, typeArgs) => {
-        inner(des); buffer.append("["); appendSeq(typeArgs, ", "); buffer.append("]")
+        inner(des);
+        buffer.append("[");
+        appendSeq(typeArgs, ", ");
+        buffer.append("]")
       }
       case j@JavaArrayType(arg) => buffer.append("Array["); inner(arg); buffer.append("]")
       case ScSkolemizedType(name, _, _, _) => buffer.append(name)
@@ -441,29 +452,31 @@ object ScType {
 
           if (!typeDecls.isEmpty) {
             if (!decls.isEmpty) buffer.append("; ")
-            buffer.append(typeDecls.map(ta => "type " + ta.getName + (if (ta.typeParameters.length > 0) (ta.typeParameters.map {param =>
-              var paramText = param.getName
-              if (param.isContravariant) paramText = "-" + paramText
-              else if (param.isCovariant) paramText = "+" + paramText
-              param.lowerBound foreach {
-                case psi.types.Nothing =>
-                case tp: ScType => paramText = paramText + " >: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-              }
-              param.upperBound foreach {
-                case psi.types.Any =>
-                case tp: ScType => paramText = paramText + " <: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-              }
-              param.viewBound foreach {
-                (tp: ScType) => paramText = paramText + " <% " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-              }
-              param.contextBound foreach {
-                (tp: ScType) => paramText = paramText + " : " +
-                        typeText(ScTypeUtil.stripTypeArgs(s.subst(tp)), nameFun, nameWithPointFun)
-              }
-              paramText
-            }).mkString("[", ", ", "]") else "")).mkString("; "))
+            buffer.append(typeDecls.map(ta =>
+              "type " + ta.getName + (if (ta.typeParameters.length > 0) (ta.typeParameters.map {param =>
+                var paramText = param.getName
+                if (param.isContravariant) paramText = "-" + paramText
+                else if (param.isCovariant) paramText = "+" + paramText
+                param.lowerBound foreach {
+                  case psi.types.Nothing =>
+                  case tp: ScType => paramText = paramText + " >: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+                }
+                param.upperBound foreach {
+                  case psi.types.Any =>
+                  case tp: ScType => paramText = paramText + " <: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+                }
+                param.viewBound foreach {
+                  (tp: ScType) => paramText = paramText + " <% " + typeText(s.subst(tp), nameFun, nameWithPointFun)
+                }
+                param.contextBound foreach {
+                  (tp: ScType) =>
+                    paramText = paramText + " : " +
+                            typeText(ScTypeUtil.stripTypeArgs(s.subst(tp)), nameFun, nameWithPointFun)
+                }
+                paramText
+              }).mkString("[", ", ", "]") else "")).mkString("; "))
           }
-          
+
           buffer.append("}")
         }
       }
@@ -487,6 +500,7 @@ object ScType {
       case ScProjectionType(projected, element: ScTypedDefinition, _) => isStable(projected) && element.isStable
       // TODO: Is this needed?
       case ExpandDesignatorToProjection(projection) => isStable(projection)
+      case ScDesignatorType(r: ScTypedDefinition) if r.isStable => true
       case _ => false
     }
   }
