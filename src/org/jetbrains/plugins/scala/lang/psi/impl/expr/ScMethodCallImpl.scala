@@ -59,16 +59,16 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         case ScFunctionType(retType: ScType, params: Seq[ScType]) => {
           applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params.zipWithIndex.map {case (tp, i) => {
             new Parameter("v" + (i + 1), tp, false, false)
-          }}, argumentExpressions.map(Expression(_)), true, false).problems
+          }}, argumentExpressionsIncludeUpdateCall.map(Expression(_)), true, false).problems
           retType
         }
         case ScMethodType(retType, params, _) => {
           applicabilityProblemsVar = Compatibility.checkConformanceExt(true, params,
-            argumentExpressions.map(Expression(_)), true, false).problems
+            argumentExpressionsIncludeUpdateCall.map(Expression(_)), true, false).problems
           retType
         }
         case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
-          val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+          val exprs: Seq[Expression] = argumentExpressionsIncludeUpdateCall.map(expr => new Expression(expr))
           val c = ScalaPsiUtil.localTypeInferenceWithApplicability(retType, params, exprs, typeParams)
           applicabilityProblemsVar = c._2
           c._1

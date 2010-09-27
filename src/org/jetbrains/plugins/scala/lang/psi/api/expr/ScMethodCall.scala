@@ -29,10 +29,24 @@ trait ScMethodCall extends ScExpression {
 
   def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
 
+  def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = {
+    updateExpression match {
+      case Some(expr) => argumentExpressions ++ Seq(expr)
+      case _ => argumentExpressions
+    }
+  }
+
   override def accept(visitor: ScalaElementVisitor) = visitor.visitMethodCallExpression(this)
 
   def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
                       getContext.asInstanceOf[ScAssignStmt].getLExpression == this
+
+  def updateExpression: Option[ScExpression] = {
+    getContext match {
+      case a: ScAssignStmt if a.getLExpression == this => a.getRExpression
+      case _ => None
+    }
+  }
 
   def applicationProblems: Seq[ApplicabilityProblem]
 }
