@@ -110,7 +110,11 @@ object ScType {
             if (!paramTopLevel) AnyRef
             else Any
           }
-          case clazz if clazz != null => {
+          case c if c != null => {
+            val clazz = c match {
+              case o: ScObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(o)
+              case _ => c
+            }
             val tps = clazz.getTypeParameters
             def constructTypeForClass(clazz: PsiClass): ScType = {
               val containingClass: PsiClass = clazz.getContainingClass
