@@ -198,7 +198,7 @@ object Bounds {
             addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
             break = true
           } else {
-            checkClasses(aClass.getSupers, i)
+            checkClasses(aClass.getSupers, if (baseIndex == -1) i else baseIndex)
           }
           j += 1
         }
