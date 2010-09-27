@@ -111,7 +111,7 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApplyCandidates(call: ScMethodCall, tp: ScType, isShape: Boolean,
                                             noImplicits: Boolean): Array[ScalaResolveResult] = {
     import call._
-    val isUpdate = getContext.isInstanceOf[ScAssignStmt] && getContext.asInstanceOf[ScAssignStmt].getLExpression == call
+    val isUpdate = call.isUpdateCall
     val methodName = if (isUpdate) "update" else "apply"
     val args: Seq[ScExpression] = call.args.exprs ++ (
             if (isUpdate) getContext.asInstanceOf[ScAssignStmt].getRExpression match {
