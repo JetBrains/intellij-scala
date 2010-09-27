@@ -13,6 +13,7 @@ import api.statements.params.ScClassParameter
 import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import impl.light.LightMethod
 import types._
 import api.toplevel.typedef._
 import api.statements._
@@ -425,9 +426,23 @@ object TypeDefinitionMembers {
       clazz.isInstanceOf[ScObject])) {
       return false
     }
-    AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place)
+    if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
+    //fake enum methods
+    if (clazz.isEnum && shouldProcessMethods(processor)) {
+      val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
+      //todo: cache like in PsiClassImpl
+      val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.getName +
+              "[] values() {}", clazz)
+      val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.getName +
+              " valueOf(String name) throws IllegalArgumentException {}", clazz)
+      val values = new LightMethod(clazz.getManager, valuesMethod, clazz)
+      val valueOf = new LightMethod(clazz.getManager, valueOfMethod, clazz)
+      if (!processor.execute(values, state)) return false
+      if (!processor.execute(valueOf, state)) return false
+    }
+    return true
   }
 
   def processSuperDeclarations(td: ScTemplateDefinition,

@@ -8,9 +8,10 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import _root_.scala.collection.Set
+import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
 import expr.ScReferenceExpression
-import statements.{ScTypeAlias}
+import statements.ScTypeAlias
 import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -18,11 +19,8 @@ import result.TypingContext
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.psi.util.PsiTreeUtil
 import toplevel.typedef.ScTemplateDefinition
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
-import caches.CachesUtil
-
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -104,6 +102,21 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         for (field <- e.getFields if break && field.hasModifierProperty("static")) {
           if (!execute(field, state)) break = false
+        }
+
+        //todo: duplicate TypeDefinitionMembers
+        //fake enum static methods
+        if (e.isEnum) {
+          val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
+          //todo: cache like in PsiClassImpl
+          val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.getName +
+                  "[] values() {}", e)
+          val valueOfMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.getName +
+                  " valueOf(String name) throws IllegalArgumentException {}", e)
+          val values = new LightMethod(e.getManager, valuesMethod, e)
+          val valueOf = new LightMethod(e.getManager, valueOfMethod, e)
+          if (!execute(values, state)) return false
+          if (!execute(valueOf, state)) return false
         }
         break
       }
