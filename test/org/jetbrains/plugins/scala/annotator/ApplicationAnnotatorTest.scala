@@ -78,8 +78,8 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   
   def testTypeMismatch {
     assertMatches(messages("def f(a: A, b: B) {}; f(B, A)")) {
-      case Error("B", "Type mismatch, expected: A, actual: B") :: 
-              Error("A", "Type mismatch, expected: B, actual: A") :: Nil =>
+      case Error("B", "Type mismatch, expected: A, actual: B.type") ::
+              Error("A", "Type mismatch, expected: B, actual: A.type") :: Nil =>
     }
   }
   

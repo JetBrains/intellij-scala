@@ -35,7 +35,7 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
 
   def testTypeMismatchMessage {
     assertMatches(messages("val v: A = B")) {
-      case Error(_, "Type mismatch, found: B, required: A") :: Nil =>
+      case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
     }
   }
 
