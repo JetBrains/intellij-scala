@@ -182,7 +182,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
           }
           var qname: String = selectedValue.getQualifiedName
           if (qname == null) return FINAL_CHOICE
-          var toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
+          val toExclude: java.util.List[String] = AddImportAction.getAllExcludableStrings(qname)
           return new BaseListPopupStep[String](null, toExclude) {
             override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
               if (finalChoice) {

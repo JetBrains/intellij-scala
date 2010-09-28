@@ -51,26 +51,16 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 object ScalaPsiUtil {
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
                               lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
-    def processClassType(t: ScType) = ScType.extractClassType(t) match {
-      case Some((c, subst)) => {
-        val currentSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
-        c.processDeclarations(processor, state.put(ScSubstitutor.key, subst.followed(currentSubst)), null, place)
-      }
-      case _ => true
-    }
-
+    val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
     lastParent match {
       case _: ScImportStmt => {
         typeResult match {
-          case Success(ScCompoundType(comps, holders, aliases, substitutor), _) => {
-            for (t <- comps) if (!processClassType(t)) return false
-            val currentSubst = state.get(ScSubstitutor.key).getOrElse(ScSubstitutor.empty)
-            val newState = state.put(ScSubstitutor.key, substitutor.followed(currentSubst))
-            for (h <- holders; d <- h.declaredElements) if (!processor.execute(d, newState)) return false
-            for (a <- aliases) if (!processor.execute(a, newState)) return false
-            true
+          case Success(t, _) => {
+            (processor, place) match {
+              case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst t, p, state)
+              case _ => true
+            }
           }
-          case Success(t, _) => processClassType(t)
           case _ => true
         }
       }

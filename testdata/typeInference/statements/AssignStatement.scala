@@ -4,4 +4,4 @@ object AssignStatement {
 
 val x = AssignStatement
 /*start*/x(1) = 3/*end*/
-//AssignStatement
+//AssignStatement.type
