@@ -92,11 +92,15 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 
   override def toString = "Synthetic class"
 
-  def syntheticMethods = methods.values.flatMap(s => s).toArray
+  def syntheticMethods(scope: GlobalSearchScope) = methods.values.flatMap(s => s).toList ++
+          specialMethods.values.flatMap(s => s.map(_(scope))).toList
 
-  object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
+  protected object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
+  protected object specialMethods extends HashMap[String, Set[GlobalSearchScope => ScSyntheticFunction]] with
+          MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
 
-  def addMethod(method: ScSyntheticFunction) = methods.addBinding (method.name, method)
+  def addMethod(method: ScSyntheticFunction) = methods.addBinding(method.name, method)
+  def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String) = specialMethods.addBinding(methodName, method)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -197,11 +201,11 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
     any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
     any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
-    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
-    if (stringClass != null) {
-      val stringType = new ScDesignatorType(stringClass)
-      any.addMethod(new ScSyntheticFunction(manager, "toString", stringType, Seq.empty))
-    }
+    any.addMethod(scope => {
+      val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", scope)
+      val stringType = if (stringClass != null) new ScDesignatorType(stringClass) else Any
+      new ScSyntheticFunction(manager, "toString", stringType, Seq.empty)
+    }, "toString")
     any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)))
     any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
       override val retType = ScalaPsiManager.typeVariable(typeParams(0))
@@ -260,11 +264,12 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       }
     }
     scriptSyntheticValues = new HashSet[ScSyntheticValue]
+    //todo: remove all scope => method value
+    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
-      scriptSyntheticValues += new ScSyntheticValue(manager, "args",
-        JavaArrayType(ScDesignatorType(stringClass)))
-      stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
+      scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
     }
+    stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
   }
 
   var stringPlusMethod: ScType => ScSyntheticFunction = null
