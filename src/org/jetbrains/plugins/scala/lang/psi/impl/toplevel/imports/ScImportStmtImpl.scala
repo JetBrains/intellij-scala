@@ -19,11 +19,11 @@ import usages._
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor._
 import api.toplevel.typedef.ScTemplateDefinition
-import types.ScDesignatorType
 import collection.immutable.Set
 import base.types.ScSimpleTypeElementImpl
 import api.base.ScStableCodeReferenceElement
 import types.result.Failure
+import types.{ScSubstitutor, ScDesignatorType}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,16 +68,17 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
         val resolve: Array[ResolveResult] = ref.multiResolve(false)
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
-          val (elem, importsUsed) = resolveIterator.next match {
-            case s: ScalaResolveResult => (s.getElement, s.importsUsed)
-            case r: ResolveResult => (r.getElement, Set[ImportUsed]())
+          val (elem, importsUsed, s) = resolveIterator.next match {
+            case s: ScalaResolveResult => (s.getElement, s.importsUsed, s.substitutor)
+            case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
+          val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)
           ProgressManager.checkCanceled
           importExpr.selectorSet match {
             case None =>
               // Update the set of used imports
               val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
-              var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed)
+              var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
               refType.foreach { tp =>
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
@@ -105,7 +106,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                   //Collect shadowed elements
                     shadowed += ((selector, result.getElement))
                     var newState: ResolveState = state.put(ResolverEnv.nameKey, selector.importedName).
-                            put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector))
+                            put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
+                            put(ScSubstitutor.key, subst)
                     refType.foreach {tp =>
                       newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                     }
@@ -136,9 +138,10 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                             val oldImports = state.get(ImportUsed.key)
                             val newImports = if (oldImports == null) Set[ImportUsed]() else oldImports
 
-                            state.put(ImportUsed.key, Set(newImports.toSeq: _*) + ImportSelectorUsed(selector))
+                            state.put(ImportUsed.key, Set(newImports.toSeq: _*) + ImportSelectorUsed(selector)).
+                                  put(ScSubstitutor.key, subst)
                           }
-                          case None => state
+                          case None => state.put(ScSubstitutor.key, subst)
                         }
 
                         refType.foreach {tp =>
@@ -150,7 +153,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                     }
 
                     val newImportsUsed: Set[ImportUsed] = Set(importsUsed.toSeq: _*) + ImportWildcardSelectorUsed(importExpr)
-                    var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed)
+                    var newState: ResolveState = state.put(ImportUsed.key, newImportsUsed).put(ScSubstitutor.key, subst)
                     refType.foreach {tp =>
                       newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                     }
