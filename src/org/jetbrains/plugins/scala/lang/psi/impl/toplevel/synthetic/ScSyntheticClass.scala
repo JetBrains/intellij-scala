@@ -92,7 +92,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 
   override def toString = "Synthetic class"
 
-  def syntheticMethods = methods.values.toList.flatMap(s => s).toList.toArray
+  def syntheticMethods = methods.values.flatMap(s => s).toArray
 
   object methods extends HashMap[String, Set[ScSyntheticFunction]] with MultiMap[String, ScSyntheticFunction]
 
@@ -283,7 +283,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
   def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)
-    var clazz = new ScSyntheticClass(manager, name, t)
+    val clazz = new ScSyntheticClass(manager, name, t)
 
     all += ((name, clazz)); clazz
   }
