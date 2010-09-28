@@ -154,9 +154,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
                   })) return false
 
           if (name == "Any") {
-            for (m <- c.methods) {
-              m._1 match {
-                case "toString" | "hashCode" | "equals" => for (meth <- m._2) this.execute(meth, state)
+            for (m <- c.syntheticMethods(place.getResolveScope)) {
+              m.name match {
+                case "toString" | "hashCode" | "equals" => this.execute(m, state)
                 case _ => //do nothing
               }
             }
