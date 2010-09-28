@@ -16,13 +16,15 @@ import java.util.Collection;
  */
 public class ScalaGoToClassContributor implements ChooseByNameContributor {
   public String[] getNames(Project project, boolean includeNonProjectItems) {
-    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), project);
-    return classNames.toArray(new String[classNames.size()]);
+    /*final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY(), project);
+    return classNames.toArray(new String[classNames.size()]);*/
+    return new String[0];
   }
 
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-    final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
+    /*final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
     final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.SHORT_NAME_KEY(), name, project, new ScalaSourceFilterScope(scope, project));
-    return classes.toArray(new NavigationItem[classes.size()]);
+    return classes.toArray(new NavigationItem[classes.size()]);*/
+    return new NavigationItem[0];
   }
 }
