@@ -35,7 +35,7 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
 
   def testTypeMismatchMessage {
     assertMatches(messages("var v: A = B")) {
-      case Error(_, "Type mismatch, found: B, required: A") :: Nil =>
+      case Error(_, "Type mismatch, found: B.type, required: A") :: Nil =>
     }
   }
 
