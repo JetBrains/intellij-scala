@@ -267,7 +267,7 @@ object JavaToScala {
         var params = convertPsiToText(m.getParameterList)
         if (params == "" && m.isConstructor) params = "()"
         res.append(params)
-        if (!m.isConstructor) res.append(": ").append(convertPsiToText(m.getReturnTypeElement))
+        if (!m.isConstructor) res.append(" : ").append(convertPsiToText(m.getReturnTypeElement))
         if (m.getBody != null) {
           if (!m.isConstructor) res.append(" = ")
           if (m.isConstructor) {
@@ -283,7 +283,7 @@ object JavaToScala {
         if (f.hasModifierProperty("final")) {
           res.append(" val ")
         } else res.append(" var ")
-        res.append(f.getName).append(": ")
+        res.append(f.getName).append(" : ")
         res.append(convertPsiToText(f.getTypeElement))
         if (f.getInitializer != null) {
           res.append(" = ").append(convertPsiToText(f.getInitializer))
@@ -309,7 +309,7 @@ object JavaToScala {
         if (l.hasModifierProperty("final")) {
           res.append(" val ")
         } else res.append(" var ")
-        res.append(l.getName).append(": ")
+        res.append(l.getName).append(" : ")
         res.append(convertPsiToText(l.getTypeElement))
         if (l.getInitializer != null) {
           res.append(" = ").append(convertPsiToText(l.getInitializer))
@@ -331,7 +331,7 @@ object JavaToScala {
         }
       }
       case p: PsiParameter => {
-        res.append(p.getName).append(": ").append(convertPsiToText(p.getTypeElement))
+        res.append(p.getName).append(" : ").append(convertPsiToText(p.getTypeElement))
       }
       /*case a: PsiAnonymousClass => {
         a.get
@@ -355,7 +355,7 @@ object JavaToScala {
           } else forClass += clazz
         }
         if (!forObject.isEmpty && !c.isInstanceOf[PsiAnonymousClass]) {
-          var modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
+          val modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
           res.append(modifiers).append(" ")
           res.append("object ")
           res.append(c.getName)
@@ -463,7 +463,7 @@ object JavaToScala {
           res.append("private ")
         } else if (!m.hasModifierProperty("public") && m.getParent.getParent.isInstanceOf[PsiClass]) {
           val packageName: String = m.getContainingFile.asInstanceOf[PsiClassOwner].getPackageName
-          if (packageName != "") res.append("private").append("[").append(packageName.substring(packageName.indexOf(".") + 1)).append("] ")
+          if (packageName != "") res.append("private").append("[").append(packageName.substring(packageName.lastIndexOf(".") + 1)).append("] ")
         }
         if (m.hasModifierProperty("abstract")) {
           m.getParent match {
