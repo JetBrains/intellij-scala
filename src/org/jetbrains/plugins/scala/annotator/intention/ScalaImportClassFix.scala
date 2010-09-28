@@ -13,7 +13,6 @@ import com.intellij.openapi.editor.{LogicalPosition, Editor}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.psi._
-import lang.psi.api.expr.ScMethodCall
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
@@ -36,6 +35,7 @@ import com.intellij.util.ObjectUtils
 import javax.swing.{Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep, PopupChooserBuilder}
+import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -64,9 +64,12 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
   private val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   def showHint(editor: Editor): Boolean = {
     if (!ref.isValid) return false
-    ref.qualifier match {
-      case Some(_) => return false
-      case None => {
+    ref.getContext match {
+      case ref: ScReferenceElement => return false
+      case postf: ScPostfixExpr if postf.operation == ref => return false
+      case pref: ScPrefixExpr if pref.operation == ref => return false
+      case inf: ScInfixExpr if inf.operation == ref => return false
+      case _ => {
         classes = ScalaImportClassFix.getClasses(ref, project)
         classes.length match {
           case 0 => return false
