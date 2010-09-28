@@ -26,9 +26,10 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
       context.setAddCompletionChar(false)
     }
     val startOffset = context.getStartOffset
+    val lookupStringLength = item.getLookupString.length
     item.getObject match {
       case ScalaLookupObject(p: ScParameter, isNamed) if isNamed => {
-        val endOffset = startOffset + p.name.length
+        val endOffset = startOffset + lookupStringLength
         context.setAddCompletionChar(false)
         document.insertString(endOffset, " = ")
         editor.getCaretModel.moveToOffset(endOffset + 3)
@@ -45,7 +46,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           case ScalaLookupObject(fun: ScFun, _) => (fun.parameters.length, fun.asInstanceOf[ScSyntheticFunction].name)
         }
         if (count > 0) {
-          val endOffset = startOffset + methodName.length
+          val endOffset = startOffset + lookupStringLength
           val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
           val element = file.findElementAt(startOffset)
 
