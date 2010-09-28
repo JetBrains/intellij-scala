@@ -35,7 +35,7 @@ import _root_.java.util.List;
  * @author ilyas
  */
 
-trait PsiClassFake extends PsiClass{
+trait PsiClassFake extends PsiClass {
 
   def isInterface: Boolean = false
 

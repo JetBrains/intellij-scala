@@ -134,6 +134,19 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           case _ => Seq.empty[ScTypeElement]
         }
         ScType.extractClassType(tp) match {
+          case Some((clazz, subst)) if clazz.isAnnotationType => {
+            //todo: completion
+            for (method <- clazz.getMethods) {
+              method match {
+                case p: PsiAnnotationMethod => {
+                  if (p.getName == ref.refName) {
+                    baseProcessor.execute(p, ResolveState.initial)
+                  }
+                }
+                case _ =>
+              }
+            }
+          }
           case Some((clazz, subst)) => {
             val processor: MethodResolveProcessor = new MethodResolveProcessor(constr, "this",
               constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, constructorResolve = true)
