@@ -343,7 +343,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       val start = clazz.getTextRange.getStartOffset
       val eb = clazz.extendsBlock
-      var end = eb.templateBody match {
+      val end = eb.templateBody match {
         case Some(x) => {
           val shifted = eb.findElementAt(x.getStartOffsetInParent - 1) match {case w: PsiWhiteSpace => w case _ => x}
           shifted.getTextRange.getStartOffset
@@ -467,7 +467,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkExplicitTypeForReturnStatement(ret: ScReturnStmt, holder: AnnotationHolder) {
-    var fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
+    val fun: ScFunction = PsiTreeUtil.getParentOfType(ret, classOf[ScFunction])
     fun match {
       case null => {
         val error = ScalaBundle.message("return.outside.method.definition")

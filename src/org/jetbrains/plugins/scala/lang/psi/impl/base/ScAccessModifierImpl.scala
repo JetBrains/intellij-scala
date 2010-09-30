@@ -31,17 +31,55 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
 
   override def toString: String = "AccessModifier"
 
+  def idText: Option[String] = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScAccessModifierStub].getIdText
+    }
+    getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+      case null => None
+      case x => Some(x.getPsi.getText)
+    }
+  }
+
   def scope() = getReference match {
     case null => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     case ref => ref.resolve match {case named : PsiNamedElement => named}
   }
 
   //return ref only for {private|protected}[Id], not for private[this]
+  def isProtected: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScAccessModifierStub].isProtected
+    }
+    getNode.findChildByType(ScalaTokenTypes.kPROTECTED) != null
+  }
+
+  def isPrivate: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScAccessModifierStub].isPrivate
+    }
+    getNode.findChildByType(ScalaTokenTypes.kPRIVATE) != null
+  }
+
+  def isThis: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScAccessModifierStub].isThis
+    }
+    getNode.findChildByType(ScalaTokenTypes.kTHIS) != null
+  }
+
   override def getReference = {
-    val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
-    if (id == null) null else new PsiReference {
+    val text = idText
+    if (text == None) null else new PsiReference {
       def getElement = ScAccessModifierImpl.this
-      def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
+      def getRangeInElement = {
+        val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+        new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
+      }
       def getCanonicalText = resolve match {
         case td : ScTypeDefinition => td.getQualifiedName
         case p : PsiPackage => p.getQualifiedName
@@ -57,19 +95,20 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
       }
 
       private def doRename(newName : String) = {
+        val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
         val parent = id.getNode.getTreeParent
         parent.replaceChild(id.getNode, ScalaPsiElementFactory.createIdentifier(newName, getManager))
         ScAccessModifierImpl.this
       }
 
       def isReferenceTo(element: PsiElement) = element match {
-        case td : ScTypeDefinition => td.name == id.getText && resolve == td
-        case p : PsiPackage => p.getName == id.getText && resolve == p
+        case td : ScTypeDefinition => td.name == text.get && resolve == td
+        case p : PsiPackage => p.getName == text.get && resolve == p
         case _ => false
       }
 
       def resolve(): PsiElement = {
-        val name = id.getText
+        val name = text.get
         def findPackage(qname : String) : PsiPackage = {
           var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
           while (pack != null) {
@@ -113,9 +152,6 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
 
 
   def access() = {
-    val isThis = findChildByType(ScalaTokenTypes.kTHIS) != null
-    val isPrivate = findChildByType(ScalaTokenTypes.kPRIVATE) != null
-    val isProtected = findChildByType(ScalaTokenTypes.kPROTECTED) != null
     assert(isPrivate || isProtected)
     if (isPrivate) if (isThis) Access.THIS_PRIVATE else Access.PRIVATE
     else if (isThis) Access.THIS_PROTECTED else Access.PROTECTED 

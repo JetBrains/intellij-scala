@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import psi.types.result.TypingContext
+import api.expr.ScExpression
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -42,9 +43,19 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
 
   def declaredElements = bindings
 
-  def getType(ctx: TypingContext) = typeElement match {
-    case Some(te) => te.getType(ctx)
-    case None => expr.getType(ctx)
+  def getType(ctx: TypingContext) = {
+    typeElement match {
+      case Some(te) => te.getType(ctx)
+      case None => expr.getType(ctx)
+    }
+  }
+
+  def expr: ScExpression = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScValueStub].getBodyExpr.getOrElse(findChildByClassScala(classOf[ScExpression]))
+    }
+    findChildByClassScala(classOf[ScExpression])
   }
 
   def typeElement: Option[ScTypeElement] = {

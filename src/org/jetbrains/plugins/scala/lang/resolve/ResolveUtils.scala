@@ -145,97 +145,84 @@ object ResolveUtils {
               if (enclosing == null) return true
               return PsiTreeUtil.isContextAncestor(enclosing, place, false)
             }
-            am.id match {
-              case Some(id: PsiElement) => {
-                id match {
-                  case _ => {
-                    val ref = am.getReference
-                    val bind = ref.resolve
-                    if (bind == null) return true
-                    bind match {
-                      case td: ScTemplateDefinition => {
-                        PsiTreeUtil.isContextAncestor(td, place, false) ||
-                                PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
-                      }
-                      case pack: PsiPackage => {
-                        val packageName = pack.getQualifiedName
-                        val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                        if (placeEnclosing == null) return false //not Scala
-                        val placePackageName = placeEnclosing match {
-                          case file: ScalaFile => file.getPackageName
-                          case pack: ScPackaging => pack.fqn
-                        }
-                        return placePackageName.startsWith(packageName)
-                      }
-                      case _ => true
-                    }
-                  }
+            val ref = am.getReference
+            if (ref != null) {
+              val bind = ref.resolve
+              if (bind == null) return true
+              bind match {
+                case td: ScTemplateDefinition => {
+                  PsiTreeUtil.isContextAncestor(td, place, false) ||
+                          PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                 }
+                case pack: PsiPackage => {
+                  val packageName = pack.getQualifiedName
+                  val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                  if (placeEnclosing == null) return false //not Scala
+                  val placePackageName = placeEnclosing match {
+                    case file: ScalaFile => file.getPackageName
+                    case pack: ScPackaging => pack.fqn
+                  }
+                  return placePackageName.startsWith(packageName)
+                }
+                case _ => true
               }
-              case None => {
-                /*
-                ScalaRefernce.pdf:
-                  Such members can be accessed only from within the directly enclosing
-                  template and its companion module or companion class
-                */
-                val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
-                  classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
-                enclosing match {
-                  case td: ScTemplateDefinition => {
-                    PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
-                            getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+            }
+            else {
+              /*
+              ScalaRefernce.pdf:
+                Such members can be accessed only from within the directly enclosing
+                template and its companion module or companion class
+              */
+              val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
+                classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
+              enclosing match {
+                case td: ScTemplateDefinition => {
+                  PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
+                          getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                }
+                case file: ScalaFile if file.isScriptFile() => {
+                  PsiTreeUtil.isContextAncestor(file, place, false)
+                }
+                case _ => {
+                  val packageName = enclosing match {
+                    case file: ScalaFile => file.getPackageName
+                    case packaging: ScPackaging => packaging.getPackageName
                   }
-                  case file: ScalaFile if file.isScriptFile() => {
-                    PsiTreeUtil.isContextAncestor(file, place, false)
+                  val placeEnclosing: PsiElement = ScalaPsiUtil.
+                          getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                  if (placeEnclosing == null) return false //not Scala
+                  val placePackageName = placeEnclosing match {
+                    case file: ScalaFile => file.getPackageName
+                    case pack: ScPackaging => pack.getPackageName
                   }
-                  case _ => {
-                    val packageName = enclosing match {
-                      case file: ScalaFile => file.getPackageName
-                      case packaging: ScPackaging => packaging.getPackageName
-                    }
-                    val placeEnclosing: PsiElement = ScalaPsiUtil.
-                            getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                    if (placeEnclosing == null) return false //not Scala
-                    val placePackageName = placeEnclosing match {
-                      case file: ScalaFile => file.getPackageName
-                      case pack: ScPackaging => pack.getPackageName
-                    }
-                    return placePackageName.startsWith(packageName)
-                  }
+                  return placePackageName.startsWith(packageName)
                 }
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
             var withCompanion = am.access != am.Access.THIS_PROTECTED
-            am.id match {
-              case Some(id: PsiElement) => {
-                id match {
-                  case _ => {
-                    val ref = am.getReference
-                    val bind = ref.resolve
-                    if (bind == null) return true
-                    bind match {
-                      case td: ScTemplateDefinition => {
-                        if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
-                                getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
-                      }
-                      case pack: PsiPackage => { //like private (nothing related to real life)
-                        val packageName = pack.getQualifiedName
-                        val placeEnclosing: PsiElement = ScalaPsiUtil.
-                                getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                        if (placeEnclosing == null) return false //not Scala
-                        val placePackageName = placeEnclosing match {
-                          case file: ScalaFile => file.getPackageName
-                          case pack: ScPackaging => pack.fqn
-                        }
-                        if (placePackageName.startsWith(packageName)) return true
-                      }
-                      case _ => return true
-                    }
-                  }
+            val ref = am.getReference
+            if (ref != null) {
+              val bind = ref.resolve
+              if (bind == null) return true
+              bind match {
+                case td: ScTemplateDefinition => {
+                  if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
+                          getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
                 }
+                case pack: PsiPackage => { //like private (nothing related to real life)
+                  val packageName = pack.getQualifiedName
+                  val placeEnclosing: PsiElement = ScalaPsiUtil.
+                          getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                  if (placeEnclosing == null) return false //not Scala
+                  val placePackageName = placeEnclosing match {
+                    case file: ScalaFile => file.getPackageName
+                    case pack: ScPackaging => pack.fqn
+                  }
+                  if (placePackageName.startsWith(packageName)) return true
+                }
+                case _ => return true
               }
-              case None =>
             }
             val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])

@@ -21,13 +21,11 @@ trait ScAccessModifier extends ScalaPsiElement {
 
   def access() : AccessType
 
-  def id(): Option[PsiElement] = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
-    case null => None
-    case x => Some(x.getPsi)
-  }
+  def idText: Option[String]
 
-  def isPrivate = getNode.findChildByType(ScalaTokenTypes.kPRIVATE) != null
-  def isProtected = getNode.findChildByType(ScalaTokenTypes.kPROTECTED) != null
+  def isPrivate: Boolean
+  def isProtected: Boolean
+  def isThis: Boolean
 
   object Access extends Enumeration {
     val PRIVATE, PROTECTED, THIS_PRIVATE, THIS_PROTECTED = Value

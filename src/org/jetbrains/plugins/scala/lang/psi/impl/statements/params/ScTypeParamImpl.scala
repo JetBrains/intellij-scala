@@ -31,6 +31,14 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   override def toString: String = "TypeParameter"
 
+  def getOffsetInFile: Int = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeParamStub].getPositionInFile
+    }
+    getTextRange.getStartOffset
+  }
+
   def getIndex() : Int = 0
   def getOwner() : PsiTypeParameterListOwner = getContext.getContext match {
     case c : PsiTypeParameterListOwner => c

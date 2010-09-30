@@ -12,6 +12,7 @@ import com.intellij.psi.stubs.{StubOutputStream, IndexSink, StubElement, StubInp
 import com.intellij.psi.PsiElement
 import impl.ScAccessModifierStubImpl
 import psi.impl.base.ScAccessModifierImpl
+import com.intellij.util.io.StringRef
 
 /**
  * User: Alexander Podkhalyuzin
@@ -20,7 +21,16 @@ import psi.impl.base.ScAccessModifierImpl
 
 class ScAccessModifierElementType[Func <: ScAccessModifier]
         extends ScStubElementType[ScAccessModifierStub, ScAccessModifier]("access modifier") {
-  def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {}
+  def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeBoolean(stub.isProtected)
+    dataStream.writeBoolean(stub.isPrivate)
+    dataStream.writeBoolean(stub.isThis)
+    val hasId = stub.getIdText != None
+    dataStream.writeBoolean(hasId)
+    if (hasId) {
+      dataStream.writeName(stub.getIdText.get)
+    }
+  }
 
   def indexStub(stub: ScAccessModifierStub, sink: IndexSink): Unit = {}
 
@@ -29,10 +39,16 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScAccessModifier, parentStub: StubElement[ParentPsi]): ScAccessModifierStub = {
-    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.isPrivate, psi.isProtected,
+      psi.isThis, psi.idText.map(StringRef.fromString(_)))
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAccessModifierStub = {
-    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val isProtected = dataStream.readBoolean
+    val isPrivate = dataStream.readBoolean
+    val isThis = dataStream.readBoolean
+    val hasId = dataStream.readBoolean
+    val idText = if (hasId) Some(dataStream.readName)else None
+    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, isPrivate, isProtected, isThis, idText)
   }
 }

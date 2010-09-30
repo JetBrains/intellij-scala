@@ -7,18 +7,14 @@ package psi
 package types
 
 
-import api.base.ScReferenceElement
 import com.intellij.openapi.util.Key
 import collection.immutable.{Map, HashMap}
-import com.intellij.openapi.project.Project
-import api.statements.ScTypeAlias
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
-import org.jetbrains.annotations.NotNull
 import com.intellij.psi._
 
 object ScSubstitutor {
-  val empty = new ScSubstitutor()
+  val empty: ScSubstitutor = new ScSubstitutor()
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }

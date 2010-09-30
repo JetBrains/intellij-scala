@@ -19,4 +19,8 @@ trait ScParameterStub extends NamedStub[ScParameter] {
   def isDefaultParam: Boolean
 
   def isRepeated: Boolean
+
+  def isVal: Boolean
+
+  def isVar: Boolean
 }

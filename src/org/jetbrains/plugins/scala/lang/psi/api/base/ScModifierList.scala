@@ -18,7 +18,7 @@ trait ScModifierList extends ScalaPsiElement with PsiModifierList {
   def has(prop : IElementType) : Boolean
 
   //only one access modifier can occur in a particular modifier list
-  def accessModifier = findChild(classOf[ScAccessModifier])
+  def accessModifier: Option[ScAccessModifier]
 
   def getModifiersStrings: Array[String]
 

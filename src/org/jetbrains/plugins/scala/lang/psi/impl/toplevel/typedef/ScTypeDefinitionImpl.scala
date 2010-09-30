@@ -10,43 +10,33 @@ package typedef
  */
 
 import _root_.java.lang.String
-import _root_.java.util.{List, ArrayList}
+import _root_.java.util.List
 import com.intellij.openapi.util.{Pair, Iconable}
 import api.ScalaFile
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.refactoring.rename.RenameUtil
 import _root_.scala.collection.immutable.Set
 import _root_.scala.collection.mutable.ArrayBuffer
-import _root_.scala.collection.mutable.HashSet
 import com.intellij.psi._
 import com.intellij.openapi.editor.colors._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import psi.api.toplevel.packaging._
-import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.navigation._
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.impl._
 import com.intellij.util.VisibilityIcons
 import javax.swing.Icon
 import psi.stubs.ScTemplateDefinitionStub
-import stubs.StubElement
 import synthetic.JavaIdentifier
 import Misc._
-import source.PsiFileImpl
 import types._
 import fake.FakePsiMethod
-import api.base.patterns.ScBindingPattern
 import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import com.intellij.openapi.project.DumbService
 import nonvalue.Parameter
 import result.{TypeResult, Failure, Success, TypingContext}
-import util.{PsiModificationTracker, PsiUtil, PsiTreeUtil}
-import com.intellij.openapi.progress.ProgressManager
+import util.{PsiUtil, PsiTreeUtil}
 import collection.{Seq, Iterable}
 import api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
 import api.statements.params.ScClassParameter
@@ -214,7 +204,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       td.members.flatMap {
         p => {
           import api.statements.{ScVariable, ScFunction, ScValue}
-          import synthetic.PsiMethodFake
           p match {
             case primary: ScPrimaryConstructor => Array[PsiMethod](primary)
             case function: ScFunction => Array[PsiMethod](function)
@@ -326,8 +315,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     return buffer.toArray
   }
 
-  import com.intellij.psi.scope.PsiScopeProcessor
-
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
       if (visited.contains(drv)) false
@@ -407,7 +394,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
 
 
-  override def isDeprecated: Boolean = super[ScTypeDefinition].isDeprecated
+  override def isDeprecated: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
+    }
+    hasAnnotation("scala.deprecated") != None
+  }
 
   //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored
   override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = {

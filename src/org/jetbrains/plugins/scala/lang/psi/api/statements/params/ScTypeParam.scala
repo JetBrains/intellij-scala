@@ -19,4 +19,6 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
   def isContravariant(): Boolean
 
   def owner: ScTypeParametersOwner
+
+  def getOffsetInFile: Int
 }
