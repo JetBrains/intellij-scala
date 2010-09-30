@@ -13,5 +13,8 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScAccessModifierStub extends StubElement[ScAccessModifier] {
-
+  def isPrivate: Boolean
+  def isProtected: Boolean
+  def isThis: Boolean
+  def getIdText: Option[String]
 }

@@ -23,8 +23,12 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
       case Some(t) => t.getText()
       case None => ""
     }
+    val (isVal, isVar) = psi match {
+      case c: ScClassParameter => (c.isVal, c.isVar)
+      case _ => (false, false)
+    }
     new ScParameterStubImpl[ParentPsi](parentStub, this, psi.getName, typeText, psi.isStable, psi.baseDefaultParam,
-      psi.isRepeatedParameter)
+      psi.isRepeatedParameter, isVal, isVar)
   }
 
   def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
@@ -33,6 +37,8 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     dataStream.writeBoolean(stub.isStable)
     dataStream.writeBoolean(stub.isDefaultParam)
     dataStream.writeBoolean(stub.isRepeated)
+    dataStream.writeBoolean(stub.isVal)
+    dataStream.writeBoolean(stub.isVar)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
@@ -42,7 +48,9 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     val stable = dataStream.readBoolean
     val default = dataStream.readBoolean
     val repeated = dataStream.readBoolean
-    new ScParameterStubImpl(parent, this, name, typeText, stable, default, repeated)
+    val isVal = dataStream.readBoolean
+    val isVar = dataStream.readBoolean
+    new ScParameterStubImpl(parent, this, name, typeText, stable, default, repeated, isVal, isVar)
   }
 
   def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {}

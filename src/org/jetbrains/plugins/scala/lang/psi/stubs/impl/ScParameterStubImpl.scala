@@ -22,27 +22,35 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var stable: Boolean = false
   private var default: Boolean = false
   private var repeated: Boolean = false
+  private var _isVal: Boolean = false
+  private var _isVar: Boolean = false
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, typeText: String, stable: Boolean, default: Boolean, repeated: Boolean) = {
+          name: String, typeText: String, stable: Boolean, default: Boolean, repeated: Boolean,
+          isVal: Boolean, isVar: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.typeText = StringRef.fromString(typeText)
     this.stable = stable
     this.default = default
     this.repeated = repeated
+    this._isVar = isVar
+    this._isVal = isVal
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef, typeText: StringRef, stable: Boolean, default: Boolean, repeated: Boolean) = {
+          name: StringRef, typeText: StringRef, stable: Boolean, default: Boolean, repeated: Boolean,
+          isVal: Boolean, isVar: Boolean) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
     this.typeText = typeText
     this.stable = stable
     this.default = default
     this.repeated = repeated
+    this._isVar = isVar
+    this._isVal = isVal
   }
 
   def getName: String = StringRef.toString(name)
@@ -54,4 +62,8 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   def isDefaultParam: Boolean = default
 
   def isRepeated: Boolean = repeated
+
+  def isVar: Boolean = _isVar
+
+  def isVal: Boolean = _isVal
 }

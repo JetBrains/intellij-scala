@@ -619,7 +619,7 @@ object Conformance {
         }
       }
       case _ => {
-        var bases: Seq[ScType] = BaseTypes.get(r)
+        val bases: Seq[ScType] = BaseTypes.get(r)
         val iterator = bases.iterator
         while (iterator.hasNext) {
           ProgressManager.checkCanceled

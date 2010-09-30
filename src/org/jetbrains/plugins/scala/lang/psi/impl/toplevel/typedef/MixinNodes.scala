@@ -91,7 +91,7 @@ abstract class MixinNodes {
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
       case ScDesignatorType(template: ScTypeDefinition) => {
-        place = Some(template.getLastChild)
+        place = Some(template.extendsBlock)
         processScala(template, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
         (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty))

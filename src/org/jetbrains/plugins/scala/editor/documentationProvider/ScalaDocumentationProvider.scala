@@ -260,9 +260,9 @@ object ScalaDocumentationProvider {
       case ref => ref.resolve match {
         case clazz: PsiClass => "[<a href=\"psi_element://" +
                 escapeHtml(clazz.getQualifiedName) + "\"><code>" +
-                (x.id match {case Some(x) => x.getText case None => ""}) + "</code></a>]"
+                (x.idText match {case Some(text) => text case None => ""}) + "</code></a>]"
         case pack: PsiPackage => "[" + escapeHtml(pack.getQualifiedName) + "]"
-        case _ => x.id match {case Some(x) => "[" + x.getText + "]" case None => ""}
+        case _ => x.idText match {case Some(text) => "[" + text + "]" case None => ""}
       }
     }) + " "
 

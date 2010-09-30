@@ -18,4 +18,12 @@ trait ScTypeAliasStub extends NamedStub[ScTypeAlias] {
   def getTypeElementText: String
 
   def getTypeElement: ScTypeElement
+
+  def getLowerBoundElementText: String
+
+  def getLowerBoundTypeElement: ScTypeElement
+
+  def getUpperBoundElementText: String
+
+  def getUpperBoundTypeElement: ScTypeElement
 }

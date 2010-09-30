@@ -292,10 +292,18 @@ object ScalaPsiUtil {
   }
 
   def getPsiElementId(elem: PsiElement): String = {
-    if (elem != null && elem.isValid) {
-      " in:" + (if (elem.getContainingFile != null)elem.getContainingFile.getName else "NoFile") + ":" +
+    if (elem == null || !elem.isValid) "NotValidElement"
+    elem match {
+      case tp: ScTypeParam => {
+        " in:" + (if (elem.getContainingFile != null) elem.getContainingFile.getName else "NoFile") + ":" +
+            tp.getOffsetInFile
+      }
+      case p: PsiTypeParameter => " in: Java" //Two parameters from Java can't be used with same name in same place
+      case _ => {
+        " in:" + (if (elem.getContainingFile != null)elem.getContainingFile.getName else "NoFile") + ":" +
               (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
-    } else "NotValidElemId"
+      }
+    }
   }
 
   def getSettings(project: Project): ScalaCodeStyleSettings = {

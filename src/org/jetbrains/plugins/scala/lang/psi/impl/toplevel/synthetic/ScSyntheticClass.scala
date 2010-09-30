@@ -57,7 +57,9 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
   def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
   def findAnnotation(p1: String): PsiAnnotation = null
-  
+
+  def getOffsetInFile: Int = 0
+
   override def toString = "Synthetic type parameter"
 
   def isCovariant() = false

@@ -269,13 +269,13 @@ trait ScPattern extends ScalaPsiElement {
     return tp
   }
 
-  private def innerExpectedType: Option[ScType] = getParent match {
-    case list : ScPatternList => list.getParent match {
+  private def innerExpectedType: Option[ScType] = getContext match {
+    case list : ScPatternList => list.getContext match {
       case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(return None))
       case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(return None))
     }
     case argList : ScPatternArgumentList => {
-      argList.getParent match {
+      argList.getContext match {
         case constr : ScConstructorPattern => {
           resolveReferenceToExtractor(constr.ref, constr.args.patterns.findIndexOf(_ == this), constr.expectedType,
             argList.patterns.length)
@@ -292,9 +292,9 @@ trait ScPattern extends ScalaPsiElement {
       resolveReferenceToExtractor(infix.refernece, i, infix.expectedType, 2)
     }
     case par: ScParenthesisedPattern => par.expectedType
-    case patternList : ScPatterns => patternList.getParent match {
+    case patternList : ScPatterns => patternList.getContext match {
       case tuple : ScTuplePattern => {
-        tuple.getParent match {
+        tuple.getContext match {
           case infix: ScInfixPattern => {
             if (infix.leftPattern != tuple) {
               //so it's right pattern
@@ -325,12 +325,12 @@ trait ScPattern extends ScalaPsiElement {
       }
       case _ => None//todo: XmlPattern
     }
-    case clause : ScCaseClause => clause.getParent/*clauses*/.getParent match {
+    case clause: ScCaseClause => clause.getContext/*clauses*/.getContext match {
       case matchStat : ScMatchStmt => matchStat.expr match {
         case Some(e) => Some(e.getType(TypingContext.empty).getOrElse(Any))
         case _ => None
       }
-      case _ : ScCatchBlock => {
+      case _: ScCatchBlock => {
         val thr = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Throwable", getResolveScope)
         if (thr != null) Some(new ScDesignatorType(thr)) else None
       }
@@ -354,7 +354,7 @@ trait ScPattern extends ScalaPsiElement {
     }
     case named: ScNamingPattern => named.expectedType
     case gen: ScGenerator => {
-      val isYield = gen.getParent.getParent.asInstanceOf[ScForStatement].isYield
+      val isYield = gen.getContext.getContext.asInstanceOf[ScForStatement].isYield
       var next = gen.getNextSibling
       if (gen.rvalue == null) return None
       //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used

@@ -47,6 +47,14 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
         case _ =>
       }
     }
+    else {
+      if (lastParent.getContext != lastParent.getParent) {
+        for (p <- parameters) {
+          ProgressManager.checkCanceled
+          if (!processor.execute(p, state)) return false
+        }
+      }
+    }
     true
   }
 

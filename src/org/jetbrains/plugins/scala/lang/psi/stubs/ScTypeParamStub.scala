@@ -25,4 +25,5 @@ trait ScTypeParamStub extends NamedStub[ScTypeParam]{
   def getContextBoundTypeElement: Array[ScTypeElement]
   def isCovariant: Boolean
   def isContravariant: Boolean
+  def getPositionInFile: Int
 }

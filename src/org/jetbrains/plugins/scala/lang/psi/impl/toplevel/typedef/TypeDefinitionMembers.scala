@@ -146,7 +146,7 @@ object TypeDefinitionMembers {
             }
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
-              if (!param.isVal && !param.isVar && place != None && template.getLastChild == place.get && !isCase) {
+              if (!param.isVal && !param.isVar && place != None && template.extendsBlock == place.get && !isCase) {
                 //this is class parameter without val or var, it's like private val
                 map += ((param, new Node(param, subst)))
               } else if (isAccessible(place, param)) {
@@ -282,7 +282,7 @@ object TypeDefinitionMembers {
             }
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
-              if (!param.isVal && !param.isVar && place != None && place.get == template.getLastChild && !isCase) {
+              if (!param.isVal && !param.isVar && place != None && place.get == template.extendsBlock && !isCase) {
                 //this is class parameter without val or var, it's like private val
                 lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
@@ -579,8 +579,7 @@ object TypeDefinitionMembers {
         val (_, n) = iterator.next
         ProgressManager.checkCanceled
         val substitutor = n.substitutor followed subst
-        if (!processor.execute(n.info.method,
-          state.put(ScSubstitutor.key, substitutor))) return false
+        if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, substitutor))) return false
       }
     }
     if (shouldProcessTypes(processor)) {

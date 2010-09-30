@@ -12,6 +12,7 @@ import com.intellij.lang.ASTNode
 import index.{ScFullClassNameIndex, ScalaIndexKeys, ScShortClassNameIndex}
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
 import com.intellij.psi.impl.java.stubs.index.{JavaFullClassNameIndex, JavaShortClassNameIndex}
+import api.expr.ScAnnotation
 
 /**
  * @author ilyas
@@ -30,8 +31,17 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     }
     val isSFC = psi.isScriptFileClass
 
+    val isDepr = psi.isInstanceOf[ScTypeDefinition] && psi.getModifierList != null &&
+      !psi.getModifierList.getAnnotations.forall(p => p match {
+        case a: ScAnnotation => {
+          val typeText = a.constructor.typeElement.getText
+          typeText != "deprecated" && typeText != "scala.deprecated"
+        }
+        case _ => true
+      })
+
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC)
+      fileName, signs, isPO, isSFC, isDepr)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream): Unit = {
@@ -43,6 +53,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val methodNames = stub.methodNames
     dataStream.writeInt(methodNames.length)
     for (name <- methodNames) dataStream.writeName(name)
+    dataStream.writeBoolean(stub.isDeprecated)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
@@ -55,7 +66,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val methodNames = new Array[StringRef](length)
     for (i <- 0 until length) methodNames(i) = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC)
+    val isDepr = dataStream.readBoolean
+    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC, isDepr)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {

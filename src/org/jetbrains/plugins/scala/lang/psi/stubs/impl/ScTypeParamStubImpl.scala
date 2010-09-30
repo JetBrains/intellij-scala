@@ -33,13 +33,14 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   private var contextBoundElement: Array[PatchedSoftReference[ScTypeElement]] = null
   private var covariant: Boolean = _
   private var contravariant: Boolean = _
+  private var positionInFile: Int = _
 
   def getName: String = StringRef.toString(name)
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: String, upperText: String, lowerText: String, viewText: Array[String], contextBoundText: Array[String],
-          covariant: Boolean, contravariant: Boolean) {
+          covariant: Boolean, contravariant: Boolean, position: Int) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.upperText = StringRef.fromString(upperText)
@@ -48,12 +49,13 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     this.contextBoundText = contextBoundText.map(StringRef.fromString(_))
     this.covariant = covariant
     this.contravariant = contravariant
+    this.positionInFile = position
   }
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           name: StringRef, upperText: StringRef, lowerText: StringRef, viewText: Array[StringRef], contextBoundText: Array[StringRef],
-          covariant: Boolean, contravariant: Boolean) {
+          covariant: Boolean, contravariant: Boolean, position: Int) {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = name
     this.upperText = upperText
@@ -62,7 +64,10 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     this.contextBoundText = contextBoundText
     this.covariant = covariant
     this.contravariant = contravariant
+    this.positionInFile = position
   }
+
+  def getPositionInFile: Int = positionInFile
 
   def isCovariant: Boolean = covariant
 

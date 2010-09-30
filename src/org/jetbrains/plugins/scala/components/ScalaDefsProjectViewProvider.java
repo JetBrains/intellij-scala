@@ -68,7 +68,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Proj
       return true;
     } else {
       String fileName = virtualFile.getNameWithoutExtension();
-      String className = type.getNameIdentifier().getText();
+      String className = type.getName();
       return fileName.equals(className);
     }
   }

@@ -24,14 +24,21 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   private var declaration: Boolean = false
   private var typeElementText: StringRef = _
   private var myTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var lowerTypeElementText: StringRef = _
+  private var myLowerTypeElement: PatchedSoftReference[ScTypeElement] = null
+  private var upperTypeElementText: StringRef = _
+  private var myUpperTypeElement: PatchedSoftReference[ScTypeElement] = null
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, isDeclaration: Boolean, typeElementText: String) = {
+          name: String, isDeclaration: Boolean, typeElementText: String, lowerTypeElementText: String,
+                  upperTypeElementText: String) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.name = StringRef.fromString(name)
     this.declaration = isDeclaration
     this.typeElementText = StringRef.fromString(typeElementText)
+    this.lowerTypeElementText = StringRef.fromString(lowerTypeElementText)
+    this.upperTypeElementText = StringRef.fromString(upperTypeElementText)
   }
 
   def getName: String = StringRef.toString(name)
@@ -49,4 +56,28 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   }
 
   def getTypeElementText: String = typeElementText.toString
+
+  def getUpperBoundTypeElement: ScTypeElement = {
+    if (myUpperTypeElement != null && myUpperTypeElement.get != null) return myUpperTypeElement.get
+    if (getUpperBoundElementText == "") return null
+    val res: ScTypeElement = {
+      ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, getPsi /*doesn't matter*/)
+    }
+    myUpperTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    return res
+  }
+
+  def getUpperBoundElementText: String = upperTypeElementText.toString
+
+  def getLowerBoundTypeElement: ScTypeElement = {
+    if (myLowerTypeElement != null && myLowerTypeElement.get != null) return myLowerTypeElement.get
+    if (getLowerBoundElementText == "") return null
+    val res: ScTypeElement = {
+      ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, getPsi /*doesn't matter*/)
+    }
+    myLowerTypeElement = new PatchedSoftReference[ScTypeElement](res)
+    return res
+  }
+
+  def getLowerBoundElementText: String = lowerTypeElementText.toString
 }

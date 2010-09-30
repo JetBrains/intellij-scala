@@ -12,8 +12,6 @@ import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
 import tools.scalap.scalax.rules.scalasig._
 import java.lang.String
-import scala.reflect.NameTransformer
-import collection.Seq
 import tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
 import scala.reflect.generic.ByteCodecs
 
@@ -24,7 +22,7 @@ import scala.reflect.generic.ByteCodecs
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 102
+  val DECOMPILER_VERSION = 109
   private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
   private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
