@@ -124,4 +124,13 @@ extends Object with ScalaTokenTypes with Block {
     return isIncomplete(lastChild);
   }
 
+  private var _suggestedWrap: Wrap = null
+  def suggestedWrap: Wrap = {
+    if (_suggestedWrap == null) {
+      val settings = getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+      _suggestedWrap = ScalaWrapManager.suggestedWrap(this, settings)
+    }
+    _suggestedWrap
+  }
+
 }

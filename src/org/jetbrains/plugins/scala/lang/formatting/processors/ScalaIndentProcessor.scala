@@ -5,28 +5,16 @@ package processors
 
 import com.intellij.formatting._
 import psi.api.ScalaFile
-import psi.api.toplevel.typedef.ScTypeDefinition
 import scaladoc.lexer.ScalaDocTokenType
 import scaladoc.psi.api.ScDocComment
 import settings.ScalaCodeStyleSettings
-
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._;
-
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
