@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import static com.intellij.psi.codeStyle.CommonCodeStyleSettings.*;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -102,6 +103,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean ENABLE_ERROR_HIGHLIGHTING = false;
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
+
+  //Binary operation
+  public int SCALA_BINARY_OPERATION_WRAP = WRAP_AS_NEEDED;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
