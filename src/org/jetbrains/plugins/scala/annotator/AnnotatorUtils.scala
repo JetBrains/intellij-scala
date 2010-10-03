@@ -7,6 +7,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.util.TextRange
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotation
+import lang.psi.api.expr.ScExpression
+import lang.psi.api.base.types.ScTypeElement
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -32,5 +34,14 @@ private[annotator] object AnnotatorUtils {
     val annotation: Annotation = holder.createWarningAnnotation(range, error)
     annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
     for (fix <- fixes) annotation.registerFix(fix)
+  }
+
+  def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
+    expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
+      val expected = typeElement.calcType
+      if (!actual.conforms(expected))
+        holder.createErrorAnnotation(expression,
+          "Type mismatch, found: %s, required: %s".format(actual.presentableText, expected.presentableText))
+    }
   }
 }

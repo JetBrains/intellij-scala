@@ -50,7 +50,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit, FullSignature}
 
 class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotator 
         with ParametersAnnotator with ApplicationAnnotator
-        with AssignmentAnnotator with VariableDefinitionAnnotator with PatternDefinitionAnnotator
+        with AssignmentAnnotator with VariableDefinitionAnnotator
+        with TypedStatementAnnotator with PatternDefinitionAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
@@ -79,6 +80,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     if (element.isInstanceOf[ScVariableDefinition]) {
       annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, advancedHighlighting)
+    }
+
+    if (element.isInstanceOf[ScTypedStmt]) {
+      annotateTypedStatement(element.asInstanceOf[ScTypedStmt], holder, advancedHighlighting)
     }
 
     if (!compiled && element.isInstanceOf[ScPatternDefinition]) {
