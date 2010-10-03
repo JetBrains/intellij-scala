@@ -287,7 +287,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           // See SCL-2408
           rp.precedence = 0
           // TODO should we clear the candidate set, too?
-        case _ => _
+        case _ =>
       }
       collectImplicits(e, processor)
     }
