@@ -13,6 +13,6 @@ import psi.ScalaPsiElement
 */
 
 trait ScTypedStmt extends ScExpression {
-  def expr = findChildByClassScala(classOf[ScExpression])
-  def typeElement = findChild(classOf[ScTypeElement])
+  def expr: ScExpression = findChildByClassScala(classOf[ScExpression])
+  def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 }
