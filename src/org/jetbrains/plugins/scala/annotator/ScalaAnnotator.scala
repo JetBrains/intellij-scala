@@ -98,6 +98,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     annotateScope(element, holder)
 
+    if (isAdvancedHighlightingEnabled(element) && settings(element).SHOW_IMPLICIT_CONVERSIONS) {
+      element match {
+        case expr: ScExpression =>
+          expr.getTypeExt(TypingContext.empty) match {
+            case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
+              highlightImplicitView(expr, implicitFunction, t, expr, holder)
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+
     element match {
       case a: ScAssignStmt => annotateAssignment(a, holder, advancedHighlighting)
       
@@ -238,11 +250,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
                               fun: PsiNamedElement, holder: AnnotationHolder): Unit = {
-    val exprText = expr.getText
     import org.jetbrains.plugins.scala.lang.psi.types.Any
-    val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+
     val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
     val range = refElement.nameId.getTextRange
+    highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
+  }
+
+  private def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
+                                    elementToHighlight: PsiElement, holder: AnnotationHolder): Unit = {
+    import org.jetbrains.plugins.scala.lang.psi.types.Any
+
+    val range = elementToHighlight.getTextRange
+    val exprText = expr.getText
+    val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
     val annotation: Annotation = holder.createInfoAnnotation(range, null)
     val attributes = new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN)
     annotation.setEnforcedTextAttributes(attributes)
