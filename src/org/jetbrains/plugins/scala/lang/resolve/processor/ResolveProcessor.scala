@@ -30,7 +30,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
    * 2 - import a.x
    * 3 - definition or declaration
    */
-  protected var precedence: Int = 0
+  var precedence: Int = 0
 
   protected val levelSet: collection.mutable.HashSet[ScalaResolveResult] = new collection.mutable.HashSet
 
@@ -101,6 +101,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       return 6
     }
     val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
+    // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
+    //      these separately.
     importUsed match {
       case _: ImportWildcardSelectorUsed => return 4
       case _: ImportSelectorUsed => return 5

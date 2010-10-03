@@ -282,6 +282,13 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     if (candidates.length == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+      processor match {
+        case rp: ResolveProcessor =>
+          // See SCL-2408
+          rp.precedence = 0
+          // TODO should we clear the candidate set, too?
+        case _ => _
+      }
       collectImplicits(e, processor)
     }
   }
