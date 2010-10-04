@@ -9,7 +9,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   def testInfixExpressionWrapAsNeeded {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
@@ -35,7 +35,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   }
 
   def testInfixPatternWrapAsNeeded {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
@@ -55,7 +55,7 @@ List(1, 2) match {
   }
 
   def testInfixTypeWrapAsNeeded {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
@@ -71,7 +71,7 @@ val x: T + T + T +
   }
 
   def testInfixExprWrapAlways {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
@@ -94,7 +94,7 @@ val x: T + T + T +
   }
 
   def testInfixExprWrapAllIfLong {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =
@@ -116,7 +116,7 @@ val x: T + T + T +
   }
 
   def testInfixExprDoNotWrap {
-    getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.DO_NOT_WRAP
     getSettings.RIGHT_MARGIN = 20
     getIndentOptions.CONTINUATION_INDENT_SIZE = 2
     val before =

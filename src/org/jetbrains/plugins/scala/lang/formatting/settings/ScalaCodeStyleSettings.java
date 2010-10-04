@@ -65,10 +65,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //Alignments
   public boolean ALIGN_MULTILINE_PARAMETERS = true;
-  public boolean ALIGN_MULTILINE_PARAMETERS_IN_CALLS = false;
   public boolean ALIGN_MULTILINE_EXTENDS_LIST = false;
   public boolean ALIGN_MULTILINE_FOR = true;
-  public boolean ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = false;
   public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
   public boolean ALIGN_IF_ELSE = false;
 
@@ -103,11 +101,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ENABLE_ERROR_HIGHLIGHTING = false;
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
 
-  //Binary operation
-  public int SCALA_BINARY_OPERATION_WRAP = WRAP_AS_NEEDED;
-  public boolean ALIGN_MULTILINE_BINARY_OPERATION = false;
-  public boolean SCALA_NEW_LINE_AFTER_PARENTHESES = false;
-  public boolean SCALA_PLACE_PARENTHESES_ON_NEW_LINE = false;
+  //Method calls
+  public boolean ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true;
+  public boolean ALIGN_PARENTHESES_IN_CALLS = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

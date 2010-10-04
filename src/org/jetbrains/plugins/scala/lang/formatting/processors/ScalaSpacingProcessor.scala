@@ -65,20 +65,30 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
+    def nodeText(node: ASTNode): String = {
+      getText(node, fileText)
+    }
 
     //new formatter spacing
     val leftElementType = leftNode.getElementType
     val rightElementType = rightNode.getElementType
+    val leftPsi = leftNode.getPsi
+    val rightPsi = rightNode.getPsi
     import ScalaTokenTypes._
-    import ScalaElementTypes._
     if (leftElementType == tLPARENTHESIS &&
-            TokenSet.create(INFIX_EXPR, INFIX_PATTERN, INFIX_TYPE).contains(rightElementType)) {
-      if (scalaSettings.SCALA_NEW_LINE_AFTER_PARENTHESES) return ON_NEW_LINE
+            (leftPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
+                    leftPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
+                    leftPsi.getParent.isInstanceOf[ScParenthesisedPattern]) &&
+            nodeText(leftNode.getTreeParent).contains("\n")) {
+      if (settings.PARENTHESES_EXPRESSION_LPAREN_WRAP) return ON_NEW_LINE
       else return WITHOUT_SPACING
     }
-    if (TokenSet.create(INFIX_EXPR, INFIX_PATTERN, INFIX_TYPE).contains(leftElementType) &&
-            rightElementType == tRPARENTHESIS) {
-      if (scalaSettings.SCALA_PLACE_PARENTHESES_ON_NEW_LINE) return ON_NEW_LINE
+    if (rightElementType == tRPARENTHESIS &&
+            (rightPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
+                    rightPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
+                    rightPsi.getParent.isInstanceOf[ScParenthesisedPattern]) &&
+            nodeText(rightNode.getTreeParent).contains("\n")) {
+      if (settings.PARENTHESES_EXPRESSION_RPAREN_WRAP) return ON_NEW_LINE
       else return WITHOUT_SPACING
     }
 
