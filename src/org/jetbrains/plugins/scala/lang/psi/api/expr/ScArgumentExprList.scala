@@ -8,6 +8,7 @@ import base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiElement
 import types.ScType
+import lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -59,4 +60,13 @@ trait ScArgumentExprList extends ScArguments {
    * Return possible applications without using resolve of reference to this call (to avoid SOE)
    */
   def possibleApplications: Array[Array[(String, ScType)]]
+
+  def missedLastExpr: Boolean = {
+    var child = getLastChild
+    while (child != null && child.getNode.getElementType != ScalaTokenTypes.tCOMMA) {
+      if (child.isInstanceOf[ScExpression]) return false
+      child = child.getPrevSibling
+    }
+    return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
+  }
 }

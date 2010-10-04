@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
  */
 
 object ScalaWrapManager {
-  def suggestedWrap(block: ScalaBlock, settings: ScalaCodeStyleSettings): Wrap = {
+  def suggestedWrap(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings): Wrap = {
+    val settings = block.getSettings
     val node = block.getNode
     val psi = node.getPsi
     def wrapBinary(elementMatch: PsiElement => Boolean,
@@ -27,12 +28,12 @@ object ScalaWrapManager {
           val notSamePriority = parentPriority != childPriority
           if (notSamePriority){
             return Wrap.createChildWrap(block.getWrap,
-                                        WrapType.byLegacyRepresentation(settings.SCALA_BINARY_OPERATION_WRAP),
+                                        WrapType.byLegacyRepresentation(settings.BINARY_OPERATION_WRAP),
                                         false)
           }
-          else return Wrap.createWrap(settings.SCALA_BINARY_OPERATION_WRAP, false)
+          else return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
         }
-        case _ => return Wrap.createWrap(settings.SCALA_BINARY_OPERATION_WRAP, false)
+        case _ => return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
       }
     }
 

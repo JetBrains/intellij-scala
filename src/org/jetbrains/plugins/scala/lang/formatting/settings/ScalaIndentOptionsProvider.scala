@@ -22,6 +22,7 @@ class ScalaIndentOptionsProvider extends FileTypeIndentOptionsProvider {
     val indentOptions = new CodeStyleSettings.IndentOptions
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
+    indentOptions.CONTINUATION_INDENT_SIZE = 2
     indentOptions
   }
 
