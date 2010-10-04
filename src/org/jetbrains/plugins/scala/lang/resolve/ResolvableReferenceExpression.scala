@@ -284,9 +284,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {
         case rp: ResolveProcessor =>
-          // See SCL-2408
-          rp.precedence = 0
-          // TODO should we clear the candidate set, too?
+          rp.resetPrecedence //do not clear candidate set, we want wrong resolve, if don't found anything
         case _ =>
       }
       collectImplicits(e, processor)
