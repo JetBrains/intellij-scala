@@ -101,6 +101,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
 
   def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
 
+  def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
+
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
       case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>

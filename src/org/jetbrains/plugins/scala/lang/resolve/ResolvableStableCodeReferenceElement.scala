@@ -9,6 +9,7 @@ import processor.{CompletionProcessor, BaseProcessor}
 import psi.api.base._
 import psi.api.expr._
 import psi.api.toplevel.ScTypedDefinition
+import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
 import psi.api.{ScPackage, ScalaFile}
 import psi.impl.toplevel.synthetic.SyntheticClasses
@@ -69,7 +70,10 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
               if (!p.processDeclarations(processor,
                 ResolveState.initial,
                 lastParent, ref)) return
-              if (!processor.changedLevel) return
+              place match {
+                case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
+                case _ => if (!processor.changedLevel) return
+              }
               treeWalkUp(place.getContext, place)
             }
           }
