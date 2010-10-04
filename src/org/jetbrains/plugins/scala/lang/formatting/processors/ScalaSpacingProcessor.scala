@@ -66,6 +66,25 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
 
+    //new formatter spacing
+    val leftElementType = leftNode.getElementType
+    val rightElementType = rightNode.getElementType
+    import ScalaTokenTypes._
+    import ScalaElementTypes._
+    if (leftElementType == tLPARENTHESIS &&
+            TokenSet.create(INFIX_EXPR, INFIX_PATTERN, INFIX_TYPE).contains(rightElementType)) {
+      if (scalaSettings.SCALA_NEW_LINE_AFTER_PARENTHESES) return ON_NEW_LINE
+      else return WITHOUT_SPACING
+    }
+    if (TokenSet.create(INFIX_EXPR, INFIX_PATTERN, INFIX_TYPE).contains(leftElementType) &&
+            rightElementType == tRPARENTHESIS) {
+      if (scalaSettings.SCALA_PLACE_PARENTHESES_ON_NEW_LINE) return ON_NEW_LINE
+      else return WITHOUT_SPACING
+    }
+
+
+    //old formatter spacing
+
     /**
      * This is not nodes text! This is blocks text, which can be different from node.
      */

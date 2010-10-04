@@ -49,8 +49,7 @@ object getDummyBlocks {
         subBlocks.addAll(getIfSubBlocks(node, block, alignment))
         return subBlocks
       }
-      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement
-        if (INFIX_ELEMENTS.contains(node.getLastChildNode.getElementType)) => {
+      case _: ScInfixExpr | _: ScInfixPattern | _: ScInfixTypeElement => {
         subBlocks.addAll(getInfixBlocks(node, block))
         return subBlocks
       }

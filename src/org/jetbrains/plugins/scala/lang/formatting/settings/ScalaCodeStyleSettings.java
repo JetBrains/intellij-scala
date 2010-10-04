@@ -69,7 +69,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_MULTILINE_EXTENDS_LIST = false;
   public boolean ALIGN_MULTILINE_FOR = true;
   public boolean ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION = false;
-  public boolean ALIGN_MULTILINE_BINARY_OPERATION = false;
   public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
   public boolean ALIGN_IF_ELSE = false;
 
@@ -106,6 +105,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //Binary operation
   public int SCALA_BINARY_OPERATION_WRAP = WRAP_AS_NEEDED;
+  public boolean ALIGN_MULTILINE_BINARY_OPERATION = false;
+  public boolean SCALA_NEW_LINE_AFTER_PARENTHESES = false;
+  public boolean SCALA_PLACE_PARENTHESES_ON_NEW_LINE = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

@@ -59,11 +59,13 @@ object ScalaWrapManager {
 
     def arrageBinary(elementMatch: PsiElement => Boolean,
                      elementOperation: PsiElement => PsiElement,
-                     elementRightSide: PsiElement => PsiElement): Wrap = {
+                     elementRightSide: PsiElement => PsiElement,
+                     elementLeftSide: PsiElement => PsiElement): Wrap = {
       childPsi.getParent match {
         case parent: PsiElement if elementMatch(parent) => {
           if (elementOperation(parent) == childPsi) return null
           if (parent != parentPsi) return suggestedWrap
+          else if (elementLeftSide(parentPsi) == childPsi) return suggestedWrap
           else if (elementRightSide(parentPsi) == childPsi) return suggestedWrap
           else return null
         }
@@ -74,15 +76,17 @@ object ScalaWrapManager {
     parentPsi match {
       case inf: ScInfixExpr => {
         return arrageBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation,
-                            _.asInstanceOf[ScInfixExpr].rOp)
+                            _.asInstanceOf[ScInfixExpr].rOp, _.asInstanceOf[ScInfixExpr].lOp)
       }
       case inf: ScInfixPattern => {
         return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece,
-                            _.asInstanceOf[ScInfixPattern].rightPattern.getOrElse(null))
+                            _.asInstanceOf[ScInfixPattern].rightPattern.getOrElse(null),
+                            _.asInstanceOf[ScInfixPattern].leftPattern)
       }
       case inf: ScInfixTypeElement => {
         return arrageBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref,
-                            _.asInstanceOf[ScInfixTypeElement].rOp.getOrElse(null))
+                            _.asInstanceOf[ScInfixTypeElement].rOp.getOrElse(null),
+                            _.asInstanceOf[ScInfixTypeElement].lOp)
       }
       case _ =>
     }
