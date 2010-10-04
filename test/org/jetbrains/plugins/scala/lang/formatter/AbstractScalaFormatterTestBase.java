@@ -33,7 +33,7 @@ import java.util.Map;
  */
 
 //todo: almost duplicate from Java
-public abstract class AbstractScalaFormatterTest extends LightIdeaTestCase {
+public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected enum Action {REFORMAT, INDENT}
 

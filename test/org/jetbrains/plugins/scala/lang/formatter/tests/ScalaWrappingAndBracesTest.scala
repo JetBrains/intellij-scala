@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
-import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTest
+import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTest {
+class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   def testInfixExpressionWrapAsNeeded {
     getScalaSettings.SCALA_BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.RIGHT_MARGIN = 20
@@ -80,7 +80,15 @@ val x: T + T + T +
 """.replace("\r", "")
     val after =
 """
-
+2 +
+  3 +
+  4 *
+    6 +
+  (7 +
+    9 *
+      10) -
+  8 -
+  4
 """.replace("\r", "")
     doTextTest(before, after)
   }
@@ -96,7 +104,13 @@ val x: T + T + T +
 """.replace("\r", "")
     val after =
 """
-
+2 +
+  2 +
+  2 +
+  2 +
+  2 +
+  2
+2 + 2 + 2 + 2 + 2
 """.replace("\r", "")
     doTextTest(before, after)
   }
