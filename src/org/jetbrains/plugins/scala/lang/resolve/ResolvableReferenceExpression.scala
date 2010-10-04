@@ -20,6 +20,7 @@ import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import psi.api.statements.params.{ScParameters, ScParameter}
+import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -96,7 +97,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           if (!p.processDeclarations(processor,
             ResolveState.initial(),
             lastParent, ref)) return
-          if (!processor.changedLevel) return
+          place match {
+            case (_ : ScTemplateBody |  _: ScExtendsBlock) => // template body and inherited members are at the same level.
+            case _ => if (!processor.changedLevel) return
+          }
           treeWalkUp(place.getContext, place)
         }
       }
@@ -278,6 +282,13 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     if (candidates.length == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
+      processor match {
+        case rp: ResolveProcessor =>
+          // See SCL-2408
+          rp.precedence = 0
+          // TODO should we clear the candidate set, too?
+        case _ =>
+      }
       collectImplicits(e, processor)
     }
   }
