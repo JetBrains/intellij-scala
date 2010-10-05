@@ -8,15 +8,10 @@ import psi.api.ScalaFile
 import scaladoc.psi.api.ScDocComment
 import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
-import com.intellij.formatting._
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiWhiteSpace
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -31,8 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params._;
-import com.intellij.formatting.Spacing;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.formatting.Spacing
+import com.intellij.openapi.util.TextRange
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -53,12 +49,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
     val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    def getSpacing(x: Int, y: Int, z: Int) = if (scalaSettings.KEEP_LINE_BREAKS)
-      Spacing.createSpacing(y, y, z, true, x)
-    else
-      Spacing.createSpacing(y, y, z, false, 0)
+    def getSpacing(x: Int, y: Int, z: Int) = {
+      if (scalaSettings.KEEP_LINE_BREAKS)
+        Spacing.createSpacing(y, y, z, true, x)
+      else Spacing.createSpacing(y, y, z, false, 0)
+    }
+    def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
+      if (scalaSettings.KEEP_LINE_BREAKS)
+        Spacing.createDependentLFSpacing(y, y, range, true, x)
+      else Spacing.createDependentLFSpacing(y, y, range, false, 0)
+    }
     val WITHOUT_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 0)
+    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, range)
     val WITH_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
+    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, range)
     val ON_NEW_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
     val DOUBLE_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 2)
     def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, false, 0)
@@ -75,20 +79,48 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val leftPsi = leftNode.getPsi
     val rightPsi = rightNode.getPsi
     import ScalaTokenTypes._
+    import ScalaElementTypes._
     if (leftElementType == tLPARENTHESIS &&
             (leftPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     leftPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
-                    leftPsi.getParent.isInstanceOf[ScParenthesisedPattern]) &&
-            nodeText(leftNode.getTreeParent).contains("\n")) {
-      if (settings.PARENTHESES_EXPRESSION_LPAREN_WRAP) return ON_NEW_LINE
+                    leftPsi.getParent.isInstanceOf[ScParenthesisedPattern])) {
+      if (settings.PARENTHESES_EXPRESSION_LPAREN_WRAP) {
+        if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+      }
+      else if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (rightElementType == tRPARENTHESIS &&
             (rightPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     rightPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
-                    rightPsi.getParent.isInstanceOf[ScParenthesisedPattern]) &&
-            nodeText(rightNode.getTreeParent).contains("\n")) {
-      if (settings.PARENTHESES_EXPRESSION_RPAREN_WRAP) return ON_NEW_LINE
+                    rightPsi.getParent.isInstanceOf[ScParenthesisedPattern])) {
+      if (settings.PARENTHESES_EXPRESSION_RPAREN_WRAP) {
+        if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+      }
+      else if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (leftElementType == tIDENTIFIER &&
+            rightPsi.isInstanceOf[ScArgumentExprList]) {
+      if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (leftElementType == tLPARENTHESIS && (leftPsi.getParent.isInstanceOf[ScArgumentExprList] ||
+            leftPsi.getParent.isInstanceOf[ScPatternArgumentList])) {
+      if (settings.CALL_PARAMETERS_LPAREN_ON_NEXT_LINE) {
+        if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+      } else if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITHOUT_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (rightElementType == tRPARENTHESIS && (rightPsi.getParent.isInstanceOf[ScArgumentExprList] ||
+            rightPsi.getParent.isInstanceOf[ScPatternArgumentList])) {
+      if (settings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE) {
+        if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITH_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+      } else if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITHOUT_SPACING
       else return WITHOUT_SPACING
     }
 

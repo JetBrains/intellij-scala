@@ -8,6 +8,17 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
  */
 
 class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
+  /* stub:
+  def test {
+    val before =
+"""
+""".replace("\r", "")
+    val after =
+"""
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+   */
   def testInfixExpressionWrapAsNeeded {
     getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
     getSettings.RIGHT_MARGIN = 20
@@ -131,4 +142,139 @@ val x: T + T + T +
 """.replace("\r", "")
     doTextTest(before, after)
   }
+
+  def testAlignBinary {
+    getSettings.ALIGN_MULTILINE_BINARY_OPERATION = true
+    val before =
+"""
+val i = 2 + 2 +
+ 3 + 5 +
+ 6 + 7 *
+ 8
+""".replace("\r", "")
+    val after =
+"""
+val i = 2 + 2 +
+        3 + 5 +
+        6 + 7 *
+            8
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testBinaryParentExpressionWrap {
+    getSettings.BINARY_OPERATION_WRAP = CommonCodeStyleSettings.WRAP_AS_NEEDED
+    getSettings.PARENTHESES_EXPRESSION_LPAREN_WRAP = true
+    getSettings.PARENTHESES_EXPRESSION_RPAREN_WRAP = true
+    getSettings.RIGHT_MARGIN = 20
+    val before =
+"""
+(2333333333333333 + 2)
+(2 +
+2)
+""".replace("\r", "")
+    val after =
+"""
+(
+  2333333333333333 +
+    2
+  )
+(
+  2 +
+    2
+  )
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testCallParametersWrap {
+    getSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    val before =
+"""
+foo(1, 2, 3)
+""".replace("\r", "")
+    val after =
+"""
+foo(1,
+  2,
+  3)
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testAlignMultilineParametersCalls {
+    getSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    val before =
+"""
+foo(1,
+2,
+3)
+""".replace("\r", "")
+    val after =
+"""
+foo(1,
+    2,
+    3)
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testCallParametersParen {
+    getSettings.CALL_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getSettings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE = true
+    val before =
+"""
+foo(1,
+2,
+3)
+""".replace("\r", "")
+    val after =
+"""
+foo(
+  1,
+  2,
+  3
+)
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testMethodCallChainWrap {
+    getSettings.METHOD_CALL_CHAIN_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    val before =
+"""
+foo(1, 2).foo(1, 2).foo(1, 2)
+""".replace("\r", "")
+    val after =
+"""
+foo(1, 2)
+  .foo(1, 2)
+  .foo(1, 2)
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testMethodCallChainAlign {
+    getSettings.ALIGN_MULTILINE_CHAINED_METHODS = true
+    val before =
+"""
+val x = foo.
+foo.goo.
+foo(1, 2, 3).
+foo.
+foo
+.foo
+""".replace("\r", "")
+    val after =
+"""
+val x = foo.
+        foo.goo.
+        foo(1, 2, 3).
+        foo.
+        foo
+        .foo
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
 }

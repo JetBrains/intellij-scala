@@ -97,14 +97,19 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS) return Indent.getNoneIndent
         else return Indent.getNormalIndent
       }
+      case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
+        Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs => {
         Indent.getContinuationWithoutFirstIndent
       }
-      case _: ScArgumentExprList => Indent.getNormalIndent
-      case _: ScDocComment => {
-        Indent.getNoneIndent
+      case _: ScArgumentExprList => {
+        if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+            child.getElementType != ScalaTokenTypes.tLPARENTHESIS)
+          Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
+        else Indent.getNoneIndent
       }
+      case _: ScDocComment => Indent.getNoneIndent
       case _ => {
         node.getElementType match {
           case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {

@@ -41,10 +41,11 @@ object getDummyBlocks {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
-    val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScIfStmt => {
-        val alignment = if (settings.ALIGN_IF_ELSE) Alignment.createAlignment
+        val alignment = if (scalaSettings.ALIGN_IF_ELSE) Alignment.createAlignment
                         else null
         subBlocks.addAll(getIfSubBlocks(node, block, alignment))
         return subBlocks
@@ -55,6 +56,14 @@ object getDummyBlocks {
       }
       case _: ScExtendsBlock => {
         subBlocks.addAll(getExtendsSubBlocks(node, block))
+        return subBlocks
+      }
+      case _: ScReferenceExpression => {
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
+        return subBlocks
+      }
+      case _: ScMethodCall => {
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node, block))
         return subBlocks
       }
       case _ =>
@@ -78,7 +87,7 @@ object getDummyBlocks {
               case ScalaTokenTypes.tRPARENTHESIS if args.missedLastExpr &&
                       settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => {
-                if (settings.ALIGN_PARENTHESES_IN_CALLS) {
+                if (settings.ALIGN_MULTILINE_METHOD_BRACKETS) {
                   if (alternateAlignment == null) {
                     alternateAlignment = Alignment.createAlignment
                   }
@@ -88,6 +97,29 @@ object getDummyBlocks {
               case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
               case _ => null
             }
+          }
+          case patt: ScPatternArgumentList => {
+            child.getElementType match {
+              case ScalaTokenTypes.tRPARENTHESIS if patt.missedLastExpr &&
+                      settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
+              case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tLPARENTHESIS => {
+                if (settings.ALIGN_MULTILINE_METHOD_BRACKETS) {
+                  if (alternateAlignment == null) {
+                    alternateAlignment = Alignment.createAlignment
+                  }
+                  alternateAlignment
+                } else null
+              }
+              case _ if settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => alignment
+              case _ => null
+            }
+          }
+          case _: ScMethodCall | _: ScReferenceExpression => {
+            if (child.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+                    child.getPsi.getParent.isInstanceOf[ScReferenceExpression] &&
+                    child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier == None) null
+            else if (child.getPsi.isInstanceOf[ScExpression]) null
+            else alignment
           }
           case _: ScXmlStartTag  | _: ScXmlEmptyTag => {
             child.getElementType match {
@@ -104,7 +136,7 @@ object getDummyBlocks {
           case _ => alignment
         }
       }
-      val childWrap = arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap)
+      val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
       subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       prevChild = child
     }
@@ -195,12 +227,13 @@ object getDummyBlocks {
   }
 
   private def getInfixBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): ArrayList[Block] = {
-    val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
     val children = node.getChildren(null)
     val alignment = if (parentAlignment != null)
       parentAlignment
-    else if (mustAlignment(node, block.getSettings))
+    else if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
     for (val child <- children) {
@@ -225,8 +258,38 @@ object getDummyBlocks {
       } else if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
 
-        val childWrap = arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, block.getSettings))
+        val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+        subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
+      }
+    }
+    subBlocks
+  }
+
+  def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): ArrayList[Block] = {
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val subBlocks = new ArrayList[Block]
+    val children = node.getChildren(null)
+    val alignment = if (parentAlignment != null)
+      parentAlignment
+    else if (mustAlignment(node, settings))
+      Alignment.createAlignment
+    else null
+    for (val child <- children) {
+      child.getPsi match {
+        case methodCall: ScMethodCall => {
+          subBlocks.addAll(getMethodCallOrRefExprSubBlocks(child, block, alignment))
+        }
+        case refExpr: ScReferenceExpression => {
+          subBlocks.addAll(getMethodCallOrRefExprSubBlocks(child, block, alignment))
+        }
+        case _ => {
+          if (isCorrectBlock(child)) {
+            val indent = ScalaIndentProcessor.getChildIndent(block, child)
+            val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+            subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
+          }
+        }
       }
     }
     subBlocks
@@ -239,31 +302,37 @@ object getDummyBlocks {
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
-      //case _: ScXmlExpr => true //todo: setting
-      case _: ScXmlStartTag => true //todo: setting
-      case _: ScXmlEmptyTag => true //todo: setting for attributes
-      //case _: ScXmlElement => true //todo: setting
+      case _: ScXmlStartTag => true
+      case _: ScXmlEmptyTag => true
       case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScTemplateParents if scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST => true
-      case _: ScArgumentExprList if scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
-              scalaSettings.ALIGN_PARENTHESES_IN_CALLS => true
-      case _: ScPatternArgumentList if scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS => true
+
+      case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
+              mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
+      case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS ||
+              mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
+
       case _: ScEnumerators if scalaSettings.ALIGN_MULTILINE_FOR => true
+
       case _: ScParenthesisedExpr if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedTypeElement if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedPattern if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
+
       case _: ScInfixExpr if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScCompositePattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+
       case _: ScIdList if scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
+      case _: ScMethodCall | _: ScReferenceExpression if mySettings.ALIGN_MULTILINE_CHAINED_METHODS => true
       case _: ScIfStmt => true
       case _ => false
     }
   }
 
   private val INFIX_ELEMENTS = TokenSet.create(ScalaElementTypes.INFIX_EXPR,
-  ScalaElementTypes.INFIX_PATTERN,
-  ScalaElementTypes.INFIX_TYPE)
+    ScalaElementTypes.INFIX_PATTERN,
+    ScalaElementTypes.INFIX_TYPE)
 
 }

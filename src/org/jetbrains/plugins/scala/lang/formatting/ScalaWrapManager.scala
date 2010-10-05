@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.formatting
 
 import settings.ScalaCodeStyleSettings
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import com.intellij.formatting.{WrapType, Wrap}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInfixPattern
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScCompositePattern, ScPatternArgumentList, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ object ScalaWrapManager {
           val parentPriority = priority(elementOperation(parent).getText, assignments)
           val childPriority = priority(elementOperation(psi).getText, assignments)
           val notSamePriority = parentPriority != childPriority
-          if (notSamePriority){
+          if (notSamePriority) {
             return Wrap.createChildWrap(block.getWrap,
                                         WrapType.byLegacyRepresentation(settings.BINARY_OPERATION_WRAP),
                                         false)
@@ -46,6 +47,28 @@ object ScalaWrapManager {
       }
       case psi: ScInfixTypeElement => {
         return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref, false)
+      }
+      case psi: ScCompositePattern => {
+        return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
+      }
+      case psi: ScArgumentExprList => {
+        val parentSuggestedWrap = block.myParentBlock.suggestedWrap
+        val wrap = if (parentSuggestedWrap != null) Wrap.createChildWrap(parentSuggestedWrap,
+                                        WrapType.byLegacyRepresentation(settings.CALL_PARAMETERS_WRAP), false)
+        else Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
+        if (settings.PREFER_PARAMETERS_WRAP) {
+          wrap.ignoreParentWraps
+        }
+        return wrap
+      }
+      case psi: ScReferenceExpression => {
+        return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
+      }
+      case psi: ScMethodCall => {
+        return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
+      }
+      case psi: ScPatternArgumentList => {
+        return Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       }
       case _ =>
     }
@@ -88,6 +111,27 @@ object ScalaWrapManager {
         return arrageBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref,
                             _.asInstanceOf[ScInfixTypeElement].rOp.getOrElse(null),
                             _.asInstanceOf[ScInfixTypeElement].lOp)
+      }
+      case psi: ScCompositePattern => {
+        if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
+        else return null
+      }
+      case call: ScMethodCall => {
+        if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
+        else return null
+      }
+      case ref: ScReferenceExpression => {
+        if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
+        else return null
+      }
+      case args: ScArgumentExprList => {
+        if (childPsi.isInstanceOf[ScExpression]) return suggestedWrap
+        else return null
+      }
+      case patt: ScPatternArgumentList => {
+        if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
+        else if (childPsi.isInstanceOf[ScSequenceArg]) return suggestedWrap
+        else return null
       }
       case _ =>
     }
