@@ -214,7 +214,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST = alignExtendsListCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_FOR = alignForStatementCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_PARAMETERS = alignParametersCheckBox.isSelected();
-    scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = alignParametersInCallsCheckBox.isSelected();
     scalaSettings.ALIGN_IF_ELSE = alignIfElseStatementCheckBox.isSelected();
 
     scalaSettings.INDENT_CASE_FROM_SWITCH = indentCaseFromMatchCheckBox.isSelected();
@@ -364,7 +363,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST != alignExtendsListCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_FOR != alignForStatementCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_PARAMETERS != alignParametersCheckBox.isSelected()) return true;
-    if (scalaSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS != alignParametersInCallsCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_IF_ELSE != alignIfElseStatementCheckBox.isSelected()) return true;
 
     if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
@@ -451,7 +449,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(alignExtendsListCheckBox, settings.ALIGN_MULTILINE_EXTENDS_LIST);
     setValue(alignForStatementCheckBox, settings.ALIGN_MULTILINE_FOR);
     setValue(alignParametersCheckBox, settings.ALIGN_MULTILINE_PARAMETERS);
-    setValue(alignParametersInCallsCheckBox, settings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS);
     setValue(alignIfElseStatementCheckBox, settings.ALIGN_IF_ELSE);
 
     setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);

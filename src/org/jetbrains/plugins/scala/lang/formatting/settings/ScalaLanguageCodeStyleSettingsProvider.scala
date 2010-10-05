@@ -5,6 +5,7 @@ import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettingsCustomizable, LanguageCodeStyleSettingsProvider}
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,15 +27,25 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     def showCustomOption(fieldName: String, titile: String, groupName: String, options: AnyRef*) {
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, titile, groupName, options: _*)
     }
+
+    val buffer: ArrayBuffer[String] = new ArrayBuffer
     //Binary expression section
-    consumer.showStandardOptions("BINARY_OPERATION_WRAP", "ALIGN_MULTILINE_BINARY_OPERATION",
+    buffer ++= Array("BINARY_OPERATION_WRAP", "ALIGN_MULTILINE_BINARY_OPERATION",
       "ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION", "PARENTHESES_EXPRESSION_LPAREN_WRAP",
       "PARENTHESES_EXPRESSION_RPAREN_WRAP")
     consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Wrap infix expressions, patterns and types ")
 
     //Method calls section
-    consumer.showStandardOptions("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
+    buffer ++= Array("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
       "PREFER_PARAMETERS_WRAP", "CALL_PARAMETERS_LPAREN_ON_NEXT_LINE", "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE")
+
+    //align call parameters
+    buffer ++= Array("ALIGN_MULTILINE_METHOD_BRACKETS")
+
+    //method call chain
+    buffer ++= Array("METHOD_CALL_CHAIN_WRAP", "ALIGN_MULTILINE_CHAINED_METHODS")
+
+    consumer.showStandardOptions(buffer.toArray:_*)
   }
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
@@ -50,5 +61,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
             "      7 + 8 + 9 + 10 + 11 + 12 + 13 + (14 +\n" +
             "      15) + 16 + 17 * 18 + 19 + 20\n" +
             "  }\n" +
+            "\n" +
+            "  class Foo {\n" +
+            "    def foo(x: Int = 0, y: Int = 1, z: Int = 2) = new Foo\n" +
+            "  }\n" +
+            "  \n" +
+            "  val goo = new Foo\n" +
+            "\n" +
+            "  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()" +
             "}"
 }

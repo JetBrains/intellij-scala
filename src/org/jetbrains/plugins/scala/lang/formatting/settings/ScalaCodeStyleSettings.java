@@ -101,10 +101,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ENABLE_ERROR_HIGHLIGHTING = false;
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
 
-  //Method calls
-  public boolean ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true;
-  public boolean ALIGN_PARENTHESES_IN_CALLS = false;
-
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }

@@ -166,9 +166,9 @@ object SimplePattern extends ParserNode {
           }
 
           if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false) && Pattern.parse(builder)) {
-            while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !parseSeqWildcard(true) && !parseSeqWildcardBinding(true)) {
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
               builder.advanceLexer // eat comma
-              Pattern.parse(builder)
+              if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false)) Pattern.parse(builder)
             }
           }
           builder.getTokenType match {
