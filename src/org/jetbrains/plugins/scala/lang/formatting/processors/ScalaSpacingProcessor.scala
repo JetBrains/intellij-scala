@@ -10,9 +10,6 @@ import scaladoc.lexer.ScalaDocTokenType
 import settings.ScalaCodeStyleSettings
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiComment
-import com.intellij.psi.PsiWhiteSpace
-
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
@@ -30,6 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.formatting.Spacing
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import psi.api.toplevel.imports.ScImportStmt
+import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -47,6 +46,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     node.getTextRange.substring(fileText)
   }
 
+  private def nextNotWithspace(elem: PsiElement): PsiElement = {
+    var next = elem.getNextSibling
+    while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+            next.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) next = next.getNextSibling
+    next
+  }
+
+  private def prevNotWithspace(elem: PsiElement): PsiElement = {
+    var prev = elem.getPrevSibling
+    while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+            prev.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) prev = prev.getPrevSibling
+    prev
+  }
+
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
     val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -60,13 +73,15 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
     }
     val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
+    val keepBlankLinesInDeclarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
     val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, 0, 0)
     val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 0, range)
     val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
     val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
     val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
     val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
-    def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, false, 0)
+    def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, keepLineBreaks, keepBlankLinesInCode)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
@@ -125,6 +140,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else return WITHOUT_SPACING
     }
     //todo: spacing for {} arguments
+    //todo: spacing for early definitions
     if (getText(rightNode, fileText).startsWith("{")) {
       if (rightPsi.isInstanceOf[ScExtendsBlock] || rightPsi.isInstanceOf[ScTemplateBody]) {
         val extendsBlock = rightPsi match {
@@ -189,6 +205,120 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
 
+    if (leftPsi.isInstanceOf[ScStableCodeReferenceElement]) {
+      leftPsi.getParent match {
+        case p: ScPackaging if p.reference == Some(leftPsi) => {
+          if (rightElementType != ScalaTokenTypes.tSEMICOLON && rightElementType != ScalaTokenTypes.tLBRACE) {
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+          }
+        }
+        case _ =>
+      }
+    }
+
+    if (leftPsi.isInstanceOf[ScPackaging]) {
+      if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
+        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+      }
+    }
+
+    if (rightPsi.isInstanceOf[ScPackaging]) {
+      return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_PACKAGE + 1, keepLineBreaks, keepBlankLinesInCode)
+    }
+
+    if (leftPsi.isInstanceOf[ScImportStmt] && !rightPsi.isInstanceOf[ScImportStmt]) {
+      if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
+        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
+      } else if (settings.SPACE_BEFORE_SEMICOLON) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
+
+    if (rightPsi.isInstanceOf[ScImportStmt] && !leftPsi.isInstanceOf[ScImportStmt]) {
+      if (leftElementType != ScalaTokenTypes.tSEMICOLON || !prevNotWithspace(leftPsi).isInstanceOf[ScImportStmt]) {
+        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
+      }
+    }
+
+    if (leftPsi.isInstanceOf[ScImportStmt] || rightPsi.isInstanceOf[ScImportStmt]) {
+      return Spacing.createSpacing(0, 0, 1, keepLineBreaks, keepBlankLinesInDeclarations)
+    }
+
+
+    if (leftPsi.isInstanceOf[ScTemplateDefinition]) {
+      if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
+        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+      }
+    }
+
+    if (rightPsi.isInstanceOf[ScTemplateDefinition]) {
+      return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+    }
+
+    if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
+      rightNode.getTreeParent.getPsi match {
+        case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+                _: ScTryBlock | _: ScCatchBlock) => {
+          return Spacing.createDependentLFSpacing(0, 0, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+        }
+        case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
+      }
+    }
+
+    if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
+      rightNode.getElementType match {
+        case ScalaElementTypes.FUNCTION_EXPR => {
+          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
+        }
+        case _ =>
+      }
+      leftNode.getTreeParent.getPsi match {
+        case b: ScTemplateBody => {
+          val c = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
+          val setting = if (c.isInstanceOf[ScTypeDefinition]) settings.BLANK_LINES_AFTER_CLASS_HEADER
+          else settings.BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER
+          return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+        }
+        case b: ScBlockExpr if b.getParent.isInstanceOf[ScFunction] => {
+          return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_METHOD_BODY + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+        }
+        case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
+                _: ScTryBlock | _: ScCatchBlock) => {
+          return Spacing.createDependentLFSpacing(0, 0, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+        }
+        case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
+      }
+    }
+
+    if (leftPsi.isInstanceOf[ScFunction] || leftPsi.isInstanceOf[ScValue] || leftPsi.isInstanceOf[ScVariable] || leftPsi.isInstanceOf[ScTypeAlias]) {
+      if (rightElementType != tSEMICOLON) {
+        leftPsi.getParent match {
+          case b: ScTemplateBody => {
+            val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
+            val setting = if (leftPsi.isInstanceOf[ScFunction] && p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+            else if (leftPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
+            else if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
+            else settings.BLANK_LINES_AROUND_FIELD
+            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+          }
+          case _ =>
+        }
+      }
+    }
+
+    if (rightPsi.isInstanceOf[ScFunction] || rightPsi.isInstanceOf[ScValue] || rightPsi.isInstanceOf[ScVariable] || rightPsi.isInstanceOf[ScTypeAlias]) {
+      rightPsi.getParent match {
+        case b: ScTemplateBody => {
+          val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
+          val setting = if (rightPsi.isInstanceOf[ScFunction] && p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+          else if (rightPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
+          else if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
+          else settings.BLANK_LINES_AROUND_FIELD
+          return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+        }
+        case _ =>
+      }
+    }
+
     //old formatter spacing
 
     /**
@@ -207,14 +337,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (rightNode.getElementType != ScalaTokenTypes.tFLOAT && !rightNode.getPsi.isInstanceOf[ScLiteral]) return WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ',') {
-      if (scalaSettings.SPACE_BEFORE_COMMA) return WITH_SPACING
+      if (settings.SPACE_BEFORE_COMMA) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (rightNode.getElementType == ScalaTokenTypes.tCOLON) {
       var left = leftNode
       // For operations like
       // var Object_!= : Symbol = _
-      if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING
+      if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING  //todo:
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
       }
@@ -226,7 +356,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               !getText(left, fileText).matches(".*[A-Za-z0-9]")) WITH_SPACING else WITHOUT_SPACING
     }
     if (rightString.length > 0 && rightString(0) == ';') {
-      if (scalaSettings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
+      if (settings.SPACE_BEFORE_SEMICOLON && !(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITH_SPACING
       else if (!(rightNode.getTreeParent.getPsi.isInstanceOf[ScalaFile]) &&
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
@@ -525,71 +655,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
 
-    //todo: processing spacing operators
-
-    //processing right brace
-    if (leftString != getText(leftNode, fileText) && rightString != getText(rightNode, fileText) && rightNode.getElementType == ScalaTokenTypes.kELSE) {
-      if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
-      else return WITH_SPACING
-    }
-    if (leftString.length > 0 && leftString(leftString.length - 1) == '}' && leftNode.getElementType != ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END) {
-      rightNode.getElementType match {
-        case ScalaTokenTypes.kELSE => {
-          if (scalaSettings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
-          else return WITH_SPACING
-        }
-        case ScalaTokenTypes.kWHILE => {
-          if (scalaSettings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
-          else return WITH_SPACING
-        }
-        case ScalaElementTypes.CATCH_BLOCK => {
-          if (scalaSettings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
-          else return WITH_SPACING
-        }
-        case ScalaElementTypes.FINALLY_BLOCK => {
-          if (scalaSettings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
-          else return WITH_SPACING
-        }
-        case _ =>
-      }
-    }
-
-    //For class methods
-    (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
-      case (_, _, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE
-              && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(settings.BLANK_LINES_AFTER_CLASS_HEADER + 1)
-      case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
-      case _ =>
-    }
-    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-    if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
-      rightNode.getTreeParent.getPsi match {
-        case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
-                _: ScTryBlock | _: ScCatchBlock) => {
-          val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-          return Spacing.createSpacing(0, 0, minLineFeeds, true, keepBlankLinesBeforeRBrace)
-        }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, keepBlankLinesBeforeRBrace)
-      }
-    }
-    if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
-      rightNode.getElementType match {
-        case ScalaElementTypes.FUNCTION_EXPR => {
-          if (!scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE) return WITHOUT_SPACING
-        }
-        case _ =>
-      }
-      leftNode.getTreeParent.getPsi match {
-        case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
-                _: ScTryBlock | _: ScCatchBlock) => {
-          val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-          return Spacing.createSpacing(0, 0, minLineFeeds, true, keepBlankLinesBeforeRBrace)
-        }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, keepBlankLinesBeforeRBrace)
-      }
-    }
 
     //special else if treatment
     if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {

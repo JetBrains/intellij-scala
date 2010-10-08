@@ -31,9 +31,9 @@ object Expr {
           case ScalaTokenTypes.tFUNTYPE => {
             val psm = pmarker.precede // 'parameter clause'
             val pssm = psm.precede // 'parameter list'
+            pmarker.done(ScalaElementTypes.PARAM)
             psm.done(ScalaElementTypes.PARAM_CLAUSE)
             pssm.done(ScalaElementTypes.PARAM_CLAUSES)
-            pmarker.done(ScalaElementTypes.PARAM)
 
             builder.advanceLexer //Ate =>
             if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")

@@ -54,7 +54,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //Alignments
   public boolean ALIGN_MULTILINE_PARAMETERS = true;
-  public boolean ALIGN_MULTILINE_EXTENDS_LIST = false;
   public boolean ALIGN_MULTILINE_FOR = true;
   public boolean ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = false;
   public boolean ALIGN_IF_ELSE = false;
@@ -65,7 +64,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean CATCH_ON_NEW_LINE = false;
   public boolean FINALLY_ON_NEW_LINE = false;
   public boolean SPECIAL_ELSE_IF_TREATMENT = false;
-  public boolean INDENT_CASE_FROM_SWITCH = true;
 
   public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
@@ -89,6 +87,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean ENABLE_ERROR_HIGHLIGHTING = false;
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
+
+  public boolean WRAP_BEFORE_WITH_KEYWORD = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

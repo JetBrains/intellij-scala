@@ -7,7 +7,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScCompositePattern, ScPatternArgumentList, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -70,16 +72,23 @@ object ScalaWrapManager {
       case psi: ScPatternArgumentList => {
         return Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       }
+      case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.myLastNode != null => {
+        return Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
+      }
       case _ =>
     }
     return null
   }
 
-  def arrangeSuggestedWrapForChild(parent: ScalaBlock, child: ASTNode, settings: ScalaCodeStyleSettings,
+  def arrangeSuggestedWrapForChild(parent: ScalaBlock, child: ASTNode, scalaSettings: ScalaCodeStyleSettings,
                                    suggestedWrap: Wrap): Wrap = {
+    val settings = parent.getSettings
     val parentNode = parent.getNode
     val parentPsi = parentNode.getPsi
     val childPsi = child.getPsi
+    if (childPsi.isInstanceOf[ScExtendsBlock] &&
+            childPsi.getFirstChild != null && !childPsi.getFirstChild.isInstanceOf[ScTemplateBody])
+      return Wrap.createWrap(settings.EXTENDS_KEYWORD_WRAP, true)
 
     def arrageBinary(elementMatch: PsiElement => Boolean,
                      elementOperation: PsiElement => PsiElement,
@@ -132,6 +141,27 @@ object ScalaWrapManager {
         if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
         else if (childPsi.isInstanceOf[ScSequenceArg]) return suggestedWrap
         else return null
+      }
+      case _ if parentNode.getElementType == ScalaTokenTypes.kEXTENDS && parent.myLastNode != null => {
+        val e: ScExtendsBlock = PsiTreeUtil.getParentOfType(parentPsi, classOf[ScExtendsBlock])
+        val first: PsiElement = e.earlyDefinitions match {
+          case Some(z) => z
+          case _ => e.templateParents match {
+            case Some(tp) => tp.typeElements(0)
+            case None => null
+          }
+        }
+        if (first == null) return null
+        if (childPsi == first) return suggestedWrap
+        if (scalaSettings.WRAP_BEFORE_WITH_KEYWORD) {
+          if (child.getElementType == ScalaTokenTypes.kWITH) return suggestedWrap
+          else return null
+        } else {
+          e.templateParents match {
+            case Some(tp) if tp.typeElements.find(_ == childPsi) != None => return suggestedWrap
+            case _ => return null
+          }
+        }
       }
       case _ =>
     }
