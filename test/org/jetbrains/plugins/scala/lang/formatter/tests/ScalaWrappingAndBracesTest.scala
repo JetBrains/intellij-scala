@@ -277,4 +277,40 @@ val x = foo.
     doTextTest(before, after)
   }
 
+  def testBraceStyle {
+    getSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    getSettings.METHOD_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
+    getSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
+    val before =
+"""
+class A {
+  def foo = {
+  val z =
+  {
+   3
+  }
+  }
+}
+class B extends A {
+}
+""".replace("\r", "")
+    val after =
+"""
+class A
+{
+  def foo =
+    {
+    val z =
+    {
+      3
+    }
+    }
+}
+class B extends A
+{
+}
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
 }
