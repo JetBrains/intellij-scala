@@ -21,7 +21,6 @@ import java.awt.event.MouseEvent;
 public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JPanel myPanel;
   private JTabbedPane tabbedPane;
-  private JPanel previewPanel;
   private JPanel spacingPanel;
   private JCheckBox beforeCommaBox;
   private JCheckBox afterCommaBox;
@@ -53,16 +52,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox beforeElseLBraceBox;
   private JCheckBox beforeWhileBox;
   private JPanel blackLines;
-  private JSpinner keepCodeSpinner;
-  private JSpinner keepBeforeSpinner;
-  private JCheckBox keepLineBreaksCheckBox;
   private JPanel alignmentTab;
-  private JCheckBox alignParametersCheckBox;
   private JCheckBox alignListOfIdentifiersCheckBox;
-  private JCheckBox alignBinaryOperationsCheckBox;
-  private JCheckBox alignParenthesizedExpressionCheckBox;
   private JCheckBox alignExtendsListCheckBox;
-  private JCheckBox alignParametersInCallsCheckBox;
   private JCheckBox alignForStatementCheckBox;
   private JCheckBox elseOnNewLineCheckBox;
   private JCheckBox finallyOnNewLineCheckBox;
@@ -73,7 +65,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JSpinner classCountSpinner;
   private JCheckBox addUnambiguousImportsOnCheckBox;
   private JCheckBox alignIfElseStatementCheckBox;
-  private JSpinner linesAfterLBrace;
   private JCheckBox donTUseContinuationCheckBox;
   private JCheckBox addImportStatementInCheckBox;
   private JCheckBox searchAllSymbolsIncludeCheckBox;
@@ -90,39 +81,14 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox closureParametersOnNewCheckBox;
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
-  private JComboBox classDeclarationComboBox;
-  private JComboBox methodDeclarationComboBox;
-  private JComboBox otherComboBox;
   private JCheckBox addFullQualifiedImportsCheckBox;
   private JCheckBox enableExpetimentalErrorHighlightingCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
 
-  //this lock for fast clickers on preview tab to not update it twice in same time
-  private final Object LOCK = new Object();
-
-  final private int PREVIEW_PANEL = 6;
-
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    installPreviewPanel(previewPanel);
-    classDeclarationComboBox.addItem("End of line");
-    classDeclarationComboBox.addItem("On new line");
-    methodDeclarationComboBox.addItem("End of line");
-    methodDeclarationComboBox.addItem("On new line");
-    otherComboBox.addItem("End of line");
-    otherComboBox.addItem("On new line");
     setSettings(scalaSettings);
-    tabbedPane.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (tabbedPane.isEnabledAt(PREVIEW_PANEL)) {
-          synchronized (LOCK) {
-            updatePreview();
-          }
-        }
-      }
-    });
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
@@ -142,17 +108,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   }
 
   protected String getPreviewText() {
-    return "package preview.file\n\n" +
-        "" +
-        "import scala.collection.mutable._\n\n" +
-        "" +
-        "abstract class R[T](x: Int) extends {val y = x} with R1[T] {\n" +
-        "  def foo(z: Int): R1 = new R[Int](z);\n\n" +
-        "  def default = foo(0)\n\n" +
-        "  val x: T\n" +
-        "}\n\n" +
-        "" +
-        "trait R1[T]";
+    return "";
   }
 
   public void apply(CodeStyleSettings settings) {
@@ -189,31 +145,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_WITHIN_PARENTHESES = withinBox.isSelected();
     scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES = withinWhileBox.isSelected();
     scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = donTUseContinuationCheckBox.isSelected();
-    scalaSettings.KEEP_LINE_BREAKS = keepLineBreaksCheckBox.isSelected();
-    if ((Integer) keepCodeSpinner.getValue() >= 0) {
-      scalaSettings.KEEP_BLANK_LINES_IN_CODE = (Integer) keepCodeSpinner.getValue();
-    } else {
-      scalaSettings.KEEP_BLANK_LINES_IN_CODE = 0;
-      keepCodeSpinner.setValue(0);
-    }
-    if ((Integer) keepBeforeSpinner.getValue() >= 0) {
-      scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = (Integer) keepBeforeSpinner.getValue();
-    } else {
-      scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0;
-      keepBeforeSpinner.setValue(0);
-    }
-
-    if ((Integer) linesAfterLBrace.getValue() >= 0) {
-      scalaSettings.BLANK_LINES_AFTER_LBRACE = (Integer) linesAfterLBrace.getValue();
-    } else {
-      scalaSettings.BLANK_LINES_AFTER_LBRACE = 0;
-      linesAfterLBrace.setValue(0);
-    }
 
     scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = alignListOfIdentifiersCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST = alignExtendsListCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_FOR = alignForStatementCheckBox.isSelected();
-    scalaSettings.ALIGN_MULTILINE_PARAMETERS = alignParametersCheckBox.isSelected();
     scalaSettings.ALIGN_IF_ELSE = alignIfElseStatementCheckBox.isSelected();
 
     scalaSettings.INDENT_CASE_FROM_SWITCH = indentCaseFromMatchCheckBox.isSelected();
@@ -243,9 +178,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
     scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = closureParametersOnNewCheckBox.isSelected();
 
-    scalaSettings.CLASS_DECLARATION_BRACE = classDeclarationComboBox.getSelectedIndex();
-    scalaSettings.METHOD_DECLARATION_BRACE = methodDeclarationComboBox.getSelectedIndex();
-    scalaSettings.OTHER_BRACE = otherComboBox.getSelectedIndex();
     scalaSettings.ENABLE_ERROR_HIGHLIGHTING = enableExpetimentalErrorHighlightingCheckBox.isSelected();
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
   }
@@ -353,16 +285,11 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ENABLE_ERROR_HIGHLIGHTING != enableExpetimentalErrorHighlightingCheckBox.isSelected()) {
       return true;
     }
-    if (scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE != (Integer) keepBeforeSpinner.getValue()) return true;
-    if (scalaSettings.KEEP_BLANK_LINES_IN_CODE != (Integer) keepCodeSpinner.getValue()) return true;
-    if (scalaSettings.BLANK_LINES_AFTER_LBRACE != (Integer) linesAfterLBrace.getValue()) return true;
-    if (scalaSettings.KEEP_LINE_BREAKS != keepLineBreaksCheckBox.isSelected()) return true;
 
     if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected())
       return true;
     if (scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST != alignExtendsListCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_MULTILINE_FOR != alignForStatementCheckBox.isSelected()) return true;
-    if (scalaSettings.ALIGN_MULTILINE_PARAMETERS != alignParametersCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_IF_ELSE != alignIfElseStatementCheckBox.isSelected()) return true;
 
     if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
@@ -391,9 +318,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
     if (scalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE != closureParametersOnNewCheckBox.isSelected()) return true;
 
-    if (scalaSettings.CLASS_DECLARATION_BRACE != classDeclarationComboBox.getSelectedIndex()) return true;
-    if (scalaSettings.METHOD_DECLARATION_BRACE != methodDeclarationComboBox.getSelectedIndex()) return true;
-    if (scalaSettings.OTHER_BRACE != otherComboBox.getSelectedIndex()) return true;
     return false;
   }
 
@@ -440,15 +364,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeFinallyLBraceBox, settings.SPACE_BEFORE_FINALLY_LBRACE);
     setValue(donTUseContinuationCheckBox, settings.NOT_CONTINUATION_INDENT_FOR_PARAMS);
 
-    setValue(keepLineBreaksCheckBox, settings.KEEP_LINE_BREAKS);
-    setValue(keepBeforeSpinner, settings.KEEP_BLANK_LINES_BEFORE_RBRACE);
-    setValue(linesAfterLBrace, settings.BLANK_LINES_AFTER_LBRACE);
-    setValue(keepCodeSpinner, settings.KEEP_BLANK_LINES_IN_CODE);
-
     setValue(alignListOfIdentifiersCheckBox, settings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION);
     setValue(alignExtendsListCheckBox, settings.ALIGN_MULTILINE_EXTENDS_LIST);
     setValue(alignForStatementCheckBox, settings.ALIGN_MULTILINE_FOR);
-    setValue(alignParametersCheckBox, settings.ALIGN_MULTILINE_PARAMETERS);
     setValue(alignIfElseStatementCheckBox, settings.ALIGN_IF_ELSE);
 
     setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);
@@ -476,9 +394,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
     setValue(closureParametersOnNewCheckBox, settings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE);
-    setValue(classDeclarationComboBox, settings.CLASS_DECLARATION_BRACE);
-    setValue(methodDeclarationComboBox, settings.METHOD_DECLARATION_BRACE);
-    setValue(otherComboBox, settings.OTHER_BRACE);
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
     setValue(enableExpetimentalErrorHighlightingCheckBox, settings.ENABLE_ERROR_HIGHLIGHTING);

@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.formatting.Spacing
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -49,22 +50,22 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = left.getSettings
     val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val keepLineBreaks = settings.KEEP_LINE_BREAKS
     def getSpacing(x: Int, y: Int, z: Int) = {
-      if (scalaSettings.KEEP_LINE_BREAKS)
-        Spacing.createSpacing(y, y, z, true, x)
+      if (keepLineBreaks) Spacing.createSpacing(y, y, z, true, x)
       else Spacing.createSpacing(y, y, z, false, 0)
     }
     def getDependentLFSpacing(x: Int, y: Int, range: TextRange) = {
-      if (scalaSettings.KEEP_LINE_BREAKS)
-        Spacing.createDependentLFSpacing(y, y, range, true, x)
+      if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
     }
-    val WITHOUT_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 0)
-    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, range)
-    val WITH_SPACING = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, 0)
-    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 1, range)
-    val ON_NEW_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 1)
-    val DOUBLE_LINE = getSpacing(scalaSettings.KEEP_BLANK_LINES_IN_CODE, 0, 2)
+    val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
+    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, 0, 0)
+    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 0, range)
+    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
+    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
+    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
+    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
     def CONCRETE_LINES(x: Int) = Spacing.createSpacing(0, 0, x, false, 0)
     val leftNode = left.getNode
     val rightNode = right.getNode
@@ -122,6 +123,32 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         else return WITHOUT_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
       } else if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITHOUT_SPACING
       else return WITHOUT_SPACING
+    }
+    //todo: spacing for {} arguments
+    if (getText(rightNode, fileText).startsWith("{")) {
+      if (rightPsi.isInstanceOf[ScExtendsBlock] || rightPsi.isInstanceOf[ScTemplateBody]) {
+        val extendsBlock = rightPsi match {
+          case e: ScExtendsBlock => e
+          case t: ScTemplateBody => t.getParent
+        }
+        settings.CLASS_BRACE_STYLE match {
+          case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
+          case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
+          case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
+          case CommonCodeStyleSettings.END_OF_LINE => {
+            return WITH_SPACING //todo: spacing settings
+          }
+          case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED => {
+            val startOffset = extendsBlock.getParent.getParent match {
+              case b: ScTypeDefinition => b.nameId.getTextRange.getStartOffset
+              case b: ScTemplateDefinition => b.nameId.getTextRange.getStartOffset
+              case b => b.getTextRange.getStartOffset
+            }
+            val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
+            return WITH_SPACING_DEPENDENT(range) //todo: spacing settings
+          }
+        }
+      }
     }
 
 
@@ -397,13 +424,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //processing before left brace
     if (rightString.length > 0 && rightString(0) == '{' && rightNode.getElementType != ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START) {
-      var parentPsi = rightNode.getTreeParent.getPsi
-      parentPsi match {
-        case _: ScTypeDefinition => if (scalaSettings.CLASS_DECLARATION_BRACE == 1) return ON_NEW_LINE
-        case _: ScExtendsBlock => if (scalaSettings.CLASS_DECLARATION_BRACE == 1) return ON_NEW_LINE
-        case _: ScFunction => if (scalaSettings.METHOD_DECLARATION_BRACE == 1) return ON_NEW_LINE
-        case _ => if (scalaSettings.OTHER_BRACE == 1) return ON_NEW_LINE
-      }
+      val parentPsi = rightNode.getTreeParent.getPsi
 
       parentPsi match {
         case _: ScTypeDefinition => {
@@ -499,21 +520,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //For class methods
     (leftNode.getPsi, rightNode.getPsi, leftNode.getTreeParent.getElementType) match {
       case (_, _, ScalaElementTypes.TEMPLATE_BODY) if leftNode.getElementType == ScalaTokenTypes.tLBRACE
-              && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(scalaSettings.BLANK_LINES_AFTER_LBRACE + 1)
+              && getText(leftNode.getTreeParent, fileText).indexOf('\n') != -1 => return CONCRETE_LINES(settings.BLANK_LINES_AFTER_CLASS_HEADER + 1)
       case (_: ScFunction, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScValue | _: ScVariable | _: ScTypeAlias, _: ScFunction, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case (_: ScFunction, _: ScValue | _: ScVariable | _: ScTypeAlias, ScalaElementTypes.TEMPLATE_BODY) => return DOUBLE_LINE
       case _ =>
     }
-
+    val keepBlankLinesBeforeRBrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
       rightNode.getTreeParent.getPsi match {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
           val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-          return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+          return Spacing.createSpacing(0, 0, minLineFeeds, true, keepBlankLinesBeforeRBrace)
         }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case _ => return Spacing.createSpacing(0, 0, 0, true, keepBlankLinesBeforeRBrace)
       }
     }
     if (leftNode.getElementType == ScalaTokenTypes.tLBRACE) {
@@ -527,9 +548,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case block@(_: ScTemplateBody | _: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
           val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-          return Spacing.createSpacing(0, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+          return Spacing.createSpacing(0, 0, minLineFeeds, true, keepBlankLinesBeforeRBrace)
         }
-        case _ => return Spacing.createSpacing(0, 0, 0, true, scalaSettings.KEEP_BLANK_LINES_BEFORE_RBRACE)
+        case _ => return Spacing.createSpacing(0, 0, 0, true, keepBlankLinesBeforeRBrace)
       }
     }
 
@@ -548,7 +569,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
       val block = leftNode.getTreeParent
       val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-      return Spacing.createSpacing(1, 0, minLineFeeds, true, scalaSettings.KEEP_BLANK_LINES_IN_CODE)
+      return Spacing.createSpacing(1, 0, minLineFeeds, true, keepBlankLinesInCode)
     }
 
 

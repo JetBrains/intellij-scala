@@ -46,8 +46,8 @@ ScalaFile
                   PsiElement(()('(')
                   ReferencePattern
                     PsiElement(identifier)('a')
+                  PsiElement(,)(',')
                   NamingPattern
-                    PsiElement(,)(',')
                     PsiElement(identifier)('foo')
                     PsiWhiteSpace(' ')
                     PsiElement(@)('@')
