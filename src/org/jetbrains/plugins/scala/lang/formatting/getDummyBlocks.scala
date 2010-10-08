@@ -147,18 +147,32 @@ object getDummyBlocks {
     val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
     var child = node
-    while (child != lastNode) {
+    do {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
-      if (isCorrectBlock(child)) {
+      if (isCorrectBlock(child) && !child.getPsi.isInstanceOf[ScTemplateParents]) {
         val childWrap = arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap)
         subBlocks.add(new ScalaBlock(block, child, null, null, indent, childWrap, block.getSettings))
+      } else if (isCorrectBlock(child)) {
+        subBlocks.addAll(getTemplateParentsBlocks(child, block))
       }
-      child = child.getTreeNext
-    }
-    val indent = ScalaIndentProcessor.getChildIndent(block, lastNode)
-    if (isCorrectBlock(lastNode)) {
-      val childWrap = arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap)
-      subBlocks.add(new ScalaBlock(block, lastNode, null, null, indent, childWrap, block.getSettings))
+    } while (child != lastNode && {child = child.getTreeNext; true})
+    return subBlocks
+  }
+
+  private def getTemplateParentsBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val subBlocks = new ArrayList[Block]
+    val children = node.getChildren(null)
+    val alignment = if (mustAlignment(node, settings))
+      Alignment.createAlignment(true)
+    else null
+    for (val child <- children) {
+      if (isCorrectBlock(child)) {
+        val indent = ScalaIndentProcessor.getChildIndent(block, child)
+        val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+        subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
+      }
     }
     return subBlocks
   }
@@ -302,18 +316,18 @@ object getDummyBlocks {
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
-      case _: ScXmlStartTag => true
-      case _: ScXmlEmptyTag => true
-      case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true
-      case _: ScTemplateParents if scalaSettings.ALIGN_MULTILINE_EXTENDS_LIST => true
+      case _: ScXmlStartTag => true  //todo:
+      case _: ScXmlEmptyTag => true   //todo:
+      case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true  //todo:
+      case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true //todo:
 
+      case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
       case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
 
-      case _: ScEnumerators if scalaSettings.ALIGN_MULTILINE_FOR => true
+      case _: ScEnumerators if scalaSettings.ALIGN_MULTILINE_FOR => true //todo:
 
       case _: ScParenthesisedExpr if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedTypeElement if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
@@ -324,9 +338,10 @@ object getDummyBlocks {
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScCompositePattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
 
-      case _: ScIdList if scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true
+      case _: ScIdList if scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true  //todo:
+
       case _: ScMethodCall | _: ScReferenceExpression if mySettings.ALIGN_MULTILINE_CHAINED_METHODS => true
-      case _: ScIfStmt => true
+      case _: ScIfStmt => true //todo:
       case _ => false
     }
   }

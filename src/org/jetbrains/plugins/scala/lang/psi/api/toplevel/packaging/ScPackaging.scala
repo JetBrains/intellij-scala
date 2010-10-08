@@ -19,4 +19,6 @@ trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageC
   def isExplicit: Boolean
 
   def getBodyText: String
+
+  def reference: Option[ScStableCodeReferenceElement]
 }
