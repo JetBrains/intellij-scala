@@ -136,7 +136,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
           case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
           case CommonCodeStyleSettings.END_OF_LINE => {
-            return WITH_SPACING //todo: spacing settings
+            if (settings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING
+            else return WITHOUT_SPACING
           }
           case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED => {
             val startOffset = extendsBlock.getParent.getParent match {
@@ -145,7 +146,43 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               case b => b.getTextRange.getStartOffset
             }
             val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
-            return WITH_SPACING_DEPENDENT(range) //todo: spacing settings
+            if (settings.SPACE_BEFORE_CLASS_LBRACE) return WITH_SPACING_DEPENDENT(range)
+            else return WITHOUT_SPACING_DEPENDENT(range)
+          }
+        }
+      } else {
+        rightPsi.getParent match {
+          case fun: ScFunction => {
+            settings.CLASS_BRACE_STYLE match {
+              case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
+              case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
+              case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
+              case CommonCodeStyleSettings.END_OF_LINE => {
+                if (settings.SPACE_BEFORE_METHOD_LBRACE) return WITH_SPACING
+                else return WITHOUT_SPACING
+              }
+              case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED => {
+                val startOffset = fun.nameId.getTextRange.getStartOffset
+                val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
+                if (settings.SPACE_BEFORE_METHOD_LBRACE) return WITH_SPACING_DEPENDENT(range)
+                else return WITHOUT_SPACING_DEPENDENT(range)
+              }
+            }
+          }
+          case parent => {
+            settings.CLASS_BRACE_STYLE match {
+              case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
+              case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
+              case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
+              case CommonCodeStyleSettings.END_OF_LINE => {
+                return WITH_SPACING //todo: spacing settings
+              }
+              case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED => {
+                val startOffset = parent.getTextRange.getStartOffset
+                val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
+                return WITH_SPACING_DEPENDENT(range) //todo: spacing settings
+              }
+            }
           }
         }
       }
