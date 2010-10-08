@@ -49,17 +49,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_SEMICOLON = false;
   public boolean SPACE_AFTER_SEMICOLON = true;
 
-  //keep blank lines
-  public int KEEP_BLANK_LINES_IN_CODE = 2;
-  public int KEEP_BLANK_LINES_BEFORE_RBRACE = 2;
-  public int BLANK_LINES_AFTER_LBRACE = 0;
-  public boolean KEEP_LINE_BREAKS = true;
-
-  //Brace placement
-  public int CLASS_DECLARATION_BRACE = 0;
-  public int METHOD_DECLARATION_BRACE = 0;
-  public int OTHER_BRACE = 0;
-
   //indents
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
 

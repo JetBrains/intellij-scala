@@ -45,6 +45,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     //method call chain
     buffer ++= Array("METHOD_CALL_CHAIN_WRAP", "ALIGN_MULTILINE_CHAINED_METHODS")
 
+    //blank lines
+    buffer ++= Array("KEEP_BLANK_LINES_IN_CODE", "KEEP_LINE_BREAKS", "BLANK_LINES_AFTER_CLASS_HEADER",
+      "KEEP_BLANK_LINES_BEFORE_RBRACE")
+
+    //brace placement
+    buffer ++= Array("CLASS_BRACE_STYLE", "METHOD_BRACE_STYLE", "BRACE_STYLE")
+
     consumer.showStandardOptions(buffer.toArray:_*)
   }
 
