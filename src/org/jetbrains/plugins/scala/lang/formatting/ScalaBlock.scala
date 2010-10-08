@@ -2,34 +2,27 @@ package org.jetbrains.plugins.scala
 package lang
 package formatting
 
-import psi._
-import impl.expr.ScBlockImpl
 import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
 import com.intellij.formatting._
-import com.intellij.lang.ASTNode;
+import com.intellij.lang.ASTNode
+import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings};
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.codeStyle.CodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
 import org.jetbrains.plugins.scala.lang.formatting.processors._
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
 import java.util.List;
-import java.util.ArrayList;
+
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
@@ -67,7 +60,8 @@ extends Object with ScalaTokenTypes with Block {
     parent match {
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock | _: ScMatchStmt => {
-        return new ChildAttributes(Indent.getNormalIndent, null)
+        return new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
+          Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
@@ -75,7 +69,8 @@ extends Object with ScalaTokenTypes with Block {
       case x: ScDoStmt => {
         if (x.hasExprBody)
           return new ChildAttributes(Indent.getNoneIndent(), null)
-        else return new ChildAttributes(Indent.getNormalIndent, null)
+        else return new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
+          Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
       case _: ScXmlElement => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)

@@ -67,6 +67,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
                   ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY => {
             Indent.getNoneIndent
           }
+          case _ if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
       }
@@ -111,7 +112,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       }
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
-              | _: ScFinallyBlock | _: ScCatchBlock => {
+              | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable => {
         child.getPsi match {
           case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
               settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
@@ -125,8 +126,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case ScalaTokenTypes.kCASE | ScalaTokenTypes.tFUNTYPE => Indent.getNoneIndent
           case _ =>
             child.getPsi match {
-              case _: ScPattern => Indent.getNoneIndent
-              case _ => Indent.getNormalIndent
+              case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+                  settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
+              case _: ScBlockExpr => Indent.getNoneIndent
+              case _: ScExpression => Indent.getNormalIndent
+              case _: ScGuard => Indent.getNormalIndent
+              case _ => Indent.getNoneIndent
             }
         }
       }
@@ -153,17 +158,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         else Indent.getNoneIndent
       }
       case _: ScDocComment => Indent.getNoneIndent
-      case _ => {
-        node.getElementType match {
-          case ScalaTokenTypes.kIF | ScalaTokenTypes.kELSE => {
-            child.getPsi match {
-              case _: ScExpression => Indent.getNormalIndent
-              case _ => Indent.getNoneIndent
-            }
-          }
-          case _ => Indent.getNoneIndent
-        }
-      }
+      case _ => Indent.getNoneIndent
     }
   }
 }
