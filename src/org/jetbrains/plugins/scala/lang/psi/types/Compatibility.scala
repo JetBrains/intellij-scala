@@ -4,21 +4,19 @@ package psi
 package types
 
 import api.statements.params.{ScParameters, ScParameter}
-import api.statements.{ScFun, ScFunction}
+import api.statements.ScFunction
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
 import api.toplevel.typedef.ScClass
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
-import impl.compiled.ClsParameterImpl
 import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import com.intellij.openapi.progress.ProgressManager
 import search.GlobalSearchScope
 import collection.Seq
-import api.base.{ScLiteral, ScPrimaryConstructor}
-import lexer.{ScalaTokenTypes}
+import api.base.ScPrimaryConstructor
 
 /**
  * @author ven
