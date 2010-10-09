@@ -127,7 +127,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
       if (options.contains(Applicable) && options(Applicable) == "false") {
         Assert.assertFalse(message(referenceName + " must NOT be applicable!"), applicable);
       } else {
-        Assert.assertTrue(message(referenceName + " must BE applicable!"), applicable);
+        Assert.assertTrue(message(referenceName + " must BE applicable! " + result.get.problems.mkString("(", ",", ")")), applicable);
       }
 
       if (options.contains(Path)) {
