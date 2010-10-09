@@ -290,7 +290,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
   def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)
-    val clazz = new ScSyntheticClass(manager, name, t)
+    val clazz = new ScSyntheticClass(manager, name, t) {
+      override def getQualifiedName() = "scala." + name
+    }
 
     all += ((name, clazz)); clazz
   }

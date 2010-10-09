@@ -54,4 +54,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
+  // TODO SCL-2386 Add synthetic apply method with same signature as case companion class primary constructor.
+  //               Also need to resolve the same method even if the companion object is synthetic.
+  // override def syntheticMembers(): scala.Seq[FakePsiMethod]
 }

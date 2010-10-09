@@ -75,10 +75,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   def processType(t: ScType, place: ScalaPsiElement, state: ResolveState, noBounds: Boolean): Boolean = {
     ProgressManager.checkCanceled
 
-    def isInApplyCall = place.getContext match {
-      case expr: ScReferenceExpression => expr.nameId.getText == "apply"
-      case _ => false
-    }
     t match {
       case ScDesignatorType(clazz: PsiClass) if clazz.getQualifiedName == "java.lang.String" => {
         val plusMethod: ScType => ScSyntheticFunction = SyntheticClasses.get(place.getProject).stringPlusMethod
@@ -124,6 +120,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       }
+      // TODO SCL-2386
+      // case ScDesignatorType(c: ScClass) if c.isCase &&  place.isInstanceOf[ScReferenceExpression] =>
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
       case j: JavaArrayType =>
