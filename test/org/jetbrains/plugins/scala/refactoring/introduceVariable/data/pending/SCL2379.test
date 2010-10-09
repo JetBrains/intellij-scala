@@ -1,0 +1,13 @@
+object O {
+  {
+    class T
+    <begin>new T<end>
+  }
+}
+------
+object O {
+  {
+    class T
+    val t: T = new T
+  }
+}
