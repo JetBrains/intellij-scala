@@ -153,7 +153,6 @@ public class OverrideImplementTest extends PsiTestCase {
     String filePath = rootPath + name;
     final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(filePath.
         replace(File.separatorChar, '/'));
-    if (vFile == null) LocalFileSystem.getInstance().refresh(false);
     assertNotNull("file " + filePath + " not found", vFile);
     String text = StringUtil.convertLineSeparators(VfsUtil.loadText(vFile), "\n");
     final String fileName = vFile.getName();
