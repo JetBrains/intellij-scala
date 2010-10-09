@@ -476,7 +476,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {identifier}                            {   yybegin(PROCESS_NEW_LINE);
                                             return process(tIDENTIFIER); }
-{integerLiteral} / "." ({LineTerminator}|{WhiteSpace})* {identifier}
+{integerLiteral} / "." {identifier}
                                         {   yybegin(PROCESS_NEW_LINE);
                                             return process(tINTEGER);  }
 {floatingPointLiteral}                  {   yybegin(PROCESS_NEW_LINE);
