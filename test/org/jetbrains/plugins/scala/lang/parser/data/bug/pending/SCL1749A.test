@@ -1,0 +1,30 @@
+xxfor {a <- as
+     _ <- xs} ()
+-----
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    Enumerators
+      Generator
+        ReferencePattern
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression
+          PsiElement(identifier)('as')
+      Generator
+        ReferencePattern
+          PsiElement(identifier)('_')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression
+          PsiElement(identifier)('xs')
+    PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')

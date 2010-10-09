@@ -32,6 +32,7 @@
     <delete file="${lexer.log}"/>
 
     <java classname="JFlex.Main" output="jflexCore.log" fork="true" maxmemory="1024m" failonerror="true">
+      <classpath path="JFlex.jar"/>
       <jvmarg line="-XX:MaxPermSize=200M"/>
       <arg value="-sliceandcharat"/>
       <arg value="-skel"/>

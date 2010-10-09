@@ -163,8 +163,8 @@ symbolLiteral = "\'" {plainid}
 ///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match" | "requires"
-                    | "with" | "yield" | "," | "." | ";" | ":" | "_" | "=" | "=>" | "<-" | "<:" | "<%"
+notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match"
+                    | "with" | "yield" | "," | "." | ";" | ":" | "=" | "=>" | "<-" | "<:" | "<%"
                     | ">:" | "#" | "["  | ")" | "]" |"}" | "\\u2190" | "\\u21D2"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield" | "case"
 
