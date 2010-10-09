@@ -6,8 +6,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import nonvalue.Parameter
 import result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import com.intellij.psi.{PsiParameter, PsiNamedElement, PsiMethod}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter}
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -20,7 +24,7 @@ trait ApplicationAnnotator {
          if !r.isApplicable) {
       
       r.element match {
-        case f: ScFunction => {
+        case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
           reference.getContext match {
             case call: ScMethodCall => {
               val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
@@ -29,7 +33,7 @@ trait ApplicationAnnotator {
 
               r.problems.foreach {
                 case DoesNotTakeParameters() =>
-                  holder.createErrorAnnotation(call.args, f.name + " does not take parameters")
+                  holder.createErrorAnnotation(call.args, f.getName + " does not take parameters")
                 case ExcessArgument(argument) =>
                   holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
                 case TypeMismatch(expression, expectedType) =>
@@ -41,7 +45,7 @@ trait ApplicationAnnotator {
                 case MissedValueParameter(_) => // simultaneously handled above
                 case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                 case MalformedDefinition() =>
-                  holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
+                  holder.createErrorAnnotation(call.getInvokedExpr, f.getName() + " has malformed definition")
                 case ExpansionForNonRepeatedParameter(expression) =>
                   holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
                 case PositionalAfterNamedArgument(argument) =>
@@ -108,18 +112,39 @@ trait ApplicationAnnotator {
     }
   }
   
-  private def nameOf(f: ScFunction) = f.name + signatureOf(f)
+  private def nameOf(f: PsiNamedElement) = f.getName() + signatureOf(f)
 
-  private def signatureOf(f: ScFunction): String = {
-    if(f.parameters.isEmpty)
-      ""
-    else
-      f.paramClauses.clauses.map(clause => format(clause.parameters, clause.paramTypes)).mkString
+  private def signatureOf(f: PsiNamedElement): String = f match {
+    case f: ScFunction =>
+      if (f.parameters.isEmpty) "" else formatParamClauses(f.paramClauses)
+    case m: PsiMethod =>
+      val params: Array[PsiParameter] = m.getParameterList.getParameters
+      if (params.isEmpty) "" else formatJavaParams(params)
+    case syn: ScSyntheticFunction =>
+      if (syn.parameters.isEmpty) "" else formatSyntheticParams(syn.parameters)
   }
 
-  private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
+  private def formatParamClauses(paramClauses: ScParameters) = {
+    def formatParams(parameters: Seq[ScParameter], types: Seq[ScType]) = {
+      val parts = parameters.zip(types).map {
+        case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
+      }
+      "(" + parts.mkString(", ") + ")"
+    }
+    paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
+  }
+
+  private def formatJavaParams(parameters: Seq[PsiParameter]) = {
+    val types = ScalaPsiUtil.getTypesStream(parameters.toList)
     val parts = parameters.zip(types).map {
-      case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
+      case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
+    }
+    "(" + parts.mkString(", ") + ")"
+  }
+
+  private def formatSyntheticParams(parameters: Seq[Parameter]) = {
+    val parts = parameters.map {
+      case p => p.paramType.presentableText + (if(p.isRepeated) "*" else "")
     }
     "(" + parts.mkString(", ") + ")"
   }
