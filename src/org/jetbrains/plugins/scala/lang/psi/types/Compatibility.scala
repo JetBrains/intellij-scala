@@ -249,6 +249,10 @@ object Compatibility {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrElse(Nothing))
     Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter)
   }
+  def toParameter(p: PsiParameter) = {
+    val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
+    Parameter(p.getName, t, false, p.isVarArgs)
+  }
 
   // TODO refactor a lot of duplication out of this method 
   def compatible(named: PsiNamedElement, 
@@ -346,12 +350,20 @@ object Compatibility {
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
 
+        val excess = exprs.length - parameters.length
+
         //optimization:
-        val hasRepeated = parameters.find(_.isVarArgs) != None
-        if (exprs.length > parameters.length && !hasRepeated)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("18")))
-        if (exprs.length < parameters.length - (if (hasRepeated) 1 else 0))
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("19")))
+        val hasRepeated = parameters.exists(_.isVarArgs)
+        if (excess > 0 && !hasRepeated) {
+          val arguments = exprs.takeRight(excess).map(_.expr)
+          return ConformanceExtResult(arguments.map(ExcessArgument(_)))
+        }
+
+        val obligatory = parameters.filterNot(_.isVarArgs)
+        val shortage = obligatory.size - exprs.length
+        if (shortage > 0)
+          return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
+
 
         checkConformanceExt(false, parameters.map {param: PsiParameter => Parameter("", {
           val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
