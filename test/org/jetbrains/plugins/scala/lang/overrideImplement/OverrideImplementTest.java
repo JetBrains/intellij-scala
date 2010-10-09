@@ -143,11 +143,17 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testSCL1997() throws Exception {
+    String name = "bug/SCL1997.scala";
+    runTest(name);
+  }
+
 
   private void runTest(String name) throws Exception {
     String filePath = rootPath + name;
     final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(filePath.
         replace(File.separatorChar, '/'));
+    if (vFile == null) LocalFileSystem.getInstance().refresh(false);
     assertNotNull("file " + filePath + " not found", vFile);
     String text = StringUtil.convertLineSeparators(VfsUtil.loadText(vFile), "\n");
     final String fileName = vFile.getName();
@@ -160,14 +166,14 @@ public class OverrideImplementTest extends PsiTestCase {
     int end = fileText.indexOf(END_MARKER);
     assertTrue(end >= 0);
     String newFileText = fileText.substring(0, end);
-    String answer = fileText.substring(end + END_MARKER.length() + 1);
+    String expected = fileText.substring(end + END_MARKER.length() + 1);
     fileText = newFileText;
     int offset = fileText.indexOf(CARET_MARKER);
     fileText = removeMarker(fileText);
 
     myFile = createFile(myModule, fileName, fileText);
 
-    String s = OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName);
-    assertEquals(s, answer);
+    String actual = OverrideImplementTestHelper.transform(myProject, myFile, offset, isImplement, methodName);
+    assertEquals(expected, actual);
   }
 }
