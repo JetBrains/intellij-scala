@@ -129,7 +129,7 @@ trait ApplicationAnnotator {
       val parts = parameters.zip(types).map {
         case (p, t) => t.presentableText + (if(p.isRepeatedParameter) "*" else "")
       }
-      "(" + parts.mkString(", ") + ")"
+      parenthesise(parts)
     }
     paramClauses.clauses.map(clause => formatParams(clause.parameters, clause.paramTypes)).mkString
   }
@@ -139,13 +139,15 @@ trait ApplicationAnnotator {
     val parts = parameters.zip(types).map {
       case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
     }
-    "(" + parts.mkString(", ") + ")"
+    parenthesise(parts)
   }
 
   private def formatSyntheticParams(parameters: Seq[Parameter]) = {
     val parts = parameters.map {
       case p => p.paramType.presentableText + (if(p.isRepeated) "*" else "")
     }
-    "(" + parts.mkString(", ") + ")"
+    parenthesise(parts)
   }
+
+  private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
 }
