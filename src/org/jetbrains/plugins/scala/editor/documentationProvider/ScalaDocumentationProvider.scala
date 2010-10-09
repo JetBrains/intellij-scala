@@ -48,7 +48,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
     null
   }
 
-  def getQuickNavigateInfo(element: PsiElement): String = {
+  def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     element match {
       case clazz: ScTypeDefinition => generateClassInfo(clazz)
       case function: ScFunction => generateFunctionInfo(function)

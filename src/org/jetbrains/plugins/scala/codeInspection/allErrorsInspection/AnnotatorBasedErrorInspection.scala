@@ -8,6 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{HighlightSeverity, Annotation, AnnotationHolder}
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
+import com.intellij.lang.annotation.AnnotationSession
 
 /**
  * @author Alexander Podkhalyuzin
@@ -54,6 +55,10 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
           def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
             holder.registerProblem(element, "Error detected", ProblemHighlightType.ERROR)
             FakeAnnotation
+          }
+
+          def getCurrentAnnotationSession: AnnotationSession = {
+            new AnnotationSession(element.getContainingFile)
           }
         }
         annotator.annotate(element, annotationHolder)
