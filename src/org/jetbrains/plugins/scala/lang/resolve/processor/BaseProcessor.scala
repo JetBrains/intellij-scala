@@ -69,6 +69,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   def processType(t: ScType, place: ScalaPsiElement): Boolean = processType(t, place, ResolveState.initial)
 
   def processType(t: ScType, place: ScalaPsiElement, state: ResolveState): Boolean = {
+    processType(t, place, state, false)
+  }
+
+  def processType(t: ScType, place: ScalaPsiElement, state: ResolveState, noBounds: Boolean): Boolean = {
     ProgressManager.checkCanceled
 
     def isInApplyCall = place.getContext match {
@@ -86,7 +90,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     t match {
       case ScThisType(clazz) => {
         val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
-        processType(clazz.selfType match {
+        processType(if (noBounds) clazzType else clazz.selfType match {
           case Some(selfType) => Bounds.glb(clazzType, selfType)
           case _ => clazzType
         }, place, state)
