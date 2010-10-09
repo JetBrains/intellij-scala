@@ -74,8 +74,8 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
 
   def findExpressionInRange(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
 
-    var element1: PsiElement = file.findElementAt(startOffset);
-    var element2: PsiElement = file.findElementAt(endOffset - 1);
+    val element1: PsiElement = file.findElementAt(startOffset);
+    val element2: PsiElement = file.findElementAt(endOffset - 1);
     (element1, element2) match {
       case (_: PsiWhiteSpace, _) => {
         return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
@@ -92,7 +92,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
         if (element2.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element1.getNode.getElementType)
-          return findExpressionInRange(file, element2.getTextRange().getEndOffset(), endOffset)
+          return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element2.getNode.getElementType)
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
       }
