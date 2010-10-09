@@ -4,7 +4,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
 import java.lang.String
 import com.intellij.psi.PsiElement
-import com.intellij.lang.annotation.{HighlightSeverity, AnnotationHolder}
+import com.intellij.lang.annotation. {AnnotationSession, HighlightSeverity, AnnotationHolder}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -47,4 +47,6 @@ class AnnotatorHolderMock extends AnnotationHolder {
     myAnnotations ::= Error(elt.getText, message)
     FakeAnnotation
   }
+
+  def getCurrentAnnotationSession: AnnotationSession = null
 } 
