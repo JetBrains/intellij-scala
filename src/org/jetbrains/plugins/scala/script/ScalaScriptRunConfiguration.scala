@@ -53,6 +53,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   private var scriptPath = ""
   private var scriptArgs = ""
   private var javaOptions = ""
+  private var consoleArgs = ""
   private var workingDirectory = {
     val base = getProject.getBaseDir
     if (base != null) base.getPath
@@ -62,16 +63,19 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   def getScriptPath = scriptPath
   def getScriptArgs = scriptArgs
   def getJavaOptions = javaOptions
+  def getConsoleArgs = consoleArgs
   def getWorkingDirectory: String = workingDirectory
   def setScriptPath(s: String): Unit = scriptPath = s
   def setScriptArgs(s: String): Unit = scriptArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
+  def setConsoleArgs(s: String): Unit = consoleArgs = s
   def setWorkingDirectory(s: String): Unit = workingDirectory = s
 
   def apply(params: ScalaScriptRunConfigurationForm) {
     setScriptArgs(params.getScriptArgs)
     setScriptPath(params.getScriptPath)
     setJavaOptions(params.getJavaOptions)
+    setConsoleArgs(params.getConsoleArgs)
     setWorkingDirectory(params.getWorkingDirectory)
   }
 
@@ -125,6 +129,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
         params.getProgramParametersList.add("-classpath")
         params.getProgramParametersList.add(getClassPath(module))
+        params.getProgramParametersList.addAll(getConsoleArgs.trim.split("""\s+"""))
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
         return params
@@ -162,6 +167,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     writeModule(element)
     JDOMExternalizer.write(element, "path", getScriptPath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+    JDOMExternalizer.write(element, "consoleargs", getConsoleArgs)
     JDOMExternalizer.write(element, "params", getScriptArgs)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
@@ -172,6 +178,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     scriptPath = JDOMExternalizer.readString(element, "path")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     scriptArgs = JDOMExternalizer.readString(element, "params")
+    consoleArgs = JDOMExternalizer.readString(element, "consoleargs")
     val pp = JDOMExternalizer.readString(element, "workingDirectory")
     if (pp != null) workingDirectory = pp
   }

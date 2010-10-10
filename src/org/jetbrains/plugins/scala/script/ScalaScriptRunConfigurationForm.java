@@ -20,6 +20,7 @@ public class ScalaScriptRunConfigurationForm {
   private RawCommandLineEditor scriptArgsEditor;
   private RawCommandLineEditor javaOptionsEditor;
   private TextFieldWithBrowseButton workingDirectoryField;
+  private RawCommandLineEditor consoleArgsEditor;
 
   public ScalaScriptRunConfigurationForm(final Project project, final ScalaScriptRunConfiguration configuration) {
     myProject = project;
@@ -31,6 +32,8 @@ public class ScalaScriptRunConfigurationForm {
     javaOptionsEditor.setName("VM options");
     javaOptionsEditor.setDialogCaption("VM opotions editor");
     VirtualFile baseDir = project.getBaseDir();
+    consoleArgsEditor.setName("Console Arguments");
+    consoleArgsEditor.setDialogCaption("Scala script console arguments editor");
     String path = baseDir != null ? baseDir.getPath() : "";
     workingDirectoryField.setText(path);
   }
@@ -63,10 +66,19 @@ public class ScalaScriptRunConfigurationForm {
     javaOptionsEditor.setText(s);
   }
 
+  public String getConsoleArgs() {
+    return consoleArgsEditor.getText();
+  }
+
+  public void setConsoleArgs(String args) {
+    this.consoleArgsEditor.setText(args);
+  }
+
   public void apply(ScalaScriptRunConfiguration configuration) {
     setScriptArgs(configuration.getScriptArgs());
     setScriptPath(configuration.getScriptPath());
     setJavaOptions(configuration.getJavaOptions());
+    setConsoleArgs(configuration.getConsoleArgs());
     setWorkingDirectory(configuration.getWorkingDirectory());
   }
 
@@ -91,4 +103,5 @@ public class ScalaScriptRunConfigurationForm {
     textField.addBrowseFolderListener(title, null, project, fileChooserDescriptor);
     return fileChooserDescriptor;
   }
+
 }
