@@ -10,6 +10,7 @@ import com.intellij.psi._
 import _root_.scala.collection.Set
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
+import base.ScStableCodeReferenceElement
 import expr.ScReferenceExpression
 import statements.ScTypeAlias
 import psi.types._
@@ -19,8 +20,8 @@ import result.TypingContext
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
-import toplevel.typedef.ScTemplateDefinition
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
+import toplevel.typedef.{ScClass, ScTemplateDefinition}
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -120,8 +121,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       }
-      // TODO SCL-2386
-      // case ScDesignatorType(c: ScClass) if c.isCase &&  place.isInstanceOf[ScReferenceExpression] =>
+      // TODO SCL-2386 we don't want to get here if the reference is to the synthesized companion objet.
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
       case j: JavaArrayType =>
