@@ -121,7 +121,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       }
-      // TODO SCL-2386 we don't want to get here if the reference is to the synthesized companion objet.
+      // TODO SCL-2386 we don't want to get here if the reference is to the synthesized companion object of a case class.
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
       case j: JavaArrayType =>
