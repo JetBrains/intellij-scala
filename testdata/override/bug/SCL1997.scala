@@ -15,6 +15,5 @@ trait Foo {
 }
 
 trait Sub extends Foo {
-
   def foo(a: Any*): Any = null
 }

@@ -27,8 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.formatting.Spacing
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import psi.api.toplevel.imports.ScImportStmt
 import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
+import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -142,6 +142,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //todo: spacing for {} arguments
     //todo: spacing for early definitions
     if (getText(rightNode, fileText).startsWith("{")) {
+      if (rightPsi.isInstanceOf[ScImportSelectors]) {
+        return WITHOUT_SPACING
+      }
       if (rightPsi.isInstanceOf[ScExtendsBlock] || rightPsi.isInstanceOf[ScTemplateBody]) {
         val extendsBlock = rightPsi match {
           case e: ScExtendsBlock => e
@@ -228,14 +231,26 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     if (leftPsi.isInstanceOf[ScImportStmt] && !rightPsi.isInstanceOf[ScImportStmt]) {
       if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
-        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
+        leftPsi.getParent match {
+          case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
+              keepBlankLinesInCode)
+          }
+          case _ =>
+        }
       } else if (settings.SPACE_BEFORE_SEMICOLON) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
     if (rightPsi.isInstanceOf[ScImportStmt] && !leftPsi.isInstanceOf[ScImportStmt]) {
       if (leftElementType != ScalaTokenTypes.tSEMICOLON || !prevNotWithspace(leftPsi).isInstanceOf[ScImportStmt]) {
-        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks, keepBlankLinesInCode)
+        rightPsi.getParent match {
+          case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
+              keepBlankLinesInCode)
+          }
+          case _ =>
+        }
       }
     }
 
@@ -244,14 +259,26 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
 
-    if (leftPsi.isInstanceOf[ScTemplateDefinition]) {
+    if (leftPsi.isInstanceOf[ScTypeDefinition]) {
       if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
-        return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+        leftPsi.getParent match {
+          case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks,
+              keepBlankLinesInDeclarations)
+          }
+          case _ =>
+        }
       }
     }
 
-    if (rightPsi.isInstanceOf[ScTemplateDefinition]) {
-      return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+    if (rightPsi.isInstanceOf[ScTypeDefinition]) {
+      rightPsi.getParent match {
+        case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
+          return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks,
+            keepBlankLinesInDeclarations)
+        }
+        case _ =>
+      }
     }
 
     if (rightNode.getElementType == ScalaTokenTypes.tRBRACE) {
@@ -296,6 +323,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
             val setting = if (leftPsi.isInstanceOf[ScFunction] && p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
             else if (leftPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
+            else if (rightPsi.isInstanceOf[ScFunction] && p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+            else if (rightPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
             else if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
             else settings.BLANK_LINES_AROUND_FIELD
             return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)

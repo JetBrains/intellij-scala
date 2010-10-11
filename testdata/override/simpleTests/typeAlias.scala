@@ -8,6 +8,7 @@ abstract class b {
 class ImplementTypeAlias extends b {
   type L = this.type
 }
+
 abstract class b {
   type L
 }
