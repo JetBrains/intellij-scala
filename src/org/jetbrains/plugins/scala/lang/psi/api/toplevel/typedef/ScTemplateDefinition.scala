@@ -8,20 +8,21 @@ package typedef
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
-import impl.ScalaPsiElementFactory
-import impl.toplevel.typedef.TypeDefinitionMembers
+import psi.impl.ScalaPsiElementFactory
+import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import parser.ScalaElementTypes
 import statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import templates.ScExtendsBlock
 import com.intellij.openapi.progress.ProgressManager
 import types.result.{TypingContext, TypeResult}
-import resolve.processor.BaseProcessor
+import lang.resolve.processor.BaseProcessor
 import statements.params.ScClassParameter
 import java.util.ArrayList
-import com.intellij.psi.{PsiSubstitutor, PsiElement, ResolveState, PsiClass}
 import types._
-import impl.toplevel.synthetic.ScSyntheticFunction
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import fake.FakePsiMethod
+import lexer.ScalaTokenTypes
+import com.intellij.psi._
 
 /**
  * @author ven
@@ -153,12 +154,24 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
     extendsBlock.templateBody match {
       case Some(body) => {
-        val before = anchor match {case Some(anchor) => anchor.getNode; case None => body.getNode.getLastChildNode}
+        val before = anchor match {
+          case Some(anchor) => anchor.getNode
+          case None => {
+            val last = body.getNode.getLastChildNode
+            if (ScalaPsiUtil.isLineTerminator(last.getTreePrev.getPsi)) {
+              last.getTreePrev
+            } else {
+              last
+            }
+          }
+        }
         if (ScalaPsiUtil.isLineTerminator(before.getPsi))
           body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
         body.getNode.addChild(member.getNode, before)
         if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
           body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+        else
+          body.getNode.replaceChild(before, ScalaPsiElementFactory.createNewLineNode(member.getManager))
       }
       case None => {
         extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)

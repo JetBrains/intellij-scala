@@ -8,6 +8,7 @@ class SimpleTypeParam extends A {
 abstract class A {
   def foo[T](x: T): T
 }
+
 class SimpleTypeParam extends A {
   def foo[T](x: T): T = null
 }

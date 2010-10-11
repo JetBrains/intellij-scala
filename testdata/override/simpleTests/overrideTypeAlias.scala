@@ -13,6 +13,7 @@ package Y
 class Aa {
   type K = Int
 }
+
 class TypeAlias extends Aa {
   val t = foo()
 

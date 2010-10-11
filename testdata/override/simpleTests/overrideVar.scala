@@ -14,6 +14,7 @@ package test
 class A {
   var foo: A = new A
 }
+
 class VarOverride extends A {
   val t = foo()
 
