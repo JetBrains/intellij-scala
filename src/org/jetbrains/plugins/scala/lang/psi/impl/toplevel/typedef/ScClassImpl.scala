@@ -116,6 +116,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         if (sign._1.sig.name == "copy") hasCopy = true
       }
       if (!hasCopy) {
+        // TODO
+        // copy method might have type parameters, e.g:
+        // Tuple2#copy[T1, T2](_1: T1, _2: T2): (T1, T2)
         buf += new FakePsiMethod(this, "copy", parameters.map(p =>
           Parameter(p.name, p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any), true,
             p.isRepeatedParameter)).toArray,
