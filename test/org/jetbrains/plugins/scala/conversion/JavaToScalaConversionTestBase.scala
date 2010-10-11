@@ -56,6 +56,9 @@ abstract class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
       buf += elem
     }
     var res = JavaToScala.convertPsiToText(buf.toArray)
+    val newFile = PsiFileFactory.getInstance(getProject).createFileFromText("dummyForJavaToScala.scala",
+      ScalaFileType.SCALA_LANGUAGE, res)
+    res = CodeStyleManager.getInstance(getProject).reformat(newFile).getText
 
     println("------------------------ " + javaFile.getName + " ------------------------")
     println(res)

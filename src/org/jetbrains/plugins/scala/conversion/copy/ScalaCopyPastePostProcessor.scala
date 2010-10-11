@@ -21,8 +21,9 @@ import com.intellij.openapi.util.Ref
 
 class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
   def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData): Unit = {
-    val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION) return
+    val settings = CodeStyleSettingsManager.getSettings(project)
+    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    if (!scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION) return
     if (value == null) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
@@ -32,15 +33,24 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransf
       case _ => ""
     }
     if (text == "") return //copy as usually
-    if (!settings.DONT_SHOW_CONVERSION_DIALOG) dialog.show
-    if (settings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
+    if (!scalaSettings.DONT_SHOW_CONVERSION_DIALOG) dialog.show
+    if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
       ApplicationManager.getApplication.runWriteAction(new Runnable {
         def run: Unit = {
           editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
           editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
           PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
           val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
+          val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
+          val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+          val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
+          settings.KEEP_BLANK_LINES_IN_CODE = 0
+          settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
+          settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
+          settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
+          settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
+          settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
         }
       })
     }
