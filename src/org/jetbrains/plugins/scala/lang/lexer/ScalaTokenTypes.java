@@ -43,7 +43,6 @@ public interface ScalaTokenTypes {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final IElementType tLINE_TERMINATOR = new ScalaElementType("newline");
-  final IElementType tNON_SIGNIFICANT_NEWLINE = new ScalaElementType("non significant line terminate");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Stub /////////////////////////////////////////////////////////////////////////////////////
@@ -181,11 +180,13 @@ public interface ScalaTokenTypes {
 
   public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
           tWHITE_SPACE_IN_LINE,
-          tNON_SIGNIFICANT_NEWLINE,
           XML_REAL_WHITE_SPACE,
           XML_WHITE_SPACE,
           TAG_WHITE_SPACE
   );
+
+  public static TokenSet WHITE_SPACES_AND_NEW_LINE_TOKEN_SET =
+      TokenSet.orSet(WHITES_SPACES_TOKEN_SET, TokenSet.create(tLINE_TERMINATOR));
 
   TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
           tLINE_COMMENT,
