@@ -214,7 +214,10 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
   }
 
   def createValFromVarDeclaration(varDef: ScVariableDefinition, manager: PsiManager): ScValue = {
-    val text = "class a {" + varDef.getText.replaceAll("^var", "val") + " }"
+    val varKeyword = varDef.varKeyword
+    val startOffset = varKeyword.getStartOffsetInParent
+    val varText = varDef.getText
+    val text = "class a {" + varText.substring(0, startOffset) + "val" + varText.substring(startOffset + 3) + " }"
     val dummyFile = createScalaFile(text, manager)
     val classDef = dummyFile.typeDefinitions()(0)
     classDef.members()(0).asInstanceOf[ScValue]

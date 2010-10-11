@@ -23,6 +23,8 @@ import lexer.ScalaTokenTypes
 
 trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
   self =>
+  def varKeyword = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
+
   def declaredElements: Seq[ScTypedDefinition]
 
   def typeElement: Option[ScTypeElement]
