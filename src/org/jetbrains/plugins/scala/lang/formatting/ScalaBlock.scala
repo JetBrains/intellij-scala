@@ -39,10 +39,9 @@ extends Object with ScalaTokenTypes with Block {
 
   def getSettings = mySettings
 
-  def getTextRange = if (myLastNode == null) myNode.getTextRange
-  else {
-    new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
-  }
+  def getTextRange =
+    if (myLastNode == null) myNode.getTextRange
+    else new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
 
   def getIndent = myIndent
 
@@ -65,7 +64,8 @@ extends Object with ScalaTokenTypes with Block {
       }
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent, this.getAlignment)
+      case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
+        this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
           return new ChildAttributes(Indent.getNoneIndent(), null)

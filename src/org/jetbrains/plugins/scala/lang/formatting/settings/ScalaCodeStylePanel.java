@@ -146,15 +146,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SPACE_WITHIN_WHILE_PARENTHESES = withinWhileBox.isSelected();
     scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = donTUseContinuationCheckBox.isSelected();
 
-    scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION = alignListOfIdentifiersCheckBox.isSelected();
     scalaSettings.ALIGN_MULTILINE_FOR = alignForStatementCheckBox.isSelected();
     scalaSettings.ALIGN_IF_ELSE = alignIfElseStatementCheckBox.isSelected();
-
-    scalaSettings.SPECIAL_ELSE_IF_TREATMENT = specialElseIfTreatmentCheckBox.isSelected();
-    scalaSettings.ELSE_ON_NEW_LINE = elseOnNewLineCheckBox.isSelected();
-    scalaSettings.CATCH_ON_NEW_LINE = catchOnNewLineCheckBox.isSelected();
-    scalaSettings.FINALLY_ON_NEW_LINE = finallyOnNewLineCheckBox.isSelected();
-    scalaSettings.WHILE_ON_NEW_LINE = whileOnNewLineCheckBox.isSelected();
 
     scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = addUnambiguousImportsOnCheckBox.isSelected();
     scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = addImportStatementInCheckBox.isSelected();
@@ -284,16 +277,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     }
 
-    if (scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION != alignListOfIdentifiersCheckBox.isSelected())
-      return true;
     if (scalaSettings.ALIGN_MULTILINE_FOR != alignForStatementCheckBox.isSelected()) return true;
     if (scalaSettings.ALIGN_IF_ELSE != alignIfElseStatementCheckBox.isSelected()) return true;
 
-    if (scalaSettings.ELSE_ON_NEW_LINE != elseOnNewLineCheckBox.isSelected()) return true;
-    if (scalaSettings.WHILE_ON_NEW_LINE != whileOnNewLineCheckBox.isSelected()) return true;
-    if (scalaSettings.CATCH_ON_NEW_LINE != catchOnNewLineCheckBox.isSelected()) return true;
-    if (scalaSettings.FINALLY_ON_NEW_LINE != finallyOnNewLineCheckBox.isSelected()) return true;
-    if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT != specialElseIfTreatmentCheckBox.isSelected()) return true;
     if (scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND != (Integer) classCountSpinner.getValue()) return true;
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
@@ -360,15 +346,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(beforeFinallyLBraceBox, settings.SPACE_BEFORE_FINALLY_LBRACE);
     setValue(donTUseContinuationCheckBox, settings.NOT_CONTINUATION_INDENT_FOR_PARAMS);
 
-    setValue(alignListOfIdentifiersCheckBox, settings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION);
     setValue(alignForStatementCheckBox, settings.ALIGN_MULTILINE_FOR);
     setValue(alignIfElseStatementCheckBox, settings.ALIGN_IF_ELSE);
 
-    setValue(elseOnNewLineCheckBox, settings.ELSE_ON_NEW_LINE);
-    setValue(whileOnNewLineCheckBox, settings.WHILE_ON_NEW_LINE);
-    setValue(catchOnNewLineCheckBox, settings.CATCH_ON_NEW_LINE);
-    setValue(finallyOnNewLineCheckBox, settings.FINALLY_ON_NEW_LINE);
-    setValue(specialElseIfTreatmentCheckBox, settings.SPECIAL_ELSE_IF_TREATMENT);
     setValue(addUnambiguousImportsOnCheckBox, settings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY);
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(addFullQualifiedImportsCheckBox, settings.ADD_FULL_QUALIFIED_IMPORTS);
