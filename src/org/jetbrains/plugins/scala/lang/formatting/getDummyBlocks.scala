@@ -6,25 +6,14 @@ package formatting
 */
 
 import settings.ScalaCodeStyleSettings
-
 import java.util.ArrayList;
-
 import com.intellij.formatting._;
 import com.intellij.psi.tree._;
 import com.intellij.lang.ASTNode;
-
-
-
-
-
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-
 import org.jetbrains.plugins.scala.lang.formatting.processors._
-
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
@@ -32,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import ScalaWrapManager._
-
-
 
 object getDummyBlocks {
   def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -205,7 +192,8 @@ object getDummyBlocks {
   }
 
   private def getIfSubBlocks(node: ASTNode, block: ScalaBlock, alignment: Alignment): ArrayList[Block] = {
-    val settings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
     val firstChildNode = node.getFirstChildNode
     var child = firstChildNode
@@ -213,7 +201,7 @@ object getDummyBlocks {
       child = child.getTreeNext
     }
     val indent = ScalaIndentProcessor.getChildIndent(block, firstChildNode)
-    val childWrap = arrangeSuggestedWrapForChild(block, firstChildNode, settings, block.suggestedWrap)
+    val childWrap = arrangeSuggestedWrapForChild(block, firstChildNode, scalaSettings, block.suggestedWrap)
     val firstBlock = new ScalaBlock(block, firstChildNode, child, alignment, indent, childWrap, block.getSettings)
     subBlocks.add(firstBlock)
     if (child.getTreeNext != null) {
@@ -222,8 +210,8 @@ object getDummyBlocks {
       val back: ASTNode = null
       while (child.getTreeNext != null) {
         child.getTreeNext.getPsi match {
-          case _: ScIfStmt => {
-            val childWrap = arrangeSuggestedWrapForChild(block, firstChild, settings, block.suggestedWrap)
+          case _: ScIfStmt if settings.SPECIAL_ELSE_IF_TREATMENT => {
+            val childWrap = arrangeSuggestedWrapForChild(block, firstChild, scalaSettings, block.suggestedWrap)
             subBlocks.add(new ScalaBlock(block, firstChild, child, alignment, indent, childWrap, block.getSettings))
             subBlocks.addAll(getIfSubBlocks(child.getTreeNext, block, alignment))
           }
@@ -232,7 +220,7 @@ object getDummyBlocks {
         child = child.getTreeNext
       }
       if (subBlocks.size ==  1) {
-        val childWrap = arrangeSuggestedWrapForChild(block, firstChild, settings, block.suggestedWrap)
+        val childWrap = arrangeSuggestedWrapForChild(block, firstChild, scalaSettings, block.suggestedWrap)
         subBlocks.add(new ScalaBlock(block, firstChild, child, alignment, indent, childWrap, block.getSettings))
       }
     }
@@ -319,26 +307,21 @@ object getDummyBlocks {
       case _: ScXmlEmptyTag => true   //todo:
       case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
-
       case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
       case _: ScPatternArgumentList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS ||
               mySettings.ALIGN_MULTILINE_METHOD_BRACKETS => true
-
-      case _: ScEnumerators if scalaSettings.ALIGN_MULTILINE_FOR => true //todo:
-
+      case _: ScEnumerators if mySettings.ALIGN_MULTILINE_FOR => true
       case _: ScParenthesisedExpr if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedTypeElement if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
       case _: ScParenthesisedPattern if mySettings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION => true
-
       case _: ScInfixExpr if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScCompositePattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
 
       case _: ScMethodCall | _: ScReferenceExpression if mySettings.ALIGN_MULTILINE_CHAINED_METHODS => true
-      case _: ScIfStmt => true //todo:
       case _ => false
     }
   }

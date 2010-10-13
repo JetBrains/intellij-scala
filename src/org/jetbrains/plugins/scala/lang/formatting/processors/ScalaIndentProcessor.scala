@@ -33,10 +33,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
          parent.myLastNode != null) {
       child.getPsi match {
         case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
-            settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return Indent.getNormalIndent
-        case _: ScBlockExpr => return Indent.getNoneIndent
-        case _: ScExpression => return Indent.getNormalIndent
-        case _ => return Indent.getNoneIndent
+            settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 =>
+          return Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE)
+        case _: ScBlockExpr => return Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
+        case _: ScExpression => return Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE)
+        case _ => return Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
       }
     }
 

@@ -64,11 +64,24 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     buffer ++= Seq("METHOD_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS", "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
       "METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE")
 
+    //if statement
+    buffer ++= Seq("IF_BRACE_FORCE", "ELSE_ON_NEW_LINE", "SPECIAL_ELSE_IF_TREATMENT")
+
+    //brace forces
+    buffer ++= Seq("FOR_BRACE_FORCE", "WHILE_BRACE_FORCE", "DOWHILE_BRACE_FORCE", "WHILE_ON_NEW_LINE",
+      "INDENT_CASE_FROM_SWITCH", "CATCH_ON_NEW_LINE", "FINALLY_ON_NEW_LINE", "FOR_STATEMENT_WRAP",
+      "ALIGN_MULTILINE_FOR", "FOR_STATEMENT_LPAREN_ON_NEXT_LINE", "FOR_STATEMENT_RPAREN_ON_NEXT_LINE")
+
+    //modifier list wrap
+    buffer ++= Seq("MODIFIER_LIST_WRAP")
+
     consumer.showStandardOptions(buffer.toArray:_*)
 
     //Custom options
     showCustomOption("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword",
       ApplicationBundle.message("wrapping.extends.implements.list"))
+    showCustomOption("ALIGN_IF_ELSE", "Align if-else statements", ApplicationBundle.message("wrapping.if.statement"))
+
   }
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
@@ -79,7 +92,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
             "}"
 
   private val WRAPPING_AND_BRACES_SAMPLE =
-    "class A {\n  def foo {\n" +
+    "class A {\n" +
+            "  def foo {\n" +
             "    val infixExpr = 1 + 2 + (3 + 4) + 5 + 6 +\n" +
             "      7 + 8 + 9 + 10 + 11 + 12 + 13 + (14 +\n" +
             "      15) + 16 + 17 * 18 + 19 + 20\n" +
@@ -93,8 +107,31 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
             "\n" +
             "  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()\n" +
             "  \n" +
-            "  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int)" +
-            "\n" +
+            "  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int) {\n" +
+            "    val zz = if (true) 1 else 3\n" +
+            "    val uz = if (true)\n" +
+            "               1\n" +
+            "              else {\n" +
+            "              }\n" +
+            "    if (true) {\n" +
+            "      false\n" +
+            "    } else if (false) {\n" +
+            "    } else true\n" +
+            "    for (i <- 1 to 5) yield i + 1\n" +
+            "    Some(3) match {\n" +
+            "      case Some(a) if a != 2 => a\n" +
+            "      case Some(a) => \n" +
+            "        a + 1\n" +
+            "      case _ =>\n" +
+            "    }\n" +
+            "    try a + 2\n" +
+            "    catch {\n" +
+            "      case e => (i: Int) => i + 1\n" +
+            "    } finally \n" +
+            "      doNothing\n" +
+            "    while (true) \n" +
+            "      true = false\n" +
+            "  }\n" +
             "}"
 
   private val BLANK_LINES_CODE_SAMPLE =

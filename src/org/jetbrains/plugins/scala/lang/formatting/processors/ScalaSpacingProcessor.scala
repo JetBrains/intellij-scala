@@ -29,6 +29,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
 import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
+import psi.ScalaPsiUtil
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -186,7 +187,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       } else {
         rightPsi.getParent match {
           case fun: ScFunction => {
-            settings.CLASS_BRACE_STYLE match {
+            settings.METHOD_BRACE_STYLE match {
               case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
@@ -203,7 +204,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             }
           }
           case parent => {
-            settings.CLASS_BRACE_STYLE match {
+            settings.BRACE_STYLE match {
               case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
@@ -360,6 +361,42 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
         case _ =>
       }
+    }
+
+    //special else if treatment
+    if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {
+      if (settings.SPECIAL_ELSE_IF_TREATMENT) return WITH_SPACING
+      else return ON_NEW_LINE
+    }
+    if (rightNode.getElementType == ScalaTokenTypes.kELSE && right.myLastNode != null) {
+      var lastNode = left.myLastNode
+      while (lastNode != null && (ScalaPsiUtil.isLineTerminator(lastNode.getPsi) ||
+              lastNode.getPsi.isInstanceOf[PsiWhiteSpace])) lastNode = lastNode.getTreePrev
+      if (lastNode == null) return WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
+      else if (getText(lastNode, fileText).endsWith("}")) {
+        if (settings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
+        else return WITH_SPACING
+      } else return WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
+    }
+
+    if (leftElementType == ScalaElementTypes.MODIFIERS) {
+      if (settings.MODIFIER_LIST_WRAP) return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTextRange)
+      else return WITH_SPACING
+    }
+
+    if (rightPsi.isInstanceOf[ScCatchBlock]) {
+      if (settings.CATCH_ON_NEW_LINE) return ON_NEW_LINE
+      else return WITH_SPACING
+    }
+
+    if (rightPsi.isInstanceOf[ScFinallyBlock]) {
+      if (settings.FINALLY_ON_NEW_LINE) return ON_NEW_LINE
+      else return WITH_SPACING
+    }
+
+    if (rightElementType == kWHILE) {
+      if (settings.WHILE_ON_NEW_LINE) return ON_NEW_LINE
+      else return WITH_SPACING
     }
 
     //old formatter spacing
@@ -699,12 +736,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
 
 
-    //special else if treatment
-    if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {
-      if (scalaSettings.SPECIAL_ELSE_IF_TREATMENT) {
-        return Spacing.createSpacing(1, 1, 0, false, 0)
-      } else return ON_NEW_LINE
-    }
+
 
     //special for "case <caret> =>" (for SurroundWith)
     if (leftNode.getElementType == ScalaTokenTypes.kCASE &&
