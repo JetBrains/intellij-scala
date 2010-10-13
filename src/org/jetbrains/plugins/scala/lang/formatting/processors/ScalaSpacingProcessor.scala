@@ -139,6 +139,20 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       } else if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES) return WITHOUT_SPACING
       else return WITHOUT_SPACING
     }
+    if (leftElementType == tLPARENTHESIS && leftPsi.getParent.isInstanceOf[ScParameterClause]) {
+      if (settings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE) {
+        if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)
+      } else if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITHOUT_SPACING
+      else return WITHOUT_SPACING
+    }
+    if (rightElementType == tRPARENTHESIS && rightPsi.getParent.isInstanceOf[ScParameterClause]) {
+      if (settings.METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE) {
+        if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+        else return WITHOUT_SPACING_DEPENDENT(rightPsi.getParent.getTextRange)
+      } else if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITHOUT_SPACING
+      else return WITHOUT_SPACING
+    }
     //todo: spacing for {} arguments
     //todo: spacing for early definitions
     if (getText(rightNode, fileText).startsWith("{")) {

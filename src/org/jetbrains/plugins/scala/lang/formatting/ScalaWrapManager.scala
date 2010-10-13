@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScComp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -74,6 +75,12 @@ object ScalaWrapManager {
       }
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.myLastNode != null => {
         return Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
+      }
+      case psi: ScParameterClause => {
+        return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
+      }
+      case psi: ScParameters => {
+        return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
       }
       case _ =>
     }
@@ -140,6 +147,14 @@ object ScalaWrapManager {
       case patt: ScPatternArgumentList => {
         if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
         else if (childPsi.isInstanceOf[ScSequenceArg]) return suggestedWrap
+        else return null
+      }
+      case params: ScParameterClause => {
+        if (childPsi.isInstanceOf[ScParameter]) return suggestedWrap
+        else return null
+      }
+      case params: ScParameters => {
+        if (childPsi.isInstanceOf[ScParameterClause] && params.clauses.apply(0) != childPsi) return suggestedWrap
         else return null
       }
       case _ if parentNode.getElementType == ScalaTokenTypes.kEXTENDS && parent.myLastNode != null => {
