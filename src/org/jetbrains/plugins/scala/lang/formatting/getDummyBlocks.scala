@@ -36,7 +36,6 @@ import ScalaWrapManager._
 
 
 object getDummyBlocks {
-
   def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
@@ -318,8 +317,8 @@ object getDummyBlocks {
     node.getPsi match {
       case _: ScXmlStartTag => true  //todo:
       case _: ScXmlEmptyTag => true   //todo:
-      case _: ScParameters if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true  //todo:
-      case _: ScParameterClause if scalaSettings.ALIGN_MULTILINE_PARAMETERS => true //todo:
+      case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
+      case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
 
       case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||
@@ -337,8 +336,6 @@ object getDummyBlocks {
       case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScCompositePattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
-
-      case _: ScIdList if scalaSettings.ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION => true  //todo:
 
       case _: ScMethodCall | _: ScReferenceExpression if mySettings.ALIGN_MULTILINE_CHAINED_METHODS => true
       case _: ScIfStmt => true //todo:

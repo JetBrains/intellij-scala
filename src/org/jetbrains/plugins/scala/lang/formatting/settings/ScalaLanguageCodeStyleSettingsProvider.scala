@@ -60,6 +60,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     //extends list wrap
     buffer ++= Seq("EXTENDS_LIST_WRAP", "ALIGN_MULTILINE_EXTENDS_LIST", "EXTENDS_KEYWORD_WRAP")
 
+    //method parameters
+    buffer ++= Seq("METHOD_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS", "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
+      "METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE")
+
     consumer.showStandardOptions(buffer.toArray:_*)
 
     //Custom options
@@ -87,7 +91,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
             "  \n" +
             "  val goo = new Foo\n" +
             "\n" +
-            "  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()" +
+            "  goo.foo().foo(1, 2).foo(z = 1, y = 2).foo().foo(1, 2, 3).foo()\n" +
+            "  \n" +
+            "  def m(x: Int, y: Int, z: Int)(u: Int, f: Int, l: Int)" +
+            "\n" +
             "}"
 
   private val BLANK_LINES_CODE_SAMPLE =

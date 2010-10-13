@@ -85,7 +85,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   public void doTextTest(final Action action, final String text, String textAfter) throws IncorrectOperationException {
-    final PsiFile file = createPseudoPhysicalFile("A.scala", text);
+    final PsiFile file = createFile("A.scala", text);
 
     if (myLineRange != null) {
       final DocumentImpl document = new DocumentImpl(text);
