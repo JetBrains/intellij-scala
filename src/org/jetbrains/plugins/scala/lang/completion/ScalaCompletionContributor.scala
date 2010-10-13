@@ -3,7 +3,6 @@ package lang
 package completion
 
 import com.intellij.codeInsight.completion._
-import psi.api.expr.{ScPostfixExpr, ScInfixExpr, ScReferenceExpression}
 import psi.api.ScalaFile
 import psi.api.base.ScReferenceElement
 import com.intellij.util.ProcessingContext
