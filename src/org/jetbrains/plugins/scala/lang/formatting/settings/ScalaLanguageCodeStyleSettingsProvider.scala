@@ -30,6 +30,18 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     val buffer: ArrayBuffer[String] = new ArrayBuffer
+    //spacing
+    if (settingsType == SettingsType.SPACING_SETTINGS) {
+      buffer ++= Seq("SPACE_AFTER_COMMA", "SPACE_BEFORE_IF_PARENTHESES", "SPACE_BEFORE_FOR_PARENTHESES",
+        "SPACE_BEFORE_METHOD_PARENTHESES", "SPACE_BEFORE_METHOD_CALL_PARENTHESES", "SPACE_WITHIN_FOR_PARENTHESES",
+        "SPACE_WITHIN_IF_PARENTHESES", "SPACE_WITHIN_WHILE_PARENTHESES", "SPACE_WITHIN_PARENTHESES",
+        "SPACE_WITHIN_METHOD_PARENTHESES", "SPACE_WITHIN_METHOD_CALL_PARENTHESES", "SPACE_WITHIN_BRACKETS",
+        "SPACE_BEFORE_CLASS_LBRACE", "SPACE_BEFORE_METHOD_LBRACE", "SPACE_BEFORE_IF_LBRACE",
+        "SPACE_BEFORE_WHILE_LBRACE", "SPACE_BEFORE_DO_LBRACE", "SPACE_BEFORE_FOR_LBRACE", "SPACE_BEFORE_TRY_LBRACE",
+        "SPACE_BEFORE_CATCH_LBRACE", "SPACE_BEFORE_FINALLY_LBRACE", "SPACE_BEFORE_WHILE_PARENTHESES",
+        "SPACE_AFTER_SEMICOLON", "SPACE_BEFORE_ELSE_LBRACE")
+    }
+
     //blank lines
     if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
       buffer ++= Seq("KEEP_BLANK_LINES_IN_CODE", "BLANK_LINES_AFTER_CLASS_HEADER",
@@ -41,11 +53,14 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
+      consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Wrap infix expressions, patterns and types ")
+      consumer.renameStandardOption(CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT,
+        "'match' or 'switch' statements")
+
       //Binary expression section
       buffer ++= Seq("BINARY_OPERATION_WRAP", "ALIGN_MULTILINE_BINARY_OPERATION",
         "ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION", "PARENTHESES_EXPRESSION_LPAREN_WRAP",
         "PARENTHESES_EXPRESSION_RPAREN_WRAP")
-      consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Wrap infix expressions, patterns and types ")
 
       //Method calls section
       buffer ++= Seq("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
@@ -88,12 +103,27 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("ALIGN_IF_ELSE", "Align if-else statements", ApplicationBundle.message("wrapping.if.statement"))
       showCustomOption("METHOD_BRACE_FORCE", "Force braces", METHOD_DEFINITION,
         CodeStyleSettingsCustomizable.BRACE_OPTIONS, CodeStyleSettingsCustomizable.BRACE_VALUES)
+      showCustomOption("TRY_BRACE_FORCE", "Force 'try' braces",
+        CodeStyleSettingsCustomizable.WRAPPING_TRY_STATEMENT, CodeStyleSettingsCustomizable.BRACE_OPTIONS,
+        CodeStyleSettingsCustomizable.BRACE_VALUES)
+      showCustomOption("FINALLY_BRACE_FORCE", "Force 'finally' braces",
+        CodeStyleSettingsCustomizable.WRAPPING_TRY_STATEMENT, CodeStyleSettingsCustomizable.BRACE_OPTIONS,
+        CodeStyleSettingsCustomizable.BRACE_VALUES)
+      showCustomOption("CLOSURE_BRACE_FORCE", "Force braces", ANONYMOUS_METHOD,
+        CodeStyleSettingsCustomizable.BRACE_OPTIONS, CodeStyleSettingsCustomizable.BRACE_VALUES)
+      showCustomOption("CASE_CLAUSE_BRACE_FORCE", "Force 'case' branch braces",
+        CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT, CodeStyleSettingsCustomizable.BRACE_OPTIONS,
+        CodeStyleSettingsCustomizable.BRACE_VALUES)
+      showCustomOption("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", "Parameters on new line", ANONYMOUS_METHOD)
+      showCustomOption("NOT_CONTINUATION_INDENT_FOR_PARAMS", "Use normal indent for parameters",
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
     }
 
   }
 
   //custom groups
   private val METHOD_DEFINITION = "Method definition"
+  private val ANONYMOUS_METHOD = "Anonymous method definition"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
 
