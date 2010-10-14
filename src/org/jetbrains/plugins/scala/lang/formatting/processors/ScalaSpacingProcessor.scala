@@ -30,6 +30,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
 import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
 import psi.ScalaPsiUtil
+import xml.ScXmlPattern
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -833,6 +834,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaElementTypes.TYPE_ARGS, _, (ScalaElementTypes.TYPE_GENERIC_CALL | ScalaElementTypes.GENERIC_CALL)) => return NO_SPACING
       case (_, ScalaElementTypes.PATTERN_ARGS, _, ScalaElementTypes.CONSTRUCTOR_PATTERN) => return NO_SPACING
       //Annotation
+      case (ScalaTokenTypes.tAT, _, _, _) if rightPsi.isInstanceOf[ScXmlPattern] => return WITH_SPACING
       case (ScalaTokenTypes.tAT, _, _, _) => return NO_SPACING
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaElementTypes.NAMING_PATTERN, _) => return NO_SPACING
       case (_, ScalaTokenTypes.tAT, _, _) => return NO_SPACING_WITH_NEWLINE
