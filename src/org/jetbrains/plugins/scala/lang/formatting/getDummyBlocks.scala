@@ -322,16 +322,7 @@ object getDummyBlocks {
             return getChildAlignment(prev, child)
           } else return getAlignment(prevChild)
         }
-        child.getPsi match {
-          case _: ScModifierList => {
-            if (prev == null) return createNewAlignment
-            return createNewAlignment //todo: ?
-          }
-          /*case _: ScIdList | _: ScPatternList =>  {
-            if (prev == null) return createNewAlignment
-          }*/
-          case _ => return null
-        }
+        return null
       }
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
