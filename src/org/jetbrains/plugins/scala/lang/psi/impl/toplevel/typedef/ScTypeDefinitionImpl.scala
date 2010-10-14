@@ -399,7 +399,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     if (stub != null) {
       return stub.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
     }
-    hasAnnotation("scala.deprecated") != None
+    hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
   }
 
   //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored

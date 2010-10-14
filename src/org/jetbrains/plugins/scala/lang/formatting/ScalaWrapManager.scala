@@ -11,6 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBo
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable, ScFunction}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -80,7 +83,18 @@ object ScalaWrapManager {
         return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
       }
       case psi: ScParameters => {
-        return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
+        return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, true)
+      }
+      case annot: ScAnnotations if annot.getAnnotations.length > 0 => {
+        annot.getParent match {
+          case _: ScTypeDefinition => return Wrap.createWrap(settings.CLASS_ANNOTATION_WRAP, false)
+          case _: ScFunction => return Wrap.createWrap(settings.METHOD_ANNOTATION_WRAP, false)
+          case _: ScVariable | _: ScValue | _: ScTypeAlias if annot.getParent.getParent.isInstanceOf[ScTemplateBody] =>
+            return Wrap.createWrap(settings.FIELD_ANNOTATION_WRAP, false)
+          case _: ScVariable | _: ScValue | _: ScTypeAlias => Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
+          case _: ScParameter => Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)
+          case _ =>
+        }
       }
       case _ =>
     }
@@ -155,6 +169,10 @@ object ScalaWrapManager {
       }
       case params: ScParameters => {
         if (childPsi.isInstanceOf[ScParameterClause] && params.clauses.apply(0) != childPsi) return suggestedWrap
+        else return null
+      }
+      case annot: ScAnnotations => {
+        if (childPsi.isInstanceOf[ScAnnotation]) return suggestedWrap
         else return null
       }
       case _ if parentNode.getElementType == ScalaTokenTypes.kEXTENDS && parent.myLastNode != null => {
