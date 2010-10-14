@@ -99,6 +99,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightPsi = rightNode.getPsi
     import ScalaTokenTypes._
     import ScalaElementTypes._
+    if (leftElementType == XmlTokenType.XML_DATA_CHARACTERS || rightElementType == XmlTokenType.XML_DATA_CHARACTERS) {
+      return Spacing.getReadOnlySpacing
+    }
+    if (rightElementType == ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START) return WITHOUT_SPACING
+    if (leftElementType == ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END) return WITHOUT_SPACING
+
     if (leftElementType == tLPARENTHESIS &&
             (leftPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     leftPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
