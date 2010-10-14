@@ -16,13 +16,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     return CodeStyleSettingsManager.getSettings(project).getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
-
-  //spcaing settings:
-  public boolean SPACE_BEFORE_COLON = false;
-  public boolean SPACE_AFTER_COLON = true;
-  public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
-  public boolean SPACE_BEFORE_MATCH_LBRACE = true;
-
   public boolean ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY = false;
   public int CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = 5;
   public boolean ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = false;
@@ -53,10 +46,18 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int CLOSURE_BRACE_FORCE = 0;
   public int CASE_CLAUSE_BRACE_FORCE = 0;
   public boolean PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = true;
+  public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
   public boolean ALIGN_IF_ELSE = false;
   //indents
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
+
+  //todo: add to spacing settings
+  //spcaing settings:
+  public boolean SPACE_BEFORE_COLON = false;
+  public boolean SPACE_AFTER_COLON = true;
+  public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
+  public boolean SPACE_BEFORE_MATCH_LBRACE = true;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);

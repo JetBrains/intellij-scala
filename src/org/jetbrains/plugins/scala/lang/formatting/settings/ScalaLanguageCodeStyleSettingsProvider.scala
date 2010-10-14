@@ -95,6 +95,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       //align in colums
       buffer ++= Seq("ALIGN_GROUP_FIELD_DECLARATIONS")
+
+      buffer ++= Seq("WRAP_LONG_LINES")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
@@ -122,6 +124,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
+      showCustomOption("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
     }
 
   }
@@ -129,6 +132,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   //custom groups
   private val METHOD_DEFINITION = "Method definition"
   private val ANONYMOUS_METHOD = "Anonymous method definition"
+  private val CLASS_DEFINITION = "Class definition"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
 

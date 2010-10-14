@@ -322,6 +322,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case _ =>
       }
       leftNode.getTreeParent.getPsi match {
+        case b: ScTemplateBody if rightPsi.isInstanceOf[ScSelfTypeElement] => {
+          if (scalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE) {
+            return ON_NEW_LINE
+          } else return WITHOUT_SPACING_NO_KEEP //todo: spacing setting
+        }
         case b: ScTemplateBody => {
           val c = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
           val setting = if (c.isInstanceOf[ScTypeDefinition]) settings.BLANK_LINES_AFTER_CLASS_HEADER
@@ -337,6 +342,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
+    }
+
+    if (leftPsi.isInstanceOf[ScSelfTypeElement]) {
+      val c = PsiTreeUtil.getParentOfType(leftPsi, classOf[ScTemplateDefinition])
+      val setting = if (c.isInstanceOf[ScTypeDefinition]) settings.BLANK_LINES_AFTER_CLASS_HEADER
+      else settings.BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER
+      return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
     }
 
     if (leftPsi.isInstanceOf[ScFunction] || leftPsi.isInstanceOf[ScValue] || leftPsi.isInstanceOf[ScVariable] || leftPsi.isInstanceOf[ScTypeAlias]) {
