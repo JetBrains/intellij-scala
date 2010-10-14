@@ -7,7 +7,7 @@ package base
 import com.intellij.lang.PsiBuilder
 import expressions.ArgumentExprs
 import lexer.ScalaTokenTypes
-import types.AnnotType
+import types.{SimpleType, AnnotType}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -21,7 +21,7 @@ object Constructor {
   def parse(builder: PsiBuilder): Boolean = parse(builder, false)
   def parse(builder: PsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
-    if (!AnnotType.parse(builder)) {
+    if ((!isAnnotation && !AnnotType.parse(builder)) || (isAnnotation && !SimpleType.parse(builder))) {
       constrMarker.drop
       return false
     }

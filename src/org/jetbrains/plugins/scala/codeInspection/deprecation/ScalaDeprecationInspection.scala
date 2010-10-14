@@ -9,12 +9,12 @@ import com.intellij.psi.PsiClassType.ClassResolveResult
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightMessageUtil
 import com.intellij.codeInsight.daemon.JavaErrorMessages
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr}
 import com.intellij.codeInspection._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,8 +28,17 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       if (refElement == null) return
       if (!refElement.isInstanceOf[PsiNamedElement]) return
       val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
-      if (!context.isInstanceOf[PsiDocCommentOwner]) return
-      if (!(context.asInstanceOf[PsiDocCommentOwner]).isDeprecated) return
+      context match {
+        case doc: PsiDocCommentOwner => {
+          doc match {
+            case _: ScPrimaryConstructor =>
+            case f: PsiMethod if f.isConstructor =>
+            case _ => if (!doc.isDeprecated) return
+          }
+          if (!doc.isDeprecated && !doc.getContainingClass.isDeprecated) return
+        }
+        case _ => return
+      }
       val description: String = "Symbol " + name + " is deprecated"
       res += manager.createProblemDescriptor(elementToHighlight, description, true, ProblemHighlightType.LIKE_DEPRECATED)
     }

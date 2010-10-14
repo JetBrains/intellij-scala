@@ -14,16 +14,16 @@ import types.ScType
 import base.types.ScExistentialClause
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:46:00
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ * Time: 9:46:00
+ */
 
 trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsHolder with ScDocCommentOwner {
   override def getIcon(flags: Int): Icon = Icons.TYPE_ALIAS
 
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = m match {
-    case t : ScTypeAlias => t.name == name
+    case t: ScTypeAlias => t.name == name
     case _ => false
   }
 
@@ -33,4 +33,7 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
       case _ => false
     }
   }
+
+  override def isDeprecated =
+    hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
 }

@@ -56,5 +56,6 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
 
   def getVarToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAR)
 
-  override def isDeprecated = hasAnnotation("scala.deprecated") != None
+  override def isDeprecated =
+    hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
 }

@@ -97,6 +97,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("ALIGN_GROUP_FIELD_DECLARATIONS")
 
       buffer ++= Seq("WRAP_LONG_LINES")
+
+      //annotations wrap
+      buffer ++= Seq("CLASS_ANNOTATION_WRAP", "METHOD_ANNOTATION_WRAP", "FIELD_ANNOTATION_WRAP",
+        "PARAMETER_ANNOTATION_WRAP", "VARIABLE_ANNOTATION_WRAP")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
