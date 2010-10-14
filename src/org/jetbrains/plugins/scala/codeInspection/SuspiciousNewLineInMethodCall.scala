@@ -38,7 +38,7 @@ class SuspiciousNewLineInMethodCall extends LocalInspectionTool {
 
   def getShortName: String = getDisplayName
 
-  override def isEnabledByDefault: Boolean = true
+  override def isEnabledByDefault: Boolean = false
 
   override def getStaticDescription: String = "Detects new-lines in method calls that are not inferred as semi-colons"
 
