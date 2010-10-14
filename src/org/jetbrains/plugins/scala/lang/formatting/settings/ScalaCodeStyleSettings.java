@@ -56,6 +56,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_IF_ELSE = false;
   //indents
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
+  public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
 
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
