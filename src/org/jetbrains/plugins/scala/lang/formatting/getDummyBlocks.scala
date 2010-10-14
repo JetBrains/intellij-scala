@@ -6,7 +6,14 @@ package formatting
 */
 
 import settings.ScalaCodeStyleSettings
-import java.util.ArrayList;
+import java.util.ArrayList
+import psi.ScalaPsiUtil
+import psi.api.statements._
+import psi.api.base.{ScPatternList, ScIdList, ScModifierList}
+import com.intellij.openapi.util.Key
+import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
+import psi.api.toplevel.ScModifierListOwner
+;
 import com.intellij.formatting._;
 import com.intellij.psi.tree._;
 import com.intellij.lang.ASTNode;
@@ -23,6 +30,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import ScalaWrapManager._
 
 object getDummyBlocks {
+  val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
+
   def apply(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
@@ -30,6 +39,16 @@ object getDummyBlocks {
     val settings = block.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
+      case _: ScValue | _: ScVariable if settings.ALIGN_GROUP_FIELD_DECLARATIONS => {
+        if (node.getTreeParent.getPsi.isInstanceOf[ScTemplateBody]) {
+          subBlocks.addAll(getFieldGroupSubBlocks(node, block))
+          return subBlocks
+        }
+      }
+      case _: ScCaseClause if scalaSettings.ALIGN_IN_COLUMNS_CASE_BRANCH => {
+        subBlocks.addAll(getCaseClauseGroupSubBlocks(node, block))
+        return subBlocks
+      }
       case _: ScIfStmt => {
         val alignment = if (scalaSettings.ALIGN_IF_ELSE) Alignment.createAlignment
                         else null
@@ -142,6 +161,184 @@ object getDummyBlocks {
         subBlocks.addAll(getTemplateParentsBlocks(child, block))
       }
     } while (child != lastNode && {child = child.getTreeNext; true})
+    return subBlocks
+  }
+
+  private def getCaseClauseGroupSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val children = node.getChildren(null)
+    val subBlocks = new ArrayList[Block]
+    var prevChild: ASTNode = null
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    for (val child <- children if isCorrectBlock(child)) {
+      def getPrevGroupNode(node: ASTNode): ASTNode = {
+        val nodePsi = node.getPsi
+        var prev = nodePsi.getPrevSibling
+        var breaks = 0
+        def isOk(psi: PsiElement): Boolean = {
+          if (psi.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(psi)) {
+            psi.getText.foreach(c => if (c == '\n') breaks += 1)
+            return false
+          }
+          psi match {
+            case _: ScCaseClause => {
+              return true
+            }
+            case _: PsiComment => return false
+            case _ => {
+              breaks += 2
+              return false
+            }
+          }
+        }
+        while (prev != null && breaks <= 1 && !isOk(prev)) {
+          prev = prev.getPrevSibling
+        }
+        if (breaks != 1) return null
+        if (prev == null) return null
+        return prev.getNode
+      }
+      def getChildAlignment(node: ASTNode, child: ASTNode): Alignment = {
+        val prev = getPrevGroupNode(node)
+        def createNewAlignment: Alignment = {
+          val alignment = Alignment.createAlignment(true)
+          child.getPsi.putUserData(fieldGroupAlignmentKey, alignment)
+          alignment
+        }
+        def getAlignment(node: ASTNode): Alignment = {
+          val alignment = node.getPsi.getUserData(fieldGroupAlignmentKey)
+          val newAlignment = if (alignment == null) createNewAlignment
+          else alignment
+          child.getPsi.putUserData(fieldGroupAlignmentKey, newAlignment)
+          newAlignment
+        }
+        if (child.getElementType == ScalaTokenTypes.tFUNTYPE ||
+                child.getElementType == ScalaTokenTypes.tFUNTYPE_ASCII) {
+          if (prev == null) return createNewAlignment
+          val prevChild =
+            prev.findChildByType(TokenSet.create(ScalaTokenTypes.tFUNTYPE, ScalaTokenTypes.tFUNTYPE_ASCII))
+          if (prevChild == null) {
+            return getChildAlignment(prev, child)
+          } else return getAlignment(prevChild)
+        }
+        return null
+      }
+      val indent = ScalaIndentProcessor.getChildIndent(block, child)
+      val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+      val childAlignment = getChildAlignment(node, child)
+      subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      prevChild = child
+    }
+    return subBlocks
+  }
+
+  private def getFieldGroupSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
+    val children = node.getChildren(null)
+    val subBlocks = new ArrayList[Block]
+    var prevChild: ASTNode = null
+    val settings = block.getSettings
+    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    for (val child <- children if isCorrectBlock(child)) {
+      def getPrevGroupNode(node: ASTNode): ASTNode = {
+        val nodePsi = node.getPsi
+        var prev = nodePsi.getPrevSibling
+        var breaks = 0
+        def isOk(psi: PsiElement): Boolean = {
+          if (psi.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(psi)) {
+            psi.getText.foreach(c => if (c == '\n') breaks += 1)
+            return false
+          }
+          if (psi.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+            return false
+          }
+          psi match {
+            case _: ScVariableDeclaration | _: ScValueDeclaration if nodePsi.isInstanceOf[ScPatternDefinition] ||
+              nodePsi.isInstanceOf[ScVariableDefinition] => {
+              breaks += 2
+              return false
+            }
+            case _: ScVariableDefinition | _: ScPatternDefinition if nodePsi.isInstanceOf[ScValueDeclaration] ||
+              nodePsi.isInstanceOf[ScValueDeclaration] => {
+              breaks += 2
+              return false
+            }
+            case _: ScVariable | _: ScValue => {
+              val hasMod1 = psi.isInstanceOf[ScModifierListOwner] &&
+                      psi.asInstanceOf[ScModifierListOwner].getModifierList.getText == ""
+              val hasMod2 = node.getPsi.isInstanceOf[ScModifierListOwner] &&
+                      node.getPsi.asInstanceOf[ScModifierListOwner].getModifierList.getText == ""
+              if (hasMod1 != hasMod2) {
+                breaks += 2
+                return false
+              } else {
+                return true
+              }
+            }
+            case _: PsiComment => return false
+            case _ => {
+              breaks += 2
+              return false
+            }
+          }
+        }
+        while (prev != null && breaks <= 1 && !isOk(prev)) {
+          prev = prev.getPrevSibling
+        }
+        if (breaks != 1) return null
+        if (prev == null) return null
+        return prev.getNode
+      }
+      def getChildAlignment(node: ASTNode, child: ASTNode): Alignment = {
+        val prev = getPrevGroupNode(node)
+        def createNewAlignment: Alignment = {
+          val alignment = Alignment.createAlignment(true)
+          child.getPsi.putUserData(fieldGroupAlignmentKey, alignment)
+          alignment
+        }
+        def getAlignment(node: ASTNode): Alignment = {
+          val alignment = node.getPsi.getUserData(fieldGroupAlignmentKey)
+          val newAlignment = if (alignment == null) createNewAlignment
+          else alignment
+          child.getPsi.putUserData(fieldGroupAlignmentKey, newAlignment)
+          newAlignment
+        }
+        if (child.getElementType == ScalaTokenTypes.tCOLON) {
+          if (prev == null) return createNewAlignment
+          val prevChild = prev.findChildByType(ScalaTokenTypes.tCOLON)
+          if (prevChild == null) {
+            return getChildAlignment(prev, child)
+          } else return getAlignment(prevChild)
+        } else if (child.getElementType == ScalaTokenTypes.tASSIGN) {
+          if (prev == null) return createNewAlignment
+          val prevChild = prev.findChildByType(ScalaTokenTypes.tASSIGN)
+          if (prevChild == null) {
+            return getChildAlignment(prev, child)
+          } else return getAlignment(prevChild)
+        } else if (child.getElementType == ScalaTokenTypes.kVAL ||
+          child.getElementType == ScalaTokenTypes.kVAR) {
+          if (prev == null) return createNewAlignment
+          val prevChild = prev.findChildByType(TokenSet.create(ScalaTokenTypes.kVAL, ScalaTokenTypes.kVAR))
+          if (prevChild == null) {
+            return getChildAlignment(prev, child)
+          } else return getAlignment(prevChild)
+        }
+        child.getPsi match {
+          case _: ScModifierList => {
+            if (prev == null) return createNewAlignment
+            return createNewAlignment //todo: ?
+          }
+          /*case _: ScIdList | _: ScPatternList =>  {
+            if (prev == null) return createNewAlignment
+          }*/
+          case _ => return null
+        }
+      }
+      val indent = ScalaIndentProcessor.getChildIndent(block, child)
+      val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
+      val childAlignment = getChildAlignment(node, child)
+      subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      prevChild = child
+    }
     return subBlocks
   }
 

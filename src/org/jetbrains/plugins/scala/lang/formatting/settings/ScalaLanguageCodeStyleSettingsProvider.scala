@@ -92,6 +92,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       //modifier list wrap
       buffer ++= Seq("MODIFIER_LIST_WRAP")
+
+      //align in colums
+      buffer ++= Seq("ALIGN_GROUP_FIELD_DECLARATIONS")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
@@ -117,6 +120,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", "Parameters on new line", ANONYMOUS_METHOD)
       showCustomOption("NOT_CONTINUATION_INDENT_FOR_PARAMS", "Use normal indent for parameters",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
+      showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
+        CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
     }
 
   }
