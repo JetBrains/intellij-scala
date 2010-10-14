@@ -30,59 +30,70 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     val buffer: ArrayBuffer[String] = new ArrayBuffer
-    //Binary expression section
-    buffer ++= Seq("BINARY_OPERATION_WRAP", "ALIGN_MULTILINE_BINARY_OPERATION",
-      "ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION", "PARENTHESES_EXPRESSION_LPAREN_WRAP",
-      "PARENTHESES_EXPRESSION_RPAREN_WRAP")
-    consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Wrap infix expressions, patterns and types ")
-
-    //Method calls section
-    buffer ++= Seq("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
-      "PREFER_PARAMETERS_WRAP", "CALL_PARAMETERS_LPAREN_ON_NEXT_LINE", "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE")
-
-    //align call parameters
-    buffer ++= Seq("ALIGN_MULTILINE_METHOD_BRACKETS")
-
-    //method call chain
-    buffer ++= Seq("METHOD_CALL_CHAIN_WRAP", "ALIGN_MULTILINE_CHAINED_METHODS")
-
     //blank lines
-    buffer ++= Seq("KEEP_BLANK_LINES_IN_CODE", "KEEP_LINE_BREAKS", "BLANK_LINES_AFTER_CLASS_HEADER",
-      "KEEP_BLANK_LINES_BEFORE_RBRACE", "KEEP_BLANK_LINES_IN_DECLARATIONS", "BLANK_LINES_BEFORE_PACKAGE",
-      "BLANK_LINES_AFTER_PACKAGE", "BLANK_LINES_BEFORE_IMPORTS", "BLANK_LINES_AFTER_IMPORTS",
-      "BLANK_LINES_AROUND_CLASS", "BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER", "BLANK_LINES_AROUND_FIELD_IN_INTERFACE",
-      "BLANK_LINES_AROUND_FIELD", "BLANK_LINES_AROUND_METHOD_IN_INTERFACE", "BLANK_LINES_AROUND_METHOD",
-      "BLANK_LINES_BEFORE_METHOD_BODY")
+    if (settingsType == SettingsType.BLANK_LINES_SETTINGS) {
+      buffer ++= Seq("KEEP_BLANK_LINES_IN_CODE", "BLANK_LINES_AFTER_CLASS_HEADER",
+        "KEEP_BLANK_LINES_BEFORE_RBRACE", "KEEP_BLANK_LINES_IN_DECLARATIONS", "BLANK_LINES_BEFORE_PACKAGE",
+        "BLANK_LINES_AFTER_PACKAGE", "BLANK_LINES_BEFORE_IMPORTS", "BLANK_LINES_AFTER_IMPORTS",
+        "BLANK_LINES_AROUND_CLASS", "BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER", "BLANK_LINES_AROUND_FIELD_IN_INTERFACE",
+        "BLANK_LINES_AROUND_FIELD", "BLANK_LINES_AROUND_METHOD_IN_INTERFACE", "BLANK_LINES_AROUND_METHOD",
+        "BLANK_LINES_BEFORE_METHOD_BODY")
+    }
 
-    //brace placement
-    buffer ++= Seq("CLASS_BRACE_STYLE", "METHOD_BRACE_STYLE", "BRACE_STYLE")
+    if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
+      //Binary expression section
+      buffer ++= Seq("BINARY_OPERATION_WRAP", "ALIGN_MULTILINE_BINARY_OPERATION",
+        "ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION", "PARENTHESES_EXPRESSION_LPAREN_WRAP",
+        "PARENTHESES_EXPRESSION_RPAREN_WRAP")
+      consumer.renameStandardOption("BINARY_OPERATION_WRAP", "Wrap infix expressions, patterns and types ")
 
-    //extends list wrap
-    buffer ++= Seq("EXTENDS_LIST_WRAP", "ALIGN_MULTILINE_EXTENDS_LIST", "EXTENDS_KEYWORD_WRAP")
+      //Method calls section
+      buffer ++= Seq("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
+        "PREFER_PARAMETERS_WRAP", "CALL_PARAMETERS_LPAREN_ON_NEXT_LINE", "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE")
 
-    //method parameters
-    buffer ++= Seq("METHOD_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS", "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
-      "METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE")
+      //align call parameters
+      buffer ++= Seq("ALIGN_MULTILINE_METHOD_BRACKETS")
 
-    //if statement
-    buffer ++= Seq("IF_BRACE_FORCE", "ELSE_ON_NEW_LINE", "SPECIAL_ELSE_IF_TREATMENT")
+      //method call chain
+      buffer ++= Seq("METHOD_CALL_CHAIN_WRAP", "ALIGN_MULTILINE_CHAINED_METHODS", "KEEP_LINE_BREAKS")
 
-    //brace forces
-    buffer ++= Seq("FOR_BRACE_FORCE", "WHILE_BRACE_FORCE", "DOWHILE_BRACE_FORCE", "WHILE_ON_NEW_LINE",
-      "INDENT_CASE_FROM_SWITCH", "CATCH_ON_NEW_LINE", "FINALLY_ON_NEW_LINE", "FOR_STATEMENT_WRAP",
-      "ALIGN_MULTILINE_FOR", "FOR_STATEMENT_LPAREN_ON_NEXT_LINE", "FOR_STATEMENT_RPAREN_ON_NEXT_LINE")
+      //brace placement
+      buffer ++= Seq("CLASS_BRACE_STYLE", "METHOD_BRACE_STYLE", "BRACE_STYLE")
 
-    //modifier list wrap
-    buffer ++= Seq("MODIFIER_LIST_WRAP")
+      //extends list wrap
+      buffer ++= Seq("EXTENDS_LIST_WRAP", "ALIGN_MULTILINE_EXTENDS_LIST", "EXTENDS_KEYWORD_WRAP")
+
+      //method parameters
+      buffer ++= Seq("METHOD_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS", "METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE",
+        "METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE")
+
+      //if statement
+      buffer ++= Seq("IF_BRACE_FORCE", "ELSE_ON_NEW_LINE", "SPECIAL_ELSE_IF_TREATMENT")
+
+      //brace forces
+      buffer ++= Seq("FOR_BRACE_FORCE", "WHILE_BRACE_FORCE", "DOWHILE_BRACE_FORCE", "WHILE_ON_NEW_LINE",
+        "INDENT_CASE_FROM_SWITCH", "CATCH_ON_NEW_LINE", "FINALLY_ON_NEW_LINE", "FOR_STATEMENT_WRAP",
+        "ALIGN_MULTILINE_FOR", "FOR_STATEMENT_LPAREN_ON_NEXT_LINE", "FOR_STATEMENT_RPAREN_ON_NEXT_LINE")
+
+      //modifier list wrap
+      buffer ++= Seq("MODIFIER_LIST_WRAP")
+    }
 
     consumer.showStandardOptions(buffer.toArray:_*)
 
     //Custom options
-    showCustomOption("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword",
-      ApplicationBundle.message("wrapping.extends.implements.list"))
-    showCustomOption("ALIGN_IF_ELSE", "Align if-else statements", ApplicationBundle.message("wrapping.if.statement"))
+    if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
+      showCustomOption("WRAP_BEFORE_WITH_KEYWORD", "Wrap before 'with' keyword",
+        ApplicationBundle.message("wrapping.extends.implements.list"))
+      showCustomOption("ALIGN_IF_ELSE", "Align if-else statements", ApplicationBundle.message("wrapping.if.statement"))
+      showCustomOption("METHOD_BRACE_FORCE", "Force braces", METHOD_DEFINITION,
+        CodeStyleSettingsCustomizable.BRACE_OPTIONS, CodeStyleSettingsCustomizable.BRACE_VALUES)
+    }
 
   }
+
+  //custom groups
+  private val METHOD_DEFINITION = "Method definition"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
 
