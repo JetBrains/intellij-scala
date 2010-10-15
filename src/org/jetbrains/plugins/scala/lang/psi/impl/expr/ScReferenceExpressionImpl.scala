@@ -78,7 +78,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(true, false)
 
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
-    val tp = wrap(qualifier).flatMap(_.getType(TypingContext.empty)).getOrElse(psi.types.Nothing)
+    val tp: ScType = qualifier match {
+      case Some(qual) => qual.getType(TypingContext.empty).getOrElse(psi.types.Nothing)
+      case None => psi.types.Nothing
+    }
 
     doResolve(this, new CompletionProcessor(getKinds(true), implicits)).filter(r => {
       if (filterNotNamedVariants) {
@@ -157,13 +160,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
 
       //prevent infinite recursion for recursive pattern reference
-      case Some(ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
+      case Some(r@ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
         def substIfSome(t: Option[ScType]) = t match {
           case Some(t) => s.subst(t)
           case None => Nothing
         }
 
-        refPatt.getContext().getContext() match {
+        ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => pd.declaredType match {
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
@@ -179,7 +182,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               expectedTypeIsStable
             }
             if (stableTypeRequired) {
-              ScDesignatorType(refPatt)
+              r.fromType match {
+                case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty)
+                case None => ScDesignatorType(refPatt)
+              }
             } else {
               val result = refPatt.getType(TypingContext.empty)
               s.subst(result.getOrElse(return result))
