@@ -13,10 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 * Date: 07.03.2008
 */
 
-trait ScGenerator extends ScalaPsiElement {
-
-  def pattern: ScPattern
-
+trait ScGenerator extends ScalaPsiElement with ScPatterned{
   def guard: ScGuard
 
   def rvalue: ScExpression

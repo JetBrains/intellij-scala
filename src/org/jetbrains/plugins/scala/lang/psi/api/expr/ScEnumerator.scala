@@ -12,11 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 * Date: 06.03.2008
 */
 
-trait ScEnumerator extends ScalaPsiElement {
-  
-  def pattern: ScPattern
-
+trait ScEnumerator extends ScalaPsiElement with ScPatterned {
   def rvalue: ScExpression
-
   override def accept(visitor: ScalaElementVisitor) = visitor.visitEnumerator(this)
 }
