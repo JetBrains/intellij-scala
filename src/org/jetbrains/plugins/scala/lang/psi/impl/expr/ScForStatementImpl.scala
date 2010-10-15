@@ -30,11 +30,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   // Binding patterns in reverse order
   def patterns: Seq[ScPattern] = enumerators match {
     case None => return Seq.empty
-    case Some(x) => return x.namings.reverse.map((n: Patterned) => n.pattern)
-  }
-
-  type Patterned = {
-    def pattern: ScPattern
+    case Some(x) => return x.namings.reverse.map(_.pattern)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,

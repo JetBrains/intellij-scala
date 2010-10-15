@@ -11,6 +11,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.psi.scope._
+import com.incors.plaf.alloy.a.i
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,8 +28,9 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def guards = findChildrenByClass[ScGuard](classOf[ScGuard])
 
-  def namings = for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
-          yield c.asInstanceOf[{def pattern: ScPattern}]
+  def namings: Seq[ScPatterned] =
+    for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
+          yield c.asInstanceOf[ScPatterned]
 
   type Patterned = {
     def pattern: ScPattern
@@ -39,7 +41,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     val ns = namings.reverse
-    val begin = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent)) else ns
+    val begin = if (ns.contains(lastParent)) ns.drop(ns.indexOf(lastParent) + 1) else ns
     val patts = begin.map((ns: Patterned) => ns.pattern).filter(_ != null)    
     val binds = patts.flatMap((p: ScPattern) => p.bindings)
     for (b <- binds) if (!processor.execute(b, state)) return false
