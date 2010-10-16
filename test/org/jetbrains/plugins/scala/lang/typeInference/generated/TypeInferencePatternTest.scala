@@ -7,6 +7,8 @@ class TypeInferencePatternTest extends TypeInferenceTestBase {
 
   def testCompositePattern = doTest
 
+  def testForRecursive = doTest
+
   def testInfixToTypeAlias = doTest
 
   def testLocalTypeInference = doTest

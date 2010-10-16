@@ -15,6 +15,24 @@ import com.intellij.psi.util.InheritanceUtil
 import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 
 object Bounds {
+  private class Options(val tp: ScType) {
+    val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
+    def isEmpty = extract == None
+    private def getProjectionOption(tp: ScType): Option[ScType] = tp match {
+      case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+        case c: PsiClass => Some(p)
+        case t: ScTypeAliasDefinition =>
+          getProjectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+        case _ => None
+      }
+      case ScDesignatorType(t: ScTypeAliasDefinition) =>
+        getProjectionOption(t.aliasedType(TypingContext.empty).getOrElse(return None))
+      case _ => None
+    }
+    val projectionOption: Option[ScType] = getProjectionOption(tp)
+    def getClazz: PsiClass = extract.get._1
+    def getSubst: ScSubstitutor = extract.get._2
+  }
 
   def glb(t1: ScType, t2: ScType) = {
     if (t1.conforms(t2)) t1
@@ -59,31 +77,33 @@ object Bounds {
         ScParameterizedType(des, Seq(calcForTypeParamWithoutVariance(arg, args(0))))
       }
       case _ => {
-        val aOptions: Seq[Option[(PsiClass, ScSubstitutor)]] = {
+
+        val aOptions: Seq[Options] = {
           t1 match {
-            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(ScType.extractClassType(_))
-            case _ => Seq(ScType.extractClassType(t1))
+            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+            case _ => Seq(new Options(t1))
           }
         }
-        val bOptions: Seq[Option[(PsiClass, ScSubstitutor)]] = {
+        val bOptions: Seq[Options] = {
           t2 match {
-            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(ScType.extractClassType(_))
-            case _ => Seq(ScType.extractClassType(t2))
+            case ScCompoundType(comps1, decls1, typeDecls1, subst1) => comps1.map(new Options(_))
+            case _ => Seq(new Options(t2))
           }
         }
-        if (aOptions.contains(None) || bOptions.contains(None)) Any
+        if (aOptions.find(_.isEmpty) != None || bOptions.find(_.isEmpty) != None) Any
         else {
           val buf = new ArrayBuffer[ScType]
-          val supers = getLeastUpperClasses(aOptions.map(_.get._1).toArray, bOptions.map(_.get._1).toArray)
+          val supers: Array[(Options, Int, Int)] =
+            getLeastUpperClasses(aOptions.toArray, bOptions.toArray)
           for (sup <- supers) {
-            val tp = getTypeForAppending(aOptions(sup._2).get._1, aOptions(sup._2).get._2,
-              bOptions(sup._3).get._1, bOptions(sup._3).get._2, sup._1, depth)
+            val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth)
             if (tp != Any) buf += tp
           }
           buf.toArray match {
             case a: Array[ScType] if a.length == 0 => Any
             case a: Array[ScType] if a.length == 1 => a(0)
-            case many => new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
+            case many =>
+              new ScCompoundType(collection.immutable.Seq(many.toSeq: _*), Seq.empty, Seq.empty, ScSubstitutor.empty)
           }
         }
         //todo: refinement for compound types
@@ -95,6 +115,38 @@ object Bounds {
     if (substed1 equiv substed2) substed1 else Any
   }
 
+  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int): ScType = {
+    val baseClassDesignator = {
+      baseClass.projectionOption match {
+        case Some(proj) => ScProjectionType(proj, baseClass.getClazz, ScSubstitutor.empty)
+        case None => ScDesignatorType(baseClass.getClazz)
+      }
+    }
+    if (baseClass.getClazz.getTypeParameters.length == 0) return baseClassDesignator
+    (superSubstitutor(baseClass.getClazz, clazz1.getClazz, clazz1.getSubst),
+            superSubstitutor(baseClass. getClazz, clazz2.getClazz, clazz2.getSubst)) match {
+      case (Some(superSubst1), Some(superSubst2)) => {
+        val tp = ScParameterizedType(baseClassDesignator, baseClass.getClazz.
+                getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getClazz.getProject).typeVariable(tp)))
+        val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
+        val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
+        val resTypeArgs = new ArrayBuffer[ScType]
+        for (i <- 0 until baseClass.getClazz.getTypeParameters.length) {
+          val substed1 = tp1.typeArgs.apply(i)
+          val substed2 = tp2.typeArgs.apply(i)
+          resTypeArgs += (baseClass.getClazz.getTypeParameters.apply(i) match {
+            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
+            case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
+            case _ => calcForTypeParamWithoutVariance(substed1, substed2) //todo: _ >: substed1 with substed2
+          })
+        }
+        return ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
+      }
+      case _ => Any
+    }
+  }
+
+  @deprecated
   private def getTypeForAppending(clazz1: PsiClass, subst1: ScSubstitutor,
                                   clazz2: PsiClass, subst2: ScSubstitutor,
                                   baseClass: PsiClass, depth: Int): ScType = {
@@ -164,6 +216,63 @@ object Bounds {
     run
   }
 
+  private def getLeastUpperClasses(aClasses: Array[Options], bClasses: Array[Options]): Array[(Options, Int, Int)] = {
+    val res = new ArrayBuffer[(Options, Int, Int)]
+    def addClass(aClass: Options, x: Int, y: Int) {
+      var i = 0
+      var break = false
+      while (!break && i < res.length) {
+        val clazz = res(i)._1
+        if (InheritanceUtil.isInheritorOrSelf(clazz.getClazz, aClass.getClazz, true)) {
+          //todo: join them
+          break = true
+        } else if (aClass.getClazz.isInheritor(clazz.getClazz, true)) {
+          res(i) = (aClass, x, y)
+          break = true
+        }
+        i = i + 1
+      }
+      if (!break) {
+        res += Tuple(aClass, x, y)
+      }
+    }
+    def checkClasses(aClasses: Array[Options], baseIndex: Int = -1) {
+      if (aClasses.length == 0) return
+      val aIter = aClasses.iterator
+      var i = 0
+      while (aIter.hasNext) {
+        val aClass = aIter.next
+        val bIter = bClasses.iterator
+        var break = false
+        var j = 0
+        while (!break && bIter.hasNext) {
+          val bClass = bIter.next
+          if (InheritanceUtil.isInheritorOrSelf(bClass.getClazz, aClass.getClazz, true)) {
+            addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
+            break = true
+          } else {
+            val subst = aClass.projectionOption match {
+              case Some(proj) => {
+                import collection.immutable.Map
+                new ScSubstitutor(Map.empty, Map.empty, Some(proj))
+              }
+              case None => ScSubstitutor.empty
+            }
+            checkClasses(aClass.getClazz match {
+              case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).toArray
+              case p: PsiClass => p.getSupers.map(cl => new Options(ScDesignatorType(cl)))
+            }, if (baseIndex == -1) i else baseIndex)
+          }
+          j += 1
+        }
+        i += 1
+      }
+    }
+    checkClasses(aClasses)
+    return res.toArray
+  }
+
+  @deprecated
   def getLeastUpperClasses(aClasses: Array[PsiClass], bClasses: Array[PsiClass]): Array[(PsiClass, Int, Int)] = {
     val res = new ArrayBuffer[(PsiClass, Int, Int)]
     def addClass(aClass: PsiClass, x: Int, y: Int) {

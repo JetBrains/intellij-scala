@@ -3,7 +3,6 @@ def foo =
 val x = 1
 }
 -------
-def foo =
-{
+def foo = {
   val x = 1
 }

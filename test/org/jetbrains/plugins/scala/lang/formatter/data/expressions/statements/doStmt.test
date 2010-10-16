@@ -13,6 +13,5 @@ class a {
     2
     2
   } +
-    5;
-  while (ture)
+    5; while (ture)
 }
