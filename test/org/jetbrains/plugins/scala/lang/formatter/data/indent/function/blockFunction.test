@@ -3,5 +3,7 @@ class a {
 }
 -----
 class a {
-  def foo {val la = 5}
+  def foo {
+    val la = 5
+  }
 }

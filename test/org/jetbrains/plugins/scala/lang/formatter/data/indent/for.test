@@ -12,6 +12,8 @@ class a {
     x <- xes
     if true
   ) {
-    a match {case _ =>}
+    a match {
+      case _ =>
+    }
   }
 }

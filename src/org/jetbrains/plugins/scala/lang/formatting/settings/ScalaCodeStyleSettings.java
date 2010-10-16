@@ -52,6 +52,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
 
+  public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
+
   //todo: add to spacing settings
   //spcaing settings:
   public boolean SPACE_BEFORE_COLON = false;
