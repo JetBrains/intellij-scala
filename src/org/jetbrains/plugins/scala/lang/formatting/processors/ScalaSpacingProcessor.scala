@@ -213,6 +213,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               }
             }
           }
+          case _: ScBlock | _: ScTemplateBody => return ON_NEW_LINE
           case parent => {
             settings.BRACE_STYLE match {
               case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
@@ -335,17 +336,30 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           } else return WITHOUT_SPACING_NO_KEEP //todo: spacing setting
         }
         case b: ScTemplateBody => {
+          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
+            return Spacing.createDependentLFSpacing(0, 0, b.getTextRange, keepLineBreaks,
+              keepBlankLinesBeforeRBrace)
+          }
           val c = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
           val setting = if (c.isInstanceOf[ScTypeDefinition]) settings.BLANK_LINES_AFTER_CLASS_HEADER
           else settings.BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER
           return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         }
         case b: ScBlockExpr if b.getParent.isInstanceOf[ScFunction] => {
+          if (settings.KEEP_SIMPLE_METHODS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
+            return Spacing.createDependentLFSpacing(0, 0, b.getTextRange, keepLineBreaks,
+              keepBlankLinesBeforeRBrace)
+          }
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_METHOD_BODY + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         }
         case block@(_: ScPackaging | _: ScBlockExpr | _: ScMatchStmt |
                 _: ScTryBlock | _: ScCatchBlock) => {
-          return Spacing.createDependentLFSpacing(0, 0, block.getTextRange, keepLineBreaks, keepBlankLinesBeforeRBrace)
+          if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE) {
+            return Spacing.createDependentLFSpacing(0, 0, block.getTextRange, keepLineBreaks,
+              keepBlankLinesBeforeRBrace)
+          } else {
+            return ON_NEW_LINE
+          }
         }
         case _ => return Spacing.createSpacing(0, 0, 0, keepLineBreaks, keepBlankLinesBeforeRBrace)
       }
@@ -407,6 +421,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     if (leftElementType == ScalaElementTypes.MODIFIERS) {
+      if (rightPsi.isInstanceOf[ScParameters]) {
+        if (scalaSettings.SPACE_AFTER_MODIFIERS_CONSTRUCTOR) return WITH_SPACING
+        else return WITHOUT_SPACING
+      }
       if (settings.MODIFIER_LIST_WRAP) return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTextRange)
       else return WITH_SPACING
     }

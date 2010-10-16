@@ -101,6 +101,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       //annotations wrap
       buffer ++= Seq("CLASS_ANNOTATION_WRAP", "METHOD_ANNOTATION_WRAP", "FIELD_ANNOTATION_WRAP",
         "PARAMETER_ANNOTATION_WRAP", "VARIABLE_ANNOTATION_WRAP")
+
+      buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
@@ -129,6 +131,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
       showCustomOption("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
+    }
+
+    if (settingsType == SettingsType.SPACING_SETTINGS) {
+      showCustomOption("SPACE_AFTER_MODIFIERS_CONSTRUCTOR", "Constructor parameters with modifiers",
+        CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
     }
 
   }
