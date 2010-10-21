@@ -217,7 +217,7 @@ private[expr] object ExpectedTypes {
         }
       }
       case ret: ScReturnStmt => {
-        val fun: ScFunction = PsiTreeUtil.getContextOfType(ret, classOf[ScFunction], true)
+        val fun: ScFunction = PsiTreeUtil.getContextOfType(ret, true, classOf[ScFunction])
         if (fun == null) return Array.empty
         fun.returnTypeElement match {
           case Some(rte: ScTypeElement) => {

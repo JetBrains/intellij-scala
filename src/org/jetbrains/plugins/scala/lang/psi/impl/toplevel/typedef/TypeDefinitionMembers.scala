@@ -481,7 +481,7 @@ object TypeDefinitionMembers {
         ProgressManager.checkCanceled
         n.info match {
           case p: ScClassParameter if v1 && !p.isVar && !p.isVal => {
-            val clazz = PsiTreeUtil.getContextOfType(p, classOf[ScTemplateDefinition], true)
+            val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
             if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
               //this is member only for class scope
               if (PsiTreeUtil.isContextAncestor(clazz, place, false)) {

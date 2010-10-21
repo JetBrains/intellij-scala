@@ -19,7 +19,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   def isWildcard: Boolean
 
   override def getUseScope = {
-    val func = PsiTreeUtil.getContextOfType(this, classOf[ScFunctionDefinition], true)
+    val func = PsiTreeUtil.getContextOfType(this, true, classOf[ScFunctionDefinition])
     if (func != null) new LocalSearchScope(func) else getManager.asInstanceOf[PsiManagerEx].getFileManager.getUseScope(this)
   }
 

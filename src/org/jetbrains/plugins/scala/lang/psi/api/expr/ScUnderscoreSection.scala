@@ -31,7 +31,7 @@ trait ScUnderscoreSection extends ScExpression {
           args.getContext match {
             case call: ScMethodCall => go(call, false)
             case constr: ScConstructor => {
-              PsiTreeUtil.getContextOfType(constr, classOf[ScNewTemplateDefinition], true) match {
+              PsiTreeUtil.getContextOfType(constr, true, classOf[ScNewTemplateDefinition]) match {
                 case null => None
                 case n: ScNewTemplateDefinition => go(n, false)
               }
