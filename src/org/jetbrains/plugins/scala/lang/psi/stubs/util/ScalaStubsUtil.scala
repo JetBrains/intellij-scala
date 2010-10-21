@@ -6,7 +6,6 @@ package util
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScAnnotatedMemberIndex}
-import _root_.scala.collection.mutable.ArrayBuffer
 import api.toplevel.templates.ScExtendsBlock
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubIndex
@@ -18,6 +17,7 @@ import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.psi.util.{PsiUtilBase, PsiUtil}
 import com.intellij.openapi.diagnostic.Logger
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScMember}
+import collection.mutable.{HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
