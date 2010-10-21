@@ -141,7 +141,7 @@ object ResolveUtils {
                 A member M marked with this modifier can be accessed only from
                 within the object in which it is defined.
               */
-              val enclosing = PsiTreeUtil.getContextOfType(scMember, classOf[ScTemplateDefinition], false)
+              val enclosing = PsiTreeUtil.getContextOfType(scMember, false, classOf[ScTemplateDefinition])
               if (enclosing == null) return true
               return PsiTreeUtil.isContextAncestor(enclosing, place, false)
             }

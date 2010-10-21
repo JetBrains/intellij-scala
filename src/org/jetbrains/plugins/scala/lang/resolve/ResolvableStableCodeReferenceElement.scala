@@ -110,7 +110,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case c: PsiClass if c.getName == c.getQualifiedName => c.getContainingFile match {
         case s: ScalaFile => true // scala classes are available from default package
         // Other classes from default package are available only for top-level Scala statements
-        case _ => PsiTreeUtil.getContextOfType(this, classOf[ScPackaging], true) == null && (getContainingFile match {
+        case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null && (getContainingFile match {
           case s: ScalaFile => s.getPackageName.length == 0
           case _ => true
         })

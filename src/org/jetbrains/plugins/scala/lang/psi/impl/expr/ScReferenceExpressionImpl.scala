@@ -145,7 +145,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     val inner: ScType = bind match {
     //prevent infinite recursion for recursive method invocation
       case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
-        if (PsiTreeUtil.getContextOfType(this, classOf[ScFunction], false) == f) => {
+        if (PsiTreeUtil.getContextOfType(this, false, classOf[ScFunction]) == f) => {
         val result: Option[ScType] = {
           f.definedReturnType match {
             case s: Success[ScType] => Some(s.get)

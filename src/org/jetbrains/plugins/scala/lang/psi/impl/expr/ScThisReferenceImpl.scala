@@ -55,8 +55,8 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       case _ => None
     }
     case None => {
-      val encl = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateBody], false)
-      if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, classOf[ScTemplateDefinition], false)) else None
+      val encl = PsiTreeUtil.getContextOfType(this, false, classOf[ScTemplateBody])
+      if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
     }
   }
 }
