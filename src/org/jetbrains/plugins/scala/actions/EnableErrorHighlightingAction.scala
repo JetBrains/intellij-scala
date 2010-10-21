@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.actions
 
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleSettings}
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.FileContentUtil
 import java.util.ArrayList
