@@ -47,6 +47,7 @@
     <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
     <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
     <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterAfterCaseClauseArrowHandlerDelegate"/>    
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
     <facetType implementation="org.jetbrains.plugins.scala.config.ScalaFacetType"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
