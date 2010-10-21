@@ -4,6 +4,7 @@ import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import java.util.List
 import com.intellij.psi._
+import impl.source.HierarchicalMethodSignatureImpl
 import java.lang.String
 import javadoc.PsiDocComment
 import search.GlobalSearchScope
@@ -68,12 +69,13 @@ class FakePsiMethod(
 
   def findDeepestSuperMethod: PsiMethod = null
 
-  def getSignature(substitutor: PsiSubstitutor): MethodSignature = {
+  def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = {
+    MethodSignatureBackedByPsiMethod.create(this, substitutor)/*
     new MethodSignatureBase(PsiSubstitutor.EMPTY, getParameterList.getParameters.map(_.getType), PsiTypeParameter.EMPTY_ARRAY) {
       def isRaw: Boolean = false
 
       def getName: String = name
-    }
+    }*/
   }
 
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): List[MethodSignatureBackedByPsiMethod] = null
@@ -102,7 +104,8 @@ class FakePsiMethod(
 
   def getReturnTypeElement: PsiTypeElement = null
 
-  def getHierarchicalMethodSignature: HierarchicalMethodSignature = null
+  def getHierarchicalMethodSignature: HierarchicalMethodSignature =
+    new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
 
   def getName: String = name
 
