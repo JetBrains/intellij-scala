@@ -118,7 +118,7 @@ object ScalaPsiUtil {
     import Compatibility.Expression._
     val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape)
-    processor.processType(tp, getInvokedExpr, ResolveState.initial)
+    processor.processType(tp.inferValueType, getInvokedExpr, ResolveState.initial)
     var candidates = processor.candidates
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
