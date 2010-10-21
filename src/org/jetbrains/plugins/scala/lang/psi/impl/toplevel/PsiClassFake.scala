@@ -17,7 +17,9 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import psi.api.toplevel.packaging._
 import psi.api.toplevel.templates._
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.psi.PsiReferenceList.Role
+;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Pair;
 import com.intellij.psi._;
@@ -35,7 +37,12 @@ import _root_.java.util.List;
  * @author ilyas
  */
 
-trait PsiClassFake extends PsiClass {
+trait PsiClassFake extends PsiClass with PsiReferenceList {
+  //todo: this methods from PsiReferenceList to avoid NPE. It's possible for asking different roles, so we can
+  //todo: have problems for simple implementation of them
+  def getRole: Role = Role.EXTENDS_LIST
+  def getReferencedTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
+  def getReferenceElements: Array[PsiJavaCodeReferenceElement] = PsiJavaCodeReferenceElement.EMPTY_ARRAY
 
   def isInterface: Boolean = false
 
@@ -43,9 +50,9 @@ trait PsiClassFake extends PsiClass {
 
   def isEnum: Boolean = false
 
-  def getExtendsList: PsiReferenceList = null
+  def getExtendsList: PsiReferenceList = this //todo: to avoid NPE from Java
 
-  def getImplementsList: PsiReferenceList = null
+  def getImplementsList: PsiReferenceList = this //todo: to avoid NPE from Java
 
   def getExtendsListTypes: Array[PsiClassType] = PsiClassType.EMPTY_ARRAY
 

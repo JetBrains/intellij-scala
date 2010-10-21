@@ -11,6 +11,7 @@ import java.lang.String
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.psi.util.MethodSignature
 import com.intellij.psi._
+import impl.source.HierarchicalMethodSignatureImpl
 import javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -52,7 +53,7 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
 
   def getReturnTypeElement = null
 
-  def getHierarchicalMethodSignature = null
+  def getHierarchicalMethodSignature = new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
 
   def findSuperMethods(parentClass: PsiClass) = PsiMethod.EMPTY_ARRAY
 
