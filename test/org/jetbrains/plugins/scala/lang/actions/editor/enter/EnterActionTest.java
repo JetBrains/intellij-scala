@@ -58,6 +58,7 @@ public class EnterActionTest extends ActionTestBase {
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
     mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+    mySettings.INDENT_CASE_FROM_SWITCH = true;
   }
 
   protected EditorActionHandler getMyHandler() {
