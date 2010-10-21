@@ -88,6 +88,11 @@ public abstract class FileSetTestCase extends TestSuite {
   private class ActualTest extends LightIdeaTestCase {
     private File myTestFile;
 
+    @Override
+    protected String getTestName(boolean lowercaseFirstLetter) {
+      return "";
+    }
+
     public ActualTest(File testFile) {
       myTestFile = testFile;
     }
