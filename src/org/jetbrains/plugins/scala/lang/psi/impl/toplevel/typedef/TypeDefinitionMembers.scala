@@ -65,7 +65,7 @@ object TypeDefinitionMembers {
           val facade = JavaPsiFacade.getInstance(project)
           val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
           if (obj != null) {
-            for (m <- obj.getMethods) {
+            for (m <- obj.getMethods if !m.isConstructor) {
               val sig = new PhysicalSignature(m, subst)
               map += ((sig, new Node(sig, subst)))
             }
@@ -244,7 +244,7 @@ object TypeDefinitionMembers {
           val facade = JavaPsiFacade.getInstance(project)
           val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
           if (obj != null) {
-            for (m <- obj.getMethods) {
+            for (m <- obj.getMethods if !m.isConstructor) {
               val phys = new PhysicalSignature(m, subst)
               val psiRet = m.getReturnType
               val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
