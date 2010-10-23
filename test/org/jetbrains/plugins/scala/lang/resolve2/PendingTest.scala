@@ -24,4 +24,6 @@ class PendingTest extends ResolveTestBase {
   def testSCL2386E = doTest
 
   def testSCL2418 = doTest
+
+  def testSCL2456 = doTest
 }
