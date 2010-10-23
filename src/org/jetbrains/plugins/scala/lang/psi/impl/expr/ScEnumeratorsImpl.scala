@@ -11,7 +11,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import com.intellij.psi.scope._
-import com.incors.plaf.alloy.a.i
 
 /** 
 * @author Alexander Podkhalyuzin
