@@ -17,7 +17,7 @@ public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProv
 
   @NonNls
   private static final String[] PROHIBITED_CLASS_PATTERNS =
-    {"scala.runtime.*"};
+    {"scala.*"};
 
   private static ClassFilter[] FILTERS = ContainerUtil.map(PROHIBITED_CLASS_PATTERNS, new Function<String, ClassFilter>() {
     public ClassFilter fun(final String s) {
