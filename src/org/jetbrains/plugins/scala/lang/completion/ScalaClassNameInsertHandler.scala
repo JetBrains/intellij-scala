@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.editor.Editor
-import com.intellij.codeInsight.completion.AllClassesGetter.{ClassNameInsertHandlerResult, ClassNameInsertHandler}
+//import com.intellij.codeInsight.completion.AllClassesGetter.{ClassNameInsertHandlerResult, ClassNameInsertHandler}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -15,7 +15,7 @@ import com.intellij.codeInsight.completion.{DefaultInsertHandler, AllClassesGett
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaClassNameInsertHandler extends ClassNameInsertHandler {
+class ScalaClassNameInsertHandler /*extends ClassNameInsertHandler {
   def handleInsert(context: InsertionContext, item: JavaPsiClassReferenceElement): ClassNameInsertHandlerResult = {
     var file: PsiFile = context.getFile
     if (!file.isInstanceOf[ScalaFile]) return ClassNameInsertHandlerResult.CHECK_FOR_CORRECT_REFERENCE
@@ -63,4 +63,4 @@ class ScalaClassNameInsertHandler extends ClassNameInsertHandler {
     }
     return ClassNameInsertHandlerResult.INSERT_FQN
   }
-}
+}*/
