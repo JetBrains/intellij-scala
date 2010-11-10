@@ -33,6 +33,9 @@ import com.intellij.openapi.editor.Document
 import types.ScType
 import types.result.{TypingContext, TypeResult}
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
+import collection.mutable.ArrayBuffer
+import com.intellij.psi.search.GlobalSearchScope
+import finder.ScalaSourceFilterScope
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
@@ -276,6 +279,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (!super[ScImportsHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
+    val scope = place.getResolveScope
+
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
         val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject()).findPackage(""))
@@ -292,7 +297,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
           val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
           val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]
           if (name == null) {
-            val packages = defaultPackage.getSubPackages(place.getResolveScope)
+            val packages = defaultPackage.getSubPackages(scope)
             val iterator = packages.iterator
             while (iterator.hasNext) {
               val pack = iterator.next
@@ -316,11 +321,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
     }
 
-    val implObjIter = ImplicitlyImported.objects.iterator
+    val implObjIter = ImplicitlyImported.implicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
-      val implObj = implObjIter.next
+      val clazz = implObjIter.next
       ProgressManager.checkCanceled
-      val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
+      //val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
       if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
     }
 
@@ -394,7 +399,33 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
 object ImplicitlyImported {
   val packages = Array("scala", "java.lang")
-  val objects = Array("scala.Predef", "scala" /* package object*/ )
+  val objects = Array("scala.Predef", "scala" /* package object*/)
+
+
+  private var importedObjects: Array[PsiClass] = null
+  private var modCount: Long = -1
+  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Array[PsiClass] = {
+    var res = importedObjects
+    val count = manager.getModificationTracker.getModificationCount
+    if (res != null && count == modCount) {
+      val filter = new ScalaSourceFilterScope(scope, manager.getProject)
+      return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
+    }
+    res = implicitlyImportedObjectsImpl(manager)
+    importedObjects = res
+    modCount = count
+    val filter = new ScalaSourceFilterScope(scope, manager.getProject)
+    return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
+  }
+  private def implicitlyImportedObjectsImpl(manager: PsiManager): Array[PsiClass] = {
+    val res = new ArrayBuffer[PsiClass]
+    for (obj <- objects) {
+      res ++= JavaPsiFacade.getInstance(manager.getProject).
+              findClasses(obj, GlobalSearchScope.allScope(manager.getProject))
+    }
+    res.toArray
+  }
+
 }
 
 private object ScalaFileImpl {
