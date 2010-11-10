@@ -246,17 +246,19 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
     for (tuple <- lowerMap) {
       tvMap += tuple
     }
-    for ((name, seq) <- upperMap) {
+    var break = false
+    for ((name, seq) <- upperMap if !break) {
       tvMap.get(name) match {
         case Some(lower: ScType) => {
-          for (upper <- seq) {
-            if (!lower.conforms(upper)) return None
+          for (upper <- seq if !break) {
+            if (!lower.conforms(upper)) break = true
           }
         }
         case None if seq.length != 1 => tvMap += Tuple(name, Nothing)
         case None => tvMap += Tuple(name, seq(0))
       }
     }
+    if (break) return None
     val map = collection.immutable.HashMap.empty[(String, String), ScType] ++ tvMap
     //val subst = new ScSubstitutor(map, collection.immutable.HashMap.empty, collection.immutable.HashMap.empty)
     val subst = map.toSeq.foldLeft(ScSubstitutor.empty)((a, b) => a.bindT(b._1, b._2))

@@ -32,7 +32,7 @@ extends SingleRootFileViewProvider(manager, file, physical) {
       val file = new ScalaFileImpl(this)
       val adj = file.asInstanceOf[CompiledFileAdjuster]
       adj.setCompiled(true)
-      adj.setSourceFileName(DecompilerUtil.decompile(vFile.contentsToByteArray, vFile)._2)
+      adj.setVirtualFile(vFile)
       file
     }
   }

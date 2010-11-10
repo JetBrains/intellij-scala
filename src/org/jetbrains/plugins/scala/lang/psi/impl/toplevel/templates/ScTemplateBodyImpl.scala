@@ -66,10 +66,16 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
 
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
-    val array = getStubOrPsiChildren(ScalaElementTypes.SELF_TYPE, new ArrayFactory[ScSelfTypeElement] {
-      def create(count: Int): Array[ScSelfTypeElement] = new Array[ScSelfTypeElement](count)
-    })
-    if (array.length > 0) Some(array(0))
-    else None
+    val stub = getStub
+    if (stub != null) {
+      stub.findChildStubByType(ScalaElementTypes.SELF_TYPE) match {
+        case null => return None
+        case s => Some(s.getPsi)
+      }
+    }
+    findChildByType(ScalaElementTypes.SELF_TYPE) match {
+      case null => None
+      case s => Some(s.asInstanceOf[ScSelfTypeElement])
+    }
   }
 }
