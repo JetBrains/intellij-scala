@@ -46,13 +46,13 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightV
     var success = true
     try {
       if (updateWholeFile) {
-        var project: Project = file.getProject
-        var daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)
-        var fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
-        var refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder.getInstance(file)
+        val project: Project = file.getProject
+        val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)
+        val fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
+        val refCountHolder: ScalaRefCountHolder = ScalaRefCountHolder.getInstance(file)
         myRefCountHolder = refCountHolder
-        var document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
-        var dirtyScope: TextRange = if (document == null) file.getTextRange else fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
+        val document: Document = PsiDocumentManager.getInstance(project).getDocument(file)
+        val dirtyScope: TextRange = if (document == null) file.getTextRange else fileStatusMap.getFileDirtyScope(document, Pass.UPDATE_ALL)
         success = refCountHolder.analyze(action, dirtyScope, file)
       }
       else {
