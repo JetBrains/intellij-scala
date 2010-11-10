@@ -462,8 +462,10 @@ class ScalaEnterHandlerImpl extends EditorWriteActionHandler {
         TextRange myTextRange = comment.getTextRange();
         CodeStyleManager.getInstance(getProject()).reformatText(myFile,
             myTextRange.getStartOffset(), myTextRange.getEndOffset());
-        comment = PsiTreeUtil.getNonStrictParentOfType(myFile.findElementAt(
-            myFile.getText().indexOf("/**", myTextRange.getStartOffset())), PsiComment.class);
+        int index = myFile.getText().indexOf("/**", myTextRange.getStartOffset());
+        PsiElement elem = myFile.findElementAt(index);
+        //todo: assert elem == null
+        comment = PsiTreeUtil.getNonStrictParentOfType(elem, PsiComment.class);
       }
       finally {
         codeStyleSettings.ENABLE_JAVADOC_FORMATTING = old;

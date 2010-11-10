@@ -94,7 +94,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           return getClazzPrecedence(clazz)
         }
         case _: ScBindingPattern | _: PsiMember => {
-          val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
+          val clazz = ScalaPsiUtil.getContextOfType(result.getActualElement, false, classOf[PsiClass])
+          //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
           if (clazz == null) return 6
           else {
             clazz.getQualifiedName match {
