@@ -13,7 +13,6 @@ import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
 import _root_.com.intellij.extapi.psi.{PsiFileBase}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
-import decompiler.CompiledFileAdjuster
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -33,6 +32,8 @@ import lang.resolve.processor.{ResolveProcessor, BaseProcessor, ResolverEnv}
 import com.intellij.openapi.editor.Document
 import types.ScType
 import types.result.{TypingContext, TypeResult}
+import decompiler.{DecompilerUtil, CompiledFileAdjuster}
+
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -44,16 +45,23 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def toString = "ScalaFile"
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+    findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  def isCompiled = {
-    val stub = getStub
-    if (stub != null) stub.isCompiled else compiled
-  }
+  def isCompiled = compiled
 
-  def sourceName = if (isCompiled) sourceFileName else ""
+  def sourceName = {
+    if (isCompiled) {
+      if (virtualFileChanged) {
+        sourceFileName = DecompilerUtil.decompile(virtualFile.contentsToByteArray, virtualFile)._2
+        virtualFileChanged = false
+      }
+      sourceFileName
+    }
+    else ""
+  }
 
   override def getVirtualFile: VirtualFile = {
     if (virtualFile != null) virtualFile
@@ -366,6 +374,21 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       myControlFlow = builder.buildControlflow(this)
     }
     myControlFlow
+  }
+
+  import java.util.Set
+  import java.util.HashSet
+  import java.util.Collections
+  def getClassNames: Set[String] = {
+    if (isCompiled) {
+      val name = getVirtualFile.getNameWithoutExtension()
+      if (name != "package") {
+        return Collections.singleton(name)
+      }
+    }
+    val res = new HashSet[String]
+    typeDefinitions.foreach(td => res.add(td.getName))
+    res
   }
 }
 

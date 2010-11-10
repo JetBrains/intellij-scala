@@ -4,17 +4,16 @@ package psi
 package api
 
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
-import com.intellij.psi.{PsiClassOwner, PsiImportHolder, PsiClass}
-
 import toplevel.packaging.ScPackaging
 import toplevel.ScToplevelElement
 import org.jetbrains.annotations.Nullable
+import com.intellij.psi.{PsiClassOwnerEx, PsiClassOwner, PsiImportHolder, PsiClass}
 
 /**
  * @author ilyas
  */
 
-trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwner with ScDeclarationSequenceHolder 
+trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwnerEx with ScDeclarationSequenceHolder
     with PsiImportHolder with ScImportsHolder with PsiFileWithStubSupport {
 
   @Deprecated
