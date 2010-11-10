@@ -448,7 +448,10 @@ object ResolveUtils {
   case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean)
 
   def getPlacePackage(place: PsiElement): String = {
-    val pack = PsiTreeUtil.getParentOfType(place, classOf[ScPackaging])
+    val pack: ScPackaging = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging]) match {
+      case pack: ScPackaging => pack
+      case _ => null
+    }
     if (pack == null) return ""
     pack.fullPackageName
   }
