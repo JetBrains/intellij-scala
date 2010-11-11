@@ -15,10 +15,8 @@ import com.intellij.openapi.roots.impl.DirectoryIndex;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.psi.*;
+import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
@@ -55,6 +53,8 @@ import java.util.Set;
 public class ScalaPositionManager implements PositionManager {
 
   private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");
+
+  private static final String SCRIPT_HOLDER_CLASS_NAME = "Main$$anon$1";
 
   private final DebugProcess myDebugProcess;
 
@@ -138,6 +138,10 @@ public class ScalaPositionManager implements PositionManager {
       if (typeDefinition != null) {
         qName = getSpecificName(typeDefinition.getQualifiedNameForDebugger(), typeDefinition.getClass());
       }
+      final PsiFile file = position.getFile();
+      if(file instanceof ScalaFile) {
+        qName = SCRIPT_HOLDER_CLASS_NAME + "*";
+      }
       if (qName == null) throw new NoDataException();
     }
 
@@ -176,9 +180,23 @@ public class ScalaPositionManager implements PositionManager {
     if (refType == null) return null;
 
     final String originalQName = refType.name().replace('/', '.');
+
+    final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
+
+    if(originalQName.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
+      try {
+        final String sourceName = location.sourceName();
+        final PsiFile[] files = FilenameIndex.getFilesByName(project, sourceName, searchScope);
+        if(files.length == 1) {
+          return files[0];
+        }
+      } catch (AbsentInformationException e) {
+        return null;
+      }
+    }
+
     int dollar = originalQName.indexOf('$');
     final String qName = dollar >= 0 ? originalQName.substring(0, dollar) : originalQName;
-    final GlobalSearchScope searchScope = myDebugProcess.getSearchScope();
 
     final PsiClass[] classes = ScalaCachesManager.getInstance(project).getNamesCache().getClassesByFQName(qName, searchScope);
     PsiClass clazz = classes.length == 1 ? classes[0] : null;
