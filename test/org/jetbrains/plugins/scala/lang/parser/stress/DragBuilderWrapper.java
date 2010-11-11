@@ -8,6 +8,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.util.diff.FlyweightCapableTreeStructure;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author ilyas
@@ -116,5 +118,13 @@ public class DragBuilderWrapper implements PsiBuilder {
 
   public LighterASTNode getLatestDoneMarker() {
     return myBuilder.getLatestDoneMarker();
+  }
+
+  public <T> T getUserDataUnprotected(@NotNull Key<T> key) {
+    return myBuilder.getUserDataUnprotected(key);
+  }
+
+  public <T> void putUserDataUnprotected(@NotNull Key<T> key, @Nullable T value) {
+    myBuilder.putUserDataUnprotected(key, value);
   }
 }
