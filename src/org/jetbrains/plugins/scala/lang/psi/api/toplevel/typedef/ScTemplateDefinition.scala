@@ -23,6 +23,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import fake.FakePsiMethod
 import lexer.ScalaTokenTypes
 import com.intellij.psi._
+import base.types.ScSelfTypeElement
 
 /**
  * @author ven
@@ -64,7 +65,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def typeDefinitions(): Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  def selfTypeElement = extendsBlock.selfTypeElement
+  def selfTypeElement: Option[ScSelfTypeElement] = {
+    val qual = getQualifiedName
+    if (qual != null && (qual == "scala.Predef" || qual == "scala")) return None
+    extendsBlock.selfTypeElement
+  }
 
   def selfType = extendsBlock.selfType
 
