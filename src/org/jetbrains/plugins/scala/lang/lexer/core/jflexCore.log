@@ -1,7 +1,13 @@
-Reading skeleton file "..\..\scaladoc\lexer\scaladoc.skeleton".
-Reading "..\..\scaladoc\lexer\scaladoc.flex"
-Constructing NFA : 113 states in NFA
+Reading skeleton file "idea-flex.skeleton".
+Reading "scala.flex"
+
+Warning : Macro "charNoDoubleQuote" has been declared but never used.
+
+Warning : Macro "stringLiteral" has been declared but never used.
+
+Warning : Macro "stringElement" has been declared but never used.
+Constructing NFA : 2 946 states in NFA
 Converting NFA to DFA : 
-..........................................................
-76 states before minimization, 41 states in minimized DFA
-Writing code to "..\..\scaladoc\lexer\_ScalaDocLexer.java"
+....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+888 states before minimization, 553 states in minimized DFA
+Writing code to "_ScalaCoreLexer.java"
