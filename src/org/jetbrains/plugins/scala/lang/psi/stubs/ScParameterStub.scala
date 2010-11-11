@@ -5,6 +5,7 @@ package stubs
 
 import api.statements.params.ScParameter
 import com.intellij.psi.stubs.NamedStub
+import api.base.types.ScTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -12,6 +13,8 @@ import com.intellij.psi.stubs.NamedStub
  */
 
 trait ScParameterStub extends NamedStub[ScParameter] {
+  def getTypeElement: Option[ScTypeElement]
+
   def getTypeText: String
 
   def isStable: Boolean

@@ -106,7 +106,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
           case "" if stub.getParentStub != null && stub.getParentStub.getParentStub != null &&
                   stub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] => return Failure("Cannot infer type", Some(this))
           case "" => return Failure("Wrong Stub problem", Some(this)) //shouldn't be
-          case str: String => ScalaPsiElementFactory.createTypeFromText(str, this, this)
+          case str: String => stub.asInstanceOf[ScParameterStub].getTypeElement match {
+            case Some(te) => return te.getType(TypingContext.empty)
+            case None => return Failure("Wrong type element", Some(this))
+          }
         }
       } else {
         typeElement match {
