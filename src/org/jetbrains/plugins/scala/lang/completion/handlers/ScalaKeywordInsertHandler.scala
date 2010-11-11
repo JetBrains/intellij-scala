@@ -3,6 +3,9 @@ package handlers
 
 import com.intellij.codeInsight.completion.{InsertionContext, InsertHandler}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.openapi.util.TextRange
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,6 +24,14 @@ class ScalaKeywordInsertHandler(val keyword: String) extends InsertHandler[Looku
         context.setAddCompletionChar(false)
         document.insertString(offset, " ")
         editor.getCaretModel.moveToOffset(editor.getCaretModel.getOffset + 1)
+        if (keyword == CASE) {
+          val manager = PsiDocumentManager.getInstance(context.getProject)
+          manager.commitDocument(document)
+          val file = manager.getPsiFile(document)
+          if (file == null) return
+          CodeStyleManager.getInstance(context.getProject).
+                  adjustLineIndent(file, new TextRange(context.getStartOffset, offset))
+        }
       }
     }
   }
