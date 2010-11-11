@@ -17,6 +17,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 /**
  * Handler for `case a => <enter>`.
  */
+
+//todo: remove
 class EnterAfterCaseClauseArrowHandlerDelegate extends EnterHandlerDelegate {
   def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer],
                       dataContext: DataContext, originalHandler: EditorActionHandler): Result = {

@@ -5,7 +5,7 @@ package api
 package expr
 
 import impl.ScalaPsiElementFactory
-import types.nonvalue.{TypeParameter, ScMethodType, Parameter, ScTypePolymorphicType}
+import types.nonvalue.{ScMethodType, Parameter, ScTypePolymorphicType}
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import types.Compatibility.Expression
@@ -13,20 +13,17 @@ import base.patterns.ScBindingPattern
 import resolve.ScalaResolveResult
 import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
 import collection.mutable.ArrayBuffer
-import statements.params.ScParameter
 import types._
 import nonvalue._
 import collection.{Set, Seq}
 import resolve.processor.MostSpecificUtil
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.impl.source.resolve.ResolveCache
-import caches.CachesUtil
 import com.intellij.psi.{PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
-import psi.{ScalaPsiUtil}
+import psi.ScalaPsiUtil
 import base.ScLiteral
 import lexer.ScalaTokenTypes
 import types.Conformance.AliasType
-import statements.{ScTypeAliasDefinition, ScFunctionDefinition, ScFunction}
+import statements.{ScTypeAliasDefinition, ScFunction}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin

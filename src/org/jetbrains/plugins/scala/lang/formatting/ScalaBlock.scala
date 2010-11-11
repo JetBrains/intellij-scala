@@ -55,12 +55,25 @@ extends Object with ScalaTokenTypes with Block {
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val indentSize = mySettings.getIndentSize(ScalaFileType.SCALA_FILE_TYPE)
     val parent = getNode.getPsi
+    val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     parent match {
+      case m: ScMatchStmt => {
+        if (m.caseClauses.length == 0) {
+          return new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+        } else {
+          val indent = if (mySettings.INDENT_CASE_FROM_SWITCH) Indent.getSpaceIndent(2 * indentSize)
+          else Indent.getNormalIndent
+          return new ChildAttributes(indent, null)
+        }
+      }
+      case c: ScCaseClauses => {
+        return new ChildAttributes(Indent.getNormalIndent, null)
+      }
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
-           _: ScTryBlock | _: ScCatchBlock | _: ScMatchStmt => {
-        return new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
-          Indent.getNoneIndent else Indent.getNormalIndent, null)
+           _: ScTryBlock | _: ScCatchBlock => {
+        return new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
