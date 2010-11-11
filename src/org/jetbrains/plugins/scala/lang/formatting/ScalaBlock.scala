@@ -68,9 +68,7 @@ extends Object with ScalaTokenTypes with Block {
           return new ChildAttributes(indent, null)
         }
       }
-      case c: ScCaseClauses => {
-        return new ChildAttributes(Indent.getNormalIndent, null)
-      }
+      case c: ScCaseClauses => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock => {
         return new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
