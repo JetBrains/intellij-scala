@@ -8,6 +8,9 @@ import api.statements.params.ScParameter
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.io.StringRef
+import api.base.types.ScTypeElement
+import com.intellij.util.PatchedSoftReference
+import psi.impl.ScalaPsiElementFactory
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,6 +22,7 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   private var name: StringRef = _
   private var typeText: StringRef = _
+  private var myTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var stable: Boolean = false
   private var default: Boolean = false
   private var repeated: Boolean = false
@@ -56,6 +60,18 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
   def getName: String = StringRef.toString(name)
 
   def getTypeText: String = StringRef.toString(typeText)
+
+  def getTypeElement: Option[ScTypeElement] = {
+    if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
+    val res: Option[ScTypeElement] = {
+      if (getTypeText != "") {
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, getPsi /*doesn't matter*/))
+      }
+      else None
+    }
+    myTypeElement = new PatchedSoftReference[Option[ScTypeElement]](res)
+    res
+  }
 
   def isStable: Boolean = stable
 

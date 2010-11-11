@@ -10,10 +10,8 @@ import _root_.scala.collection.mutable.ListBuffer
 import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import api.expr.ScNewTemplateDefinition
 import api.toplevel.{ScEarlyDefinitions}
-import caches.CachesUtil
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
-import com.intellij.psi.util.{PsiModificationTracker}
 import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiClass}
 import com.intellij.util.{ArrayFactory}
 import parser.ScalaElementTypes

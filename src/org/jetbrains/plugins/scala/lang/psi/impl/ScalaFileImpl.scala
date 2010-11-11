@@ -314,7 +314,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
               }
             }
           } else {
-            var aPackage: PsiPackage = ScPackageImpl(facade.findPackage(name))
+            val aPackage: PsiPackage = ScPackageImpl(facade.findPackage(name))
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
