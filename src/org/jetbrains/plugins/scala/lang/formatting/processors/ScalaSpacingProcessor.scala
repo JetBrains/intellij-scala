@@ -213,7 +213,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               }
             }
           }
-          case _: ScBlock | _: ScTemplateBody => return ON_NEW_LINE
+          case _: ScBlock | _: ScTemplateBody if !rightPsi.getParent.isInstanceOf[ScTryBlock] => return ON_NEW_LINE
           case parent => {
             settings.BRACE_STYLE match {
               case CommonCodeStyleSettings.NEXT_LINE => return ON_NEW_LINE
