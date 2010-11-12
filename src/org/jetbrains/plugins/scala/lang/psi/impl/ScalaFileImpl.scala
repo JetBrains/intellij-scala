@@ -36,6 +36,7 @@ import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
 import finder.ScalaSourceFilterScope
+import com.intellij.openapi.project.Project
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
@@ -402,18 +403,20 @@ object ImplicitlyImported {
   val objects = Array("scala.Predef", "scala" /* package object*/)
 
 
-  private var importedObjects: Array[PsiClass] = null
-  private var modCount: Long = -1
+  import collection.mutable.HashMap
+  private val importedObjects: HashMap[Project, Array[PsiClass]] = new HashMap[Project, Array[PsiClass]]
+  private val modCount: HashMap[Project, Long] = new HashMap[Project, Long]
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Array[PsiClass] = {
-    var res = importedObjects
+    var res: Array[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
     val count = manager.getModificationTracker.getModificationCount
-    if (res != null && count == modCount) {
+    val count1: Option[Long] = modCount.get(manager.getProject)
+    if (res != null && count1 != null && count == count1.get) {
       val filter = new ScalaSourceFilterScope(scope, manager.getProject)
       return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
     }
     res = implicitlyImportedObjectsImpl(manager)
-    importedObjects = res
-    modCount = count
+    importedObjects(manager.getProject) = res
+    modCount(manager.getProject) = count
     val filter = new ScalaSourceFilterScope(scope, manager.getProject)
     return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
   }
