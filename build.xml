@@ -71,6 +71,7 @@
   <path id="base.path">
     <fileset dir="${scala.lib}">
       <include name="**/*.jar"/>
+      <exclude name="**/scalap.jar"/>
     </fileset>
     <fileset dir="${scala.aux.lib}">
       <include name="**/*.jar"/>
@@ -84,6 +85,7 @@
     <fileset dir="${idea.home}/plugins/">
       <include name="**/*.jar"/>
     </fileset>
+    <pathelement location="${scalap.jar}"/>
   </path>
 
   <path id="scala.runners.path">
@@ -129,10 +131,6 @@
   </target>
 
   <target name="make.project" depends="unzip.last.successful.IDEA.build" description="Builds all classes">
-    <copy toDir="${scala.lib}">
-      <fileset file="${scalap.jar}"/>
-    </copy>
-
     <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="idea.lib.path"/>
 
     <mkdir dir="${main.dest}"/>
