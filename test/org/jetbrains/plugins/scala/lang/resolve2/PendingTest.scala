@@ -9,8 +9,6 @@ class PendingTest extends ResolveTestBase {
 
   def testSCL1707 = doTest
 
-  def testSCL1929 = doTest
-
   def testSCL2073 = doTest
 
   def testSCL2386A = doTest
