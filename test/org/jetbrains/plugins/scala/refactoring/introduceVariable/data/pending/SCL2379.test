@@ -8,6 +8,7 @@ object O {
 object O {
   {
     class T
-    val t: T = new T
+    val value: T = new T
+    value
   }
 }

@@ -41,6 +41,7 @@ import collection.{Seq, Iterable}
 import api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
 import api.statements.params.ScClassParameter
 import com.intellij.openapi.util.text.StringUtil
+import api.expr.ScBlock
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def add(element: PsiElement): PsiElement = {
@@ -135,6 +136,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
       case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
+      case _: ScBlock => k("")
       case parent => _packageName(parent, sep, identity _)
     }
 
