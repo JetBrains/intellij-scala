@@ -42,4 +42,37 @@ import foo.{Foo, Bar}
 """.replace("\r", "")
     doTextTest(before, after)
   }
+
+  def testSCL2477 {
+    val before =
+"""
+class Foo {
+  //some comment
+	private val i = 0;
+
+	/**
+	 * @param p blah-blah-blah
+	 */
+	def doSmth(p: Int) {}
+  //comment
+  def foo = 1
+}
+""".replace("\r", "")
+    val after =
+"""
+class Foo {
+  //some comment
+  private val i = 0;
+
+  /**
+   * @param p blah-blah-blah
+   */
+  def doSmth(p: Int) {}
+
+  //comment
+  def foo = 1
+}
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
 }
