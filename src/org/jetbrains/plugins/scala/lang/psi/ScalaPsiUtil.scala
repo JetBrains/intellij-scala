@@ -533,7 +533,15 @@ object ScalaPsiUtil {
           case clazz: PsiClass =>
             x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
-          case _ =>
+          case m: ScTypeAlias if m.getContainingClass != null && (
+                  m.getContainingClass.getQualifiedName == "scala.Predef" ||
+                  m.getContainingClass.getQualifiedName == "scala") => {
+            x.replace(ScalaPsiElementFactory.createReferenceFromText(m.getName, m.getManager)).
+                    asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
+          }
+          case _ => {
+            adjustTypes(child)
+          }
         }
         case _ => adjustTypes(child)
       }
