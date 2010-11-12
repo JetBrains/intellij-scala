@@ -412,7 +412,7 @@ object JavaToScala {
         }
       }
       case i: PsiImportStaticStatement => {
-        res.append("improt ")
+        res.append("import ")
         res.append(convertPsiToText(i.getImportReference))
         if (i.isOnDemand) {
           res.append("._")
