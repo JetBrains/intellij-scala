@@ -332,9 +332,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     import toplevel.synthetic.SyntheticClasses
 
-    val synthIterator = SyntheticClasses.get(getProject).getAll.iterator
+    val classes = SyntheticClasses.get(getProject)
+    val synthIterator = classes.getAll.iterator
     while (synthIterator.hasNext) {
       val synth = synthIterator.next
+      ProgressManager.checkCanceled
+      if (!processor.execute(synth, state)) return false
+    }
+
+    val synthObjectsIterator = classes.syntheticObjects.iterator
+    while (synthObjectsIterator.hasNext) {
+      val synth = synthObjectsIterator.next
       ProgressManager.checkCanceled
       if (!processor.execute(synth, state)) return false
     }

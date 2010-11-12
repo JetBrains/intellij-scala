@@ -7,7 +7,6 @@ package synthetic
 
 import _root_.javax.swing.Icon
 import api.statements.params.ScTypeParam
-import api.toplevel.typedef.ScTemplateDefinition
 import api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import com.intellij.openapi.project.DumbAwareRunnable
 import com.intellij.openapi.startup.StartupManager
@@ -22,7 +21,7 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 
-import _root_.scala.collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, MultiMap}
+import collection.mutable.{ListBuffer, Map, HashMap, Set, HashSet, MultiMap, ArrayBuffer}
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
@@ -30,6 +29,8 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import processor.{ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import api.ScalaFile
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -272,6 +273,142 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
     }
     stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
+
+    //register synthetic objects
+    syntheticObjects = new HashSet[ScObject]
+    def registerObject(fileText: String) {
+      val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+              createFileFromText("dummy" + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+        ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
+      val obj = dummyFile.typeDefinitions.apply(0).asInstanceOf[ScObject]
+      syntheticObjects += obj
+    }
+
+    registerObject(
+"""
+package scala
+
+object Boolean {
+ 	def box(x: Boolean): java.lang.Boolean = throw new Error()
+ 	def unbox(x: Object): Boolean = throw new Error()
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Byte {
+ 	def box(x: Byte): java.lang.Byte = throw new Error()
+ 	def unbox(x: Object): Byte = throw new Error()
+  def MinValue = java.lang.Byte.MIN_VALUE
+ 	def MaxValue = java.lang.Byte.MAX_VALUE
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Char {
+ 	def box(x: Char): java.lang.Character = throw new Error()
+ 	def unbox(x: Object): Char = throw new Error()
+ 	def MinValue = java.lang.Character.MIN_VALUE
+ 	def MaxValue = java.lang.Character.MAX_VALUE
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Double {
+ 	def box(x: Double): java.lang.Double = throw new Error()
+ 	def unbox(x: Object): Double = throw new Error()
+ 	@deprecated("use Double.MinNegativeValue instead")
+ 	def MinValue = -java.lang.Double.MAX_VALUE
+ 	def MinNegativeValue = -java.lang.Double.MAX_VALUE
+ 	def MaxValue = java.lang.Double.MAX_VALUE
+ 	@deprecated("use Double.MinPositiveValue instead")
+ 	def Epsilon = java.lang.Double.MIN_VALUE
+ 	def MinPositiveValue = java.lang.Double.MIN_VALUE
+ 	def NaN = java.lang.Double.NaN
+ 	def PositiveInfinity = java.lang.Double.POSITIVE_INFINITY
+ 	def NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Float {
+ 	def box(x: Float): java.lang.Float = throw new Error()
+ 	def unbox(x: Object): Float = throw new Error()
+ 	@deprecated("use Float.MinNegativeValue instead")
+ 	def MinValue = -java.lang.Float.MAX_VALUE
+ 	def MinNegativeValue = -java.lang.Float.MAX_VALUE
+ 	def MaxValue = java.lang.Float.MAX_VALUE
+ 	@deprecated("use Float.MinPositiveValue instead")
+ 	def Epsilon = java.lang.Float.MIN_VALUE
+ 	def MinPositiveValue = java.lang.Float.MIN_VALUE
+ 	def NaN = java.lang.Float.NaN
+ 	def PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
+ 	def NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Int {
+ 	def box(x: Int): java.lang.Integer = throw new Error()
+ 	def unbox(x: Object): Int = throw new Error()
+ 	def MinValue = java.lang.Integer.MIN_VALUE
+ 	def MaxValue = java.lang.Integer.MAX_VALUE
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Long {
+ 	def box(x: Long): java.lang.Long = throw new Error()
+ 	def unbox(x: Object): Long = throw new Error()
+ 	def MinValue = java.lang.Long.MIN_VALUE
+ 	def MaxValue = java.lang.Long.MAX_VALUE
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Short {
+ 	def box(x: Short): java.lang.Short = throw new Error()
+ 	def unbox(x: Object): Short = throw new Error()
+ 	def MinValue = java.lang.Short.MIN_VALUE
+ 	def MaxValue = java.lang.Short.MAX_VALUE
+}
+"""
+    )
+
+    registerObject(
+"""
+package scala
+
+object Unit
+"""
+    )
   }
 
   var stringPlusMethod: ScType => ScSyntheticFunction = null
@@ -279,6 +416,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   var all: Map[String, ScSyntheticClass] = new HashMap[String, ScSyntheticClass]
   var numeric: Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
   var integer : Set[ScSyntheticClass] = new HashSet[ScSyntheticClass]
+  var syntheticObjects: Set[ScObject] = new HashSet[ScObject]
+
   def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
     case (_, Double) | (Double, _) => Double
     case (Float, _) | (_, Float) => Float
@@ -313,16 +452,27 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   val bitwise_shift_ops = "<<" :: ">>" :: ">>>" :: Nil
 
   val prefix = "scala."
-  def findClass(qName : String, scope : GlobalSearchScope) = if (qName.startsWith(prefix)) {
-    byName(qName.substring(prefix.length)) match {
-      case Some(c) => c
-      case _ => null
+  def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
+    if (qName.startsWith(prefix)) {
+      byName(qName.substring(prefix.length)) match {
+        case Some(c) => return c
+        case _ =>
+      }
+    } else null
+    for (obj <- syntheticObjects) {
+      if (obj.getQualifiedName == qName) return obj
     }
-  } else null
+    null
+  }
 
-  def findClasses(qName : String, scope : GlobalSearchScope) = {
+  def findClasses(qName: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    val res: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]
     val c = findClass(qName, scope)
-    if (c == null) PsiClass.EMPTY_ARRAY else Array(c)
+    if (c != null) res += c
+    for (obj <- syntheticObjects) {
+      if (obj.getQualifiedName == qName) res += obj
+    }
+    res.toArray
   }
 
   override def getClasses(p : PsiPackage, scope : GlobalSearchScope) = findClasses(p.getQualifiedName, scope)

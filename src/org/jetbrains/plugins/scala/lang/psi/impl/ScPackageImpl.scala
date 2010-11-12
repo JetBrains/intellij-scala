@@ -31,6 +31,9 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
         for (synth <- SyntheticClasses.get(getProject).getAll) {
           processor.execute(synth, ResolveState.initial)
         }
+        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
+          processor.execute(synthObj, ResolveState.initial)
+        }
       }
       
       val manager = ScalaCachesManager.getInstance(getProject)

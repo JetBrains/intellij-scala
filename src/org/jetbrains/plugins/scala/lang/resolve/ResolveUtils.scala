@@ -51,6 +51,7 @@ object ResolveUtils {
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
             case _: ScTypeDefinition => kinds contains CLASS
+            case _: ScSyntheticClass => kinds contains CLASS
             case c: PsiClass => {
               if (kinds contains CLASS) true
               else {
