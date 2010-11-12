@@ -31,6 +31,7 @@ import com.intellij.psi.{PsiElement, PsiComment, PsiWhiteSpace}
 import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
 import psi.ScalaPsiUtil
 import xml.ScXmlPattern
+import com.intellij.psi.javadoc.PsiDocComment
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -98,8 +99,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightElementType = rightNode.getElementType
     val leftPsi = leftNode.getPsi
     val rightPsi = rightNode.getPsi
+    /**
+     * This is not nodes text! This is blocks text, which can be different from node.
+     */
+    val (leftString, rightString) = (left.getTextRange.substring(fileText),
+            right.getTextRange.substring(fileText))
     import ScalaTokenTypes._
     import ScalaElementTypes._
+    if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
+            (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
+      return ON_NEW_LINE
+    }
+
     if (leftElementType == XmlTokenType.XML_DATA_CHARACTERS || rightElementType == XmlTokenType.XML_DATA_CHARACTERS) {
       return Spacing.getReadOnlySpacing
     }
@@ -302,7 +313,27 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
+    if (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment]) {
+      var pseudoRightPsi = nextNotWithspace(rightPsi)
+      while (pseudoRightPsi != null &&
+              (pseudoRightPsi.isInstanceOf[PsiComment] || pseudoRightPsi.isInstanceOf[PsiDocComment])) {
+        pseudoRightPsi = nextNotWithspace(pseudoRightPsi)
+      }
+      if (pseudoRightPsi.isInstanceOf[ScTypeDefinition]) {
+        pseudoRightPsi.getParent match {
+          case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks,
+              keepBlankLinesInDeclarations)
+          }
+          case _ =>
+        }
+      }
+    }
+
     if (rightPsi.isInstanceOf[ScTypeDefinition]) {
+      if (leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) {
+        return ON_NEW_LINE
+      }
       rightPsi.getParent match {
         case _: ScTemplateBody | _: ScalaFile | _: ScPackaging => {
           return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AROUND_CLASS + 1, keepLineBreaks,
@@ -390,7 +421,33 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
+    if (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment]) {
+      var pseudoRightPsi = nextNotWithspace(rightPsi)
+      while (pseudoRightPsi != null &&
+              (pseudoRightPsi.isInstanceOf[PsiComment] || pseudoRightPsi.isInstanceOf[PsiDocComment])) {
+        pseudoRightPsi = nextNotWithspace(pseudoRightPsi)
+      }
+      if (pseudoRightPsi.isInstanceOf[ScFunction] || pseudoRightPsi.isInstanceOf[ScValue] ||
+              pseudoRightPsi.isInstanceOf[ScVariable] || pseudoRightPsi.isInstanceOf[ScTypeAlias]) {
+        pseudoRightPsi.getParent match {
+          case b: ScTemplateBody => {
+            val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
+            val setting = if (pseudoRightPsi.isInstanceOf[ScFunction] && p.isInstanceOf[ScTrait])
+              settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
+            else if (pseudoRightPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
+            else if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
+            else settings.BLANK_LINES_AROUND_FIELD
+            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+          }
+          case _ =>
+        }
+      }
+    }
+
     if (rightPsi.isInstanceOf[ScFunction] || rightPsi.isInstanceOf[ScValue] || rightPsi.isInstanceOf[ScVariable] || rightPsi.isInstanceOf[ScTypeAlias]) {
+      if (leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) {
+        return ON_NEW_LINE
+      }
       rightPsi.getParent match {
         case b: ScTemplateBody => {
           val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
@@ -446,11 +503,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //old formatter spacing
 
-    /**
-     * This is not nodes text! This is blocks text, which can be different from node.
-     */
-    val (leftString, rightString) = (left.getTextRange.substring(fileText),
-            right.getTextRange.substring(fileText))
+
     //comments processing
     if (leftNode.getPsi.isInstanceOf[ScDocComment]) return ON_NEW_LINE
     if (rightNode.getPsi.isInstanceOf[ScDocComment] && leftNode.getElementType == ScalaTokenTypes.tLBRACE) return ON_NEW_LINE
