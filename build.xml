@@ -282,8 +282,8 @@
     <copy todir="${temp.jar.dir}/Scala/lib">
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
-        <include name="**/scalap.jar"/>
       </fileset>
+      <file file="${scalap.jar}"/>
     </copy>
 
     <zip destfile="${dist.dir}/scala-intellij-bin-${plugin.version}.zip" basedir="${temp.jar.dir}"/>
