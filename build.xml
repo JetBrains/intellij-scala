@@ -41,8 +41,8 @@
   <property name="plugin.version" value="${plugin.build.number}"/>
 
   <property name="scala.2.7.lib" value="${base.dir}/SDK/scala-27-lib"/>
-
-  <property name="scalap.jar" value="${base.dir}/SDK/scalap/scalap.jar"/>
+  <property name="scalap.dir" value="${base.dir}/SDK/scalap"/>
+  <property name="scalap.jar" value="${scalap.dir}/scalap.jar"/>
   <property name="scala.jar" value="scala-plugin.jar"/>
   <property name="runners.jar" value="scala-plugin-runners.jar"/>
   <property name="temp.jar.dir" value="${base.dir}/tempjar"/>
@@ -283,7 +283,11 @@
       <fileset dir="${scala.lib}">
         <include name="**/scala-library.jar"/>
       </fileset>
-      <file file="${scalap.jar}"/>
+    </copy>
+    <copy todir="${temp.jar.dir}/Scala/lib">
+      <fileset dir="${scalap.dir}">
+        <include name="**/scalap.jar"/>
+      </fileset>
     </copy>
 
     <zip destfile="${dist.dir}/scala-intellij-bin-${plugin.version}.zip" basedir="${temp.jar.dir}"/>
