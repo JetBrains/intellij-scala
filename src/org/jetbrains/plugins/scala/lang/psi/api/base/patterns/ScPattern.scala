@@ -181,7 +181,7 @@ trait ScPattern extends ScalaPsiElement {
                   else return None
                 }
                 case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.getQualifiedName == "scala.Tuple" => true
+                  case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Tuple") => true
                   case _ => false
                 }) => {
                   if (i < args.length) return Some(args(i))
