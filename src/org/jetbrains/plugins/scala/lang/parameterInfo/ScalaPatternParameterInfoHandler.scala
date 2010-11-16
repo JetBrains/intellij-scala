@@ -24,11 +24,14 @@ import psi.api.statements.ScFunction
 import psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import psi.ScalaPsiUtil
 import psi.types._
-import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import com.intellij.util.ArrayUtil
 import java.awt.Color
 import lexer.ScalaTokenTypes
 import psi.api.base.patterns.{ScPattern, ScConstructorPattern, ScPatternArgumentList}
+import lang.resolve.processor.ExpandedExtractorResolveProcessor
+import lang.resolve.{StdKinds, ResolveUtils, ScalaResolveResult}
+import result.TypingContext
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.02.2009
@@ -74,9 +77,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         p match { //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case x: String if x == "" => {
-            buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-          }
           case (sign: PhysicalSignature, i: Int) => { //i  can be -1 (it's update method)
             val subst = sign.substitutor
             val p = sign.method match {
@@ -141,27 +141,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               }).mkString(", "))
             }
           }
-          case (constr: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
-            val clauses = constr.parameterList.clauses
-            if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-            else {
-              val clause: ScParameterClause = clauses(i)
-              if (clause.parameters.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-              else {
-                if (clause.isImplicit) buffer.append("implicit ")
-                buffer.append(clause.parameters.
-                        map((param: ScParameter) => {
-                  val isBold = if (clause.parameters.indexOf(param) == index) true
-                  else {
-                    //todo: check type
-                    false
-                  }
-                  val paramText = ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
-                  if (isBold) "<b>" + paramText + "</b>" else paramText
-                }).mkString(", "))
-              }
-            }
-          }
           case _ =>
         }
         val isGrey = buffer.indexOf("<g>")
@@ -199,7 +178,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
 
   def tracksParameterIndex: Boolean = true
 
-  private def findCall(context: ParameterInfoContext): ScPatternArgumentList = { //todo: Expected type
+  private def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null
@@ -213,30 +192,37 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
                 val name = ref.refName
-                val variants: Array[PsiElement] = ref.getSameNameVariants.map(r => r.getElement)
-                for (variant <- variants if !variant.isInstanceOf[PsiMember] ||
-                        ResolveUtils.isAccessible(variant.asInstanceOf[PsiMember], ref)) {
-                  variant match {
-                    case obj: ScObject => {
-                      //unapply method
-                      for (n <- ScalaPsiUtil.getUnapplyMethods(obj)) {
-                        res += ((n, 0))
-                      }
-                    }
-                    case clazz: ScClass if clazz.isCase => {
-                      clazz.constructor match {
-                        case Some(constr: ScPrimaryConstructor) => {
-                          res += ((constr, ScSubstitutor.empty, 0))
+                val variants: Array[ResolveResult] = ref.multiResolve(false)
+                for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
+                  val r = variant.asInstanceOf[ScalaResolveResult]
+                  r.element match {
+                    case fun: ScFunction =>
+                      val substitutor = r.substitutor
+                      val subst = if (fun.typeParameters.length == 0) substitutor else {
+                        val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+                            substitutor))))
+                        val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrElse(Any)))
+                        val result = fun.parameters(0).getType(TypingContext.empty)
+                        if (result.isEmpty) substitutor
+                        else {
+                          val funType = undefSubst.subst(result.get)
+                          constr.expectedType match {
+                            case Some(tp) =>
+                              val t = Conformance.conforms(tp, funType)
+                              if (t) {
+                                val undefSubst = Conformance.undefinedSubst(tp, funType)
+                                undefSubst.getSubstitutor match {
+                                  case Some(newSubst) => newSubst.followed(substitutor)
+                                  case _ => substitutor
+                                }
+                              } else substitutor
+                            case _ => substitutor
+                          }
                         }
-                        case None => res += ""
                       }
-                    }
-                    case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] => {
-                      //unapply method
-                      for (n <- ScalaPsiUtil.getUnapplyMethods(clazz)) {
-                        res += ((n, 0))
-                      }
-                    }
+                      res += Tuple(new PhysicalSignature(fun, subst), 0)
                     case _ =>
                   }
                 }

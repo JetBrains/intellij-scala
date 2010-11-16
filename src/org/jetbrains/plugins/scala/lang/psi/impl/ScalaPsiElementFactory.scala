@@ -7,7 +7,6 @@ import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
 import api.toplevel.templates.{ScTemplateBody}
-import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
@@ -33,6 +32,8 @@ import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import lexer.{ScalaTokenTypes, ScalaLexer}
 import types._
 import api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
+import parser.parsing.top.{TmplDef, ObjectDef}
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
@@ -507,6 +508,36 @@ object ScalaPsiElementFactory extends ScTypeInferenceHelper {
     val te = createTypeElementFromText(text, context, child)
     if (te == null) return null
     else return te.getType(TypingContext.empty).getOrElse(Any)
+  }
+
+  def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+    Def.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScFunction]) {
+      val fun = psi.asInstanceOf[ScFunction]
+      fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
+      return fun
+    } else return null
+  }
+
+  def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: PsiBuilder = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text)
+    TmplDef.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScObject]) {
+      val obj = psi.asInstanceOf[ScObject]
+      obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
+      return obj
+    } else return null
   }
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {

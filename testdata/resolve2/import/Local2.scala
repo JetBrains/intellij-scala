@@ -1,7 +1,7 @@
 import C.CC
 
-println(/* file: this, offset: 140 */ CC.getClass)
-println(classOf[/* file: this, offset: 140 */ CC])
+println(/* */ CC.getClass)
+println(classOf[/* line: 7 */ CC])
 
 object C {
   case class CC

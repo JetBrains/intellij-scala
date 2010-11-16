@@ -13,6 +13,7 @@ object StdKinds {
 
   val stableClassOrObject = ValueSet(CLASS, OBJECT)
   val classOrObjectOrValues = stableClassOrObject + VAL + VAR
+  val objectOrValue = ValueSet(OBJECT, VAL)
 
   val refExprLastRef = ValueSet(OBJECT, VAL, VAR, METHOD)
   val refExprQualRef = refExprLastRef + PACKAGE

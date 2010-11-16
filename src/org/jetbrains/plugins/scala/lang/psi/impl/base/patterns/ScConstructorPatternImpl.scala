@@ -31,22 +31,6 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def subpatterns : Seq[ScPattern]= if (args != null) args.patterns else Seq.empty
 
-  //todo cache
-  def bindParamTypes = ref.bind match {
-    case None => None
-    case Some(r) => r.element match {
-      case td : ScClass => Some(td.parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}) //todo: type inference here
-      case obj : ScObject => { None //todo
-        /*val n = args.patterns.length
-        for(func <- obj.functionsByName("unapply")) {
-          //todo find Option as scala class and substitute its (only) type parameter
-        }*/
-        //todo unapplySeq
-      }
-      case _ => None
-    }
-  }
-
   override def isIrrefutableFor(t: Option[ScType]): Boolean = {
     if (t == None) return false
     ref.bind match {
@@ -88,6 +72,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     wrap(ref.bind) map {r =>
       r.element match {
+        //todo: remove all classes?
         case td: ScClass if td.typeParameters.length > 0 => {
           val refType: ScType = ScSimpleTypeElementImpl.
                   calculateReferenceType(ref, false).getOrElse(ScDesignatorType(td))
@@ -118,9 +103,35 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
         case td: ScClass => new ScDesignatorType(td)
         case obj: ScObject => new ScDesignatorType(obj)
         case fun: ScFunction /*It's unapply method*/ if (fun.getName == "unapply" || fun.getName == "unapplySeq") &&
-                fun.parameters.length == 1 => {
-          return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty)
-        }
+                fun.parameters.length == 1 =>
+          val substitutor = r.substitutor
+          val subst = if (fun.typeParameters.length == 0) substitutor else {
+            val undefSubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+              s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+                substitutor))))
+            val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+              s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrElse(Any)))
+            val emptyRes = substitutor followed emptySubst
+            val result = fun.parameters(0).getType(TypingContext.empty)
+            if (result.isEmpty) emptyRes
+            else {
+              val funType = undefSubst.subst(result.get)
+              expectedType match {
+                case Some(tp) => {
+                  val t = Conformance.conforms(tp, funType)
+                  if (t) {
+                    val undefSubst = Conformance.undefinedSubst(tp, funType)
+                    undefSubst.getSubstitutor match {
+                      case Some(newSubst) => newSubst followed substitutor followed emptySubst
+                      case _ => emptyRes
+                    }
+                  } else emptyRes
+                }
+                case _ => emptyRes
+              }
+            }
+          }
+          return fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty).map(subst.subst(_))
         case _ => Nothing
       }
     }

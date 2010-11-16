@@ -167,11 +167,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
 
         ScalaPsiUtil.nameContext(refPatt) match {
-          case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, this, true)) => pd.declaredType match {
+          case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, this, true)) => pd.declaredType match {
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
           }
-          case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, this, true)) => vd.declaredType match {
+          case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, this, true)) => vd.declaredType match {
             case Some(t) => t
             case None => return Failure("No declared type found", Some(this))
           }

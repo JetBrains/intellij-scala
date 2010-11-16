@@ -5,28 +5,24 @@ package processor
 
 import psi.api.statements._
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import params.{ScParameter, ScTypeParam}
+import params.ScTypeParam
 import psi.types._
 
-import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import psi.api.base.types.ScTypeElement
-import result.{TypingContext}
+import result.TypingContext
 import scala._
-import collection.mutable.{HashSet, ListBuffer, ArrayBuffer}
 import scala.collection.Set
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import psi.implicits.{ScImplicitlyConvertible}
-import psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.typedef.{ScClass, ScObject}
-import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
-import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction}
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.impl.ScPackageImpl
 import caches.CachesUtil
 import psi.types.Compatibility.{ConformanceExtResult, Expression}
 import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
-import psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import psi.api.base.ScPrimaryConstructor
+
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
@@ -57,7 +53,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))
           true
         }
-        case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
+        /*case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
                 ref.getParent.isInstanceOf[ScGenericCall] => {
           addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType,
@@ -75,7 +71,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case cc: ScClass if cc.isCase && ScalaPsiUtil.getCompanionModule(cc) == None => {
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-        }
+        }*/
         case cc: ScClass => true
         case o: ScObject if o.isPackageObject => return true // do not resolve to package object
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
@@ -123,7 +119,7 @@ object MethodResolveProcessor {
     }
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
-    
+
     val substitutor: ScSubstitutor = {
       element match {
         case t: ScTypeParametersOwner => {
@@ -184,7 +180,7 @@ object MethodResolveProcessor {
     }
 
 
-    
+
     element match {
       //objects
       case obj: PsiClass => return ConformanceExtResult(Seq.empty)

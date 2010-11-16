@@ -59,7 +59,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
   def members(): Seq[ScMember] = extendsBlock.members
-  def syntheticMembers(): Seq[FakePsiMethod] = Seq.empty
+  def syntheticMembers(): Seq[PsiMethod] = Seq.empty
   def functions(): Seq[ScFunction] = extendsBlock.functions
   def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases
 
@@ -190,8 +190,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     member.getParent.getNode.removeChild(member.getNode)
   }
 
-  def functionsByName(name: String) =
-    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method
+  def functionsByName(name: String): Seq[PsiMethod] = {
+    (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method).
+            toSeq ++ syntheticMembers.filter(_.getName == name)
+  }
 
   //Java sources uses this method. Really it's not very useful. Parameter checkBases ignored
   override def findMethodsAndTheirSubstitutorsByName

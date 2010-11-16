@@ -32,7 +32,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
 
   
-  def signaturesByName(name: String): Iterable[PhysicalSignature]
+  def signaturesByName(name: String): Seq[PhysicalSignature]
 
   def isPackageObject = false
 

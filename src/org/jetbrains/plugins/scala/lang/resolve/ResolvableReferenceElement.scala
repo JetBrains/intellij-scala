@@ -24,8 +24,8 @@ trait ResolvableReferenceElement extends PsiPolyVariantReference {
   }
 
   def bind(): Option[ScalaResolveResult] = {
-     ProgressManager.checkCanceled
-     val results = multiResolve(false)
-     if(results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
-   }
+    ProgressManager.checkCanceled
+    val results = multiResolve(false)
+    if (results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
+  }
 }

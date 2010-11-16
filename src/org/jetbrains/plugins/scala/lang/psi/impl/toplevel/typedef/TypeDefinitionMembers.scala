@@ -130,6 +130,9 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
       for (member <- template.members) {
         member match {
+          case c: ScClass if c.isCase && c.fakeCompanionModule != None && isAccessible(place, c) =>
+            val obj = c.fakeCompanionModule.get
+            map += ((obj, new Node(obj, subst)))
           case obj: ScObject if isAccessible(place, obj) => map += ((obj, new Node(obj, subst)))
           case _var: ScVariable if isAccessible(place, _var) =>
             for (dcl <- _var.declaredElements) {

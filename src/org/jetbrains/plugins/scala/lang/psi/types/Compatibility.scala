@@ -373,7 +373,7 @@ object Compatibility {
           else tp
         }, false, param.isVarArgs)}, exprs, checkWithImplicits, isShapesResolve)
       }
-      case cc: ScClass if cc.isCase => {
+      /*case cc: ScClass if cc.isCase => {
         val parameters: Seq[ScParameter] = {
           cc.clauses match {
             case Some(params: ScParameters) if params.clauses.length != 0 => params.clauses.apply(0).parameters
@@ -393,7 +393,7 @@ object Compatibility {
         checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
-      }
+      }*/
 
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
     }

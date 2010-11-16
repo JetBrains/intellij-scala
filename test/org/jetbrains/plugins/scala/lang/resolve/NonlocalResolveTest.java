@@ -6,6 +6,7 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDeclaration;
@@ -79,7 +80,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   public void testImportfromObject() throws Exception {
     PsiReference ref = configureByFile("nonlocal/importFromObject.scala");
     PsiElement element = ref.resolve();
-    assertTrue(element instanceof ScClass && ((ScClass) element).isCase());
+    assertTrue(element instanceof ScFunction && ((ScFunction) element).getName().equals("apply"));
   }
 
   public void testSubstitutor1() throws Exception {

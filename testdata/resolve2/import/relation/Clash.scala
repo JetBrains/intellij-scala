@@ -1,13 +1,13 @@
 package a2 {
   class Foo1 {
     import a2.b2.C
-    println(/* offset: 345 */C.getClass)
-    println(classOf[/* offset: 345 */C])
+    println(/* */C.getClass)
+    println(classOf[/* line: 17 */C])
   }
   class Foo2 {
     import _root_.a2.b2.C
-    println(/* offset: 290 */C.getClass)
-    println(classOf[/* offset: 290 */C])
+    println(/* */C.getClass)
+    println(classOf[/* line: 13 */C])
   }
   package b2 {
     case class C

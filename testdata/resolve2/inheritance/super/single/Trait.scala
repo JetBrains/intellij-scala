@@ -13,13 +13,13 @@ trait T2 extends T1 {
   println(super./* line: 2 */a)
   println(super./* resolved: false */b)
 
-  println(/* line: 3 */ A.getClass)
+  println(/* */ A.getClass)
   println(classOf[/* line: 3 */ A])
 
-  println(/* line: 8 */ B.getClass)
+  println(/* */ B.getClass)
   println(classOf[/* line: 8 */ B])
 
-  println(super./* line: 3 */A.getClass)
+  println(super./* */A.getClass)
   println(classOf[super./* line: 3 */A])
 
   println(super./* resolved: false */B.getClass)

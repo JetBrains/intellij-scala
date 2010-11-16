@@ -17,4 +17,8 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember {
 
   override def getContainingClass = null
 
+  //Is this object generated as case class companion module
+  private var isSyntheticCaseClassCompanion: Boolean = false
+  def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion
+  def setSyntheticObject: Unit = isSyntheticCaseClassCompanion = true
 }

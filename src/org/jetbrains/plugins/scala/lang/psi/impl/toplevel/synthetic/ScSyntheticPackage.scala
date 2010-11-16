@@ -25,6 +25,7 @@ import collection.mutable.{ArrayBuffer, HashSet}
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.indexing.FileBasedIndex
 import lang.resolve.processor.BaseProcessor
+import api.toplevel.typedef.ScClass
 
 /**
  * @author ilyas
@@ -107,7 +108,14 @@ object ScSyntheticPackage {
           def getQualifiedName = fqn
 
           def getClasses = {
-            Array(pkgs.flatMap(p => if (p.fqn.length == fqn.length) p.typeDefs else Seq.empty): _*)
+            Array(pkgs.flatMap(p =>
+              if (p.fqn.length == fqn.length)
+                p.typeDefs.flatMap(td => td match {
+                  case c: ScClass if c.isCase && c.fakeCompanionModule != None =>
+                    Seq(td, c.fakeCompanionModule.get)
+                  case _ => Seq(td)
+                })
+              else Seq.empty): _*)
           }
 
           def getClasses(scope: GlobalSearchScope) =

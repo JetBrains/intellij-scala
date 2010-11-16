@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 /**
  * User: Alexander Podkhalyuzin
@@ -114,9 +115,12 @@ object Equivalence {
           (true, undefinedSubst)
         }
       }
-      case (ScThisType(clazz1), ScThisType(clazz2)) => {
+      case (ScThisType(clazz1), ScThisType(clazz2)) =>
         return (clazz1 == clazz2, undefinedSubst)
-      }
+      case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
+        return (obj1 == obj2, undefinedSubst)
+      case (ScDesignatorType(obj1: ScObject), ScThisType(obj2: ScObject)) =>
+        return (obj1 == obj2, undefinedSubst)
       case (l@ScExistentialType(quantified, wildcards), ex : ScExistentialType) => {
         val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
         val list = wildcards.zip(ex.wildcards)

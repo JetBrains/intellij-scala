@@ -36,7 +36,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       val template = PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
       if (template == null) return None
       template.extendsBlock.templateParents match {
-        case Some(parents) if PsiTreeUtil.isAncestor(parents, this, true) => {
+        case Some(parents) if PsiTreeUtil.isContextAncestor(parents, this, true) => {
           val ptemplate = PsiTreeUtil.getContextOfType(template, true, classOf[ScTemplateDefinition])
           if (ptemplate == null) None else Some(ptemplate)
         }

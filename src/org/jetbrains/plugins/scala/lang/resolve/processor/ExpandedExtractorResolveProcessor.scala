@@ -11,10 +11,7 @@ import psi.types._
 import result.TypingContext
 import scala._
 import collection.Set
-import psi.ScalaPsiUtil
-import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
-
 /**
  * This class is useful for finding actual methods for unapply or unapplySeq, in case for values:
  * <code>
@@ -27,10 +24,10 @@ import psi.api.toplevel.ScTypedDefinition
  * invoked unapply method.
  */
 class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
-                                        refName: String, kinds: Set[ResolveTargets.Value],
-                                        expected: Option[ScType]) 
+                                        refName: String,
+                                        kinds: Set[ResolveTargets.Value],
+                                        expected: Option[ScType])
         extends ExtractorResolveProcessor(ref, refName, kinds, expected) {
-
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     if (nameAndKindMatch(named, state)) {
@@ -38,26 +35,25 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
       named match {
         case bind: ScTypedDefinition => {
           val parentSubst = getSubst(state)
+          val parentImports = getImports(state)
           val typez = bind.getType(TypingContext.empty).getOrElse(return true)
-          ScType.extractClassType(typez) match {
-            case Some((clazz: ScTypeDefinition, substitutor: ScSubstitutor)) => {
-              for (sign <- clazz.signaturesByName("unapply")) {
-                val m = sign.method
-                val subst = sign.substitutor
-                candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
-                  getImports(state))
+          var seq = false
+          val proc = new BaseProcessor(StdKinds.methodRef) {
+            def execute(element: PsiElement, state: ResolveState): Boolean = {
+              val subst = getSubst(state)
+              element match {
+                case fun: ScFunction if fun.name == "unapply" || (seq && fun.name == "unapplySeq") =>
+                  ExpandedExtractorResolveProcessor.this.addResult(new ScalaResolveResult(fun,
+                    parentSubst.followed(subst), parentImports, parentElement = Some(bind)))
+                case _ =>
               }
-              //unapply has bigger priority then unapplySeq
-              if (candidatesSet.isEmpty)
-              for (sign <- clazz.signaturesByName("unapplySeq")) {
-                val m = sign.method
-                val subst = sign.substitutor
-                candidatesSet += new ScalaResolveResult(m, parentSubst.followed(substitutor).followed(subst),
-                  getImports(state))
-              }
-              return true
+              true
             }
-            case _ => return true
+          }
+          proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
+          if (candidatesSet.isEmpty && levelSet.isEmpty) {
+            seq = true
+            proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
           }
         }
         case _ => return super.execute(element, state)

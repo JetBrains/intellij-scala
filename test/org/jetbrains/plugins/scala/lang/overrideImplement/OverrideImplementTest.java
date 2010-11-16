@@ -39,7 +39,7 @@ public class OverrideImplementTest extends PsiTestCase {
 
   @Override
   protected void checkForSettingsDamage() throws Exception {
-    
+
   }
 
 

@@ -4,9 +4,9 @@ case class C
 }
 }
 
-import p1.p2./* */C
+import p1.p2.C
 
 trait T {
-  println( /* file: this, offset: 37 */ C.getClass)
-  println(classOf[ /* file: this, offset: 37 */ C])
+  println( /* */ C.getClass)
+  println(classOf[ /* line: 3 */ C])
 }

@@ -8,4 +8,6 @@ class PatternParameterInfoUnapplyTest extends PatternParameterInfoTestBase {
   def testUnapply = doTest
 
   def testUnapplySeq = doTest
+
+  def testWithLocalTypeInference = doTest
 }

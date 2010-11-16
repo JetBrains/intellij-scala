@@ -8,9 +8,9 @@ object O extends C {
 
 import O.{CC1, CC2}
 
-println(/* line: 2 */ CC1.getClass)
+println(/* */ CC1.getClass)
 println(classOf[/* line: 2 */ CC1])
 
-println(/* line: 6 */ CC2.getClass)
+println(/* */ CC2.getClass)
 println(classOf[/* line: 6 */ CC2])
 
