@@ -37,10 +37,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     res match {
       case ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
         td match {
-          case _: ScObject => {
+          case _: ScObject =>
             td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
               null, ResolvableStableCodeReferenceElement.this)
-          }
           case _: ScClass | _: ScTrait => td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor),
             null, ResolvableStableCodeReferenceElement.this)
         }

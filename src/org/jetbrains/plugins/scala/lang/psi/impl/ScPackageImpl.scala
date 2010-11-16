@@ -7,11 +7,13 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager
 import toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ResolveProcessor, BaseProcessor}
 import com.intellij.psi._
-import impl.{JavaPsiFacadeImpl, PsiManagerEx}
-import scope.{NameHint, PsiScopeProcessor}
+import impl.PsiManagerEx
+import scope.PsiScopeProcessor.Event
+import scope.PsiScopeProcessor
 import java.lang.String
+import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 /**
  * User: Alexander Podkhalyuzin

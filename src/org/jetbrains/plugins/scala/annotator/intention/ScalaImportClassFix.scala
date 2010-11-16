@@ -263,7 +263,7 @@ object ScalaImportClassFix {
     }
     if (ref.getParent.isInstanceOf[ScMethodCall]) {
       classes.filter((clazz: PsiClass) => (clazz.isInstanceOf[ScClass] && clazz.hasModifierProperty("case")) ||
-              (clazz.isInstanceOf[ScObject] && clazz.asInstanceOf[ScObject].functionsByName("apply").toSeq.length > 0))
+              (clazz.isInstanceOf[ScObject] && clazz.asInstanceOf[ScObject].functionsByName("apply").length > 0))
     }
     else classes
   }

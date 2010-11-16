@@ -24,9 +24,9 @@ import top.TmplDef
  */
 
 object Def {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,true)
-  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = parse(builder,isMod,false)
-  def parse(builder: PsiBuilder, isMod: Boolean,isImplicit: Boolean): Boolean = {
+  def parse(builder: PsiBuilder): Boolean = parse(builder, true)
+  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, false)
+  def parse(builder: PsiBuilder, isMod: Boolean, isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark

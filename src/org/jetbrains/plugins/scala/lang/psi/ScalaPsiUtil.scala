@@ -580,19 +580,34 @@ object ScalaPsiUtil {
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "apply" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
+    (clazz match {
+      case c: ScObject => c.syntheticMembers.filter(_.getName == "apply").
+              map(new PhysicalSignature(_, ScSubstitutor.empty))
+      case _ => Seq.empty[PhysicalSignature]
+    })
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
-                  (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq
+                  (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq ++
+    (clazz match {
+      case c: ScObject => c.syntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
+              map(new PhysicalSignature(_, ScSubstitutor.empty))
+      case _ => Seq.empty[PhysicalSignature]
+    })
   }
 
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "update" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
+    (clazz match {
+      case c: ScObject => c.syntheticMembers.filter(_.getName == "update").
+              map(new PhysicalSignature(_, ScSubstitutor.empty))
+      case _ => Seq.empty[PhysicalSignature]
+    })
   }
 
   /**
@@ -627,6 +642,17 @@ object ScalaPsiUtil {
   }
 
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
+    getBaseCompanionModule(clazz) match {
+      case Some(td) => Some(td)
+      case _ =>
+        clazz match {
+          case x: ScClass if x.isCase => x.fakeCompanionModule
+          case _ => None
+        }
+    }
+  }
+
+  def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     if (!clazz.isInstanceOf[ScTypeDefinition]) return None
     val td = clazz.asInstanceOf[ScTypeDefinition]
     val name: String = td.getName

@@ -131,7 +131,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   private def qualifiedName(classSeparator: String): String = {
 
     // Returns prefix with convenient separator sep
-    def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getParent match {
+    def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
       case t: ScTypeDefinition => _packageName(t, sep, (s) => k(s + t.name + sep))
       case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
       case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
@@ -167,7 +167,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     val filterFun = (m: PsiMethod) => m.getName == name
     val arrayOfMethods: Array[PsiMethod] = if (checkBases) getAllMethods else functions.toArray[PsiMethod]
-    arrayOfMethods.filter(filterFun)
+    (arrayOfMethods ++ syntheticMembers).filter(filterFun)
   }
 
   override def checkDelete() {
@@ -348,9 +348,11 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   
 
-  def signaturesByName(name: String): Iterable[PhysicalSignature] =
-    for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
-      new PhysicalSignature(n.info.method, n.info.substitutor)
+  def signaturesByName(name: String): Seq[PhysicalSignature] = {
+    (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
+      new PhysicalSignature(n.info.method, n.info.substitutor)).toSeq ++
+            syntheticMembers.filter(_.getName == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
+  }
 
   override def getNameIdentifier: PsiIdentifier = {
     Predef.assert(nameId != null, "Class hase null nameId. Class text: " + getText) //diagnostic for EA-20122

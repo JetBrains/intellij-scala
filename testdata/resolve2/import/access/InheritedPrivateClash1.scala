@@ -6,8 +6,7 @@ object O extends C {
   case class CC
 }
 
-import O./* */CC
+import O.CC
 
-println(/* line: 6 */ CC.getClass)
+println(/* */ CC.getClass)
 println(classOf[/* line: 6 */ CC])
-

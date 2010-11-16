@@ -5,6 +5,7 @@ package api
 package base
 
 import com.intellij.psi.ResolveResult
+import resolve.ScalaResolveResult
 
 trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement {
   def qualifier: Option[ScStableCodeReferenceElement] =

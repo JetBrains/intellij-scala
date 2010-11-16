@@ -8,14 +8,38 @@ import com.intellij.psi._
 import lang.psi.impl.ScalaPsiManager
 import java.lang.String
 import java.util.Set
+import lang.psi.api.toplevel.typedef.ScClass
+import lang.psi.ScalaPsiUtil
+import collection.mutable.ArrayBuffer
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
   def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    Array.empty
+    val buffer = new ArrayBuffer[PsiClass]
+    val classes = ScalaCachesManager.getInstance(project).getNamesCache.getClassesByFQName(qualifiedName, scope)
+    for (clazz <- classes) {
+      clazz match {
+        case c: ScClass if c.isCase =>
+          val base = ScalaPsiUtil.getBaseCompanionModule(c)
+          if (base == None)
+            c.fakeCompanionModule match {
+              case Some(o) => buffer += o
+              case None =>
+            }
+        case _ =>
+      }
+    }
+    buffer.toArray
   }
 
   def findClass(qualifiedName: String, scope: GlobalSearchScope): PsiClass = {
-    null
+    val clazz = ScalaCachesManager.getInstance(project).getNamesCache.getClassByFQName(qualifiedName, scope)
+    clazz match {
+      case c: ScClass if c.isCase =>
+        val base = ScalaPsiUtil.getBaseCompanionModule(c)
+        if (c != None) return null
+        else return c.fakeCompanionModule.getOrElse(null)
+      case _ => null
+    }
   }
 
   override def findPackage(qName: String): PsiPackage =

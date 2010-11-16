@@ -1,7 +1,7 @@
 object A {
   case class x(x: Int, y: Int)
 }
-type x = A.x
+val x = A.x
 
 val z: Any = null
 z match {

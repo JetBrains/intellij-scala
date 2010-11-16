@@ -20,19 +20,19 @@ class C3 extends C2 {
   println(super./* line: 7 */b)
   println(super./* resolved: false */c)
 
-  println(/* line: 3 */A.getClass)
+  println(/* */A.getClass)
   println(classOf[/* line: 3 */A])
 
-  println(/* line: 8 */B.getClass)
+  println(/* */B.getClass)
   println(classOf[/* line: 8 */B])
 
-  println(/* line: 13 */C.getClass)
+  println(/* */C.getClass)
   println(classOf[/* line: 13 */C])
 
-  println(super./* line: 3 */A.getClass)
+  println(super./* */A.getClass)
   println(classOf[super./* line: 3 */A])
 
-  println(super./* line: 8 */B.getClass)
+  println(super./* */B.getClass)
   println(classOf[super./* line: 8 */B])
 
   println(super./* resolved: false */C.getClass)

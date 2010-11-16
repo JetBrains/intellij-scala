@@ -5,14 +5,7 @@ package gutter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr.ScSelfInvocation
-import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.toplevel.typedef.ScClass
-import lang.resolve.processor.MethodResolveProcessor
-import lang.psi.types.Compatibility.Expression
-import lang.resolve.StdKinds
-import com.intellij.psi.{ResolveState, PsiMethod, PsiClass, PsiElement}
-import lang.psi.api.statements.ScFunction
-
+import com.intellij.psi.PsiElement
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.11.2008

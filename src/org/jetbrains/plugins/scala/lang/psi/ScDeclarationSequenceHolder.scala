@@ -5,7 +5,7 @@ package psi
 import api.base.ScStableCodeReferenceElement
 import api.statements.ScDeclaredElementsHolder
 import api.toplevel.ScNamedElement
-import api.toplevel.typedef.ScObject
+import api.toplevel.typedef.{ScClass, ScObject}
 import com.intellij.psi._
 import psi.impl.ScalaFileImpl
 import scope._
@@ -45,9 +45,12 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
   }
 
   private def processElement(e : PsiElement, processor: PsiScopeProcessor, state : ResolveState) : Boolean = e match {
+    case c: ScClass if c.isCase && c.fakeCompanionModule != None =>
+      processor.execute(c, state)
+      processor.execute(c.fakeCompanionModule.get, state)
     case named: ScNamedElement => processor.execute(named, state)
     case holder: ScDeclaredElementsHolder => {
-      var elements: Seq[PsiNamedElement] = holder.declaredElements
+      val elements: Seq[PsiNamedElement] = holder.declaredElements
       var i = 0
       while (i < elements.length) {
         ProgressManager.checkCanceled

@@ -143,9 +143,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     case f: ScFunction => f.polymorphicType
     case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
     case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
-      case pd: ScPatternDefinition if (PsiTreeUtil.isAncestor(pd, elem, true)) =>
+      case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, elem, true)) =>
         pd.declaredType match {case Some(t) => t; case None => Nothing}
-      case vd: ScVariableDefinition if (PsiTreeUtil.isAncestor(vd, elem, true)) =>
+      case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
         vd.declaredType match {case Some(t) => t; case None => Nothing}
       case _ => refPatt.getType(TypingContext.empty).getOrElse(Any)
     }

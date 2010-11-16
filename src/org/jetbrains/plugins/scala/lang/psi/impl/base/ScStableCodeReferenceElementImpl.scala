@@ -17,9 +17,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.IncorrectOperationException
 import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
-import processor.CompletionProcessor
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
+import processor.{ExpandedExtractorResolveProcessor, CompletionProcessor}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -66,8 +66,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case ste: ScSimpleTypeElement => if (incomplete) noPackagesClassCompletion /* todo use the settings to include packages*/
         else if (ste.singleton) stableQualRef else stableClass
       case _: ScTypeAlias => stableClass
-      case _: ScConstructorPattern => classOrObjectOrValues
-      case _: ScInfixPattern => classOrObjectOrValues
+      case _: ScConstructorPattern => objectOrValue
+      case _: ScInfixPattern => objectOrValue
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
       case _: ScImportSelector => stableImportSelector
       case _: ScInfixTypeElement => stableClass

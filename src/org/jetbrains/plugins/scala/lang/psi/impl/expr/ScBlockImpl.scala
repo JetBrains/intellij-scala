@@ -65,7 +65,7 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret),
             collection.immutable.Seq(params.map({existize _}).toSeq: _*), fun.getProject, fun.getScope)
           case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*), getProject, getResolveScope)
-          case ScDesignatorType(des) if PsiTreeUtil.isAncestor(this, des, true) => des match {
+          case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
             case obj: ScObject => {
               val t = existize(leastClassType(obj))
               m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))

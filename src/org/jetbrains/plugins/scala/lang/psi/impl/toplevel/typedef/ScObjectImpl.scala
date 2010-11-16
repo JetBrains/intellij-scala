@@ -16,6 +16,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import types.{ScDesignatorType, ScSubstitutor, ScType}
+import collection.mutable.ArrayBuffer
+import api.base.ScPrimaryConstructor
+import refactoring.util.ScTypeUtil
+import types.result.TypingContext
+
 /**
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
@@ -54,7 +59,30 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
-  // TODO SCL-2386 Add synthetic apply method with same signature as case companion class primary constructor.
-  //               Also need to resolve the same method even if the companion object is synthetic.
-  // override def syntheticMembers(): scala.Seq[FakePsiMethod]
+  @volatile
+  private var syntheticMembersRes: Seq[PsiMethod] = null
+  @volatile
+  private var modCount: Long = 0L
+
+  override def syntheticMembers(): Seq[PsiMethod] = {
+    if (isSyntheticObject) return super.syntheticMembers
+    ScalaPsiUtil.getCompanionModule(this) match {
+      case Some(c: ScClass) if c.isCase =>
+        var answer = syntheticMembersRes
+        val count = getManager.getModificationTracker.getModificationCount
+        if (answer != null && count == modCount) return answer
+        val res = new ArrayBuffer[PsiMethod]
+        res ++= super.syntheticMembers
+        val texts = c.getSyntheticMethodsText
+        Seq(texts._1, texts._2).foreach(s => {
+          val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
+          res += method
+        })
+        answer = res.toSeq
+        modCount = count
+        syntheticMembersRes = answer
+        return answer
+      case _ => return super.syntheticMembers
+    }
+  }
 }

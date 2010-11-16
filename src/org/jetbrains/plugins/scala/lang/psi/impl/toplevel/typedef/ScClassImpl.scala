@@ -107,8 +107,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     return buffer.toArray
   }
 
-  override def syntheticMembers(): scala.Seq[FakePsiMethod] = {
-    val buf = new ArrayBuffer[FakePsiMethod]
+  override def syntheticMembers(): scala.Seq[PsiMethod] = {
+    val buf = new ArrayBuffer[PsiMethod]
     if (isCase && parameters.length > 0) {
       val signs = TypeDefinitionMembers.getSignatures(this)
       var hasCopy = false

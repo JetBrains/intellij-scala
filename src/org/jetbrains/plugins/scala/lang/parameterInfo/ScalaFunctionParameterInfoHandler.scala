@@ -410,16 +410,6 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                           return
                         }
-                        case Some(ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor)) if clazz.isCase &&
-                                (clazz.constructor match {
-                                  case Some(constructor: ScPrimaryConstructor) if constructor.parameterList.clauses.
-                                             length >= count => true
-                                  case _ => false
-                                })=> {
-                          val constructor = clazz.constructor.get
-                          res += ((constructor, subst.followed(collectSubstitutor(clazz)), count - 1))
-                          return
-                        }
                         case _ => {
                           for (typez <- call.getInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
                           {collectForType(typez)}
@@ -437,12 +427,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) => {
                             res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0))
                           }
-                          case ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor) if clazz.isCase => {
+                          /*case ScalaResolveResult(clazz: ScClass, subst: ScSubstitutor) if clazz.isCase => {
                             clazz.constructor match {
                               case Some(constructor) => res += ((constructor, subst.followed(collectSubstitutor(clazz)), 0))
                               case None => res += ""
                             }
-                          }
+                          }*/
                           case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) => {
                             val typez = subst.subst(typed.getType(TypingContext.empty).getOrElse(Nothing)) //todo: implicit conversions
                               collectForType(typez)

@@ -33,7 +33,6 @@ public class ResolveClassTest extends ScalaResolveTestCase {
     PsiReference ref = configureByFile("companion/ApplyToCase.scala");
     PsiElement resolved = ref.resolve();
     assertNotNull(resolved);
-    assertTrue(resolved instanceof ScClass);
   }
 
   public void testApplyToObjectApply() throws Exception {

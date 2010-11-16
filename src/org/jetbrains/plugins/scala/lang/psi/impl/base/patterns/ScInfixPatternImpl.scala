@@ -18,4 +18,6 @@ import com.intellij.psi._
 class ScInfixPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScInfixPattern{
 
   override def toString: String = "InfixPattern"
+
+  //todo: getType
 }

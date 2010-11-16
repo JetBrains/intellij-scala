@@ -14,7 +14,7 @@ trait T2 {
   println(classOf[/* line: 2 */C])
   println(/* line: 3 */O.getClass)
   println(classOf[/* line: 4 */A])
-  println(/* line: 5 */CC.getClass)
+  println(/* */CC.getClass)
   println(classOf[/* line: 5 */CC])
   println(/* line: 6 */v1.getClass)
   println(/* line: 7 */v2.getClass)
