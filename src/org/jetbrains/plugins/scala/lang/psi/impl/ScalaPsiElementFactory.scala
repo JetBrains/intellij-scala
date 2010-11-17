@@ -6,7 +6,7 @@ package impl
 import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
-import api.toplevel.templates.{ScTemplateBody}
+import api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
@@ -31,9 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import lexer.{ScalaTokenTypes, ScalaLexer}
 import types._
-import api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
-import parser.parsing.top.{TmplDef, ObjectDef}
+import parser.parsing.top.TmplDef
 
 object ScalaPsiElementFactory extends ScTypeInferenceHelper {
 
