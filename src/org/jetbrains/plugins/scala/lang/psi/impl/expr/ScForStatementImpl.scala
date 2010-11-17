@@ -58,8 +58,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       val gen = gens(0)
       if (gen.rvalue == null) return None
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
-              .append(" { case ").
-              append(gen.pattern.getText).append(" => ")
+              .append(" { case ")
+      gen.pattern.desugarizedPatternIndex = exprText.length
+      exprText.append(gen.pattern.getText).append(" => ")
       body match {
         case Some(x) => exprText.append(x.getText)
         case _ => exprText.append("{}")
@@ -74,15 +75,22 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       next match {
         case null =>
         case guard: ScGuard => {
-          exprText.append("for {").append(gen.pattern.getText).
+          exprText.append("for {")
+          gen.pattern.desugarizedPatternIndex = exprText.length
+          exprText.append(gen.pattern.getText).
                   append(" <- ((").append(gen.rvalue.getText).append(").filter(").
                   append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ").
                   append(guard.expr.map(_.getText).getOrElse("true")).append("))")
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
                   !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
-          if (next != null) exprText.append(";")
+          if (next != null) exprText.append(" ; ")
           while (next != null) {
+            next match {
+              case gen: ScGenerator =>
+                gen.pattern.desugarizedPatternIndex = exprText.length
+              case _ =>
+            }
             exprText.append(next.getText)
             next = next.getNextSibling
           }
@@ -94,9 +102,16 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
         }
         case gen2: ScGenerator => {
-          exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "flatMap " else "foreach ").append("{case ").
-                  append(gen.pattern.getText).append(" => ").append("for {")
+          exprText.append("(").append(gen.rvalue.getText).append(")").append(".").
+                  append(if (isYield) "flatMap " else "foreach ").append("{case ")
+          gen.pattern.desugarizedPatternIndex = exprText.length
+          exprText.append(gen.pattern.getText).append(" => ").append("for {")
           while (next != null) {
+            next match {
+              case gen: ScGenerator =>
+                gen.pattern.desugarizedPatternIndex = exprText.length
+              case _ =>
+            }
             exprText.append(next.getText)
             next = next.getNextSibling
           }
@@ -110,7 +125,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }
         case enum: ScEnumerator => {
           if (enum.rvalue == null) return None
-          exprText.append("for {(").append(enum.pattern.getText).append(", ").append(gen.pattern.getText).
+          exprText.append("for {(").append(enum.pattern.getText).append(", ")
+          gen.pattern.desugarizedPatternIndex = exprText.length
+          exprText.append(gen.pattern.getText).
                   append(") <- (for (freshNameForIntelliJIDEA1@(").append(gen.pattern.getText).append(") <- ").
                   append(gen.rvalue.getText).append(") yield {val freshNameForIntelliJIDEA2@(").
                   append(enum.pattern.getText).append(") = ").append(enum.rvalue.getText).
@@ -118,8 +135,13 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
                   !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
-          if (next != null) exprText.append(";")
+          if (next != null) exprText.append(" ; ")
           while (next != null) {
+            next match {
+              case gen: ScGenerator =>
+                gen.pattern.desugarizedPatternIndex = exprText.length
+              case _ =>
+            }
             exprText.append(next.getText)
             next = next.getNextSibling
           }
@@ -142,28 +164,49 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   private var desugarizedExprModCount: Long = 0
 
   def getDesugarisedExpr: Option[ScExpression] = {
-    var res = desugarizedExpr
-    val currModCount = getManager.getModificationTracker.getModificationCount
-    if (res != null && desugarizedExprModCount == currModCount) {
-      return res
-    }
-    res = getDesugarisedExprText match {
-      case Some(text) => {
-        if (text == "") None
-        else {
-          try {
-            Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
-          }
-          catch {
-            case e: Exception => None
-          }
-        }
+    synchronized[Option[ScExpression]] {
+      var res = desugarizedExpr
+      val currModCount = getManager.getModificationTracker.getModificationCount
+      if (res != null && desugarizedExprModCount == currModCount) {
+        return res
       }
-      case _ => None
+      res = getDesugarisedExprText match {
+        case Some(text) =>
+          if (text == "") None
+          else {
+            try {
+              Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
+            }
+            catch {
+              case e: Exception => None
+            }
+          }
+        case _ => None
+      }
+      res match {
+        case Some(expr: ScExpression) =>
+          enumerators.map(e => e.generators.flatMap(g => patterns)).foreach(patts =>
+            patts.foreach(patt => {
+              if (patt.desugarizedPatternIndex != -1) {
+                var element = expr.findElementAt(patt.desugarizedPatternIndex)
+                while (element != null && (element.getTextLength < patt.getTextLength ||
+                        (!element.isInstanceOf[ScPattern] && element.getTextLength == patt.getTextLength)))
+                  element = element.getParent
+                if (element != null && element.getText == patt.getText) {
+                  element match {
+                    case p: ScPattern => patt.analog = p
+                    case _ =>
+                  }
+                }
+              }
+            })
+          )
+        case _ =>
+      }
+      desugarizedExpr = res
+      desugarizedExprModCount = currModCount
+      res
     }
-    desugarizedExpr = res
-    desugarizedExprModCount = currModCount
-    res
   }
 
   override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
