@@ -7,22 +7,15 @@ package patterns
 
 import collection.mutable.ArrayBuffer
 import psi.types._
-import nonvalue.{ScMethodType, ScTypePolymorphicType}
 import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import expr._
-import implicits.ScImplicitlyConvertible
-import com.intellij.openapi.progress.ProgressManager
-import toplevel.imports.usages.ImportUsed
-import statements.{ScTypeAliasDefinition, ScFunction, ScValue, ScVariable}
-import toplevel.typedef.{ScTypeDefinition, ScClass}
+import statements.{ScFunction, ScValue, ScVariable}
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve._
-import processor.{MethodResolveProcessor, CompletionProcessor, ExpandedExtractorResolveProcessor}
-import statements.params.{ScParameter, ScTypeParam}
-import psi.impl.base.types.ScSimpleTypeElementImpl
-
+import processor.ExpandedExtractorResolveProcessor
+import statements.params.ScParameter
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -30,9 +23,9 @@ import psi.impl.base.types.ScSimpleTypeElementImpl
 trait ScPattern extends ScalaPsiElement {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
-  def getType(ctx: TypingContext) : TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
+  def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
-  def bindings : Seq[ScBindingPattern] = {
+  def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]
     _bindings(this, b)
     b
@@ -40,7 +33,7 @@ trait ScPattern extends ScalaPsiElement {
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitPattern(this)
 
-  private def _bindings(p : ScPattern, b : ArrayBuffer[ScBindingPattern]) : Unit = {
+  private def _bindings(p: ScPattern, b: ArrayBuffer[ScBindingPattern]): Unit = {
     p match {
       case binding: ScBindingPattern => b += binding
       case _ =>
@@ -51,7 +44,7 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def subpatterns : Seq[ScPattern] = {
+  def subpatterns: Seq[ScPattern] = {
     if (this.isInstanceOf[ScReferencePattern]) return Seq.empty
     findChildrenByClassScala[ScPattern](classOf[ScPattern])
   }
@@ -283,75 +276,32 @@ trait ScPattern extends ScalaPsiElement {
     }
     case named: ScNamingPattern => named.expectedType
     case gen: ScGenerator => {
-      val isYield = gen.getContext.getContext.asInstanceOf[ScForStatement].isYield
-      var next = gen.getNextSibling
-      if (gen.rvalue == null) return None
-      //var tp = gen.rvalue.getType(TypingContext.empty).getOrElse(return None) //todo: now it's not used
-      while (next != null && !next.isInstanceOf[ScGenerator]) {
-        next match {
-          case g: ScGuard => //todo: replace type tp to appropriate after this operation
-          case e: ScEnumerator => //todo:
-          case _ =>
-        }
-        next = next.getNextSibling
-      }
-      val nextGen = next != null
-      val refName = {
-        (nextGen, isYield) match {
-          case (true, true) => "flatMap"
-          case (true, false) => "foreach"
-          case (false, true) => "map"
-          case (false, false) => "foreach"
-        }
-      }
-      import Compatibility.Expression
-      val processor = new MethodResolveProcessor(gen.rvalue, refName, List(Seq(new Expression(Nothing))) /*todo*/, Seq.empty/*todo*/)
-      def processTypes(e: ScExpression) {
-        ProgressManager.checkCanceled
-        val result = e.getType(TypingContext.empty).getOrElse(return) //do not resolve if Type is unknown
-        processor.processType(result, e, ResolveState.initial)
-        if (processor.candidates.length == 0 || (processor.isInstanceOf[CompletionProcessor] &&
-                processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
-          for (t <- e.getImplicitTypes) {
-            ProgressManager.checkCanceled
-            val importsUsed = e.getImportsForImplicit(t)
-            var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-            e.getClazzForType(t) match {
-              case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-              case _ =>
-            }
-            processor.processType(t, e, state)
-          }
-        }
-      }
-      processTypes(gen.rvalue)
-      if (processor.candidates.length != 1) return None
-      else {
-        val res = processor.candidates.apply(0)
-        res match {
-          case ScalaResolveResult(method: ScFunction, subst) => {
-            if (method.paramClauses.clauses.length == 0) return None
-            val clause = method.paramClauses.clauses.apply(0)
-            if (clause.parameters.length != 1) return None
-            val param = clause.parameters.apply(0)
-            val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return None))
-            tp match {
-              case ScFunctionType(_, params) if params.length == 1 => Some(params(0))
-              case ScParameterizedType(des, args) if (ScType.extractClassType(des) match {
-                case Some((clazz: PsiClass, _)) => clazz.getQualifiedName == "scala.Function1"
-                case _ => false
-              }) => Some(args(0))
-              case _ => None
-            }
-          }
-          case _ => return None
-        }
-      }
+      val analog = getAnalog
+      if (analog != this) return analog.expectedType
+      else return None
     }
     case enum: ScEnumerator => {
       if (enum.rvalue == null) return None
       Some(enum.rvalue.getType(TypingContext.empty).getOrElse(return None))
     }
-    case _ => None //todo
+    case _ => None
   }
+
+  def getAnalog: ScPattern = {
+    getContext match {
+      case gen: ScGenerator => {
+        val f: ScForStatement = gen.getContext.getContext.asInstanceOf[ScForStatement]
+        f.getDesugarisedExpr match {
+          case Some(expr) =>
+            if (analog != null) return analog
+          case _ =>
+        }
+        this
+      }
+      case _ => this
+    }
+  }
+
+  var desugarizedPatternIndex = -1
+  var analog: ScPattern = null
 }
