@@ -75,4 +75,24 @@ class Foo {
 """.replace("\r", "")
     doTextTest(before, after)
   }
+
+  def testSCL1875 {
+    val before =
+"""
+/**
+ * something{@link Foo}
+ *something
+ */
+class A
+""".replace("\r", "")
+    val after =
+"""
+/**
+ * something{@link Foo}
+ * something
+ */
+class A
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
 }

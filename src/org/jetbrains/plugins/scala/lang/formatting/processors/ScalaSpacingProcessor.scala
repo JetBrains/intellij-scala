@@ -32,6 +32,7 @@ import psi.api.toplevel.imports. {ScImportSelectors, ScImportStmt}
 import psi.ScalaPsiUtil
 import xml.ScXmlPattern
 import com.intellij.psi.javadoc.PsiDocComment
+import scaladoc.parser.ScalaDocElementTypes
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1);
@@ -105,11 +106,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val (leftString, rightString) = (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
     import ScalaTokenTypes._
-    import ScalaElementTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
             (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
       return ON_NEW_LINE
     }
+    //ScalaDocs
+    (leftNode.getElementType, rightNode.getElementType,
+            leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
+      case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _)
+        if getText(rightNode, fileText).apply(0) != ' ' => return WITH_SPACING
+      case (ScalaDocTokenType.DOC_TAG_NAME, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, _) => return WITH_SPACING
+      case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
+      case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
+      case _ =>
+  }
 
     if (leftElementType == XmlTokenType.XML_DATA_CHARACTERS || rightElementType == XmlTokenType.XML_DATA_CHARACTERS) {
       return Spacing.getReadOnlySpacing
@@ -960,14 +973,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
       }
       case (_, ScalaTokenTypes.tINNER_CLASS, _, _) => return NO_SPACING
-      //ScalaDocs
-      case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
-      case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
-              && getText(rightNode, fileText).apply(0) == ' ' => return NO_SPACING
-      case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x)
-              && getText(leftNode, fileText).apply(getText(leftNode, fileText).length - 1) == ' ' => return NO_SPACING
+
       //Other cases
       case _ => {
         return COMMON_SPACING
