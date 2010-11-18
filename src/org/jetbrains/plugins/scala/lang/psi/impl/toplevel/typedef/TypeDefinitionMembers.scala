@@ -387,27 +387,27 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    def methodMap: MethodNodes.Map = {
-      val map: MethodNodes.Map = getMethods(clazz)
+    def methodsForJava: MethodNodes.Map = {
       if (!processor.isInstanceOf[BaseProcessor]) {
         clazz match {
           case td: ScTypeDefinition => {
             ScalaPsiUtil.getCompanionModule(td) match {
-              case Some(clazz) => map ++= getMethods(clazz)
-              case None =>
+              case Some(clazz) => getMethods(clazz)
+              case None => new MethodNodes.Map
             }
           }
-          case _ =>
+          case _ => new MethodNodes.Map
         }
-      }
+      } else new MethodNodes.Map
+    }
+    def syntheticMethods: Seq[(PhysicalSignature, MethodNodes.Node)] = {
       clazz match {
-        case td: ScTemplateDefinition => map.++=(td.syntheticMembers.map(fun => {
+        case td: ScTemplateDefinition => td.syntheticMembers.map(fun => {
           val f = new PhysicalSignature(fun, ScSubstitutor.empty)
           (f, new MethodNodes.Node(f, ScSubstitutor.empty))
-        }))
-        case _ =>
+        })
+        case _ => Seq.empty
       }
-      map
     }
     def valuesMap: ValueNodes.Map = {
       val map: ValueNodes.Map = getVals(clazz)
@@ -425,8 +425,8 @@ object TypeDefinitionMembers {
       map
     }
 
-    if (!processDeclarations(processor, state, lastParent, place, valuesMap, methodMap, getTypes(clazz),
-      clazz.isInstanceOf[ScObject])) {
+    if (!privateProcessDeclarations(processor, state, lastParent, place, valuesMap, getMethods(clazz), getTypes(clazz),
+      clazz.isInstanceOf[ScObject], methodsForJava, syntheticMethods)) {
       return false
     }
     if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
@@ -453,7 +453,7 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    processDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
+    privateProcessDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
       td.isInstanceOf[ScObject])
    }
 
@@ -462,17 +462,19 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    processDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, MethodNodes.build(comp)._2, TypeNodes.build(comp)._2, false)
+    privateProcessDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, MethodNodes.build(comp)._2, TypeNodes.build(comp)._2, false)
   }
 
-  private def processDeclarations(processor: PsiScopeProcessor,
+  private def privateProcessDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement,
                                   vals: => ValueNodes.Map,
                                   methods: => MethodNodes.Map,
                                   types: => TypeNodes.Map,
-                                  isObject: Boolean): Boolean = {
+                                  isObject: Boolean,
+                                  methodsForJava: => MethodNodes.Map = new MethodNodes.Map,
+                                  syntheticMethods: => Seq[(PhysicalSignature, MethodNodes.Node)] = Seq.empty): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
     if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
@@ -577,14 +579,29 @@ object TypeDefinitionMembers {
     }
 
     if (shouldProcessMethods(processor)) {
-      val iterator = methods.iterator
-      while (iterator.hasNext) {
-        val (_, n) = iterator.next
-        ProgressManager.checkCanceled
-        val substitutor = n.substitutor followed subst
-        if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, substitutor))) return false
+      def runIterator(iterator: Iterator[(MethodNodes.T, MethodNodes.Node)]): Option[Boolean] = {
+        while (iterator.hasNext) {
+          val (_, n) = iterator.next
+          ProgressManager.checkCanceled
+          val substitutor = n.substitutor followed subst
+          if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+        }
+        None
+      }
+      runIterator(methods.iterator) match {
+        case Some(x) => return x
+        case None =>
+      }
+      runIterator(methodsForJava.iterator) match {
+        case Some(x) => return x
+        case None =>
+      }
+      runIterator(syntheticMethods.iterator) match {
+        case Some(x) => return x
+        case None =>
       }
     }
+
     if (shouldProcessTypes(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
