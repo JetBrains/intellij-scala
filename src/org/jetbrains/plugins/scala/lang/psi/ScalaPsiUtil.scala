@@ -49,6 +49,18 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
  */
 
 object ScalaPsiUtil {
+  def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
+    if (sibling == null) return null
+    var child: PsiElement = sibling.getNextSibling
+    while (child != null) {
+      if (aClass.isInstance(child)) {
+        return child.asInstanceOf[T]
+      }
+      child = child.getNextSibling
+    }
+    return null
+  }
+
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
                               lastParent: PsiElement, typeResult: => TypeResult[ScType]): Boolean = {
     val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)

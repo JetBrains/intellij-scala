@@ -24,7 +24,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def upperTypeElement: Option[ScTypeElement] = {
     val tUpper = findLastChildByType(ScalaTokenTypes.tUPPER_BOUND)
     if (tUpper != null) {
-      PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
+      ScalaPsiUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
         case null => None
         case te => Some(te)
       }
@@ -34,7 +34,7 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def lowerTypeElement: Option[ScTypeElement] = {
     val tLower = findLastChildByType(ScalaTokenTypes.tLOWER_BOUND)
     if (tLower != null) {
-      PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
+      ScalaPsiUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
         case null => None
         case te => Some(te)
       }
@@ -45,14 +45,14 @@ trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   override def viewTypeElement: List[ScTypeElement] = {
     for {v <- findChildrenByType(ScalaTokenTypes.tVIEW)
         t <- {
-          val e = PsiTreeUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
+          val e = ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])
           Option(e)}.toList
     } yield t
   }
 
   override def contextBoundTypeElement: List[ScTypeElement] = {
     for {v <- findChildrenByType(ScalaTokenTypes.tCOLON)
-        t <- Option(PsiTreeUtil.getNextSiblingOfType(v, classOf[ScTypeElement])).toList
+        t <- Option(ScalaPsiUtil.getNextSiblingOfType(v, classOf[ScTypeElement])).toList
     } yield t
   }
 }
