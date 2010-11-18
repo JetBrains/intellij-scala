@@ -146,8 +146,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
         if (unders.length == 0) innerType(ctx)
         else {
           new Success(new ScMethodType(valueType(ctx, true).getOrElse(Any),
-            unders.map(u => Parameter("", u.getType(ctx).getOrElse(Any), false, false)), false, getProject,
-            getResolveScope), Some(this))
+            unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false)), false,
+            getProject, getResolveScope), Some(this))
         }
       }
     }
