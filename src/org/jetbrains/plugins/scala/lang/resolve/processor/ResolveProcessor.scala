@@ -159,7 +159,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
       named match {
-        case o: ScObject if o.isPackageObject =>
+        case o: ScObject if o.isPackageObject && JavaPsiFacade.getInstance(element.getProject).
+                findPackage(o.getQualifiedName) != null =>
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
         case clazz: PsiClass => {
