@@ -47,6 +47,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       }
       case _ =>
     }
+    assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
     getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
