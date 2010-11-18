@@ -50,7 +50,7 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 
 object ScalaPsiUtil {
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
-    if (sibling == null) return null
+    if (sibling == null) return null.asInstanceOf[T]
     var child: PsiElement = sibling.getNextSibling
     while (child != null) {
       if (aClass.isInstance(child)) {
@@ -58,7 +58,7 @@ object ScalaPsiUtil {
       }
       child = child.getNextSibling
     }
-    return null
+    return null.asInstanceOf[T]
   }
 
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
