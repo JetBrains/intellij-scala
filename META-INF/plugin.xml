@@ -105,6 +105,7 @@
     <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
     <typeHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaTypeHierarchyProvider"/>
     <methodHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaMethodHierarchyProvider"/>
+    <callHierarchyProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.hierarchy.ScalaCallHierarchyProvider"/>
     <highlightUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.highlighter.usages.ScalaHighlightUsagesHandlerFactory"/>
    <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
 
