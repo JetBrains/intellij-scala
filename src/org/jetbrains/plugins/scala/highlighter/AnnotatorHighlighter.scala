@@ -41,7 +41,8 @@ object AnnotatorHighlighter {
   }
 
   def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
-    val c = PsiTreeUtil.getParentOfType(refElement, classOf[ScConstructor])
+    val c = ScalaPsiUtil.getParentOfType(refElement, classOf[ScConstructor])
+    //PsiTreeUtil.getParentOfType(refElement, classOf[ScConstructor])
     c match {
       case null =>
       case c => if (c.getParent.isInstanceOf[ScAnnotationExpr]) return
