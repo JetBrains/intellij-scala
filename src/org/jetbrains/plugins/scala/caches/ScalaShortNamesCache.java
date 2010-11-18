@@ -94,9 +94,18 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   }
 
   public ScTypeDefinition getPackageObjectByName(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(),
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.PACKAGE_OBJECT_KEY(), fqn.hashCode(),
         myProject, new ScalaSourceFilterScope(scope, myProject));
-    for (PsiClass psiClass : classes) {
+    for (PsiElement element: classes) {
+      if (!(element instanceof PsiClass)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return null;
+      }
+      PsiClass psiClass = (PsiClass) element;
       if (fqn.equals(psiClass.getQualifiedName())) {
         if (psiClass instanceof ScTypeDefinition) {
           return ((ScTypeDefinition) psiClass);
@@ -109,10 +118,19 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
   public Set<String> getClassNames(PsiPackage psiPackage, GlobalSearchScope scope) {
     if (DumbServiceImpl.getInstance(myProject).isDumb()) return new HashSet<String>();
     String qual = psiPackage.getQualifiedName();
-    final Collection<PsiClass> classes = StubIndex.getInstance().get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY(), qual,
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY(), qual,
         myProject, new ScalaSourceFilterScope(scope, myProject));
     HashSet<String> strings = new HashSet<String>();
-    for (PsiClass clazz : classes) {
+    for (PsiElement element : classes) {
+      if (!(element instanceof PsiClass)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return null;
+      }
+      PsiClass clazz = (PsiClass) element;
       strings.add(clazz.getName());
     }
     return strings;
