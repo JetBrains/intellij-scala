@@ -183,7 +183,9 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
     def isParentOk(parent: PsiElement): Boolean = {
-      parent != null && (stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange))
+      if (parent == null) return false
+      assert(parent.getTextRange != null, "TextRange is null: " + parent.getText)
+      stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange)
     }
 
     val res = new ArrayBuffer[PsiElement]
