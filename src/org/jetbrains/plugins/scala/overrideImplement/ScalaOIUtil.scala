@@ -1,38 +1,25 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.{PsiMethodMember, OverrideImplementUtil, ClassMember, PsiFieldMember}
-import com.intellij.openapi.editor.{Editor, VisualPosition}
+import com.intellij.codeInsight.generation.ClassMember
+import com.intellij.openapi.editor.Editor
 
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 
 import com.intellij.ui.NonFocusableCheckBox
 import com.intellij.util.{IncorrectOperationException, SmartList}
-import java.awt.Component
-
 import javax.swing.{JCheckBox, JComponent}
-import lang.lexer.ScalaTokenTypes
 import com.intellij.psi._
-import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScFieldId}
-import lang.psi.api.base.patterns.ScReferencePattern
-import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
-import lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import lang.psi.api.base.types.ScSimpleTypeElement
-import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.statements._
-import com.intellij.ide.highlighter.JavaFileType
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.types.{FullSignature, ScType, PhysicalSignature, ScSubstitutor}
-import lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.ide.util.MemberChooser
 import _root_.scala.collection.mutable.ArrayBuffer
-import com.intellij.psi.infos.CandidateInfo
 import com.intellij.openapi.project.Project
 import settings.ScalaApplicationSettings
 
@@ -53,28 +40,35 @@ object ScalaOIUtil {
     val parent = getParentClass(elem)
     if (parent == null) return
     val clazz = parent.asInstanceOf[ScTemplateDefinition]
-    //val candidates = if (isImplement) ScalaOIUtil.getMembersToImplement(clazz) else ScalaOIUtil.getMembersToOverride(clazz)
     val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     if (candidates.isEmpty) return
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) {
       candidate match {
-        case sign: PhysicalSignature => classMembersBuf += new ScMethodMember(sign)
+        case sign: PhysicalSignature => {
+          assert(sign.method.getContainingClass != null, "Containing Class is null: " + sign.method.getText)
+          classMembersBuf += new ScMethodMember(sign)
+        }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
             case x: ScValue => {
+              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScValueMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
             case x: ScVariable => {
+              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
               name match {
                 case y: ScTypedDefinition => classMembersBuf += new ScVariableMember(x, y, subst)
                 case _ => throw new IncorrectOperationException("Not supported type:" + x)
               }
             }
-            case x: ScTypeAlias => classMembersBuf += new ScAliasMember(x, subst)
+            case x: ScTypeAlias => {
+              assert(x.getContainingClass != null, "Containing Class is null: " + x.getText)
+              classMembersBuf += new ScAliasMember(x, subst)
+            }
             case x => throw new IncorrectOperationException("Not supported type:" + x)
           }
         }
