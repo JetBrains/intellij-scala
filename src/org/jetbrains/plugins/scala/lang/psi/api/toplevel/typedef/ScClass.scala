@@ -54,26 +54,27 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     }
   }
 
+  protected def typeParamString : String = if (typeParameters.length > 0) typeParameters.map(param => {
+    var paramText = param.getName
+    param.lowerBound foreach {
+      case psi.types.Nothing =>
+      case tp: ScType => paramText = paramText + " >: " + ScType.canonicalText(tp)
+    }
+    param.upperBound foreach {
+      case psi.types.Any =>
+      case tp: ScType => paramText = paramText + " <: " + ScType.canonicalText(tp)
+    }
+    param.viewBound foreach {
+      (tp: ScType) => paramText = paramText + " <% " + ScType.canonicalText(tp)
+    }
+    param.contextBound foreach {
+      (tp: ScType) => paramText = paramText + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(tp))
+    }
+    paramText
+  }).mkString("[", ", ", "]")
+  else ""
+
   def getSyntheticMethodsText: (String, String) = {
-    val tParamString = if (typeParameters.length > 0) typeParameters.map(param => {
-      var paramText = param.getName
-      param.lowerBound foreach {
-        case psi.types.Nothing =>
-        case tp: ScType => paramText = paramText + " >: " + ScType.canonicalText(tp)
-      }
-      param.upperBound foreach {
-        case psi.types.Any =>
-        case tp: ScType => paramText = paramText + " <: " + ScType.canonicalText(tp)
-      }
-      param.viewBound foreach {
-        (tp: ScType) => paramText = paramText + " <% " + ScType.canonicalText(tp)
-      }
-      param.contextBound foreach {
-        (tp: ScType) => paramText = paramText + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(tp))
-      }
-      paramText
-    }).mkString("[", ", ", "]")
-    else ""
     val paramString = constructor match {
       case Some(x: ScPrimaryConstructor) =>
         x.parameterList.clauses.map(c =>
@@ -119,11 +120,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         typeParameters.map(_.name).mkString("[", ", ", "]")
       else ""
 
-    val applyText = "def apply" + tParamString + paramString + ": " + getQualifiedName + typeParamStringRes +
+    val applyText = "def apply" + typeParamString + paramString + ": " + getQualifiedName + typeParamStringRes +
                 " = throw new Error()"
-    val unapplyText = "def unapply" + hasSeq + tParamString + "(x$0: " + getQualifiedName + typeParamStringRes + "): " +
+    val unapplyText = "def unapply" + hasSeq + typeParamString + "(x$0: " + getQualifiedName + typeParamStringRes + "): " +
                 paramStringRes + " = throw new Error()"
     (applyText, unapplyText)
   }
-
 }

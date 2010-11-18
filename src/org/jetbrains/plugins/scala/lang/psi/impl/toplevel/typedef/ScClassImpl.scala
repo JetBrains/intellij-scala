@@ -16,10 +16,9 @@ import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList
 import com.intellij.openapi.progress.ProgressManager
 import collection.mutable.ArrayBuffer
 import synthetic.ScSyntheticFunction
-import types.{ScThisType, ScSubstitutor}
 import types.nonvalue.Parameter
 import types.result.TypingContext
-import fake.FakePsiMethod;
+import types.{ScType, ScThisType, ScSubstitutor}
 import com.intellij.lang.ASTNode
 
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -109,20 +108,31 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def syntheticMembers(): scala.Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
+
     if (isCase && parameters.length > 0) {
-      val signs = TypeDefinitionMembers.getSignatures(this)
-      var hasCopy = false
-      for (sign <- signs.iterator if !hasCopy) {
-        if (sign._1.sig.name == "copy") hasCopy = true
-      }
-      if (!hasCopy) {
-        // TODO
-        // copy method might have type parameters, e.g:
-        // Tuple2#copy[T1, T2](_1: T1, _2: T2): (T1, T2)
-        buf += new FakePsiMethod(this, "copy", parameters.map(p =>
-          Parameter(p.name, p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any), true,
-            p.isRepeatedParameter)).toArray,
-          ScThisType(this), s => s == "public")
+      constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          val signs = TypeDefinitionMembers.getSignatures(this)
+          var hasCopy = false
+          for (sign <- signs.iterator if !hasCopy) {
+            if (sign._1.sig.name == "copy") hasCopy = true
+          }
+          val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
+          if (addCopy) {
+            val paramString = x.parameterList.clauses.map{ c =>
+                val start = if (c.isImplicit) "(implicit " else "("
+                c.parameters.map{ p =>
+                  val paramType = ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any))
+                  p.name + " : " + paramType + " = this." + p.name
+                }.mkString(start, ", ", ")")
+            }.mkString("")
+
+            val tp = typeParamString
+            val copyMethod = "def copy" + tp + paramString + " : " + name + tp + " = throw new Error(\"\")"
+            val method = ScalaPsiElementFactory.createMethodWithContext(copyMethod, getContext, this)
+            buf += method
+          }
+        case None =>
       }
     }
     buf.toSeq
