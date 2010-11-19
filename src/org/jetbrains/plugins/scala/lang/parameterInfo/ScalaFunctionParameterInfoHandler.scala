@@ -116,22 +116,25 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         var isGrey = false
         //todo: var isGreen = true
         var namedMode = false
-        def applyToParameters(parameters: Seq[ScParameter], subst: ScSubstitutor, canBeNaming: Boolean) {
+        def applyToParameters(parameters: Seq[ScParameter], subst: ScSubstitutor, canBeNaming: Boolean, isImplicit: Boolean = false) {
           if (parameters.length > 0) {
             def paramText(param: ScParameter) = {
               ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
             }
             var k = 0
             val exprs: Seq[ScExpression] = args.exprs
+            if (isImplicit) buffer.append("implicit ")
             val used = new Array[Boolean](parameters.length)
             while (k < parameters.length) {
               val namedPrefix = "["
               val namedPostfix = "]"
+
               def appendFirst(useGrey: Boolean = false) {
                 val getIt = used.indexOf(false)
                 used(getIt) = true
                 if (namedMode) buffer.append(namedPrefix)
                 val param: ScParameter = parameters(getIt)
+
                 buffer.append(paramText(param))
                 if (namedMode) buffer.append(namedPostfix)
               }
@@ -241,7 +244,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
                   val length = clause.parameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.parameters else clause.parameters.take(length - 1)
-                  applyToParameters(parameters, subst, true)
+                  applyToParameters(parameters, subst, true, clause.isImplicit)
                 }
               }
               case method: FakePsiMethod => {
@@ -315,7 +318,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
-              applyToParameters(clause.parameters, subst, true)
+              applyToParameters(clause.parameters, subst, true, clause.isImplicit)
             }
           }
           case _ =>

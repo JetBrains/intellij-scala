@@ -11,6 +11,8 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testGenericJavaLibrary = doTest
 
+  def testImplicitParameter = doTest
+
   def testJavaLibrary = doTest
 
   def testLocal = doTest
