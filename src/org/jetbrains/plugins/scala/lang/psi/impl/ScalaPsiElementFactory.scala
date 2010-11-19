@@ -35,7 +35,7 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 
-object ScalaPsiElementFactory extends ScTypeInferenceHelper {
+object ScalaPsiElementFactory {
 
   private val DUMMY = "dummy."
 
