@@ -93,11 +93,11 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     if (!ScalaNamesUtil.isIdentifier(className)) {
       throw new IncorrectOperationException(PsiBundle.message("0.is.not.an.identifier", className))
     }
-    var fileName: String = className + "." + ScalaFileType.DEFAULT_EXTENSION
+    val fileName: String = className + "." + ScalaFileType.DEFAULT_EXTENSION
     dir.checkCreateFile(fileName)
-    var helper: PsiNameHelper = JavaPsiFacade.getInstance(dir.getProject).getNameHelper
+    val helper: PsiNameHelper = JavaPsiFacade.getInstance(dir.getProject).getNameHelper
     var aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(dir)
-    var qualifiedName: String = if (aPackage == null) null else aPackage.getQualifiedName
+    val qualifiedName: String = if (aPackage == null) null else aPackage.getQualifiedName
     if (!StringUtil.isEmpty(qualifiedName) && !helper.isQualifiedName(qualifiedName)) {
       throw new IncorrectOperationException("Cannot create class in invalid package: '" + qualifiedName + "'")
     }
