@@ -212,9 +212,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   private def stripPackagings(document: Document) {
     depthFirst.findByType(classOf[ScPackaging]).foreach { p =>
-        document.replaceString(p.getTextOffset, p.getTextLength, p.getBodyText.trim)
-        PsiDocumentManager.getInstance(getProject).commitDocument(document)
-        stripPackagings(document)
+      val startOffset = p.getTextOffset
+      val endOffset = startOffset + p.getTextLength
+      document.replaceString(startOffset, endOffset, p.getBodyText.trim)
+      PsiDocumentManager.getInstance(getProject).commitDocument(document)
+      stripPackagings(document)
     }
   }
 
