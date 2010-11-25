@@ -31,7 +31,10 @@ class RenameJavaToScalaAction extends AnAction {
       val dataContext = e.getDataContext
       val file = dataContext.getData(DataConstants.PSI_FILE)
       file match {
-        case _: PsiJavaFile => enable
+        case j: PsiJavaFile =>
+          val dir = j.getContainingDirectory
+          if (dir.isWritable) enable
+          else disable
         case _ => disable
       }
     }
