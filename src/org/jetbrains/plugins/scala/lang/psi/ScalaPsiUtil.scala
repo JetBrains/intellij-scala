@@ -80,12 +80,13 @@ object ScalaPsiUtil {
     }
   }
 
-  def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value], ref: PsiElement):
+  def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value],
+                             ref: PsiElement, processor: BaseProcessor):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
     lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" && exprType.map(_.isInstanceOf[ValType]).getOrElse(false)
-    val implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
+    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
       case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
         ProgressManager.checkCanceled
         if (!isHardCoded || !t.isInstanceOf[ValType]) {
@@ -95,6 +96,18 @@ object ScalaPsiUtil {
         } else false
       }
     })
+    if (implicitMap.length != 1 && processor.isInstanceOf[MethodResolveProcessor]) {
+      implicitMap = implicitMap.filter({
+        case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
+          val mrp = processor.asInstanceOf[MethodResolveProcessor]
+          val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
+            mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
+          newProc.processType(t, e, ResolveState.initial)
+          val cand: Array[ScalaResolveResult] = newProc.candidates
+          !cand.filter(_.isApplicable).isEmpty
+        }
+      })
+    }
     val mostSpecificImplicit = if (implicitMap.length == 0) return None
     else if (implicitMap.length == 0) implicitMap.apply(0)
     else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet).getOrElse(return None)

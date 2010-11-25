@@ -309,7 +309,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
     val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) =
-      ScalaPsiUtil.findImplicitConversion(e, refName, processor.kinds, this) match {
+      ScalaPsiUtil.findImplicitConversion(e, refName, processor.kinds, this, processor) match {
         case Some(a) => a
         case None => return
       }

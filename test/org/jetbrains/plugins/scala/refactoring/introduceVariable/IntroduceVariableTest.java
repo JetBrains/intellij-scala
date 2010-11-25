@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -74,7 +75,10 @@ public class IntroduceVariableTest extends ActionTestBase {
     fileText = TestUtils.removeEndMarker(fileText);
     myFile = TestUtils.createPseudoPhysicalScalaFile(myProject, fileText);
     fileEditorManager = FileEditorManager.getInstance(myProject);
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, myFile.getVirtualFile(), 0), false);
+    VirtualFile virtualFile = myFile.getVirtualFile();
+    assert virtualFile != null;
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, virtualFile, 0), false);
+    assert myEditor != null;
 
     try {
       myEditor.getSelectionModel().setSelection(startOffset, endOffset);
@@ -103,7 +107,7 @@ public class IntroduceVariableTest extends ActionTestBase {
       //int caretOffset = myEditor.getCaretModel().getOffset();
       //result = result.substring(0, caretOffset) + TestUtils.CARET_MARKER + result.substring(caretOffset);
     } finally {
-      fileEditorManager.closeFile(myFile.getVirtualFile());
+      fileEditorManager.closeFile(virtualFile);
       myEditor = null;
     }
 
