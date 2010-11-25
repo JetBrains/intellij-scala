@@ -106,9 +106,26 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     return buffer.toArray
   }
 
-  override def syntheticMembers(): scala.Seq[PsiMethod] = {
-    val buf = new ArrayBuffer[PsiMethod]
+  @volatile
+  private var syntheticMembersRes: Seq[PsiMethod] = null
+  @volatile
+  private var modCount: Long = 0L
 
+  override def syntheticMembers(): scala.Seq[PsiMethod] = {
+    var answer = syntheticMembersRes
+    val count = getManager.getModificationTracker.getModificationCount
+    if (answer != null && count == modCount) return answer
+    val res = new ArrayBuffer[PsiMethod]
+    res ++= super.syntheticMembers
+    res ++= syntheticMembersImpl
+    answer = res.toSeq
+    modCount = count
+    syntheticMembersRes = answer
+    return answer
+  }
+
+  private def syntheticMembersImpl: Seq[PsiMethod] = {
+    val buf = new ArrayBuffer[PsiMethod]
     if (isCase && parameters.length > 0) {
       constructor match {
         case Some(x: ScPrimaryConstructor) =>
@@ -119,22 +136,34 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           }
           val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
           if (addCopy) {
-            val paramString = x.parameterList.clauses.map{ c =>
-                val start = if (c.isImplicit) "(implicit " else "("
-                c.parameters.map{ p =>
-                  val paramType = ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any))
-                  p.name + " : " + paramType + " = this." + p.name
-                }.mkString(start, ", ", ")")
-            }.mkString("")
-
-            val tp = typeParamString
-            val copyMethod = "def copy" + tp + paramString + " : " + name + tp + " = throw new Error(\"\")"
-            val method = ScalaPsiElementFactory.createMethodWithContext(copyMethod, getContext, this)
-            buf += method
+            try {
+              val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, getLastChild)
+              buf += method
+            } catch {
+              case e: Exception =>
+                //do not add methods if class has wrong signature.
+            }
           }
         case None =>
       }
     }
     buf.toSeq
+  }
+
+  private def copyMethodText: String = {
+    val x = constructor.getOrElse(return "")
+    val paramString = x.parameterList.clauses.map{ c =>
+        val start = if (c.isImplicit) "(implicit " else "("
+        c.parameters.map{ p =>
+          val paramType = ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any))
+          p.name + " : " + paramType + " = this." + p.name
+        }.mkString(start, ", ", ")")
+    }.mkString("")
+
+    val typeParamStringRes =
+      if (typeParameters.length > 0)
+        typeParameters.map(_.name).mkString("[", ", ", "]")
+      else ""
+    "def copy" + typeParamStringRes + paramString + " : " + name + typeParamStringRes + " = throw new Error(\"\")"
   }
 }

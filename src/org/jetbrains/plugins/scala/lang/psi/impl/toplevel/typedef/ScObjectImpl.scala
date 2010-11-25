@@ -75,8 +75,13 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         res ++= super.syntheticMembers
         val texts = c.getSyntheticMethodsText
         Seq(texts._1, texts._2).foreach(s => {
-          val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
-          res += method
+          try {
+            val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
+            res += method
+          }
+          catch {
+            case e: Exception => //do not add methods with wrong signature
+          }
         })
         answer = res.toSeq
         modCount = count
