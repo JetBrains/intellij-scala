@@ -22,12 +22,13 @@
   <vendor logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
   <idea-version since-build="98.382"/>
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
+  <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions xmlns="org.jetbrains.idea.maven">
    <importer implementation="org.jetbrains.plugins.scala.config.ScalaMavenImporter"/>
   </extensions>
-  
+
   <extensions defaultExtensionNs="com.intellij">
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
@@ -148,7 +149,10 @@
     <intentionAction>
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
     </intentionAction>
-    
+
+    <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
+                             implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
+
   </extensions>
 
 
