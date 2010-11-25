@@ -29,7 +29,19 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
     if (stub != null) {
       stub.getParentStubOfType(classOf[ScTemplateDefinition])
-    } else PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
+    } else {
+      child match {
+        case c: ScClass if c.isCase => {
+          //this is special case for synthetic apply and unapply methods
+          ScalaPsiUtil.getCompanionModule(c) match {
+            case Some(td) => return td
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+      PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
+    }
   }
 
   override def hasModifierProperty(name: String) = {
