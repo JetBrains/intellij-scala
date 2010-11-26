@@ -27,6 +27,9 @@ trait ScArgumentExprList extends ScArguments {
    */
   def exprs: Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
 
+  //TODO java helper (should be removed later)
+  def exprsArray = exprs.toArray
+
   /**
    * Is there param with assign expression with same name as
    * method param.

@@ -7,10 +7,14 @@ package base
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.JavaPsiFacade
 import api.base.ScLiteral
 import psi.types._
 import result.{TypeResult, Failure, Success, TypingContext}
+import java.lang.String
+import com.intellij.psi.{PsiLanguageInjectionHost, JavaPsiFacade}
+import com.intellij.psi.impl.source.tree.LeafElement
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import com.intellij.openapi.util.text.StringUtil
 
 /**
 * @author Alexander Podkhalyuzin
@@ -47,4 +51,30 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     }
     Success(inner, Some(this))
   }
+
+  //TODO complete the implementation
+  def getValue = {
+    val child = getFirstChild.getNode
+    child.getElementType match {
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING => {
+        StringUtil.unescapeStringCharacters(child.getText)
+      }
+      case _ => null
+    }
+  }
+
+  def getInjectedPsi = if (getValue.isInstanceOf[String]) InjectedLanguageUtil.getInjectedPsiFiles(this) else null
+
+  def processInjectedPsi(visitor: PsiLanguageInjectionHost.InjectedPsiVisitor) {
+    InjectedLanguageUtil.enumerate(this, visitor)
+  }
+
+  def updateText(text: String)  = {
+    val valueNode = getNode.getFirstChildNode
+    assert(valueNode.isInstanceOf[LeafElement])
+    (valueNode.asInstanceOf[LeafElement]).replaceWithText(text)
+    this
+  }
+
+  def createLiteralTextEscaper = new ScLiteralEscaper(this)
 }
