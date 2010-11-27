@@ -47,7 +47,9 @@ public class JavaSpecsRunner {
     Classes$ c = Classes$.MODULE$;
     Manifest$ m = Manifest$.MODULE$;
     Manifest specManifest = m.classType(Specification.class);
-    
+
+    // Trigger specs to print exception details if it can't instantiate a test, for example due to an exception in the constructor.
+    System.setProperty("debugCreateObject", "");
 
     for (String clazz: classes) {
       Method method = findCreateObjectMethod(c);
@@ -57,28 +59,56 @@ public class JavaSpecsRunner {
         return;
       }
 
-      try {
-        Option<Specification> option = (Option<Specification>) method.invoke(c, clazz, specManifest);
-        if (!option.isEmpty()) {
-          runTest(sysFilter, exFilter, option);
-        } else {
-          option = (Option<Specification>) method.invoke(c, clazz + "$", specManifest);
+      StringBuilder diagnostics = new StringBuilder();
+      String testClassName = findTestClassName(clazz, diagnostics);
+
+      if (testClassName == null) {
+        System.out.println("\nScala Plugin internal error: test class not found: " + diagnostics);
+      } else {
+        try {
+          Option<Specification> option = (Option<Specification>) method.invoke(c, testClassName, specManifest);
           if (!option.isEmpty()) {
             runTest(sysFilter, exFilter, option);
           } else {
-            System.out.println("Scala Plugin internal error: no test class was found");
+            System.out.println("\nTest could not be instantiated.");
           }
         }
-      }
-      catch(IllegalAccessException e) {
-        System.out.println("Scala Plugin internal error: illegal access exception");
-        e.printStackTrace();
-      }
-      catch(InvocationTargetException e) {
-        System.out.println("Scala Plugin internal error: invocation target exception");
-        e.printStackTrace();
+        catch(IllegalAccessException e) {
+          System.out.println("Scala Plugin internal error: illegal access exception");
+          e.printStackTrace();
+        }
+        catch(InvocationTargetException e) {
+          System.out.println("Scala Plugin internal error: invocation target exception");
+          e.printStackTrace();
+        }
       }
     }
+  }
+
+  private static String findTestClassName(String clazz, StringBuilder diagnostics) {
+    String testClassName = null;
+    String objectName = clazz + "$";
+    try {
+      Class<?> aClass = JavaSpecsRunner.class.getClassLoader().loadClass(clazz);
+      if (Specification.class.isAssignableFrom(aClass)) {
+        testClassName = clazz;
+      } else {
+        diagnostics.append(clazz + " does not extend " + Specification.class.getName() + ". ");
+      }
+    } catch (ClassNotFoundException e) {
+       // ignore
+    }
+    try {
+      Class<?> aClass = JavaSpecsRunner.class.getClassLoader().loadClass(objectName);
+      if (Specification.class.isAssignableFrom(aClass)) {
+        testClassName = objectName;
+      } else {
+        diagnostics.append(clazz + " does not extend " + Specification.class.getName());
+      }
+    } catch (ClassNotFoundException e) {
+      // ignore
+    }
+    return testClassName;
   }
 
   private static Method findCreateObjectMethod(Classes$ c) {
