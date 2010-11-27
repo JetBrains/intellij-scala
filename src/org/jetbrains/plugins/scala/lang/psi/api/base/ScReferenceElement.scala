@@ -16,6 +16,7 @@ import statements.{ScFunction}
 import com.intellij.openapi.progress.ProgressManager
 import refactoring.util.ScalaNamesUtil
 import java.lang.String
+import com.intellij.codeInsight.PsiEquivalenceUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,6 +54,17 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
+    class Eqv(elem: PsiElement) {
+      def eqv(elem2: PsiElement): Boolean = {
+        if (elem == null || elem2 == null) return false
+        if (elem.getNode.getElementType != elem2.getNode.getElementType) return false
+        if (!elem.isInstanceOf[PsiClass])
+          PsiEquivalenceUtil.areElementsEquivalent(elem, elem2)
+        else
+          elem.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
+      }
+    }
+    implicit def psi2eqv(psi: PsiElement) = new Eqv(psi)
     val res = resolve
     if (res == null) {
       //case for imports with reference to Class and Object
@@ -62,7 +74,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             case Some(comp) => {
               val res = multiResolve(false)
               if (res.length == 2) {
-                return res.find(_.getElement == td) != None && res.find(_.getElement == comp) != None
+                return res.find(_.getElement eqv td) != None && res.find(_.getElement eqv comp) != None
               } else return false
             }
             case _ => return false
@@ -70,19 +82,21 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         }
         case _ => return false
       }
-    }
-    if (res == element) return true
+    } else return false
+    if (res eqv element) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
         res match {
           case method: PsiMethod if method.isConstructor => {
-            if (td == method.getContainingClass) return true
+            if (td eqv method.getContainingClass) return true
           }
           case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
             method.getName == "unapplySeq" => {
-            val clazz = method.getContainingClass
-            if (clazz == td) return true
-            if (td.isInheritor(clazz, true)) return true
+            var break = false
+            for (n <- td.allMethods if !break) {
+              if (n.method.getName == method.getName && (method.getContainingClass eqv n.method.getContainingClass)) break = true
+            }
+            if (break) return true
           }
           case _ =>
         }

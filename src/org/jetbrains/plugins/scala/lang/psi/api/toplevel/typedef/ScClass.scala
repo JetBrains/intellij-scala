@@ -5,15 +5,10 @@ package api
 package toplevel
 package typedef
 
-import base.{ScPrimaryConstructor, ScModifierList}
-import com.intellij.psi.PsiModifierList
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import statements.params.ScParameters
-import types.result.TypingContext
-import types.ScType
 import impl.ScalaPsiElementFactory
-import refactoring.util.ScTypeUtil
 
 /**
 * @author Alexander Podkhalyuzin
@@ -55,7 +50,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   protected def typeParamString : String = if (typeParameters.length > 0) typeParameters.map(param => {
-    var paramText = param.getName
+    param.getText
+   /* var paramText = param.getName
     param.lowerBound foreach {
       case psi.types.Nothing =>
       case tp: ScType => paramText = paramText + " >: " + ScType.canonicalText(tp)
@@ -71,7 +67,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
       (tp: ScType) => paramText = paramText + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(tp))
     }
     paramText
-  }).mkString("[", ", ", "]")
+  */}).mkString("[", ", ", "]")
   else ""
 
   def getSyntheticMethodsText: (String, String) = {
@@ -80,10 +76,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         x.parameterList.clauses.map(c =>
           c.parameters.map(p =>
             p.name + ": " +
-                    ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any)) +
+                    p.typeElement.map(_.getText).getOrElse("Any") +
                     (if (p.isDefaultParam) " = " + p.getDefaultExpression.map(_.getText).getOrElse("{}")
                     else if (p.isRepeatedParameter) "*" else "")).
-                  mkString("(", ", ", ")")).mkString("")
+                  mkString(if (c.isImplicit) "(implicit " else "(", ", ", ")")).mkString("")
       case None => ""
     }
     val hasSeq = constructor match {
@@ -107,7 +103,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
           else {
             val strings = params.map(p =>
               (if (p.isRepeatedParameter) "scala.Seq[" else "") +
-                      ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any)) +
+                      p.typeElement.map(_.getText).getOrElse("Any") +
                       (if (p.isRepeatedParameter) "]" else ""))
             strings.mkString("scala.Option[" + (if (strings.length > 1) "(" else ""), ", ",
               (if (strings.length > 1) ")" else "") + "]")
