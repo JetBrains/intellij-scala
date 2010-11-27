@@ -1,22 +1,42 @@
-package org.jetbrains.plugins.scala.lang.completion
+package org.jetbrains.plugins.scala.lang.completion.handlers
 
+import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.lookup.LookupElement
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.editor.Editor
-//import com.intellij.codeInsight.completion.AllClassesGetter.{ClassNameInsertHandlerResult, ClassNameInsertHandler}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import com.intellij.openapi.project.Project
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
-import com.intellij.codeInsight.CodeInsightUtilBase
-import com.intellij.codeInsight.completion.{DefaultInsertHandler, AllClassesGetter, JavaPsiClassReferenceElement, InsertionContext}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import com.intellij.psi.{PsiDocumentManager, PsiClass}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaClassNameInsertHandler /*extends ClassNameInsertHandler {
-  def handleInsert(context: InsertionContext, item: JavaPsiClassReferenceElement): ClassNameInsertHandlerResult = {
+class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
+  def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+    val editor = context.getEditor
+    val document = editor.getDocument
+    val startOffset = context.getStartOffset
+    val lookupStringLength = item.getLookupString.length
+    var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
+    if (ref == null) return
+    item.getObject match {
+      case ScalaLookupObject(cl: PsiClass, _) =>
+        while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement])
+          ref = ref.getParent.asInstanceOf[ScReferenceElement]
+        val newRef = ref match {
+          case ref: ScReferenceExpression =>
+            ScalaPsiElementFactory.createExpressionFromText(cl.getName, cl.getManager).asInstanceOf[ScReferenceExpression]
+          case _ =>
+            ScalaPsiElementFactory.createReferenceFromText(cl.getName, cl.getManager)
+        }
+        ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
+        newRef.bindToElement(cl)
+      case _ =>
+    }
+  }
+  /*def handleInsert(context: InsertionContext, item: JavaPsiClassReferenceElement): ClassNameInsertHandlerResult = {
     var file: PsiFile = context.getFile
     if (!file.isInstanceOf[ScalaFile]) return ClassNameInsertHandlerResult.CHECK_FOR_CORRECT_REFERENCE
     var editor: Editor = context.getEditor
@@ -62,5 +82,5 @@ class ScalaClassNameInsertHandler /*extends ClassNameInsertHandler {
       }
     }
     return ClassNameInsertHandlerResult.INSERT_FQN
-  }
-}*/
+  }*/
+}
