@@ -18,7 +18,6 @@ import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.packaging.ScPackaging
 import ResolveTargets._
 import psi.api.statements._
-import completion.handlers.ScalaInsertHandler
 import com.intellij.codeInsight.lookup._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import icons.Icons
@@ -35,6 +34,7 @@ import java.lang.String
 import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import psi.fake.FakePsiMethod
+import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
 
 /**
  * @author ven
@@ -343,7 +343,9 @@ object ResolveUtils {
     }
   }
 
-  def getLookupElement(resolveResult: ScalaResolveResult, qualifierType: ScType = Nothing): (LookupElement, PsiElement, ScSubstitutor) = {
+  def getLookupElement(resolveResult: ScalaResolveResult,
+                       qualifierType: ScType = Nothing,
+                       isClassName: Boolean = false): (LookupElement, PsiElement, ScSubstitutor) = {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -355,7 +357,9 @@ object ResolveUtils {
     val name: String = isRenamed.getOrElse(element.getName)
     var lookupBuilder: LookupElementBuilder =
       LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter), name) //don't add elements to lookup
-    lookupBuilder = lookupBuilder.setInsertHandler(new ScalaInsertHandler)
+    lookupBuilder = lookupBuilder.setInsertHandler(
+      if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
+    )
     lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
         var isBold = false
