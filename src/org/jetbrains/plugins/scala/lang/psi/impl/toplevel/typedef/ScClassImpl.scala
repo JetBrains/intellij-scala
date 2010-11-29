@@ -152,18 +152,18 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   private def copyMethodText: String = {
     val x = constructor.getOrElse(return "")
-    val paramString = x.parameterList.clauses.map{ c =>
+    val paramString = (if (x.parameterList.clauses.length == 1 &&
+            x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
         val start = if (c.isImplicit) "(implicit " else "("
         c.parameters.map{ p =>
-          val paramType = ScType.canonicalText(p.getType(TypingContext.empty).getOrElse(lang.psi.types.Any))
+          val paramType = p.typeElement match {
+            case Some(te) => te.getText
+            case None => "Any"
+          }
           p.name + " : " + paramType + " = this." + p.name
         }.mkString(start, ", ", ")")
     }.mkString("")
 
-    val typeParamStringRes =
-      if (typeParameters.length > 0)
-        typeParameters.map(_.name).mkString("[", ", ", "]")
-      else ""
-    "def copy" + typeParamStringRes + paramString + " : " + name + typeParamStringRes + " = throw new Error(\"\")"
+    "def copy" + typeParamString + paramString + " : " + name + typeParamString + " = throw new Error(\"\")"
   }
 }

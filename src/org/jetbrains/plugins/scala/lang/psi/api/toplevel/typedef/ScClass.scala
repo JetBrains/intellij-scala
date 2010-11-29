@@ -71,7 +71,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   def getSyntheticMethodsText: (String, String) = {
     val paramString = constructor match {
       case Some(x: ScPrimaryConstructor) =>
-        x.parameterList.clauses.map(c =>
+        (if (x.parameterList.clauses.length == 1 &&
+            x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map(c =>
           c.parameters.map(p =>
             p.name + ": " +
                     p.typeElement.map(_.getText).getOrElse("Any") +
@@ -114,9 +115,9 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         typeParameters.map(_.name).mkString("[", ", ", "]")
       else ""
 
-    val applyText = "def apply" + typeParamString + paramString + ": " + getQualifiedName + typeParamStringRes +
+    val applyText = "def apply" + typeParamString + paramString + ": " + name + typeParamStringRes +
                 " = throw new Error()"
-    val unapplyText = "def unapply" + hasSeq + typeParamString + "(x$0: " + getQualifiedName + typeParamStringRes + "): " +
+    val unapplyText = "def unapply" + hasSeq + typeParamString + "(x$0: " + name + typeParamStringRes + "): " +
                 paramStringRes + " = throw new Error()"
     (applyText, unapplyText)
   }

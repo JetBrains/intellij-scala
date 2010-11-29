@@ -124,14 +124,23 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getContainingClass = super[ScTypeDefinition].getContainingClass
 
-  override def getQualifiedName: String = qualifiedName(".")
+  override def getQualifiedName: String = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTemplateDefinitionStub].qualName
+    } else {
+      qualifiedName(".")
+    }
+  }
+
+  def getTruncedQualifiedName: String = qualifiedName(".", true)
 
   def getQualifiedNameForDebugger: String = qualifiedName("$")
 
-  private def qualifiedName(classSeparator: String): String = {
-
+  private def qualifiedName(classSeparator: String, trunced: Boolean = false): String = {
     // Returns prefix with convenient separator sep
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
+      case _: ScClass | _: ScTrait if trunced => k("")
       case t: ScTypeDefinition => _packageName(t, sep, (s) => k(s + t.name + sep))
       case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
       case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
@@ -140,13 +149,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case parent => _packageName(parent, sep, identity _)
     }
 
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTemplateDefinitionStub].qualName
-    } else {
-      val packageName = _packageName(this, classSeparator, identity _)
-      packageName + name
-    }
+    val packageName = _packageName(this, classSeparator, identity _)
+    packageName + name
   }
 
   override def getPresentation(): ItemPresentation = {
