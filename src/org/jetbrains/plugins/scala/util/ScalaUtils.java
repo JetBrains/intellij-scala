@@ -49,7 +49,7 @@ public abstract class ScalaUtils {
    * This name should be unique, nobody can't use such name (it means that it has small probability).
    * In presentable text should be replace for T. So this string only for internal usage.
    */
-  public static String typeParameter = "TypeParameterForSynthteticFunction";
+  public static String typeParameter = "TypeParameterForSyntheticFunction";
 
   /**
    * @param dir
