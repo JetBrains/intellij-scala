@@ -82,7 +82,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         }
         case _ => return false
       }
-    } else return false
+    }
     if (res eqv element) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
