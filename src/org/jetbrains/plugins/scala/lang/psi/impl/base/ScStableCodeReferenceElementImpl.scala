@@ -96,6 +96,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 addImportForClass(c, ref = this) //todo: correct handling
         this
       }
+      case t: ScTypeAlias => return this //todo: do something
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
