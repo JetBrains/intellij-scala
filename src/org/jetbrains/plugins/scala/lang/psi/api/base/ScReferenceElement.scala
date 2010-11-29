@@ -56,7 +56,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def isReferenceTo(element: PsiElement): Boolean = {
     class Eqv(elem: PsiElement) {
       def eqv(elem2: PsiElement): Boolean = {
-        if (elem == null || elem2 == null) return false
+        if (elem == null || elem2 == null || elem.getNode == null || elem2.getNode == null) return false
         if (elem.getNode.getElementType != elem2.getNode.getElementType) return false
         if (!elem.isInstanceOf[PsiClass])
           PsiEquivalenceUtil.areElementsEquivalent(elem, elem2)
