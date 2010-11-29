@@ -62,7 +62,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (refName != c.getName)
           throw new IncorrectOperationException("class does not match expected name")
         val file = getContainingFile.asInstanceOf[ScalaFile]
-        if (isReferenceTo(element)) return this
         val qualName = c.getQualifiedName
         if (qualName != null) {
           org.jetbrains.plugins.scala.annotator.intention.

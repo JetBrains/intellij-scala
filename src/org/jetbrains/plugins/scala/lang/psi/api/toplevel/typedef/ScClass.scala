@@ -7,8 +7,9 @@ package typedef
 
 import base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
-import statements.params.ScParameters
 import impl.ScalaPsiElementFactory
+import types.ScType
+import statements.params.{ScTypeParam, ScParameters}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -50,24 +51,21 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   protected def typeParamString : String = if (typeParameters.length > 0) typeParameters.map(param => {
-    param.getText
-   /* var paramText = param.getName
-    param.lowerBound foreach {
-      case psi.types.Nothing =>
-      case tp: ScType => paramText = paramText + " >: " + ScType.canonicalText(tp)
+    var paramText = param.getName
+    param.lowerTypeElement foreach {
+      case tp => paramText = paramText + " >: " + tp.getText
     }
-    param.upperBound foreach {
-      case psi.types.Any =>
-      case tp: ScType => paramText = paramText + " <: " + ScType.canonicalText(tp)
+    param.upperTypeElement foreach {
+      case tp => paramText = paramText + " <: " + tp.getText
     }
-    param.viewBound foreach {
-      (tp: ScType) => paramText = paramText + " <% " + ScType.canonicalText(tp)
+    param.viewTypeElement foreach {
+      case tp => paramText = paramText + " <% " + tp.getText
     }
-    param.contextBound foreach {
-      (tp: ScType) => paramText = paramText + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(tp))
+    param.contextBoundTypeElement foreach {
+      case tp => paramText = paramText + " : " + tp.getText
     }
     paramText
-  */}).mkString("[", ", ", "]")
+  }).mkString("[", ", ", "]")
   else ""
 
   def getSyntheticMethodsText: (String, String) = {
