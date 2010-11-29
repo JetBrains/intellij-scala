@@ -150,20 +150,26 @@ object ResolveUtils {
             if (ref != null) {
               val bind = ref.resolve
               if (bind == null) return true
+              def processPackage(packageName: String): Boolean = {
+                val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
+                  classOf[ScalaFile])
+                if (placeEnclosing == null) return false //not Scala
+                val placePackageName = placeEnclosing match {
+                  case file: ScalaFile => file.getPackageName
+                  case pack: ScPackaging => pack.fqn
+                }
+                return placePackageName.startsWith(packageName)
+              }
               bind match {
                 case td: ScTemplateDefinition => {
                   PsiTreeUtil.isContextAncestor(td, place, false) ||
-                          PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                          PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement),
+                            place, false) || (td.isInstanceOf[ScObject] &&
+                          td.asInstanceOf[ScObject].isPackageObject && processPackage(td.getQualifiedName))
                 }
                 case pack: PsiPackage => {
                   val packageName = pack.getQualifiedName
-                  val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                  if (placeEnclosing == null) return false //not Scala
-                  val placePackageName = placeEnclosing match {
-                    case file: ScalaFile => file.getPackageName
-                    case pack: ScPackaging => pack.fqn
-                  }
-                  return placePackageName.startsWith(packageName)
+                  return processPackage(packageName)
                 }
                 case _ => true
               }
@@ -201,26 +207,41 @@ object ResolveUtils {
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
-            var withCompanion = am.access != am.Access.THIS_PROTECTED
+            val withCompanion = am.access != am.Access.THIS_PROTECTED
             val ref = am.getReference
             if (ref != null) {
               val bind = ref.resolve
               if (bind == null) return true
+              def processPackage(packageName: String): Option[Boolean] = {
+                val placeEnclosing: PsiElement = ScalaPsiUtil.
+                        getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                if (placeEnclosing == null) return Some(false) //not Scala
+                val placePackageName = placeEnclosing match {
+                  case file: ScalaFile => file.getPackageName
+                  case pack: ScPackaging => pack.fqn
+                }
+                if (placePackageName.startsWith(packageName)) return Some(true)
+                None
+              }
               bind match {
                 case td: ScTemplateDefinition => {
                   if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                           getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
+                  td match {
+                    case o: ScObject if o.isPackageObject =>
+                      processPackage(o.getQualifiedName) match {
+                        case Some(x) => return x
+                        case None =>
+                      }
+                    case _ =>
+                  }
                 }
                 case pack: PsiPackage => { //like private (nothing related to real life)
                   val packageName = pack.getQualifiedName
-                  val placeEnclosing: PsiElement = ScalaPsiUtil.
-                          getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                  if (placeEnclosing == null) return false //not Scala
-                  val placePackageName = placeEnclosing match {
-                    case file: ScalaFile => file.getPackageName
-                    case pack: ScPackaging => pack.fqn
+                  processPackage(packageName) match {
+                    case Some(x) => return x
+                    case None =>
                   }
-                  if (placePackageName.startsWith(packageName)) return true
                 }
                 case _ => return true
               }
