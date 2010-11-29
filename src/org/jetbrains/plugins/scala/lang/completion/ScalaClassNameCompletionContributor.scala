@@ -22,8 +22,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
       val isInImport = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScImportStmt]) != null
       val onlyClasses = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScStableCodeReferenceElement]) != null
-      //todo: filter by scope
-      AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, false,
+      AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, parameters.getInvocationCount <= 1,
         new Consumer[PsiClass] {
           def consume(psiClass: PsiClass): Unit = {
             def addClass(psiClass: PsiClass): Unit = {
@@ -36,20 +35,11 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
               result.addElement(ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass), isClassName = true)._1)
             }
             //todo: filter according to position
-            psiClass match {
-              case _: ScClass | _: ScTrait =>
-                ScalaPsiUtil.getCompanionModule(psiClass) match {
-                  case Some(c) => addClass(c)
-                  case _ =>
-                }
-                addClass(psiClass)
-              case o: ScObject =>
-                ScalaPsiUtil.getCompanionModule(o) match {
-                  case None => addClass(o)
-                  case _ =>
-                }
-              case _: PsiClass => addClass(psiClass)
+            ScalaPsiUtil.getCompanionModule(psiClass) match {
+              case Some(c) => addClass(c)
+              case _ =>
             }
+            addClass(psiClass)
           }
         })
       result.stopHere
