@@ -12,7 +12,7 @@ import api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
-import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import impl.toplevel.typedef.{ScObjectImpl, MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import api.expr._
@@ -681,7 +681,7 @@ object ScalaPsiUtil {
     if (!clazz.isInstanceOf[ScTypeDefinition]) return None
     val td = clazz.asInstanceOf[ScTypeDefinition]
     val name: String = td.getName
-    val scope: PsiElement = td.getParent
+    val scope: PsiElement = td.getContext
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
