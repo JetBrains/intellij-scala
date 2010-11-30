@@ -144,6 +144,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
     for (element <- elements if element.isInstanceOf[ScalaPsiElement])
       element.asInstanceOf[ScalaPsiElement].accept(visitor: ScalaElementVisitor)
+    if (stopAtScope == null) stopAtScope = file
     val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
     val scope: PsiElement = {
       if (file.isScriptFile()) {
@@ -200,7 +201,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         case _ =>
       }
       prev = parent
-      parent = parent.getParent
+      parent = parent match {
+        case file: ScalaFile =>
+          null
+        case _ => parent.getParent
+      }
     }
     return res.toArray.reverse
   }
