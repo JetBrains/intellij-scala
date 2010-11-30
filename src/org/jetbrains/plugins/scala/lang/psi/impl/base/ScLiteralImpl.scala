@@ -56,8 +56,11 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   def getValue = {
     val child = getFirstChild.getNode
     child.getElementType match {
-      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING => {
+      case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
         StringUtil.unescapeStringCharacters(child.getText)
+      }
+      case ScalaTokenTypes.tMULTILINE_STRING => {
+        child.getText
       }
       case _ => null
     }
@@ -76,5 +79,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     this
   }
 
-  def createLiteralTextEscaper = new ScLiteralEscaper(this)
+  def createLiteralTextEscaper = {
+    if (getFirstChild.getNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING)
+      new PassthroughLiteralEscaper(this)
+    else
+      new ScLiteralEscaper(this)
+  }
 }

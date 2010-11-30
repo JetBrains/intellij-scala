@@ -131,7 +131,7 @@ object DecompilerUtil {
         case _ =>
       }
       // Print classes
-      val printer = new ScalaSigPrinter(stream, HideInstancePrivate)
+      val printer = new ScalaSigPrinter(stream, false)
 
       for (c <- syms) {
         printer.printSymbol(c)

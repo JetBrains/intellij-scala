@@ -6,14 +6,18 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiJavaElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments;
 
 /**
@@ -27,6 +31,21 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public ScalaElementPattern(@NotNull InitialPatternCondition<T> tInitialPatternCondition) {
     super(tInitialPatternCondition);
+  }
+
+  public Self callTarget(final ElementPattern<? extends PsiMethod> methodPattern) {
+    return with(new PatternCondition<T>("callTarget") {
+      public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
+        final PsiElement element = literal.getParent();
+        if (element instanceof ScReferenceExpression) {
+          final ScReferenceExpression expression = (ScReferenceExpression) element;
+          for (final ResolveResult result : expression.multiResolve(false))
+            if (methodPattern.getCondition().accepts(result.getElement(), context))
+              return true;
+        }
+        return false;
+      }
+    });
   }
 
   public Self callArgument(final int index, final ElementPattern<? extends PsiMethod> methodPattern) {
@@ -43,12 +62,9 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
             final ScalaPsiElement expression = ((ScMethodCall) element).getInvokedExpr();
             if (expression instanceof ScReferenceElement) {
               final ScReferenceElement ref = (ScReferenceElement) expression;
-              for (ResolveResult result : ref.multiResolve(false)) {
-                final PsiElement psiElement = result.getElement();
-                if (methodPattern.getCondition().accepts(psiElement, context)) {
+              for (ResolveResult result : ref.multiResolve(false))
+                if (methodPattern.getCondition().accepts(result.getElement(), context))
                   return true;
-                }
-              }
             }
           }
         }
