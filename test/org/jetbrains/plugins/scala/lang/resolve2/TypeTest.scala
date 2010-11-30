@@ -18,4 +18,5 @@ class TypeTest extends ResolveTestBase {
   def testFunctionTypeParameter = doTest
   def testValue = doTest
   def testVariable = doTest
+  def testThis = doTest
 }

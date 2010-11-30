@@ -51,7 +51,8 @@ abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run {
-          GenericInlineHandler.invoke(PsiTreeUtil.getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
+          GenericInlineHandler.invoke(PsiTreeUtil.
+                  getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
         }
       }, myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")

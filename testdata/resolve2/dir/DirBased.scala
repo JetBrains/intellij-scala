@@ -1,3 +1,3 @@
 object O
 
-println(/* resolved: false */ O)
+println(/* */ O)
