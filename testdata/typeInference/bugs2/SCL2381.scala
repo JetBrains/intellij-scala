@@ -9,7 +9,7 @@ object param1 {
   implicit def m2(l: U) = new S2
 
   val u: U = new U {}
-  u.s // incorrectly resolves as ambiguous
+  val c = u.s // incorrectly resolves as ambiguous
 }
 
 /*start*/param1.c/*end*/

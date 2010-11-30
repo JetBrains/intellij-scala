@@ -84,7 +84,7 @@ object Conformance {
         return conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
       case (left, ScAbstractType(_, lower, upper)) =>
 //        return conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
-        return conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+        return conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
         return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
       case (u2: ScUndefinedType, u1: ScUndefinedType) if u2.level > u1.level =>
@@ -120,16 +120,20 @@ object Conformance {
           case _ => {
             argsPair match {
               case (ScAbstractType(_, lower, upper), right) => {
-                val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+                var t = conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-                conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+                t = conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+                if (!t._1) return (false, undefinedSubst)
+                undefinedSubst = t._2
               }
               case (left, ScAbstractType(_, lower, upper)) => {
-                val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+                var t = conformsInner(upper, left, visited, undefinedSubst, noBaseTypes, checkWeak)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-                conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+                t = conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+                if (!t._1) return (false, undefinedSubst)
+                undefinedSubst = t._2
               }
               case (u: ScUndefinedType, rt) => {
                 undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
@@ -231,7 +235,8 @@ object Conformance {
       case (AnyRef, Any) => return (false, undefinedSubst)
       case (AnyRef, AnyVal) => return (false, undefinedSubst)
       case (AnyRef, _: ValType) => return (false, undefinedSubst)
-      case (AnyRef, _) => return (true, undefinedSubst)
+      case (AnyRef, t) if !t.isInstanceOf[ScExistentialType] &&
+              !t.isInstanceOf[ScExistentialArgument] => return (true, undefinedSubst)
       case (Singleton, _) => return (false, undefinedSubst)
       case (AnyVal, _: ValType) => return (true, undefinedSubst)
       case (AnyVal, _) => return (false, undefinedSubst)
@@ -332,16 +337,20 @@ object Conformance {
         val argsPair = (arg1, arg2)
         argsPair match {
           case (ScAbstractType(_, lower, upper), right) => {
-            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (left, ScAbstractType(_, lower, upper)) => {
-            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, left, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
@@ -376,16 +385,20 @@ object Conformance {
         val argsPair = (arg, args(0))
         argsPair match {
           case (ScAbstractType(_, lower, upper), right) => {
-            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (left, ScAbstractType(_, lower, upper)) => {
-            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, left, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
@@ -420,16 +433,20 @@ object Conformance {
         val argsPair = (arg, args(0))
         argsPair match {
           case (ScAbstractType(_, lower, upper), right) => {
-            val t = conformsInner(lower, right, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(right, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (left, ScAbstractType(_, lower, upper)) => {
-            val t = conformsInner(lower, left, visited, undefinedSubst, noBaseTypes, checkWeak)
+            var t = conformsInner(upper, left, visited, undefinedSubst, noBaseTypes, checkWeak)
             if (!t._1) return (false, undefinedSubst)
             undefinedSubst = t._2
-            conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
+            t = conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
+            if (!t._1) return (false, undefinedSubst)
+            undefinedSubst = t._2
           }
           case (u: ScUndefinedType, rt) => {
             undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
