@@ -49,7 +49,7 @@ abstract class InlineRefactoringTestBase extends ScalaPsiTestCase {
     
     //start to inline
     try {
-      ScalaUtils.runWriteAction(new Runnable {
+      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run {
           GenericInlineHandler.invoke(PsiTreeUtil.getParentOfType(element, classOf[ScBindingPattern]), editor, new ScalaInlineHandler)
         }

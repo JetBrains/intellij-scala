@@ -47,7 +47,7 @@ abstract class OptimizeImportsTestBase extends ScalaPsiTestCase {
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
     try {
-      ScalaUtils.runWriteAction(new ScalaImportOptimizer().processFile(scalaFile), myProject, "Test")
+      ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), myProject, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
     }
     catch {

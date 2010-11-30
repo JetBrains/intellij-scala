@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.module.JavaModuleType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
@@ -143,6 +144,14 @@ public abstract class ScalaUtils {
         ApplicationManager.getApplication().runWriteAction(runnable);
       }
     }, name, null);
+  }
+
+  public static void runWriteActionDoNotRequestConfirmation(final Runnable runnable, Project project, String name) {
+    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+      public void run() {
+        ApplicationManager.getApplication().runWriteAction(runnable);
+      }
+    }, name, null, UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION);
   }
 
   public static void runReadAction(final Runnable runnable, Project project, String name) {

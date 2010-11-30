@@ -58,7 +58,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
 
     //start to inline
     try {
-      ScalaUtils.runWriteAction(new Runnable {
+      ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run {
           new RenameProcessor(resolve.getProject, substituteElement(resolve), "NameAfterRename", false, false).run()
         }
