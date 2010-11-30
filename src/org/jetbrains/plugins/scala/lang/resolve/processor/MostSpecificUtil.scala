@@ -15,6 +15,7 @@ import scala.collection.Set
 import psi.types._
 import psi.api.statements._
 import psi.api.toplevel.imports.usages.ImportUsed
+import psi.impl.ScalaPsiManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -49,25 +50,32 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
         val (t1, t2) = (getType(m1), getType(m2))
-        def calcParams(tp: ScType): Seq[Parameter] = {
+        def calcParams(tp: ScType, exisential: Boolean): Seq[Parameter] = {
           tp match {
             case ScMethodType(_, params, _) => params
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
               val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                 (subst: ScSubstitutor, tp: TypeParameter) =>
-                  subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
+                  if (exisential)
+                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                      new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
+                  else
+                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                      new ScAbstractType(ScalaPsiManager.typeVariable(tp.ptp), tp.lowerType, tp.upperType))
               }
               params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
             }
             case _ => Seq.empty
           }
         }
-        val (params1, params2) = (calcParams(t1), calcParams(t2))
+        val (params1, params2) = (calcParams(t1, true), calcParams(t2, false))
         if (lastRepeated(params1) && !lastRepeated(params2)) return false
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
         val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-        return Compatibility.checkConformance(false, params2, exprs, false)._1
+        val conformance: (Boolean, ScUndefinedSubstitutor) =
+          Compatibility.checkConformance(false, params2, exprs, false)
+        return conformance._1
       }
       case (_, m2: PsiMethod) => return true
       case (e1, e2) => return Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
