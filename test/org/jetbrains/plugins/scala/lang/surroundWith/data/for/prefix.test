@@ -3,5 +3,7 @@ class a {
 }
 -----
 class a {
-  if (!(for () yield {true})) return
+  if (!(for () yield {
+    true
+  })) return
 }

@@ -130,9 +130,9 @@ object TypeDefinitionMembers {
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
       for (member <- template.members) {
         member match {
-          /*case c: ScClass if c.isCase && c.fakeCompanionModule != None && isAccessible(place, c) =>
+          case c: ScClass if c.isCase && c.fakeCompanionModule != None && isAccessible(place, c) =>
             val obj = c.fakeCompanionModule.get
-            map += ((obj, new Node(obj, subst)))*/
+            map += ((obj, new Node(obj, subst)))
           case obj: ScObject if isAccessible(place, obj) => map += ((obj, new Node(obj, subst)))
           case _var: ScVariable if isAccessible(place, _var) =>
             for (dcl <- _var.declaredElements) {
@@ -602,21 +602,12 @@ object TypeDefinitionMembers {
       }
     }
 
-    if (shouldProcessTypes(processor) || shouldProcessVals(processor)) {
+    if (shouldProcessTypes(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
         ProgressManager.checkCanceled
-        n.info match {
-          case c: ScClass if shouldProcessVals(processor) && c.isCase =>
-            c.fakeCompanionModule match {
-              case Some(obj) =>
-                if (!processor.execute(obj, state)) return false
-              case _ =>
-            }
-          case _ =>
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-        }
+        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
       }
     }
     //inner classes
