@@ -16,13 +16,21 @@ import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.impl.ScPackageImpl
 import collection.mutable.HashSet
 import caches.CachesUtil
+import psi.api.statements.params.ScTypeParam
+import psi.api.expr.{ScSuperReference, ScThisReference}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
                        val name: String) extends BaseProcessor(kinds) {
+  val isThisOrSuperResolve = ref.getParent match {
+    case _: ScThisReference | _: ScSuperReference => true
+    case _ => false
+  }
+
   def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
 
   protected val qualifiedNamesSet: HashSet[String] = new HashSet[String]
+  protected val levelQualifiedNamesSet: HashSet[String] = new HashSet[String]
   protected lazy val placePackageName: String = ResolveUtils.getPlacePackage(ref)
   /**
    * Contains highest precedence of all resolve results.
@@ -46,14 +54,40 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
    * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
    */
   protected def addResult(result: ScalaResolveResult): Boolean = {
+    lazy val qualifiedName: String = {
+      result.element match {
+        case c: ScTypeParam => null
+        case c: ScObject => "Object:" + c.getQualifiedName
+        case c: PsiClass => "Class:" + c.getQualifiedName
+        case _ => null
+      }
+    }
+    def addResult {
+      if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
+      levelSet += result
+    }
     val currentPrecedence = getPrecendence(result)
     if (currentPrecedence < precedence) return false
     else if (currentPrecedence == precedence && levelSet.isEmpty) return false
-    precedence = currentPrecedence
-    val newSet = levelSet.filterNot(res => getPrecendence(res) < precedence)
-    levelSet.clear
-    levelSet ++= newSet
-    levelSet += result
+    else if (currentPrecedence == precedence && !levelSet.isEmpty) {
+      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
+              qualifiedNamesSet.contains(qualifiedName))) {
+        return false
+      }
+      addResult
+    } else {
+      if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
+              qualifiedNamesSet.contains(qualifiedName))) {
+        return false
+      } else {
+        precedence = currentPrecedence
+        val newSet = levelSet.filterNot(p => getPrecendence(p) < precedence)
+        levelSet.clear
+        levelSet ++= newSet
+        levelQualifiedNamesSet.clear
+        addResult
+      }
+    }
     true
   }
 
@@ -128,17 +162,16 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def changedLevel = {
-    if (levelSet.isEmpty) true
-    else if (precedence == 5) {
+    def update: Boolean = {
       candidatesSet ++= levelSet
+      qualifiedNamesSet ++= levelQualifiedNamesSet
       levelSet.clear
+      levelQualifiedNamesSet.clear
       false
     }
-    else {
-      candidatesSet ++= levelSet
-      levelSet.clear
-      true
-    }
+    if (levelSet.isEmpty) true
+    else if (precedence == 6) update
+    else !update
   }
 
   def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
@@ -163,19 +196,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                 findPackage(o.getQualifiedName) != null =>
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), getSubst(state), getImports(state)))
-        case clazz: PsiClass => {
-          if (clazz.getQualifiedName != null) {
-            if (!qualifiedNamesSet.contains(clazz.getQualifiedName)) {
-              if (addResult(new ScalaResolveResult(named, getSubst(state),
-                   getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))) {
-                qualifiedNamesSet.add(clazz.getQualifiedName)
-              }
-            }
-          } else {
-            addResult(new ScalaResolveResult(named, getSubst(state),
-              getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
-          }
-        }
+        case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
+          addResult(new ScalaResolveResult(named, getSubst(state),
+            getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
+        case clazz: PsiClass => //do nothing, it's wrong class or object
         case _ =>
           addResult(new ScalaResolveResult(named, getSubst(state),
             getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))

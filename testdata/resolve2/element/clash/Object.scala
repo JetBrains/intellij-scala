@@ -1,5 +1,5 @@
 object O
 object O
 
-println(/* resolved: false */ O.getClass)
+println(/* */ O.getClass)
 println(classOf[/* resolved: false */ O])
