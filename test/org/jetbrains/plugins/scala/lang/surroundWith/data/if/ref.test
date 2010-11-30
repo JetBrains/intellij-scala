@@ -3,5 +3,7 @@ class a {
 }
 ------
 class a {
-  (if () {s} else {}).startsWith("t")
+  (if () {
+    s
+  } else {}).startsWith("t")
 }

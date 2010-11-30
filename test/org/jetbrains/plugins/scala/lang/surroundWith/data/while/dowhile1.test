@@ -3,5 +3,7 @@ class a {
 }
 -----
 class a {
-  do {abc} while (true)
+  do {
+    abc
+  } while (true)
 }

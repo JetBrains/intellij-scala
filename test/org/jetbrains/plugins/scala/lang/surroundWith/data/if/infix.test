@@ -3,5 +3,7 @@ class a {
 }
 ------
 class a {
-  (if () {2} else {}) + 2
+  (if () {
+    2
+  } else {}) + 2
 }
