@@ -97,7 +97,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
     //partial match
       case Some(x) => x.supers.map {_.info}
-      case None => Seq[FullSignature]() //todo: to prevent match error
+      case None => Seq[FullSignature]()
     }
     t
   }
@@ -144,17 +144,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getParameterList: ScParameters = paramClauses
 
-  // todo implement to handle errors
   def getType(ctx: TypingContext) = {
-    /*returnType flatMap { rt =>
-      paramClauses.clauses.foldRight(Success(rt, None) : TypeResult[ScType]) {
-        (cl, typeRes) =>
-          typeRes flatMap {ret =>
-            val paramTypes = cl.parameters.map(_.getType(ctx))
-            collectFailures(paramTypes, Nothing)(ScFunctionType(ret, _))
-          }
-      }
-    }*/
     returnType match {
       case Success(tp: ScType, _) => {
         var res: TypeResult[ScType] = Success(tp, None)
