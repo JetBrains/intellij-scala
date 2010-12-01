@@ -102,14 +102,16 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 case fun: ScPrimaryConstructor => subst.subst(fun.methodType(Some(tp)))
                 case method: PsiMethod => ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
               }
-              var typeParameters: Seq[TypeParameter] = r.getActualElement match {
+              val typeParameters: Seq[TypeParameter] = r.getActualElement match {
                 case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
-                  tp.typeParameters.map(tp => new TypeParameter(tp.name,
-                    tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+                  tp.typeParameters.map(tp =>
+                    new TypeParameter(tp.name,
+                      tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
                 }
                 case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
-                  ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
-                    Nothing, Any, ptp)) //todo: add lower and upper bound
+                  ptp.getTypeParameters.toSeq.map(ptp =>
+                    new TypeParameter(ptp.getName,
+                      Nothing, Any, ptp)) //todo: add lower and upper bound
                 }
                 case _ => return Success(res, Some(this))
               }

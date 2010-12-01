@@ -49,6 +49,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSecondClause = doTest
 
+  def testSelfTypeExpected = doTest
+
   def testSome = doTest
 
   def testSynchronizedWithGenerics = doTest

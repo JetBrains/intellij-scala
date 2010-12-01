@@ -251,6 +251,10 @@ private[expr] object ExpectedTypes {
               val j = constr.arguments.indexOf(args)
               processArgsExpected(res, expr, i, constr.shapeType(j), args.exprs.length - 1)
             }
+            case s: ScSelfInvocation => {
+              val j = s.arguments.indexOf(args)
+              processArgsExpected(res, expr, i, s.shapeType(j), args.exprs.length - 1)
+            }
             case _ =>
           }
         }
