@@ -20,6 +20,5 @@ trait ScEnumerators extends ScalaPsiElement {
 
   def guards: Seq[ScGuard]
 
-  def namings: Seq[{def pattern: ScPattern}]
-
+  def namings: Seq[ScPatterned]
 }

@@ -11,6 +11,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testImportedParameterizedType = doTest
 
+  def testIncompleteForStatement = doTest
+
   def testInfix = doTest
 
   def testMatchStatement = doTest
