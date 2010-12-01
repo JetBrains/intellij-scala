@@ -70,7 +70,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
   def hasParameterClause: Boolean = {
-    paramClauses.clauses.length != 0 //todo: look for super method, if it has then this method also has
+    if (paramClauses.clauses.length != 0) return true
+    superMethod match {
+      case Some(fun: ScFunction) => return fun.hasParameterClause
+      case Some(psi: PsiMethod) => return true
+      case None => return false
+    }
   }
 
   def hasMalformedSignature = paramClauses.clauses.exists {

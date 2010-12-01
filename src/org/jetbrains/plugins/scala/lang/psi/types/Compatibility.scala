@@ -267,7 +267,7 @@ object Compatibility {
       }
       case fun: ScFunction => {
         
-        if(fun.isProcedure && !argClauses.isEmpty)
+        if(!fun.hasParameterClause && !argClauses.isEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
                   
         val parameters: Seq[ScParameter] = fun.paramClauses.clauses.firstOption.toList.flatMap(_.parameters) 
