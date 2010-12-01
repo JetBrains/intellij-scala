@@ -6,6 +6,8 @@ package expr
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
+import types.result.TypeResult
+import types.ScType
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,7 +17,12 @@ import com.intellij.psi.PsiElement
 trait ScSelfInvocation extends ScalaPsiElement {
   def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
 
+  def arguments: Seq[ScArgumentExprList] =
+    collection.immutable.Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
+
   def bind: Option[PsiElement]
+
+  def shapeType(i: Int): TypeResult[ScType]
 
   def thisElement: PsiElement = getFirstChild
 }

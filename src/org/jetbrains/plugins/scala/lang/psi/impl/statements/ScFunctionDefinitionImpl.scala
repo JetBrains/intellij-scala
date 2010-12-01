@@ -124,7 +124,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       case Some(expr) => calculateReturns(expr)
       case _ =>
     }
-    res.toArray
+    res.filter(p => p.getContainingFile == getContainingFile).toArray
   }
 
   private var myControlFlow: Seq[Instruction] = null
