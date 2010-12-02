@@ -19,8 +19,10 @@ import lang.psi.types.ScType
  */
 
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
-                                  typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value], shapeResolve: Boolean)
-        extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds, isShapeResolve = shapeResolve) {
+                                  typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
+                                  shapeResolve: Boolean)
+        extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds,
+          isShapeResolve = shapeResolve, enableTupling = true) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
@@ -32,19 +34,23 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
             // But they haven't constructors.
-            addResult(new ScalaResolveResult(clazz, subst, getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
+            addResult(new ScalaResolveResult(clazz, subst, getImports(state), boundClass = getBoundClass(state),
+              fromType = getFromType(state)))
           }
           else {
             for (constr <- constructors) {
-              addResult(new ScalaResolveResult(constr, subst, getImports(state), parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state)))
+              addResult(new ScalaResolveResult(constr, subst, getImports(state), parentElement = Some(clazz),
+                boundClass = getBoundClass(state), fromType = getFromType(state)))
             }
           }
         }
         case ta: ScTypeAliasDeclaration => {
-          addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
+          addResult(new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
+            fromType = getFromType(state)))
         }
         case ta: ScTypeAliasDefinition => {
-          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state))
+          lazy val r = new ScalaResolveResult(ta, subst, getImports(state), boundClass = getBoundClass(state),
+            fromType = getFromType(state))
           val tp = ta.aliasedType(TypingContext.empty).getOrElse({
             addResult(r)
             return true
@@ -55,7 +61,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               if (constructors.isEmpty) addResult(r)
               else {
                 for (constr <- constructors) {
-                  addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state), parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state)))
+                  addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state),
+                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state)))
                 }
               }
             }

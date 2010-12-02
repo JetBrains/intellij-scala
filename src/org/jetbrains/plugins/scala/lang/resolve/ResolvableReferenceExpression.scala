@@ -153,7 +153,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           }
           case Some((clazz, subst)) => {
             val processor: MethodResolveProcessor = new MethodResolveProcessor(constr, "this",
-              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, constructorResolve = true)
+              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, constructorResolve = true,
+              enableTupling = true)
             val state = ResolveState.initial.put(ScSubstitutor.key, subst)
             for (constr <- clazz.getConstructors) {
               processor.execute(constr, state)
