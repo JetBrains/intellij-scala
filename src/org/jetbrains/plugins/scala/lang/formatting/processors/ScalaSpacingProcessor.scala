@@ -194,6 +194,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (rightPsi.isInstanceOf[ScImportSelectors]) {
         return WITHOUT_SPACING
       }
+      if (leftPsi.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
+        return WITHOUT_SPACING
+      }
       if (rightPsi.isInstanceOf[ScExtendsBlock] || rightPsi.isInstanceOf[ScTemplateBody]) {
         val extendsBlock = rightPsi match {
           case e: ScExtendsBlock => e
