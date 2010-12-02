@@ -18,6 +18,7 @@ import api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import api.statements._
 import api.toplevel.ScTypedDefinition
 import api.base.patterns.{ScReferencePattern, ScBindingPattern}
+import params.ScTypeParam
 
 trait ScType {
   final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
@@ -417,6 +418,7 @@ object ScType {
         }
       }
       case c@ScCompoundType(comps, decls, typeDecls, s) => {
+        def typeText0(tp: ScType) = typeText(s.subst(tp), nameFun, nameWithPointFun)
         buffer.append(comps.map(typeText(_, nameFun, nameWithPointFun)).mkString(" with "))
         if (decls.length + typeDecls.length > 0) {
           if (!comps.isEmpty) buffer.append(" ")
@@ -427,26 +429,26 @@ object ScType {
                 val buffer = new StringBuilder("")
                 buffer.append("def ").append(fun.name)
                 buffer.append(fun.paramClauses.clauses.map(_.parameters.map(param =>
-                  ScalaDocumentationProvider.parseParameter(param, tp => typeText(s.subst(tp), nameFun, nameWithPointFun))).
+                  ScalaDocumentationProvider.parseParameter(param, typeText0)).
                         mkString("(", ", ", ")")).mkString(""))
                 for (tp <- fun.returnType) {
                   val scType: ScType = s.subst(tp)
                   val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
-                  buffer.append(": ").append(text)
+                    buffer.append(": ").append(text)
                 }
                 buffer.toString
               }
               case v: ScValue => {
                 v.declaredElements.map(td => {
-                  val scType: ScType = s.subst(td.getType(TypingContext.empty).getOrElse(Any))
-                  val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
+                  val scType: ScType = td.getType(TypingContext.empty).getOrElse(Any)
+                  val text = if (!c.equiv(scType)) typeText0(scType) else "this.type"
                   "val " + td.name + ": " + text
                 }).mkString("; ")
               }
               case v: ScVariable => {
                 v.declaredElements.map(td => {
-                  val scType: ScType = s.subst(td.getType(TypingContext.empty).getOrElse(Any))
-                  val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
+                  val scType: ScType = td.getType(TypingContext.empty).getOrElse(Any)
+                  val text = if (!c.equiv(scType)) typeText0(scType) else "this.type"
                   "var " + td.name + ": " + text
                 }).mkString("; ")
               }
@@ -456,29 +458,27 @@ object ScType {
 
           if (!typeDecls.isEmpty) {
             if (!decls.isEmpty) buffer.append("; ")
-            buffer.append(typeDecls.map(ta =>
-              "type " + ta.getName + (if (ta.typeParameters.length > 0) (ta.typeParameters.map {param =>
-                var paramText = param.getName
-                if (param.isContravariant) paramText = "-" + paramText
-                else if (param.isCovariant) paramText = "+" + paramText
-                param.lowerBound foreach {
-                  case psi.types.Nothing =>
-                  case tp: ScType => paramText = paramText + " >: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-                }
-                param.upperBound foreach {
-                  case psi.types.Any =>
-                  case tp: ScType => paramText = paramText + " <: " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-                }
-                param.viewBound foreach {
-                  (tp: ScType) => paramText = paramText + " <% " + typeText(s.subst(tp), nameFun, nameWithPointFun)
-                }
-                param.contextBound foreach {
-                  (tp: ScType) =>
-                    paramText = paramText + " : " +
-                            typeText(ScTypeUtil.stripTypeArgs(s.subst(tp)), nameFun, nameWithPointFun)
-                }
-                paramText
-              }).mkString("[", ", ", "]") else "")).mkString("; "))
+            buffer.append(typeDecls.map{
+              (ta: ScTypeAlias) =>
+              val paramsText = if (ta.typeParameters.length > 0)
+                ta.typeParameters.map(param => typeParamText(param, s, nameFun, nameWithPointFun)).mkString("[", ", ", "]")
+              else ""
+
+              val decl = "type " + ta.getName + paramsText
+
+              val defnText = ta match {
+                case tad: ScTypeAliasDefinition =>
+                  var defnText = ""
+                  tad.aliasedType.foreach {
+                    case psi.types.Nothing =>
+                    case tpe => defnText += (" = " + typeText0(tpe))
+                  }
+                  // TODO render upper and lower bound, if provided.
+                  defnText
+                case _ => ""
+              }
+              decl + defnText
+            }.mkString("; "))
           }
 
           buffer.append("}")
@@ -494,6 +494,29 @@ object ScType {
     }
     inner(t)
     buffer.toString
+  }
+
+  private def typeParamText(param: ScTypeParam, subst: ScSubstitutor, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
+    def typeText0(tp: ScType) = typeText(subst.subst(tp), nameFun, nameWithPointFun)
+    var paramText = param.getName
+    if (param.isContravariant) paramText = "-" + paramText
+    else if (param.isCovariant) paramText = "+" + paramText
+    param.lowerBound foreach {
+      case psi.types.Nothing =>
+      case tp: ScType => paramText += (" >: " + typeText0(tp))
+    }
+    param.upperBound foreach {
+      case psi.types.Any =>
+      case tp: ScType => paramText += (" <: " + typeText0(tp))
+    }
+    param.viewBound foreach {
+      (tp: ScType) => paramText += (" <% " + typeText0(tp))
+    }
+    param.contextBound foreach {
+      (tp: ScType) =>
+        paramText += (" : " + typeText0(ScTypeUtil.stripTypeArgs(subst.subst(tp))))
+    }
+    paramText
   }
 
   // TODO: Review this against SLS 3.2.1
