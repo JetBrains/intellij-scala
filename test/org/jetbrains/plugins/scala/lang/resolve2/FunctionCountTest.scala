@@ -23,4 +23,5 @@ class FunctionCountTest extends ResolveTestBase {
   def testOneToTwo = doTest
   def testTwoToOne = doTest
   def testTwoToTwo = doTest
+  def testTupling = doTest
 }

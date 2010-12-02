@@ -49,6 +49,19 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
  */
 
 object ScalaPsiUtil {
+  def tuplizy(s: Seq[Expression], project: Project, scope: GlobalSearchScope): Option[Seq[Expression]] = {
+    val exprTypes: Seq[ScType] =
+      s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {
+        case (res, _) => res.getOrElse(Any)
+      }
+    val qual = "scala.Tuple" + exprTypes.length
+    val tupleClass = JavaPsiFacade.getInstance(project).findClass(qual, scope)
+    if (tupleClass == null)
+      return None
+    else
+      Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
+  }
+
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
     if (sibling == null) return null.asInstanceOf[T]
     var child: PsiElement = sibling.getNextSibling
@@ -142,7 +155,7 @@ object ScalaPsiUtil {
     }
     import Compatibility.Expression._
     val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs,
-      isShapeResolve = isShape)
+      isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp.inferValueType, getInvokedExpr, ResolveState.initial)
     var candidates = processor.candidates
 

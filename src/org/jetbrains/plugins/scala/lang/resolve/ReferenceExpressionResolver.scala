@@ -92,13 +92,14 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
       }
     }
     val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-      getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore, shapesOnly)
+      getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore,
+      shapesOnly, enableTupling = true)
 
     val result = reference.doResolve(ref, processor)
 
     if (result.isEmpty && ref.isAssignmentOperator) {
       reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
-        Nil, isShapeResolve = shapesOnly))
+        Nil, isShapeResolve = shapesOnly, enableTupling = true))
     } else {
       result
     }

@@ -18,8 +18,9 @@ import toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import result.{TypeResult, Success, TypingContext}
 import base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScSequenceArg, ScTypeElement}
 import collection.immutable.HashMap
-import lang.resolve.processor.ResolveProcessor
 import lang.resolve.{StdKinds, ScalaResolveResult}
+import lang.resolve.processor.{MethodResolveProcessor, ResolveProcessor}
+import types.Compatibility.Expression
 
 /**
  * @author ilyas
@@ -154,7 +155,8 @@ private[expr] object ExpectedTypes {
       //method application
       case tuple: ScTuple if tuple.isCall => {
         val res = new ArrayBuffer[ScType]
-        val i = tuple.exprs.findIndexOf(_ == expr)
+        val exprs: Seq[ScExpression] = tuple.exprs
+        val i = exprs.findIndexOf(_ == expr)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tp = callExpression match {
@@ -163,7 +165,7 @@ private[expr] object ExpectedTypes {
               else ref.getNonValueType(TypingContext.empty)
             case _ => callExpression.getNonValueType(TypingContext.empty)
           }
-          processArgsExpected(res, expr, i, tp, tuple.exprs.length - 1)
+          processArgsExpected(res, expr, i, tp, exprs)
         }
         res.toArray
       }
@@ -183,13 +185,13 @@ private[expr] object ExpectedTypes {
       case infix: ScInfixExpr if (infix.isLeftAssoc && infix.lOp == expr) ||
               (!infix.isLeftAssoc && infix.rOp == expr) => {
         val res = new ArrayBuffer[ScType]
-        val zExpr:ScExpression = expr match {
+        val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
           case _ => expr
         }
         val op = infix.operation
         val tp = if (!withResolvedFunction) op.shapeType else op.getNonValueType(TypingContext.empty)
-        processArgsExpected(res, zExpr, 0, tp, 1)
+        processArgsExpected(res, zExpr, 0, tp, Seq(zExpr))
         res.toArray
       }
       //SLS[4.1]
@@ -231,7 +233,8 @@ private[expr] object ExpectedTypes {
       }
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
-        val i = args.exprs.findIndexOf(_ == expr)
+        val exprs: Seq[ScExpression] = args.exprs
+        val i = exprs.findIndexOf(_ == expr)
         val callExpression = args.callExpression
         if (callExpression != null) {
           val tp = callExpression match {
@@ -243,17 +246,17 @@ private[expr] object ExpectedTypes {
               else gen.getNonValueType(TypingContext.empty)
             case _ => callExpression.getNonValueType(TypingContext.empty)
           }
-          processArgsExpected(res, expr, i, tp, args.exprs.length - 1)
+          processArgsExpected(res, expr, i, tp, exprs)
         } else {
           //it's constructor
           args.getParent match {
             case constr: ScConstructor => {
               val j = constr.arguments.indexOf(args)
-              processArgsExpected(res, expr, i, constr.shapeType(j), args.exprs.length - 1)
+              processArgsExpected(res, expr, i, constr.shapeType(j), exprs)
             }
             case s: ScSelfInvocation => {
               val j = s.arguments.indexOf(args)
-              processArgsExpected(res, expr, i, s.shapeType(j), args.exprs.length - 1)
+              processArgsExpected(res, expr, i, s.shapeType(j), exprs)
             }
             case _ =>
           }
@@ -265,7 +268,7 @@ private[expr] object ExpectedTypes {
   }
 
   private def processArgsExpected(res: ArrayBuffer[ScType], expr: ScExpression, i: Int, tp: TypeResult[ScType],
-                                  length: Int) {
+                                  exprs: Seq[ScExpression]) {
     def applyForParams(params: Seq[Parameter]) {
       val p: ScType =
         if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
@@ -295,35 +298,53 @@ private[expr] object ExpectedTypes {
     }
     tp match {
       case Success(ScMethodType(_, params, _), _) => {
-        applyForParams(params)
+        if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
+          params.apply(0).paramType match {
+            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false)))
+            case p: ScParameterizedType if p.getTupleType != None =>
+              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false)))
+            case _ =>
+          }
+        } else applyForParams(params)
       }
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) => {
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
-        applyForParams(newParams)
+        if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
+          newParams.apply(0).paramType match {
+            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false)))
+            case p: ScParameterizedType if p.getTupleType != None =>
+              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false)))
+            case _ =>
+          }
+        } else applyForParams(newParams)
       }
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) => {
-        val applyProc = new ResolveProcessor(StdKinds.methodsOnly, expr, "apply")
+        import Expression._
+        val applyProc =
+          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
         val cand = applyProc.candidates
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, s) => {
               val subst = s followed t.abstractTypeSubstitutor
-              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), length)
+              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), exprs)
             }
             case _ =>
           }
         }
       }
       case Success(anotherType, _) => {
-        val applyProc = new ResolveProcessor(StdKinds.methodsOnly, expr, "apply")
+        import Expression._
+        val applyProc =
+          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
         val cand = applyProc.candidates
         if (cand.length == 1) {
           cand(0) match {
             case ScalaResolveResult(fun: ScFunction, subst) => {
-              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), length)
+              processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), exprs)
             }
             case _ =>
           }

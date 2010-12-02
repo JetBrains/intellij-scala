@@ -26,13 +26,14 @@ import psi.api.base.ScPrimaryConstructor
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
-                             val argumentClauses: List[Seq[Expression]],
+                             var argumentClauses: List[Seq[Expression]],
                              val typeArgElements: Seq[ScTypeElement],
                              override val kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
                              val expectedOption: () => Option[ScType] = () => None,
                              val isUnderscore: Boolean = false,
-                             val isShapeResolve: Boolean = false,
-                             val constructorResolve: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             var isShapeResolve: Boolean = false,
+                             val constructorResolve: Boolean = false,
+                             val enableTupling: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -48,54 +49,28 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case _ => getSubst(state)
       }
       element match {
-        case m: PsiMethod => {
+        case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-          true
-        }
-        /*case cc: ScClass if cc.isCase && ref.getParent.isInstanceOf[ScMethodCall] ||
-                ref.getParent.isInstanceOf[ScGenericCall] => {
-          addResult(new ScalaResolveResult(cc, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType,
-            innerResolveResult = Some(new ScalaResolveResult(cc.constructor.getOrElse(return true),
-              s, getImports(state), None, implicitConversionClass, implicitFunction = implFunction,
-              implicitType = implType, fromType = fromType)), fromType = fromType))
-          true
-        }
-        case cc: ScClass if cc.isCase && !ref.getParent.isInstanceOf[ScReferenceElement] &&
-                ScalaPsiUtil.getCompanionModule(cc) == None => {
-          addResult(new ScalaResolveResult(cc.constructor.getOrElse(return true), s, getImports(state), None,
-            implicitConversionClass, implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-          true
-        }
-        case cc: ScClass if cc.isCase && ScalaPsiUtil.getCompanionModule(cc) == None => {
-          addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
-            implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-        }*/
-        case cc: ScClass => true
-        case o: ScObject if o.isPackageObject => return true // do not resolve to package object
-        case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] => {
+        case cc: ScClass =>
+        case o: ScObject if o.isPackageObject =>  // do not resolve to package object
+        case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
             val m = sign.method
             val subst = sign.substitutor
             addResult(new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,
               implicitFunction = implFunction, implicitType = implType, fromType = fromType))
           }
-          true
-        }
-        case synthetic: ScSyntheticFunction => {
+        case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-        }
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-        case _ => {
+        case _ =>
           addResult(new ScalaResolveResult(named, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType))
-          true
-        }
       }
     }
     return true
@@ -105,7 +80,30 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
     val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
-    MethodResolveProcessor.candidates(this, input)
+    if (!isShapeResolve && enableTupling && argumentClauses.length > 0 && argumentClauses.apply(0).length > 1) {
+      isShapeResolve = true
+      val cand1 = MethodResolveProcessor.candidates(this, input)
+      if (cand1.length == 0 || cand1.forall(_.tuplingUsed)) {
+        //tupling ok
+        isShapeResolve = false
+        val oldArg = argumentClauses
+        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.apply(0), ref.getProject, ref.getResolveScope)
+        if (tpl == None) {
+          return MethodResolveProcessor.candidates(this, input)
+        }
+        argumentClauses = tpl.toList
+        val res = MethodResolveProcessor.candidates(this, input)
+        argumentClauses = oldArg
+        if (res.forall(!_.isApplicable)) {
+          return MethodResolveProcessor.candidates(this, input)
+        }
+        res.map(r => r.copy(tuplingUsed = true))
+      } else {
+        isShapeResolve = false
+        MethodResolveProcessor.candidates(this, input)
+      }
+    } else
+      MethodResolveProcessor.candidates(this, input)
   }
 }
 
@@ -293,7 +291,23 @@ object MethodResolveProcessor {
     })
 
     if (isShapeResolve) {
-      if (filtered.isEmpty) return input.toArray
+      if (filtered.isEmpty) {
+        if (enableTupling) {
+          val filtered2 = input.filter(r => {
+            r.element match {
+              case fun: ScFunction if fun.paramClauses.clauses.length > 0 =>
+                fun.paramClauses.clauses.apply(0).parameters.length == 1
+              case p: ScPrimaryConstructor if p.parameterList.clauses.length > 0 =>
+                p.parameterList.clauses.apply(0).parameters.length == 1
+              case m: PsiMethod => m.getParameterList.getParameters.length == 1
+              case _ => false
+            }
+          }).map(r => r.copy(tuplingUsed = true))
+          if (filtered2.isEmpty) return input.toArray
+          return filtered2.toArray
+        }
+        return input.toArray
+      }
       else return filtered.toArray
     }
 
