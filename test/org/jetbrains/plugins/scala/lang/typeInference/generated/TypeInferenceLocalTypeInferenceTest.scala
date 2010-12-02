@@ -51,6 +51,10 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testSelfTypeExpected = doTest
 
+  def testSmartArrayMap = doTest
+
+  def testSmartArrayMap2 = doTest
+
   def testSome = doTest
 
   def testSynchronizedWithGenerics = doTest

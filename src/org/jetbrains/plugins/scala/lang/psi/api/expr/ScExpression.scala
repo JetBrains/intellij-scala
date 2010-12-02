@@ -316,7 +316,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
           updateRes(expectedType.get)
         } else {
           expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType)
+            case ScFunctionType(retType, _) => updateRes(retType) //todo: another functions
             case _ => //do not update res, we haven't expected type
           }
         }
