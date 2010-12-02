@@ -268,6 +268,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     }
     scriptSyntheticValues = new HashSet[ScSyntheticValue]
     //todo: remove all scope => method value
+    //todo: handle process cancelled exception
     val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
     if (stringClass != null) {
       scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))

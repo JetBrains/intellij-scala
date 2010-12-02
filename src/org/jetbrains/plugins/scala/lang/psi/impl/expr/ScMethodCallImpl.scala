@@ -22,7 +22,44 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   override def toString: String = "MethodCall"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    val nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
+    var nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
+    val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
+      case -1 => false
+      case _ => {
+        val unders = ScUnderScoreSectionUtil.underscores(this)
+        if (unders.length == 0) false
+        else true
+      }
+    }
+    nonValueType match {
+      case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _) if expectedType != None => {
+        def updateRes(expected: ScType) {
+          val subIntenal: ScType = internal match {
+            case ScMethodType(internal, _, impl) if impl => internal
+            case _ => internal
+          }
+          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(subIntenal,
+            Seq(Parameter("", expected, false, false)),
+            Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(subIntenal.inferValueType))),
+            typeParams, shouldUndefineParameters = false)
+          nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(this)) //here should work in different way:
+        }
+        if (!fromUnderscoreSection) {
+          updateRes(expectedType.get)
+        } else {
+          expectedType.get match {
+            case ScFunctionType(retType, _) => updateRes(retType)
+            case p: ScParameterizedType => p.getFunctionType match {
+              case Some(ScFunctionType(retType, _)) => updateRes(retType)
+              case _ =>
+            }
+            case _ => //do not update res, we haven't expected type
+          }
+        }
+
+      }
+      case _ =>
+    }
 
     def tuplizyCase(fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem]),
                     exprs: Seq[Expression]): ScType = {
