@@ -13,13 +13,21 @@ import com.intellij.psi._
 import psi.types.result.{Success, TypingContext}
 import psi.types.ScType
 import scope.PsiScopeProcessor
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
 
-class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern{
+class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def nameId = findChildByType(TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType(ScalaTokenTypes.tUNDER) != null

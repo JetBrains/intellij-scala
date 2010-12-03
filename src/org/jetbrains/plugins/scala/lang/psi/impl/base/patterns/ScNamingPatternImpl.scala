@@ -13,12 +13,20 @@ import com.intellij.psi._
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
 import psi.types.{Bounds, ScType}
 import scope.PsiScopeProcessor
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "NamingPattern"
 
   def nameId = findChildByType(TokenSets.ID_SET)

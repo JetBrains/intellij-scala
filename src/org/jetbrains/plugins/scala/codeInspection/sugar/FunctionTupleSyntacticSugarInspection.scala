@@ -3,15 +3,15 @@ package codeInspection
 package sugar
 
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
+import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -26,6 +26,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
   override def getID: String = "SyntacticSugar"
 
+/*
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()
 
@@ -64,6 +65,42 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
     }
     file.accept(visitor)
     return res.toArray
+  }
+*/
+
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+
+    object QualifiedName {
+      def unapply(p: PsiElement): Option[String] = p match {
+        case x: PsiClass => Some(x.getQualifiedName)
+        case _ => None
+      }
+    }
+
+    import FunctionTupleSyntacticSugarInspection._
+
+    new ScalaElementVisitor {
+      override def visitElement(elem: ScalaPsiElement) {
+        elem match {
+          case te: ScParameterizedTypeElement =>
+            val result: TypeResult[ScType] = te.typeElement.getType(TypingContext.empty)
+            result.toOption match {
+              case Some(ScDesignatorType(QualifiedName(FunctionN(n))))
+                if (te.typeArgList.typeArgs.length == (n.toInt + 1)) =>
+                holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                  Array[LocalQuickFix](new FunctionTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
+              case Some(ScDesignatorType(QualifiedName(TupleN(n))))
+                if (te.typeArgList.typeArgs.length == n.toInt) =>
+                holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                  Array[LocalQuickFix](new TupleTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
+              case _ =>
+            }
+          case _ =>
+        }
+        super.visitElement(elem)
+      }
+    }
   }
 }
 

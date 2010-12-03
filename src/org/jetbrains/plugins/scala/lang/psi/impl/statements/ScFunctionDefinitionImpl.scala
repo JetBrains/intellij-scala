@@ -18,7 +18,7 @@ import api.base.types.ScTypeElement
 import collection.mutable.ArrayBuffer
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.ScalaRecursiveElementVisitor
+import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,6 +26,13 @@ import api.ScalaRecursiveElementVisitor
  */
 
 class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}

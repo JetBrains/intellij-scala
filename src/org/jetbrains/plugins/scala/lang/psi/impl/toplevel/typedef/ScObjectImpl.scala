@@ -20,6 +20,7 @@ import collection.mutable.ArrayBuffer
 import api.base.ScPrimaryConstructor
 import refactoring.util.ScTypeUtil
 import types.result.TypingContext
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -27,6 +28,13 @@ import types.result.TypingContext
  */
 
 class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNode(null)}

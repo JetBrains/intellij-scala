@@ -45,7 +45,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   override def findPackage(qName: String): PsiPackage =
     ScalaPsiManager.instance(project).syntheticPackage(qName)
 
-  override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+  /*override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     ScalaCachesManager.getInstance(project).getNamesCache.getClassNames(psiPackage, scope)
-  }
+  }*/
 }

@@ -12,13 +12,21 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import impl.source.JavaDummyHolder
 import scope.PsiScopeProcessor
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
 
-class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClause{
+class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClause {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "CaseClause"
   
   override def processDeclarations(processor: PsiScopeProcessor,

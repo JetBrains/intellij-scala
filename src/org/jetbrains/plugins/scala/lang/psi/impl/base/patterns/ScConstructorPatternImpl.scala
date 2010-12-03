@@ -17,6 +17,7 @@ import api.statements.ScFunction
 import result.{TypeResult, TypingContext}
 import api.statements.params.ScTypeParam
 import types.ScSimpleTypeElementImpl
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -24,6 +25,12 @@ import types.ScSimpleTypeElementImpl
 */
 
 class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScConstructorPattern {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
 
   override def toString: String = "ConstructorPattern"
 

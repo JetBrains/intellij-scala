@@ -22,6 +22,7 @@ import lang.resolve._
 import processor.{CompletionProcessor, ResolveProcessor, BaseProcessor}
 import result.{TypeResult, Failure, Success, TypingContext}
 import com.intellij.psi._
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,6 +30,13 @@ import com.intellij.psi._
 */
 
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "TypeProjection"
 
   protected def innerType(ctx: TypingContext) = {

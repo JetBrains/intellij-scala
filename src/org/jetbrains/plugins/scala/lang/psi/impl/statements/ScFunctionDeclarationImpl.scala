@@ -10,12 +10,21 @@ import com.intellij.lang.ASTNode
 import api.statements._
 import types.result.{Success, TypingContext, TypeResult}
 import types.{Unit, ScType}
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
 */
 
 class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaration {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScFunctionStub) = {this(); setStub(stub); setNode(null)}
 

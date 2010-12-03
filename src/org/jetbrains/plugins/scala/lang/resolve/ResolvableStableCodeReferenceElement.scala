@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
+import _root_.java.lang.String
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
@@ -60,6 +61,31 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   }
 
   def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor): Array[ResolveResult] = {
+    var x = false
+    //performance improvement
+    ScalaPsiUtil.fileContext(ref) match {
+      case s: ScalaFile if s.isCompiled =>
+        x = true
+        //todo: improve checking for this and super
+        val refText: String = ref.getText
+        if (refText.contains("this") || refText.contains("super")) {} //do nothing
+        else {
+          //so this is full qualified reference => findClass, or findPackage
+          val facade = JavaPsiFacade.getInstance(getProject)
+          val classes = facade.findClasses(refText, ref.getResolveScope)
+          val pack = facade.findPackage(refText)
+          if (pack != null) processor.execute(pack, ResolveState.initial)
+          for (clazz <- classes) processor.execute(clazz, ResolveState.initial)
+          val candidates = processor.candidates
+          val filtered = candidates.filter(candidatesFilter)
+
+          if (!filtered.isEmpty) {
+            return filtered.toArray
+          }
+        }
+      case _ =>
+    }
+
     _qualifier match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement) {

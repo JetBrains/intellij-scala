@@ -4,6 +4,8 @@ package psi
 package api
 package expr
 
+import com.intellij.psi.PsiElementVisitor
+
 
 /**
  * @author Alexander Podkhalyuzin

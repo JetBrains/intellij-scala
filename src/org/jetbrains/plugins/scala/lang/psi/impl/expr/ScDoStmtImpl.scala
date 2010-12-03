@@ -15,7 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IElementType
+import api.ScalaElementVisitor
+;
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -40,5 +42,12 @@ class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStm
     val rpar = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
     if (c == null) None else Some(c) 
+  }
+
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
   }
 }

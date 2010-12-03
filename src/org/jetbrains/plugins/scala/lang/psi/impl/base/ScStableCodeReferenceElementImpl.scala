@@ -20,6 +20,7 @@ import api.expr.{ScSuperReference, ScThisReference}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import processor.{ExpandedExtractorResolveProcessor, CompletionProcessor}
+import api.ScalaElementVisitor
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -27,6 +28,13 @@ import processor.{ExpandedExtractorResolveProcessor, CompletionProcessor}
  */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableStableCodeReferenceElement {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def getVariants(): Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).map(r => {
     r match {
       case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)

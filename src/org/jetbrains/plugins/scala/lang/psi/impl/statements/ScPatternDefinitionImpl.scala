@@ -17,12 +17,21 @@ import types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import psi.types.result.TypingContext
 import api.expr.ScExpression
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
 */
 
 class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with ScPatternDefinition {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {
     this()
     setNode(node)

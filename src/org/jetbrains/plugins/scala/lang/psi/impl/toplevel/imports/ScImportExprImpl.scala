@@ -7,8 +7,10 @@ package imports
 
 import com.intellij.util.IncorrectOperationException
 import api.base.ScStableCodeReferenceElement
-import com.intellij.psi.PsiElement
-import stubs.ScImportExprStub;
+import stubs.ScImportExprStub
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import api.ScalaElementVisitor
+;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.lang.ASTNode
 
@@ -29,6 +31,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
  */
 
 class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScImportExpr {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScImportExprStub) = {this(); setStub(stub); setNode(null)}
 

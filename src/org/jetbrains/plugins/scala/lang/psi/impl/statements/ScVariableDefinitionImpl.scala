@@ -14,12 +14,21 @@ import parser.ScalaElementTypes
 import stubs.{ScValueStub, ScVariableStub}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import psi.types.result.TypingContext
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDefinition {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this (); setNode(node)}
 
   def this(stub: ScVariableStub) = {this (); setStub(stub); setNode(null)}

@@ -11,13 +11,20 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import psi.types.ScType
 import psi.types.result.{Success, TypeResult, TypingContext}
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
 
-class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCompositePattern{
+class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCompositePattern {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
 
   override def toString: String = "CompositePattern"
 

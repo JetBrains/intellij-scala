@@ -5,25 +5,12 @@ package impl
 package toplevel
 package typedef
 
-import stubs.elements.wrappers.DummyASTNode
 import stubs.ScTemplateDefinitionStub
-import com.intellij.psi.stubs.IStubElementType
-import api.base.ScModifierList
-import com.intellij.psi.{PsiElement, PsiModifierList}
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.tree.IElementType;
+import api.ScalaElementVisitor
+import com.intellij.psi.PsiElementVisitor
 import com.intellij.lang.ASTNode
-
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
-
 import org.jetbrains.plugins.scala.icons.Icons
-
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 /** 
 * @author Alexander Podkhalyuzin
@@ -31,6 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 */
 
 class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 

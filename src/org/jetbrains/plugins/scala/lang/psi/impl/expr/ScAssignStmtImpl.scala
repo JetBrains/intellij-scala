@@ -9,6 +9,8 @@ import com.intellij.lang.ASTNode
 import api.expr._
 import types.Unit
 import types.result.{Success, TypingContext}
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -21,6 +23,13 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
     getLExpression match {
       case call: ScMethodCall => call.getType(ctx)
       case _ => Success(Unit, Some(this))
+    }
+  }
+
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
     }
   }
 }

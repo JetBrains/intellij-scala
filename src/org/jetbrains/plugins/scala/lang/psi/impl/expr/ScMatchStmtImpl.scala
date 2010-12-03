@@ -7,7 +7,10 @@ package expr
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import types.result.TypingContext
-import types.{Nothing, Bounds, ScType};
+import types.{Nothing, Bounds, ScType}
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
+;
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
@@ -16,6 +19,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
  */
 
 class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMatchStmt {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "MatchStatement"
 
   protected override def innerType(ctx: TypingContext) = {

@@ -15,10 +15,10 @@ import lang.lexer._
 import psi.stubs.ScReferencePatternStub
 import psi.types.result.{Failure, TypingContext, Success}
 import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
-import api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
 import api.statements.ScDeclaredElementsHolder
+import api.{ScalaElementVisitor, ScalaFile}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -26,6 +26,13 @@ import api.statements.ScDeclaredElementsHolder
  */
 
 class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNode(null)}
 
