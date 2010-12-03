@@ -9,16 +9,24 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
 import types.Nothing
-import com.intellij.psi.PsiElement
 import lexer.ScalaTokenTypes
 import types.result.{TypingContext, Failure, Success}
 import api.statements.ScFunctionDefinition
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScReturnStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReturnStmt {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "ReturnStatement"
 
   protected[expr] override def innerType(ctx: TypingContext) = Success(Nothing, Some(this))

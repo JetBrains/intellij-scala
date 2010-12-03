@@ -416,6 +416,12 @@ object ImplicitlyImported {
   import collection.mutable.HashMap
   private val importedObjects: HashMap[Project, Array[PsiClass]] = new HashMap[Project, Array[PsiClass]]
   private val modCount: HashMap[Project, Long] = new HashMap[Project, Long]
+
+  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope,
+                                fqn: String): Array[PsiClass] = {
+    implicitlyImportedObjects(manager, scope).filter(_.getQualifiedName == fqn)
+  }
+
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Array[PsiClass] = {
     var res: Array[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
     val count = manager.getModificationTracker.getModificationCount

@@ -45,6 +45,13 @@ import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
  */
 
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableReferenceExpression {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "ReferenceExpression"
 
   def nameId: PsiElement = findChildByType(ScalaTokenTypes.tIDENTIFIER)

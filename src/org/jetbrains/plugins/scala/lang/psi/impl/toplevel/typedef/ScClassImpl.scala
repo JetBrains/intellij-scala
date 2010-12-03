@@ -9,10 +9,9 @@ import api.base.{ScPrimaryConstructor, ScModifierList}
 import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.ArrayFactory
-import stubs.elements.wrappers.DummyASTNode
-import stubs.ScTemplateDefinitionStub
+import psi.stubs.elements.wrappers.DummyASTNode
+import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiMethod, PsiElement, PsiNamedElement, PsiModifierList}
 import com.intellij.openapi.progress.ProgressManager
 import collection.mutable.ArrayBuffer
 import synthetic.ScSyntheticFunction
@@ -33,13 +32,22 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import com.intellij.psi._
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander.Podkhalyuzin
  */
 
 class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
- def this(node: ASTNode) = {this(); setNode(node)}
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
+  def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNode(null)}
 
   override def toString: String = "ScClass"
@@ -72,7 +80,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   import com.intellij.psi.{scope, PsiElement, ResolveState}
-  import scope.PsiScopeProcessor
+  import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
                                   lastParent: PsiElement,

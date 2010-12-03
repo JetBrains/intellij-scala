@@ -49,6 +49,14 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
  */
 
 object ScalaPsiUtil {
+  def fileContext(psi: PsiElement): PsiFile = {
+    if (psi == null) return null
+    psi match {
+      case f: PsiFile => f
+      case _ => fileContext(psi.getContext)
+    }
+  }
+
   def tuplizy(s: Seq[Expression], project: Project, scope: GlobalSearchScope): Option[Seq[Expression]] = {
     val exprTypes: Seq[ScType] =
       s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {

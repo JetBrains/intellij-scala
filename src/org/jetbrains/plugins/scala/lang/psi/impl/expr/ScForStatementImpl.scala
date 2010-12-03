@@ -14,12 +14,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import types.result.{Failure, TypeResult, TypingContext}
 import types._
+import api.ScalaElementVisitor
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
 class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForStatement {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
 
   override def toString: String = "ForStatement"
 

@@ -12,6 +12,8 @@ import nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import result.{TypeResult, Success, TypingContext}
 import types.Compatibility.Expression
 import collection.Seq
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,6 +21,13 @@ import collection.Seq
  */
 
 class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMethodCall {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "MethodCall"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {

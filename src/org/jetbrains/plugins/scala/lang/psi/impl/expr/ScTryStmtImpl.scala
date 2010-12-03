@@ -11,12 +11,21 @@ import types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
 */
 
 class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryStmt {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "TryStatement"
 
 

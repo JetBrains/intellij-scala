@@ -12,6 +12,8 @@ import api.expr._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.lang.ASTNode
 import types.result.{TypingContext, Success, Failure}
+import com.intellij.psi.PsiElementVisitor
+import api.ScalaElementVisitor
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,6 +21,13 @@ import types.result.{TypingContext, Success, Failure}
 */
 
 class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStmt {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def toString: String = "IfStatement"
 
   def condition = {

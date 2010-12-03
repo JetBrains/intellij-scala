@@ -15,6 +15,13 @@ import com.intellij.psi.tree.{TokenSet, IElementType}
 @author ven
  */
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   private val _locked = new ThreadLocal[Boolean] {
     override def initialValue: Boolean = false
   }
@@ -78,6 +85,13 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement]
         extends StubBasedPsiElementBase[StubElement[T]](DummyASTNode) with ScalaPsiElement with StubBasedPsiElement[StubElement[T]] {
+  override def accept(visitor: PsiElementVisitor): Unit = {
+    visitor match {
+      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case _ => super.accept(visitor)
+    }
+  }
+
   override def getElementType(): IStubElementType[StubElement[T], T] = {
     if (getNode != DummyASTNode && getNode != null) getNode.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
     else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
@@ -128,7 +142,8 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+    findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 }

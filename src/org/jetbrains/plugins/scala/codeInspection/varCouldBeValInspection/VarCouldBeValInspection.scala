@@ -3,14 +3,14 @@ package codeInspection
 package varCouldBeValInspection
 
 import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.{PsiReference, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScInfixExpr}
+import com.intellij.psi.{PsiElementVisitor, PsiReference, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
 
 class VarCouldBeValInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -61,6 +61,38 @@ class VarCouldBeValInspection extends LocalInspectionTool {
     }
     file.accept(visitor)
     return res.toArray
+  }
+
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+    def addError(varDef: ScVariableDefinition) = holder.registerProblem(holder.getManager.createProblemDescriptor(varDef, "'var' could be a 'val'",
+                    Array[LocalQuickFix](new ValToVarQuickFix(varDef)), ProblemHighlightType.INFO))
+
+    new ScalaElementVisitor {
+      override def visitElement(elem: ScalaPsiElement) {
+        elem match {
+          case x: ScVariableDefinition =>
+            x.contexts.take(1).toList match {
+              case (x: ScTemplateDefinition) :: _ => // ignore members, just local vars.
+              case _ =>
+                //15% faster then previous, more functional approach
+                var assigns = false
+                val decElemIterator = x.declaredElements.iterator
+                while (decElemIterator.hasNext && !assigns) {
+                  val decElem = decElemIterator.next
+                  val usageIterator = ReferencesSearch.search(decElem).iterator
+                  while (usageIterator.hasNext && !assigns) {
+                    val usage = usageIterator.next
+                    if (isAssignment(usage)) assigns = true
+                  }
+                }
+                if (!assigns) addError(x)
+            }
+          case _ =>
+        }
+        super.visitElement(elem)
+      }
+    }
   }
 
   private def isAssignment(ref: PsiReference): Boolean = ref.getElement.getContext match {
