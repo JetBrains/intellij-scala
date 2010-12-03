@@ -23,4 +23,10 @@ class ScalaFacetType extends FacetType[ScalaFacet, ScalaFacetConfiguration](Scal
                   underlyingFacet: Facet[_ <: FacetConfiguration]) = {
     new ScalaFacet(module, name, configuration, underlyingFacet)
   }
+
+  // workaround for FacetEditorFacadeImpl.addFacetNode(Facet) that uses object equality to compare facet types
+  override def equals(obj: Any) = obj match {
+    case facetType: ScalaFacetType => getStringId == facetType.getStringId
+    case _ => false
+  }
 }
