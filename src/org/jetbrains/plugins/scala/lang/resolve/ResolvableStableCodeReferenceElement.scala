@@ -2,18 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import _root_.java.lang.String
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang._
-import processor.{CompletionProcessor, BaseProcessor}
+import processor.BaseProcessor
 import psi.api.base._
 import psi.api.expr._
 import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
-import psi.api.{ScPackage, ScalaFile}
-import psi.impl.toplevel.synthetic.SyntheticClasses
+import psi.api.ScalaFile
 import psi.api.toplevel.packaging.ScPackaging
 import psi.ScalaPsiUtil
 import psi.types._
@@ -23,7 +20,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
-import caches.{CachesUtil, ScalaCachesManager}
 import com.intellij.openapi.progress.ProgressManager
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
