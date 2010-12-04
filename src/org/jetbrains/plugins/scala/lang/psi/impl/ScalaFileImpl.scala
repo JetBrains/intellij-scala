@@ -6,12 +6,11 @@ package impl
 
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import caches.{CachesUtil}
 import com.intellij.openapi.util.Key
-import com.intellij.util.{ArrayFactory}
+import com.intellij.util.ArrayFactory
 import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
-import _root_.com.intellij.extapi.psi.{PsiFileBase}
+import com.intellij.extapi.psi.PsiFileBase
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.icons.Icons
@@ -25,13 +24,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
-import api.base.{ScStableCodeReferenceElement}
+import api.base.ScStableCodeReferenceElement
 import com.intellij.psi.util.PsiTreeUtil
-import scope.{PsiScopeProcessor}
-import lang.resolve.processor.{ResolveProcessor, BaseProcessor, ResolverEnv}
+import scope.PsiScopeProcessor
+import lang.resolve.processor.{ResolveProcessor, ResolverEnv}
 import com.intellij.openapi.editor.Document
-import types.ScType
-import types.result.{TypingContext, TypeResult}
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope

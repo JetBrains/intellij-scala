@@ -193,9 +193,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       }
       res match {
         case Some(expr: ScExpression) =>
-          enumerators.map(e => e.generators.flatMap(g => patterns)).foreach(patts =>
+          enumerators.map(e => e.generators.map(g => g.pattern)).foreach(patts =>
             patts.foreach(patt => {
-              if (patt.desugarizedPatternIndex != -1) {
+              if (patt != null && patt.desugarizedPatternIndex != -1) {
                 var element = expr.findElementAt(patt.desugarizedPatternIndex)
                 while (element != null && (element.getTextLength < patt.getTextLength ||
                         (!element.isInstanceOf[ScPattern] && element.getTextLength == patt.getTextLength)))

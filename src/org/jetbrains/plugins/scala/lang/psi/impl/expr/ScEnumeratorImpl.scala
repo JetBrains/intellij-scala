@@ -18,7 +18,7 @@ import api.ScalaElementVisitor
 
 class ScEnumeratorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnumerator {
   override def toString: String = "Enumerator"
-  def pattern = findChildByClass(classOf[ScPattern])
+  def pattern: ScPattern = findChildByClass(classOf[ScPattern])
   def rvalue = findChildByClass(classOf[ScExpression])
 
   override def accept(visitor: PsiElementVisitor): Unit = {

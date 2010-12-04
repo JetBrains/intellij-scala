@@ -341,14 +341,14 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
             case _ => false
           }
         }
-        case _ => drv.getSuperTypes.find{
+        case _ => drv.getSuperTypes.find {
           psiT =>
                   val c = psiT.resolveGenerics.getElement
                   if (c == null) false else c == baseClass || (deep && isInheritorInner(base, c, deep, visited + drv))
         }
       }
     }
-    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indecies
+    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
     isInheritorInner(baseClass, this, deep, Set.empty)
   }
 
