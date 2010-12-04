@@ -54,7 +54,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
     return true
   }
 
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
+  override def candidatesS: Set[ScalaResolveResult] = {
     val candidates: HashSet[ScalaResolveResult] = candidatesSet ++ levelSet
     expected match {
       case Some(tp) =>
@@ -71,15 +71,15 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
           }
         }
         val filtered = candidates.filter(t => isApplicable(t))
-        if (filtered.size == 0) return candidates.toArray[T]
-        else if (filtered.size == 1) return filtered.toArray[T]
+        if (filtered.size == 0) return candidates
+        else if (filtered.size == 1) return filtered
         else {
           new MostSpecificUtil(ref, 1).mostSpecificForResolveResult(filtered) match {
-            case Some(r) => return Array[T](r)
-            case None => return candidates.toArray[T]
+            case Some(r) => return HashSet(r)
+            case None => return candidates
           }
         }
-      case _ => return candidates.toArray[T]
+      case _ => return candidates
     }
   }
 }

@@ -11,6 +11,7 @@ import psi.types._
 import psi.api.base.types.ScTypeElement
 import result.TypingContext
 import scala._
+import collection.immutable.HashSet
 import scala.collection.Set
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.implicits.ScImplicitlyConvertible
@@ -78,12 +79,12 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
 
 
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
+  override def candidatesS: Set[ScalaResolveResult] = {
     val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
     if (!isShapeResolve && enableTupling && argumentClauses.length > 0 && argumentClauses.apply(0).length > 1) {
       isShapeResolve = true
       val cand1 = MethodResolveProcessor.candidates(this, input)
-      if (cand1.length == 0 || cand1.forall(_.tuplingUsed)) {
+      if (cand1.size == 0 || cand1.forall(_.tuplingUsed)) {
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
@@ -222,26 +223,25 @@ object MethodResolveProcessor {
     }
   }
 
-  def candidates[T >: ScalaResolveResult : ClassManifest](proc: MethodResolveProcessor,
-                                                                   input: Set[ScalaResolveResult]): Array[T] = {
+  def candidates(proc: MethodResolveProcessor, input: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
     import proc._
 
-    def expand(r: ScalaResolveResult): Seq[ScalaResolveResult] = {
+    def expand(r: ScalaResolveResult): Set[ScalaResolveResult] = {
       r.element match {
-        case f: ScFunction if f.hasParameterClause => Seq(r)
+        case f: ScFunction if f.hasParameterClause => HashSet(r)
         case b: ScTypedDefinition if argumentClauses.length > 0 => {
-          val tp = r.substitutor subst b.getType(TypingContext.empty).getOrElse(return Seq.empty)
+          val tp = r.substitutor subst b.getType(TypingContext.empty).getOrElse(return HashSet.empty)
           val processor = new CollectMethodsProcessor(ref, "apply")
           processor.processType(tp, ref.asInstanceOf[ScalaPsiElement])
-          processor.candidates.map(rr => r.copy(innerResolveResult = Some(rr)))
+          processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
         }
-        case _ => Seq(r)
+        case _ => HashSet(r)
       }
     }
 
-    def mapper(applicationImplicits: Boolean): Seq[ScalaResolveResult] = {
+    def mapper(applicationImplicits: Boolean): Set[ScalaResolveResult] = {
       if (argumentClauses.length > 0) {
-        input.toSeq.flatMap(expand).map {
+        input.flatMap(expand).map {
           r => {
             val pr = problemsFor(r, applicationImplicits, proc)
             r.innerResolveResult match {
@@ -253,7 +253,7 @@ object MethodResolveProcessor {
             }
           }
         }
-      } else input.toSeq.map(r => {
+      } else input.map(r => {
         val pr = problemsFor(r, applicationImplicits, proc)
         r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
       })
@@ -270,7 +270,7 @@ object MethodResolveProcessor {
     val onlyValues = mapped.forall(_.isApplicable)
     if (filtered.isEmpty && onlyValues) {
       //possible implicit conversions in ScMethodCall
-      return input.toArray
+      return input
     } else if (!onlyValues) {
       //in this case all values are not applicable
       mapped = mapped.map(r => {
@@ -303,21 +303,21 @@ object MethodResolveProcessor {
               case _ => false
             }
           }).map(r => r.copy(tuplingUsed = true))
-          if (filtered2.isEmpty) return input.toArray
-          return filtered2.toArray
+          if (filtered2.isEmpty) return input
+          return filtered2
         }
-        return input.toArray
+        return input
       }
-      else return filtered.toArray
+      else return filtered
     }
 
-    if (filtered.isEmpty && mapped.isEmpty) input.toArray
-    else if (filtered.isEmpty) mapped.toArray
+    if (filtered.isEmpty && mapped.isEmpty) input
+    else if (filtered.isEmpty) mapped
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length
       MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered.toSet) match {
-        case Some(r) => Array(r)
-        case None => filtered.toArray
+        case Some(r) => HashSet(r)
+        case None => filtered
       }
     }
   }

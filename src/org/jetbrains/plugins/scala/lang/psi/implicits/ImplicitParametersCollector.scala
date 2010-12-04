@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import collection.immutable.::
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTemplateDefinition}
+import collection.immutable.{HashSet, ::}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -41,7 +41,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       obj.processDeclarations(processor, ResolveState.initial, null, place)
     }
 
-    return processor.candidates.toSeq
+    return processor.candidatesS.toSeq
   }
 
   class ImplicitParametersProcessor extends BaseProcessor(StdKinds.methodRef) {
@@ -65,7 +65,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       true
     }
 
-    override def candidates[T >: ScalaResolveResult: ClassManifest]: Array[T] = {
+    override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       def forFilter(c: ScalaResolveResult): Boolean = {
         val subst = c.substitutor
         val currentThread = Thread.currentThread
@@ -155,10 +155,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
           else {} //do nothing
         }
       }
-      val applicable: Array[ScalaResolveResult] = candidatesSet.toArray.filter(forFilter(_)).map(forMap(_))
-      new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable.toSet) match {
-        case Some(r) => return Array(r)
-        case _ => applicable.toArray[T]
+      val applicable = candidatesSet.filter(forFilter(_)).map(forMap(_))
+      new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
+        case Some(r) => return HashSet(r)
+        case _ => applicable
       }
     }
 

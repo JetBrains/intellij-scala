@@ -113,7 +113,7 @@ object ScalaPsiUtil {
         if (!isHardCoded || !t.isInstanceOf[ValType]) {
           val newProc = new ResolveProcessor(kinds, ref, refName)
           newProc.processType(t, e, ResolveState.initial)
-          !newProc.candidates.isEmpty
+          !newProc.candidatesS.isEmpty
         } else false
       }
     })
@@ -124,7 +124,7 @@ object ScalaPsiUtil {
           val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
             mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
           newProc.processType(t, e, ResolveState.initial)
-          val cand: Array[ScalaResolveResult] = newProc.candidates
+          val cand = newProc.candidatesS
           !cand.filter(_.isApplicable).isEmpty
         }
       })
@@ -165,7 +165,7 @@ object ScalaPsiUtil {
     val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp.inferValueType, getInvokedExpr, ResolveState.initial)
-    var candidates = processor.candidates
+    var candidates = processor.candidatesS
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
@@ -179,9 +179,9 @@ object ScalaPsiUtil {
         }
         processor.processType(t, getInvokedExpr, state)
       }
-      candidates = processor.candidates
+      candidates = processor.candidatesS
     }
-    candidates
+    candidates.toArray
   }
 
   def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall, isShape: Boolean): Option[ScType] = {
@@ -285,7 +285,7 @@ object ScalaPsiUtil {
     res.toSeq
   }
 
-  def getTypesStream(elems: List[PsiParameter]): Stream[ScType] = {
+  def getTypesStream(elems: Seq[PsiParameter]): Stream[ScType] = {
     if (elems.isEmpty) return Stream.empty
     new Stream[ScType] {
       override def head: ScType = elems.head match {

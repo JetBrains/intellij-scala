@@ -42,7 +42,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
           return Result.STOP
         }
       }
-    }
+    } /*else if (c == '\"') {
+      val action: Runnable = new Runnable {
+        def run: Unit = {
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      }
+      ApplicationManager.getApplication.runWriteAction(action)
+    }*/
     Result.CONTINUE
   }
 }

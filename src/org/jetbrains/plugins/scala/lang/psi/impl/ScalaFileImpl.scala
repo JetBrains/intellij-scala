@@ -414,16 +414,16 @@ object ImplicitlyImported {
 
 
   import collection.mutable.HashMap
-  private val importedObjects: HashMap[Project, Array[PsiClass]] = new HashMap[Project, Array[PsiClass]]
+  private val importedObjects: HashMap[Project, Seq[PsiClass]] = new HashMap[Project, Seq[PsiClass]]
   private val modCount: HashMap[Project, Long] = new HashMap[Project, Long]
 
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope,
-                                fqn: String): Array[PsiClass] = {
+                                fqn: String): Seq[PsiClass] = {
     implicitlyImportedObjects(manager, scope).filter(_.getQualifiedName == fqn)
   }
 
-  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Array[PsiClass] = {
-    var res: Array[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
+  def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
+    var res: Seq[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
     val count = manager.getModificationTracker.getModificationCount
     val count1: Option[Long] = modCount.get(manager.getProject)
     if (res != null && count1 != null && count == count1.get) {
@@ -436,13 +436,13 @@ object ImplicitlyImported {
     val filter = new ScalaSourceFilterScope(scope, manager.getProject)
     return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
   }
-  private def implicitlyImportedObjectsImpl(manager: PsiManager): Array[PsiClass] = {
+  private def implicitlyImportedObjectsImpl(manager: PsiManager): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]
     for (obj <- objects) {
       res ++= JavaPsiFacade.getInstance(manager.getProject).
               findClasses(obj, GlobalSearchScope.allScope(manager.getProject))
     }
-    res.toArray
+    res.toSeq
   }
 
 }

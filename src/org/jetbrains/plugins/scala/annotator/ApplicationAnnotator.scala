@@ -135,7 +135,7 @@ trait ApplicationAnnotator {
   }
 
   private def formatJavaParams(parameters: Seq[PsiParameter]) = {
-    val types = ScalaPsiUtil.getTypesStream(parameters.toList)
+    val types = ScalaPsiUtil.getTypesStream(parameters)
     val parts = parameters.zip(types).map {
       case (p, t) => t.presentableText + (if(p.isVarArgs) "*" else "")
     }

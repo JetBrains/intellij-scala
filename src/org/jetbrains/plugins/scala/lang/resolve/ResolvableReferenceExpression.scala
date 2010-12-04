@@ -159,7 +159,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             for (constr <- clazz.getConstructors) {
               processor.execute(constr, state)
             }
-            for (candidate <- processor.candidates) {
+            for (candidate <- processor.candidatesS) {
               candidate match {
                 case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
@@ -273,14 +273,14 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     processor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, aType))
 
-    val candidates = processor.candidates
+    val candidates = processor.candidatesS
 
     aType match {
       case d: ScDesignatorType if d.isStatic => return
       case _ =>
     }
     
-    if (candidates.length == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
+    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {
