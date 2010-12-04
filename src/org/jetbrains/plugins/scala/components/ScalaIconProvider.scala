@@ -13,9 +13,11 @@ class ScalaIconProvider extends IconProvider {
   @Nullable
   override def getIcon(element: PsiElement, flags: Int): Icon = {
     ProgressManager.checkCanceled
+    if (element == null) return null
     if (element.isInstanceOf[ScalaFile]) {
       val file = element.asInstanceOf[ScalaFile]
       if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO
+      if (file.getVirtualFile == null) return Icons.SCRIPT_FILE_LOGO
       val name = file.getVirtualFile.getNameWithoutExtension
       val defs = file.typeDefinitions
       val clazzIterator = defs.iterator
