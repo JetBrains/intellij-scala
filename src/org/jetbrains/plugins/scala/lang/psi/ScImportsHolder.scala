@@ -173,7 +173,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     treeWalkUp(this, place)
     val names: HashSet[String] = new HashSet
     val packs: ArrayBuffer[PsiPackage] = new ArrayBuffer
-    for (candidate <- completionProcessor.candidates) {
+    for (candidate <- completionProcessor.candidatesS) {
       candidate match {
         case ScalaResolveResult(pack: PsiPackage, _) => {
           if (names.contains(pack.getName)) {
@@ -284,7 +284,7 @@ trait ScImportsHolder extends ScalaPsiElement {
                 val completionProcessor = new ResolveProcessor(StdKinds.packageRef, elem,
                   getSplitQualifierElement(classPackageQualifier)._2)
                 this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
-                completionProcessor.candidates.length > 0
+                completionProcessor.candidatesS.size > 0
               }
               if (importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)) {
                 added = true

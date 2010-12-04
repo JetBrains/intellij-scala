@@ -9,7 +9,7 @@ import statements._
 import com.intellij.psi._
 import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
-import types.{PhysicalSignature, Signature, ScType, ScSubstitutor}
+import types.PhysicalSignature
 
 /**
  * @author AlexanderPodkhalyuzin

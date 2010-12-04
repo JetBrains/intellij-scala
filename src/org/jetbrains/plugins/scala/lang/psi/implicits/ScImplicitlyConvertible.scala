@@ -120,7 +120,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     if (typez == Nothing) return result.toSeq
     if (typez.isInstanceOf[ScUndefinedType]) return result.toSeq
     
-    val sigsFound = processor.candidates.map((r: ScalaResolveResult) => {
+    val sigsFound = processor.candidatesS.map((r: ScalaResolveResult) => {
       if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
         ProgressManager.checkCanceled
         lazy val funType: ScParameterizedType = {

@@ -72,7 +72,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           val pack = facade.findPackage(refText)
           if (pack != null) processor.execute(pack, ResolveState.initial)
           for (clazz <- classes) processor.execute(clazz, ResolveState.initial)
-          val candidates = processor.candidates
+          val candidates = processor.candidatesS
           val filtered = candidates.filter(candidatesFilter)
 
           if (!filtered.isEmpty) {
@@ -111,7 +111,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
     }
 
-    val candidates = processor.candidates
+    val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
 
     filtered.toArray

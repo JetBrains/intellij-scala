@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScInfixExpr}
 import com.intellij.psi.{PsiElementVisitor, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import com.intellij.psi.search.SearchScope
 
 class VarCouldBeValInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -41,7 +42,7 @@ class VarCouldBeValInspection extends LocalInspectionTool {
                 val decElemIterator = x.declaredElements.iterator
                 while (decElemIterator.hasNext && !assigns) {
                   val decElem = decElemIterator.next
-                  val usageIterator = ReferencesSearch.search(decElem).iterator
+                  val usageIterator = ReferencesSearch.search(decElem, decElem.getUseScope).iterator
                   while (usageIterator.hasNext && !assigns) {
                     val usage = usageIterator.next
                     if (isAssignment(usage)) assigns = true

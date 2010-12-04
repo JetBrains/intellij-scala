@@ -37,13 +37,15 @@ import com.intellij.openapi.project.DumbService
 import nonvalue.Parameter
 import result.{TypeResult, Failure, Success, TypingContext}
 import util.{PsiUtil, PsiTreeUtil}
-import collection.{Seq, Iterable}
+import collection.Seq
 import api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
 import api.statements.params.ScClassParameter
 import com.intellij.openapi.util.text.StringUtil
 import api.expr.ScBlock
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
+  override def hasTypeParameters: Boolean = typeParameters.length > 0
+
   override def add(element: PsiElement): PsiElement = {
     element match {
       case mem: ScMember => addMember(mem, None)

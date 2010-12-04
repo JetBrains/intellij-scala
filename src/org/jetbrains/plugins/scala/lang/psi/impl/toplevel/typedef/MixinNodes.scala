@@ -33,6 +33,20 @@ abstract class MixinNodes {
   class Map extends HashMap[T, Node] {
     override def elemHashCode(t : T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
+
+    /**
+     * Use this method if you are sure, that map contains key
+     */
+    def smartGet(key: T): Option[Node] = {
+      val h = index(elemHashCode(key))
+      var e = table(h).asInstanceOf[Entry]
+      if (e != null && e.next == null) return Some(e.value)
+      while (e != null && !elemEquals(e.key, key)) {
+        e = e.next
+        if (e.next == null) return Some(e.value)
+      }
+      None
+    }
   }
 
   class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {

@@ -223,8 +223,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     else super.getHint(hintKey)
   }
 
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    (candidatesSet ++ levelSet).toArray
+  override def candidatesS: Set[ScalaResolveResult] = {
+    candidatesSet ++ levelSet
   }
 
   object ScalaNameHint extends NameHint {

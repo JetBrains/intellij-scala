@@ -12,6 +12,7 @@ import scala.collection.Set
 import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration, ScTypeAlias}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
+import collection.immutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -77,12 +78,11 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     return true
   }
 
-  override def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = {
-    val superCandidates = super.candidates
-    if (superCandidates.length <= 1) superCandidates.toArray
+  override def candidatesS: Set[ScalaResolveResult] = {
+    val superCandidates = super.candidatesS
+    if (superCandidates.size <= 1) superCandidates
     else {
-      val constr = superCandidates.apply(0)
-      Array(new ScalaResolveResult(constr.getActualElement, constr.substitutor,
+      superCandidates.map(constr => new ScalaResolveResult(constr.getActualElement, constr.substitutor,
         constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType))
     }
   }

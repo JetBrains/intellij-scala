@@ -497,7 +497,10 @@ object Conformance {
         if (args1.length != args2.length) return (false, undefinedSubst)
         ScType.extractClass(owner) match {
           case Some(owner) => {
-            val parametersIterator = owner.getTypeParameters.iterator
+            val parametersIterator = owner match {
+              case td: ScTypeDefinition => td.typeParameters.iterator
+              case _ => owner.getTypeParameters.iterator
+            }
             return checkParameterizedType(parametersIterator, args1, args2)
           }
           case _ => return (false, undefinedSubst)
@@ -620,7 +623,7 @@ object Conformance {
             if (!inh._1) return (false, undefinedSubst)
             val tp = inh._2
             //Special case for higher kind types passed to generics.
-            if (lClass.getTypeParameters.length > 0) {
+            if (lClass.hasTypeParameters) {
               l match {
                 case p: ScParameterizedType =>
                 case f: ScFunctionType =>
