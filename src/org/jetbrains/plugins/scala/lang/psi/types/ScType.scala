@@ -468,14 +468,21 @@ object ScType {
 
               val defnText = ta match {
                 case tad: ScTypeAliasDefinition =>
-                  var defnText = ""
                   tad.aliasedType.foreach {
-                    case psi.types.Nothing =>
-                    case tpe => defnText += (" = " + typeText0(tpe))
+                    case psi.types.Nothing => ""
+                    case tpe => (" = " + typeText0(tpe))
                   }
-                  // TODO render upper and lower bound, if provided.
-                  defnText
-                case _ => ""
+                case _ =>
+                  var boundText = ""
+                  ta.lowerBound foreach {
+                    case psi.types.Nothing =>
+                    case tp: ScType => boundText += (" >: " + typeText0(tp))
+                  }
+                  ta.upperBound foreach {
+                    case psi.types.Any =>
+                    case tp: ScType => boundText += (" <: " + typeText0(tp))
+                  }
+                  boundText
               }
               decl + defnText
             }.mkString("; "))
