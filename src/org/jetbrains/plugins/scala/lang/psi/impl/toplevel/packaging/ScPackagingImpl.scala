@@ -150,7 +150,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     } else {
       val text = getText
       val endOffset = text.length
-      val startOffset = findChildByType(ScalaElementTypes.REFERENCE).getTextRange.getEndOffset + 1
+      val startOffset = findChildByType(ScalaElementTypes.REFERENCE).getTextRange.getEndOffset + 1 - getTextRange.getStartOffset
       return text.substring(startOffset, endOffset)
     }
   }
