@@ -213,6 +213,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     val elName = if (nameSet == null) {
       val name = named.getName
       if (name == null) return false
+      if (name == "") return false
       if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name
     } else if (nameSet.charAt(0) == '`') nameSet.substring(1, nameSet.length - 1) else nameSet
     elName == name && kindMatches(named)
