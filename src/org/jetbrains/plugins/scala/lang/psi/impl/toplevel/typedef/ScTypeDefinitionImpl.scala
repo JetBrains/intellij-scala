@@ -348,7 +348,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
         }
       }
     }
-    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
+    if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
     isInheritorInner(baseClass, this, deep, Set.empty)
   }
 
