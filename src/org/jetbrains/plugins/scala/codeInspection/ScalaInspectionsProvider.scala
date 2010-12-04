@@ -28,7 +28,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     val res = new ArrayBuffer[java.lang.Class[_]]
     //todo: res += classOf[CyclicReferencesInspection]
     res += classOf[FileNameInspection]
-    res += classOf[PackageNameInspection]
+    //res += classOf[PackageNameInspection]
     res += classOf[ScalaDeprecationInspection]
     res += classOf[CaseClassParamInspection]
     res += classOf[SupsiciousInferredTypeInspection]

@@ -24,36 +24,6 @@ class SupsiciousInferredTypeInspection extends LocalInspectionTool {
 
   override def getID: String = "SuspiciousInferredType"
 
-  /*override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()
-
-    val scalaFile = file.asInstanceOf[ScalaFile]
-    val res = new ArrayBuffer[ProblemDescriptor]
-
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitExpression(expr: ScExpression): Unit = {
-        val exprResultUsed = expr.getContext match {
-          case blk: ScBlock if blk.lastExpr.forall(_ != expr) => false
-          case _ => true
-        }
-        if (exprResultUsed && expr.expectedType.isEmpty) {
-          expr.getType(TypingContext.empty) match {
-            case Success(inferredType, _) if inferredType == AnyVal || inferredType == Any =>
-              val presentable = ScType.presentableText(inferredType)
-              res += manager.createProblemDescriptor(expr, ScalaBundle.message("suspicicious.inference", presentable),
-                Array[LocalQuickFix](), ProblemHighlightType.INFO)
-              // We don't call super.visitExpresion() to recurse further, as we couldn't annotate a sub-expression in an visually appealling manner.
-              return
-            case _ =>
-          }
-        }
-        super.visitExpression(expr)
-      }
-    }
-    file.accept(visitor)
-    return res.toArray
-  }*/
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
     new ScalaElementVisitor {

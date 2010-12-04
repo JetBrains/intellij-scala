@@ -26,48 +26,6 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
 
   override def getID: String = "SyntacticSugar"
 
-/*
-  override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    if (!file.isInstanceOf[ScalaFile]) return Array[ProblemDescriptor]()
-
-    val scalaFile = file.asInstanceOf[ScalaFile]
-    val res = new ArrayBuffer[ProblemDescriptor]
-
-    object QualifiedName {
-      def unapply(p: PsiElement): Option[String] = p match {
-        case x: PsiClass => Some(x.getQualifiedName)
-        case _ => None
-      }
-    }
-
-    import FunctionTupleSyntacticSugarInspection._
-
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitElement(elem: ScalaPsiElement) {
-        elem match {
-          case te: ScParameterizedTypeElement =>
-            val result: TypeResult[ScType] = te.typeElement.getType(TypingContext.empty)
-            result.toOption match {
-              case Some(ScDesignatorType(QualifiedName(FunctionN(n))))
-                if (te.typeArgList.typeArgs.length == (n.toInt + 1)) =>
-                res += manager.createProblemDescriptor(te, "syntactic sugar could be used",
-                  Array[LocalQuickFix](new FunctionTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO)
-              case Some(ScDesignatorType(QualifiedName(TupleN(n))))
-                if (te.typeArgList.typeArgs.length == n.toInt) =>
-                res += manager.createProblemDescriptor(te, "syntactic sugar could be used",
-                  Array[LocalQuickFix](new TupleTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO)
-              case _ =>
-            }
-          case _ =>
-        }
-        super.visitElement(elem)
-      }
-    }
-    file.accept(visitor)
-    return res.toArray
-  }
-*/
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
 

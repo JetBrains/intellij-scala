@@ -22,39 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
  */
 
 class ScalaDeprecationInspection extends LocalInspectionTool {
-  /*override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    val res = new ArrayBuffer[ProblemDescriptor]
-    def checkDeprecated(refElement: PsiElement, elementToHighlight: PsiElement, name: String): Unit = {
-      if (refElement == null) return
-      if (!refElement.isInstanceOf[PsiNamedElement]) return
-      val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
-      context match {
-        case doc: PsiDocCommentOwner => {
-          doc match {
-            case _: ScPrimaryConstructor =>
-            case f: PsiMethod if f.isConstructor =>
-            case _ => if (!doc.isDeprecated) return
-          }
-          if (!doc.isDeprecated && !doc.getContainingClass.isDeprecated) return
-        }
-        case _ => return
-      }
-      val description: String = "Symbol " + name + " is deprecated"
-      res += manager.createProblemDescriptor(elementToHighlight, description, true, ProblemHighlightType.LIKE_DEPRECATED)
-    }
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitFunction(fun: ScFunction): Unit = {
-        //todo: check super method is deprecated
-      }
-
-      override def visitReference(ref: ScReferenceElement): Unit = {
-        checkDeprecated(ref.resolve, ref.nameId, ref.refName)
-      }
-    }
-    file.accept(visitor)
-    res.toArray
-  }*/
-
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     def checkDeprecated(refElement: PsiElement, elementToHighlight: PsiElement, name: String): Unit = {
       if (refElement == null) return
