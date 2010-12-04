@@ -68,7 +68,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         x = true
         //todo: improve checking for this and super
         val refText: String = ref.getText
-        if (refText.contains("this") || refText.contains("super")) {} //do nothing
+        if (refText.contains("this") || refText.contains("super") || !refText.contains(".")) {} //do nothing
         else {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
