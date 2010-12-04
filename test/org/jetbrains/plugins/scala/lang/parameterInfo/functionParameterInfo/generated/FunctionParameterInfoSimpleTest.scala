@@ -22,4 +22,6 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
   def testScalaLibrary = doTest
 
   def testSimple = doTest
+
+  def testTypeRefinement = doTest
 }
