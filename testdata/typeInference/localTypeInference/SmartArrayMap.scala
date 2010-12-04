@@ -12,4 +12,4 @@ abstract class test {
 
   def x: Array[O] = /*start*/map(new H)/*end*/
 }
-//Array[test.O]
+//Array[test.this.type#O]
