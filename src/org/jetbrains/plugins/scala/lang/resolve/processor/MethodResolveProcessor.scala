@@ -217,7 +217,7 @@ object MethodResolveProcessor {
         Compatibility.compatible(tp.asInstanceOf[PsiNamedElement], substitutor, args, checkWithImplicits,
           ref.getResolveScope, isShapeResolve)
       }
-      //for functions => applicaability problem, no type parameters clause
+      //for functions => applicability problem, no type parameters clause
       case method: PsiMethod => ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       case _ => ConformanceExtResult(Seq.empty)
     }
