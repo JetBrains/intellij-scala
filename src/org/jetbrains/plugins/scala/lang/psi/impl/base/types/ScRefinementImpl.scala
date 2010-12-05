@@ -5,24 +5,12 @@ package impl
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-
-
-
-
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi._
-
-import org.jetbrains.annotations._
-
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import api.base.types._
+import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.scope.PsiScopeProcessor
+import api.statements.ScDeclaredElementsHolder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -31,4 +19,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
 class ScRefinementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScRefinement{
   override def toString: String = "Refinement"
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    val iterator = types.iterator
+    while (iterator.hasNext) {
+      val elem = iterator.next
+      if (!processor.execute(elem, state)) return false
+    }
+
+    val iterator1 = holders.iterator.flatMap(_.declaredElements.iterator)
+    while (iterator1.hasNext) {
+      val elem = iterator1.next
+      if (!processor.execute(elem, state)) return false
+    }
+    true
+  }
 }
