@@ -207,7 +207,11 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
               case fun: ScFunction => {
                 fun.superMethod match {
                   case Some(method: ScFunction) => {
-                    return Some(method.paramClauses.clauses.apply(j).parameters.apply(i))
+                    val clauses: Seq[ScParameterClause] = method.paramClauses.clauses
+                    if (j >= clauses.length) return None
+                    val parameters: Seq[ScParameter] = clauses.apply(j).parameters
+                    if (i >= parameters.length) return None
+                    return Some(parameters.apply(i))
                   }
                   case _ => return None
                 }
