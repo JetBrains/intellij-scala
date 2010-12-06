@@ -4,19 +4,16 @@ package psi
 package impl
 package search
 
-import _root_.scala.collection.mutable.ArrayBuffer
-import api.statements.ScAnnotationsHolder
-import api.toplevel.typedef.ScMember
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.searches.{AnnotatedElementsSearch, AnnotatedMembersSearch}
+import com.intellij.psi.search.searches.AnnotatedElementsSearch
 import com.intellij.psi.{PsiMember, PsiElement}
 import com.intellij.util.{QueryExecutor, Processor}
-import stubs.util.ScalaStubsUtil
 import com.intellij.psi.stubs.StubIndex
 import stubs.index.ScAnnotatedMemberIndex
 import api.expr.{ScAnnotations, ScAnnotation}
+import stubs.util.ScalaStubsUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,13 +37,11 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
         val iter = candidates.iterator
         while (iter.hasNext) {
           val next = iter.next
-          if (!next.isInstanceOf[ScAnnotation]) {
-            //todo:
-          } else {
+          if (ScalaStubsUtil.checkPsiForAnnotation(next)) {
             val annotation = next.asInstanceOf[ScAnnotation]
             annotation.getParent match {
               case ann: ScAnnotations => ann.getParent match {
-                case memb: PsiMember => if (!consumer.process(memb)) return false
+                case member: PsiMember => if (!consumer.process(member)) return false
                 case _ =>
               }
               case _ =>

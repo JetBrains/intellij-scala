@@ -18,6 +18,7 @@ import com.intellij.psi.util.{PsiUtilBase, PsiUtil}
 import com.intellij.openapi.diagnostic.Logger
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScMember}
 import collection.mutable.{HashSet, ArrayBuffer}
+import api.expr.ScAnnotation
 
 /**
  * User: Alexander Podkhalyuzin
@@ -55,6 +56,20 @@ object ScalaStubsUtil {
   def checkPsiForExtendsBlock(element: PsiElement): Boolean = {
     element match {
       case x: ScExtendsBlockImpl => return true
+      case _ => {
+        val faultyContainer = PsiUtilBase.getVirtualFile(element)
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer)
+        if (faultyContainer != null && faultyContainer.isValid) {
+          FileBasedIndex.getInstance.requestReindex(faultyContainer)
+        }
+        return false
+      }
+    }
+  }
+
+  def checkPsiForAnnotation(element: PsiElement): Boolean = {
+    element match {
+      case x: ScAnnotation => return true
       case _ => {
         val faultyContainer = PsiUtilBase.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
