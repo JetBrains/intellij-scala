@@ -151,15 +151,6 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
     def chooseClass {
       val list = new JList(classes.asInstanceOf[Array[Object]])
       list.setCellRenderer(new FQNameCellRenderer())
-      /*new PopupChooserBuilder(list).setTitle(ScalaBundle.message("class.import.title")).
-              setItemChoosenCallback(new Runnable {
-        def run {
-          val index = list.getSelectedIndex()
-          if (index < 0) return
-          PsiDocumentManager.getInstance(project).commitAllDocuments()
-          addImport(classes(index))
-        }
-      }).createPopup().showInBestPositionFor(editor)*/
 
       val popup = new BaseListPopupStep[PsiClass](QuickFixBundle.message("class.to.import.chooser.title"), classes) {
         override def getIconFor(aValue: PsiClass): Icon = {
