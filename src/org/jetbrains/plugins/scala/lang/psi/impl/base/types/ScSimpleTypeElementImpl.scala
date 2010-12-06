@@ -164,36 +164,6 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case Some(r@ScalaResolveResult(synth: ScSyntheticClass, _)) => lift(synth.t)
         case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
       }
-      /*ref.qualifier match {
-        case Some(q) => wrap(ref.bind) flatMap {
-          case ScalaResolveResult(aliasDef: ScTypeAliasDefinition, s) => {
-            if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
-            else lift(new ScTypeConstructorType(aliasDef, s))
-          }
-          case ScalaResolveResult(synth: ScSyntheticClass, _) => lift(synth.t)
-          case r@ScalaResolveResult(method: PsiMethod, subst) => {
-            lift(typeForConstructor(method, subst, r.getActualElement))
-          }
-          case r: ScalaResolveResult => lift(ScProjectionType(new ScSingletonType(q), ref))
-        }
-        case None => wrap(ref.bind) flatMap {
-          case r@ScalaResolveResult(e, s) => e match {
-            case aliasDef: ScTypeAliasDefinition =>
-              if (aliasDef.typeParameters.length == 0) aliasDef.aliasedType(ctx) map {t => s.subst(t)}
-              else lift(new ScTypeConstructorType(aliasDef, s))
-            case alias: ScTypeAliasDeclaration => lift(new ScTypeAliasType(alias, s))
-            case tp: PsiTypeParameter => lift(ScalaPsiManager.typeVariable(tp))
-            case synth: ScSyntheticClass => lift(synth.t)
-            case method: PsiMethod => {
-              lift(typeForConstructor(method, s, r.getActualElement))
-            }
-            case clazz: PsiClass => {
-
-            }
-            case _ => lift(Any)
-          }
-        }
-      }*/
       case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement, false)
     }
   }

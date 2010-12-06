@@ -24,13 +24,16 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
                                   shapeResolve: Boolean)
         extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds,
           isShapeResolve = shapeResolve, enableTupling = true) {
+  private val qualifiedNames: collection.mutable.HashSet[String] = new collection.mutable.HashSet[String]
+
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val subst = getSubst(state)
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
       named match {
-        case clazz: PsiClass => {
+        case clazz: PsiClass if !qualifiedNames.contains(clazz.getQualifiedName) => {
+          qualifiedNames.add(clazz.getQualifiedName)
           val constructors: Array[PsiMethod] = clazz.getConstructors.filter(isAccessible(_, ref))
           if (constructors.isEmpty) {
             //this is for Traits for example. They can be in constructor position.
