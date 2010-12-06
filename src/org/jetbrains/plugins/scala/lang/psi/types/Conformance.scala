@@ -23,6 +23,7 @@ import api.toplevel.{ScNamedElement, ScTypedDefinition}
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
@@ -597,7 +598,7 @@ object Conformance {
         return conformsInner(l, uBound, visited, undefinedSubst)
       }
       case (proj1@ScProjectionType(projected1, elem1, subst1), proj2@ScProjectionType(projected2, elem2, subst2))
-        if proj1.actualElement == proj2.actualElement => {
+        if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) => {
         return conformsInner(projected1, projected2, visited, undefinedSubst)
       }
       case (_, proj: ScProjectionType) => {
@@ -690,7 +691,7 @@ object Conformance {
       }
       ScType.extractClassType(tp) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
-        case Some((clazz: PsiClass, subst)) if clazz == rightClass => {
+        case Some((clazz: PsiClass, subst)) if ScEquivalenceUtil.areClassesEquivalent(clazz, rightClass) => {
           visited += clazz
           if (res == null) res = tp
           else if (tp.conforms(res)) res = tp

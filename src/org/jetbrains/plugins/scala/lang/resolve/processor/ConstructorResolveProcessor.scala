@@ -3,17 +3,12 @@ package lang.resolve.processor
 
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import lang.resolve.{ResolveTargets, ScalaResolveResult}
 import scala.collection.Set
-import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration, ScTypeAlias}
+import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
-import collection.immutable.HashSet
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.04.2010
