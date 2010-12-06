@@ -12,6 +12,8 @@ import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -116,11 +118,11 @@ object Equivalence {
         }
       }
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
-        return (clazz1 == clazz2, undefinedSubst)
+        return (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), undefinedSubst)
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
-        return (obj1 == obj2, undefinedSubst)
+        return (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), undefinedSubst)
       case (ScDesignatorType(obj1: ScObject), ScThisType(obj2: ScObject)) =>
-        return (obj1 == obj2, undefinedSubst)
+        return (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), undefinedSubst)
       case (l@ScExistentialType(quantified, wildcards), ex : ScExistentialType) => {
         val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
         val list = wildcards.zip(ex.wildcards)
@@ -210,7 +212,8 @@ object Equivalence {
         equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), r, undefinedSubst, falseUndef)
       case (_, ScDesignatorType(a: ScTypeAliasDefinition)) =>
         equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), l, undefinedSubst, falseUndef)
-      case (ScDesignatorType(element), ScDesignatorType(element1)) => (element == element1, undefinedSubst)
+      case (ScDesignatorType(element), ScDesignatorType(element1)) =>
+        (ScEquivalenceUtil.smartEquivalence(element, element1), undefinedSubst)
       case (JavaArrayType(arg), JavaArrayType(arg2)) => equivInner (arg, arg2, undefinedSubst, falseUndef)
       case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 => {
         ScType.extractClass(des) match {
@@ -232,7 +235,7 @@ object Equivalence {
         }
         return (true, undefinedSubst)
       }
-      case (ScTypeParameterType(name, args, lower, upper, param), stp: ScTypeParameterType) => {
+      case (ScTypeParameterType(_, _, lower, upper, param), stp: ScTypeParameterType) => {
         if (r eq l) return (true, undefinedSubst)
         (CyclicHelper.compute(param, stp.param)(() => {
           val t = equivInner(lower.v, stp.lower.v, undefinedSubst, falseUndef)

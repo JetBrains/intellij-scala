@@ -17,7 +17,7 @@ import api.statements.ScDeclaredElementsHolder
 * Date: 07.03.2008
 */
 
-class ScRefinementImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScRefinement{
+class ScRefinementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScRefinement{
   override def toString: String = "Refinement"
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
