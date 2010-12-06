@@ -156,7 +156,8 @@ private[expr] object ExpectedTypes {
       case tuple: ScTuple if tuple.isCall => {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = tuple.exprs
-        val i = exprs.findIndexOf(_ == expr)
+        val actExpr = actualExpr(expr)
+        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == expr)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tp = callExpression match {
@@ -234,7 +235,8 @@ private[expr] object ExpectedTypes {
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = args.exprs
-        val i = exprs.findIndexOf(_ == expr)
+        val actExpr = actualExpr(expr)
+        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
           val tp = callExpression match {
@@ -352,5 +354,13 @@ private[expr] object ExpectedTypes {
       }
       case _ =>
     }
+  }
+
+  private def actualExpr(expr: PsiElement): PsiElement = {
+    val next = expr.getNextSibling
+    if (next != null) return next.getPrevSibling
+    val prev = expr.getPrevSibling
+    if (prev != null) return prev.getNextSibling
+    return null
   }
 }
