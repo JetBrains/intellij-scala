@@ -148,10 +148,15 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testSCL2540() throws Exception {
+    String name = "bug/SCL2540.scala";
+    runTest(name);
+  }
+
 
   private void runTest(String name) throws Exception {
     String filePath = rootPath + name;
-    final VirtualFile vFile = LocalFileSystem.getInstance().findFileByPath(filePath.
+    final VirtualFile vFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(filePath.
         replace(File.separatorChar, '/'));
     assertNotNull("file " + filePath + " not found", vFile);
     String text = StringUtil.convertLineSeparators(VfsUtil.loadText(vFile), "\n");

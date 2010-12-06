@@ -362,7 +362,8 @@ object ScalaPsiElementFactory {
             def get(param: ScParameter): String = {
               var res: String = param.getName
               param.typeElement foreach {
-                x => res += ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
+                x => res += (if (res.endsWith("_")) " " else "") + ": " +
+                        ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
                 if (param.isRepeatedParameter) res += "*"
               }
               return res
@@ -373,7 +374,8 @@ object ScalaPsiElementFactory {
         }
         if (needsInferType) {
           method.returnTypeElement foreach {
-            x => res = res + ": " + ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
+            x => res = res + (if (res.endsWith("_")) " " else "") + ": " +
+                    ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
           }
         }
         res = res + " = "
@@ -472,7 +474,8 @@ object ScalaPsiElementFactory {
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
     if (needsInferType && ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any))) != "")
-      res = res + ": " + ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any)))
+      res = res + (if (res.endsWith("_")) " " else "") + ": " +
+              ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any)))
     res = res + " = " + body
     return res
   }
