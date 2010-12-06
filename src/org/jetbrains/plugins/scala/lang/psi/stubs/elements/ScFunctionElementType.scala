@@ -87,9 +87,5 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
     }
-    for (an <- stub.getAnnotations) {
-      sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, an)
-    }
-
   }
 }

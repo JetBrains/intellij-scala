@@ -52,12 +52,6 @@ object ScalaStubsUtil {
     inheritors.toSeq
   }
 
-  def getAnnotatedMembers(clazz: PsiClass, scope: GlobalSearchScope): List[ScMember] = {
-    val name = clazz.getName
-    if (name == null) return Nil
-    List.fromArray(StubIndex.getInstance.get(ScAnnotatedMemberIndex.KEY, name, clazz.getProject, scope).toArray(Array[ScMember]()))
-  }
-
   def checkPsiForExtendsBlock(element: PsiElement): Boolean = {
     element match {
       case x: ScExtendsBlockImpl => return true
