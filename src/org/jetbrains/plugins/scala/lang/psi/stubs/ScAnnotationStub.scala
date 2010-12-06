@@ -13,5 +13,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScAnnotationStub extends StubElement[ScAnnotation] {
-
+  def getName: String
 }

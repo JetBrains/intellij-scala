@@ -6,11 +6,12 @@ package expr
 
 import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import base.types.ScTypeElement
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
+/**
+ * @author Alexander Podkhalyuzin
+ * Date: 07.03.2008
+ */
 
 trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   /**
@@ -20,7 +21,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   def annotationExpr: ScAnnotationExpr = findChildByClassScala(classOf[ScAnnotationExpr])
 
   /**
-   * Return constructor element af annotation expressison. For example
+   * Return constructor element af annotation expression. For example
    * if annotation is <code>@Nullable</code> then method returns <code>
    * Nullable</code> psiElement.
    * @return constructor element
@@ -32,4 +33,6 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    * @return annotation attributes.
    */
   def attributes = annotationExpr.getAttributes
+
+  def typeElement: ScTypeElement = annotationExpr.constr.typeElement
 }

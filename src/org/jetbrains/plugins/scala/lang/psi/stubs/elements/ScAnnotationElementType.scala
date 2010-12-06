@@ -13,6 +13,11 @@ import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubElement, StubOutp
 
 import com.intellij.psi.PsiElement
 import psi.impl.toplevel.ScEarlyDefinitionsImpl
+import api.base.types.{ScSimpleTypeElement, ScParenthesisedTypeElement}
+import api.base.ScStableCodeReferenceElement
+import com.intellij.util.io.StringRef
+import index.ScalaIndexKeys
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.06.2009
@@ -21,6 +26,7 @@ import psi.impl.toplevel.ScEarlyDefinitionsImpl
 class ScAnnotationElementType[Func <: ScAnnotation]
         extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeName(stub.getName)
   }
 
   def createPsi(stub: ScAnnotationStub): ScAnnotation = {
@@ -28,12 +34,33 @@ class ScAnnotationElementType[Func <: ScAnnotation]
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScAnnotation, parentStub: StubElement[ParentPsi]): ScAnnotationStub = {
-    new ScAnnotationStubImpl(parentStub, this)
+    val name = psi.typeElement match {
+      case p: ScParenthesisedTypeElement => p.typeElement match {
+        case Some(s: ScSimpleTypeElement) => s.reference match {
+          case Some(ref: ScStableCodeReferenceElement) => ref.refName
+          case _ => ""
+        }
+        case _ => ""
+      }
+      case s: ScSimpleTypeElement => s.reference match {
+        case Some(ref) => ref.refName
+        case _ => ""
+      }
+      case _ => ""
+    }
+    new ScAnnotationStubImpl(parentStub, this, StringRef.fromString(name))
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAnnotationStub = {
-    new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val name = dataStream.readName
+    new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name)
   }
 
-  def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
+
+    val name = stub.getName
+    if (name != null && name != "") {
+      sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)
+    }
+  }
 }

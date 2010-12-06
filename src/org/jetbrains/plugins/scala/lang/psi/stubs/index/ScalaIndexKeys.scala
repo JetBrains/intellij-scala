@@ -8,9 +8,10 @@ import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import api.toplevel.packaging.ScPackageContainer
 
 import api.toplevel.templates.ScExtendsBlock
-import api.toplevel.typedef.{ScTypeDefinition, ScMember}
+import api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubIndexKey
+import api.expr.ScAnnotation
 
 /**
  * @author ilyas
@@ -26,7 +27,7 @@ object ScalaIndexKeys {
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.class.name.in.package")
   @deprecated
   val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")
-  val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScMember] = StubIndexKey.createIndexKey("sc.annotatde.member.name")
+  val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = StubIndexKey.createIndexKey("sc.annotatde.member.name")
   val VALUE_NAME_KEY: StubIndexKey[String, ScValue] = StubIndexKey.createIndexKey("sc.value.name")
   val VARIABLE_NAME_KEY: StubIndexKey[String, ScVariable] = StubIndexKey.createIndexKey("sc.variable.name")
   val TYPE_ALIAS_NAME_KEY: StubIndexKey[String, ScTypeAlias] = StubIndexKey.createIndexKey("sc.type.alias.name")

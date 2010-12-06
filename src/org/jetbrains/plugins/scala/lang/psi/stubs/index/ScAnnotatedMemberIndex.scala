@@ -6,12 +6,14 @@ package index
 
 import api.toplevel.typedef.ScMember
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
+import api.expr.ScAnnotation
+
 /**
  * @author ilyas
  */
 
-class ScAnnotatedMemberIndex extends StringStubIndexExtension[ScMember] {
-  def getKey: StubIndexKey[String, ScMember] = ScAnnotatedMemberIndex.KEY
+class ScAnnotatedMemberIndex extends StringStubIndexExtension[ScAnnotation] {
+  def getKey: StubIndexKey[String, ScAnnotation] = ScAnnotatedMemberIndex.KEY
 }
 
 object ScAnnotatedMemberIndex {
