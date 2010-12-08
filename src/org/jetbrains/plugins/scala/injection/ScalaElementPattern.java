@@ -14,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments;
 
 /**
@@ -31,6 +28,17 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public ScalaElementPattern(@NotNull InitialPatternCondition<T> tInitialPatternCondition) {
     super(tInitialPatternCondition);
+  }
+
+  public Self isRegExpLiteral() {
+    return with(new PatternCondition<T>("isRegExpLiteral") {
+      public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
+        final PsiElement parent = literal.getParent();
+        if(parent instanceof ScReferenceExpression && parent.getText().endsWith(".r")) return true;
+        if(parent instanceof ScPostfixExpr && ((ScPostfixExpr) parent).operation().getText().equals("r")) return true;
+        return false;
+      }
+    });
   }
 
   public Self callTarget(final ElementPattern<? extends PsiMethod> methodPattern) {

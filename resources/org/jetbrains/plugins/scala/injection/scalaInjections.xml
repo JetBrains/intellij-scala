@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <component name="LanguageInjectionConfiguration">
-  <!--<injection language="RegExp" injector-id="scala">-->
-    <!--<display-name>String.r (scala)</display-name>-->
-    <!--<place><![CDATA[scalaElement().callTarget(psiMethod().withName("r").definedInClass("scala.collection.immutable.StringLike"))]]></place>-->
-  <!--</injection>-->
+  <injection language="RegExp" injector-id="scala">
+    <display-name>String.r (scala)</display-name>
+    <place><![CDATA[scalaElement().isRegExpLiteral()]]></place>
+  </injection>
   <injection language="SQL" injector-id="scala">
     <display-name>BatchSqlUpdate (org.springframework.jdbc.object)</display-name>
     <place><![CDATA[scalaElement().callArgument(1, psiMethod().withName("BatchSqlUpdate").withParameters("javax.sql.DataSource", "java.lang.String").definedInClass("org.springframework.jdbc.object.BatchSqlUpdate"))]]></place>
