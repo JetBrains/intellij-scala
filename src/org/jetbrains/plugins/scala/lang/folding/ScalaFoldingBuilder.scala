@@ -7,16 +7,20 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import formatting.settings.ScalaCodeStyleSettings
 import scaladoc.parser.ScalaDocElementTypes
 import _root_.scala.collection.mutable._
-import psi.api.toplevel.packaging.ScPackaging;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.lang.folding.FoldingDescriptor;
-import com.intellij.openapi.editor.Document;
-
+import psi.api.toplevel.packaging.ScPackaging
+import java.lang.String
+import psi.impl.statements.ScTypeAliasDefinitionImpl
+import com.intellij.psi.PsiElement
+import psi.api.base.types.{ScTypeElement, ScCompoundTypeElement, ScParenthesisedTypeElement, ScTypeProjection}
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.editor.{FoldingGroup, Document}
+import com.intellij.lang.folding.FoldingBuilder
+import com.intellij.lang.folding.FoldingDescriptor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import params.ScTypeParamClause
 import com.intellij.openapi.util._
 
 /*
@@ -58,7 +62,23 @@ class ScalaFoldingBuilder extends FoldingBuilder {
           case _ =>
         }
       }
+    } else if (node.getElementType == ScalaElementTypes.TYPE_PROJECTION) {
+      node.getPsi match {
+        case TypeLambda(typeName, typeParamClause, aliasedType) =>
+          val group = FoldingGroup.newGroup("typelambda");
+          val range1 = new TextRange(node.getTextRange.getStartOffset, typeParamClause.getTextRange.getStartOffset)
+          val d1 = new FoldingDescriptor(node, range1, group) {
+            override def getPlaceholderText = typeName
+          }
+          val range2 = new TextRange(aliasedType.getTextRange.getEndOffset, node.getTextRange.getEndOffset)
+          val d2 = new FoldingDescriptor(aliasedType.getNode, range2, group) {
+            override def getPlaceholderText = ""
+          }
+          descriptors ++= Seq(d1, d2)
+        case _ =>
+      }
     }
+
     for (ch <- psi.getChildren; val child = ch.getNode) {
       appendDescriptors(child, document, descriptors)
     }
@@ -82,7 +102,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
       }
-    }
+    } 
     if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
       node.getPsi match {
         case _: ScBlockExpr => return "{...}"
@@ -102,13 +122,15 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       settings.FOLD_IMPORT_IN_HEADER) true
     else {
       node.getElementType match {
-        case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS=> true
-        case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC=> true
-        case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES=> true
-        case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS=> true
-        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMETS=> true
-        case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS=> true
+        case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS => true
+        case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC => true
+        case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES => true
+        case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS => true
+        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMETS => true
+        case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS => true
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] && settings.FOLD_BLOCK => true
+        case _ if node.getPsi.isInstanceOf[ScTypeProjection] && settings.FOLD_TYPE_LAMBDA => true
+        case _ if node.getPsi.isInstanceOf[ScTypeElement] && settings.FOLD_TYPE_LAMBDA => true
         case _ => false
       }
     }
@@ -150,4 +172,43 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 private[folding] object ScalaFoldingUtil {
   val IMPORT_KEYWORD = "import"
   val PACKAGE_KEYWORD = "package"
+}
+
+/**
+ * Extractor for:
+ *
+ *    ({type λ[α] = Either.LeftProjection[α, Int]})#λ
+ *
+ * Which can be folded to:
+ *
+ *    λ[α] = Either.LeftProjection[α, Int]
+ */
+object TypeLambda {
+  def unapply(psi: PsiElement): Option[(String, ScTypeParamClause, ScTypeElement)] = psi match {
+    case tp: ScTypeProjection =>
+      val element = tp.typeElement
+      val nameId = tp.nameId
+      element match {
+        case pte: ScParenthesisedTypeElement =>
+          pte.typeElement match {
+            case Some(cte: ScCompoundTypeElement) if cte.components.isEmpty =>
+              cte.refinement match {
+                case Some(ref) =>
+                  (ref.holders, ref.types) match {
+                    case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if tad.name == nameId.getText =>
+                      (tad.typeParametersClause, Option(tad.aliasedTypeElement)) match {
+                        case (Some(tpc), Some(ate)) =>
+                          return Some((nameId.getText, tpc, ate))
+                        case _ =>
+                      }
+                    case _ =>
+                  }
+                case None =>
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+      return None
+  }
 }
