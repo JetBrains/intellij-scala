@@ -39,6 +39,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox addFullQualifiedImportsCheckBox;
   private JCheckBox enableExpetimentalErrorHighlightingCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
+  private JCheckBox typeLamdasCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -84,6 +85,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_SCALADOC = scaladocCommentsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK = blockExpressionsCheckBox.isSelected();
     scalaSettings.FOLD_TEMPLATE_BODIES = templateBodiesCheckBox.isSelected();
+    scalaSettings.FOLD_TYPE_LAMBDA = typeLamdasCheckBox.isSelected();
     scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
     scalaSettings.FOLD_PACKAGINGS = packagingsCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
@@ -122,6 +124,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_TYPE_LAMBDA != typeLamdasCheckBox.isSelected()) return true;
 
     return false;
   }
@@ -154,6 +157,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);
     setValue(templateBodiesCheckBox, settings.FOLD_TEMPLATE_BODIES);
+    setValue(typeLamdasCheckBox, settings.FOLD_TYPE_LAMBDA);
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
     setValue(enableExpetimentalErrorHighlightingCheckBox, settings.ENABLE_ERROR_HIGHLIGHTING);
