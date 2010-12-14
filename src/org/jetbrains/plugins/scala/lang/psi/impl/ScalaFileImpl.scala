@@ -196,7 +196,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
    */
   @Deprecated
   def setPackageName(name: String) {
-    if (packageName == null && packageName == name) return
+    if (packageName == null || packageName == name) return
 
     val document: Document = PsiDocumentManager.getInstance(getProject).getDocument(this)
     try {
@@ -242,7 +242,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       res += "." + packs(0).getPackageName
       x = packs(0)
     }
-    null //impossiible line
+    null //impossible line
   }
 
   private def getPackageNameInner: String = {

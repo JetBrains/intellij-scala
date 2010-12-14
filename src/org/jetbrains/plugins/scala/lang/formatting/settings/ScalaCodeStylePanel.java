@@ -40,6 +40,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox enableExpetimentalErrorHighlightingCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox typeLamdasCheckBox;
+  private JCheckBox myResolveToAllClassesCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -93,6 +94,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     scalaSettings.ENABLE_ERROR_HIGHLIGHTING = enableExpetimentalErrorHighlightingCheckBox.isSelected();
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
+    scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = myResolveToAllClassesCheckBox.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -125,6 +127,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TEMPLATE_BODIES != templateBodiesCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_TYPE_LAMBDA != typeLamdasCheckBox.isSelected()) return true;
+
+    if (scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES != myResolveToAllClassesCheckBox.isSelected())
+      return true;
 
     return false;
   }
@@ -161,6 +166,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
     setValue(enableExpetimentalErrorHighlightingCheckBox, settings.ENABLE_ERROR_HIGHLIGHTING);
+
+    setValue(myResolveToAllClassesCheckBox, settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES);
   }
 
   private static void setValue(JSpinner spinner, int value) {

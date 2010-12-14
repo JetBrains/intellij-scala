@@ -5,14 +5,11 @@ package impl
 package statements
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
-
 import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef.ScMember
 import api.toplevel.{ScTypeParametersOwner}
 import caches.CachesUtil
-import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import parser.ScalaElementTypes
 import stubs.ScFunctionStub
