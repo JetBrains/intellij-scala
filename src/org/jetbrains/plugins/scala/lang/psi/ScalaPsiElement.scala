@@ -4,8 +4,8 @@ package psi
 
 import api.ScalaElementVisitor
 import com.intellij.psi.tree.{TokenSet, IElementType}
-import util.monads.MonadTransformer
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
 trait ScalaPsiElement extends PsiElement with RichPsiElement with MonadTransformer {
   protected override def delegate = this 
