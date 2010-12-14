@@ -19,7 +19,7 @@ class EnablePerformanceProblemsQuickFix(project: Project) extends LocalQuickFix 
 
   val enable: String = if (!ignoreSettings) "Enable" else "Disable"
   def getName: String =
-    enable + " setting, solving resolve problems" + (
+    enable + " setting, solving resolve problems " + (
                     if (!ignoreSettings) "(this can cause editor performance problems"
                     else "(this can improve editor performance"
                     ) + ")."
