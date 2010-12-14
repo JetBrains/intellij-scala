@@ -7,6 +7,7 @@ import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
 import com.intellij.openapi.project.Project
 import java.lang.String
 import lang.psi.api.ScalaFile
+import util.ScalaUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,7 +16,11 @@ import lang.psi.api.ScalaFile
 
 class ScalaRenamePackageQuickFix(file: ScalaFile, name: String) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    file.setPackageName(name)
+    ScalaUtils.runWriteAction(new Runnable {
+      def run: Unit = {
+        file.setPackageName(name)
+      }
+    }, project, "Rename Package QuickFix")
   }
 
   def getName: String = "Rename Package to " + name
