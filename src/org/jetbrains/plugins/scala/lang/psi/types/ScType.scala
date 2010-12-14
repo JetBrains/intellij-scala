@@ -242,9 +242,9 @@ object ScType {
     }
   }
 
-  def extractClass(t: ScType): Option[PsiClass] = extractClassType(t).map(_._1)
+  def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = extractClassType(t, project).map(_._1)
 
-  def extractClassType(t: ScType): Option[Pair[PsiClass, ScSubstitutor]] = t match {
+  def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
@@ -273,7 +273,7 @@ object ScType {
         case _ => None
       }
     }
-    case std@StdType(_, _) => Some((std.asClass(DecompilerUtil.obtainProject).getOrElse(return None), ScSubstitutor.empty))
+    case std@StdType(_, _) => Some((std.asClass(project.getOrElse(DecompilerUtil.obtainProject)).getOrElse(return None), ScSubstitutor.empty))
     case _ => None
   }
 

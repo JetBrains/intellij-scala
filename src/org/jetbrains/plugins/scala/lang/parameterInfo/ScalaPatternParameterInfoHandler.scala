@@ -101,7 +101,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               var o = -1 //index for right search bold parameter
               val params = for (t <-(generics(0) match {
                 case tuple: ScTupleType => tuple.components
-                case tp => ScType.extractClassType(tp) match {
+                case tp => ScType.extractClassType(tp, Some(context.getParameterOwner.getProject)) match {
                   case Some((clazz, _)) if clazz != null && clazz.getQualifiedName != null &&
                           clazz.getQualifiedName.startsWith("scala.Tuple") => {
                     tp match {

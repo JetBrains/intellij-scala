@@ -380,7 +380,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
                 }
                 def collectForType(typez: ScType) {
-                  ScType.extractClassType(typez) match {
+                  ScType.extractClassType(typez, Some(file.getProject)) match {
                     case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
                       for{
                         sign <- ScalaPsiUtil.getApplyMethods(clazz)
@@ -459,7 +459,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               val typeElement = constr.typeElement
               val i = constr.arguments.indexOf(args)
-              ScType.extractClassType(typeElement.calcType) match {
+              ScType.extractClassType(typeElement.calcType, Some(file.getProject)) match {
                 case Some((clazz: PsiClass, subst: ScSubstitutor)) => {
                   clazz match {
                     case clazz: ScClass => {

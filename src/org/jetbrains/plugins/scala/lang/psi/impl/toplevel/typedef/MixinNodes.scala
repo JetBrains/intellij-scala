@@ -135,7 +135,7 @@ abstract class MixinNodes {
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next
-      ScType.extractClassType(superType) match {
+      ScType.extractClassType(superType, place.map(_.getProject)) match {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {

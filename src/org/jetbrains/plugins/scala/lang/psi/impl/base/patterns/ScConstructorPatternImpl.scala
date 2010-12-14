@@ -42,7 +42,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     if (t == None) return false
     ref.bind match {
       case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase => {
-        ScType.extractClassType(t.get) match {
+        ScType.extractClassType(t.get, Some(clazz.getProject)) match {
           case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz => {
             clazz.constructor match {
               case Some(constr: ScPrimaryConstructor) => {

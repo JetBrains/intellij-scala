@@ -68,7 +68,8 @@ object DecompilerUtil {
       manager.asInstanceOf[ProjectManagerEx].getCurrentTestProject
     } else {
       val projects = manager.getOpenProjects();
-      if (projects.length == 0) manager.getDefaultProject else projects(0)
+      if (projects.length == 0) manager.getDefaultProject
+      else projects.find(p => !p.isDisposed).getOrElse(manager.getDefaultProject)
     }
   }
 

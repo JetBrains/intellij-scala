@@ -197,7 +197,9 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         val res = new ArrayBuffer[Array[(String, ScType)]]
         val i: Int = constr.arguments.indexOf(this)
         val extract: Option[(PsiClass, ScSubstitutor)] = constr.typeElement match {
-          case _: ScParameterizedTypeElement => ScType.extractClassType(constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
+          case elem: ScParameterizedTypeElement => ScType.extractClassType(
+            constr.typeElement.getType(TypingContext.empty).getOrElse(Any), Some(elem.getProject)
+          )
           case simple: ScSimpleTypeElement => simple.reference match {
             case Some(ref: ScStableCodeReferenceElement) => ref.bind match {
               case Some(ScalaResolveResult(clazz: PsiClass, subst)) => Some((clazz, subst))
