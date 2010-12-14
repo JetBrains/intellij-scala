@@ -126,7 +126,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaDocElementTypes.SCALA_DOC_COMMENT if settings.FOLD_SCALADOC => true
         case ScalaElementTypes.TEMPLATE_BODY if settings.FOLD_TEMPLATE_BODIES => true
         case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS => true
-        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMETS => true
+        case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMENTS => true
         case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS => true
         case _ if node.getPsi.isInstanceOf[ScBlockExpr] && settings.FOLD_BLOCK => true
         case _ if node.getPsi.isInstanceOf[ScTypeProjection] && settings.FOLD_TYPE_LAMBDA => true

@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
 import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -82,7 +80,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.DONT_SHOW_CONVERSION_DIALOG = donTShowDialogCheckBox.isSelected();
 
     scalaSettings.FOLD_FILE_HEADER = fileHeaderCheckBox.isSelected();
-    scalaSettings.FOLD_IMPORT_STATEMETS = importStatementsCheckBox.isSelected();
+    scalaSettings.FOLD_IMPORT_STATEMENTS = importStatementsCheckBox.isSelected();
     scalaSettings.FOLD_SCALADOC = scaladocCommentsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK = blockExpressionsCheckBox.isSelected();
     scalaSettings.FOLD_TEMPLATE_BODIES = templateBodiesCheckBox.isSelected();
@@ -121,7 +119,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_FILE_HEADER != fileHeaderCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
-    if (scalaSettings.FOLD_IMPORT_STATEMETS != importStatementsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_IMPORT_STATEMENTS != importStatementsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_PACKAGINGS != packagingsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SCALADOC != scaladocCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_SHELL_COMMENTS != shellCommentsInScriptCheckBox.isSelected()) return true;
@@ -157,7 +155,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
     setValue(fileHeaderCheckBox, settings.FOLD_FILE_HEADER);
     setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
-    setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMETS);
+    setValue(importStatementsCheckBox, settings.FOLD_IMPORT_STATEMENTS);
     setValue(packagingsCheckBox, settings.FOLD_PACKAGINGS);
     setValue(scaladocCommentsCheckBox, settings.FOLD_SCALADOC);
     setValue(shellCommentsInScriptCheckBox, settings.FOLD_SHELL_COMMENTS);

@@ -27,7 +27,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   //collapse by default
   public boolean FOLD_FILE_HEADER = true;
-  public boolean FOLD_IMPORT_STATEMETS = false;
+  public boolean FOLD_IMPORT_STATEMENTS = false;
   public boolean FOLD_SCALADOC = false;
   public boolean FOLD_BLOCK = false;
   public boolean FOLD_TEMPLATE_BODIES = false;
