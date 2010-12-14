@@ -75,7 +75,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
         val _packName = parentPackageName(p)
         if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
       }
-      case f: ScalaFileImpl => f.getPackageName
+      case f: ScalaFileImpl => "" //f.getPackageName
       case null => ""
       case parent => parentPackageName(parent)
     }

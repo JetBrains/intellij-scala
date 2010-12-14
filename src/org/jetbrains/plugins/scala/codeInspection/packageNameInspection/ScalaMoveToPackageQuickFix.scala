@@ -19,17 +19,21 @@ import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
 import com.intellij.openapi.project.Project
 import java.lang.String
 import lang.psi.api.ScalaFile
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.07.2009
  */
 
-class ScalaMoveToPackageQuickFix(file: ScalaFile, pack: PsiPackage) extends LocalQuickFix {
+class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
-    val packageName = pack.getQualifiedName
-    val directory = PackageUtil.findOrCreateDirectoryForPackage(project, packageName, null, true)
+    val packageName = packQualName
+    val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
+    val currentModule: Module = fileIndex.getModuleForFile(file.getVirtualFile)
+    val directory = PackageUtil.findOrCreateDirectoryForPackage(currentModule, packageName, null, true)
 
     if (directory == null) {
       return
@@ -47,7 +51,7 @@ class ScalaMoveToPackageQuickFix(file: ScalaFile, pack: PsiPackage) extends Loca
       null).run;
   }
 
-  def getName: String = "Move File " + file.getName + " To Package " + pack.getQualifiedName
+  def getName: String = "Move File " + file.getName + " To Package " + packQualName
 
-  def getFamilyName: String = "Mope File To Package"
+  def getFamilyName: String = "Move File To Package"
 }
