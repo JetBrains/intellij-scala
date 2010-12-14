@@ -53,6 +53,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
           }
           case _ => (false, expr)
         }
+        case _ if attributeName == "value" => (true, expr)
         case _ => (false, expr)
       }).find(p => p._1).getOrElse(false, null)._2
       case None => null
