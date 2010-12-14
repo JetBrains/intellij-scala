@@ -18,18 +18,18 @@ import nonvalue._
 import collection.{Set, Seq}
 import resolve.processor.MostSpecificUtil
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import psi.ScalaPsiUtil
 import base.ScLiteral
 import lexer.ScalaTokenTypes
 import types.Conformance.AliasType
 import statements.{ScTypeAliasDefinition, ScFunction}
+import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
 
-trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible {
+trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with PsiAnnotationMemberValue {
   import ScExpression._
   /**
    * This method returns real type, after using implicit conversions.

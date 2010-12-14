@@ -20,7 +20,9 @@ import com.intellij.openapi.extensions.Extensions
  * Date: 31.05.2010
  */
 
-class ScalaAnnotatorHighlightVisitor(project: Project) extends DefaultHighlightVisitor(project) {
+class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
+  def order: Int = 0
+
   private final val myAnnotationHolder: AnnotationHolderImpl = new AnnotationHolderImpl
   private var myHolder: HighlightInfoHolder = null
   private var myRefCountHolder: ScalaRefCountHolder = null

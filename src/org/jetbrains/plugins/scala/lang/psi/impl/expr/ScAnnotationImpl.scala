@@ -15,6 +15,8 @@ import psi.stubs.ScAnnotationStub
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.Any
 import types.result.TypingContext
+import api.toplevel.typedef.ScClass
+import com.intellij.openapi.util.Comparing
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,14 +35,48 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
 
   def getParameterList: PsiAnnotationParameterList = this
 
-  def getQualifiedName: String = ScType.extractClass(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrElse(Any)) match {
+  private def getClazz: Option[PsiClass] =
+    ScType.extractClass(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
+
+  def getQualifiedName: String = getClazz match {
     case None => null
     case Some(c) => c.getQualifiedName
   }
 
-  def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = null
+  def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+    constructor.args match {
+      case Some(args) => args.exprs.map(expr => expr match {
+        case ass: ScAssignStmt => ass.getLExpression match {
+          case ref: ScReferenceExpression if ref.refName == attributeName => ass.getRExpression match {
+            case Some(expr) => (true, expr)
+            case _ => (false, expr)
+          }
+          case _ => (false, expr)
+        }
+        case _ => (false, expr)
+      }).find(p => p._1).getOrElse(false, null)._2
+      case None => null
+    }
+  }
 
-  def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = null
+  def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+    val value = findDeclaredAttributeValue(attributeName)
+    if (value != null) return value
+
+    getClazz match {
+      case Some(c) =>
+        val methods = c.getMethods
+        val iterator = methods.iterator
+        while (!iterator.isEmpty) {
+          val method = iterator.next
+          if (method.isInstanceOf[PsiAnnotationMethod] && Comparing.equal(method.getName, attributeName)) {
+            return (method.asInstanceOf[PsiAnnotationMethod]).getDefaultValue
+          }
+        }
+      case _ =>
+    }
+    return null
+  }
 
   def getNameReferenceElement: PsiJavaCodeReferenceElement = null
 

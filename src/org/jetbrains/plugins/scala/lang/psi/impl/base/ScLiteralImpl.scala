@@ -10,11 +10,12 @@ import com.intellij.lang.ASTNode
 import api.base.ScLiteral
 import psi.types._
 import result.{TypeResult, Failure, Success, TypingContext}
-import java.lang.String
 import com.intellij.psi.{PsiLanguageInjectionHost, JavaPsiFacade}
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
+import java.lang.{StringBuilder, String}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -30,7 +31,6 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.kNULL => Null
       case ScalaTokenTypes.tINTEGER => {
         if (child.getText.endsWith("l") || child.getText.endsWith("L")) Long
-        // todo use TypingContext to put context-specific info
         else Int //but a conversion exists to narrower types in case range fits
       }
       case ScalaTokenTypes.tFLOAT => {
@@ -53,8 +53,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   }
 
   //TODO complete the implementation
-  def getValue = {
+  def getValue: AnyRef = {
     val child = getFirstChild.getNode
+    var text = getText
+    val textLength = getTextLength
     child.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
         StringUtil.unescapeStringCharacters(child.getText)
@@ -62,6 +64,48 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.tMULTILINE_STRING => {
         child.getText
       }
+      case ScalaTokenTypes.kTRUE => java.lang.Boolean.TRUE
+      case ScalaTokenTypes.kFALSE => java.lang.Boolean.FALSE
+      case ScalaTokenTypes.tCHAR =>
+        if (StringUtil.endsWithChar(getText, '\'')) {
+          if (textLength == 1) return null
+          text = text.substring(1, textLength - 1)
+        }
+        else {
+          text = text.substring(1, textLength)
+        }
+        val chars: StringBuilder = new StringBuilder
+        val success: Boolean = PsiLiteralExpressionImpl.parseStringCharacters(text, chars, null)
+        if (!success) return null
+        if (chars.length != 1) return null
+        return Character.valueOf(chars.charAt(0))
+      case ScalaTokenTypes.tINTEGER =>
+        if (child.getText.endsWith("l") || child.getText.endsWith("L"))
+          try {
+            java.lang.Long.valueOf(text)
+          } catch {
+            case e => null
+          }
+        else {
+          try {
+            java.lang.Integer.valueOf(text)
+          } catch {
+            case e => null
+          }
+        }
+      case ScalaTokenTypes.tFLOAT =>
+        if (child.getText.endsWith("f") || child.getText.endsWith("F"))
+          try {
+            java.lang.Float.valueOf(text)
+          } catch {
+            case e => null
+          }
+        else
+          try {
+            java.lang.Double.valueOf(text)
+          } catch {
+            case e => null
+          }
       case _ => null
     }
   }
