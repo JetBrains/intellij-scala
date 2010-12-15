@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="specs-1.6.5-scala-2.8.0-RC2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SDK/lib/specs_2.8.0.RC2-1.6.5-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
