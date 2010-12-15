@@ -23,7 +23,6 @@
   <idea-version since-build="98.382"/>
   <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
   <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
-  <!--<depends optional="true" config-file="scala-spring.xml">com.intellij.spring</depends>-->
   <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
 
   <extensions xmlns="org.jetbrains.idea.maven">
