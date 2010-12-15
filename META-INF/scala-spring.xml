@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<idea-plugin version="2">
-
-  <extensions defaultExtensionNs="com.intellij">
-    <annotator language="Scala" implementationClass="org.jetbrains.plugins.scala.spring.ScalaSpringClassAnnotator"/>
-  </extensions>
-
-</idea-plugin>
