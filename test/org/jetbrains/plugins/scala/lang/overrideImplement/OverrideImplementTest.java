@@ -153,6 +153,11 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testSCL2010() throws Exception {
+    String name = "bug/SCL2010.scala";
+    runTest(name);
+  }
+
 
   private void runTest(String name) throws Exception {
     String filePath = rootPath + name;
