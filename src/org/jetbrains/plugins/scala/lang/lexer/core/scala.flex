@@ -146,7 +146,7 @@ CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAP
 
 STRING_BEGIN = \"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*
 STRING_LITERAL={STRING_BEGIN} \"
-MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" // Multi-line string
+MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
 
 WRONG_STRING = {STRING_BEGIN}
 
@@ -331,7 +331,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                             return process(tSTRING);
                                         }
 
-{MULTI_LINE_STRING }                    {   yybegin(PROCESS_NEW_LINE);
+{MULTI_LINE_STRING}             {   yybegin(PROCESS_NEW_LINE);
                                             return process(tMULTILINE_STRING);
                                         }
 
