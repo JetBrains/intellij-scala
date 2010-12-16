@@ -362,7 +362,7 @@ object ScalaPsiElementFactory {
             def get(param: ScParameter): String = {
               var res: String = param.getName
               param.typeElement foreach {
-                x => res += (if (res.endsWith("_")) " " else "") + ": " +
+                x => res += (if (res.endsWith("_")) " " else "") + ": " + (if (param.isCallByNameParameter) "=>" else "") +
                         ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
                 if (param.isRepeatedParameter) res += "*"
               }
