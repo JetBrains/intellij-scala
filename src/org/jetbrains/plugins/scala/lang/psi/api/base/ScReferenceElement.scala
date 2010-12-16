@@ -11,12 +11,15 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.openapi.util.TextRange
-import toplevel.typedef.ScTypeDefinition
 import statements.{ScFunction}
 import com.intellij.openapi.progress.ProgressManager
 import refactoring.util.ScalaNamesUtil
 import java.lang.String
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import toplevel.ScNamedElement
+import toplevel.templates.ScTemplateBody
+import toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import toplevel.packaging.ScPackaging
 
 /**
  * @author Alexander Podkhalyuzin
@@ -54,14 +57,53 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
+    def eqviv(elem1: PsiElement, elem2: PsiElement): Boolean = {
+      if (elem1 == null || elem2 == null || elem1.getNode == null || elem2.getNode == null) return false
+      if (elem1.getNode.getElementType != elem2.getNode.getElementType) return false
+      elem1 match {
+        case n1: PsiNamedElement => {
+          import ScalaPsiUtil.nameContext
+          val n2 = elem2.asInstanceOf[PsiNamedElement]
+          if (n1.getName != n2.getName) return false
+          n1 match {
+            case n1: ScNamedElement =>
+              val context1 = nameContext(n1)
+              if (context1.getParent.isInstanceOf[ScalaFile] || context1.getParent.isInstanceOf[ScPackaging]) {
+                if (context1.isInstanceOf[ScTypeDefinition]) {
+                  return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
+                }
+              }
+              if (!context1.getParent.isInstanceOf[ScTemplateBody]) {
+                return elem1 == elem2
+              }
+              val context2 = nameContext(n2)
+              if (context2.getParent.isInstanceOf[ScalaFile] || context2.getParent.isInstanceOf[ScPackaging]) {
+                if (context2.isInstanceOf[ScTypeDefinition]) {
+                  return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
+                }
+              }
+              if (!context2.getParent.isInstanceOf[ScTemplateBody]) {
+                return elem1 == elem2
+              }
+              val clazz1 = ScalaPsiUtil.getParentOfType(context1, classOf[ScTemplateDefinition]).asInstanceOf[ScTemplateDefinition]
+              val clazz2 = ScalaPsiUtil.getParentOfType(context2, classOf[ScTemplateDefinition]).asInstanceOf[ScTemplateDefinition]
+              return eqviv(clazz1, clazz2)
+            case memb1: PsiMember => {
+              val memb2 = elem2.asInstanceOf[PsiMember]
+              val clazz1 = memb1.getContainingClass
+              val clazz2 = memb2.getContainingClass
+              if (clazz1 == null || clazz2 == null) return elem1 == elem2
+              return eqviv(clazz1, clazz2)
+            }
+            case _ => return elem1 == elem2
+          }
+        }
+        case _ => return elem1 == elem2
+      }
+    }
     class Eqv(elem: PsiElement) {
       def eqv(elem2: PsiElement): Boolean = {
-        if (elem == null || elem2 == null || elem.getNode == null || elem2.getNode == null) return false
-        if (elem.getNode.getElementType != elem2.getNode.getElementType) return false
-        if (!elem.isInstanceOf[PsiClass])
-          PsiEquivalenceUtil.areElementsEquivalent(elem, elem2)
-        else
-          elem.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
+        eqviv(elem, elem2)
       }
     }
     implicit def psi2eqv(psi: PsiElement) = new Eqv(psi)
