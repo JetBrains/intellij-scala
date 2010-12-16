@@ -102,6 +102,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     }
     def calculateReturns(expr: ScExpression): Unit = {
       expr match {
+        case tr: ScTryStmt => {
+          calculateReturns(tr.tryBlock)
+          tr.catchBlock match {
+            case Some(cBlock) => cBlock.getBranches.foreach(calculateReturns(_))
+            case None =>
+          }
+        }
         case block: ScBlock => {
           block.lastExpr match {
             case Some(expr) => calculateReturns(expr)
