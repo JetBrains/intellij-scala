@@ -18,8 +18,8 @@ import java.lang.String
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import toplevel.ScNamedElement
 import toplevel.templates.ScTemplateBody
-import toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import toplevel.packaging.ScPackaging
+import toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -139,11 +139,25 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
-              val containingClazz: ScTemplateDefinition = method.getContainingClass
-              if (n.method.getName == method.getName && (containingClazz eqv td))
-                break = true
+              if (n.method.getName == method.getName) {
+                if (method.getContainingClass eqv n.method.getContainingClass)
+                  break = true
+              }
+            }
+            if (!break && method.getText.contains("throw new Error()") && td.isInstanceOf[ScClass] &&
+              td.asInstanceOf[ScClass].isCase) {
+              ScalaPsiUtil.getCompanionModule(td) match {
+                case Some(td) => return isReferenceTo(td)
+                case _ =>
+              }
             }
             if (break) return true
+          }
+          case obj: ScObject if obj.isSyntheticObject => {
+            ScalaPsiUtil.getCompanionModule(td) match {
+              case Some(td) if td eqv obj => return true
+              case _ =>
+            }
           }
           case _ =>
         }
