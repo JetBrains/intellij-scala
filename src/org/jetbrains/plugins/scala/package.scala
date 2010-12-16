@@ -1,9 +1,12 @@
 package org.jetbrains.plugins
 
+import scala.lang.psi.api.base.ScReferenceElement
 import scala.lang.psi.RichPsiElement
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
+import scala.lang.psi.types.ScSubstitutor
+import scala.lang.resolve.ScalaResolveResult
 
 /**
  * Pavel.Fatin, 21.04.2010
@@ -47,12 +50,20 @@ package object scala {
   }
 
   object Resolved {
-    def unapply(e: PsiReference): Option[PsiElement] = {
+    def unapply(e: PsiReference): Option[(PsiElement, ScSubstitutor)] = {
       if (e == null) {
         None
       } else {
-        val target = e.resolve
-        if (target == null) None else Some(target)
+        e match {
+          case e: ScReferenceElement => e.bind match {
+            case Some(ScalaResolveResult(target, substitutor)) => Some(target, substitutor)
+            case _ => None
+          }
+          case _ =>
+            val target = e.resolve
+            if (target == null) None
+            else Some(target, ScSubstitutor.empty)
+        }
       }
     }
   }

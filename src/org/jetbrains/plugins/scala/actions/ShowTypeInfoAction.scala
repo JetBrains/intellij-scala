@@ -18,6 +18,7 @@ import lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDef
 import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import lang.psi.api.base.ScFieldId
+import lang.psi.types.{ScType, ScSubstitutor}
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -39,10 +40,10 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
       val hint = file.findReferenceAt(offest) match {
-        case Resolved(e) => typeOf(e)
+        case Resolved(e, subst) => typeOf(e, subst)
         case _ => {
           file.findElementAt(offest) match {
-            case Parent(p) => typeOf(p)
+            case Parent(p) => typeOf(p, ScSubstitutor.empty)
             case _ => None
           }
         }
@@ -52,13 +53,15 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
     }
   }
 
-  val typeOf: PsiElement => Option[String] = {
-    case e: ScFunction => e.returnType.toOption.map(_.presentableText)
-    case e: ScBindingPattern => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
-    case e: ScFieldId => e.getType(TypingContext.empty).toOption.map(_ .presentableText)
-    case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption.map(_ .presentableText)
-    case e: PsiMethod => e.getReturnType.toOption.map(_ getPresentableText)
-    case e: PsiVariable => e.getType.toOption.map(_ getPresentableText)
+  val typeOf: (PsiElement, ScSubstitutor) => Option[String] = {
+    case (e: ScFunction, s) => e.returnType.toOption.map(s.subst(_)).map(_.presentableText)
+    case (e: ScBindingPattern, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
+    case (e: ScFieldId, s) => e.getType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
+    case (e: ScParameter, s) => e.getRealParameterType(TypingContext.empty).toOption.map(s.subst(_)).map(_ .presentableText)
+    case (e: PsiMethod, s) => e.getReturnType.toOption.
+      map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
+    case (e: PsiVariable, s) => e.getType.toOption.
+      map(p => s.subst(ScType.create(p, e.getProject, e.getResolveScope))).map(_ presentableText)
     case _ => None
   }
 
