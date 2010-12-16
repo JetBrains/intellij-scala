@@ -15,6 +15,10 @@ class ScalaRenameClassTest extends ScalaRenameTestBase {
 
   def testObjectApply = doTest
 
+  def testObjectObjectToCaseClass = doTest
+
+  def testObjectToCaseClass = doTest
+
   def testRenameConstructor = doTest
 
   def testcircle = doTest
