@@ -447,7 +447,15 @@ object JavaToScala {
         }*/
       }
       case m: PsiModifierList => {
-        //todo: annotations, synchronized
+        //todo: synchronized
+        for {
+          // todo: test
+          a <- m.getAnnotations
+          if Option(a.getQualifiedName) != Some("java.lang.Override")
+        } {
+          res.append(convertPsiToText(a)).append(" ")
+        }
+        
         if (m.hasModifierProperty("volatile")) {
           res.append("@volatile\n")
         }
@@ -486,6 +494,23 @@ object JavaToScala {
       }
       case w: PsiWhiteSpace => {
         res.append(w.getText)
+      }
+      case annot: PsiAnnotation => {
+        res.append("@").append(annot.getNameReferenceElement.getText)
+        val attributes = annot.getParameterList.getAttributes
+        if (attributes nonEmpty) {
+          res.append("(")
+          for (attribute <- attributes) {
+            // TODO wrap vararg annotation arguments in Array(..)
+            if (attribute.getName != null) {
+              res.append(attribute.getName)
+              res.append(" = ")
+            }
+            res.append(convertPsiToText(attribute.getValue))
+          }
+          res.append(")")
+        }
+        res.append(" ")
       }
       case r: PsiReferenceParameterList => {
        if (r.getTypeParameterElements.length > 0) res.append(r.getTypeParameterElements.map(convertPsiToText(_)).mkString("[" ,", ", "]"))
