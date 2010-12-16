@@ -385,7 +385,6 @@ object ScalaPsiElementFactory {
         body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
         var hasOverride = false
         if (method.getModifierList.getNode != null)
-        //todo!!! add appropriate readPSI to get all modifiers
         for (modifier <- method.getModifierList.getNode.getChildren(null); m = modifier.getText) {
           m match {
             case "override" => hasOverride = true
@@ -415,12 +414,12 @@ object ScalaPsiElementFactory {
         }
         res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
         for (param <- method.getParameterList.getParameters) {
-          //todo: create
           val paramName = param.getName match {
             case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
             case x => x
           }
-          res = res + changeKeyword(paramName) + ": "
+          val pName: String = changeKeyword(paramName)
+          res = res + (if (pName.endsWith("_")) pName + " " else pName) + ": "
           val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
           var text = ScType.canonicalText(scType)
           if (text == "_root_.java.lang.Object") text = "Any"

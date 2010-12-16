@@ -85,8 +85,10 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
               if (!context2.getParent.isInstanceOf[ScTemplateBody]) {
                 return elem1 == elem2
               }
-              val clazz1 = ScalaPsiUtil.getParentOfType(context1, classOf[ScTemplateDefinition]).asInstanceOf[ScTemplateDefinition]
-              val clazz2 = ScalaPsiUtil.getParentOfType(context2, classOf[ScTemplateDefinition]).asInstanceOf[ScTemplateDefinition]
+              val clazz1 = ScalaPsiUtil.getParentOfType(context1, classOf[ScTemplateDefinition]).
+                asInstanceOf[ScTemplateDefinition]
+              val clazz2 = ScalaPsiUtil.getParentOfType(context2, classOf[ScTemplateDefinition]).
+                asInstanceOf[ScTemplateDefinition]
               return eqviv(clazz1, clazz2)
             case memb1: PsiMember => {
               val memb2 = elem2.asInstanceOf[PsiMember]
@@ -136,7 +138,8 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             method.getName == "unapplySeq" => {
             var break = false
             for (n <- td.allMethods if !break) {
-              if (n.method.getName == method.getName && (method.getContainingClass eqv n.method.getContainingClass)) break = true
+              if (n.method.getName == method.getName && (method.getContainingClass eqv n.method.getContainingClass))
+                break = true
             }
             if (break) return true
           }
