@@ -68,26 +68,26 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           n1 match {
             case n1: ScNamedElement =>
               val context1 = nameContext(n1)
-              if (context1.getParent.isInstanceOf[ScalaFile] || context1.getParent.isInstanceOf[ScPackaging]) {
+              if (context1.getContext.isInstanceOf[ScalaFile] || context1.getContext.isInstanceOf[ScPackaging]) {
                 if (context1.isInstanceOf[ScTypeDefinition]) {
                   return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
                 }
               }
-              if (!context1.getParent.isInstanceOf[ScTemplateBody]) {
+              if (!context1.getContext.isInstanceOf[ScTemplateBody]) {
                 return elem1 == elem2
               }
               val context2 = nameContext(n2)
-              if (context2.getParent.isInstanceOf[ScalaFile] || context2.getParent.isInstanceOf[ScPackaging]) {
+              if (context2.getContext.isInstanceOf[ScalaFile] || context2.getContext.isInstanceOf[ScPackaging]) {
                 if (context2.isInstanceOf[ScTypeDefinition]) {
                   return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
                 }
               }
-              if (!context2.getParent.isInstanceOf[ScTemplateBody]) {
+              if (!context2.getContext.isInstanceOf[ScTemplateBody]) {
                 return elem1 == elem2
               }
-              val clazz1 = ScalaPsiUtil.getParentOfType(context1, classOf[ScTemplateDefinition]).
+              val clazz1 = ScalaPsiUtil.getContextOfType(context1, true, classOf[ScTemplateDefinition]).
                 asInstanceOf[ScTemplateDefinition]
-              val clazz2 = ScalaPsiUtil.getParentOfType(context2, classOf[ScTemplateDefinition]).
+              val clazz2 = ScalaPsiUtil.getContextOfType(context2, true, classOf[ScTemplateDefinition]).
                 asInstanceOf[ScTemplateDefinition]
               return eqviv(clazz1, clazz2)
             case memb1: PsiMember => {
@@ -137,8 +137,10 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
             method.getName == "unapplySeq" => {
             var break = false
-            for (n <- td.allMethods if !break) {
-              if (n.method.getName == method.getName && (method.getContainingClass eqv n.method.getContainingClass))
+            val methods = td.allMethods
+            for (n <- methods if !break) {
+              val containingClazz: ScTemplateDefinition = method.getContainingClass
+              if (n.method.getName == method.getName && (containingClazz eqv td))
                 break = true
             }
             if (break) return true

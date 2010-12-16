@@ -75,6 +75,13 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
     element match {case x: ScPrimaryConstructor => return x.getContainingClass case _ =>}
     val function: ScFunction = element match {case x: ScFunction => x case _ => return element}
     if (function.isConstructor) return function.getContainingClass
+    function.getName match {
+      case "apply" | "unapply" | "unapplySeq" => {
+        return function.getContainingClass
+      }
+      case _ =>
+    }
+
     val signs = function.superSignatures
     if (signs.length == 0) return function
     val dialog = new WarningDialog(function.getProject, ScalaBundle.message("method.has.supers", function.getName))

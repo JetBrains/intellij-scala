@@ -79,7 +79,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def allTypeAliases = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
-  def allMethods = TypeDefinitionMembers.getMethods(this).values.map{ n => n.info }
+  def allMethods: Iterable[PhysicalSignature] =
+    TypeDefinitionMembers.getMethods(this).values.map{ n => n.info } ++
+      syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
   def allSignatures = TypeDefinitionMembers.getSignatures(this).values.map{ n => n.info }
 
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
