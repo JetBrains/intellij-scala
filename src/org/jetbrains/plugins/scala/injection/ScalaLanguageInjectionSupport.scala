@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.injection
 
 import org.intellij.plugins.intelliLang.inject.AbstractLanguageInjectionSupport
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiElement
 
 /**
@@ -20,6 +19,6 @@ class ScalaLanguageInjectionSupport extends AbstractLanguageInjectionSupport {
   }
 
   override def useDefaultInjector(host: PsiElement): Boolean = {
-    host.isInstanceOf[ScalaPsiElement]
+    false
   }
 }
