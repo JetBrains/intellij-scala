@@ -17,8 +17,9 @@ import java.lang.{StringBuilder, String}
 import api.statements.{ScVariableDefinition, ScAnnotationsHolder, ScPatternDefinition}
 import api.base.{ScReferenceElement, ScLiteral}
 import api.expr.{ScArgumentExprList, ScMethodCall, ScAssignStmt, ScAnnotation}
-import com.intellij.psi.{PsiElement, PsiLanguageInjectionHost, JavaPsiFacade}
 import api.base.patterns.ScReferencePattern
+import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, JavaPsiFacade}
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -156,7 +157,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         l.asOptionOf(classOf[ScReferenceElement])
                 .flatMap(_.resolve.toOption)
                 .map(contextOf)
-                .flatMap(_.asOptionOf(classOf[ScAnnotationsHolder]))
+                .flatMap(_.asOptionOf(classOf[PsiAnnotationOwner]))
                 .flatMap(it => extractLanguage(it, languageAnnotationName))
       }
       case _ => None
@@ -168,7 +169,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     case _ => element
   }
 
-  private def extractLanguage(element: ScAnnotationsHolder, languageAnnotationName: String) = {
+  private def extractLanguage(element: PsiAnnotationOwner, languageAnnotationName: String) = {
     element.getAnnotations
             .find(_.getQualifiedName == languageAnnotationName)
             .flatMap(_.asInstanceOf[ScAnnotation].constructor.args)
