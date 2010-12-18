@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <component name="LanguageInjectionConfiguration">
+  <option name="LANGUAGE_ANNOTATION" value="org.intellij.lang.annotations.Language" />
   <injection language="RegExp" injector-id="scala">
     <display-name>String.r (scala)</display-name>
     <place><![CDATA[scalaElement().isRegExpLiteral()]]></place>

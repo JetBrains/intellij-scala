@@ -7,16 +7,18 @@ package base
 import lexer.ScalaTokenTypes
 import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
-import api.base.ScLiteral
 import psi.types._
 import result.{TypeResult, Failure, Success, TypingContext}
-import com.intellij.psi.{PsiLanguageInjectionHost, JavaPsiFacade}
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import java.lang.{StringBuilder, String}
-
+import api.statements.{ScVariableDefinition, ScAnnotationsHolder, ScPatternDefinition}
+import api.base.{ScReferenceElement, ScLiteral}
+import api.expr.{ScArgumentExprList, ScMethodCall, ScAssignStmt, ScAnnotation}
+import com.intellij.psi.{PsiElement, PsiLanguageInjectionHost, JavaPsiFacade}
+import api.base.patterns.ScReferencePattern
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -59,10 +61,20 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val textLength = getTextLength
     child.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
-        StringUtil.unescapeStringCharacters(child.getText)
+        if (!text.startsWith("\"")) return null
+        text = text.substring(1)
+        if (text.endsWith("\"")) {
+          text = text.substring(0, text.length - 1)
+        }
+        StringUtil.unescapeStringCharacters(text)
       }
       case ScalaTokenTypes.tMULTILINE_STRING => {
-        child.getText
+        if (!text.startsWith("\"\"\"")) return null
+        text = text.substring(3)
+        if (text.endsWith("\"\"\"")) {
+          text = text.substring(0, text.length - 3)
+        }
+        text
       }
       case ScalaTokenTypes.kTRUE => java.lang.Boolean.TRUE
       case ScalaTokenTypes.kFALSE => java.lang.Boolean.FALSE
@@ -128,5 +140,40 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       new PassthroughLiteralEscaper(this)
     else
       new ScLiteralEscaper(this)
+  }
+
+  def annotatedLanguageId(languageAnnotationName: String): Option[String] = {
+    getParent match {
+      case e: ScPatternDefinition => extractLanguage(e, languageAnnotationName)
+      case e: ScVariableDefinition => extractLanguage(e, languageAnnotationName)
+      case assignment: ScAssignStmt => {
+        if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return None// named argument
+
+        val l = assignment.getLExpression
+
+        if (l.isInstanceOf[ScMethodCall]) return None // map(x) = y
+
+        l.asOptionOf(classOf[ScReferenceElement])
+                .flatMap(_.resolve.toOption)
+                .map(contextOf)
+                .flatMap(_.asOptionOf(classOf[ScAnnotationsHolder]))
+                .flatMap(it => extractLanguage(it, languageAnnotationName))
+      }
+      case _ => None
+    }
+  }
+
+  private def contextOf(element: PsiElement) = element match {
+    case p: ScReferencePattern => p.getParent.getParent
+    case _ => element
+  }
+
+  private def extractLanguage(element: ScAnnotationsHolder, languageAnnotationName: String) = {
+    element.getAnnotations
+            .find(_.getQualifiedName == languageAnnotationName)
+            .flatMap(_.asInstanceOf[ScAnnotation].constructor.args)
+            .flatMap(_.children.findByType(classOf[ScLiteral]))
+            .flatMap(_.getValue.asOptionOf(classOf[String]))
+            .headOption
   }
 }
