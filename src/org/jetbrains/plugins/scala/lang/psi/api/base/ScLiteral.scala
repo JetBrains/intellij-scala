@@ -12,6 +12,4 @@ import com.intellij.psi.{PsiLiteral, PsiLanguageInjectionHost}
 * Date: 22.02.2008
 */
 
-trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
-  def annotatedLanguageId(languageAnnotationName: String): Option[String]
-}
+trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost
