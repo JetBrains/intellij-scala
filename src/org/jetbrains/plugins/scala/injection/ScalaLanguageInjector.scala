@@ -10,12 +10,12 @@ import org.intellij.plugins.intelliLang.inject.InjectedLanguage
 import org.intellij.plugins.intelliLang.inject.LanguageInjectionSupport
 import com.intellij.openapi.extensions.Extensions
 import org.intellij.plugins.intelliLang.inject.InjectorUtils
-import com.intellij.psi.{PsiAnnotationOwner, PsiLanguageInjectionHost, PsiElement}
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.expr._
 import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement, ScLiteral}
+import com.intellij.psi._
 
 /**
  * Pavel Fatin
@@ -77,7 +77,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
             .flatMap(_.asOptionOf(classOf[PsiAnnotationOwner]))
     }
 
-  private def parameterOf(argument: ScExpression): Option[ScParameter] = argument.getParent match {
+  private def parameterOf(argument: ScExpression): Option[PsiAnnotationOwner] = argument.getParent match {
     case args: ScArgumentExprList => {
       val index = args.exprs.indexOf(argument)
       if(index == -1) None else {
@@ -88,6 +88,10 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
                 case Some(f: ScFunction) => {
                   val parameters = f.parameters
                   if(parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))
+                }
+                case Some(m: PsiMethod) => {
+                  val parameters = m.getParameterList.getParameters
+                  if(parameters.size == 0) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
                 }
                 case _ => None
               }
@@ -102,15 +106,16 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 
   private def contextOf(element: PsiElement) = element match {
     case p: ScReferencePattern => p.getParent.getParent
+    case field: PsiField => field.getModifierList
     case _ => element
   }
 
   private def extractLanguage(element: PsiAnnotationOwner, languageAnnotationName: String) = {
     element.getAnnotations
             .find(_.getQualifiedName == languageAnnotationName)
-            .flatMap(_.asInstanceOf[ScAnnotation].constructor.args)
-            .flatMap(_.children.findByType(classOf[ScLiteral]))
-            .flatMap(_.getValue.asOptionOf(classOf[String]))
-            .headOption
+            .flatMap(_.findAttributeValue("value").toOption)
+            .flatMap(_.asOptionOf(classOf[PsiLiteral]))
+            .map(_.getValue.toString)
+            .flatMap(_.asOptionOf(classOf[String]))
   }
 }
