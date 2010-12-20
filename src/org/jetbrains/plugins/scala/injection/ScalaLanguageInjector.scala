@@ -25,13 +25,16 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   def elementsToInjectIn = List(classOf[ScLiteral])
 
   def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
-    val id = annotatedLanguageId(host.asInstanceOf[ScLiteral], myInjectionConfiguration.getLanguageAnnotationClass)
-    val language = id.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)
+    val literal = host.asInstanceOf[ScLiteral]
+    // TODO implicit conversion checking disabled (performance reasons)
+    val annotationOwner = annotationOwnerFor(literal)//.orElse(implicitAnnotationOwnerFor(literal))
+    val languageId = annotationOwner.flatMap(extractLanguage(_, myInjectionConfiguration.getLanguageAnnotationClass))
+    val language = languageId.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)
 
     language.foreach{it =>
       registrar.startInjecting(it)
       registrar.addPlace("", "", host.asInstanceOf[PsiLanguageInjectionHost],
-        ScalaStringLiteralManipulator.getLiteralRange(host.asInstanceOf[ScLiteral].getText))
+        ScalaStringLiteralManipulator.getLiteralRange(literal.getText))
       registrar.doneInjecting()
     }
 
@@ -57,15 +60,16 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     }
   }
 
-  def annotatedLanguageId(literal: ScLiteral, languageAnnotationName: String): Option[String] = {
-    val annotationOwner = literal.getParent match {
-      case pattern: ScPatternDefinition => Some(pattern)
-      case variable: ScVariableDefinition => Some(variable)
-      case _: ScArgumentExprList => parameterOf(literal)
-      case assignment: ScAssignStmt => assignmentTarget(assignment)
-      case _ => None
-    }
-    annotationOwner.flatMap(extractLanguage(_, languageAnnotationName))
+  def annotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = literal.getParent match {
+    case pattern: ScPatternDefinition => Some(pattern)
+    case variable: ScVariableDefinition => Some(variable)
+    case _: ScArgumentExprList => parameterOf(literal)
+    case assignment: ScAssignStmt => assignmentTarget(assignment)
+    case _ => None
+  }
+
+  def implicitAnnotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = {
+    literal.getImplicitConversions._2.flatMap(_.asOptionOf(classOf[ScFunction])).flatMap(_.parameters.headOption)
   }
 
   private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner] = {
