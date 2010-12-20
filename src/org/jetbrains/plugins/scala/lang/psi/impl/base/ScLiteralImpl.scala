@@ -19,6 +19,7 @@ import api.base.{ScReferenceElement, ScLiteral}
 import api.expr.{ScArgumentExprList, ScMethodCall, ScAssignStmt, ScAnnotation}
 import api.base.patterns.ScReferencePattern
 import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, JavaPsiFacade}
+import api.statements.params.ScParameter
 
 /**
 * @author Alexander Podkhalyuzin
@@ -148,8 +149,6 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case e: ScPatternDefinition => extractLanguage(e, languageAnnotationName)
       case e: ScVariableDefinition => extractLanguage(e, languageAnnotationName)
       case assignment: ScAssignStmt => {
-        if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return None// named argument
-
         val l = assignment.getLExpression
 
         if (l.isInstanceOf[ScMethodCall]) return None // map(x) = y
