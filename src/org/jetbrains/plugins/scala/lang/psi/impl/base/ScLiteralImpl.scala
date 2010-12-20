@@ -143,37 +143,4 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     else
       new ScLiteralEscaper(this)
   }
-
-  def annotatedLanguageId(languageAnnotationName: String): Option[String] = {
-    getParent match {
-      case e: ScPatternDefinition => extractLanguage(e, languageAnnotationName)
-      case e: ScVariableDefinition => extractLanguage(e, languageAnnotationName)
-      case assignment: ScAssignStmt => {
-        val l = assignment.getLExpression
-
-        if (l.isInstanceOf[ScMethodCall]) return None // map(x) = y
-
-        l.asOptionOf(classOf[ScReferenceElement])
-                .flatMap(_.resolve.toOption)
-                .map(contextOf)
-                .flatMap(_.asOptionOf(classOf[PsiAnnotationOwner]))
-                .flatMap(it => extractLanguage(it, languageAnnotationName))
-      }
-      case _ => None
-    }
-  }
-
-  private def contextOf(element: PsiElement) = element match {
-    case p: ScReferencePattern => p.getParent.getParent
-    case _ => element
-  }
-
-  private def extractLanguage(element: PsiAnnotationOwner, languageAnnotationName: String) = {
-    element.getAnnotations
-            .find(_.getQualifiedName == languageAnnotationName)
-            .flatMap(_.asInstanceOf[ScAnnotation].constructor.args)
-            .flatMap(_.children.findByType(classOf[ScLiteral]))
-            .flatMap(_.getValue.asOptionOf(classOf[String]))
-            .headOption
-  }
 }

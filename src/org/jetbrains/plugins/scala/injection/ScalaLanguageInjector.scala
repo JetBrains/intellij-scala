@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package injection
 
 import com.intellij.lang.injection.{MultiHostRegistrar, MultiHostInjector}
-import com.intellij.psi.{PsiLanguageInjectionHost, PsiElement}
 import collection.JavaConversions._
 import org.intellij.plugins.intelliLang.Configuration
 import java.util.ArrayList
@@ -11,7 +10,13 @@ import org.intellij.plugins.intelliLang.inject.InjectedLanguage
 import org.intellij.plugins.intelliLang.inject.LanguageInjectionSupport
 import com.intellij.openapi.extensions.Extensions
 import org.intellij.plugins.intelliLang.inject.InjectorUtils
-import lang.psi.api.base.ScLiteral
+import com.intellij.psi.{PsiAnnotationOwner, PsiLanguageInjectionHost, PsiElement}
+import lang.psi.api.base.patterns.ScReferencePattern
+import lang.psi.api.expr._
+import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
+import lang.psi.api.statements.params.ScParameter
+import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement, ScLiteral}
+
 /**
  * Pavel Fatin
  */
@@ -20,7 +25,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   def elementsToInjectIn = List(classOf[ScLiteral])
 
   def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
-    val id = host.asInstanceOf[ScLiteral].annotatedLanguageId(myInjectionConfiguration.getLanguageAnnotationClass)
+    val id = annotatedLanguageId(host.asInstanceOf[ScLiteral], myInjectionConfiguration.getLanguageAnnotationClass)
     val language = id.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)
 
     language.foreach{it =>
@@ -50,5 +55,62 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
         }
       }
     }
+  }
+
+  def annotatedLanguageId(literal: ScLiteral, languageAnnotationName: String): Option[String] = {
+    val annotationOwner = literal.getParent match {
+      case pattern: ScPatternDefinition => Some(pattern)
+      case variable: ScVariableDefinition => Some(variable)
+      case _: ScArgumentExprList => parameterOf(literal)
+      case assignment: ScAssignStmt => assignmentTarget(assignment)
+      case _ => None
+    }
+    annotationOwner.flatMap(extractLanguage(_, languageAnnotationName))
+  }
+
+  private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner] = {
+    val l = assignment.getLExpression
+    // map(x) = y check
+    if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf(classOf[ScReferenceElement])
+            .flatMap(_.resolve.toOption)
+            .map(contextOf)
+            .flatMap(_.asOptionOf(classOf[PsiAnnotationOwner]))
+    }
+
+  private def parameterOf(argument: ScExpression): Option[ScParameter] = argument.getParent match {
+    case args: ScArgumentExprList => {
+      val index = args.exprs.indexOf(argument)
+      if(index == -1) None else {
+        args.getParent match {
+          case call: ScMethodCall => {
+            call.getInvokedExpr.asOptionOf(classOf[ScReferenceExpression]).flatMap { ref =>
+              ref.resolve.toOption match {
+                case Some(f: ScFunction) => {
+                  val parameters = f.parameters
+                  if(parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))
+                }
+                case _ => None
+              }
+            }
+          }
+          case _ => None
+        }
+      }
+    }
+    case _ => None
+  }
+
+  private def contextOf(element: PsiElement) = element match {
+    case p: ScReferencePattern => p.getParent.getParent
+    case _ => element
+  }
+
+  private def extractLanguage(element: PsiAnnotationOwner, languageAnnotationName: String) = {
+    element.getAnnotations
+            .find(_.getQualifiedName == languageAnnotationName)
+            .flatMap(_.asInstanceOf[ScAnnotation].constructor.args)
+            .flatMap(_.children.findByType(classOf[ScLiteral]))
+            .flatMap(_.getValue.asOptionOf(classOf[String]))
+            .headOption
   }
 }
