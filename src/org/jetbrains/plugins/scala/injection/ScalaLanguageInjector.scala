@@ -25,8 +25,10 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   def elementsToInjectIn = List(classOf[ScLiteral])
 
   def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
+    if(!(host.isInstanceOf[ScLiteral] && host.asInstanceOf[ScLiteral].isString)) return
+
     val literal = host.asInstanceOf[ScLiteral]
-    // TODO implicit conversion checking disabled (performance reasons)
+    // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
     val annotationOwner = annotationOwnerFor(literal)//.orElse(implicitAnnotationOwnerFor(literal))
     val languageId = annotationOwner.flatMap(extractLanguage(_, myInjectionConfiguration.getLanguageAnnotationClass))
     val language = languageId.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)

@@ -43,8 +43,8 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public Self callTarget(final ElementPattern<? extends PsiMethod> methodPattern) {
     return with(new PatternCondition<T>("callTarget") {
-      public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
-        final PsiElement element = literal.getParent();
+      public boolean accepts(@NotNull final T host, final ProcessingContext context) {
+        final PsiElement element = host.getParent();
         if (element instanceof ScReferenceExpression) {
           final ScReferenceExpression expression = (ScReferenceExpression) element;
           for (final ResolveResult result : expression.multiResolve(false))
@@ -58,12 +58,12 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public Self callArgument(final int index, final ElementPattern<? extends PsiMethod> methodPattern) {
     return with(new PatternCondition<T>("callArgument") {
-      public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
-        final PsiElement parent = literal.getParent();
+      public boolean accepts(@NotNull final T host, final ProcessingContext context) {
+        final PsiElement parent = host.getParent();
         if (parent instanceof ScArguments) {
           final ScArgumentExprList psiExpressionList = (ScArgumentExprList) parent;
           final ScExpression[] psiExpressions = psiExpressionList.exprsArray();
-          if (!(psiExpressions.length > index && psiExpressions[index] == literal)) return false;
+          if (!(psiExpressions.length > index && psiExpressions[index] == host)) return false;
 
           final PsiElement element = psiExpressionList.getParent();
           if (element instanceof ScMethodCall) {
