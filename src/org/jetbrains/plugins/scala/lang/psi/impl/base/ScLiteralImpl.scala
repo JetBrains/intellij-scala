@@ -143,4 +143,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     else
       new ScLiteralEscaper(this)
   }
+
+  def isString = getFirstChild.getNode.getElementType match {
+    case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tSTRING => true
+    case _ => false
+  }
 }
