@@ -13,8 +13,7 @@ import org.intellij.plugins.intelliLang.inject.InjectorUtils
 import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.expr._
 import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
-import lang.psi.api.statements.params.ScParameter
-import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement, ScLiteral}
+import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import com.intellij.psi._
 
 /**
@@ -22,21 +21,46 @@ import com.intellij.psi._
  */
 
 class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends MultiHostInjector {
-  def elementsToInjectIn = List(classOf[ScLiteral])
+  def elementsToInjectIn = List(classOf[ScLiteral], classOf[ScInfixExpr])
+
+  private def literalsOf(host: PsiElement): Seq[ScLiteral] = {
+    if(host.getParent.isInstanceOf[ScInfixExpr])
+      return Seq.empty // process top-level expressions only
+
+    val expressions = host.depthFirst.filter(_.isInstanceOf[ScExpression]).toList
+
+    val suitable = expressions.forall(_ match {
+      case l: ScLiteral if l.isString => true
+      case r: ScReferenceExpression if r.getText == "+" => true
+      case _: ScInfixExpr => true
+      case _ => false
+    })
+
+    if(suitable)
+      expressions.filter(_.isInstanceOf[ScLiteral]).map(_.asInstanceOf[ScLiteral])
+    else
+      Seq.empty
+  }
 
   def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
-    if(!(host.isInstanceOf[ScLiteral] && host.asInstanceOf[ScLiteral].isString)) return
+    val literals = literalsOf(host)
 
-    val literal = host.asInstanceOf[ScLiteral]
+    if(literals.isEmpty) return
+
+    val expression = host.asInstanceOf[ScExpression]
     // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
-    val annotationOwner = annotationOwnerFor(literal)//.orElse(implicitAnnotationOwnerFor(literal))
+    val annotationOwner = annotationOwnerFor(expression)//.orElse(implicitAnnotationOwnerFor(literal))
     val languageId = annotationOwner.flatMap(extractLanguage(_, myInjectionConfiguration.getLanguageAnnotationClass))
     val language = languageId.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)
 
-    language.foreach{it =>
+    language.foreach { it =>
       registrar.startInjecting(it)
-      registrar.addPlace("", "", host.asInstanceOf[PsiLanguageInjectionHost],
-        ScalaStringLiteralManipulator.getLiteralRange(literal.getText))
+
+      literals.foreach { literal =>
+        registrar.addPlace("", "", literal.asInstanceOf[PsiLanguageInjectionHost],
+          ScalaStringLiteralManipulator.getLiteralRange(literal.getText))
+      }
+
       registrar.doneInjecting()
     }
 
@@ -62,7 +86,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     }
   }
 
-  def annotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = literal.getParent match {
+  def annotationOwnerFor(literal: ScExpression): Option[PsiAnnotationOwner] = literal.getParent match {
     case pattern: ScPatternDefinition => Some(pattern)
     case variable: ScVariableDefinition => Some(variable)
     case _: ScArgumentExprList => parameterOf(literal)
