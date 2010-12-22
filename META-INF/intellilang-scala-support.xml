@@ -7,4 +7,8 @@
                      config="/org/jetbrains/plugins/scala/injection/scalaInjections.xml"/>
   </extensions>
 
+  <extensions defaultExtensionNs="com.intellij">
+    <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
+  </extensions>
+
 </idea-plugin>

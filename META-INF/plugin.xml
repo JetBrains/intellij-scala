@@ -30,7 +30,6 @@
   </extensions>
 
   <extensions defaultExtensionNs="com.intellij">
-    <multiHostInjector implementation="org.jetbrains.plugins.scala.injection.ScalaLanguageInjector"/>
     <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
     <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
     <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
