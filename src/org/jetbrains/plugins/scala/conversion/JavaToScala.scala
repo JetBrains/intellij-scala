@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package conversion
 
 
-import collection.mutable.{ArrayBuffer, HashSet}
+import collection.mutable.{ArrayBuffer, LinkedHashSet}
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
 import lang.refactoring.util.ScalaNamesUtil
@@ -336,8 +336,8 @@ object JavaToScala {
         a.get
       }*/
       case c: PsiClass => {
-        var forClass = new HashSet[PsiMember]()
-        var forObject = new HashSet[PsiMember]()
+        var forClass = new LinkedHashSet[PsiMember]()
+        var forObject = new LinkedHashSet[PsiMember]()
         for (method <- c.getMethods) {
           if (method.hasModifierProperty("static")) {
             forObject += method
