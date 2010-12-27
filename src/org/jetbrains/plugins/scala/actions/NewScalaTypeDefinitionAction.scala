@@ -36,6 +36,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.addKind("Class", Icons.CLASS, "ScalaClass.scala");
     builder.addKind("Object", Icons.OBJECT, "ScalaObject.scala");
     builder.addKind("Trait", Icons.TRAIT, "ScalaTrait.scala");
+    builder.setTitle("Create New Scala Class")
     return builder;
   }
 
