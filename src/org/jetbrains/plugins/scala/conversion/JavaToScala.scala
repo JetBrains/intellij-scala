@@ -15,6 +15,8 @@ import java.lang.String
  */
 
 object JavaToScala {
+  def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name;
+
   def convertPsiToText(element: PsiElement): String = {
     if (element == null) return ""
     if (element.getLanguage != StdLanguages.JAVA) return ""
@@ -103,7 +105,7 @@ object JavaToScala {
         }
       }
       case f: PsiForeachStatement => {
-        res.append("for (").append(f.getIterationParameter.getName).append(" <- ").
+        res.append("for (").append(escapeKeyword(f.getIterationParameter.getName)).append(" <- ").
                 append(convertPsiToText(f.getIteratedValue)).append(") ").
                 append(convertPsiToText(f.getBody))
       }
@@ -221,10 +223,7 @@ object JavaToScala {
         if (p.getQualifierExpression != null) {
           res.append(convertPsiToText(p.getQualifierExpression)).append(".")
         }
-        val name = p.getReferenceName
-        if (ScalaNamesUtil.isKeyword(name)) {
-          res.append("`").append(name).append("`")
-        } else res.append(name)
+        res.append(escapeKeyword(p.getReferenceName))
         res.append(convertPsiToText(p.getParameterList))
       }
       case t: PsiTypeCastExpression => {
@@ -262,7 +261,7 @@ object JavaToScala {
       case m: PsiMethod => {
         res.append(convertPsiToText(m.getModifierList)).append(" ")
         res.append(" def ")
-        if (!m.isConstructor) res.append(m.getName)
+        if (!m.isConstructor) res.append(escapeKeyword(m.getName))
         else res.append("this")
         var params = convertPsiToText(m.getParameterList)
         if (params == "" && m.isConstructor) params = "()"
@@ -283,7 +282,7 @@ object JavaToScala {
         if (f.hasModifierProperty("final")) {
           res.append(" val ")
         } else res.append(" var ")
-        res.append(f.getName).append(" : ")
+        res.append(escapeKeyword(f.getName)).append(" : ")
         res.append(convertPsiToText(f.getTypeElement))
         if (f.getInitializer != null) {
           res.append(" = ").append(convertPsiToText(f.getInitializer))
@@ -309,7 +308,7 @@ object JavaToScala {
         if (l.hasModifierProperty("final")) {
           res.append(" val ")
         } else res.append(" var ")
-        res.append(l.getName).append(" : ")
+        res.append(escapeKeyword(l.getName)).append(" : ")
         res.append(convertPsiToText(l.getTypeElement))
         if (l.getInitializer != null) {
           res.append(" = ").append(convertPsiToText(l.getInitializer))
@@ -331,7 +330,7 @@ object JavaToScala {
         }
       }
       case p: PsiParameter => {
-        res.append(p.getName).append(" : ").append(convertPsiToText(p.getTypeElement))
+        res.append(escapeKeyword(p.getName)).append(" : ").append(convertPsiToText(p.getTypeElement))
       }
       /*case a: PsiAnonymousClass => {
         a.get
@@ -358,7 +357,7 @@ object JavaToScala {
           val modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
           res.append(modifiers).append(" ")
           res.append("object ")
-          res.append(c.getName)
+          res.append(escapeKeyword(c.getName))
           res.append(" {\n")
           for (memb <- forObject) {
             res.append(convertPsiToText(memb)).append("\n")
@@ -369,7 +368,7 @@ object JavaToScala {
         if (!forClass.isEmpty || forObject.isEmpty) {
           if (!c.isInstanceOf[PsiAnonymousClass]) res.append(convertPsiToText(c.getModifierList)).append(" ")
           if (!c.isInstanceOf[PsiAnonymousClass]) if (c.isInterface) res.append("trait ") else res.append("class ")
-          if (!c.isInstanceOf[PsiAnonymousClass]) res.append(c.getName)
+          if (!c.isInstanceOf[PsiAnonymousClass]) res.append(escapeKeyword(c.getName))
           else res.append(ScType.presentableText(ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)))
           if (c.isInstanceOf[PsiAnonymousClass] &&
               c.asInstanceOf[PsiAnonymousClass].getArgumentList.getExpressions.length > 0) {
@@ -394,10 +393,7 @@ object JavaToScala {
         if (p.getQualifier != null) {
           res.append(convertPsiToText(p.getQualifier)).append(".")
         }
-        val name = p.getReferenceName
-        if (ScalaNamesUtil.isKeyword(name)) {
-          res.append("`").append(name).append("`")
-        } else res.append(name)
+        res.append(escapeKeyword(p.getReferenceName))
         res.append(convertPsiToText(p.getParameterList))
       }
       case p: PsiPackageStatement => {
@@ -496,14 +492,14 @@ object JavaToScala {
         res.append(w.getText)
       }
       case annot: PsiAnnotation => {
-        res.append("@").append(annot.getNameReferenceElement.getText)
+        res.append("@").append(escapeKeyword(annot.getNameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes
         if (attributes nonEmpty) {
           res.append("(")
           for (attribute <- attributes) {
             // TODO wrap vararg annotation arguments in Array(..)
             if (attribute.getName != null) {
-              res.append(attribute.getName)
+              res.append(escapeKeyword(attribute.getName))
               res.append(" = ")
             }
             res.append(convertPsiToText(attribute.getValue))
