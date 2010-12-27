@@ -251,7 +251,16 @@ object JavaToScala {
           res.append(n.getArrayDimensions.map(convertPsiToText(_)).mkString("(", ", ", ")"))
         } else {
           res.append("new ").append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          res.append(convertPsiToText(n.getArgumentList))
+          if (n.getArgumentList.getExpressions.size == 0) {
+            // if the new expression is used as a qualifier, force parentheses for empty argument list
+            n.getParent match {
+              case r: PsiJavaCodeReferenceElement if n == r.getQualifier => res.append("()")
+              case _ =>
+            }
+          }
+          else {
+            res.append(convertPsiToText(n.getArgumentList))
+          }
         }
       }
       case n: PsiNewExpression => {
