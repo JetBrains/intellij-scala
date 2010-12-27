@@ -281,6 +281,7 @@ object JavaToScala {
           if (m.isConstructor) {
             res.append("{\nthis()\n")
             for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
+            res.append("}");
           } else {
             res.append(convertPsiToText(m.getBody))
           }
