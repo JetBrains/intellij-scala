@@ -228,6 +228,7 @@
     <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"
             text="Convert Java File To Scala" description="Rename Java File To Scala">
       <add-to-group group-id="RefactoringMenu" anchor="last"/>
+      <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
       <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
     </action>
     <action id="Scala.TypeInfo" class="org.jetbrains.plugins.scala.actions.ShowTypeInfoAction">
