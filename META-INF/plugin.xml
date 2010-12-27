@@ -185,10 +185,6 @@
 
   <project-components>
     <component>
-      <interface-class>com.intellij.ide.projectView.TreeStructureProvider</interface-class>
-      <implementation-class>org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
       </implementation-class>
     </component>
