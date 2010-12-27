@@ -176,9 +176,6 @@
       <implementation-class>org.jetbrains.plugins.scala.ScalaLoader</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.components.ScalaIconProvider</implementation-class>
-    </component>
-    <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider</implementation-class>
     </component>
   </application-components>
