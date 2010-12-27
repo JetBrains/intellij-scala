@@ -69,6 +69,7 @@ class RenameJavaToScalaAction extends AnAction {
             settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
             settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
             settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+            file.navigate(true)
           }
         }, jFile.getProject, "Convert Java to Scala")
       }
