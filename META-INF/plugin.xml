@@ -145,6 +145,9 @@
     <projectService serviceInterface="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"
                     serviceImplementation="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"/>
 
+    <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
+                    serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
+
     <!--Extensions for class-files treatment-->
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
     <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
@@ -198,9 +201,6 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
-    </component>
-    <component>
-      <implementation-class>org.jetbrains.plugins.scala.compiler.ScalacSettings</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.compiler.component.CompilerProjectComponent
