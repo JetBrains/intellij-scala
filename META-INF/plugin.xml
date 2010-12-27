@@ -151,6 +151,9 @@
     <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider"/>
     <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
+    <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
+    <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner"/>
+
     <!--Extensions for class-files treatment-->
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
     <contentBasedClassFileProcessor implementation="org.jetbrains.plugins.scala.decompiler.ScContentBasedClassFileProcessor"/>
