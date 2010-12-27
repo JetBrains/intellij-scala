@@ -29,12 +29,4 @@ class ScalaIconProvider extends IconProvider {
     }
     null
   }
-
-  def getComponentName = "Scala Icon Provider"
-
-  def initComponent = {
-  }
-
-  def disposeComponent = {
-  }
 }
