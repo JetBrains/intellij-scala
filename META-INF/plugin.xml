@@ -149,6 +149,7 @@
                     serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
 
     <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.ScalaInspectionsProvider"/>
+    <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
     <!--Extensions for class-files treatment-->
     <clsStubBuilderFactory implementation="org.jetbrains.plugins.scala.decompiler.ScClsStubBuilderFactory"/>
