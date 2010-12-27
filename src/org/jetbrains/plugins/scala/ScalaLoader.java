@@ -68,9 +68,6 @@ public class ScalaLoader implements ApplicationComponent {
     /*CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
             ScalaToolsFactory.getInstance().createScalaCompletionData());*/
 
-    SelectWordUtil.registerSelectioner(new ScalaWordSelectioner());
-    SelectWordUtil.registerSelectioner(new ScalaLiteralSelectioner());
-
     ScalaEditorActionsManager.registerScalaActionHandlers();
 
     ChangeUtil.registerCopyHandler(new ScalaChangeUtilSupport());
