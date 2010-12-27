@@ -410,9 +410,9 @@ object ImplicitlyImported {
   val objects = Array("scala.Predef", "scala" /* package object*/)
 
 
-  import collection.mutable.HashMap
-  private val importedObjects: HashMap[Project, Seq[PsiClass]] = new HashMap[Project, Seq[PsiClass]]
-  private val modCount: HashMap[Project, Long] = new HashMap[Project, Long]
+  import collection.mutable.WeakHashMap
+  private val importedObjects: WeakHashMap[Project, Seq[PsiClass]] = new WeakHashMap[Project, Seq[PsiClass]]
+  private val modCount: WeakHashMap[Project, Long] = new WeakHashMap[Project, Long]
 
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope,
                                 fqn: String): Seq[PsiClass] = {
