@@ -1,17 +1,12 @@
 package org.jetbrains.plugins.scala.compiler;
 
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.encoding.EncodingManager;
-import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.util.Comparing;
-import com.intellij.util.xmlb.XmlSerializer;
+import com.intellij.openapi.vfs.CharsetToolkit;
+import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 
-import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.nio.charset.Charset;
 
 /**
@@ -26,7 +21,7 @@ import java.nio.charset.Charset;
         , @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)
     }
 )
-public class ScalacSettings implements PersistentStateComponent<ScalacSettings>, ProjectComponent {
+public class ScalacSettings implements PersistentStateComponent<ScalacSettings> {
   public boolean SCALAC_BEFORE = true;
   public boolean USE_FSC = false;
   public String SERVER_PORT = "";
@@ -41,25 +36,8 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings>,
     XmlSerializerUtil.copyBean(state, this);
   }
 
-  public void projectOpened() {
-  }
-
-  public void projectClosed() {
-  }
-
-  @NotNull
-  public String getComponentName() {
-    return "ScalacSettings";
-  }
-
-  public void initComponent() {
-  }
-
-  public void disposeComponent() {
-  }
-
   public static ScalacSettings getInstance(Project project) {
-    return project.getComponent(ScalacSettings.class);
+    return ServiceManager.getService(project, ScalacSettings.class);
   }
 
   public String getOptionsString() {
