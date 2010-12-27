@@ -5,7 +5,6 @@ package codeInspection
 import allErrorsInspection.AnnotatorBasedErrorInspection
 import caseClassParamInspection.CaseClassParamInspection
 import com.intellij.codeInspection.InspectionToolProvider
-import com.intellij.openapi.components.ApplicationComponent
 import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
@@ -23,7 +22,7 @@ import varCouldBeValInspection.VarCouldBeValInspection
  * Date: 02.06.2009
  */
 
-class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationComponent {
+class ScalaInspectionsProvider extends InspectionToolProvider {
   def getInspectionClasses: Array[java.lang.Class[_]] = {
     val res = new ArrayBuffer[java.lang.Class[_]]
     //todo: res += classOf[CyclicReferencesInspection]
@@ -40,10 +39,4 @@ class ScalaInspectionsProvider extends InspectionToolProvider with ApplicationCo
     }
     res.toArray
   }
-
-  def initComponent: Unit = {}
-
-  def disposeComponent: Unit = {}
-
-  def getComponentName: String = "Scala Inspections Provider"
 }
