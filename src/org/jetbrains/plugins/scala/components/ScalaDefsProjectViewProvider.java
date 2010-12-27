@@ -21,11 +21,10 @@ import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.SyntheticElement;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
@@ -37,30 +36,7 @@ import java.util.List;
 /**
  * @author ven
  */
-public class ScalaDefsProjectViewProvider implements TreeStructureProvider, ProjectComponent {
-  private Project myProject;
-
-  public ScalaDefsProjectViewProvider(Project project) {
-    myProject = project;
-  }
-
-  public void initComponent() {
-  }
-
-  public void disposeComponent() {
-  }
-
-  @NotNull
-  public String getComponentName() {
-    return "ScalaTreeStructureProvider";
-  }
-
-  public void projectOpened() {
-  }
-
-  public void projectClosed() {
-  }
-
+public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
   private static boolean hasNameOfFile(ScTypeDefinition type) {
     ScalaFile scalaFile = getFile(type);
     VirtualFile virtualFile = scalaFile == null ? null : scalaFile.getVirtualFile();
