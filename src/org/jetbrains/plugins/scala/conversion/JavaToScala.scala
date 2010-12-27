@@ -114,7 +114,7 @@ object JavaToScala {
         res.append("throw ").append(convertPsiToText(t.getException))
       }
       case s: PsiSynchronizedStatement => {
-        res.append(convertPsiToText(s.getLockExpression)).append(" synchronyzed ").
+        res.append(convertPsiToText(s.getLockExpression)).append(" synchronized ").
                 append(convertPsiToText(s.getBody))
       }
       case s: PsiSwitchLabelStatement => {
