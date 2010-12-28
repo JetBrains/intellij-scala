@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 /**
  * @author Alexander Podkhalyuzin
@@ -92,6 +93,34 @@ class A
  * something
  */
 class A
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL2066FromDiscussion {
+    val settings = getSettings
+    settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    val before =
+"""
+val n = Seq(1,2,3)
+n.foreach
+{
+  x =>
+  {
+    println(x)
+  }
+}
+""".replace("\r", "")
+    val after =
+"""
+val n = Seq(1, 2, 3)
+n.foreach
+{
+  x =>
+  {
+    println(x)
+  }
+}
 """.replace("\r", "")
     doTextTest(before, after)
   }
