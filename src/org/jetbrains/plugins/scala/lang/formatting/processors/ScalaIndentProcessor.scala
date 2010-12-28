@@ -44,7 +44,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     node.getPsi match {
       case expr: ScFunctionExpr => {
         expr.result match {
-          case Some(e) if e == child.getPsi => Indent.getNormalIndent
+          case Some(e) if e == child.getPsi =>
+            child.getPsi match {
+              case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+                settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
+              case _: ScBlockExpr => Indent.getNoneIndent
+              case _: ScExpression => Indent.getNormalIndent
+              case _ => Indent.getNoneIndent
+            }
           case _ => Indent.getNoneIndent
         }
       }
@@ -112,8 +119,18 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNoneIndent
         }
       }
+      case _: ScMethodCall =>
+        child.getPsi match {
+          case arg: ScArgumentExprList if arg.isBraceArgs => {
+            if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+              settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2) Indent.getNormalIndent
+            else Indent.getNoneIndent
+          }
+          case _ => Indent.getContinuationWithoutFirstIndent
+        }
+      case arg: ScArgumentExprList if arg.isBraceArgs => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
-              | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable => {
+              | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable=> {
         child.getPsi match {
           case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
               settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent

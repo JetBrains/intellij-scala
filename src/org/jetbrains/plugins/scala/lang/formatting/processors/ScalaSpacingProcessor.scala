@@ -153,7 +153,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else return WITHOUT_SPACING
     }
     if (leftElementType == tIDENTIFIER &&
-            rightPsi.isInstanceOf[ScArgumentExprList]) {
+            rightPsi.isInstanceOf[ScArgumentExprList] && !getText(rightNode, fileText).trim.startsWith("{")) {
       if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
       else return WITHOUT_SPACING
     }
@@ -188,9 +188,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       } else if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITHOUT_SPACING
       else return WITHOUT_SPACING
     }
-    //todo: spacing for {} arguments
     //todo: spacing for early definitions
-    if (getText(rightNode, fileText).startsWith("{")) {
+    if (getText(rightNode, fileText).trim.startsWith("{")) {
       if (rightPsi.isInstanceOf[ScImportSelectors]) {
         return WITHOUT_SPACING
       }
