@@ -43,6 +43,7 @@ import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
+import com.intellij.psi.impl.light.LightModifierList
 
 /**
  * User: Alexander Podkhalyuzin
@@ -571,6 +572,9 @@ object ScalaPsiUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     return parent
   }
+
+  def getEmptyModifierList(manager: PsiManager): PsiModifierList =
+    new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
   def adjustTypes(element: PsiElement): Unit = {
     for (child <- element.getChildren) {
