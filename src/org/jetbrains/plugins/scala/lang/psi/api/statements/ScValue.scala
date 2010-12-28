@@ -24,6 +24,8 @@ import lexer.ScalaTokenTypes
 
 trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder with ScAnnotationsHolder {
   self =>
+  def valKeyword = findChildrenByType(ScalaTokenTypes.kVAL).apply(0)
+
   def declaredElements: Seq[ScTypedDefinition]
 
   def typeElement: Option[ScTypeElement]
