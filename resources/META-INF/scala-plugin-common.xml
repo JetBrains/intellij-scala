@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2000-2008 JetBrains s.r.o.
+  ~ Copyright 2000-2010 JetBrains s.r.o.
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -14,21 +14,8 @@
   -->
 
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
-<idea-plugin url="http://www.jetbrains.net/confluence/display/SCA/Scala+Plugin+for+IntelliJ+IDEA" version="2"
-    xmlns:xi="http://www.w3.org/2001/XInclude">
-  <id>org.intellij.scala</id>
-  <name>Scala</name>
-  <description>Plugin for Scala language support</description>
-  <version>VERSION</version>
-  <vendor logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png" url="http://www.jetbrains.com">JetBrains Inc.</vendor>
-  <idea-version since-build="99.32"/>
-  <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
-  <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
-  <resource-bundle xmlns="">org.jetbrains.plugins.scala.ScalaBundle</resource-bundle>
+<idea-plugin url="http://www.jetbrains.net/confluence/display/SCA/Scala+Plugin+for+IntelliJ+IDEA">
 
-  <!--<xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)">
-    <xi:fallback/>
-  </xi:include>-->
 
   <extensions xmlns="org.jetbrains.idea.maven">
    <importer implementation="org.jetbrains.plugins.scala.config.ScalaMavenImporter"/>
