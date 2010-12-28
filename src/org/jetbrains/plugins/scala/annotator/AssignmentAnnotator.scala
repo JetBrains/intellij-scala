@@ -7,11 +7,13 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.TypingContext
 import lang.psi.api.statements.{ScPatternDefinition, ScValue, ScFunction}
-import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.statements.params.{ScClassParameter, ScParameterClause, ScParameter}
 import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr._
+import codeInspection.varCouldBeValInspection.ValToVarQuickFix
+import lang.psi.ScalaPsiUtil
+import com.intellij.psi.{PsiNamedElement, PsiElement}
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -46,10 +48,16 @@ trait AssignmentAnnotator {
 
     if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
 
-    val reassignment = l.asOptionOf(classOf[ScReferenceElement]).flatMap(_.resolve.toOption).find(isReadonly).isDefined            
+    val ref: Option[PsiElement] = l.asOptionOf(classOf[ScReferenceElement]).flatMap(_.resolve.toOption)
+    val reassignment = ref.find(isReadonly).isDefined
     
     if(reassignment) {
-      holder.createErrorAnnotation(assignment, "Reassignment to val")
+      val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")
+      ref.get match {
+        case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
+          annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))
+        case _ =>
+      }
       return
     }
 

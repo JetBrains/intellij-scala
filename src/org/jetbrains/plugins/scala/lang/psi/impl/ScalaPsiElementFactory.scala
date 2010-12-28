@@ -225,6 +225,16 @@ object ScalaPsiElementFactory {
     classDef.members()(0).asInstanceOf[ScValue]
   }
 
+  def createVarFromValDeclaration(valDef: ScValue, manager: PsiManager): ScVariable = {
+    val valKeyword = valDef.valKeyword
+    val startOffset = valKeyword.getStartOffsetInParent
+    val valText = valDef.getText
+    val text = "class a {" + valText.substring(0, startOffset) + "var" + valText.substring(startOffset + 3) + " }"
+    val dummyFile = createScalaFile(text, manager)
+    val classDef = dummyFile.typeDefinitions()(0)
+    classDef.members()(0).asInstanceOf[ScVariable]
+  }
+
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
     val text = "for {\n  i <- 1 to 239\n  " + name + " = " + expr.getText + "\n}"
     val dummyFile = createScalaFile(text, manager)

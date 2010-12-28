@@ -28,7 +28,7 @@ class VarCouldBeValInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
     def addError(varDef: ScVariableDefinition) = holder.registerProblem(holder.getManager.createProblemDescriptor(varDef, "'var' could be a 'val'",
-                    Array[LocalQuickFix](new ValToVarQuickFix(varDef)), ProblemHighlightType.INFO))
+                    Array[LocalQuickFix](new VarToValQuickFix(varDef)), ProblemHighlightType.INFO))
 
     new ScalaElementVisitor {
       override def visitElement(elem: ScalaPsiElement) {
