@@ -43,7 +43,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   override def getText = ""
   override def toString = "Scala Synthetic Package " + getQualifiedName
   def getDirectories(scope: GlobalSearchScope) = PsiDirectory.EMPTY_ARRAY
-  def getModifierList = null
+  def getModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
   def hasModifierProperty(s: String) = false
   def getAnnotationList = null
   def getName = name

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.fake
 
-import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import java.util.List
 import com.intellij.psi._
+import impl.light.{LightModifierList, LightElement}
 import impl.source.HierarchicalMethodSignatureImpl
 import java.lang.String
 import javadoc.PsiDocComment
@@ -17,6 +17,8 @@ import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod,
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,7 +86,7 @@ class FakePsiMethod(
 
   def setName(name: String): PsiElement = throw new IncorrectOperationException
 
-  def getModifierList: PsiModifierList = null
+  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
   def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
@@ -171,7 +173,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, parameter: Param
 
   override def toString: String = getText
 
-  def getModifierList: PsiModifierList = null
+  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
   def hasModifierProperty(name: String): Boolean = false
 

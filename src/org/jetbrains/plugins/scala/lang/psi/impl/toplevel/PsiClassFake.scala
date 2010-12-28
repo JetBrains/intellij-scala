@@ -106,7 +106,7 @@ trait PsiClassFake extends PsiClass with PsiReferenceList {
 
   def getVisibleSignatures: Collection[HierarchicalMethodSignature] = Collections.emptyList[HierarchicalMethodSignature]
 
-  def getModifierList: ScModifierList = null
+  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
   def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
 
