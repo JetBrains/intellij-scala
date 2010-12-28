@@ -72,4 +72,6 @@ trait ScArgumentExprList extends ScArguments {
     }
     return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
   }
+
+  def isBraceArgs: Boolean = findChild(classOf[ScBlock]) != None
 }
