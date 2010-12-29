@@ -596,6 +596,13 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, "var f: Int").asInstanceOf[ScalaFile]
     dummyFile.getFirstChild.asInstanceOf[ScalaPsiElement].findChildrenByType(ScalaTokenTypes.tCOLON).head
   }
+
+  def createComma(manager: PsiManager): PsiElement = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, ",").asInstanceOf[ScalaFile]
+    dummyFile.findChildrenByType(ScalaTokenTypes.tCOMMA).head
+  }
   
   def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
