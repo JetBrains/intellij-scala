@@ -145,7 +145,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         val buffer = new ArrayBuffer[PsiClass]
         buffer ++= pack.getClasses
         for (p <- pack.getSubPackages) {
-          buffer ++= p.getClasses
+          buffer ++= getClasses(p)
         }
         buffer.toSeq
       }
