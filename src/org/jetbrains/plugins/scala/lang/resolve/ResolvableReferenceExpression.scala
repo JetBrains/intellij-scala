@@ -21,6 +21,7 @@ import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import psi.api.statements.params.{ScParameters, ScParameter}
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
+import psi.api.toplevel.typedef.ScTypeDefinition
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -138,16 +139,45 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           case _ => Seq.empty[ScTypeElement]
         }
         ScType.extractClassType(tp) match {
-          case Some((clazz, subst)) if clazz.isAnnotationType => {
-            //todo: completion
-            for (method <- clazz.getMethods) {
-              method match {
-                case p: PsiAnnotationMethod => {
-                  if (p.getName == ref.refName) {
-                    baseProcessor.execute(p, ResolveState.initial)
+          case Some((clazz, subst)) if !clazz.isInstanceOf[ScTypeDefinition] && clazz.isAnnotationType => {
+            if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
+              for (method <- clazz.getMethods) {
+                method match {
+                  case p: PsiAnnotationMethod => {
+                    if (p.getName == ref.refName) {
+                      baseProcessor.execute(p, ResolveState.initial)
+                    }
                   }
+                  case _ =>
                 }
-                case _ =>
+              }
+            } else {
+              if (args.invocationCount == 1) {
+                val methods: ArrayBuffer[PsiAnnotationMethod] = new ArrayBuffer[PsiAnnotationMethod] ++
+                  clazz.getMethods.toSeq.flatMap(f => f match {case f: PsiAnnotationMethod => Seq(f) case _ => Seq.empty})
+                val exprs = args.exprs
+                var i = 0
+                def tail: Unit = if (!methods.isEmpty) methods.remove(0)
+                while (exprs(i) != assign) {
+                  exprs(i) match {
+                    case assignStmt: ScAssignStmt => {
+                      assignStmt.getLExpression match {
+                        case ref: ScReferenceExpression => {
+                          val ind = methods.indexWhere(_.getName == ref.refName)
+                          if (ind != -1) methods.remove(ind)
+                          else tail
+                        }
+                        case _ => tail
+                      }
+                    }
+                    case _ => tail
+                  }
+                  i = i + 1
+                }
+                for (method <- methods) {
+                  baseProcessor.execute(method, ResolveState.initial.put(ScSubstitutor.key, subst).
+                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+                }
               }
             }
           }

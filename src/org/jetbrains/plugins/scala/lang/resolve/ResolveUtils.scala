@@ -446,8 +446,13 @@ object ResolveUtils {
             presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
           }
           case method: PsiMethod => {
-            presentation.setTypeText(presentationString(method.getReturnType, substitutor))
-            presentation.setTailText(tailText + presentationString(method.getParameterList, substitutor))
+            val str: String = presentationString(method.getReturnType, substitutor)
+            if (resolveResult.isNamedParameter) {
+              presentation.setTailText(" = " + str)
+            } else {
+              presentation.setTypeText(str)
+              presentation.setTailText(tailText + presentationString(method.getParameterList, substitutor))
+            }
           }
           case f: PsiField => {
             presentation.setTypeText(presentationString(f.getType, substitutor))
