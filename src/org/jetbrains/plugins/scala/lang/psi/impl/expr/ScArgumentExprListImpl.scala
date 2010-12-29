@@ -8,15 +8,16 @@ import api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import resolve.ScalaResolveResult
+import lang.resolve.ScalaResolveResult
 import collection.mutable.ArrayBuffer
 import api.toplevel.typedef.{ScClass}
 import types.result.TypingContext
 import types._
 import api.statements.params.{ScTypeParam, ScParameter}
-import com.intellij.psi.{PsiTypeParameter, PsiParameter, PsiMethod, PsiClass}
 import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
+import com.intellij.psi._
+import lexer.ScalaTokenTypes
 
 /**
 * @author Alexander Podkhalyuzin
@@ -252,6 +253,24 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         res.toArray
       }
       case _ => Array.empty//todo: constructor
+    }
+  }
+
+  override def addBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
+    if (anchor == null) {
+      if (exprs.length == 0) {
+        val par: PsiElement = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+        if (par == null) return super.addBefore(element, anchor)
+        super.addAfter(element, par)
+      } else {
+        val par: PsiElement = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+        if (par == null) return super.addBefore(element, anchor)
+        val comma = ScalaPsiElementFactory.createComma(getManager)
+        super.addAfter(par, comma)
+        super.addAfter(par, element)
+      }
+    } else {
+      super.addBefore(element, anchor)
     }
   }
 }
