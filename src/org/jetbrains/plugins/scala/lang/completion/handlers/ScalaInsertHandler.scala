@@ -5,13 +5,13 @@ package handlers
 
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion._
-import com.intellij.psi.{PsiDocumentManager, PsiMethod}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScPostfixExpr}
 import psi.api.statements.{ScFunction, ScFun}
 import psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, LookupItem}
 import resolve.ResolveUtils.ScalaLookupObject
+import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiMethod}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,7 +28,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
     item.getObject match {
-      case ScalaLookupObject(p: ScParameter, isNamed) if isNamed => {
+      case ScalaLookupObject(named: PsiNamedElement, isNamed) if isNamed => {
         val endOffset = startOffset + lookupStringLength
         context.setAddCompletionChar(false)
         document.insertString(endOffset, " = ")
