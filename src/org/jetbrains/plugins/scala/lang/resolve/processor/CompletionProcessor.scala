@@ -21,7 +21,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           forName: Option[String] = None) extends BaseProcessor(kinds) {
   
   private val signatures = new HashSet[Signature]
-  private val names = new HashSet[String]
+  private val names = new HashSet[(String, Boolean)]
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     forName match {
@@ -60,7 +60,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
     }
 
     element match {
-      case td: ScTypeDefinition if !names.contains(td.getName) => {
+      case td: ScTypeDefinition if !names.contains(Tuple(td.getName, false)) => {
         if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
           implicitFunction = implFunction)
         ScalaPsiUtil.getCompanionModule(td) match {
@@ -89,10 +89,10 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               }
             }
             case _ => {
-              if (!names.contains(named.getName)) {
+              if (!names.contains((named.getName, isNamedParameter))) {
                 candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                   implicitFunction = implFunction, isNamedParameter = isNamedParameter)
-                names += isRenamed.getOrElse(named.getName)
+                names += Tuple(isRenamed.getOrElse(named.getName), isNamedParameter)
               }
             }
           }
