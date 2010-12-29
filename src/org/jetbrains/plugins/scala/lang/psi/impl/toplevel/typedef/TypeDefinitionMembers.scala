@@ -65,7 +65,7 @@ object TypeDefinitionMembers {
           val facade = JavaPsiFacade.getInstance(project)
           val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
           if (obj != null) {
-            for (m <- obj.getMethods if !m.isConstructor) {
+            for (m <- obj.getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
               val sig = new PhysicalSignature(m, subst)
               map += ((sig, new Node(sig, subst)))
             }
