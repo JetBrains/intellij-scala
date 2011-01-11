@@ -146,4 +146,18 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case _ => FAILURE
     }
   }
+
+  def reference: Option[ScStableCodeReferenceElement] = {
+    typeElement match {
+      case s: ScSimpleTypeElement =>
+        s.reference
+      case p: ScParameterizedTypeElement =>
+        p.typeElement match {
+          case s: ScSimpleTypeElement =>
+            s.reference
+          case _ => None
+        }
+      case _ => None
+    }
+  }
 }

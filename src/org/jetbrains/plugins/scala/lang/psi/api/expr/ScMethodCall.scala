@@ -6,7 +6,8 @@ package expr
 
 import statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import types.ApplicabilityProblem
+import types.result.TypeResult
+import types.{ScType, ApplicabilityProblem}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -49,4 +50,11 @@ trait ScMethodCall extends ScExpression {
   }
 
   def applicationProblems: Seq[ApplicabilityProblem]
+
+  /**
+   * This method useful in case if you want to update some polymorphic type
+   * according to method call expected type
+   * For exmample:
+   */
+  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType]): TypeResult[ScType]
 }

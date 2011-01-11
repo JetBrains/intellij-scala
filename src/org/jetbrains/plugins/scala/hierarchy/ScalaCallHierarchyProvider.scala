@@ -1,11 +1,19 @@
 package org.jetbrains.plugins.scala.hierarchy
 
-import com.intellij.ide.hierarchy.call.JavaCallHierarchyProvider
+import com.intellij.psi.{PsiMethod, PsiElement}
+import com.intellij.ide.hierarchy.call.{CallHierarchyBrowser, JavaCallHierarchyProvider}
+import com.intellij.ide.hierarchy.{CallHierarchyBrowserBase, HierarchyBrowser}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScalaCallHierarchyProvider extends JavaCallHierarchyProvider {
+  override def browserActivated(hierarchyBrowser: HierarchyBrowser): Unit = {
+    (hierarchyBrowser.asInstanceOf[ScalaCallHierarchyBrowser]).changeView(CallHierarchyBrowserBase.CALLER_TYPE)
+  }
 
+  override def createHierarchyBrowser(target: PsiElement): HierarchyBrowser = {
+    return new ScalaCallHierarchyBrowser(target.getProject, target.asInstanceOf[PsiMethod])
+  }
 }

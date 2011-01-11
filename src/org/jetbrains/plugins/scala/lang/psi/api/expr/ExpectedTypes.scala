@@ -239,7 +239,7 @@ private[expr] object ExpectedTypes {
         val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
-          val tp = callExpression match {
+          var tp: TypeResult[ScType] = callExpression match {
             case ref: ScReferenceExpression =>
               if (!withResolvedFunction) ref.shapeType
               else ref.getNonValueType(TypingContext.empty)
@@ -247,6 +247,11 @@ private[expr] object ExpectedTypes {
               if (!withResolvedFunction) gen.shapeType
               else gen.getNonValueType(TypingContext.empty)
             case _ => callExpression.getNonValueType(TypingContext.empty)
+          }
+          args.getParent match {
+            case call: ScMethodCall =>
+              tp = call.updateAccordingToExpectedType(tp)
+            case _ => //todo: infix calls? or to change according compiler, like syntax suger, see: ScForStmt
           }
           processArgsExpected(res, expr, i, tp, exprs)
         } else {

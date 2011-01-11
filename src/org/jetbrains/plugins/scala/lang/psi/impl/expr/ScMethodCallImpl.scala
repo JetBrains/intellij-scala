@@ -30,8 +30,9 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
 
   override def toString: String = "MethodCall"
 
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    var nonValueType = getInvokedExpr.getNonValueType(TypingContext.empty)
+  //todo: refactor even more? see: ScExpression.*Type
+  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType]): TypeResult[ScType] = {
+    var nonValueType: TypeResult[ScType] = _nonValueType
     val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
       case -1 => false
       case _ => {
@@ -69,6 +70,12 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       }
       case _ =>
     }
+    nonValueType
+  }
+
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    var nonValueType: TypeResult[ScType] = getInvokedExpr.getNonValueType(TypingContext.empty)
+    nonValueType = updateAccordingToExpectedType(nonValueType)
 
     def tuplizyCase(fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem]),
                     exprs: Seq[Expression]): ScType = {

@@ -31,4 +31,6 @@ trait ScConstructor extends ScalaPsiElement {
   def newTemplate: Option[ScNewTemplateDefinition]
 
   def shapeType(i: Int): TypeResult[ScType]
+
+  def reference: Option[ScStableCodeReferenceElement]
 }
