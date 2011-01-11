@@ -24,6 +24,7 @@ import fake.FakePsiMethod
 import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
+import search.GlobalSearchScope
 
 /**
  * @author ven
@@ -49,6 +50,20 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
     getLastChild.asInstanceOf[ScExtendsBlock]
+  }
+
+  def innerExtendsListTypes = {
+    val eb = extendsBlock
+    if (eb != null) {
+      val tp = eb.templateParents
+      tp match {
+        case Some(tp1) => (for (te <- tp1.typeElements;
+                                t = te.getType(TypingContext.empty).getOrElse(Any);
+                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
+                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
+        case _ => PsiClassType.EMPTY_ARRAY
+      }
+    } else PsiClassType.EMPTY_ARRAY
   }
 
   def showAsInheritor: Boolean = {

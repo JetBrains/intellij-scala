@@ -135,6 +135,10 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     }
   }
 
+  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
+
+  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
+
   def getTruncedQualifiedName: String = qualifiedName(".", true)
 
   def getQualifiedNameForDebugger: String = qualifiedName("$")
@@ -384,21 +388,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   protected def getIconInner: Icon
 
-  override def getImplementsListTypes = getExtendsListTypes
 
-  override def getExtendsListTypes = {
-    val eb = extendsBlock
-    if (eb != null) {
-      val tp = eb.templateParents
-      tp match {
-        case Some(tp1) => (for (te <- tp1.typeElements;
-                                t = te.getType(TypingContext.empty).getOrElse(Any);
-                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
-                                if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
-        case _ => PsiClassType.EMPTY_ARRAY
-      }
-    } else PsiClassType.EMPTY_ARRAY
-  }
 
 
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
