@@ -70,6 +70,10 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
     res.filter(_ != this).toArray
   }
 
+  override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
+
+  override def getImplementsListTypes: Array[PsiClassType] = innerExtendsListTypes
+
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false) = getType(ctx) //no projections for new template definition
 
   //todo: it's copy for ScTypeDefinitionImpl
