@@ -5,6 +5,7 @@ package codeInspection
 import allErrorsInspection.AnnotatorBasedErrorInspection
 import caseClassParamInspection.CaseClassParamInspection
 import com.intellij.codeInspection.InspectionToolProvider
+import defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection
 import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
@@ -34,6 +35,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[SuspiciousNewLineInMethodCall]
     res += classOf[VarCouldBeValInspection]
     res += classOf[FunctionTupleSyntacticSugarInspection]
+    res += classOf[ScalaDefaultFileTemplateUsageInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }
