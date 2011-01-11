@@ -22,7 +22,8 @@ import com.intellij.ide.actions.CreateFileFromTemplateDialog.Builder
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager, ProjectFileIndex}
 import com.intellij.ide.{IdeBundle, IdeView}
-import com.intellij.ide.fileTemplates.JavaTemplateUtil
+import java.util.Properties
+import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,9 +34,9 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS, true) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory,
                             builder: CreateFileFromTemplateDialog.Builder): Unit = {
-    builder.addKind("Class", Icons.CLASS, "ScalaClass.scala");
-    builder.addKind("Object", Icons.OBJECT, "ScalaObject.scala");
-    builder.addKind("Trait", Icons.TRAIT, "ScalaTrait.scala");
+    builder.addKind("Class", Icons.CLASS, "Scala Class");
+    builder.addKind("Object", Icons.OBJECT, "Scala Object");
+    builder.addKind("Trait", Icons.TRAIT, "Scala Trait");
     builder.setTitle("Create New Scala Class")
     return builder;
   }
@@ -85,7 +86,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,
                                                    parameters: String*): PsiFile = {
-    return ScalaTemplatesFactory.createFromTemplate(directory, className, className + SCALA_EXTENSIOIN, templateName, parameters: _*)
+    return NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSIOIN, templateName, parameters: _*)
   }
 
   private val SCALA_EXTENSIOIN = ".scala";
@@ -106,5 +107,39 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   def checkPackageExists(directory: PsiDirectory) = {
     JavaDirectoryService.getInstance.getPackage(directory) != null
+  }
+}
+
+object NewScalaTypeDefinitionAction {
+  @NonNls private[actions] val NAME_TEMPLATE_PROPERTY: String = "NAME"
+  @NonNls private[actions] val LOW_CASE_NAME_TEMPLATE_PROPERTY: String = "lowCaseName"
+
+  def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
+                         parameters: String*): PsiFile = {
+    val template: FileTemplate = FileTemplateManager.getInstance.getInternalTemplate(templateName)
+    var properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties)
+    JavaTemplateUtil.setPackageNameAttribute(properties, directory)
+    properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
+    properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))
+
+    var i: Int = 0
+    while (i < parameters.length) {
+      {
+        properties.setProperty(parameters(i), parameters(i + 1))
+      }
+      i += 2
+    }
+    var text: String = null
+    try {
+      text = template.getText(properties)
+    }
+    catch {
+      case e: Exception => {
+        throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance.internalTemplateToSubject(templateName), e)
+      }
+    }
+    val factory: PsiFileFactory = PsiFileFactory.getInstance(directory.getProject)
+    val file: PsiFile = factory.createFileFromText(fileName, text)
+    return directory.add(file).asInstanceOf[PsiFile]
   }
 }
