@@ -24,6 +24,7 @@ import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
 import lang.lexer.ScalaTokenTypes
+import presentation.java.ClassPresentationUtil
 import util.PsiTreeUtil
 import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.base.patterns.ScBindingPattern
@@ -204,7 +205,7 @@ object ScalaMarkerType {
           if (presentation != null)
             presentation.getPresentableText + " " + presentation.getLocationString
           else {
-            throw new AssertionError("Method hasn't presentation. Method text: " + method.getText)
+            ClassPresentationUtil.getNameForClass(method.getContainingClass, false)
           }
         }
         case xlass: PsiClass => {

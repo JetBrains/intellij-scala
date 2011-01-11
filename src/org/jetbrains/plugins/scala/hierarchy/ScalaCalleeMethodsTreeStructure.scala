@@ -66,6 +66,7 @@ class ScalaCalleeMethodsTreeStructure(project: Project, method: PsiMethod, mySco
 
 object ScalaCalleeMethodsTreeStructure {
   private[hierarchy] def visitor(element: PsiElement, methods: ArrayBuffer[PsiMethod]): Unit = {
+    if (element == null) return
     element match {
       case ref: ScReferenceElement =>
         val resolve = ref.resolve

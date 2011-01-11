@@ -138,7 +138,7 @@ private object GutterUtil {
   }
 
   def collectOverridingMembers(members: Array[PsiMember], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
-    for (member <- members) {
+    for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled
       val offset = member.getTextOffset
       val members = member match {
