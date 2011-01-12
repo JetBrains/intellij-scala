@@ -25,8 +25,8 @@ object Generator {
       genMarker.drop
       return false
     }
-    builder.getTokenText match {
-      case "<-" => {
+    builder.getTokenType match {
+      case ScalaTokenTypes.tCHOOSE => {
         builder.advanceLexer
       }
       case _ => {

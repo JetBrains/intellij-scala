@@ -165,7 +165,7 @@ symbolLiteral = "\'" {plainid}
 
 notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match"
                     | "with" | "yield" | "," | "." | ";" | ":" | "=" | "=>" | "<-" | "<:" | "<%"
-                    | ">:" | "#" | "["  | ")" | "]" |"}" | "\\u2190" | "\\u21D2"
+                    | ">:" | "#" | "["  | ")" | "]" |"}" | "\\u2190" | "\\u21D2" | "\u2190" | "\u21D2"
 specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield" | "case"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 {SH_COMMENT}                                    { return process(tSH_COMMENT); }
 
 
-
+{mNLS} / {END_OF_LINE_COMMENT}                  {  return process(tWHITE_SPACE_IN_LINE); /* hack */}
 
 {mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
                                                 {   changeState();
@@ -444,12 +444,15 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                             return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
+
 "=>"                                    {   return popBraceStack(tFUNTYPE); }
-//"\\u21D2"                               {   return process(tFUNTYPE); }
-//"\\u2190"                               {   return process(tCHOOSE); }
-//\u21D2                                  {   return process(tFUNTYPE); }
-//\u2190                                  {   return process(tCHOOSE); }
+"\\u21D2"                               {   return popBraceStack(tFUNTYPE); }
+"\u21D2"                                {   return popBraceStack(tFUNTYPE); }
+
 "<-"                                    {   return process(tCHOOSE); }
+"\\u2190"                               {   return process(tCHOOSE); }
+"\u2190"                                {   return process(tCHOOSE); }
+
 "<:"                                    {   return process(tUPPER_BOUND); }
 ">:"                                    {   return process(tLOWER_BOUND); }
 "<%"                                    {   return process(tVIEW); }

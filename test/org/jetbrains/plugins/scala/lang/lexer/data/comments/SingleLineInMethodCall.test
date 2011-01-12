@@ -1,0 +1,15 @@
+1
+  //comment
+  .+(1)
+------
+integer {1}
+white space in line {
+  }
+comment {//comment}
+white space in line {
+  }
+. {.}
+identifier {+}
+( {(}
+integer {1}
+) {)}

@@ -173,7 +173,7 @@ object ScalaPsiElementFactory {
     }
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.getImportStatements.firstOption match {
+    dummyFile.getImportStatements.headOption match {
       case Some(x) => return x
       case None => {
         //cannot be
