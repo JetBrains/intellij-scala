@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala.annotator
+package com.intellij.codeInsight.daemon.impl
 
-import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, DefaultHighlightVisitor}
-import importsTracker.ScalaRefCountHolder
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.project.{DumbService, DumbAware, Project}
-import com.intellij.lang.annotation.Annotator
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.openapi.editor.Document
@@ -14,16 +13,19 @@ import com.intellij.codeHighlighting.Pass
 import collection.JavaConversions
 import com.intellij.codeInsight.highlighting.HighlightErrorFilter
 import com.intellij.openapi.extensions.Extensions
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import com.intellij.lang.annotation.{AnnotationSession, Annotator}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
 
+
+//todo: delete!
 class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
   def order: Int = 0
 
-  private final val myAnnotationHolder: AnnotationHolderImpl = new AnnotationHolderImpl
   private var myHolder: HighlightInfoHolder = null
   private var myRefCountHolder: ScalaRefCountHolder = null
   private val myErrorFilters: Array[HighlightErrorFilter] = 
@@ -35,7 +37,6 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
 
   override def visit(element: PsiElement, holder: HighlightInfoHolder): Unit = {
     myHolder = holder
-    assert(!myAnnotationHolder.hasAnnotations(), myAnnotationHolder)
     if (element.isInstanceOf[PsiErrorElement]) {
       visitErrorElement(element.asInstanceOf[PsiErrorElement])
     }
@@ -63,7 +64,6 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       }
     }
     finally {
-      myAnnotationHolder.clear
       myHolder = null
       myRefCountHolder = null
     }
@@ -80,6 +80,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       return
     }
     val annotator: Annotator = new ScalaAnnotator
+    val myAnnotationHolder = new AnnotationHolderImpl(new AnnotationSession(element.getContainingFile))
     annotator.annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
       import JavaConversions._
@@ -94,7 +95,8 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     for (errorFilter <- myErrorFilters) {
       if (!errorFilter.shouldHighlightErrorElement(element)) return
     }
-    var info: HighlightInfo = DefaultHighlightVisitor.createErrorElementInfo(element)
+    var info: HighlightInfo = HighlightInfo.createHighlightInfo(HighlightInfoType.ERROR, element,
+      element.getErrorDescription)
     myHolder.add(info)
   }
 }

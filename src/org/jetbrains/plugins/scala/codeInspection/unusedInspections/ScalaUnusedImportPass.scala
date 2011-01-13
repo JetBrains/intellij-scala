@@ -9,7 +9,6 @@ import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil, AnnotationHolderImpl}
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,6 +18,7 @@ import lang.psi.api.toplevel.imports.usages.{ImportWildcardSelectorUsed, ImportS
 import lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr, ScImportStmt}
 import lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
 import lang.psi.api.base.ScReferenceElement
+import com.intellij.lang.annotation.{AnnotationSession, Annotation}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,7 +29,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
   def doApplyInformationToEditor: Unit = {
     if (file.isInstanceOf[ScalaFile]) {
       val sFile = file.asInstanceOf[ScalaFile]
-      val annotationHolder = new AnnotationHolderImpl()
+      val annotationHolder = new AnnotationHolderImpl(new AnnotationSession(file))
       val tracker = ImportTracker.getInstance(file.getProject)
       val unusedImports: Array[ImportUsed] = tracker.getUnusedImport(sFile)
       val annotations = unusedImports.flatMap({

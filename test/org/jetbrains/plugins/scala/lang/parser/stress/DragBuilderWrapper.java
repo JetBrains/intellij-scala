@@ -76,6 +76,26 @@ public class DragBuilderWrapper implements PsiBuilder {
     myBuilder.setTokenTypeRemapper(remapper);
   }
 
+  public void remapCurrentToken(IElementType type) {
+    myBuilder.remapCurrentToken(type);
+  }
+
+  public void setWhitespaceSkippedCallback(WhitespaceSkippedCallback callback) {
+   myBuilder.setWhitespaceSkippedCallback(callback);
+  }
+
+  public IElementType lookAhead(int steps) {
+    return myBuilder.lookAhead(steps);
+  }
+
+  public IElementType rawLookup(int steps) {
+    return myBuilder.rawLookup(steps);
+  }
+
+  public int rawTokenTypeStart(int steps) {
+    return myBuilder.rawTokenTypeStart(steps);
+  }
+
   public Marker mark() {
     return myBuilder.mark();
   }
