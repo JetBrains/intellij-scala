@@ -10,6 +10,8 @@ import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiFile}
 import com.intellij.openapi.util.Pair
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import lang.psi.api.toplevel.typedef.ScMember
+import lang.psi.ScalaPsiElement
+import lang.psi.api.base.patterns.ScCaseClause
 
 /**
  * Pavel Fatin
@@ -20,18 +22,22 @@ class ScalaStatementMover extends LineMover {
     if(!super.checkAvailable(editor, file, info, down)) return false
     if(!file.isInstanceOf[ScalaFile]) return false
 
-    var result = false
-
-    findMemberAt(editor, file, info.toMove).foreach { source =>
-      val siblings = if(down) source.nextSiblings else source.prevSiblings
-      siblings.findByType(classOf[ScMember]).foreach { target =>
-        info.toMove = lineRangeOf(editor, source)
-        info.toMove2 = lineRangeOf(editor, target)
-        result = true
+    def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
+      findElementAt(cl, editor, file, info.toMove).flatMap { source =>
+        val siblings = if(down) source.nextSiblings else source.prevSiblings
+        val r = siblings.findByType(cl).map(target => (lineRangeOf(editor, source), lineRangeOf(editor, target)))
+        r
       }
     }
 
-    result
+    val destination = aim(classOf[ScCaseClause]).orElse(aim(classOf[ScMember]))
+
+    destination.foreach { it =>
+      info.toMove = it._1
+      info.toMove2 = it._2
+    }
+
+    destination.isDefined
   }
 
   private def lineRangeOf(editor: Editor, e: PsiElement) = {
@@ -40,18 +46,19 @@ class ScalaStatementMover extends LineMover {
       editor.offsetToLogicalPosition(memberRange.getEndOffset).line + 1)
   }
 
-  private def findMemberAt(editor: Editor, file: PsiFile, range: LineRange): Option[ScMember] = {
+  private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, range: LineRange): Option[T] = {
     val psiRange = cornerElements(editor, file, range)
 
     if (psiRange == null) return None
 
-    val firstMember = PsiTreeUtil.getParentOfType(psiRange.getFirst, classOf[ScMember], false)
-    val lastMember= PsiTreeUtil.getParentOfType(psiRange.getSecond, classOf[ScMember], false)
+    val first = PsiTreeUtil.getParentOfType(psiRange.getFirst, cl, false)
+    val last= PsiTreeUtil.getParentOfType(psiRange.getSecond, cl, false)
 
-    if (firstMember == null || lastMember == null) return None
-    if(firstMember != lastMember) return None
+    if (first == null || last == null) return None
 
-    Some(firstMember)
+    if(first != last) return None
+
+    Some(first)
   }
 
   protected def cornerElements(editor: Editor, file: PsiFile, range: LineRange): Pair[PsiElement, PsiElement] = {
