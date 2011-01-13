@@ -81,7 +81,7 @@
     <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
     <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
     <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaExcludeFromCompletionLookupActionProvider"/>
-    <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
+    <highlightVisitor implementation="com.intellij.codeInsight.daemon.impl.ScalaAnnotatorHighlightVisitor"/>
 
     <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
     <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
