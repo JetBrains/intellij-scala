@@ -25,14 +25,7 @@ abstract class SimpleTestCase extends TestCase {
             .asInstanceOf[ScalaFile]
   }
 
-  implicit def toParseable(@Language("Scala") s: String) = new {
-    def parse: ScalaFile = parseText(s)
-  
-    def parse[T <: PsiElement](aClass: Class[T]): T = 
-      parse.depthFirst.findByType(aClass).getOrElse {
-        throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
-      }
-  }
+  implicit def toCode(@Language("Scala") s: String) = new ScalaCode(s)
 
   implicit def toFindable(element: ScalaFile) = new {
     def target: PsiElement = element.depthFirst
@@ -44,5 +37,18 @@ abstract class SimpleTestCase extends TestCase {
   
   def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
     Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
+  }
+
+  class ScalaCode(@Language("Scala") s: String) {
+    def stripComments: String =
+      s.replaceAll("""(?s)/\*.*?\*/""", "")
+              .replaceAll("""(?m)//.*$""", "")
+
+    def parse: ScalaFile = parseText(s)
+
+    def parse[T <: PsiElement](aClass: Class[T]): T =
+      parse.depthFirst.findByType(aClass).getOrElse {
+        throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
+      }
   }
 }

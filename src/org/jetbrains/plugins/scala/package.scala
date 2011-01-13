@@ -20,6 +20,8 @@ package object scala {
     
   implicit def toRichObject[T](o: T) = new RichObject[T](o)
 
+  implicit def toMyRichBoolean[T](b: Boolean) = new MyRichBoolean(b)
+
   implicit def toRichPsiElement(e: PsiElement) = new RichPsiElement {override def delegate = e}
 
   implicit def toRichIterator[A](it: Iterator[A]) = new RichIterator[A](it)
@@ -29,7 +31,11 @@ package object scala {
     def asOptionOf[E](aClass: Class[E]): Option[E] = if(aClass.isInstance(v)) Some(v.asInstanceOf[E]) else None
     def getOrElse[H >: T](default: H): H = if (v == null) default else v
   }
-  
+
+  class MyRichBoolean(b: Boolean) {
+    def ifTrue[T](value: => T) = if (b) Some(value) else None
+  }
+
   class RichIterator[A](delegate: Iterator[A]) {
     def findByType[T <: A](aClass: Class[T]): Option[T] =
       delegate.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
