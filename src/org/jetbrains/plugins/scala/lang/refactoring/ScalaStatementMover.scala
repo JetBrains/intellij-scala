@@ -53,11 +53,13 @@ class ScalaStatementMover extends LineMover {
     if (psiRange == null) return None
 
     val first = PsiTreeUtil.getParentOfType(psiRange.getFirst, cl, false)
-    val last= PsiTreeUtil.getParentOfType(psiRange.getSecond, cl, false)
+    val last = PsiTreeUtil.getParentOfType(psiRange.getSecond, cl, false)
 
     if (first == null || last == null) return None
 
     if(first != last) return None
+
+    if(editor.offsetToLogicalPosition(first.getTextOffset).line != range.startLine) return None
 
     Some(first)
   }
