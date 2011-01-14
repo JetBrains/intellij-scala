@@ -34,4 +34,6 @@ class CaretModelStub extends CaretModel {
   def moveToLogicalPosition(pos: LogicalPosition): Unit = {}
 
   def moveCaretRelatively(columnShift: Int, lineShift: Int, withSelection: Boolean, blockSelection: Boolean, scrollToCaret: Boolean): Unit = {}
+
+  def isUpToDate = false
 }

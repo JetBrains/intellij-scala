@@ -4,7 +4,7 @@ package lang.refactoring
 import mock.EditorMock
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
-import org.junit.Assert._
+import junit.framework.Assert._
 
 /**
  * Pavel Fatin

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring
 
-import org.junit.Assert._
+import junit.framework.Assert._
 
 /**
  * Pavel Fatin
