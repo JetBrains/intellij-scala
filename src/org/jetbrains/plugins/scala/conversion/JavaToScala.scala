@@ -513,7 +513,9 @@ object JavaToScala {
               res.append(" = ")
             }
             res.append(convertPsiToText(attribute.getValue))
+            res.append(", ")
           }
+          res.delete(res.length - 2, res.length)
           res.append(")")
         }
         res.append(" ")
