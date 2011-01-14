@@ -5,6 +5,8 @@ import mock.EditorMock
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
 import junit.framework.Assert._
+import java.util.ArrayList
+import collection.JavaConversions._
 
 /**
  * Pavel Fatin
@@ -14,13 +16,15 @@ class StatementMoverTestBase extends SimpleTestCase {
   protected implicit def toMovable(code: String) = new Movable(code)
 
   private def move(code: String, direction: Direction): Option[String] = {
-    val cursors = code.count(_ == '|')
+    val preparedCode = code.replaceAll("\r\n", "\n")
+
+    val cursors = preparedCode .count(_ == '|')
     if(cursors == 0) fail("No cursor offset specified in the code: " + code)
     if(cursors > 1) fail("Multiple cursor offset specified in the code: " + code)
 
-    val offset = code.indexOf("|")
+    val offset = preparedCode.indexOf("|")
 
-    val cleanCode = code.replaceAll("\\|", "").replaceFirst("(?-m)\n?$", "\n")
+    val cleanCode = preparedCode.replaceAll("\\|", "").replaceFirst("(?-m)\n?$", "\n")
     val file = cleanCode.parse
     val editor = new EditorMock(cleanCode, offset)
 
@@ -30,18 +34,18 @@ class StatementMoverTestBase extends SimpleTestCase {
     val available = mover.checkAvailable(editor, file, info, direction == Down)
 
     available.ifTrue {
-      val y1 = info.toMove.startLine
-      val y2 = info.toMove2.startLine
-      val length = info.toMove.endLine - y1
+      val it = cleanCode.split('\n').toIterator
 
-      val lines = cleanCode.split('\n')
+      val (i1, i2) = if(info.toMove.startLine < info.toMove2.startLine)
+        (info.toMove, info.toMove2) else (info.toMove2, info.toMove)
 
-      val source = lines.drop(y1).take(length)
-      val remainder = lines.patch(y1, Seq.empty, length)
+      val a = it.take(i1.startLine).toList
+      val source = it.take(i1.endLine - i1.startLine).toList
+      val b = it.take(i2.startLine - i1.endLine).toList
+      val dest = it.take(i2.endLine - i2.startLine).toList
+      val c = it.toList
 
-      val (prefix, suffix) = remainder.splitAt(y2)
-
-      (prefix ++ source ++ suffix).mkString("\n")
+      (a ++ dest ++ b ++ source ++ c).mkString("\n")
     }
   }
 
