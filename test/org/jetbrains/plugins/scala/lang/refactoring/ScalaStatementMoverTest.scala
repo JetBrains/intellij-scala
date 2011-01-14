@@ -8,21 +8,21 @@ import junit.framework.Assert._
 
 class ScalaStatementMoverTest extends StatementMoverTestBase {
   def testSingleLineMember() {
-    assertEquals(None, move("|def a", Up))
-    assertEquals(None, move("|def a", Down))
+    "|def a" moveUpIsDisabled;
+    "|def a" moveDownIsDisabled
 
-    assertEquals(None, move("|def a\ndef b\n", Up))
-    assertEquals(Some("def b\ndef a"), move("def a\n|def b\n", Up))
+    "|def a\ndef b\n" moveUpIsDisabled;
+    "def a\n|def b\n" movedUpIs "def b\ndef a"
 
-    assertEquals(Some("def b\ndef a"), move("|def a\ndef b", Down))
-    assertEquals(None, move("def a\n|def b", Down))
+    "|def a\ndef b" movedDownIs "def b\ndef a";
+    "def a\n|def b" moveDownIsDisabled
 
-    assertEquals(None, move("def a|\ndef b\ndef c", Up))
-    assertEquals(Some("def b\ndef a\ndef c"), move("def a\ndef b|\ndef c", Up))
-    assertEquals(Some("def a\ndef c\ndef b"), move("def a\ndef b\n|def c", Up))
+    "|def a\ndef b\ndef c" moveUpIsDisabled;
+    "def a\n|def b\ndef c" movedUpIs "def b\ndef a\ndef c"
+    "def a\ndef b\n|def c" movedUpIs "def a\ndef c\ndef b"
 
-    assertEquals(Some("def b\ndef a\ndef c"), move("|def a\ndef b\ndef c", Down))
-    assertEquals(Some("def a\ndef c\ndef b"), move("def a\n|def b\ndef c", Down))
-    assertEquals(None, move("def a\ndef b\n|def c", Down))
+    "|def a\ndef b\ndef c" movedDownIs "def b\ndef a\ndef c"
+    "def a\n|def b\ndef c" movedDownIs "def a\ndef c\ndef b"
+    "def a\ndef b\n|def c" moveDownIsDisabled
   }
 }
