@@ -11,7 +11,9 @@ import junit.framework.Assert._
  */
 
 class StatementMoverTestBase extends SimpleTestCase {
-  protected def move(code: String, direction: Direction): Option[String] = {
+  protected implicit def toMovable(code: String) = new Movable(code)
+
+  private def move(code: String, direction: Direction): Option[String] = {
     val cursors = code.count(_ == '|')
     if(cursors == 0) fail("No cursor offset specified in the code: " + code)
     if(cursors > 1) fail("Multiple cursor offset specified in the code: " + code)
@@ -43,7 +45,25 @@ class StatementMoverTestBase extends SimpleTestCase {
     }
   }
 
-  protected class Direction
-  protected case object Up extends Direction
-  protected case object Down extends Direction
+  private class Direction
+  private case object Up extends Direction
+  private case object Down extends Direction
+
+  protected class Movable(code: String) {
+    def moveUpIsDisabled() {
+      assertEquals(None, move(code, Up))
+    }
+
+    def moveDownIsDisabled() {
+      assertEquals(None, move(code, Down))
+    }
+
+    def movedUpIs(s: String) {
+      assertEquals(Some(s), move(code, Up))
+    }
+
+    def movedDownIs(s: String) {
+      assertEquals(Some(s), move(code, Down))
+    }
+  }
 }
