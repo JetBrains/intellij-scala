@@ -20,6 +20,7 @@ import lang.psi.api.base.patterns.ScCaseClause
 class ScalaStatementMover extends LineMover {
   override def checkAvailable(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Boolean = {
     if(!super.checkAvailable(editor, file, info, down)) return false
+    if(editor.getSelectionModel.hasSelection) return false
     if(!file.isInstanceOf[ScalaFile]) return false
 
     def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
