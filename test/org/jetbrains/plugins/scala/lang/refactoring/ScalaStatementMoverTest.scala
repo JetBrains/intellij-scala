@@ -32,6 +32,10 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "def a {}|\ndef b {}" movedDownIs "def b {}\ndef a {}";
   }
 
+  def testCursorLinePositioning {
+    "def a {\n|\n}\ndef b {\n\n}" moveDownIsDisabled
+  }
+
   def testLineSpace() {
     "def a\n\n|def b" movedUpIs "def b\n\ndef a"
     "|def a\n\ndef b" movedDownIs "def b\n\ndef a"
