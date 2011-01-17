@@ -33,6 +33,7 @@ object ClassParamClause {
         builder.getTokenType match {
           case ScalaTokenTypes.kIMPLICIT => {
             classParamMarker.rollbackTo
+            builder.restoreNewlinesState
             return false
           }
           case _ => {}

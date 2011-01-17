@@ -43,12 +43,14 @@ object ImplicitClassParamClause {
         //ok, let's parse parameters
         if (!(ClassParam parse builder)) {
           classParamMarker.rollbackTo
+          builder.restoreNewlinesState
           return false
         }
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
           builder.advanceLexer //Ate ,
           if (!(ClassParam parse builder)) {
             classParamMarker.rollbackTo
+            builder.restoreNewlinesState
             return false
           }
         }
@@ -67,6 +69,7 @@ object ImplicitClassParamClause {
         return true
       }
       case _ => {
+        builder.restoreNewlinesState
         classParamMarker.rollbackTo
         return false
       }
