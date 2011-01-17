@@ -24,9 +24,9 @@ class ScalaStatementMover extends LineMover {
     if(!file.isInstanceOf[ScalaFile]) return false
 
     def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
-      findElementAt(cl, editor, file, info.toMove).flatMap { source =>
+      findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
         val siblings = if(down) source.nextSiblings else source.prevSiblings
-        val r = siblings.findByType(cl).map(target => (lineRangeOf(editor, source), lineRangeOf(editor, target)))
+        val r = siblings.findByType(cl).map(target => (rangeOf(source, editor), rangeOf(target, editor)))
         r
       }
     }
@@ -41,46 +41,39 @@ class ScalaStatementMover extends LineMover {
     destination.isDefined
   }
 
-  private def lineRangeOf(editor: Editor, e: PsiElement) = {
+  private def rangeOf(e: PsiElement, editor: Editor) = {
     val memberRange = e.getTextRange
     new LineRange(editor.offsetToLogicalPosition(memberRange.getStartOffset).line,
       editor.offsetToLogicalPosition(memberRange.getEndOffset).line + 1)
   }
 
-  private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, range: LineRange): Option[T] = {
-    val psiRange = edgeLeafsOf(range.startLine, editor, file)
+  private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, line: Int): Option[T] = {
+    val edges = edgeLeafsOf(line, editor, file)
 
-    if (psiRange == null) return None
+    val left = edges._1.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
+    val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
-    val first = PsiTreeUtil.getParentOfType(psiRange._1, cl, false)
-    val last = PsiTreeUtil.getParentOfType(psiRange._2, cl, false)
-
-    if (first == null || last == null) return None
-
-    if(first != last) return None
-
-    if(editor.offsetToLogicalPosition(first.getTextOffset).line != range.startLine) return None
-
-    Some(first)
+    left.zip(right)
+            .filter(p => p._1 == p._2)
+            .map(_._1)
+            .filter(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
+            .headOption
   }
 
-  private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
+  private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (Option[PsiElement], Option[PsiElement]) = {
     val document = editor.getDocument
 
     val start = document.getLineStartOffset(line)
     val end = start.max(document.getLineEndOffset(line) - 1)
 
-    val span = start to end
+    val span = start.to(end)
 
     def isWhitespace(node: ASTNode) = node.getPsi.isInstanceOf[PsiWhiteSpace] ||
             node.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
 
-    def firstLeafOf(seq: Seq[Int]) = seq.view.map(file.getNode.findLeafElementAt(_))
+    def firstLeafOf(seq: Seq[Int]) = seq.view.flatMap(file.getNode.findLeafElementAt(_).toOption.toSeq)
             .filter(!isWhitespace(_)).map(_.getPsi).headOption
 
-    val left = firstLeafOf(span)
-    val right = firstLeafOf(span.reverse)
-
-    (left.orNull, right.orNull)
+    (firstLeafOf(span), firstLeafOf(span.reverse))
   }
 }

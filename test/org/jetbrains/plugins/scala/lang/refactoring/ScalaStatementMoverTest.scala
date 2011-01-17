@@ -61,7 +61,7 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
   }
 
   def testMultilineCaseClause {
-      "1 switch {\n|case 1 =>{\n//clause 1\n}\n\ncase 2 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\n\ncase 1 =>{\n//clause 1\n}\n}}";
-      "1 switch {\n|case 1 =>\n\ncase 2 =>{\n//clause 2\n}\n}}" movedDownIs "1 switch {\ncase 2 =>{\n//clause 2\n}\n\ncase 1 =>\n}}";
+    "1 switch {\n|case 1 =>{\n//clause 1\n}\n\ncase 2 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\n\ncase 1 =>{\n//clause 1\n}\n}}";
+    "1 switch {\n|case 1 =>\n\ncase 2 =>{\n//clause 2\n}\n}}" movedDownIs "1 switch {\ncase 2 =>{\n//clause 2\n}\n\ncase 1 =>\n}}";
   }
 }
