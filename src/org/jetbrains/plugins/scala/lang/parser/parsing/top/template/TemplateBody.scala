@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.ScalaBundle
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -20,9 +21,10 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object TemplateBody {
-  def parse(builder: PsiBuilder) {
+  def parse(builder: ScalaPsiBuilder) {
     val templateBodyMarker = builder.mark
     //Look for {
+    builder.enableNewlines
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer //Ate {
@@ -48,11 +50,12 @@ object TemplateBody {
                 builder.advanceLexer //Ate }
                 return true
               }
-              case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLINE_TERMINATOR => {
-                while (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(builder.getTokenType)) builder.advanceLexer
+              case ScalaTokenTypes.tSEMICOLON => {
+                while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer
                 return subparse
               }
               case _ => {
+                if (builder.newlineBeforeCurrentToken) return subparse
                 builder error ScalaBundle.message("semi.expected")
                 builder.advanceLexer //Ate something
                 return subparse
@@ -68,6 +71,7 @@ object TemplateBody {
       }
     }
     subparse
+    builder.restoreNewlinesState
     templateBodyMarker.done(ScalaElementTypes.TEMPLATE_BODY)
   }
 }

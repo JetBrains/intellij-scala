@@ -8,7 +8,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('scala')
-    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     ScClass
       AnnotationsList
         Annotation
@@ -21,7 +21,7 @@ ScalaFile
                     PsiElement(identifier)('scala')
                   PsiElement(.)('.')
                   PsiElement(identifier)('serializable')
-          PsiElement(newline)('\n')
+      PsiWhiteSpace('\n')
       Modifiers
         PsiElement(case)('case')
       PsiWhiteSpace(' ')

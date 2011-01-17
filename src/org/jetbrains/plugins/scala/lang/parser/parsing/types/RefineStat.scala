@@ -6,6 +6,7 @@ package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import statements.{EmptyDcl, Dcl, Def}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import statements.{EmptyDcl, Dcl, Def}
  */
 
 object RefineStat {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
         if (!Def.parse(builder,false)){

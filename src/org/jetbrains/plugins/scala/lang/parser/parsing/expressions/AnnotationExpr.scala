@@ -8,6 +8,7 @@ import base.Constructor
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,29 +20,20 @@ import nl.LineTerminator
  */
 
 object AnnotationExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark
     if (!Constructor.parse(builder, true)) {
       annotExprMarker.drop
       return false
     }
-    val rollbackMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (LineTerminator(builder.getTokenText)) {
-          builder.advanceLexer
-        }
-        else {
-          rollbackMarker.drop
+      case ScalaTokenTypes.tLBRACE => {
+        if (builder.countNewlineBeforeCurrentToken > 1) {
           annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
           return true
         }
-      }
-      case _ =>
-    }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer //Ate }
+        builder.enableNewlines
         while (NameValuePair.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => builder.advanceLexer
@@ -60,12 +52,11 @@ object AnnotationExpr {
             builder error ScalaBundle.message("rbrace.expected")
           }
         }
-        rollbackMarker.drop
+        builder.restoreNewlinesState
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
         return true
       }
       case _ => {
-        rollbackMarker.rollbackTo
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
         return true
       }

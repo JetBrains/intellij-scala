@@ -11,9 +11,9 @@ ScalaFile
     PsiElement(trait)('trait')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    PsiWhiteSpace('\n')
     ExtendsBlock
       <empty list>
-  PsiElement(newline)('\n')
   ScTrait
     AnnotationsList
       <empty list>
@@ -30,7 +30,7 @@ ScalaFile
         SimpleTypeElement
           CodeReferenceElement
             PsiElement(identifier)('b')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScTrait
     AnnotationsList
       <empty list>

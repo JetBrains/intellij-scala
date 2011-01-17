@@ -13,6 +13,6 @@ ScalaFile
         PsiElement(identifier)('b')
       PsiElement(.)('.')
       PsiElement(identifier)('c')
-    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     PsiElement({)('{')
     PsiElement(})('}')

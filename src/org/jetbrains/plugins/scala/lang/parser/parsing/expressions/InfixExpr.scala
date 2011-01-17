@@ -8,6 +8,7 @@ import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 
 /**
@@ -22,7 +23,7 @@ import nl.LineTerminator
 
 object InfixExpr {
   import util.ParserUtils._
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
 
     type MStack[X] = _root_.scala.collection.mutable.Stack[X]
 
@@ -37,7 +38,7 @@ object InfixExpr {
       return false
     }
     var exitOf = true
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && exitOf) {
+    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !builder.newlineBeforeCurrentToken && exitOf) {
       //need to know associativity
       val s = builder.getTokenText
 
@@ -66,40 +67,22 @@ object InfixExpr {
       val opMarker = builder.mark
       builder.advanceLexer //Ate id
       opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLINE_TERMINATOR => {
-          if (!LineTerminator(builder.getTokenText)) {
-            setMarker.rollbackTo
-            count = 0
-            backupMarker.drop
-            exitOf = false
-          } else {
-            builder.advanceLexer //Ale nl
-            backupMarker.drop
-            backupMarker = builder.mark
-            if (!PrefixExpr.parse(builder)) {
-              count = 0
-              setMarker.rollbackTo
-              exitOf = false
-            }
-            else {
-              count = count + 1
-              setMarker.drop
-            }
-          }
+      if (builder.countNewlineBeforeCurrentToken > 1) {
+        setMarker.rollbackTo
+        count = 0
+        backupMarker.drop
+        exitOf = false
+      } else {
+        backupMarker.drop
+        backupMarker = builder.mark
+        if (!PrefixExpr.parse(builder)) {
+          setMarker.rollbackTo
+          count = 0
+          exitOf = false
         }
-        case _ => {
-          backupMarker.drop
-          backupMarker = builder.mark
-          if (!PrefixExpr.parse(builder)) {
-            setMarker.rollbackTo
-            count = 0
-            exitOf = false
-          }
-          else {
-            setMarker.drop
-            count = count + 1
-          }
+        else {
+          setMarker.drop
+          count = count + 1
         }
       }
     }

@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,11 +19,13 @@ import lexer.ScalaTokenTypes
 
 
 object ImportSelectors extends ParserNode {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     //Look for {
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => builder.advanceLexer //Ate {
+      case ScalaTokenTypes.tLBRACE =>
+        builder.advanceLexer //Ate {
+        builder.enableNewlines
       case _ => {
         builder error ErrMsg("lbrace.expected")
         importSelectorMarker.drop
@@ -35,6 +38,7 @@ object ImportSelectors extends ParserNode {
         case ScalaTokenTypes.tRBRACE => {
           builder error ErrMsg("import.selector.expected")
           builder.advanceLexer //Ate }
+          builder.restoreNewlinesState
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         }
@@ -43,11 +47,13 @@ object ImportSelectors extends ParserNode {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
               builder.advanceLexer //Ate }
+              builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
             case _ => {
               builder error ErrMsg("rbrace.expected")
+              builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
@@ -61,11 +67,13 @@ object ImportSelectors extends ParserNode {
             }
             case ScalaTokenTypes.tRBRACE => {
               builder.advanceLexer //Ate}
+              builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
             case _ => {
               builder error ErrMsg("rbrace.expected")
+              builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
@@ -73,6 +81,7 @@ object ImportSelectors extends ParserNode {
         }
         case _ => {
           builder error ErrMsg("rbrace.expected")
+          builder.restoreNewlinesState
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
         }

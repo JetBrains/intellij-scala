@@ -10,6 +10,7 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
+    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -17,7 +18,6 @@ ScalaFile
         <empty list>
       Parameters
         ParametersClause
-          PsiElement(newline)('\n')
           PsiElement(()('(')
           ClassParameter
             AnnotationsList

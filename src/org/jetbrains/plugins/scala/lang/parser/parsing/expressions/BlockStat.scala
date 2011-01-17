@@ -11,6 +11,7 @@ import lexer.ScalaTokenTypes
 import top.TmplDef
 import com.intellij.lang.PsiBuilder.Marker
 import statements.{EmptyDcl, Dcl, Def}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,14 +26,14 @@ import statements.{EmptyDcl, Dcl, Def}
  */
 
 object BlockStat {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val tokenType = builder.getTokenType
     tokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder
         return true
       }
-      case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tSEMICOLON => {
+      case ScalaTokenTypes.tSEMICOLON => {
         builder.advanceLexer
         return true
       }

@@ -61,7 +61,7 @@ ScalaFile
                     CodeReferenceElement
                       PsiElement(identifier)('Int')
               PsiElement())(')')
-          PsiElement(newline)('\n  ')
+          PsiWhiteSpace('\n  ')
           ConstructorBlock
             PsiElement({)('{')
             PsiWhiteSpace('\n    ')
@@ -72,7 +72,7 @@ ScalaFile
                 ReferenceExpression
                   PsiElement(identifier)('a')
                 PsiElement())(')')
-            PsiElement(newline)('\n    ')
+            PsiWhiteSpace('\n    ')
             AssignStatement
               ReferenceExpression
                 PsiElement(identifier)('a')

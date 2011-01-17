@@ -6,6 +6,7 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import lexer.ScalaTokenTypes
 
 object SelfInvocation {
 
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val selfMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS => {
@@ -31,13 +32,10 @@ object SelfInvocation {
         return true
       }
     }
-    val argExprsMarker = builder.mark
-
     if (!ArgumentExprs.parse(builder)) {
       builder error ScalaBundle.message("arg.expr.expected")
     }
     while (ArgumentExprs parse builder) {}
-    argExprsMarker.drop
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
     return true
   }

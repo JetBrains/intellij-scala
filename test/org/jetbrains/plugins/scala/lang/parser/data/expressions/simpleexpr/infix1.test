@@ -121,7 +121,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           ReferenceExpression
             PsiElement(identifier)(':::')
-          PsiElement(newline)('\n')
+          PsiWhiteSpace('\n')
           PsiComment(comment)('// '-server' option')
           PsiWhiteSpace('\n')
           InfixExpression
@@ -162,7 +162,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)(':::')
-            PsiElement(newline)('\n')
+            PsiWhiteSpace('\n')
             PsiComment(comment)('// ChoiceSetting')
             PsiWhiteSpace('\n')
             InfixExpression
@@ -227,7 +227,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               ReferenceExpression
                 PsiElement(identifier)(':::')
-              PsiElement(newline)('\n')
+              PsiWhiteSpace('\n')
               PsiComment(comment)('// BooleanSetting')
               PsiWhiteSpace('\n')
               InfixExpression
@@ -317,7 +317,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)(':::')
-                PsiElement(newline)('\n')
+                PsiWhiteSpace('\n')
                 PsiComment(comment)('// PhaseSetting')
                 PsiWhiteSpace('\n')
                 MethodCall

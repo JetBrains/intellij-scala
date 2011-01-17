@@ -37,7 +37,7 @@ ScalaFile
                 PsiElement(identifier)('a')
               PsiElement(.)('.')
               PsiElement(identifier)('b')
-        PsiElement(newline)('\n\n  ')
+        PsiWhiteSpace('\n\n  ')
         ScValueDeclaration
           AnnotationsList
             <empty list>
@@ -53,7 +53,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Int')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScVariableDefinition
           AnnotationsList
             Annotation
@@ -63,7 +63,7 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('a')
-              PsiElement(newline)('\n  ')
+          PsiWhiteSpace('\n  ')
           Modifiers
             PsiElement(sealed)('sealed')
           PsiWhiteSpace(' ')
@@ -77,7 +77,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           Literal
             PsiElement(integer)('3')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         InfixExpression
           ReferenceExpression
             PsiElement(identifier)('x')

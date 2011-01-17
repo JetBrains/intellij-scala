@@ -40,7 +40,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('Type')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScVariableDeclaration
           AnnotationsList
             <empty list>

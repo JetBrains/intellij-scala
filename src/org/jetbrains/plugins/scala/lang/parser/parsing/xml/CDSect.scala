@@ -7,6 +7,7 @@ package xml
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.xml.XmlTokenType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -14,7 +15,7 @@ import com.intellij.psi.xml.XmlTokenType
 */
 
 object CDSect {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val cDataMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_CDATA_START => builder.advanceLexer()

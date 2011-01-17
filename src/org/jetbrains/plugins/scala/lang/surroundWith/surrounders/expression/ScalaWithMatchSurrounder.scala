@@ -16,9 +16,10 @@ import com.intellij.openapi.util.TextRange
 
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import lang.psi.api.expr._
-import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.PsiWhiteSpace
+import psi.{ScalaPsiUtil, ScalaPsiElementImpl}
+;
 import com.intellij.psi.PsiWhiteSpace;
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
@@ -36,7 +37,7 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
         true
       }
       case e => {
-        e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+        ScalaPsiUtil.isLineTerminator(e)
       }
     }
   }

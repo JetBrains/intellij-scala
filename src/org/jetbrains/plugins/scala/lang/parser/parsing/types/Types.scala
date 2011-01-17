@@ -6,6 +6,8 @@ package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 */
@@ -15,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  */
 
 object Types extends ParserNode{
-  def parse(builder: PsiBuilder): (Boolean, Boolean) ={
+  def parse(builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
     def typesParse() = if (ParamType.parseInner(builder)){

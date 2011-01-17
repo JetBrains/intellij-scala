@@ -9,6 +9,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.Type
 import util.ParserUtils
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import util.ParserUtils
  *             ids ':' Type '=' '_'
  */
 object VarDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     if (PatDef parse builder) {
       return true
     }

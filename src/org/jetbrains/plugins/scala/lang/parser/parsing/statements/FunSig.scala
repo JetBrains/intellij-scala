@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import params.{ParamClauses, FunTypeParamClause}
 import util.ParserUtils
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ import util.ParserUtils
 
 //TODO: rewrite this
 object FunSig {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       FunTypeParamClause parse builder

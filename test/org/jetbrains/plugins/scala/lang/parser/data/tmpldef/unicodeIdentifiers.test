@@ -10,6 +10,6 @@ ScalaFile
     PsiElement(trait)('trait')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('➝:')
+    PsiWhiteSpace('\n')
     ExtendsBlock
       <empty list>
-  PsiElement(newline)('\n')

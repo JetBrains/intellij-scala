@@ -25,7 +25,7 @@ ScalaFile
           PsiElement(identifier)('ert')
         PsiElement(.)('.')
         PsiElement(_)('_')
-    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     ScImportStatement
       PsiElement(import)('import')
       PsiWhiteSpace(' ')

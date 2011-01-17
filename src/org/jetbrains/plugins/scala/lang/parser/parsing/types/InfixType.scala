@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  */
 
 object InfixType {
-  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
-  def parse(builder:PsiBuilder, star: Boolean): Boolean = parse(builder,star,false)
-  def parse(builder: PsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,false)
+  def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     var infixTypeMarker = builder.mark
     var markerList = List[PsiBuilder.Marker]() //This list consist of markers for right-associated op
     var count = 0
@@ -31,7 +32,8 @@ object InfixType {
       return false
     }
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
+    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!builder.newlineBeforeCurrentToken) &&
+      (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
       count = count+1
       //need to know associativity
       val s = builder.getTokenText
@@ -62,16 +64,8 @@ object InfixType {
         val newMarker = builder.mark
         markerList = newMarker :: markerList
       }
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLINE_TERMINATOR => {
-          if (!LineTerminator(builder.getTokenText)) {
-            builder error ScalaBundle.message("compound.type.expected")
-          }
-          else {
-            builder.advanceLexer //Ale nl
-          }
-        }
-        case _ => {}
+      if (builder.countNewlineBeforeCurrentToken > 1) {
+        builder.error(ScalaBundle.message("compound.type.expected"))
       }
       if (!CompoundType.parse(builder)) {
         builder error ScalaBundle.message("compound.type.expected")

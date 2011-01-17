@@ -6,6 +6,7 @@ package xml
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.xml.XmlTokenType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +22,7 @@ import com.intellij.psi.xml.XmlTokenType
  */
 
 object Content {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_DATA_CHARACTERS => {

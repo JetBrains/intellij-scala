@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import nl.LineTerminator
  */
 
 object Annotation {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val annotMarker = builder.mark
     builder.getTokenText match {
       case "@" => {
@@ -33,12 +34,6 @@ object Annotation {
       builder error ScalaBundle.message("wrong.annotation.expression")
       annotMarker.drop
     } else {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLINE_TERMINATOR => {
-          if (LineTerminator(builder.getTokenText)) builder.advanceLexer
-        }
-        case _ => {}
-      }
       annotMarker.done(ScalaElementTypes.ANNOTATION)
     }
     true

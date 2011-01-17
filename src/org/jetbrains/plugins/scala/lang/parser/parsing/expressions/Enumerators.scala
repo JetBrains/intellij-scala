@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.Guard
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import patterns.Guard
  */
 
 object Enumerators {
-  def parse(builder:PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark
     if (!Generator.parse(builder)) {
       enumsMarker.drop
@@ -27,9 +28,10 @@ object Enumerators {
     var exit = true
     while (exit) {
       val guard = builder.getTokenType match {
-        case ScalaTokenTypes.tSEMICOLON | ScalaTokenTypes.tLINE_TERMINATOR =>
+        case ScalaTokenTypes.tSEMICOLON =>
           builder.advanceLexer
           false
+        case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true
         case _ => exit = false; true
       }

@@ -36,11 +36,11 @@ object ScalaFormattingModelBuilder {
           extends PsiBasedFormattingModel(file, rootBlock, documentModel) {
     protected override def replaceWithPsiInLeaf(textRange: TextRange, whiteSpace: String, leafElement: ASTNode): String = {
       if (!myCanModifyAllWhiteSpaces) {
-        if (ScalaTokenTypes.WHITE_SPACES_AND_NEW_LINE_TOKEN_SET.contains(leafElement.getElementType)) return null
+        if (leafElement.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE) return null
       }
       var elementTypeToUse: IElementType = TokenType.WHITE_SPACE
       val prevNode: ASTNode = TreeUtil.prevLeaf(leafElement)
-      if (prevNode != null && ScalaTokenTypes.WHITE_SPACES_AND_NEW_LINE_TOKEN_SET.contains(prevNode.getElementType)) {
+      if (prevNode != null && prevNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE) {
         elementTypeToUse = prevNode.getElementType
       }
       com.intellij.psi.formatter.FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, elementTypeToUse, textRange)

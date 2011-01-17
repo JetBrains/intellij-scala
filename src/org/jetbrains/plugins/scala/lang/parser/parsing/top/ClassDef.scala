@@ -10,6 +10,7 @@ import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
 import params.ClassParamClauses
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +22,7 @@ import params.ClassParamClauses
  */
 
 object ClassDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
       case _ => {
@@ -31,7 +32,8 @@ object ClassDef {
     }
     //parsing type parameters
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => TypeParamClause parse builder
+      case ScalaTokenTypes.tLSQBRACKET =>
+        TypeParamClause parse builder
       case _ => {/*it could be without type parameters*/}
     }
     val constructorMarker = builder.mark

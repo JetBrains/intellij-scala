@@ -3,6 +3,7 @@ package lang
 package parser
 package parsing
 
+import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -22,7 +23,7 @@ import top.template.TemplateStat
 */
 
 object TopStat {
-  def parse(builder: PsiBuilder, state: Int): Int = {
+  def parse(builder: ScalaPsiBuilder, state: Int): Int = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {
         Import parse builder

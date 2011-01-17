@@ -7,6 +7,7 @@ package patterns
 import com.intellij.lang.PsiBuilder
 import expressions.Block
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,11 +19,12 @@ import lexer.ScalaTokenTypes
  */
 
 object CaseClause {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE => {
         builder.advanceLexer
+        builder.disableNewlines
       }
       case _ => {
         caseClauseMarker.drop
@@ -39,8 +41,10 @@ object CaseClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer
+        builder.restoreNewlinesState
       }
       case _ => {
+        builder.restoreNewlinesState
         builder error ErrMsg("fun.sign.expected")
         caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
         return true

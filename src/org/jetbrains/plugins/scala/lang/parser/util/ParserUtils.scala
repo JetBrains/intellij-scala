@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
+import parsing.builder.ScalaPsiBuilder
+import com.intellij.lang.PsiBuilder.Marker
 
 
 object ParserUtils extends ParserUtilsBase {
@@ -21,71 +23,6 @@ object ParserUtils extends ParserUtilsBase {
     builder.advanceLexer
     token
   })
-
-
-  def roll(builder: PsiBuilder) {
-    while (!builder.eof && !(
-            ScalaTokenTypes.tLINE_TERMINATOR.eq(builder.getTokenType) ||
-                    ScalaTokenTypes.tLBRACE.eq(builder.getTokenType)
-            )) {
-      builder.advanceLexer
-    }
-  }
-
-
-  /* rolls forward until token from elems encountered */
-  def rollPanic(builder: PsiBuilder, elems: HashSet[IElementType]) = {
-
-    val stack = new _root_.scala.collection.mutable.Stack[IElementType]()
-    var flag = true
-
-    while (flag && !builder.eof && !elems.contains(builder.getTokenType)) {
-
-      if (ScalaTokenTypes.tLPARENTHESIS.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tLBRACE.equals(builder.getTokenType) ||
-              ScalaTokenTypes.tLSQBRACKET.equals(builder.getTokenType)) {
-        stack push builder.getTokenType
-        builder.advanceLexer
-        //eatElement(builder , builder.getTokenType)
-      }
-      else if (!stack.isEmpty &&
-              ((ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) &&
-                      ScalaTokenTypes.tLPARENTHESIS.equals(stack.top)) ||
-                      (ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) &&
-                              ScalaTokenTypes.tLBRACE.equals(stack.top)) ||
-                      (ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType) &&
-                              ScalaTokenTypes.tLSQBRACKET.equals(stack.top)))) {
-        stack.pop
-        builder.advanceLexer
-        //eatElement(builder , builder.getTokenType)
-      }
-           else if (stack.isEmpty &&
-                   (ScalaTokenTypes.tRPARENTHESIS.equals(builder.getTokenType) ||
-                           ScalaTokenTypes.tRBRACE.equals(builder.getTokenType) ||
-                           ScalaTokenTypes.tRSQBRACKET.equals(builder.getTokenType))) {
-             flag = false
-           } else {
-             builder.advanceLexer
-             // eatElement(builder , builder.getTokenType)
-           }
-    }
-    while (!stack.isEmpty) stack.pop
-  }
-
-  /* Roll forward throug line terminators*/
-  def rollForward(builder: PsiBuilder): Boolean = {
-    var counter = 0
-    while (!builder.eof()) {
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLINE_TERMINATOR => {
-          builder.advanceLexer
-          counter = counter + 1
-        }
-        case _ => return (counter == 0)
-      }
-    }
-    counter == 0
-  }
 
   //Write element node
   def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
@@ -156,6 +93,48 @@ object ParserUtils extends ParserUtilsBase {
       case '^' => 7
       case '|' => 8
       case _ => 9
+    }
+  }
+
+  def caseLookAheadFunction(builder: ScalaPsiBuilder): IElementType = {
+    val marker: Marker = builder.mark
+    builder.advanceLexer
+    val res = builder.getTokenType
+    marker.rollbackTo
+    res
+  }
+
+  def elementCanStartStatement(element: IElementType, builder: ScalaPsiBuilder): Boolean = {
+    element match {
+      case ScalaTokenTypes.kCATCH => false
+      case ScalaTokenTypes.kELSE => false
+      case ScalaTokenTypes.kEXTENDS => false
+      case ScalaTokenTypes.kFINALLY => false
+      case ScalaTokenTypes.kMATCH => false
+      case ScalaTokenTypes.kWITH => false
+      case ScalaTokenTypes.kYIELD => false
+      case ScalaTokenTypes.tCOMMA => false
+      case ScalaTokenTypes.tDOT => false
+      case ScalaTokenTypes.tSEMICOLON => false
+      case ScalaTokenTypes.tCOLON => false
+      case ScalaTokenTypes.tASSIGN => false
+      case ScalaTokenTypes.tFUNTYPE => false
+      case ScalaTokenTypes.tCHOOSE => false
+      case ScalaTokenTypes.tUPPER_BOUND => false
+      case ScalaTokenTypes.tLOWER_BOUND => false
+      case ScalaTokenTypes.tVIEW => false
+      case ScalaTokenTypes.tINNER_CLASS => false
+      case ScalaTokenTypes.tLSQBRACKET => false
+      case ScalaTokenTypes.tRSQBRACKET => false
+      case ScalaTokenTypes.tRPARENTHESIS => false
+      case ScalaTokenTypes.tRBRACE => false
+      case ScalaTokenTypes.kCASE =>
+        caseLookAheadFunction(builder) match {
+          case ScalaTokenTypes.kOBJECT => true
+          case ScalaTokenTypes.kCLASS => true
+          case _ => false
+        }
+      case _ => true
     }
   }
 }

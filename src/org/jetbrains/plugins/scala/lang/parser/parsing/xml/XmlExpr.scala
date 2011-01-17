@@ -6,6 +6,8 @@ package xml
 
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 17.04.2008
@@ -16,14 +18,17 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  */
 
 object XmlExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val xmlMarker = builder.mark
+    builder.disableNewlines
     if (!XmlContent.parse(builder)) {
       xmlMarker.drop
+      builder.restoreNewlinesState
       return false
     }
     while (Element.parse(builder)) {}
     xmlMarker.done(ScalaElementTypes.XML_EXPR)
+    builder.restoreNewlinesState
     return true
   }
 }

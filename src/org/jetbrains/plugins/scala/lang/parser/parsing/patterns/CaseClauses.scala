@@ -5,6 +5,7 @@ package parsing
 package patterns
 
 import com.intellij.lang.PsiBuilder
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ import com.intellij.lang.PsiBuilder
  */
 
 object CaseClauses {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark
     if (!CaseClause.parse(builder)) {
       caseClausesMarker.drop

@@ -6,6 +6,7 @@ package params
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,10 +18,12 @@ import lexer.ScalaTokenTypes
  */
 
 object FunTypeParamClause {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val funMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => builder.advanceLexer //Ate [
+      case ScalaTokenTypes.tLSQBRACKET =>
+        builder.advanceLexer //Ate [
+        builder.disableNewlines
       case _ => {
         funMarker.drop
         return false
@@ -41,6 +44,7 @@ object FunTypeParamClause {
       }
       case _ => builder error ErrMsg("wrong.parameter")
     }
+    builder.restoreNewlinesState
     funMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
     return true
   }

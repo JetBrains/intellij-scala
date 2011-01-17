@@ -32,12 +32,12 @@ ScalaFile
             PsiElement({)('{')
             Literal
               PsiElement(string content)('"hello"')
-            PsiElement(newline)('\n    ')
+            PsiWhiteSpace('\n    ')
             Literal
               PsiElement(true)('true')
             PsiElement(})('}')
           PsiElement())(')')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           Literal
             PsiElement(true)('true')
           PsiElement(;)(';')

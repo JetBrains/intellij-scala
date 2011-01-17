@@ -55,8 +55,6 @@ public class ScalaLexer extends Lexer {
   private int myTokenEnd;
   protected IElementType myTokenType;
   public final String XML_BEGIN_PATTERN = "<\\w";
-  public final int SCALA_NEW_LINE_ALLOWED_STATE = (_ScalaCoreLexer.NEW_LINE_ALLOWED & (SCALA_CORE_MASK >> SCALA_CORE_SHIFT)) << SCALA_CORE_SHIFT;
-  public final int SCALA_NEW_LINE_DEPRECATED_STATE = (_ScalaCoreLexer.NEW_LINE_DEPRECATED & (SCALA_CORE_MASK >> SCALA_CORE_SHIFT)) << SCALA_CORE_SHIFT;
 
   public ScalaLexer() {
     myCurrentLexer = myScalaPlainLexer;
@@ -203,8 +201,7 @@ public class ScalaLexer extends Lexer {
   }
 
   private void startScalaPlainLexer(int start) {
-    (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd,
-        ((ScalaPlainLexer) myScalaPlainLexer).newLineAllowed() ? SCALA_NEW_LINE_ALLOWED_STATE : SCALA_NEW_LINE_DEPRECATED_STATE);
+    (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd);
   }
 
   private void locateTextRange() {

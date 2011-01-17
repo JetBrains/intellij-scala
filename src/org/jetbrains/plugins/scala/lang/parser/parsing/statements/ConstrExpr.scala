@@ -7,6 +7,7 @@ package statements
 import com.intellij.lang.PsiBuilder
 import expressions.SelfInvocation
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import lexer.ScalaTokenTypes
  */
 
 object ConstrExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {

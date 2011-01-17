@@ -8,6 +8,7 @@ import base.Modifier
 import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,8 +24,8 @@ import lexer.ScalaTokenTypes
  */
 
 object Dcl {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,true)
-  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,true)
+  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
       val annotationsMarker = builder.mark

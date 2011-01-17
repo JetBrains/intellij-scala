@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.{Pattern1, Guard}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import patterns.{Pattern1, Guard}
  */
 
 object Generator {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val genMarker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.kVAL) builder.advanceLexer //deprecated
     if (!Pattern1.parse(builder)) {

@@ -13,6 +13,7 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
+    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -22,7 +23,6 @@ ScalaFile
         <empty list>
     ExtendsBlock
       <empty list>
-  PsiElement(newline)('\n')
   ScClass
     AnnotationsList
       <empty list>
@@ -32,6 +32,7 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('b')
+    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -41,7 +42,6 @@ ScalaFile
         <empty list>
     ExtendsBlock
       <empty list>
-  PsiElement(newline)('\n')
   ScClass
     AnnotationsList
       <empty list>
@@ -62,7 +62,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScClass
     AnnotationsList
       <empty list>
@@ -71,6 +71,7 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('d')
+    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -79,7 +80,6 @@ ScalaFile
       Parameters
         <empty list>
     ExtendsBlock
-      PsiElement(newline)('\n')
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')

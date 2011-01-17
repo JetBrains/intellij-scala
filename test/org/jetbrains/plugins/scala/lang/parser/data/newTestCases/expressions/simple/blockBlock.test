@@ -44,7 +44,7 @@ ScalaFile
                   PsiElement(identifier)('b')
                 PsiElement(.)('.')
                 PsiElement(identifier)('c')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           ScFunctionDefinition
             AnnotationsList
               <empty list>
@@ -63,7 +63,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             Literal
               PsiElement(integer)('3')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           ScClass
             AnnotationsList
               <empty list>
@@ -85,7 +85,7 @@ ScalaFile
               ScTemplateBody
                 PsiElement({)('{')
                 PsiElement(})('}')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           IfStatement
             PsiElement(if)('if')
             PsiWhiteSpace(' ')
@@ -99,7 +99,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(string content)('"it must be true"')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           ReturnStatement
             PsiElement(return)('return')
             PsiWhiteSpace(' ')

@@ -6,6 +6,7 @@ package top
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,12 +18,12 @@ import lexer.ScalaTokenTypes
  */
 
 object ObjectDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
       case _ => {
         builder error ScalaBundle.message("identifier.expected")
-        return false;
+        return false
       }
     }
     //parse extends block

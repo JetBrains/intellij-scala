@@ -13,4 +13,4 @@ ScalaFile
         PsiElement(identifier)('b')
       PsiElement(.)('.')
       PsiElement(_)('_')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')

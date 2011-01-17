@@ -3,6 +3,7 @@ package lang
 package parser
 package parsing
 
+import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.lang.PsiBuilder
 
@@ -12,7 +13,7 @@ import com.intellij.lang.PsiBuilder
 
 class Program {
 
-  def parse(builder: PsiBuilder): Int = {
+  def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = 0
     // Debug print mode off
     DebugPrint.displayLog = false  

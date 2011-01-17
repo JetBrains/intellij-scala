@@ -80,7 +80,7 @@ trait ScalaSeparatorProvider {
 
   def getNewLinesCount(element: PsiElement) = {
     val text = element.getText
-    if (element.isInstanceOf[PsiWhiteSpace] || element.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
+    if (element.isInstanceOf[PsiWhiteSpace])
       text.count(_ == '\n')
     else 0
   }

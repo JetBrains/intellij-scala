@@ -72,8 +72,7 @@ class ScalaStatementMover extends LineMover {
 
     val span = start to end
 
-    def isWhitespace(node: ASTNode) = node.getPsi.isInstanceOf[PsiWhiteSpace] ||
-            node.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+    def isWhitespace(node: ASTNode) = node.getPsi.isInstanceOf[PsiWhiteSpace]
 
     def firstLeafOf(seq: Seq[Int]) = seq.view.map(file.getNode.findLeafElementAt(_))
             .filter(!isWhitespace(_)).map(_.getPsi).headOption

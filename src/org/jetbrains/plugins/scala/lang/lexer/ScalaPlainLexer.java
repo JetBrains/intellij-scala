@@ -50,18 +50,12 @@ public class ScalaPlainLexer extends Lexer {
   private Queue<Token> myTokenQueue;
 
   private int myLastScalaState;
-  private boolean myNewLineAllowed;
-
-  public boolean newLineAllowed() {
-    return myNewLineAllowed;
-  }
 
   private static class Token {
-    public Token(final int tokenEnd, final int tokenStart, final IElementType tokenType, final boolean newLineAllowed) {
+    public Token(final int tokenEnd, final int tokenStart, final IElementType tokenType) {
       this.tokenEnd = tokenEnd;
       this.tokenStart = tokenStart;
       this.tokenType = tokenType;
-      this.newLineAllowed = newLineAllowed;
     }
 
     public int tokenStart;
@@ -184,7 +178,6 @@ public class ScalaPlainLexer extends Lexer {
     if (queuedToken != null) {
       myTokenType = queuedToken.tokenType;
       myTokenEnd = queuedToken.tokenEnd;
-      myNewLineAllowed = queuedToken.newLineAllowed;
       return;
     }
 
@@ -204,7 +197,7 @@ public class ScalaPlainLexer extends Lexer {
     do {
       IElementType type = lexer.getTokenType();
       if (type == null) break;
-      Token token = new Token(lexer.getTokenEnd(), lexer.getTokenStart(), type, ((ScalaCoreLexer) lexer).newLineAllowed());
+      Token token = new Token(lexer.getTokenEnd(), lexer.getTokenStart(), type);
       myTokenQueue.offer(token);
       lexer.advance();
       if (lexer instanceof ScalaCoreLexer) myLastScalaState = lexer.getState();

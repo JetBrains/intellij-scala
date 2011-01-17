@@ -45,14 +45,14 @@ ScalaFile
               PsiWhiteSpace(' ')
               CodeReferenceElement
                 PsiElement(identifier)('op')
-              PsiElement(newline)('\n  ')
+              PsiWhiteSpace('\n  ')
               SimpleTypeElement
                 CodeReferenceElement
                   PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             CodeReferenceElement
               PsiElement(identifier)('op')
-            PsiElement(newline)('\n  ')
+            PsiWhiteSpace('\n  ')
             SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('T')

@@ -45,6 +45,7 @@ ScalaFile
           CodeReferenceElement
             PsiElement(identifier)('E')
       PsiElement(])(']')
+    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -54,4 +55,3 @@ ScalaFile
         <empty list>
     ExtendsBlock
       <empty list>
-  PsiElement(newline)('\n')

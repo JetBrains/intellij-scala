@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
 import template.{TemplateBody, ClassParents}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,8 +22,8 @@ import template.{TemplateBody, ClassParents}
  */
 
 object ClassTemplate {
-  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
-  def parse(builder: PsiBuilder, nonEmpty: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: ScalaPsiBuilder, nonEmpty: Boolean): Boolean = {
     val extendsMarker = builder.mark
     var empty = true
     builder.getTokenType match {
@@ -35,32 +36,13 @@ object ClassTemplate {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              TemplateBody parse builder
-              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              return !nonEmpty || !empty
-            }
-            case ScalaTokenTypes.tLINE_TERMINATOR => {
-              if (!LineTerminator(builder.getTokenText)) {
+              if (builder.countNewlineBeforeCurrentToken > 1) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return !nonEmpty || !empty
               }
-              else {
-                val backup = builder.mark
-                builder.advanceLexer //Ate nl
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tLBRACE => {
-                    TemplateBody parse builder
-                    backup.drop
-                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                    return !nonEmpty || !empty
-                  }
-                  case _ => {
-                    backup.rollbackTo
-                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                    return !nonEmpty || !empty
-                  }
-                }
-              }
+              TemplateBody parse builder
+              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              return !nonEmpty || !empty
             }
             case _ => {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
@@ -86,32 +68,13 @@ object ClassTemplate {
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
-            TemplateBody parse builder
-            extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            return !nonEmpty || !empty
-          }
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (!LineTerminator(builder.getTokenText)) {
+            if (builder.countNewlineBeforeCurrentToken > 1) {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return !nonEmpty || !empty
             }
-            else {
-              val backup = builder.mark
-              builder.advanceLexer //Ate nl
-              builder.getTokenType match {
-                case ScalaTokenTypes.tLBRACE => {
-                  TemplateBody parse builder
-                  backup.drop
-                  extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                  return !nonEmpty || !empty
-                }
-                case _ => {
-                  backup.rollbackTo
-                  extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                  return !nonEmpty || !empty
-                }
-              }
-            }
+            TemplateBody parse builder
+            extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+            return !nonEmpty || !empty
           }
           case _ => {
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)

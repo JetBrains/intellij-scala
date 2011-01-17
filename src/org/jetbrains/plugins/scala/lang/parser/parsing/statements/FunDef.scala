@@ -10,6 +10,7 @@ import lexer.ScalaTokenTypes
 import nl.LineTerminator
 import params.ParamClauses
 import types.Type
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -25,7 +26,7 @@ import types.Type
 
 
 object FunDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark;
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer
@@ -78,29 +79,13 @@ object FunDef {
             }
           }
           case ScalaTokenTypes.tLBRACE => {
-            Block.parse(builder,true)
-            faultMarker.drop
-            return true
-          }
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (!LineTerminator(builder.getTokenText)) {
+            if (builder.countNewlineBeforeCurrentToken > 1) {
               faultMarker.rollbackTo
               return false
             }
-            else {
-              builder.advanceLexer //Ate nl
-              builder.getTokenType match {
-                case ScalaTokenTypes.tLBRACE => {
-                  Block.parse(builder,true)
-                  faultMarker.drop
-                  return true
-                }
-                case _ => {
-                  faultMarker.rollbackTo
-                  return false
-                }
-              }
-            }
+            Block.parse(builder,true)
+            faultMarker.drop
+            return true
           }
           case _ => {
             faultMarker.rollbackTo
@@ -120,22 +105,12 @@ object FunDef {
             faultMarker.drop
             return true
           }
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (LineTerminator(builder.getTokenText)) {
-              builder.advanceLexer //Ate nl
-            }
-            else {
+          case _ => {
+            if (builder.countNewlineBeforeCurrentToken > 1) {
               builder error ScalaBundle.message("constr.block.expected")
               faultMarker.drop
               return true
             }
-            if (!ConstrBlock.parse(builder)) {
-              builder error ScalaBundle.message("constr.block.expected")
-            }
-            faultMarker.drop
-            return true
-          }
-          case _ => {
             if (!ConstrBlock.parse(builder)) {
               builder error ScalaBundle.message("constr.block.expected")
             }

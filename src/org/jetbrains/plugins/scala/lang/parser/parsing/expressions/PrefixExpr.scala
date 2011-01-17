@@ -5,6 +5,7 @@ package parsing
 package expressions
 
 import com.intellij.lang.PsiBuilder
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -16,7 +17,7 @@ import com.intellij.lang.PsiBuilder
  */
 
 object PrefixExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenText match {
       case "-" | "+" | "~" | "!" => {
         val prefixMarker = builder.mark

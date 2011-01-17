@@ -30,8 +30,4 @@ public class ScalaCoreLexer extends MergingLexerAdapter {
             ScalaTokenTypes.tWHITE_SPACE_IN_LINE
         ));
   }
-
-  public boolean newLineAllowed() {
-    return ((ScalaFlexLexer) getOriginal()).newLineAllowed();
-  }
 }

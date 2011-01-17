@@ -3,6 +3,7 @@ package lang
 package parser
 package parsing
 
+import builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
  */
 
 object CompilationUnit {
-  def parse(builder: PsiBuilder): Int = {
+  def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
 
     def parsePackagingBody(hasPackage: Boolean) = {
@@ -46,12 +47,12 @@ object CompilationUnit {
         def parsePackageSequence(completed: Boolean, k: => Unit) {
           def askType = builder.getTokenType
           if (askType == null) k
-          else if (ScalaTokenTypes.STATEMENT_SEPARATORS.contains(askType)) {
+          else if (askType == ScalaTokenTypes.tSEMICOLON) {
             builder.advanceLexer
             parsePackageSequence(true, k)
           } else {
             // Mark error
-            if (!completed) {
+            if (!completed && !builder.newlineBeforeCurrentToken) {
               builder.error(ErrMsg("semi.expected"))
             }
             if (ScalaTokenTypes.kPACKAGE == askType &&
@@ -63,8 +64,7 @@ object CompilationUnit {
                 case ScalaTokenTypes.tIDENTIFIER => {
                   Qual_Id parse builder
                   // Detect explicit packaging with curly braces
-                  if (ParserUtils.lookAhead(builder, ScalaTokenTypes.tLBRACE) ||
-                  ParserUtils.lookAhead(builder, ScalaTokenTypes.tLINE_TERMINATOR, ScalaTokenTypes.tLBRACE) &&
+                  if (ParserUtils.lookAhead(builder, ScalaTokenTypes.tLBRACE) &&
                   !builder.getTokenText.matches(".*\n.*\n.*")) {
                     newMarker.rollbackTo
                     parsePackagingBody(true)

@@ -10,6 +10,7 @@ import lexer.ScalaTokenTypes
 import patterns.Pattern2
 import types.Type
 import util.ParserUtils
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +22,7 @@ import util.ParserUtils
  */
 //TODO: Rewrite this
 object PatDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 

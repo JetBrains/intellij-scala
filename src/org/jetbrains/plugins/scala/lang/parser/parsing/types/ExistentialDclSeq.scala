@@ -7,6 +7,7 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import statements.{EmptyDcl, Dcl}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,7 +22,7 @@ import statements.{EmptyDcl, Dcl}
  */
 
 object ExistentialDclSeq {
-  def parse(builder: PsiBuilder) {
+  def parse(builder: ScalaPsiBuilder) {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
         if (!Dcl. parse (builder,false)) {
@@ -33,9 +34,8 @@ object ExistentialDclSeq {
         return
       }
     }
-    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON
-          || builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
-      builder.advanceLexer //Ate semi
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON || builder.newlineBeforeCurrentToken) {
+      if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer //Ate semi
       builder.getTokenType match {
         case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
           if (!Dcl.parse(builder, false)) {

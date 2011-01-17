@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.{Pattern1, Guard}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import patterns.{Pattern1, Guard}
  */
 
 object Enumerator {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumMarker = builder.mark
 
     def parseNonGuard(f: Boolean): Boolean = {

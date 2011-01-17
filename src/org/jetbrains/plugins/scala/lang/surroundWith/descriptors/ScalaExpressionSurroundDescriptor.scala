@@ -8,7 +8,9 @@ package descriptors;
  * Date: 09.01.2007
  *
  */
-import com.intellij.lang.surroundWith.SurroundDescriptor;
+import com.intellij.lang.surroundWith.SurroundDescriptor
+import psi.ScalaPsiUtil
+;
 import com.intellij.lang.surroundWith.Surrounder;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -87,9 +89,9 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       case _ => {
         if (element2.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)
           return findExpressionInRange(file, startOffset, endOffset - 1)
-        if (element1.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
+        if (ScalaPsiUtil.isLineTerminator(element1))
           return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
-        if (element2.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
+        if (ScalaPsiUtil.isLineTerminator(element2))
           return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element1.getNode.getElementType)
           return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
@@ -103,7 +105,6 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
       while (element != null && !element.isInstanceOf[ScExpression] && !element.isInstanceOf[ScValue] &&
               !element.isInstanceOf[ScFunction] && !element.isInstanceOf[ScTypeAlias] &&
               !element.isInstanceOf[ScVariable] && !element.isInstanceOf[PsiWhiteSpace] &&
-              element.getNode.getElementType != ScalaTokenTypes.tLINE_TERMINATOR &&
               element.getNode.getElementType != ScalaTokenTypes.tSEMICOLON &&
               !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(element.getNode.getElementType)||
               (element.getParent().getTextRange().getStartOffset() == startOffset &&

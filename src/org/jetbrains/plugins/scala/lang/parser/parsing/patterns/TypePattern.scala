@@ -7,6 +7,7 @@ package patterns
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.{ExistentialClause, InfixType, Type}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,12 +19,13 @@ import types.{ExistentialClause, InfixType, Type}
  */
 
 object TypePattern {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         val parMarker = builder.mark
         builder.advanceLexer //Ate (
+        builder.disableNewlines
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS => {
             if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
@@ -40,6 +42,7 @@ object TypePattern {
                 builder error ScalaBundle.message("rparenthesis.expected")
               }
             }
+            builder.restoreNewlinesState
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE => {
                 builder.advanceLexer //Ate =>

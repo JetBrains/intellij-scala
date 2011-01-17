@@ -7,6 +7,8 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
@@ -17,7 +19,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object ExistentialClause {
-  def parse(builder: PsiBuilder) : Boolean = {
+  def parse(builder: ScalaPsiBuilder) : Boolean = {
     val existMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME => {
@@ -31,6 +33,7 @@ object ExistentialClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer //Ate {
+        builder.enableNewlines
       }
       case _ => {
         builder error ScalaBundle.message("existential.block.expected")
@@ -43,6 +46,7 @@ object ExistentialClause {
       case ScalaTokenTypes.tRBRACE => builder.advanceLexer //Ate }
       case _ => builder error ScalaBundle.message("rbrace.expected")
     }
+    builder.restoreNewlinesState
     existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
     return true
   }

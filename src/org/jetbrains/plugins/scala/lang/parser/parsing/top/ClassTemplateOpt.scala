@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
 import template.{TemplateBody, ClassParents}
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -21,44 +22,34 @@ import template.{TemplateBody, ClassParents}
 //May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
 object ClassTemplateOpt {
-  def parse(builder: PsiBuilder): Unit = {
+  def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
     //try to find extends keyword
     builder.getTokenType match {
-      case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND=> builder.advanceLexer //Ate extends
+      case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND => builder.advanceLexer //Ate extends
       case ScalaTokenTypes.tLBRACE => {
         TemplateBody parse builder
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       }
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        val rollbackMarker = builder.mark
-        if (!LineTerminator(builder.getTokenText)) {
-          //builder.advanceLexer //Ate nl
-          rollbackMarker.drop
+      case _ => {
+        if (builder.countNewlineBeforeCurrentToken != 1) {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
         else {
-          builder.advanceLexer //Ate nl
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              rollbackMarker.drop
               TemplateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
             case _ => {
-              rollbackMarker.rollbackTo
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
           }
         }
-      }
-      case _ => {
-        extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-        return
       }
     }
     // try to split ClassParents and TemplateBody
@@ -75,34 +66,24 @@ object ClassTemplateOpt {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
-            case ScalaTokenTypes.tLINE_TERMINATOR => {
-              val rollbackMarker = builder.mark
-              if (!LineTerminator(builder.getTokenText)) {
-                //builder.advanceLexer //Ate nl
-                rollbackMarker.drop
+            case _ => {
+              if (builder.countNewlineBeforeCurrentToken != 1) {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
               else {
-                builder.advanceLexer //Ate nl
                 builder.getTokenType match {
                   case ScalaTokenTypes.tLBRACE => {
-                    rollbackMarker.drop
                     TemplateBody parse builder
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
                   case _ => {
-                    rollbackMarker.rollbackTo
                     extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                     return
                   }
                 }
               }
-            }
-            case _ => {
-              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-              return
             }
           }
         }
@@ -132,35 +113,24 @@ object ClassTemplateOpt {
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-              val rollbackMarker = builder.mark
-              if (!LineTerminator(builder.getTokenText)) {
-                //builder.advanceLexer //Ate nl
-                rollbackMarker.drop
-                extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                return
-              }
-              else {
-                builder.advanceLexer //Ate nl
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tLBRACE => {
-                    rollbackMarker.drop
-                    TemplateBody parse builder
-                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                    return
-                  }
-                  case _ => {
-                    rollbackMarker.rollbackTo
-                    extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-                    return
-                  }
+          case _ =>
+            if (builder.countNewlineBeforeCurrentToken != 1) {
+              extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+              return
+            }
+            else {
+              builder.getTokenType match {
+                case ScalaTokenTypes.tLBRACE => {
+                  TemplateBody parse builder
+                  extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                  return
+                }
+                case _ => {
+                  extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
+                  return
                 }
               }
             }
-          case _ => {
-            extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
-            return
-          }
         }
       }
     }

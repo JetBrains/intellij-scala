@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +18,7 @@ import lexer.ScalaTokenTypes
  */
 
 object Import {
-  def parse(builder: PsiBuilder) {
+  def parse(builder: ScalaPsiBuilder) {
     val importMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT => {

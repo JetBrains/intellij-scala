@@ -21,7 +21,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScTrait
     AnnotationsList
       <empty list>

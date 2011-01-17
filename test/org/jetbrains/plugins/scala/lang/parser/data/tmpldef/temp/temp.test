@@ -36,7 +36,7 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiErrorElement:Wrong value declaration
             <empty list>
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScValueDeclaration
           AnnotationsList
             <empty list>

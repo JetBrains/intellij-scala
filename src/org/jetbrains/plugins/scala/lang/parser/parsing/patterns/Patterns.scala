@@ -7,6 +7,7 @@ package patterns
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import util.ParserUtils
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -14,8 +15,8 @@ import util.ParserUtils
 */
 
 object Patterns {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
-  def parse(builder: PsiBuilder, underParams: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: ScalaPsiBuilder, underParams: Boolean): Boolean = {
     val patternsMarker = builder.mark
     if (!Pattern.parse(builder)) {
       builder.getTokenType match {
@@ -66,7 +67,7 @@ object Patterns {
 }
 
 object XmlPatterns extends ParserNode {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
             builder.getTokenText.substring(0, 1) && !(
             builder.getTokenText.apply(0) == '`' && builder.getTokenText.apply(builder.getTokenText.length - 1) == '`'

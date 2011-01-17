@@ -7,6 +7,7 @@ package top
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.SimpleType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -14,7 +15,7 @@ import types.SimpleType
 */
 
 object Requires {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val requiresMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kREQUIRES => {

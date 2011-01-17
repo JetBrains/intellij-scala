@@ -31,7 +31,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScTrait
     AnnotationsList
       <empty list>
@@ -52,7 +52,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiElement(})('}')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScObject
     AnnotationsList
       <empty list>

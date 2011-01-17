@@ -7,6 +7,8 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
@@ -20,9 +22,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object Type {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,false)
-  def parse(builder: PsiBuilder,star: Boolean): Boolean = parse(builder,star,false)
-  def parse(builder: PsiBuilder,star: Boolean,isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: ScalaPsiBuilder,star: Boolean): Boolean = parse(builder,star,false)
+  def parse(builder: ScalaPsiBuilder,star: Boolean,isPattern: Boolean): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
       /*case ScalaTokenTypes.tLPARENTHESIS => {

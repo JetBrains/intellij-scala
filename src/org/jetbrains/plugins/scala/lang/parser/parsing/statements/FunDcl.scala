@@ -7,6 +7,7 @@ package statements
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.Type
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import types.Type
  */
 
 object FunDcl {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
     builder.getTokenType() match {
       case ScalaTokenTypes.kDEF => {

@@ -39,7 +39,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('MAX')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScVariableDefinition
           AnnotationsList
             <empty list>

@@ -9,11 +9,11 @@ ScalaFile
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('a')
-    PsiElement(newline)('\n\n')
-    PsiErrorElement:Wrong top statement declaration
+    PsiErrorElement:'{' expected
       <empty list>
-    PsiElement({)('{')
-    PsiErrorElement:Wrong top statement declaration
-      <empty list>
-    PsiWhiteSpace('\n')
-    PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiElement({)('{')
+  PsiErrorElement:Wrong top statement declaration
+    <empty list>
+  PsiWhiteSpace('\n')
+  PsiElement(})('}')

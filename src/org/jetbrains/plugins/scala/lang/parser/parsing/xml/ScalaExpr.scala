@@ -7,6 +7,7 @@ package xml
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,26 +19,27 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
  */
 
 object ScalaExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START => {
-        builder.advanceLexer()
+        builder.advanceLexer
+        builder.enableNewlines
       }
       case _ => return false
     }
     if (!Block.parse(builder, false, true)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
-    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON ||
-    builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
+    while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
       builder.advanceLexer
     }
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END => {
-        builder.advanceLexer()
+        builder.advanceLexer
       }
       case _ => builder error ErrMsg("xml.scala.injection.end.expected")
     }
+    builder.restoreNewlinesState
     return true
   }
 }
