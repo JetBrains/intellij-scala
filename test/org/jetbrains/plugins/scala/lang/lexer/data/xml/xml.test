@@ -36,7 +36,7 @@ XML_NAME {hr}
 XML_EMPTY_ELEMENT_END {/>}
 white space in line { }
 identifier {++}
-newline {
+white space in line {
       }
 XML_START_TAG_START {<}
 XML_NAME {table}

@@ -17,17 +17,17 @@ catch
 x
 -----
 identifier {id}
-newline {
+white space in line {
 }
 identifier {x}
-newline {
+white space in line {
 
 }
 this {this}
-newline {
+white space in line {
 }
 identifier {x}
-newline {
+white space in line {
 
 }
 var {var}
@@ -41,7 +41,7 @@ extends {extends}
 white space in line {
 }
 identifier {x}
-newline {
+white space in line {
 
 }
 sealed {sealed}

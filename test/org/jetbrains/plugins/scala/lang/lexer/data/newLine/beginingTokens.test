@@ -27,17 +27,17 @@ white space in line {
 
 }
 identifier {x}
-newline {
+white space in line {
 }
 identifier {x}
-newline {
+white space in line {
 
 }
 identifier {x}
-newline {
+white space in line {
 }
 null {null}
-newline {
+white space in line {
 
 }
 identifier {x}
@@ -57,7 +57,7 @@ white space in line {
 
 }
 identifier {x}
-newline {
+white space in line {
 }
 case {case}
 white space in line { }

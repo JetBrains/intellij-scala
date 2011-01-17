@@ -19,7 +19,7 @@ identifier {println}
 ( {(}
 string content {"Hello, world!"}
 ) {)}
-newline {
+white space in line {
 }
 identifier {argv}
 . {.}

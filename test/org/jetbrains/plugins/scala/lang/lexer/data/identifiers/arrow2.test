@@ -51,7 +51,7 @@ identifier {x}
 white space in line { }
 identifier {y}
 ) {)}
-newline {
+white space in line {
   }
 def {def}
 white space in line { }

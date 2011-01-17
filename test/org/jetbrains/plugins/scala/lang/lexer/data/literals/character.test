@@ -17,7 +17,7 @@ white space in line { }
 = {=}
 white space in line { }
 Character {'i'}
-newline {
+white space in line {
   }
 val {val}
 white space in line { }
@@ -26,7 +26,7 @@ white space in line { }
 = {=}
 white space in line { }
 Character {'\u0041'}
-newline {
+white space in line {
   }
 val {val}
 white space in line { }

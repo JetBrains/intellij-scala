@@ -4,12 +4,12 @@
 0777L
 -----
 integer {0}
-newline {
+white space in line {
 }
 integer {21}
-newline {
+white space in line {
 }
 integer {0xFFFFFFFF}
-newline {
+white space in line {
 }
 integer {0777L}

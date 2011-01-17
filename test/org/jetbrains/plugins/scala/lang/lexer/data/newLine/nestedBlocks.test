@@ -19,7 +19,7 @@ identifier {foo}
 white space in line {
 }
 ) {)}
-newline {
+white space in line {
 }
 identifier {foo}
 ( {(}
