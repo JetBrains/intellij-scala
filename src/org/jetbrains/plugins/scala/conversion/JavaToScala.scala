@@ -5,6 +5,7 @@ package conversion
 import collection.mutable.{ArrayBuffer, LinkedHashSet}
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import lang.refactoring.util.ScalaNamesUtil
 import lang.psi.types.ScType
 import java.lang.String
@@ -502,7 +503,11 @@ object JavaToScala {
         res.append(w.getText)
       }
       case annot: PsiAnnotation => {
-        res.append("@").append(escapeKeyword(annot.getNameReferenceElement.getText))
+        PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) match {
+          case parent: PsiAnnotation => res.append("new ");
+          case _ => res.append("@");
+        }
+        res.append(escapeKeyword(annot.getNameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes
         if (attributes nonEmpty) {
           res.append("(")
