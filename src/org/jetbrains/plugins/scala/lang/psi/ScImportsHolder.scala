@@ -70,11 +70,12 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
 
-  private def importStatementsInHeader: Seq[ScImportStmt] = {
+  def importStatementsInHeader: Seq[ScImportStmt] = {
     val buf = new ArrayBuffer[ScImportStmt]
     for (child <- getChildren) {
       child match {
         case x: ScImportStmt => buf += x
+        case p: ScPackaging if !p.isExplicit && buf.length == 0 => return p.importStatementsInHeader
         case _: ScTypeDefinition | _: ScPackaging => return buf.toSeq
         case _ =>
       }
