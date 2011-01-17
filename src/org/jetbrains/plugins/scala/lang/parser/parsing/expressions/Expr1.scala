@@ -315,7 +315,8 @@ object Expr1 {
       //---------------return statement-----------//
       case ScalaTokenTypes.kRETURN => {
         builder.advanceLexer //Ate return
-        Expr parse builder
+        if (!builder.newlineBeforeCurrentToken)
+          Expr parse builder
         exprMarker.done(ScalaElementTypes.RETURN_STMT)
         return true
       }
