@@ -6,7 +6,7 @@ import java.lang.SuppressWarnings;
 @SuppressWarnings("bar")
 public class Annotated {
 
-    @SuppressWarnings("bar", x = 1)
+    @SuppressWarnings("bar", x = 1, inner = @SuppressWarnings)
     public static void main(String[] args) {
 
     }
@@ -20,7 +20,7 @@ import java.lang.SuppressWarnings
 
 @SuppressWarnings(value = "foo")
 @SuppressWarnings("bar") object Annotated {
-  @SuppressWarnings("bar", x = 1) def main(args: Array[String]): Unit = {
+  @SuppressWarnings("bar", x = 1, inner = new SuppressWarnings) def main(args: Array[String]): Unit = {
   }
 }
 */
