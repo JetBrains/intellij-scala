@@ -44,10 +44,24 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
   def testMultipleLinesMember() {
     "def a {\n// method a\n}\n\n|def b {\n// method b\n}" movedUpIs "def b {\n// method b\n}\n\ndef a {\n// method a\n}"
     "|def a {\n// method a\n}\n\ndef b {\n// method b\n}" movedDownIs "def b {\n// method b\n}\n\ndef a {\n// method a\n}"
+
+    "|def a\n\ndef b {\n// method b\n}" movedDownIs "def b {\n// method b\n}\n\ndef a"
+    "|def a {\n// method a\n}\n\ndef b" movedDownIs "def b\n\ndef a {\n// method a\n}"
   }
 
   def testCaseClause {
+    "1 switch {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" moveUpIsDisabled;
+    "1 switch {\n|case 1 =>\ncase 2 =>\ncase 3 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\ncase 1 =>\ncase 3 =>\n}}";
+
     "1 switch {\ncase 1 =>\n|case 2 =>\ncase 3 =>\n}}" movedUpIs "1 switch {\ncase 2 =>\ncase 1 =>\ncase 3 =>\n}}";
     "1 switch {\ncase 1 =>\n|case 2 =>\ncase 3 =>\n}}" movedDownIs "1 switch {\ncase 1 =>\ncase 3 =>\ncase 2 =>\n}}";
+
+    "1 switch {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" movedUpIs "1 switch {\ncase 1 =>\ncase 3 =>\ncase 2 =>\n}}";
+    "1 switch {\ncase 1 =>\ncase 2 =>\n|case 3 =>\n}}" moveDownIsDisabled;
+  }
+
+  def testMultilineCaseClause {
+      "1 switch {\n|case 1 =>{\n//clause 1\n}\n\ncase 2 =>\n}}" movedDownIs "1 switch {\ncase 2 =>\n\ncase 1 =>{\n//clause 1\n}\n}}";
+      "1 switch {\n|case 1 =>\n\ncase 2 =>{\n//clause 2\n}\n}}" movedDownIs "1 switch {\ncase 2 =>{\n//clause 2\n}\n\ncase 1 =>\n}}";
   }
 }

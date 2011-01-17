@@ -4,14 +4,14 @@ package lang.refactoring
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover.MoveInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.openapi.editor.{LogicalPosition, Editor}
+import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.editorActions.moveUpDown.{LineRange, LineMover}
 import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiFile}
-import com.intellij.openapi.util.Pair
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiElement
 import lang.psi.api.base.patterns.ScCaseClause
+import com.intellij.lang.ASTNode
 
 /**
  * Pavel Fatin
@@ -48,12 +48,12 @@ class ScalaStatementMover extends LineMover {
   }
 
   private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, range: LineRange): Option[T] = {
-    val psiRange = cornerElements(editor, file, range)
+    val psiRange = edgeLeafsOf(range.startLine, editor, file)
 
     if (psiRange == null) return None
 
-    val first = PsiTreeUtil.getParentOfType(psiRange.getFirst, cl, false)
-    val last = PsiTreeUtil.getParentOfType(psiRange.getSecond, cl, false)
+    val first = PsiTreeUtil.getParentOfType(psiRange._1, cl, false)
+    val last = PsiTreeUtil.getParentOfType(psiRange._2, cl, false)
 
     if (first == null || last == null) return None
 
@@ -64,31 +64,23 @@ class ScalaStatementMover extends LineMover {
     Some(first)
   }
 
-  protected def cornerElements(editor: Editor, file: PsiFile, range: LineRange): Pair[PsiElement, PsiElement] = {
-    val startOffset = editor.logicalPositionToOffset(new LogicalPosition(range.startLine, 0))
-    var startingElement = firstNonWhiteElement(startOffset, file, true)
-    if (startingElement == null) return null
-    val endOffset = editor.logicalPositionToOffset(new LogicalPosition(range.endLine, 0)) - 1
-    var endingElement = firstNonWhiteElement(endOffset, file, false)
-    if (endingElement == null) return null
-    if (PsiTreeUtil.isAncestor(startingElement, endingElement, false) || startingElement.getTextRange.getEndOffset <= endingElement.getTextRange.getStartOffset) {
-      return Pair.create(startingElement, endingElement)
-    }
-    if (PsiTreeUtil.isAncestor(endingElement, startingElement, false)) {
-      return Pair.create(startingElement, endingElement)
-    }
-    return null
-  }
+  private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (PsiElement, PsiElement) = {
+    val document = editor.getDocument
 
-  protected def firstNonWhiteElement(offset: Int, file: PsiFile, lookRight: Boolean): PsiElement = {
-    val leafElement = file.getNode.findLeafElementAt(offset)
-    return if (leafElement == null) null else firstNonWhiteElement(leafElement.getPsi, lookRight)
-  }
+    val start = document.getLineStartOffset(line)
+    val end = start.max(document.getLineEndOffset(line) - 1)
 
-  protected def firstNonWhiteElement(element: PsiElement, lookRight: Boolean): PsiElement = {
-    if (element.isInstanceOf[PsiWhiteSpace] || element.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
-      return if (lookRight) element.getNextSibling else element.getPrevSibling
-    }
-    return element
+    val span = start to end
+
+    def isWhitespace(node: ASTNode) = node.getPsi.isInstanceOf[PsiWhiteSpace] ||
+            node.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+
+    def firstLeafOf(seq: Seq[Int]) = seq.view.map(file.getNode.findLeafElementAt(_))
+            .filter(!isWhitespace(_)).map(_.getPsi).headOption
+
+    val left = firstLeafOf(span)
+    val right = firstLeafOf(span.reverse)
+
+    (left.orNull, right.orNull)
   }
 }
