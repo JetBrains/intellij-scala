@@ -7,6 +7,7 @@ package top.params
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,26 +19,17 @@ import nl.LineTerminator
  */
 
 object ClassParamClause {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
-    //try to miss nl token
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        //if we find more than one nl => false
-        if (!LineTerminator(builder.getTokenText)) {
-          classParamMarker.rollbackTo
-          return false
-        }
-        else {
-          builder.advanceLexer // Ate nl token
-        }
-      }
-      case _ => {/*so let's parse*/}
+    if (builder.countNewlineBeforeCurrentToken > 1) {
+      classParamMarker.rollbackTo
+      return false
     }
     //Look for '('
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         builder.advanceLexer //Ate '('
+        builder.disableNewlines
         builder.getTokenType match {
           case ScalaTokenTypes.kIMPLICIT => {
             classParamMarker.rollbackTo
@@ -64,12 +56,14 @@ object ClassParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {
         builder.advanceLexer //Ate )
+        builder.restoreNewlinesState
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         return true
       }
       case _ => {
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         builder error ErrMsg("rparenthesis.expected")
+        builder.restoreNewlinesState
         return true
       }
     }

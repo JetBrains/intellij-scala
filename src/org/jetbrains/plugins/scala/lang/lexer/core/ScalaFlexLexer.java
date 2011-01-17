@@ -28,8 +28,4 @@ public class ScalaFlexLexer extends FlexAdapter {
   public ScalaFlexLexer() {
     super(new _ScalaCoreLexer((Reader)  null));
   }
-
-  boolean newLineAllowed() {
-    return ((_ScalaCoreLexer) getFlex()).newLineAllowed();
-  }
 }

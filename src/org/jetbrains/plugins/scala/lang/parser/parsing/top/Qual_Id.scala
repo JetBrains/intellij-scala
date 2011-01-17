@@ -6,6 +6,7 @@ package top
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,11 +18,11 @@ import lexer.ScalaTokenTypes
 */
 
 object Qual_Id {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val qualMarker = builder.mark
     return parse(builder,qualMarker)
   }
-  def parse(builder: PsiBuilder, qualMarker: PsiBuilder.Marker): Boolean = {
+  def parse(builder: ScalaPsiBuilder, qualMarker: PsiBuilder.Marker): Boolean = {
     //parsing td identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {

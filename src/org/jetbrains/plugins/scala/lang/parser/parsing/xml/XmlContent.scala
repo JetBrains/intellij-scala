@@ -6,6 +6,7 @@ package xml
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.xml.XmlTokenType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import com.intellij.psi.xml.XmlTokenType
  */
 
 object XmlContent {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case XmlTokenType.XML_START_TAG_START => {
         Element parse builder

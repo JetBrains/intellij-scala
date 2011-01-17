@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.CaseClauses
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,11 +20,12 @@ import patterns.CaseClauses
  */
 
 object BlockExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val blockExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer
+        builder.enableNewlines
       }
       case _ => {
         blockExprMarker.drop
@@ -58,6 +60,7 @@ object BlockExpr {
         builder error ScalaBundle.message("rbrace.expected")
       }
     }
+    builder.restoreNewlinesState
     blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
     return true
   }

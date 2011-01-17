@@ -6,6 +6,7 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,14 +18,14 @@ import lexer.ScalaTokenTypes
  */
 
 object PostfixExpr {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val postfixMarker = builder.mark
     if (!InfixExpr.parse(builder)) {
       postfixMarker.drop
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken => {
         val refMarker = builder.mark
         builder.advanceLexer //Ate id
         refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)

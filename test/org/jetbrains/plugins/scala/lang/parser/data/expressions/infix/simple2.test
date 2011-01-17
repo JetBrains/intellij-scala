@@ -39,7 +39,7 @@ ScalaFile
               PsiElement(})('}')
             PsiElement(.)('.')
             PsiElement(identifier)('toString')
-        PsiElement(newline)('\n')
+        PsiWhiteSpace('\n')
         InfixExpression
           Literal
             PsiElement(integer)('1')

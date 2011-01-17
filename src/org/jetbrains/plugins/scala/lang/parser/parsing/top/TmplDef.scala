@@ -8,6 +8,7 @@ import base.Modifier
 import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,7 +24,7 @@ import lexer.ScalaTokenTypes
  */
 
 object TmplDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}

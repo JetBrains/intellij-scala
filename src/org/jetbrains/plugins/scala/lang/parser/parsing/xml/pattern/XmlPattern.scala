@@ -6,6 +6,8 @@ package xml.pattern
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 18.04.2008
@@ -17,22 +19,23 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  */
 
 object XmlPattern {
-  def parse(builder: PsiBuilder): Boolean = {
-    val patternMarker = builder.mark()
+  def parse(builder: ScalaPsiBuilder): Boolean = {
+    val patternMarker = builder.mark
+    builder.disableNewlines
     if (EmptyElemTagP.parse(builder)) {
       patternMarker.done(ScalaElementTypes.XML_PATTERN)
+      builder.restoreNewlinesState
       return true
     }
     if (!STagP.parse(builder)) {
       patternMarker.drop
+      builder.restoreNewlinesState
       return false
     }
     ContentP parse builder
     if (!ETagP.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
+    builder.restoreNewlinesState
     patternMarker.done(ScalaElementTypes.XML_PATTERN)
-    while (builder.getTokenType == ScalaTokenTypes.tLINE_TERMINATOR) {
-      builder.advanceLexer
-    }
     return true
   }
 }

@@ -46,7 +46,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('n')
-            PsiElement(newline)('\n        ')
+            PsiWhiteSpace('\n        ')
             Generator
               ReferencePattern
                 PsiElement(identifier)('j')
@@ -62,7 +62,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('i')
-            PsiElement(newline)('\n        ')
+            PsiWhiteSpace('\n        ')
             Guard
               PsiElement(if)('if')
               PsiWhiteSpace(' ')

@@ -7,6 +7,7 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object SimpleType {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
 
     def parseTail(curMarker: PsiBuilder.Marker) {
       builder.getTokenType match {
@@ -58,6 +59,7 @@ object SimpleType {
       case ScalaTokenTypes.tLPARENTHESIS => {
         val tupleMarker = builder.mark
         builder.advanceLexer
+        builder.disableNewlines
         val (_, isTuple) = Types parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOMMA => {
@@ -84,6 +86,7 @@ object SimpleType {
             else tupleMarker.done(ScalaElementTypes.TYPE_IN_PARENTHESIS)
           }
         }
+        builder.restoreNewlinesState
       }
       case ScalaTokenTypes.kTHIS |
               ScalaTokenTypes.tIDENTIFIER |

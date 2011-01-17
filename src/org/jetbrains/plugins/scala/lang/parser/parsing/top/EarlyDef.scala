@@ -7,6 +7,7 @@ package top
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import statements.PatVarDef
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,11 +19,13 @@ import statements.PatVarDef
  */
 
 object EarlyDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark
     //Look for {
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => builder.advanceLexer //Ate {
+      case ScalaTokenTypes.tLBRACE =>
+        builder.advanceLexer //Ate {
+        builder.enableNewlines
       case _ => {
         builder error ScalaBundle.message("unreachable.error")
         earlyMarker.drop
@@ -30,7 +33,7 @@ object EarlyDef {
       }
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
-    def subparse():Boolean = {
+    def subparse: Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
           builder.advanceLexer //Ate }
@@ -47,11 +50,12 @@ object EarlyDef {
                 builder.advanceLexer //Ate semicolon
                 return subparse
               }
-              case ScalaTokenTypes.tLINE_TERMINATOR => {
-                builder.advanceLexer //Ate new-line token
-                return subparse
+              case _ => {
+                if (builder.newlineBeforeCurrentToken) {
+                  return subparse
+                }
+                return false
               }
-              case _ => return false
             }
           }
           else {
@@ -60,6 +64,7 @@ object EarlyDef {
         }
       }
     }
+    builder.restoreNewlinesState
     if (!subparse) {
       builder error ScalaBundle.message("unreachable.error")
       earlyMarker.rollbackTo

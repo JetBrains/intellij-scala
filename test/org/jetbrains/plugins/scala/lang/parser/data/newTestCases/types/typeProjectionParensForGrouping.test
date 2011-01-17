@@ -43,7 +43,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('X')
               PsiElement(})('}')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScTypeAliasDefinition
           AnnotationsList
             <empty list>

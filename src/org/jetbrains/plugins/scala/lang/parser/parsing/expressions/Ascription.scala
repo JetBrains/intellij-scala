@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.InfixType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -14,7 +15,7 @@ import types.InfixType
 */
 
 object Ascription {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val ascriptionMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {

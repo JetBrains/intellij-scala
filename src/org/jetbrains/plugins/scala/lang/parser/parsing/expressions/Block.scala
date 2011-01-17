@@ -6,6 +6,7 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,17 +19,18 @@ import lexer.ScalaTokenTypes
 
 object Block {
 
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       val rollMarker = builder.mark
       if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
         rollMarker.rollbackTo
         builder.getTokenType match {
-          case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tSEMICOLON => {
+          case ScalaTokenTypes.tSEMICOLON => {
             builder.advanceLexer
           }
           case _ => {
-            builder error ErrMsg("semi.expected")
+            if (!builder.newlineBeforeCurrentToken)
+              builder error ErrMsg("semi.expected")
           }
         }
       } else {
@@ -38,24 +40,25 @@ object Block {
     return true
   }
 
-  private def parseImpl(builder: PsiBuilder): Int = {
+  private def parseImpl(builder: ScalaPsiBuilder): Int = {
     var i: Int = 0;
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       val t = builder.getTokenType
-      if (!(t == ScalaTokenTypes.tLINE_TERMINATOR || t == ScalaTokenTypes.tSEMICOLON)) {
+      if (t != ScalaTokenTypes.tSEMICOLON) {
         i = i + 1;
       }
     }
     i
   }
 
-  def parse(builder: PsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, false)
-  def parse(builder: PsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, false)
+  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE => {
           builder.advanceLexer
+          builder.enableNewlines
         }
         case _ => {
           blockMarker.drop
@@ -71,6 +74,7 @@ object Block {
           builder error ErrMsg("rbrace.expected")
         }
       }
+      builder.restoreNewlinesState
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }
     else {

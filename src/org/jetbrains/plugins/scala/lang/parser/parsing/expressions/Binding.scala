@@ -8,6 +8,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.ParamType
+import builder.ScalaPsiBuilder
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -19,7 +20,7 @@ import types.ParamType
  */
 
 object Binding {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {

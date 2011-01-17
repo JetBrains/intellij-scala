@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 
 /** 
@@ -20,23 +21,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
  */
 
 object Refinement {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val refineMarker = builder.mark
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (LineTerminator(builder.getTokenText)) {
-          builder.advanceLexer //Ate nl
-        }
-        else {
-          refineMarker.rollbackTo
-          return false
-        }
-      }
-      case _ => {}
+    if (builder.countNewlineBeforeCurrentToken > 1) {
+      refineMarker.drop
+      return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         builder.advanceLexer //Ate {
+        builder.enableNewlines
       }
       case _ => {
         refineMarker.rollbackTo
@@ -52,6 +46,7 @@ object Refinement {
         builder error ScalaBundle.message("rbrace.expected")
       }
     }
+    builder.restoreNewlinesState
     refineMarker.done(ScalaElementTypes.REFINEMENT)
     return true
   }

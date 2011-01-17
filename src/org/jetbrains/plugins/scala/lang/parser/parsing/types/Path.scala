@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import builder.ScalaPsiBuilder
 
 
 /**
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
  */
 
 object Path extends ParserNode with ScalaTokenTypes {
-  def parse(builder: PsiBuilder, element: ScalaElementType): Boolean = {
+  def parse(builder: ScalaPsiBuilder, element: ScalaElementType): Boolean = {
     if (lookAhead(builder, tIDENTIFIER, tDOT, kTHIS)) {
       val thisMarker = builder.mark
       val refMarker = builder.mark

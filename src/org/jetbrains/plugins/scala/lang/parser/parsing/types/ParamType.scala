@@ -7,6 +7,8 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import util.ParserUtils._
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
@@ -19,7 +21,7 @@ import util.ParserUtils._
  */
 
 object ParamType {
-  def parseInner(builder: PsiBuilder): Boolean = {
+  def parseInner(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE => {
         builder.advanceLexer //Ate '=>'
@@ -37,5 +39,5 @@ object ParamType {
     }
   }
 
-  def parse(builder : PsiBuilder) = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
+  def parse(builder: ScalaPsiBuilder) = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
 }

@@ -8,7 +8,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     CodeReferenceElement
       PsiElement(identifier)('a')
-    PsiElement(newline)('\n\n')
+    PsiWhiteSpace('\n\n')
     ScImportStatement
       PsiElement(import)('import')
       PsiWhiteSpace(' ')

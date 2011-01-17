@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import lexer.ScalaTokenTypes
  */
 
 object AccessModifier {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val accessMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE |
@@ -31,6 +32,7 @@ object AccessModifier {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET => {
         builder.advanceLexer //Ate [
+        builder.disableNewlines
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER |
                ScalaTokenTypes.kTHIS => builder.advanceLexer //Ate identifier or this
@@ -40,6 +42,7 @@ object AccessModifier {
           case ScalaTokenTypes.tRSQBRACKET => builder.advanceLexer //Ate ]
           case _ => builder error ErrMsg("rsqbracket.expected")
         }
+        builder.restoreNewlinesState
         accessMarker.done(ScalaElementTypes.ACCESS_MODIFIER)
         return true
       }

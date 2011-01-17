@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import expressions.{Expr, Annotation}
 import lexer.ScalaTokenTypes
 import types.ParamType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import types.ParamType
  */
 
 object Param {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     //parse annotations
     val annotationsMarker = builder.mark

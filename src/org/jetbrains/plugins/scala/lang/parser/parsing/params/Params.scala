@@ -6,6 +6,7 @@ package params
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +18,7 @@ import lexer.ScalaTokenTypes
  */
 
 object Params {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     if (!Param.parse(builder)) {
       return false
     }

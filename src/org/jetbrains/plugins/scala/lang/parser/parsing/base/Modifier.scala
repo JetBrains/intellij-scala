@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import lexer.ScalaTokenTypes
  */
 
 object Modifier {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kOVERRIDE => {
         builder.advanceLexer //Ate override

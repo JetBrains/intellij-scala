@@ -7,6 +7,7 @@ package patterns
 import com.intellij.lang.PsiBuilder
 import expressions.PostfixExpr
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -14,8 +15,8 @@ import lexer.ScalaTokenTypes
 */
 
 object Guard {
-  def parse(builder: PsiBuilder): Boolean = parse(builder, false) //deprecated if true
-  def parse(builder: PsiBuilder, noIf: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false) //deprecated if true
+  def parse(builder: ScalaPsiBuilder, noIf: Boolean): Boolean = {
     val guardMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => {

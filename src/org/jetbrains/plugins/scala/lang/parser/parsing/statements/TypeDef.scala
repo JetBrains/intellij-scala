@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import params.TypeParamClause
 import types.Type
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -15,7 +16,7 @@ import types.Type
 */
 
 object TypeDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
@@ -25,12 +26,6 @@ object TypeDef {
         faultMarker.rollbackTo
         return false
       }
-    }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        builder.advanceLexer //Ate nl
-      }
-      case _ => {}//nothing
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {

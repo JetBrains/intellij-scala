@@ -33,20 +33,20 @@ ScalaFile
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('+')
-            PsiElement(newline)('\n  ')
+            PsiWhiteSpace('\n  ')
             ReferenceExpression
               PsiElement(identifier)('b')
           PsiWhiteSpace(' ')
           ReferenceExpression
             PsiElement(identifier)('-')
-          PsiElement(newline)('\n  ')
+          PsiWhiteSpace('\n  ')
           InfixExpression
             ReferenceExpression
               PsiElement(identifier)('c')
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('*')
-            PsiElement(newline)('\n  ')
+            PsiWhiteSpace('\n  ')
             ReferenceExpression
               PsiElement(identifier)('d')
         PsiWhiteSpace('\n')

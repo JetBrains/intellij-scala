@@ -275,7 +275,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         //this is flag to stop walking when we add import before more big lexicographically import statement
         var added = false
         while (!added && stmt != null && (stmt.isInstanceOf[ScImportStmt]
-            || stmt.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
+            || stmt.isInstanceOf[PsiWhiteSpace]
             || stmt.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)) {
           stmt match {
             case im: ScImportStmt => {
@@ -358,10 +358,6 @@ trait ScImportsHolder extends ScalaPsiElement {
     val next = node.getTreeNext
     if (next == null) {
       remove(node)
-    }
-    else if (next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
-      remove(next)
-      remove(node)
     } else if (next.getPsi.isInstanceOf[PsiWhiteSpace]) {
       remove(next)
       remove(node)
@@ -371,7 +367,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         remove(next)
         remove(node)
       }
-      else if (next.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
+      else if (next.isInstanceOf[PsiWhiteSpace] && next.getText.contains("\n")) {
         remove(nextnext)
         remove(next)
         remove(node)

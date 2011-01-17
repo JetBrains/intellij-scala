@@ -4,6 +4,7 @@ package parser
 package parsing
 
 
+import builder.ScalaPsiBuilder
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import top.ObjectDef
@@ -13,7 +14,7 @@ import top.ObjectDef
  */
 
 object PackageObject {
-  def parse(builder: PsiBuilder) : Boolean = {
+  def parse(builder: ScalaPsiBuilder) : Boolean = {
     val marker = builder.mark
     if (builder.getTokenType != ScalaTokenTypes.kPACKAGE) {
       marker.drop

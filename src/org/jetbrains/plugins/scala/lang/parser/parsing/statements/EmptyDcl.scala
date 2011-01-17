@@ -6,14 +6,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 object EmptyDcl {
-  def parse(builder: PsiBuilder): Boolean = parse(builder,true)
-  def parse(builder: PsiBuilder, isMod: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,true)
+  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
       while (Annotation.parse(builder)) {}

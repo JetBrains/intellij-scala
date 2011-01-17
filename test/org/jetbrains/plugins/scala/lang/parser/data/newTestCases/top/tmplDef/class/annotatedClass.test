@@ -11,7 +11,7 @@ ScalaFile
             SimpleTypeElement
               CodeReferenceElement
                 PsiElement(identifier)('Nullable')
-        PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     Modifiers
       <empty list>
     PsiElement(class)('class')

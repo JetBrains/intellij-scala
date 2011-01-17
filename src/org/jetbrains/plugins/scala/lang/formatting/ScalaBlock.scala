@@ -100,10 +100,10 @@ extends Object with ScalaTokenTypes with Block {
     import collection.JavaConversions._
     if (mySubBlocks == null && myLastNode == null) {
       mySubBlocks = getDummyBlocks(myNode, this).filterNot(
-        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
+        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
     } else if (mySubBlocks == null) {
       mySubBlocks = getDummyBlocks(myNode, myLastNode, this).filterNot(
-        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)
+        _.asInstanceOf[ScalaBlock].getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)
     }
     mySubBlocks
   }

@@ -7,6 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,11 +20,12 @@ import nl.LineTerminator
  */
 
 object ArgumentExprs {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val argMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         builder.advanceLexer //Ate (
+        builder.disableNewlines
         Expr parse builder
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
           builder.advanceLexer
@@ -35,51 +37,22 @@ object ArgumentExprs {
           case ScalaTokenTypes.tRPARENTHESIS => {
             builder.advanceLexer //Ate )
           }
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-            val rMarker = builder.mark
-            builder.advanceLexer
-            builder.getTokenType match {
-              case ScalaTokenTypes.tLPARENTHESIS => {
-                builder.advanceLexer
-                rMarker.drop
-              }
-              case _ => {
-                rMarker.rollbackTo
-                builder error ScalaBundle.message("rparenthesis.expected")
-              }
-            }
-          }
           case _ => {
             builder error ScalaBundle.message("rparenthesis.expected")
           }
         }
+        builder.restoreNewlinesState
         argMarker.done(ScalaElementTypes.ARG_EXPRS)
         return true
       }
-      case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {
-        builder.getTokenType match {
-          case ScalaTokenTypes.tLINE_TERMINATOR => {
-            if (!LineTerminator(builder.getTokenText)) {
-              argMarker.rollbackTo
-              return false
-            }
-            else {
-              builder.advanceLexer //Ate nl
-            }
-          }
-          case _ => {}
+      case ScalaTokenTypes.tLBRACE => {
+        if (builder.countNewlineBeforeCurrentToken > 1) {
+          argMarker.rollbackTo
+          return false
         }
-        builder.getTokenType match {
-          case ScalaTokenTypes.tLBRACE => {
-            BlockExpr parse builder
-            argMarker.done(ScalaElementTypes.ARG_EXPRS)
-            return true
-          }
-          case _ => {
-            argMarker.rollbackTo
-            return false
-          }
-        }
+        BlockExpr parse builder
+        argMarker.done(ScalaElementTypes.ARG_EXPRS)
+        return true
       }
       case _ => {
         argMarker.drop

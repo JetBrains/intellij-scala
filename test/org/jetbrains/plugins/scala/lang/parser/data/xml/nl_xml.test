@@ -42,7 +42,7 @@ ScalaFile
               XmlToken:XML_START_TAG_START('<')
               XmlToken:XML_NAME('a')
               XmlToken:XML_EMPTY_ELEMENT_END('/>')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScFunctionDeclaration
           AnnotationsList
             <empty list>

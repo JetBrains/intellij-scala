@@ -32,7 +32,7 @@ ScalaFile
           PsiElement(DOC_COMMENT_END)('*/')
         PsiWhiteSpace('  ')
         PsiElement(})('}')
-  PsiElement(newline)('\n\n')
+  PsiWhiteSpace('\n\n')
   DocComment
     PsiElement(DOC_COMMENT_START)('/**')
     PsiElement(DOC_COMMENT_DATA)('***')

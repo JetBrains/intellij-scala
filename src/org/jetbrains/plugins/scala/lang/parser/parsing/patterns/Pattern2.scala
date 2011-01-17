@@ -6,6 +6,7 @@ package patterns
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import lexer.ScalaTokenTypes
  */
 
 object Pattern2 {
-  def parse(builder: PsiBuilder, forDef: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
 
     def isVarId = {
       val text = builder.getTokenText

@@ -6,6 +6,7 @@ package params
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,11 +18,12 @@ import lexer.ScalaTokenTypes
  */
 
 object TypeParamClause {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET => {
         builder.advanceLexer //Ate [
+        builder.disableNewlines
       }
       case _ => {
         typeMarker.drop
@@ -45,6 +47,7 @@ object TypeParamClause {
         builder error ScalaBundle.message("rsqbracket.expected")
       }
     }
+    builder.restoreNewlinesState
     typeMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)
     return true
   }

@@ -621,10 +621,9 @@ object ScalaPsiUtil {
 
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {
-      case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => return true
-      case _ =>
+      case _: PsiWhiteSpace if element.getText.indexOf('\n') != -1 => true
+      case _ => false
     }
-    return element.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR
   }
 
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {

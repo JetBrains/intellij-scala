@@ -8,6 +8,7 @@ import _root_.scala.collection.mutable.Stack
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import nl.LineTerminator
  */
 
 object Pattern3 {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     type Stack[X] = _root_.scala.collection.mutable.Stack[X]
     val markerStack = new Stack[PsiBuilder.Marker]
     val opStack = new Stack[String]
@@ -60,16 +61,8 @@ object Pattern3 {
       val idMarker = builder.mark
       builder.advanceLexer //Ate id
       idMarker.done(ScalaElementTypes.REFERENCE)
-      builder.getTokenType match {
-        case ScalaTokenTypes.tLINE_TERMINATOR => {
-          if (!LineTerminator(builder.getTokenText)) {
-            builder error ScalaBundle.message("simple.pattern.expected")
-          }
-          else {
-            builder.advanceLexer //Ale nl
-          }
-        }
-        case _ => {}
+      if (builder.countNewlineBeforeCurrentToken > 1) {
+        builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
       backupMarker.drop
       backupMarker = builder.mark

@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
@@ -19,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
  */
 
 object ClassParents {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParentsMarker = builder.mark
     if (!Constructor.parse(builder)) {
       classParentsMarker.drop

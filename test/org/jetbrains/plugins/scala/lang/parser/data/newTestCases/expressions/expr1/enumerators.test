@@ -46,7 +46,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('n')
-            PsiElement(newline)('\n      ')
+            PsiWhiteSpace('\n      ')
             Enumerator
               PsiElement(val)('val')
               PsiWhiteSpace(' ')
@@ -57,7 +57,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(integer)('5')
-            PsiElement(newline)('\n      ')
+            PsiWhiteSpace('\n      ')
             Guard
               PsiElement(if)('if')
               PsiWhiteSpace(' ')

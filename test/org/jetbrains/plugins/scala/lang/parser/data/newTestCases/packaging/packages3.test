@@ -11,7 +11,7 @@ ScalaFile
         PsiElement(identifier)('aaa')
       PsiElement(.)('.')
       PsiElement(identifier)('bbb')
-    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     ScPackaging
       PsiElement(package)('package')
       PsiWhiteSpace(' ')
@@ -20,7 +20,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement({)('{')
       PsiElement(})('}')
-    PsiElement(newline)('\n')
+    PsiWhiteSpace('\n')
     ScPackaging
       PsiElement(package)('package')
       PsiWhiteSpace(' ')

@@ -29,7 +29,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           ReferenceExpression
             PsiElement(identifier)('work')
-          PsiElement(newline)('\n  ')
+          PsiWhiteSpace('\n  ')
           PsiElement(while)('while')
           PsiWhiteSpace(' ')
           PsiElement(()('(')

@@ -6,6 +6,8 @@ package expressions
 
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -16,11 +18,12 @@ import lexer.ScalaTokenTypes
  */
 
 object Bindings {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val bindingsMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         builder.advanceLexer //Ate (
+        builder.disableNewlines
       }
       case _ => {
         bindingsMarker.drop
@@ -37,8 +40,10 @@ object Bindings {
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {
         builder.advanceLexer //Ate )
+        builder.restoreNewlinesState
       }
       case _ => {
+        builder.restoreNewlinesState
         bindingsMarker.rollbackTo
         return false
       }

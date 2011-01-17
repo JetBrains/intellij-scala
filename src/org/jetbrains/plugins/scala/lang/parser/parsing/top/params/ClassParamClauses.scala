@@ -5,6 +5,7 @@ package parsing
 package top.params
 
 import com.intellij.lang.PsiBuilder
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +18,7 @@ import com.intellij.lang.PsiBuilder
  */
 
 object ClassParamClauses {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamClausesMarker = builder.mark
     while (ClassParamClause parse builder) {}
     ImplicitClassParamClause parse builder

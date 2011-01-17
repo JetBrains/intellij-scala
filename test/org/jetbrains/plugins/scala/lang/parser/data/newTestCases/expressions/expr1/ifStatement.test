@@ -40,7 +40,7 @@ ScalaFile
             Literal
               PsiElement(true)('true')
           PsiElement())(')')
-          PsiElement(newline)('\n\n  ')
+          PsiWhiteSpace('\n\n  ')
           AssignStatement
             ReferenceExpression
               PsiElement(identifier)('Expr')

@@ -6,6 +6,8 @@ package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import builder.ScalaPsiBuilder
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 08.02.2008
@@ -17,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
  */
 
 object SelfType {
-  def parse(builder: PsiBuilder) {
+  def parse(builder: ScalaPsiBuilder) {
     val selfTypeMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER => {
@@ -90,7 +92,7 @@ object SelfType {
     }
   }
 
-  def parseType(builder : PsiBuilder) : Boolean = {
+  def parseType(builder : ScalaPsiBuilder) : Boolean = {
     val typeMarker = builder.mark
     if (!InfixType.parse(builder, false, true)) {
       typeMarker.drop

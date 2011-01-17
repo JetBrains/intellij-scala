@@ -7,6 +7,7 @@ package xml.pattern
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.psi.xml.XmlTokenType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import com.intellij.psi.xml.XmlTokenType
  */
 
 object ETagP {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val tagMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_END_TAG_START => {

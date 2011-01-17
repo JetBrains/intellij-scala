@@ -9,6 +9,7 @@ import base.Modifier
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.ParamType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import types.ParamType
  */
 
 object ClassParam {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}

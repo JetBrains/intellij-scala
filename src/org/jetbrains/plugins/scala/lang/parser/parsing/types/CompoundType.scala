@@ -7,6 +7,7 @@ package types
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -19,10 +20,10 @@ import org.jetbrains.plugins.scala.ScalaBundle
  */
 
 object CompoundType {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val compoundMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR | ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE => {
         if (Refinement parse builder) {
           compoundMarker.done(ScalaElementTypes.COMPOUND_TYPE)
           return true

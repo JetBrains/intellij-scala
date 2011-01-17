@@ -45,7 +45,7 @@ ScalaFile
             Literal
               PsiElement(integer)('1')
             PsiElement())(')')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -60,7 +60,7 @@ ScalaFile
           UnitExpression
             PsiElement(()('(')
             PsiElement())(')')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -78,7 +78,7 @@ ScalaFile
               PsiElement(integer)('1')
             PsiElement(,)(',')
             PsiElement())(')')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -98,7 +98,7 @@ ScalaFile
             Literal
               PsiElement(integer)('2')
             PsiElement())(')')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>

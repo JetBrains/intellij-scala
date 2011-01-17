@@ -37,7 +37,7 @@ ScalaFile
           SimpleTypeElement
             CodeReferenceElement
               PsiElement(identifier)('String')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -60,7 +60,7 @@ ScalaFile
               PsiElement(identifier)('name')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
-  PsiElement(newline)('\n')
+  PsiWhiteSpace('\n')
   ScClass
     AnnotationsList
       <empty list>

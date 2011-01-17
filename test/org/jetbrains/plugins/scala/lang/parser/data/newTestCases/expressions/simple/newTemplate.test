@@ -48,7 +48,7 @@ ScalaFile
                 SimpleTypeElement
                   CodeReferenceElement
                     PsiElement(identifier)('Int')
-              PsiElement(newline)('\n    ')
+              PsiWhiteSpace('\n    ')
               AssignStatement
                 ReferenceExpression
                   PsiElement(identifier)('a')

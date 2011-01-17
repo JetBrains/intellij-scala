@@ -7,6 +7,7 @@ package top
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.AnnotType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import types.AnnotType
  */
 
 object MixinParents {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val mixinMarker = builder.mark
     //Look for parent
     if (!AnnotType.parse(builder)) {

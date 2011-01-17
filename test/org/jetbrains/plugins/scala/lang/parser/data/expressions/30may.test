@@ -43,7 +43,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               ReferenceExpression
                 PsiElement(identifier)('aaa')
-            PsiElement(newline)('\n\n        ')
+            PsiWhiteSpace('\n\n        ')
             Literal
               PsiElement(integer)('42')
             PsiWhiteSpace('\n    ')

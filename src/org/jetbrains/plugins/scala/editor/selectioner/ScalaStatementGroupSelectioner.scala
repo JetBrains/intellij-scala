@@ -11,6 +11,7 @@ import impl.source.tree.LeafPsiElement
 import tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScBlock}
+import lang.psi.ScalaPsiUtil
 
 /**
  * @author yole
@@ -48,7 +49,7 @@ class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
       sibling match {
         case leaf: LeafPsiElement =>
           if (leaf.getElementType == stopAt) return current
-          if (leaf.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) {
+          if (ScalaPsiUtil.isLineTerminator(leaf)) {
             val strings: Array[String] = LineTokenizer.tokenize(leaf.getText.toCharArray, false)
             if (strings.length > 2) {
               return current

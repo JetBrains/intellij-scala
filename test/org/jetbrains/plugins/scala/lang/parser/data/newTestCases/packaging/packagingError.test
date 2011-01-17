@@ -14,10 +14,10 @@ ScalaFile
         PsiElement(identifier)('b')
       PsiElement(.)('.')
       PsiElement(identifier)('c')
-    PsiElement(newline)('\n\n')
-    PsiErrorElement:Wrong top statement declaration
+    PsiErrorElement:'{' expected
       <empty list>
-    PsiElement({)('{')
-    PsiErrorElement:Wrong top statement declaration
-      <empty list>
-    PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiElement({)('{')
+  PsiErrorElement:Wrong top statement declaration
+    <empty list>
+  PsiElement(})('}')

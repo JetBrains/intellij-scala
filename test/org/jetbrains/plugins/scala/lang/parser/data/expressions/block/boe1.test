@@ -54,10 +54,10 @@ ScalaFile
               BlockOfExpressions
                 Literal
                   PsiElement(integer)('42')
-                PsiElement(newline)('\n      ')
+                PsiWhiteSpace('\n      ')
                 Literal
                   PsiElement(integer)('41')
-                PsiElement(newline)('\n      ')
+                PsiWhiteSpace('\n      ')
                 Literal
                   PsiElement(integer)('40')
             PsiWhiteSpace('\n  ')

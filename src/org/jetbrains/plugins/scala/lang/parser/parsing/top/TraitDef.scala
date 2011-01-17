@@ -7,6 +7,7 @@ package top
 import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ import lexer.ScalaTokenTypes
  */
 
 object TraitDef {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
         case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
         case _ => {

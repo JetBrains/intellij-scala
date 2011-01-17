@@ -97,7 +97,7 @@ ScalaFile
                       PsiElement(identifier)('Byte')
                     PsiElement(.)('.')
                     PsiElement(identifier)('TYPE')
-                PsiElement(newline)('\n    ')
+                PsiWhiteSpace('\n    ')
                 ScFunctionDefinition
                   AnnotationsList
                     <empty list>
@@ -114,7 +114,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   Literal
                     PsiElement(string content)('"Byte"')
-                PsiElement(newline)('\n    ')
+                PsiWhiteSpace('\n    ')
                 ScFunctionDefinition
                   AnnotationsList
                     <empty list>
@@ -188,7 +188,7 @@ ScalaFile
                             PsiElement())(')')
                 PsiWhiteSpace('\n  ')
                 PsiElement(})('}')
-        PsiElement(newline)('\n\n  ')
+        PsiWhiteSpace('\n\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -259,7 +259,7 @@ ScalaFile
                       PsiElement(identifier)('Short')
                     PsiElement(.)('.')
                     PsiElement(identifier)('TYPE')
-                PsiElement(newline)('\n    ')
+                PsiWhiteSpace('\n    ')
                 ScFunctionDefinition
                   AnnotationsList
                     <empty list>
@@ -276,7 +276,7 @@ ScalaFile
                   PsiWhiteSpace(' ')
                   Literal
                     PsiElement(string content)('"Short"')
-                PsiElement(newline)('\n    ')
+                PsiWhiteSpace('\n    ')
                 ScFunctionDefinition
                   AnnotationsList
                     <empty list>

@@ -63,7 +63,7 @@ ScalaFile
                 PsiElement(identifier)('x')
             PsiWhiteSpace(' ')
             PsiElement(})('}')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>
@@ -104,7 +104,7 @@ ScalaFile
             PsiWhiteSpace(' ')
             ReferenceExpression
               PsiElement(identifier)('x')
-        PsiElement(newline)('\n  ')
+        PsiWhiteSpace('\n  ')
         ScPatternDefinition
           AnnotationsList
             <empty list>

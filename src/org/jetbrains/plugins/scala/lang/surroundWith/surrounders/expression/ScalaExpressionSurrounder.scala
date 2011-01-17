@@ -12,7 +12,9 @@ package expression
 
 import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import psi.impl.ScalaPsiElementFactory;
+import psi.impl.ScalaPsiElementFactory
+import psi.ScalaPsiUtil
+;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
@@ -40,7 +42,7 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
         true
       }
       case e => {
-        if (e.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR) true
+        if (ScalaPsiUtil.isLineTerminator(e)) true
         else if (e.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) true
         else if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains e.getNode.getElementType) true
         else false

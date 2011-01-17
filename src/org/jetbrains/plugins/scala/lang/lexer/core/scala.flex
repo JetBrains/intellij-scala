@@ -29,26 +29,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
     // Stack for braces
     private Stack <IElementType> braceStack = new Stack<IElementType>();
 
-    /* Defines, is in this section new line is whitespace or not? */
-    public boolean newLineAllowed(){
-      if (braceStack.isEmpty()){
-        return true;
-      } else {
-        return ScalaTokenTypes.tLBRACE.equals(braceStack.peek());
-      }
-    }
-
-    /* Changes state depending on brace stack */
-    private void changeState(){
-      if (braceStack.isEmpty()) {
-        yybegin(YYINITIAL);
-      } else if ( tLPARENTHESIS.equals(braceStack.peek()) || tLSQBRACKET.equals(braceStack.peek()) ){
-        yybegin(NEW_LINE_DEPRECATED);
-      } else {
-        yybegin(COMMON_STATE);
-      }
-    }
-
     /* removes brace from stack */
     private IElementType popBraceStack(IElementType elem){
      if (
@@ -160,15 +140,6 @@ stringLiteralExtra = {stringElementExtra}*
 symbolLiteral = "\'" {plainid}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////// NewLine processing ///////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-notFollowNewLine =   "catch" | "else" | "extends" | "forSome" | "finally" | "match"
-                    | "with" | "yield" | "," | "." | ";" | ":" | "=" | "=>" | "<-" | "<:" | "<%"
-                    | ">:" | "#" | "["  | ")" | "]" |"}" | "\\u2190" | "\\u21D2" | "\u2190" | "\u21D2"
-specNotFollow    =  "_" | "catch" | "else" | "extends" | "finally" | "match" | "requires" | "with" | "yield" | "case"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Common symbols //////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -183,27 +154,16 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ////////////////////  states ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-%state NEW_LINE_DEPRECATED
-%state NEW_LINE_ALLOWED
 %state COMMON_STATE
-
-// Valid preceding token for newline encountered
-%xstate PROCESS_NEW_LINE
 %xstate WAIT_FOR_XML
 
 %%
 
 <YYINITIAL>{
-"]"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tRSQBRACKET); }
-
-"}"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tRBRACE); }
-
-")"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tRPARENTHESIS); }
-"=>"                                    {   return process(tFUNTYPE);  }
-
+{XML_BEGIN}                             {   yybegin(COMMON_STATE);
+                                            yypushback(yytext().length());
+                                            return SCALA_XML_CONTENT_START;
+                                        }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,148 +172,38 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 <WAIT_FOR_XML>{
 
-{XML_BEGIN}                             {   changeState();
+{XML_BEGIN}                             {   yybegin(COMMON_STATE);
                                             yypushback(yytext().length());
                                             return SCALA_XML_CONTENT_START;
                                         }
 
-[^]                                     {   changeState();
+[^]                                     {   yybegin(COMMON_STATE);
                                             yypushback(yytext().length());
                                         }
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////  New line processing state ///////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<PROCESS_NEW_LINE>{
-
-{WhiteSpace}{XML_BEGIN}                         {  yybegin(WAIT_FOR_XML);
-                                                   yypushback(2);
-                                                   return process(tWHITE_SPACE_IN_LINE);  }
-
-{WhiteSpace}                                    {  return process(tWHITE_SPACE_IN_LINE);  }
-
-
-{END_OF_LINE_COMMENT}                           {  return process(tLINE_COMMENT); }
-
-{SH_COMMENT}                                    { return process(tSH_COMMENT); }
-
-
-{mNLS} / {END_OF_LINE_COMMENT}                  {  return process(tWHITE_SPACE_IN_LINE); /* hack */}
-
-{mNLS} / "case" ({LineTerminator}|{WhiteSpace})+("class" | "object")
-                                                {   changeState();
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                     return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-{mNLS} / {specNotFollow} ([:jletter:] | [:jletterdigit:])
-                                                {   changeState();
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                     return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-{mNLS} "case"                                   {   yypushback(4);
-                                                   changeState();
-                                                   return process(tWHITE_SPACE_IN_LINE);
-                                                }
-
-{mNLS} / {floatingPointLiteral}                 {   changeState();
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                     return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-
-
-{mNLS} / {notFollowNewLine}
-                                                {   changeState();
-                                                    return process(tWHITE_SPACE_IN_LINE);
-                                                }
-
-{mNLS}{XML_BEGIN}                               {   yybegin(WAIT_FOR_XML);
-                                                    yypushback(2);
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                      return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-{mNLS} .                                        {   yypushback(1);
-                                                    changeState();
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                      return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-{mNLS}                                          {   changeState();
-                                                    if(newLineAllowed()){
-                                                      return process(tLINE_TERMINATOR);
-                                                    } else {
-                                                      return process(tWHITE_SPACE_IN_LINE);
-                                                    }
-                                                }
-
-.                                               {   yypushback(yylength());
-                                                    changeState();
-                                                }
-}
-
-// END OF <PROCESS_LINE> STATE
-
-
-<NEW_LINE_ALLOWED> {
-{mNLS}                                  { yybegin(WAIT_FOR_XML); return process(tLINE_TERMINATOR); }
-
-.                                       { yypushback(1);  yybegin(YYINITIAL); }
-}
-
-
 
 {END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
 
 {SH_COMMENT}                            { return process(tSH_COMMENT); }
 
 
-{STRING_LITERAL}                        {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tSTRING);
-                                        }
+{STRING_LITERAL}                        {   return process(tSTRING);  }
 
-{MULTI_LINE_STRING}             {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tMULTILINE_STRING);
-                                        }
+{MULTI_LINE_STRING}                     {   return process(tMULTILINE_STRING);  }
 
-{WRONG_STRING}                          {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tWRONG_STRING);
-                                        }
+{WRONG_STRING}                          {   return process(tWRONG_STRING);  }
 
 
-{symbolLiteral}                          {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tSYMBOL);  }
+{symbolLiteral}                          {  return process(tSYMBOL);  }
 
-{CHARACTER_LITERAL}                      {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tCHAR);  }
+{CHARACTER_LITERAL}                      {  return process(tCHAR);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// braces ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 "["                                     {   braceStack.push(tLSQBRACKET);
-                                            yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLSQBRACKET); }
-"]"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return popBraceStack(tRSQBRACKET); }
+"]"                                     {   return popBraceStack(tRSQBRACKET); }
 
 "{"                                     {   braceStack.push(tLBRACE);
                                             return process(tLBRACE); }
@@ -362,19 +212,16 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                             yybegin(WAIT_FOR_XML);
                                             return process(tLBRACE); }
 
-"}"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return popBraceStack(tRBRACE); }
+"}"                                     {   return popBraceStack(tRBRACE); }
 
 "("                                     {   braceStack.push(tLPARENTHESIS);
-                                            yybegin(NEW_LINE_DEPRECATED);
                                             return process(tLPARENTHESIS); }
 
 "("{XML_BEGIN}                          {   braceStack.push(tLPARENTHESIS);
                                             yypushback(yytext().length() - 1);
                                             yybegin(WAIT_FOR_XML);
                                             return process(tLPARENTHESIS); }
-")"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return popBraceStack(tRPARENTHESIS); }
+")"                                     {   return popBraceStack(tRPARENTHESIS); }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// keywords /////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -385,7 +232,6 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
                                         {   return process(kCASE); }
 
 "case"                                  {   braceStack.push(kCASE);
-                                            yybegin(NEW_LINE_DEPRECATED);
                                             return process(kCASE); }
                                             
 "catch"                                 {   return process(kCATCH); }
@@ -394,8 +240,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "do"                                    {   return process(kDO); }
 "else"                                  {   return process(kELSE); }
 "extends"                               {   return process(kEXTENDS); }
-"false"                                 {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kFALSE); }
+"false"                                 {   return process(kFALSE); }
 "final"                                 {   return process(kFINAL); }
 "finally"                               {   return process(kFINALLY); }
 "for"                                   {   return process(kFOR); }
@@ -406,27 +251,22 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "lazy"                                  {   return process(kLAZY); }
 "match"                                 {   return process(kMATCH); }
 "new"                                   {   return process(kNEW); }
-"null"                                  {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kNULL); }
+"null"                                  {   return process(kNULL); }
 "object"                                {   return process(kOBJECT); }
 "override"                              {   return process(kOVERRIDE); }
 "package"                               {   return process(kPACKAGE); }
 "private"                               {   return process(kPRIVATE); }
 "protected"                             {   return process(kPROTECTED); }
 "requires"                              {   return process(kREQUIRES); }
-"return"                                {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kRETURN); }
+"return"                                {   return process(kRETURN); }
 "sealed"                                {   return process(kSEALED); }
 "super"                                 {   return process(kSUPER); }
-"this"                                  {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kTHIS); }
+"this"                                  {   return process(kTHIS); }
 "throw"                                 {   return process(kTHROW); }
 "trait"                                 {   return process(kTRAIT); }
 "try"                                   {   return process(kTRY); }
-"true"                                  {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kTRUE); }
-"type"                                  {   yybegin(PROCESS_NEW_LINE);
-                                            return process(kTYPE); }
+"true"                                  {   return process(kTRUE); }
+"type"                                  {   return process(kTYPE); }
 "val"                                   {   return process(kVAL); }
 "var"                                   {   return process(kVAR); }
 "while"                                 {   return process(kWHILE); }
@@ -435,13 +275,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 
-"*"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);  }
-"?"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);  }
+"*"                                     {   return process(tIDENTIFIER);  }
+"?"                                     {   return process(tIDENTIFIER);  }
 
-"_"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tUNDER);  }
+"_"                                     {   return process(tUNDER);  }
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 
@@ -459,33 +296,23 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "#"                                     {   return process(tINNER_CLASS); }
 "@"                                     {   return process(tAT);}
 
-"&"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);}
-"|"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);}
-"+"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER); }
-"-"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);}
-"~"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);}
-"!"                                     {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER);}
+"&"                                     {   return process(tIDENTIFIER);}
+"|"                                     {   return process(tIDENTIFIER);}
+"+"                                     {   return process(tIDENTIFIER); }
+"-"                                     {   return process(tIDENTIFIER);}
+"~"                                     {   return process(tIDENTIFIER);}
+"!"                                     {   return process(tIDENTIFIER);}
 
 "."                                     {   return process(tDOT);}
 ";"                                     {   return process(tSEMICOLON);}
 ","                                     {   return process(tCOMMA);}
 
 
-{identifier}                            {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tIDENTIFIER); }
+{identifier}                            {   return process(tIDENTIFIER); }
 {integerLiteral} / "." {identifier}
-                                        {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tINTEGER);  }
-{floatingPointLiteral}                  {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tFLOAT);      }
-{integerLiteral}                        {   yybegin(PROCESS_NEW_LINE);
-                                            return process(tINTEGER);  }
+                                        {   return process(tINTEGER);  }
+{floatingPointLiteral}                  {   return process(tFLOAT);      }
+{integerLiteral}                        {   return process(tINTEGER);  }
 {WhiteSpace}                            {   yybegin(WAIT_FOR_XML);
                                             return process(tWHITE_SPACE_IN_LINE);  }
 {mNLS}                                  {   yybegin(WAIT_FOR_XML);

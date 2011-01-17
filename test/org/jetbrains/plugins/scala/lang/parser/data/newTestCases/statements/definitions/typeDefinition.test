@@ -32,7 +32,7 @@ ScalaFile
           Modifiers
             <empty list>
           PsiElement(type)('type')
-          PsiElement(newline)('\n\n\n  ')
+          PsiWhiteSpace('\n\n\n  ')
           PsiElement(identifier)('id')
           PsiWhiteSpace(' ')
           TypeParameterClause

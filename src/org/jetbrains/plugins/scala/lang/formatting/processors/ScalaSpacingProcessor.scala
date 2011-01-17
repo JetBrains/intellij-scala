@@ -53,14 +53,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   private def nextNotWithspace(elem: PsiElement): PsiElement = {
     var next = elem.getNextSibling
     while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
-            next.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) next = next.getNextSibling
+            next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
     next
   }
 
   private def prevNotWithspace(elem: PsiElement): PsiElement = {
     var prev = elem.getPrevSibling
     while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
-            prev.getNode.getElementType == ScalaTokenTypes.tLINE_TERMINATOR)) prev = prev.getPrevSibling
+            prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
     prev
   }
 

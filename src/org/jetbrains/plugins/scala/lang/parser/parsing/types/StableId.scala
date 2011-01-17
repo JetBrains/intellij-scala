@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import ScalaElementTypes._
+import builder.ScalaPsiBuilder
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -23,9 +24,9 @@ import ScalaElementTypes._
 
 object StableId extends ParserNode {
 
-  def parse(builder: PsiBuilder, element: ScalaElementType): Boolean = parse(builder, false, element)
+  def parse(builder: ScalaPsiBuilder, element: ScalaElementType): Boolean = parse(builder, false, element)
 
-  def parse(builder: PsiBuilder, forImport: Boolean, element: ScalaElementType): Boolean = {
+  def parse(builder: ScalaPsiBuilder, forImport: Boolean, element: ScalaElementType): Boolean = {
     val marker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
@@ -60,7 +61,7 @@ object StableId extends ParserNode {
     }
   }
 
-  def parseThisReference(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+  def parseThisReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer
     if (builder.getTokenType != tDOT) {
@@ -73,7 +74,7 @@ object StableId extends ParserNode {
     return parseEndIdentifier(builder, nm, element, forImport)
   }
 
-  def parseSuperReference(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+  def parseSuperReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer
     if (builder.getTokenType != tDOT && builder.getTokenType != tLSQBRACKET) {
@@ -87,9 +88,10 @@ object StableId extends ParserNode {
     return parseEndIdentifier(builder, nm, element, forImport)
   }
 
-  def parseClassQualifier(builder: PsiBuilder): Unit = {
+  def parseClassQualifier(builder: ScalaPsiBuilder): Unit = {
     if (builder.getTokenType != tLSQBRACKET) return
     builder.advanceLexer
+    builder.disableNewlines
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
     }
@@ -103,11 +105,12 @@ object StableId extends ParserNode {
     else {
       builder.advanceLexer
     }
+    builder.restoreNewlinesState
   }
 
 
   // For endings of 'this' and 'super' references
-  def parseEndIdentifier(builder: PsiBuilder, nm: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+  def parseEndIdentifier(builder: ScalaPsiBuilder, nm: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       builder.error(ErrMsg("dot.expected"))
     }
@@ -133,7 +136,7 @@ object StableId extends ParserNode {
   }
 
   // Begins from next id (not form dot)
-  def parseQualId(builder: PsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
+  def parseQualId(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: ScalaElementType, forImport: Boolean): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
       marker.drop
@@ -154,9 +157,9 @@ object StableId extends ParserNode {
     }
   }
 
-  def stopAtImportEnd(builder: PsiBuilder, forImport: Boolean) = forImport && isImportEnd(builder)
+  def stopAtImportEnd(builder: ScalaPsiBuilder, forImport: Boolean) = forImport && isImportEnd(builder)
 
-  def isImportEnd(builder: PsiBuilder): Boolean = {
+  def isImportEnd(builder: ScalaPsiBuilder): Boolean = {
     lookAhead(builder, tDOT, tUNDER) || lookAhead(builder, tDOT, tLBRACE)
   }
 

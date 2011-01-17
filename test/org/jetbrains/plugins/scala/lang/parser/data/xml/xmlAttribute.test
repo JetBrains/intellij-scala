@@ -49,5 +49,5 @@ ScalaFile
                   PsiElement(identifier)('scala')
               PsiElement(ScalaXmlInjection End)('}')
             XmlToken:XML_EMPTY_ELEMENT_END('/>')
-        PsiElement(newline)('\n')
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

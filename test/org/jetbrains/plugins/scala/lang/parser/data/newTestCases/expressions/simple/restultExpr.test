@@ -38,7 +38,7 @@ ScalaFile
                   PsiElement(identifier)('t')
                 PsiElement(.)('.')
                 PsiElement(identifier)('s')
-          PsiElement(newline)('\n    ')
+          PsiWhiteSpace('\n    ')
           FunctionExpression
             Parameters
               ParametersClause

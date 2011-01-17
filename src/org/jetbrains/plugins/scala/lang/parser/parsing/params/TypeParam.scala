@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.Type
 import expressions.Annotation
+import builder.ScalaPsiBuilder
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import expressions.Annotation
  */
 
 object TypeParam {
-  def parse(builder: PsiBuilder, mayHaveVariance: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean): Boolean = {
     val paramMarker = builder.mark
     val annotationMarker = builder.mark
     var exist = false
@@ -59,7 +60,7 @@ object TypeParam {
     return true
   }
 
-  def parseBound(builder: PsiBuilder)(bound: String): Boolean = {
+  def parseBound(builder: ScalaPsiBuilder)(bound: String): Boolean = {
     builder.getTokenText match {
       case x if x == bound => {
         builder.advanceLexer

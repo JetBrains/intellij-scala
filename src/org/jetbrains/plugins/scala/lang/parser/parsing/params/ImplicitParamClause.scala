@@ -7,6 +7,7 @@ package params
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,23 +19,16 @@ import nl.LineTerminator
  */
 
 object ImplicitParamClause {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLINE_TERMINATOR => {
-        if (LineTerminator(builder.getTokenText)) {
-          builder.advanceLexer //Ate nl
-        }
-        else {
-          paramMarker.drop
-          return false
-        }
-      }
-      case _ => {}
+    if (builder.countNewlineBeforeCurrentToken > 1) {
+      paramMarker.drop
+      return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
         builder.advanceLexer //Ate (
+        builder.disableNewlines
       }
       case _ => {
         paramMarker.rollbackTo
@@ -47,6 +41,7 @@ object ImplicitParamClause {
       }
       case _ => {
         paramMarker.rollbackTo
+        builder.restoreNewlinesState
         return false
       }
     }
@@ -61,6 +56,7 @@ object ImplicitParamClause {
         builder error ScalaBundle.message("rparenthesis.expected")
       }
     }
+    builder.restoreNewlinesState
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSE)
     return true
   }

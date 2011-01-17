@@ -6,6 +6,7 @@ package xml
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.xml.XmlTokenType
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import com.intellij.psi.xml.XmlTokenType
  */
 
 object AttrValue {
-  def parse(builder: PsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = {
     val attrValueMarker = builder.mark()
     builder.getTokenType match {
       case XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER => {

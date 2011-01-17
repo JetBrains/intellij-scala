@@ -5,6 +5,7 @@ package parsing
 package params
 
 import com.intellij.lang.PsiBuilder
+import builder.ScalaPsiBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -16,8 +17,8 @@ import com.intellij.lang.PsiBuilder
  */
 
 object ParamClauses {
-  def parse(builder: PsiBuilder): Boolean = parse(builder, false)
-  def parse(builder: PsiBuilder, flag: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, false)
+  def parse(builder: ScalaPsiBuilder, flag: Boolean): Boolean = {
     val paramMarker = builder.mark
     if (flag) {
       if (!ParamClause.parse(builder)) {

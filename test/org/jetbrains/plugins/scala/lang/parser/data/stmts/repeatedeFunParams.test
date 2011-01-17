@@ -64,7 +64,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               Literal
                 PsiElement(integer)('0')
-            PsiElement(newline)('\n    ')
+            PsiWhiteSpace('\n    ')
             ForStatement
               PsiElement(for)('for')
               PsiWhiteSpace(' ')
@@ -82,7 +82,7 @@ ScalaFile
                     PsiElement(.)('.')
                     PsiElement(identifier)('elements')
               PsiElement())(')')
-              PsiElement(newline)('\n      ')
+              PsiWhiteSpace('\n      ')
               InfixExpression
                 ReferenceExpression
                   PsiElement(identifier)('result')
@@ -92,7 +92,7 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ReferenceExpression
                   PsiElement(identifier)('arg')
-            PsiElement(newline)('\n    ')
+            PsiWhiteSpace('\n    ')
             ReferenceExpression
               PsiElement(identifier)('result')
             PsiWhiteSpace('\n  ')

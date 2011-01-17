@@ -15,7 +15,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         ReferenceExpression
           PsiElement(identifier)('as')
-      PsiElement(newline)('\n     ')
+      PsiWhiteSpace('\n     ')
       Generator
         WildcardPattern
           PsiElement(_)('_')
