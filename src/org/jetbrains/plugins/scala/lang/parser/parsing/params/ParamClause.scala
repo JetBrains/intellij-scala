@@ -38,6 +38,7 @@ object ParamClause {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPLICIT => {
         paramMarker.rollbackTo
+        builder.restoreNewlinesState
         return false
       }
       case _ => {}
