@@ -19,7 +19,7 @@ identifier {>}
 white space in line { }
 integer {0}
 ) {)}
-newline {
+white space in line {
   }
 identifier {x}
 white space in line { }
@@ -30,7 +30,7 @@ white space in line { }
 identifier {-}
 white space in line { }
 integer {1}
-newline {
+white space in line {
 
 }
 while {while}
@@ -42,7 +42,7 @@ identifier {>}
 white space in line { }
 integer {0}
 ) {)}
-newline {
+white space in line {
   }
 identifier {x}
 white space in line { }
@@ -53,7 +53,7 @@ white space in line { }
 identifier {/}
 white space in line { }
 integer {2}
-newline {
+white space in line {
 
 }
 for {for}
@@ -69,17 +69,17 @@ identifier {to}
 white space in line { }
 integer {10}
 ) {)}
-newline {
+white space in line {
   }
 identifier {println}
 ( {(}
 identifier {x}
 ) {)}
-newline {
+white space in line {
 
 }
 type {type}
-newline {
+white space in line {
   }
 identifier {IntList}
 white space in line { }

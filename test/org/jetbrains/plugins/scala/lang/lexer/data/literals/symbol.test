@@ -17,7 +17,7 @@ white space in line { }
 = {=}
 white space in line { }
 Symbol {'f_+}
-newline {
+white space in line {
   }
 val {val}
 white space in line { }
@@ -26,7 +26,7 @@ white space in line { }
 = {=}
 white space in line { }
 Symbol {'x}
-newline {
+white space in line {
   }
 val {val}
 white space in line { }

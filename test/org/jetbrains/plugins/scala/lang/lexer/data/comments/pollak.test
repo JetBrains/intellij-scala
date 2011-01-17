@@ -28,10 +28,10 @@ white space in line { }
 XML_START_TAG_START {<}
 XML_NAME {a}
 XML_EMPTY_ELEMENT_END {/>}
-newline {
+white space in line {
   }
 } {}}
-newline {
+white space in line {
   }
 val {val}
 white space in line { }

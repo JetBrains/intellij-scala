@@ -33,7 +33,7 @@ identifier {/}
 integer {0}
 white space in line { }
 comment {//Division by zero}
-newline {
+white space in line {
 }
 identifier {Int}
 [ {[}
@@ -62,7 +62,7 @@ white space in line { }
 identifier {x}
 = {=}
 integer {23}
-newline {
+white space in line {
 }
 val {val}
 white space in line { }

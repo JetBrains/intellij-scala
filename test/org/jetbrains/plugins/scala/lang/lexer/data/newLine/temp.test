@@ -16,11 +16,11 @@ white space in line { }
 identifier {a}
 . {.}
 identifier {b}
-newline {
+white space in line {
   }
 @ {@}
 identifier {t}
-newline {
+white space in line {
   }
 var {var}
 white space in line { }

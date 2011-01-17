@@ -5,15 +5,15 @@
 .1
 -----
 float {0.0}
-newline {
+white space in line {
 }
 float {1e30f}
-newline {
+white space in line {
 }
 float {3.14159f}
-newline {
+white space in line {
 }
 float {1.0e-100}
-newline {
+white space in line {
 }
 float {.1}

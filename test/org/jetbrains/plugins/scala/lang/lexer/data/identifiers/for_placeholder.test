@@ -12,7 +12,7 @@ identifier {List}
 ( {(}
 integer {1}
 ) {)}
-newline {
+white space in line {
       }
 _ {_}
 white space in line { }
