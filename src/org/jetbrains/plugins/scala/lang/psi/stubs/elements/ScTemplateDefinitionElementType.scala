@@ -89,7 +89,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, fqn.hashCode)
+      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY,
+        if (name != "`package`") fqn.hashCode else fqn.substring(0, fqn.lastIndexWhere(_ == '.')).hashCode)
     }
   }
 }
