@@ -11,6 +11,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import lang.psi.api.statements.ScFunction
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
+import lang.psi.api.statements.params.ScParameter
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,6 +44,13 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       resolve match {
         case fun: ScFunction =>
           val clazz = fun.getContainingClass
+          if (fun.name == "copy" && fun.isSyntheticCopy) {
+            clazz match {
+              case td: ScClass if td.isCase =>
+                return td
+              case _ =>
+            }
+          }
           ScalaPsiUtil.getCompanionModule(clazz) match {
             case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None =>
               return td
@@ -58,10 +67,27 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
             case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None => return td
             case _ => return null
           }
+        case param: ScParameter =>
+          val fun = PsiTreeUtil.getParentOfType(param, classOf[ScFunction], true)
+          val clazz = fun.getContainingClass
+          if (fun.name == "copy" && fun.isSyntheticCopy) {
+            clazz match {
+              case td: ScClass if td.isCase =>
+                td.constructor match {
+                  case Some(constr) => constr.parameters.find(p => p.name == param.name) match {
+                    case Some(param) => return param
+                    case _ => return null
+                  }
+                  case _ => return null
+                }
+              case _ => return null
+            }
+          } else {
+            return null
+          }
         case _ => return null
       }
     }
-
     null
   }
 }

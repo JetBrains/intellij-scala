@@ -146,6 +146,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           if (addCopy) {
             try {
               val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, getLastChild)
+              method.setSyntheticCopy
               buf += method
             } catch {
               case e: Exception =>
