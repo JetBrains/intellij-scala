@@ -9,11 +9,11 @@ ScalaFile
     PsiElement(object)('object')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     ExtendsBlock
       <empty list>
   PsiErrorElement:';' or newline expected
     <empty list>
+  PsiWhiteSpace(' ')
   PsiElement([)('[')
   ReferenceExpression
     PsiElement(identifier)('T')

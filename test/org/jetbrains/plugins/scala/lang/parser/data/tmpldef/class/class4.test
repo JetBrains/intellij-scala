@@ -10,7 +10,6 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace('\n')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -20,6 +19,7 @@ ScalaFile
         <empty list>
     ExtendsBlock
       <empty list>
+  PsiWhiteSpace('\n')
   ScClass
     AnnotationsList
       <empty list>

@@ -25,13 +25,24 @@ import org.jetbrains.plugins.scala.ScalaFileType;
  */
 public class ScalaElementType extends IElementType {
   private String debugName = null;
+  private boolean leftBound;
 
   public ScalaElementType(String debugName) {
-    super(debugName, ScalaFileType.SCALA_FILE_TYPE.getLanguage());
+    this(debugName, true);
+  }
+
+  public ScalaElementType(String debugName, boolean leftBound) {
+    super(debugName, ScalaFileType.SCALA_LANGUAGE);
     this.debugName = debugName;
+    this.leftBound = leftBound;
   }
 
   public String toString() {
     return debugName;
+  }
+
+  @Override
+  public boolean isLeftBound() {
+    return leftBound;
   }
 }

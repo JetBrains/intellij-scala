@@ -34,9 +34,9 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('tryMatch')
-          PsiWhiteSpace(' ')
           Parameters
             <empty list>
+          PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace('\n      ')
           MatchStatement

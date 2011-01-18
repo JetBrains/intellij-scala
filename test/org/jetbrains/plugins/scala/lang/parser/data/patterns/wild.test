@@ -22,7 +22,6 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('A')
-    PsiWhiteSpace(' ')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -30,6 +29,7 @@ ScalaFile
         <empty list>
       Parameters
         <empty list>
+    PsiWhiteSpace(' ')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
@@ -383,9 +383,9 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('toString')
-                  PsiWhiteSpace(' ')
                   Parameters
                     <empty list>
+                  PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   Literal

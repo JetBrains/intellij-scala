@@ -16,7 +16,6 @@ ScalaFile
       TypeParameter
         PsiElement(identifier)('T')
       PsiElement(])(']')
-    PsiWhiteSpace(' ')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -24,6 +23,7 @@ ScalaFile
         <empty list>
       Parameters
         <empty list>
+    PsiWhiteSpace(' ')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')
@@ -41,7 +41,7 @@ ScalaFile
             TypeParameter
               PsiElement(identifier)('T')
             PsiElement(])(']')
-          PsiWhiteSpace('\n')
           Parameters
             <empty list>
+        PsiWhiteSpace('\n')
         PsiElement(})('}')

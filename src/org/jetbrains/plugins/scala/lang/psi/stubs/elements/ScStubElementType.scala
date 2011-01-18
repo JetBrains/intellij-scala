@@ -27,4 +27,6 @@ extends IStubElementTypeWrapper[S, T](debugName) {
 
 
   override def shouldCreateStub(node: ASTNode): Boolean = ScalaPsiUtil.shouldCreateStub(node.getPsi)
+
+  override def isLeftBound = true
 }

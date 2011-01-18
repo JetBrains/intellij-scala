@@ -232,7 +232,7 @@
     </action>
     <action id="Scala.GoToImplicit" class="org.jetbrains.plugins.scala.actions.GoToImplicitConversionAction"
         text="&amp;Implicit Conversion" description="Go To Implicit Conversion">
-      <keyboard-shortcut first-keystroke="control alt shift I" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="control shift Q" keymap="$default"/>
       <add-to-group group-id="GoToCodeGroup" anchor="last"/>
     </action>
     <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.RenameJavaToScalaAction"

@@ -30,9 +30,9 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('foo')
-          PsiWhiteSpace(' ')
           Parameters
             <empty list>
+          PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           NewTemplateDefinition
