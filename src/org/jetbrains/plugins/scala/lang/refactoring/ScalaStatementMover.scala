@@ -42,9 +42,9 @@ class ScalaStatementMover extends LineMover {
   }
 
   private def rangeOf(e: PsiElement, editor: Editor) = {
-    val from = editor.offsetToLogicalPosition(e.getTextRange.getStartOffset).line
-    val length = e.getText.trim.count(_ == '\n')
-    new LineRange(from, from + length + 1)
+    val memberRange = e.getTextRange
+    new LineRange(editor.offsetToLogicalPosition(memberRange.getStartOffset).line,
+      editor.offsetToLogicalPosition(memberRange.getEndOffset).line + 1)
   }
 
   private def findElementAt[T <: ScalaPsiElement](cl: Class[T], editor: Editor, file: PsiFile, line: Int): Option[T] = {
