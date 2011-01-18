@@ -6,10 +6,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.codeInsight.editorActions.moveUpDown.{LineRange, LineMover}
-import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiFile}
 import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiElement
 import lang.psi.api.base.patterns.ScCaseClause
+import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
 
 /**
  * Pavel Fatin
@@ -24,7 +24,10 @@ class ScalaStatementMover extends LineMover {
     def aim[T <: ScalaPsiElement](cl: Class[T]): Option[(LineRange, LineRange)] = {
       findElementAt(cl, editor, file, info.toMove.startLine).flatMap { source =>
         val siblings = if(down) source.nextSiblings else source.prevSiblings
-        siblings.findByType(cl).map(target => (rangeOf(source, editor), rangeOf(target, editor)))
+        siblings.filter(!_.isInstanceOf[PsiComment] )
+                .takeWhile(it => it.isInstanceOf[PsiWhiteSpace] || cl.isAssignableFrom(it.getClass))
+                .findByType(cl)
+                .map(target => (rangeOf(source, editor), rangeOf(target, editor)))
       }
     }
 
