@@ -106,7 +106,10 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
         return null;
       }
       PsiClass psiClass = (PsiClass) element;
-      if (fqn.equals(psiClass.getQualifiedName())) {
+      String qualifiedName = psiClass.getQualifiedName();
+      if (psiClass.getName().equals("`package`"))
+        qualifiedName = qualifiedName.substring(0, qualifiedName.lastIndexOf('.'));
+      if (fqn.equals(qualifiedName)) {
         if (psiClass instanceof ScTypeDefinition) {
           return ((ScTypeDefinition) psiClass);
         }
