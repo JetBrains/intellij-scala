@@ -23,18 +23,18 @@ object ScalaElementTypes {
   //Stub element types
   val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
 
-  val CLASS_DEF = new ScClassDefinitionElementType()
-  val OBJECT_DEF = new ScObjectDefinitionElementType()
-  val TRAIT_DEF = new ScTraitDefinitionElementType()
+  val CLASS_DEF = new ScClassDefinitionElementType
+  val OBJECT_DEF = new ScObjectDefinitionElementType
+  val TRAIT_DEF = new ScTraitDefinitionElementType
 
-  val PACKAGING = new ScPackagingElementType()
-  val EXTENDS_BLOCK = new ScExtendsBlockElementType()
+  val PACKAGING = new ScPackagingElementType
+  val EXTENDS_BLOCK = new ScExtendsBlockElementType
 
   val CLASS_PARENTS = new ScClassParentsElementType
   val TRAIT_PARENTS = new ScTraitParentsElementType
-  val CONSTRUCTOR = new ScalaElementType("constructor")
+  val CONSTRUCTOR = new ScalaElementType("constructor", true)
 
-  val TEMPLATE = new ScalaElementType("template")
+  val TEMPLATE = new ScalaElementType("template", true)
   val TEMPLATE_BODY = new ScTemplateBodyElementType
 
 

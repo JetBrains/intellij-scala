@@ -17,9 +17,9 @@ ScalaFile
       Modifiers
         AccessModifier
           PsiElement(private)('private')
-      PsiWhiteSpace(' ')
       Parameters
         <empty list>
+    PsiWhiteSpace(' ')
     ExtendsBlock
       ScTemplateBody
         PsiElement({)('{')

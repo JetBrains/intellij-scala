@@ -9,7 +9,6 @@ ScalaFile
     PsiElement(class)('class')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace(' ')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -17,6 +16,7 @@ ScalaFile
         <empty list>
       Parameters
         <empty list>
+    PsiWhiteSpace(' ')
     ExtendsBlock
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
@@ -31,9 +31,9 @@ ScalaFile
                   SimpleTypeElement
                     CodeReferenceElement
                       PsiElement(identifier)('e')
-          PsiWhiteSpace(' ')
           Modifiers
             <empty list>
+          PsiWhiteSpace(' ')
           PsiElement(val)('val')
           PsiWhiteSpace(' ')
           ListOfPatterns

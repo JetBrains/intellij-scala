@@ -33,4 +33,6 @@ class ScTemplateBodyElementType[Func <: ScTemplateBody]
   }
 
   def indexStub(stub: ScTemplateBodyStub, sink: IndexSink): Unit = {}
+
+  override def isLeftBound = true
 }

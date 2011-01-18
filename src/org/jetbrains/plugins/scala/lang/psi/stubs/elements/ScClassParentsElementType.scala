@@ -16,4 +16,6 @@ import psi.impl.toplevel.templates.ScClassParentsImpl
 
 class ScClassParentsElementType extends ScTemplateParentsElementType[ScClassParents]("class parents") {
   def createPsi(stub: ScTemplateParentsStub): ScTemplateParents = new ScClassParentsImpl(stub)
+
+  override def isLeftBound = true
 }

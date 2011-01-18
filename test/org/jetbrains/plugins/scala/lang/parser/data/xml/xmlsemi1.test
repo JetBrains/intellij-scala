@@ -24,9 +24,9 @@ ScalaFile
           PsiElement(def)('def')
           PsiWhiteSpace(' ')
           PsiElement(identifier)('body')
-          PsiWhiteSpace(' ')
           Parameters
             <empty list>
+          PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           XmlExpression

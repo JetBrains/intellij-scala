@@ -81,9 +81,9 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('erasure')
-                  PsiWhiteSpace(' ')
                   Parameters
                     <empty list>
+                  PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   ReferenceExpression
@@ -107,9 +107,9 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('toString')
-                  PsiWhiteSpace(' ')
                   Parameters
                     <empty list>
+                  PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   Literal
@@ -243,9 +243,9 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('erasure')
-                  PsiWhiteSpace(' ')
                   Parameters
                     <empty list>
+                  PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   ReferenceExpression
@@ -269,9 +269,9 @@ ScalaFile
                   PsiElement(def)('def')
                   PsiWhiteSpace(' ')
                   PsiElement(identifier)('toString')
-                  PsiWhiteSpace(' ')
                   Parameters
                     <empty list>
+                  PsiWhiteSpace(' ')
                   PsiElement(=)('=')
                   PsiWhiteSpace(' ')
                   Literal

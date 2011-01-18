@@ -11,9 +11,9 @@ ScalaFile
     PsiElement(trait)('trait')
     PsiWhiteSpace(' ')
     PsiElement(identifier)('a')
-    PsiWhiteSpace('\n')
     ExtendsBlock
       <empty list>
+  PsiWhiteSpace('\n')
   ScTrait
     AnnotationsList
       <empty list>

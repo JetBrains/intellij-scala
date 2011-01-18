@@ -16,7 +16,6 @@ ScalaFile
         PsiElement(identifier)('+')
         PsiElement(identifier)('T')
       PsiElement(])(']')
-    PsiWhiteSpace(' ')
     PrimaryConstructor
       AnnotationsList
         <empty list>
@@ -24,6 +23,7 @@ ScalaFile
         <empty list>
       Parameters
         <empty list>
+    PsiWhiteSpace(' ')
     RequiresBlock
       PsiElement(requires)('requires')
       PsiWhiteSpace(' ')

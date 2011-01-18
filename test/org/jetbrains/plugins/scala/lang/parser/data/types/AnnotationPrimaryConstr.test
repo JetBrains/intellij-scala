@@ -24,9 +24,9 @@ ScalaFile
               ArgumentList
                 PsiElement(()('(')
                 PsiElement())(')')
-      PsiWhiteSpace(' ')
       Modifiers
         <empty list>
+      PsiWhiteSpace(' ')
       Parameters
         ParametersClause
           PsiElement(()('(')
