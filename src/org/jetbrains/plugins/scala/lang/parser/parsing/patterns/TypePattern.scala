@@ -58,7 +58,9 @@ object TypePattern {
             parMarker.drop
             return true
           }
-          case _ => {parMarker.rollbackTo}
+          case _ =>
+            builder.restoreNewlinesState
+            parMarker.rollbackTo
         }
       }
       case _ => {}
