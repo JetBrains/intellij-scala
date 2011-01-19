@@ -48,6 +48,7 @@ class ScalaStatementMover extends LineMover {
     new LineRange(begin, end)
   }
 
+  //TODO remove commments handling when SCL-1751 will be fixed
   private def commentOf(e: PsiElement): Option[PsiElement] = {
     e.prevSiblings
             .grouped(2)
