@@ -45,9 +45,21 @@ class ScalaStatementMoverTest extends StatementMoverTestBase {
     "|def a\nv = 1\ndef b" moveDownIsDisabled;
   }
 
-//  def testComment {
-//    "|def a\n//comment\ndef b" movedDownIs "def b\n//comment\ndef a";
-//  }
+  def testSkipComment {
+    "|def a\n//comment\n\ndef b" movedDownIs "def b\n//comment\n\ndef a";
+  }
+
+  def testSourceComment {
+    "//source\n|def a\ndef b" movedDownIs "def b\n//source\ndef a";
+    "//source 1\n//source 2\n|def a\ndef b" movedDownIs "def b\n//source 1\n//source 2\ndef a";
+    "//foo\n\n//source\n|def a\ndef b" movedDownIs "//foo\n\ndef b\n//source\ndef a";
+  }
+
+  def testDestinationComment {
+    "//source\ndef a\n|def b" movedUpIs "def b\n//source\ndef a";
+    "//source 1\n//source 2\ndef a\n|def b" movedUpIs "def b\n//source 1\n//source 2\ndef a";
+    "//foo\n\n//source\ndef a\n|def b" movedUpIs "//foo\n\ndef b\n//source\ndef a";
+  }
 
   def testMultipleLinesMember() {
     "def a {\n// method a\n}\n\n|def b {\n// method b\n}" movedUpIs "def b {\n// method b\n}\n\ndef a {\n// method a\n}"
