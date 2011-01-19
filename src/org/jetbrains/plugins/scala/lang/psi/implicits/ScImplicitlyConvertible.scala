@@ -180,8 +180,19 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               //todo: pass implicit parameters
 
               uSubst.getSubstitutor match {
-                case Some(substitutor) => (true, r.copy(subst = substitutor.followed(r.substitutor)),
-                        substitutor.subst(tp), substitutor.subst(retTp))
+                case Some(substitutor) =>
+                  exp match {
+                    case Some(expected) =>
+                      val additionalUSubst = Conformance.undefinedSubst(expected, newSubst.subst(retTp))
+                      uSubst + additionalUSubst getSubstitutor match {
+                        case Some(substitutor) =>
+                          (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
+                        case None =>
+                          (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
+                      }
+                    case None =>
+                      (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
+                  }
                 case _ => (false, r, tp, retTp)
               }
             }
