@@ -341,7 +341,7 @@ object JavaToScala {
         }
       }
       case p: PsiParameter => {
-        res.append(escapeKeyword(p.getName)).append(" : ").append(convertPsiToText(p.getTypeElement))
+        res.append(convertPsiToText(p.getModifierList)).append(escapeKeyword(p.getName)).append(" : ").append(convertPsiToText(p.getTypeElement))
       }
       /*case a: PsiAnonymousClass => {
         a.get
@@ -489,6 +489,7 @@ object JavaToScala {
         if (m.hasModifierProperty("final")) {
           m.getParent match {
             case _: PsiLocalVariable =>
+            case _: PsiParameter =>
             case _ => res.append("final ")
           }
         }
