@@ -13,8 +13,14 @@ import java.util.HashMap;
 public class JavaSpecsNotifier implements Notifier {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
+  // Specs 1.6.6 and lower
   public void runStarting(int i) {
     System.out.println("##teamcity[testCount count='" + i + "']");
+  }
+
+  // Specs 1.6.7 and higher
+  public void runStarting(scala.Function0<java.lang.Integer> i) {
+    runStarting(i.apply());
   }
 
   public void exampleStarting(String s) {

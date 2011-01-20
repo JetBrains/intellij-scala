@@ -10,7 +10,7 @@
     <orderEntry type="library" name="scala-library" level="application" />
     <orderEntry type="library" name="scala-compiler" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="scalatest-1.2-scala-2.8.0.RC2-SNAPSHOT" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.5-scala-2.8.0-RC2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="specs-1.6.7-scala-2.8.1" level="project" />
   </component>
 </module>
 
