@@ -124,9 +124,11 @@ object ScalaPsiUtil {
           val mrp = processor.asInstanceOf[MethodResolveProcessor]
           val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
             mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
-          newProc.processType(t, e, ResolveState.initial)
+          val tp = t
+          newProc.processType(tp, e, ResolveState.initial)
           val cand = newProc.candidatesS
-          !cand.filter(_.isApplicable).isEmpty
+          val filtered = !cand.filter(_.isApplicable).isEmpty
+          filtered
         }
       })
     }
@@ -366,7 +368,7 @@ object ScalaPsiUtil {
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                  typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty, 
+                                 subst: ScSubstitutor = ScSubstitutor.empty,
                                  shouldUndefineParameters: Boolean = true): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
   }
