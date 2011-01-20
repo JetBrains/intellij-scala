@@ -19,7 +19,6 @@ import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import com.sun.swing.internal.plaf.synth.resources.synth
 
 /**
  * @author Alexander Podkhalyuzin
