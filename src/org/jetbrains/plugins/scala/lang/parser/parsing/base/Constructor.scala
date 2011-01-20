@@ -28,7 +28,7 @@ object Constructor {
     }
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
       ArgumentExprs parse builder
-      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && !isAnnotation) {
+      while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && !isAnnotation && !builder.newlineBeforeCurrentToken) {
         ArgumentExprs parse builder
       }
     }
