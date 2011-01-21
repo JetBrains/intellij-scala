@@ -62,6 +62,7 @@ class ScalaTest10Scala28Reporter extends Reporter {
         }) + "]")
       case InfoProvided(ordinal, message, nameInfo, aboutAPendingTest, throwable, formatter, payload,
                         threadName, timeStamp) =>
+        println("\n##teamcity[message text='" + escapeString(message + "\n") + "' status='WARNING'" + "]")
       case RunStopped(ordinal, duration, summary, formatter, payload, threadName, timeStamp) =>
       case RunAborted(ordinal, message, throwable, duration, summary, formatter, payload, threadName, timeStamp) =>
         println("\n##teamcity[message text='" + escapeString(message) + "' status='ERROR'" + (throwable match {
