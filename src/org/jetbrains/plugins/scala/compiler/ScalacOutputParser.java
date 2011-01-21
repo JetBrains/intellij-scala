@@ -15,12 +15,17 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * @author ilyas
  */
 class ScalacOutputParser extends OutputParser {
   public static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacOutputParser");
+
+  @NonNls
+  private static final Pattern ExceptionMarkerPattern =
+      Pattern.compile("(?-i)(\\p{Ll}+\\.)+(\\p{Lu}\\p{Ll}+)+(Exception|Error)");
 
   @NonNls
   private static final String errorMarker = "error:";
@@ -76,10 +81,13 @@ class ScalacOutputParser extends OutputParser {
   private Integer myLineNumber;
   private String myMessage;
   private String myUrl;
+  private boolean myIsFirstLine = true;
+
 
   @Override
   public boolean processMessageLine(Callback callback) {
     final String line = callback.getNextLine();
+
     if (LOG.isDebugEnabled()) {
       LOG.debug(line);
     }
@@ -88,6 +96,14 @@ class ScalacOutputParser extends OutputParser {
       flushWrittenList(callback);
       return false;
     }
+
+    if(myIsFirstLine && ExceptionMarkerPattern.matcher(line).find()) {
+      String text = appendLines(new StringBuilder(line), callback);
+      callback.message(CompilerMessageCategory.ERROR, text, "", 0, 0);
+      return true;
+    }
+
+    myIsFirstLine = false;
 
     String text = line.trim();
     if (fullCrash && text.length( ) > 0) {
@@ -247,5 +263,12 @@ class ScalacOutputParser extends OutputParser {
     return false;
   }
 
-
+  private String appendLines(StringBuilder builder, Callback callback) {
+    String l = callback.getNextLine();
+    while(l != null) {
+      builder.append(l).append("\n");
+      l = callback.getNextLine();
+    }
+    return builder.toString();
+  }
 }
