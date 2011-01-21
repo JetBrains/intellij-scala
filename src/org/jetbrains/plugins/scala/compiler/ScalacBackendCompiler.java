@@ -277,8 +277,10 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
       commandLine.add(fileWithParams.getPath());
 
-      for (String s : commandLine) System.out.println(s);
-      System.out.println(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
+      if (LOG.isDebugEnabled()) {
+        for (String s : commandLine) LOG.debug(s);
+        LOG.debug(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
+      }
     } catch (IOException e) {
       LOG.error(e);
     }
