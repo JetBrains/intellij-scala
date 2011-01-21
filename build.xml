@@ -153,6 +153,7 @@
 
     <javac srcdir="${base.dir}"
             destdir="${runners.dest}"
+            target="1.5"
             debug="true">
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.java"/>
