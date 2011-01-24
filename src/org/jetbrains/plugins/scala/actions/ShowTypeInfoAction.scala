@@ -68,11 +68,6 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
   def showTypeHint(editor: Editor, text: String) {
     val label = HintUtil.createInformationLabel(text)
-    label match {
-      case label: JLabel =>
-        label.setUI(new MultiLineLabelUI)
-      case _ =>
-    }
     label.setFont(UIUtil.getLabelFont)
 
     val hint: LightweightHint = new LightweightHint(label)
