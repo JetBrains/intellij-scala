@@ -108,7 +108,8 @@ object ScalaPsiUtil {
     lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" && exprType.map(_.isInstanceOf[ValType]).getOrElse(false)
-    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
+    val mp = e.implicitMap()
+    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = mp.filter({
       case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
         ProgressManager.checkCanceled
         if (!isHardCoded || !t.isInstanceOf[ValType]) {

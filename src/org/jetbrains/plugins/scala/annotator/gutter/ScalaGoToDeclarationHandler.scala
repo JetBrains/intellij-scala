@@ -69,8 +69,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           }
         case param: ScParameter =>
           val fun = PsiTreeUtil.getParentOfType(param, classOf[ScFunction], true)
-          val clazz = fun.getContainingClass
-          if (fun.name == "copy" && fun.isSyntheticCopy) {
+          if (fun != null && fun.name == "copy" && fun.isSyntheticCopy) {
+            val clazz = fun.getContainingClass
             clazz match {
               case td: ScClass if td.isCase =>
                 td.constructor match {
