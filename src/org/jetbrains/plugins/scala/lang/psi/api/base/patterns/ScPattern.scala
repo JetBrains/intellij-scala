@@ -123,7 +123,7 @@ trait ScPattern extends ScalaPsiElement {
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.getName == "unapplySeq" &&
               fun.parameters.length == 1 => {
          val subst = if (fun.typeParameters.length == 0) substitutor else {
-          val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
+          val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
               substitutor))))
           val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty).getOrElse(return None))
@@ -142,7 +142,7 @@ trait ScPattern extends ScalaPsiElement {
           }
         }
         for (rt <- fun.returnType) {
-          rt match {
+          subst.subst(rt) match {
             case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
               case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
                       clazz.getQualifiedName == "scala.Some" => true

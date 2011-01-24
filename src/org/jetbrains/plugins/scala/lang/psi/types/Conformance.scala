@@ -294,7 +294,9 @@ object Conformance {
       case (_, ScDesignatorType(v: ScFieldId)) => {
         return conformsInner(l, v.getType(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
       }
-      case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args), _) => {
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
