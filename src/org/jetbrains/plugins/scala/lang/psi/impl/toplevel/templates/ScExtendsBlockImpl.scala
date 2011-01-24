@@ -151,8 +151,20 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
         val pars = parents.typeElements
         for (par <- pars) {
           par match {
-            case _: ScSimpleTypeElement => res += par.getLastChild.getText()
-            case x: ScParameterizedTypeElement => res += x.typeElement.getLastChild.getText()
+            case s: ScSimpleTypeElement =>
+              s.reference match {
+                case Some(ref) => res += ref.refName
+                case _ =>
+              }
+            case x: ScParameterizedTypeElement =>
+              x.typeElement match {
+                case s: ScSimpleTypeElement =>
+                  s.reference match {
+                    case Some(ref) => res += ref.refName
+                    case _ =>
+                  }
+                case _ =>
+              }
             case _ =>
           }
         }
