@@ -52,6 +52,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         with ParametersAnnotator with ApplicationAnnotator
         with AssignmentAnnotator with VariableDefinitionAnnotator
         with TypedStatementAnnotator with PatternDefinitionAnnotator
+        with TemplateDefinitionAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
@@ -125,6 +126,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       case x: ScTemplateDefinition => {
         //todo: checkImplementedMethods(x, holder)
+        annotateTemplateDefinition(x, holder)
       }
       case ref: ScReferenceElement => {
         if(advancedHighlighting) annotateReference(ref, holder)
