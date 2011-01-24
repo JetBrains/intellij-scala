@@ -4,7 +4,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.lang.ASTNode
 import java.lang.String
 import com.intellij.psi.PsiElement
-import com.intellij.lang.annotation. {AnnotationSession, HighlightSeverity, AnnotationHolder}
+import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity, AnnotationHolder}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -49,4 +49,10 @@ class AnnotatorHolderMock extends AnnotationHolder {
   }
 
   def getCurrentAnnotationSession: AnnotationSession = null
+
+  def createWeakWarningAnnotation(p1: TextRange, p2: String): Annotation = null
+
+  def createWeakWarningAnnotation(p1: ASTNode, p2: String): Annotation = null
+
+  def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = null
 } 
