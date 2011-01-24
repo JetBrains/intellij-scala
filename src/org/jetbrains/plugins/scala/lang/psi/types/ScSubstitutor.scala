@@ -63,6 +63,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
 
+  private def extractTpt(tpt: ScTypeParameterType, t: ScType): ScType = {
+    if (tpt.args.length == 0) t
+    else t match {
+      case ScParameterizedType(t, _) => t
+      case _ => t
+    }
+  }
+
   protected def substInternal(t: ScType) : ScType = t match {
     case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _),
       f.getProject, f.getScope)
@@ -103,20 +111,20 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
     case tpt : ScTypeParameterType => tvMap.get((tpt.name, tpt.getId)) match {
       case None => tpt
-      case Some(v) => v
+      case Some(v) => extractTpt(tpt, v)
     }
     case u: ScUndefinedType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
       case None => u
       case Some(v) => v match {
         case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
-        case _ => v
+        case _ => extractTpt(u.tpt, v)
       }
     }
     case u: ScAbstractType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
       case None => u
       case Some(v) => v match {
         case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
-        case _ => v
+        case _ => extractTpt(u.tpt, v)
       }
     }
     case tv : ScTypeVariable => tvMap.get((tv.name, "")) match {
