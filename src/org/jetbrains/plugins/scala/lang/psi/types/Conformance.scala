@@ -486,12 +486,16 @@ object Conformance {
         }
       }
       case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
-        undefinedSubst = undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), r)
+        val parameterType = owner.tpt
+        val anotherType = ScParameterizedType(owner1, parameterType.args)
+        undefinedSubst = undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), anotherType)
         if (args1.length != args2.length) return (false, undefinedSubst)
         return checkParameterizedType(owner.tpt.args.map(_.param).iterator, args1, args2)
       }
       case (ScParameterizedType(owner1: ScType, args1), ScParameterizedType(owner: ScUndefinedType, args2)) => {
-        undefinedSubst = undefinedSubst.addUpper((owner.tpt.name, owner.tpt.getId), l)
+        val parameterType = owner.tpt
+        val anotherType = ScParameterizedType(owner1, parameterType.args)
+        undefinedSubst = undefinedSubst.addUpper((owner.tpt.name, owner.tpt.getId), anotherType)
         if (args1.length != args2.length) return (false, undefinedSubst)
         return checkParameterizedType(owner.tpt.args.map(_.param).iterator, args1, args2)
       }
