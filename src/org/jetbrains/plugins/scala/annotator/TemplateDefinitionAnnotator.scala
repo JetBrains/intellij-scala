@@ -32,8 +32,11 @@ trait TemplateDefinitionAnnotator {
       case (refElement, Some(psiClass)) if psiClass.getModifierList.hasModifierProperty("final") =>
         holder.createErrorAnnotation(refElement, "Illegal inheritance from final class %s".format(psiClass.getName))
       case (refElement, Some(psiClass)) if psiClass.getModifierList.hasModifierProperty("sealed") &&
-              psiClass.getContainingFile != refElement.getContainingFile =>
-        holder.createErrorAnnotation(refElement, "Illegal inheritance from sealed type %s".format(psiClass.getName))
+              psiClass.getContainingFile != refElement.getContainingFile => {
+        val entity = if(psiClass.isInstanceOf[ScTrait]) "trait" else "class"
+        val message = "Illegal inheritance from sealed %s %s".format(entity, psiClass.getName)
+        holder.createErrorAnnotation(refElement, message)
+      }
       case _ =>
     }
   }
