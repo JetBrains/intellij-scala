@@ -3,7 +3,6 @@ package annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
-import lang.psi.api.expr.ScNewTemplateDefinition
 import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
@@ -24,14 +23,8 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
       case Error("F", InheritanceFromFinalClass()) :: Nil =>
     }
 
-    assertMatches(messages("class C; final class F; new C with F {}")) {
+    assertMatches(messages("final class F; trait T; new F with T {}")) {
       case Error("F", InheritanceFromFinalClass()) :: Nil =>
-    }
-  }
-
-  def testFinalMultiple {
-    assertMatches(messages("final class A; final class B; final class C; new A with B with C {}")) {
-      case Error("A", _) :: Error("B", _) :: Error("C", _) :: Nil =>
     }
   }
 
@@ -44,6 +37,22 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
   def testFinalWithoutBody {
     assertMatches(messages("final class F; new F")) {
       case Nil =>
+    }
+  }
+
+  def testMixingClass {
+    assertMatches(messages("class C; trait T; new C with T")) {
+      case Nil =>
+    }
+    assertMatches(messages("class C; trait T1; trait T2; new C with T1 with T2")) {
+      case Nil =>
+    }
+    assertMatches(messages("class C; class T; new C with T")) {
+      case Error("T", "Class T needs to be trait to be mixed in") :: Nil =>
+    }
+    assertMatches(messages("class C; class T1; class T2; new C with T1 with T2")) {
+      case Error("T1", "Class T1 needs to be trait to be mixed in") ::
+              Error("T2", "Class T2 needs to be trait to be mixed in") :: Nil =>
     }
   }
 
@@ -75,6 +84,10 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
   }
 
 //  trait T
-//  class C extends T with T // trait T is inherited twice
+//  trait T2
+//  class CC
+//  class C extends T with CC// trait T is inherited twice
 
+//  error: class CC needs to be a trait to be mixed in
+//class C extends T with CC// trait T is inherited twice
 }
