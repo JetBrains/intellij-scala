@@ -72,11 +72,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
   @volatile
   private var modCount: Long = 0
 
-  def implicitMap(exp: Option[ScType] = None): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+  def implicitMap(exp: Option[ScType] = None,
+                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     exp match {
-      case Some(expected) => return buildImplicitMap(exp)
+      case Some(expected) => return buildImplicitMap(exp, fromUnder)
       case None =>
     }
+    if (fromUnder) return buildImplicitMap(exp, fromUnder)
     var tp = cachedImplicitMap
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && modCount == curModCount) {
@@ -88,7 +90,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     return tp
   }
 
-  private def buildImplicitMap(exp: Option[ScType] = expectedType): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+  private def buildImplicitMap(exp: Option[ScType] = expectedType,
+                               fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     val processor = new CollectImplicitsProcessor
 
     // Collect implicit conversions from bottom to up
@@ -106,7 +109,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     }
     treeWalkUp(this, null)
 
-    val typez: ScType = getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
+    val typez: ScType =
+      if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
+      else getTypeWithoutImplicitsWihoutUnderscore(TypingContext.empty).getOrElse(return Seq.empty)
 
     val expandedType: ScType = exp match {
       case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
