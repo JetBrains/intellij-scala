@@ -6,4 +6,6 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
   override def rootPath: String = super.rootPath + "dependent/"
 
   def testImportsDependent = doTest
+
+  def testObjectDependent = doTest
 }

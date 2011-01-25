@@ -69,13 +69,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
-  def processType(t: ScType, place: ScalaPsiElement): Boolean = processType(t, place, ResolveState.initial)
+  def processType(t: ScType, place: PsiElement): Boolean = processType(t, place, ResolveState.initial)
 
-  def processType(t: ScType, place: ScalaPsiElement, state: ResolveState): Boolean = {
+  def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean = {
     processType(t, place, state, false)
   }
 
-  def processType(t: ScType, place: ScalaPsiElement, state: ResolveState, noBounds: Boolean): Boolean = {
+  def processType(t: ScType, place: PsiElement, state: ResolveState, noBounds: Boolean): Boolean = {
     ProgressManager.checkCanceled
 
     t match {
@@ -205,7 +205,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: ScalaPsiElement, state: ResolveState) = {
+  private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: PsiElement, state: ResolveState) = {
     e match {
       case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
 

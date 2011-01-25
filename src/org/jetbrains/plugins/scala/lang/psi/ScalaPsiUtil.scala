@@ -501,6 +501,19 @@ object ScalaPsiUtil {
     }
   }
 
+  def extractReturnType(tp: ScType): Option[ScType] = {
+    tp match {
+      case ScFunctionType(retType, _) => Some(retType)
+      case ScParameterizedType(des, args) => {
+        ScType.extractClass(des) match {
+          case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
+          case _ => None
+        }
+      }
+      case _ => None
+    }
+  }
+
   def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
     val td = PsiTreeUtil.getContextOfType(placer, true, classOf[ScTemplateDefinition])
     if (td == null) return null
