@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
 import lang.psi.api.expr.ScNewTemplateDefinition
+import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * Pavel Fatin
@@ -20,11 +21,23 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
 
   def testFinal {
     assertMatches(messages("final class F; new F {}")) {
-      case Error("F", "Illegal inheritance from final class F") :: Nil =>
+      case Error("F", InheritanceFromFinalClass()) :: Nil =>
     }
 
     assertMatches(messages("class C; final class F; new C with F {}")) {
-      case Error("F", "Illegal inheritance from final class F") :: Nil =>
+      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+    }
+  }
+
+  def testFinalMultiple {
+    assertMatches(messages("final class A; final class B; final class C; new A with B with C {}")) {
+      case Error("A", _) :: Error("B", _) :: Error("C", _) :: Nil =>
+    }
+  }
+
+  def testFinalMessage {
+    assertMatches(messages("final class F; new F {}")) {
+      case Error(_, "Illegal inheritance from final class F") :: Nil =>
     }
   }
 
@@ -34,8 +47,19 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def messages(@Language("Scala") code: String): List[Message] = {
-    val definition = (Header + code).parse.depthFirst.findByType(classOf[ScNewTemplateDefinition]).get
+  //TODO Why do we need an enclosing object for F to be resolved?
+  def testFinalWithTypeDefinition {
+    assertMatches(messages("object O { final class F {}; class C extends F }")) {
+      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+    }
+
+    assertMatches(messages("object O { final class F {}; class C extends F {} }")) {
+      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+    }
+  }
+
+  private def messages(@Language("Scala") code: String): List[Message] = {
+    val definition = (Header + code).parse.depthFirst.toSeq.reverseIterator.findByType(classOf[ScTemplateDefinition]).get
     
     val annotator = new TemplateDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock
@@ -44,17 +68,13 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     mock.annotations
   }
   
-  val TypeMismatch = containsPattern("Type mismatch")
+  private val InheritanceFromFinalClass = containsPattern("Illegal inheritance from final class")
 
-  def containsPattern(fragment: String) = new {
+  private def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
   }
+
+//  trait T
+//  class C extends T with T // trait T is inherited twice
+
 }
-
-//final class C
-//trait T extends C
-
-//object holder {
-//  final class F;
-//  new F {}
-//}
