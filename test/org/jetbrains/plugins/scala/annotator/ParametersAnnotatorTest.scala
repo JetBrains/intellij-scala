@@ -3,13 +3,14 @@ package annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.intellij.lang.annotations.Language
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 class ParametersAnnotatorTest extends SimpleTestCase {
-  val Header = "class A; class B; class C;\n"
+  final val Header = "class A; class B; class C;\n"
   
   def testFine {
     assertMatches(messages("def f(a: A) {}")) {
@@ -49,7 +50,7 @@ class ParametersAnnotatorTest extends SimpleTestCase {
     }
   }
    
-  def messages(code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ParametersAnnotator() {}
     val mock = new AnnotatorHolderMock
 

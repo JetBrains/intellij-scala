@@ -7,7 +7,7 @@ import lang.psi.api.expr.ScTypedStmt
 
 
 class TypedStatementAnnotatorTest extends SimpleTestCase {
-  val Header = "class A; class B; object A extends A; object B extends B\n"
+  final val Header = "class A; class B; object A extends A; object B extends B\n"
 
   def testFine {
     assertMatches(messages("A: A")) {
@@ -34,7 +34,7 @@ class TypedStatementAnnotatorTest extends SimpleTestCase {
   }
 
 
-  def messages(@Language("Scala") code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val definition = (Header + code).parse.depthFirst.findByType(classOf[ScTypedStmt]).get
     
     val annotator = new TypedStatementAnnotator() {}

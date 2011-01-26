@@ -10,11 +10,11 @@ import lang.psi.api.expr.ScAssignStmt
  */
 
 class AssignmentAnnotatorTest extends SimpleTestCase {
-  val Header = """
+  final val Header = """
   class A; class B
   object A extends A; object B extends B
   """
-    
+
   def testVariable {
     assertMatches(messages("var v = A; v = A")) {
       case Nil =>
@@ -150,7 +150,7 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def messages(@Language("Scala") code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val assignment = (Header + code).parse.depthFirst.findByType(classOf[ScAssignStmt]).get
     
     val annotator = new AssignmentAnnotator() {}
