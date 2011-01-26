@@ -88,27 +88,27 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         else {
           val params = clauses(0).parameters
           if (params.length == 0) ""
-          else if (params.last.isRepeatedParameter) "Seq" else ""
+          else if (params.last.isRepeatedParameter) "scala.Seq" else ""
         }
       case None => ""
     }
     val paramStringRes = constructor match {
       case Some(x: ScPrimaryConstructor) =>
         val clauses = x.parameterList.clauses
-        if (clauses.length == 0) "Boolean"
+        if (clauses.length == 0) "scala.Boolean"
         else {
           val params = clauses(0).parameters
-          if (params.length == 0) "Boolean"
+          if (params.length == 0) "scala.Boolean"
           else {
             val strings = params.map(p =>
               (if (p.isRepeatedParameter) "scala.Seq[" else "") +
-                      p.typeElement.map(_.getText).getOrElse("Any") +
+                      p.typeElement.map(_.getText).getOrElse("scala.Any") +
                       (if (p.isRepeatedParameter) "]" else ""))
             strings.mkString("scala.Option[" + (if (strings.length > 1) "(" else ""), ", ",
               (if (strings.length > 1) ")" else "") + "]")
           }
         }
-      case None => "Boolean"
+      case None => "scala.Boolean"
     }
     val typeParamStringRes =
       if (typeParameters.length > 0)

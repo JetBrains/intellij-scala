@@ -1,11 +1,11 @@
 import java.util.ArrayList
 
-class Some {
+class Somes {
 	type IntList = ArrayList[Int]
 }
 
 object O {
-	val v = new Some#IntList(3)
+	val v = new Somes#IntList(3)
   /*start*/v/*end*/
 }
 //Some#IntList
