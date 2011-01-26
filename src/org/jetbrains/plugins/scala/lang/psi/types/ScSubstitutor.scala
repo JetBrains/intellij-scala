@@ -12,6 +12,9 @@ import collection.immutable.{Map, HashMap}
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
+import api.base.patterns.ScBindingPattern
+import result.TypingContext
+import api.toplevel.ScTypedDefinition
 
 object ScSubstitutor {
   val empty: ScSubstitutor = new ScSubstitutor()
@@ -87,23 +90,28 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case ScThisType(clazz) => {
       updateThisType match {
         case Some(tp) => {
-          ScType.extractClass(tp) match {
-            case Some(cl) if cl == clazz => return tp
-            case Some(cl) => {
-              if (cl.isInheritor(clazz, true)) return tp
-              else return t
+          def update(typez: ScType): ScType = {
+            ScType.extractDesignated(typez) match {
+              case Some((cl: PsiClass, subst)) if cl == clazz => return tp
+              case Some((cl: PsiClass, subst)) => {
+                if (cl.isInheritor(clazz, true)) return tp
+                else return t
+              }
+              case Some((named: ScTypedDefinition, subst)) =>
+                return update(named.getType(TypingContext.empty).getOrElse(Any))
+              case _ =>
             }
-            case _ =>
-          }
-          BaseTypes.get(tp).find(tp => {
-            ScType.extractClass(tp) match {
-              case Some(cl) if cl == clazz => true
-              case _ => false
+            BaseTypes.get(typez).find(tp => {
+              ScType.extractClass(tp) match {
+                case Some(cl) if cl == clazz => true
+                case _ => false
+              }
+            }) match {
+              case Some(_) => return tp
+              case _ => return t
             }
-          }) match {
-            case Some(_) => return tp
-            case _ => return t
           }
+          update(tp)
         }
         case _ => return t
       }
