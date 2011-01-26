@@ -926,7 +926,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
       val block = leftNode.getTreeParent
       val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-      return Spacing.createSpacing(1, 0, minLineFeeds, true, keepBlankLinesInCode)
+      return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTreeParent.getTextRange)
     }
 
 
