@@ -6,13 +6,14 @@ import lang.psi.api.base.ScReferenceElement
 import lang.psi.types.Compatibility
 import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.expr.ScMethodCall
+import org.intellij.lang.annotations.Language
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 class ApplicationAnnotatorTest extends SimpleTestCase {
-  val Header = """
+  final val Header = """
   class Seq[+A] 
   object Seq { def apply[A](a: A) = new Seq[A] } 
   class A; class B; 
@@ -96,7 +97,7 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  def messages(code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ApplicationAnnotator() {}
     val mock = new AnnotatorHolderMock
 
