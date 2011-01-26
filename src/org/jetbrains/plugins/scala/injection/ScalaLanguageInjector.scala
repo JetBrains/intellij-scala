@@ -56,13 +56,20 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     val expression = host.asInstanceOf[ScExpression]
     // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
     val annotationOwner = annotationOwnerFor(expression) //.orElse(implicitAnnotationOwnerFor(literal))
-    val languageId = annotationOwner.flatMap(extractLanguage(_, myInjectionConfiguration.getLanguageAnnotationClass))
+
+    val annotation = annotationOwner.flatMap(_.getAnnotations.find(
+      _.getQualifiedName == myInjectionConfiguration.getLanguageAnnotationClass))
+
+    val languageId = annotation.flatMap(readAttribute(_, "value"))
     val language = languageId.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)
 
     language.foreach { it =>
       registrar.startInjecting(it)
-      literals.foreach { literal =>
-        registrar.addPlace("", "", literal.asInstanceOf[PsiLanguageInjectionHost],
+      literals.zipWithIndex.foreach { p =>
+        val (literal, i) = p
+        val prefix = if(i == 0) annotation.flatMap(readAttribute(_, "prefix")).mkString else ""
+        val suffix = if(i == literals.size - 1) annotation.flatMap(readAttribute(_, "suffix")).mkString else ""
+        registrar.addPlace(prefix, suffix, literal.asInstanceOf[PsiLanguageInjectionHost],
           ScalaStringLiteralManipulator.getLiteralRange(literal.getText))
       }
       registrar.doneInjecting()
@@ -148,12 +155,11 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     case _ => element
   }
 
-  private def extractLanguage(element: PsiAnnotationOwner, languageAnnotationName: String) = {
-    element.getAnnotations
-            .find(_.getQualifiedName == languageAnnotationName)
-            .flatMap(_.findAttributeValue("value").toOption)
+  def readAttribute(annotation: PsiAnnotation, name: String) = {
+    val value = annotation.findAttributeValue(name).toOption
             .flatMap(_.asOptionOf(classOf[PsiLiteral]))
             .map(_.getValue.toString)
             .flatMap(_.asOptionOf(classOf[String]))
+    value
   }
 }
