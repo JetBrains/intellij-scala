@@ -5,8 +5,6 @@ class PendingTest extends ResolveTestBase {
     super.getTestDataPath + "pending/"
   }
 
-  def testSCL1701 = doTest
-
   def testSCL1707 = doTest
 
   def testSCL2073 = doTest
