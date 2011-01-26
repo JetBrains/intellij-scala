@@ -8,4 +8,4 @@ object O {
 	val v = new Somes#IntList(3)
   /*start*/v/*end*/
 }
-//Some#IntList
+//Somes#IntList
