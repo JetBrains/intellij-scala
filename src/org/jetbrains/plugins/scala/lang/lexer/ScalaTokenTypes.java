@@ -18,6 +18,10 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import static com.intellij.psi.xml.XmlTokenType.*;
+import static org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.*;
+
+import com.intellij.psi.xml.XmlTokenType;
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
@@ -230,4 +234,11 @@ public interface ScalaTokenTypes {
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
   TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING);
+
+  TokenSet XML_ELEMENTS = TokenSet.create(XML_PI(), XML_ATTRIBUTE(), XML_CD_SECT(),
+      XML_COMMENT(), XML_ELEMENT(), XML_EMPTY_TAG(), XML_END_TAG(), XML_EXPR(), XML_PATTERN(),
+      XML_START_TAG(), ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END,
+      XML_EQ, XML_ATTRIBUTE_VALUE_START_DELIMITER, XML_NAME, XML_TAG_END, XML_CDATA_END, XML_PI_END,
+      XML_EMPTY_ELEMENT_END, XML_START_TAG_START, XML_END_TAG_START, XML_CDATA_START, XML_PI_START,
+      XML_DATA_CHARACTERS, XML_COMMENT_CHARACTERS);
 }
