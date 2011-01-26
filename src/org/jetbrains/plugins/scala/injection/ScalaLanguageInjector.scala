@@ -10,11 +10,11 @@ import org.intellij.plugins.intelliLang.inject.InjectedLanguage
 import org.intellij.plugins.intelliLang.inject.LanguageInjectionSupport
 import com.intellij.openapi.extensions.Extensions
 import org.intellij.plugins.intelliLang.inject.InjectorUtils
-import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.expr._
 import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
-import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import com.intellij.psi._
+import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import lang.psi.api.base.{ScPatternList, ScReferenceElement, ScLiteral}
 
 /**
  * Pavel Fatin
@@ -155,11 +155,20 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     case _ => element
   }
 
-  def readAttribute(annotation: PsiAnnotation, name: String) = {
-    val value = annotation.findAttributeValue(name).toOption
-            .flatMap(_.asOptionOf(classOf[PsiLiteral]))
-            .map(_.getValue.toString)
-            .flatMap(_.asOptionOf(classOf[String]))
-    value
+  private def stringValueOf(e: PsiLiteral) =
+    e.getValue.toOption.flatMap(_.asOptionOf(classOf[String]))
+
+  private def readAttribute(annotation: PsiAnnotation, name: String) = {
+    annotation.findAttributeValue(name) match {
+      case literal: PsiLiteral => stringValueOf(literal)
+      case element: ScReferenceElement => element.getReference.toOption
+              .flatMap(_.resolve.asOptionOf(classOf[ScBindingPattern]))
+              .flatMap(_.getParent.asOptionOf(classOf[ScPatternList]))
+              .filter(_.allPatternsSimple)
+              .flatMap(_.getParent.asOptionOf(classOf[ScPatternDefinition]))
+              .flatMap(_.expr.asOptionOf(classOf[PsiLiteral]))
+              .flatMap(stringValueOf(_))
+      case _ => None
+    }
   }
 }

@@ -10,7 +10,7 @@ import org.intellij.lang.annotations.Language
  */
 
 class FunctionAnnotatorTest extends SimpleTestCase {
-  val Header = "class A; class B\n"
+  final val Header = "class A; class B\n"
 
   def testUnitEmpty {
     assertMatches(messages("def f { }")) {
@@ -383,7 +383,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def messages(@Language("Scala") code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new FunctionAnnotator() {}
     val mock = new AnnotatorHolderMock
 
