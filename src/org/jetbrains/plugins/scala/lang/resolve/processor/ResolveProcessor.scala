@@ -18,6 +18,8 @@ import collection.mutable.HashSet
 import caches.CachesUtil
 import psi.api.statements.params.ScTypeParam
 import psi.api.expr.{ScSuperReference, ScThisReference}
+import psi.api.statements.ScTypeAlias
+import psi.api.toplevel.templates.ScTemplateBody
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -59,6 +61,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case c: ScTypeParam => null
         case c: ScObject => "Object:" + c.getQualifiedName
         case c: PsiClass => "Class:" + c.getQualifiedName
+        case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
+          t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.getQualifiedName + "#" + t.getName
         case _ => null
       }
     }
