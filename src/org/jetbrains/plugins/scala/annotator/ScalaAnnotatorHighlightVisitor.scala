@@ -1,35 +1,28 @@
-package com.intellij.codeInsight.daemon.impl
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.openapi.project.{DumbService, DumbAware, Project}
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.impl._
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
 import com.intellij.codeHighlighting.Pass
 import collection.JavaConversions
-import com.intellij.codeInsight.highlighting.HighlightErrorFilter
-import com.intellij.openapi.extensions.Extensions
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import com.intellij.lang.annotation.{AnnotationSession, Annotator}
+import com.intellij.codeInsight.daemon.impl._
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
  */
 
-
-//todo: delete!
 class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
   def order: Int = 0
 
   private var myHolder: HighlightInfoHolder = null
   private var myRefCountHolder: ScalaRefCountHolder = null
-  private val myErrorFilters: Array[HighlightErrorFilter] = 
-          Extensions.getExtensions(DefaultHighlightVisitor.FILTER_EP_NAME, project)
 
   override def suitableForFile(file: PsiFile): Boolean = {
     return file.isInstanceOf[ScalaFile]
@@ -37,12 +30,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
 
   override def visit(element: PsiElement, holder: HighlightInfoHolder): Unit = {
     myHolder = holder
-    if (element.isInstanceOf[PsiErrorElement]) {
-      visitErrorElement(element.asInstanceOf[PsiErrorElement])
-    }
-    else {
-      runAnnotator(element)
-    }
+    runAnnotator(element)
   }
 
   override def analyze(action: Runnable, updateWholeFile: Boolean, file: PsiFile): Boolean = {
@@ -75,8 +63,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   }
 
   private def runAnnotator(element: PsiElement): Unit = {
-    val dumb: Boolean = DumbService.getInstance(project).isDumb
-    if (dumb) {
+    if (DumbService.getInstance(project).isDumb) {
       return
     }
     val annotator: Annotator = new ScalaAnnotator
@@ -89,14 +76,5 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       }
       myAnnotationHolder.clear
     }
-  }
-
-  def visitErrorElement(element: PsiErrorElement): Unit = {
-    for (errorFilter <- myErrorFilters) {
-      if (!errorFilter.shouldHighlightErrorElement(element)) return
-    }
-    var info: HighlightInfo = HighlightInfo.createHighlightInfo(HighlightInfoType.ERROR, element,
-      element.getErrorDescription)
-    myHolder.add(info)
   }
 }

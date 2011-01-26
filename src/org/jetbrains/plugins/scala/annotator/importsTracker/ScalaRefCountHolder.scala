@@ -36,9 +36,9 @@ class ScalaRefCountHolder private (file: PsiFile) {
 
   private def removeInvalidRefs: Unit = {
     assertIsAnalyzing
-    var iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
+    val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
     while (iterator.hasNext) {
-      var ref: ImportUsed = iterator.next
+      val ref: ImportUsed = iterator.next
       if (!ref.e.isValid) {
         iterator.remove
       }
@@ -60,7 +60,7 @@ class ScalaRefCountHolder private (file: PsiFile) {
       analyze.run
     }
     finally {
-      var set: Boolean = myState.compareAndSet(State.WRITE, State.READY)
+      val set: Boolean = myState.compareAndSet(State.WRITE, State.READY)
       assert(set, myState.get)
     }
     return true
@@ -75,20 +75,20 @@ class ScalaRefCountHolder private (file: PsiFile) {
       analyze.run
     }
     finally {
-      var set: Boolean = myState.compareAndSet(State.READ, State.READY)
-      assert (set, myState.get)
+      val set: Boolean = myState.compareAndSet(State.READ, State.READY)
+      assert(set, myState.get)
     }
     return true
   }
 
 
   private def assertIsAnalyzing: Unit = {
-    assert (myState.get == State.WRITE, myState.get)
+    assert(myState.get == State.WRITE, myState.get)
   }
 
 
   private def assertIsRetrieving: Unit = {
-    assert (myState.get == State.READ, myState.get)
+    assert(myState.get == State.READ, myState.get)
   }
 }
 
