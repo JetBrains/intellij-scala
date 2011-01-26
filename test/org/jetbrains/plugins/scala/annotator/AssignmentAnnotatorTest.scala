@@ -86,7 +86,7 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     }
   }
   
-  //TODO fails on server 
+  //TODO fails on server
 //  def testParameterInsideBlock {
 //    assertMatches(messages("{ p: A => p = A }")) {
 //      case Error("p = A", ReassignmentToVal()) :: Nil =>
@@ -130,7 +130,7 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
   }
 
   def testUpdateOkay {
-    assertMatches(messages("val a = new { def update(x: Int): Unit = () }; a() = 1)")) {
+    assertMatches(messages("val a = new { def update(x: Int): Unit = () }; a() = 1")) {
       case Nil =>
     }
   }
