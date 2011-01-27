@@ -20,17 +20,11 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
 
   def testFinal {
     assertMatches(messages("final class F; new F {}")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
 
     assertMatches(messages("final class F; trait T; new F with T {}")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
-    }
-  }
-
-  def testFinalMessage {
-    assertMatches(messages("final class F; new F {}")) {
-      case Error(_, "Illegal inheritance from final class F") :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
   }
 
@@ -48,41 +42,41 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
       case Nil =>
     }
     assertMatches(messages("class C; class T; new C with T")) {
-      case Error("T", "Class T needs to be trait to be mixed in") :: Nil =>
+      case Error("T", NeedsToBeTrait("T")) :: Nil =>
     }
     assertMatches(messages("class C; class T1; class T2; new C with T1 with T2")) {
-      case Error("T1", "Class T1 needs to be trait to be mixed in") ::
-              Error("T2", "Class T2 needs to be trait to be mixed in") :: Nil =>
+      case Error("T1", NeedsToBeTrait("T1")) ::
+              Error("T2", NeedsToBeTrait("T2")) :: Nil =>
     }
   }
 
   //TODO Why do we need an enclosing object for F to be resolved?
   def testFinalWithTypeDefinition {
     assertMatches(messages("object O { final class F {}; class C extends F }")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
 
     assertMatches(messages("object O { final class F {}; class C extends F {} }")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
   }
 
   def testMultiInheritance {
     assertMatches(messages("trait T; new T with T {}")) {
-      case Error("T", "Trait T inherited multiple times") ::
-              Error("T", "Trait T inherited multiple times") :: Nil =>
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
     }
 
     assertMatches(messages("trait T; new T with T with T {}")) {
-      case Error("T", "Trait T inherited multiple times") ::
-              Error("T", "Trait T inherited multiple times") ::
-              Error("T", "Trait T inherited multiple times") :: Nil =>
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
     }
   }
 
   def testMultiInheritanceWithMixinClass {
     assertMatches(messages("class C; new C with C")) {
-      case Error("C", "Class C needs to be trait to be mixed in") :: Nil =>
+      case Error("C", NeedsToBeTrait("C")) :: Nil =>
     }
   }
 
@@ -96,9 +90,9 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     mock.annotations
   }
   
-  private val InheritanceFromFinalClass = containsPattern("Illegal inheritance from final class")
+  private val InheritanceFromFinalClass = "Illegal inheritance from final class (\\w+)".r
 
-  private def containsPattern(fragment: String) = new {
-    def unapply(s: String) = s.contains(fragment)
-  }
+  private val MultipleTraitInheritance = "Trait (\\w+) inherited multiple times".r
+
+  private val NeedsToBeTrait = "Class (\\w+) needs to be trait to be mixed in".r
 }
