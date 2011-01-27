@@ -26,6 +26,13 @@ trait TemplateDefinitionAnnotator {
       case _ =>
     }
 
+    refs.groupBy(_._2).foreach {
+      case (Some(psiClass: ScTrait), entries) if entries.size > 1 => entries.map(_._1).foreach { refElement =>
+        holder.createErrorAnnotation(refElement, "Trait %s inherited multiple times".format(psiClass.getName))
+      }
+      case _ =>
+    }
+
     if (defintion.isInstanceOf[ScNewTemplateDefinition] && block.templateBody.isEmpty) return
 
     refs.foreach {

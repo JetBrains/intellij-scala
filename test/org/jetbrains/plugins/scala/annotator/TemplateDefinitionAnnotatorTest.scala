@@ -10,7 +10,7 @@ import lang.psi.api.toplevel.typedef.ScTemplateDefinition
  */
 
 class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
-  val Header = ""
+  final val Header = ""
 
   def testFine {
     assertMatches(messages("class C; new C {}")) {
@@ -67,7 +67,26 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  private def messages(@Language("Scala") code: String): List[Message] = {
+  def testMultiInheritance {
+    assertMatches(messages("trait T; new T with T {}")) {
+      case Error("T", "Trait T inherited multiple times") ::
+              Error("T", "Trait T inherited multiple times") :: Nil =>
+    }
+
+    assertMatches(messages("trait T; new T with T with T {}")) {
+      case Error("T", "Trait T inherited multiple times") ::
+              Error("T", "Trait T inherited multiple times") ::
+              Error("T", "Trait T inherited multiple times") :: Nil =>
+    }
+  }
+
+  def testMultiInheritanceWithMixinClass {
+    assertMatches(messages("class C; new C with C")) {
+      case Error("C", "Class C needs to be trait to be mixed in") :: Nil =>
+    }
+  }
+
+  private def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val definition = (Header + code).parse.depthFirst.toSeq.reverseIterator.findByType(classOf[ScTemplateDefinition]).get
     
     val annotator = new TemplateDefinitionAnnotator() {}
@@ -82,12 +101,4 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
   private def containsPattern(fragment: String) = new {
     def unapply(s: String) = s.contains(fragment)
   }
-
-//  trait T
-//  trait T2
-//  class CC
-//  class C extends T with CC// trait T is inherited twice
-
-//  error: class CC needs to be a trait to be mixed in
-//class C extends T with CC// trait T is inherited twice
 }
