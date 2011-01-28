@@ -72,7 +72,7 @@ object Conformance {
       (r, l) match {
         case (Byte, Short | Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Short, Int | Long | Float | Double) => return (true, undefinedSubst)
-        case (Char, Int | Long | Float | Double) => return (true, undefinedSubst)
+        case (Char, Byte | Short | Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Int, Long | Float | Double) => return (true, undefinedSubst)
         case (Long, Float | Double) => return (true, undefinedSubst)
         case (Float, Double) => return (true, undefinedSubst)
