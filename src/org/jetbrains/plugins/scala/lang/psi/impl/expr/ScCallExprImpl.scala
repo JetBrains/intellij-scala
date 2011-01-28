@@ -32,6 +32,7 @@ trait ScCallExprImpl extends ScExpression {
           case fun: ScFunction => s.subst(fun.polymorphicType)
           case fun: ScFun => s.subst(fun.polymorphicType)
           case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s, getResolveScope)
+          case t: ScTypedDefinition => s.subst(t.getType(TypingContext.empty).getOrElse(Any))
           case _ => Any
         }
         //tp  = if (fromType != None) tp.updateThisType(fromType.get) else tp
