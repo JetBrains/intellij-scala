@@ -10,7 +10,7 @@ import lang.psi.api.toplevel.typedef.ScTemplateDefinition
  */
 
 class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
-  val Header = ""
+  final val Header = ""
 
   def testFine {
     assertMatches(messages("class C; new C {}")) {
@@ -20,17 +20,11 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
 
   def testFinal {
     assertMatches(messages("final class F; new F {}")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
 
     assertMatches(messages("final class F; trait T; new F with T {}")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
-    }
-  }
-
-  def testFinalMessage {
-    assertMatches(messages("final class F; new F {}")) {
-      case Error(_, "Illegal inheritance from final class F") :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
   }
 
@@ -48,26 +42,45 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
       case Nil =>
     }
     assertMatches(messages("class C; class T; new C with T")) {
-      case Error("T", "Class T needs to be trait to be mixed in") :: Nil =>
+      case Error("T", NeedsToBeTrait("T")) :: Nil =>
     }
     assertMatches(messages("class C; class T1; class T2; new C with T1 with T2")) {
-      case Error("T1", "Class T1 needs to be trait to be mixed in") ::
-              Error("T2", "Class T2 needs to be trait to be mixed in") :: Nil =>
+      case Error("T1", NeedsToBeTrait("T1")) ::
+              Error("T2", NeedsToBeTrait("T2")) :: Nil =>
     }
   }
 
   //TODO Why do we need an enclosing object for F to be resolved?
   def testFinalWithTypeDefinition {
     assertMatches(messages("object O { final class F {}; class C extends F }")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
 
     assertMatches(messages("object O { final class F {}; class C extends F {} }")) {
-      case Error("F", InheritanceFromFinalClass()) :: Nil =>
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
   }
 
-  private def messages(@Language("Scala") code: String): List[Message] = {
+  def testMultiInheritance {
+    assertMatches(messages("trait T; new T with T {}")) {
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
+    }
+
+    assertMatches(messages("trait T; new T with T with T {}")) {
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
+    }
+  }
+
+  def testMultiInheritanceWithMixinClass {
+    assertMatches(messages("class C; new C with C")) {
+      case Error("C", NeedsToBeTrait("C")) :: Nil =>
+    }
+  }
+
+  private def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val definition = (Header + code).parse.depthFirst.toSeq.reverseIterator.findByType(classOf[ScTemplateDefinition]).get
     
     val annotator = new TemplateDefinitionAnnotator() {}
@@ -77,17 +90,9 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     mock.annotations
   }
   
-  private val InheritanceFromFinalClass = containsPattern("Illegal inheritance from final class")
+  private val InheritanceFromFinalClass = "Illegal inheritance from final class (\\w+)".r
 
-  private def containsPattern(fragment: String) = new {
-    def unapply(s: String) = s.contains(fragment)
-  }
+  private val MultipleTraitInheritance = "Trait (\\w+) inherited multiple times".r
 
-//  trait T
-//  trait T2
-//  class CC
-//  class C extends T with CC// trait T is inherited twice
-
-//  error: class CC needs to be a trait to be mixed in
-//class C extends T with CC// trait T is inherited twice
+  private val NeedsToBeTrait = "Class (\\w+) needs to be trait to be mixed in".r
 }
