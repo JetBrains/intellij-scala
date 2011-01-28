@@ -259,8 +259,8 @@ trait ScPattern extends ScalaPsiElement {
       case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
         case Some(ScFunctionType(ret, params)) => {
           if (params.length == 0) Some(Unit)
-          else if (params.length == 1) Some(params(0))
-          else Some(new ScTupleType(params, getProject, getResolveScope))
+          else if (params.length == 1) Some(params(0).removeAbstracts)
+          else Some(new ScTupleType(params.map(_.removeAbstracts), getProject, getResolveScope))
         }
         case Some(ScParameterizedType(des, args)) if (ScType.extractClass(des) match {
           case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => true
@@ -268,8 +268,8 @@ trait ScPattern extends ScalaPsiElement {
           case _ => false
         }) => {
           if (args.length == 1) Some(Unit)
-          else if (args.length == 2) Some(args(0))
-          else Some(new ScTupleType(args.slice(0, args.length - 1), getProject, getResolveScope))
+          else if (args.length == 2) Some(args(0).removeAbstracts)
+          else Some(new ScTupleType(args.slice(0, args.length - 1).map(_.removeAbstracts), getProject, getResolveScope))
         }
         case _ => None
       }

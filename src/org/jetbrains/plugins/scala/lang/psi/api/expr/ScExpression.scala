@@ -24,6 +24,7 @@ import lexer.ScalaTokenTypes
 import types.Conformance.AliasType
 import statements.{ScTypeAliasDefinition, ScFunction}
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
+import java.lang.Integer
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -388,7 +389,20 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         }
         if (needsNarrowing) {
           try {
-            lazy val i = Integer.parseInt(this.getText)
+            lazy val i = this match {
+              case l: ScLiteral => l.getValue match {
+                case i: Integer => i.intValue
+                case _ => scala.Int.MaxValue
+              }
+              case p: ScPrefixExpr =>
+                val mult = if (p.operand.getText == "-") -1 else 1
+                p.operand match {
+                  case l: ScLiteral => l.getValue match {
+                    case i: Integer => mult * i.intValue
+                    case _ => scala.Int.MaxValue
+                  }
+                }
+            }
             expected match {
               case types.Char => {
                 if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
@@ -416,7 +430,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         (valType, expected) match {
           case (Byte, Short | Int | Long | Float | Double) => return Success(expected, Some(this))
           case (Short, Int | Long | Float | Double) => return Success(expected, Some(this))
-          case (Char, Int | Long | Float | Double) => return Success(expected, Some(this))
+          case (Char, Byte | Short | Int | Long | Float | Double) => return Success(expected, Some(this))
           case (Int, Long | Float | Double) => return Success(expected, Some(this))
           case (Long, Float | Double) => return Success(expected, Some(this))
           case (Float, Double) => return Success(expected, Some(this))
