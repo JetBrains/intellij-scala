@@ -4,7 +4,8 @@ package annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import lang.psi.api.expr.ScNewTemplateDefinition
-import lang.psi.types.ScType
+import overrideImplement.ScalaOIUtil
+import lang.psi.types.{PhysicalSignature, ScType}
 import com.intellij.psi.{PsiClass, PsiElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait, ScTemplateDefinition}
 
@@ -24,6 +25,16 @@ trait TemplateDefinitionAnnotator {
       (refElement, psiClass)
     }
 
+    val newWithoutBody = defintion.isInstanceOf[ScNewTemplateDefinition] && block.templateBody.isEmpty
+
+    refs.headOption.foreach {
+      case (refElement, Some(psiClass)) => {
+        if(newWithoutBody && isAbstract(psiClass))
+          error(refElement, "%s %s is abstract; cannot be instantiated", kindOf(psiClass), psiClass.getName)
+      }
+      case _ =>
+    }
+
     refs.drop(1).foreach {
       case (refElement, Some(psiClass)) if !isMixable(psiClass) =>
         error(refElement, "%s %s needs to be trait to be mixed in", kindOf(psiClass), psiClass.getName)
@@ -37,7 +48,7 @@ trait TemplateDefinitionAnnotator {
       case _ =>
     }
 
-    if (defintion.isInstanceOf[ScNewTemplateDefinition] && block.templateBody.isEmpty) return
+    if (newWithoutBody) return
 
     refs.foreach {
       case (refElement, Some(psiClass)) if psiClass.getModifierList.hasModifierProperty("final") =>
@@ -61,6 +72,13 @@ trait TemplateDefinitionAnnotator {
   private def isMixable(entity: PsiClass) = entity match {
     case _: ScTrait => true
     case c: PsiClass if c.isInterface => true
+    case _ => false
+  }
+
+  private def isAbstract(entity: PsiClass) = entity match {
+    case _: ScTrait => true
+    case c: PsiClass if c.isInterface => true
+    case c: PsiClass if c.hasModifierProperty("abstract") => true
     case _ => false
   }
 }
