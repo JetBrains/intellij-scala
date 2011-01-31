@@ -213,6 +213,15 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     for ((pass, resolveResult, tp, rt) <- sigsFound if pass) {
       result += Tuple(rt, resolveResult.element, resolveResult.importsUsed)
     }
+
+    typez match {
+      case stpt@ScTypeParameterType(_, _, _, _, ptp: ScTypeParam) =>
+        ptp.viewBound.foreach(tp => {
+          result += Tuple(tp, ptp, Set.empty)
+        })
+      case _ =>
+    }
+
     result.toSeq
   }
 
