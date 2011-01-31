@@ -11,17 +11,20 @@ import _root_.scala.collection.Set
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
 import base.ScStableCodeReferenceElement
+import base.types.ScTypeProjection
 import expr.ScReferenceExpression
 import statements.ScTypeAlias
 import psi.types._
 import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
-import result.TypingContext
+import result.{Success, TypingContext}
 import toplevel.imports.usages.ImportUsed
 import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
+import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScClass, ScTemplateDefinition}
+import com.sun.net.httpserver.Authenticator._
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -123,6 +126,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
         break
       }
+      case ScDesignatorType(e: ScTypedDefinition) if place.isInstanceOf[ScTypeProjection] =>
+        e.getType(TypingContext.empty) match {
+          case Success(tp, _) => processType(tp, place, state, noBounds)
+          case _ => true
+        }
       // TODO SCL-2386 we don't want to get here if the reference is to the synthesized companion object of a case class.
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
