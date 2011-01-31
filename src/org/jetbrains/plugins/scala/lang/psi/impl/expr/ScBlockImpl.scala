@@ -70,18 +70,18 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
             case obj: ScObject => {
               val t = existize(leastClassType(obj))
-              m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
+              m.put(obj.name, new ScExistentialArgument("_", Nil, t, t))
               new ScTypeVariable(obj.name)
             }
             case clazz: ScTypeDefinition => {
               val t = existize(leastClassType(clazz))
               val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
-              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
+              m.put(clazz.name, new ScExistentialArgument("_", vars, t, t))
               new ScTypeVariable(clazz.name)
             }
             case typed: ScTypedDefinition => {
               val t = existize(typed.getType(TypingContext.empty).getOrElse(Any))
-              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
+              m.put(typed.name, new ScExistentialArgument("_", Nil, t, t))
               new ScTypeVariable(typed.name)
             }
             case _ => t

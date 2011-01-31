@@ -19,4 +19,5 @@ class TypeTest extends ResolveTestBase {
   def testValue = doTest
   def testVariable = doTest
   def testThis = doTest
+  def testTypeProjection = doTest
 }
