@@ -58,13 +58,20 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def isCase = hasModifierProperty("case")
 
-  override def getContainingClass() = null
+  override def getContainingClass: ScTemplateDefinition = null
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
+    if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
+    if (isPackageObject && name != "`package`") {
+      val qual = getQualifiedName
+      val facade = JavaPsiFacade.getInstance(getProject)
+      val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
+      if (pack != null && !pack.processDeclarations(processor, state, lastParent, place)) return false
+    }
+    return true
   }
 
   @volatile
