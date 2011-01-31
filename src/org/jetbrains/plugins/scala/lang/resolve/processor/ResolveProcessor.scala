@@ -63,6 +63,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case c: PsiClass => "Class:" + c.getQualifiedName
         case t: ScTypeAlias if t.getParent.isInstanceOf[ScTemplateBody] &&
           t.getContainingClass != null => "TypeAlias:" + t.getContainingClass.getQualifiedName + "#" + t.getName
+        case p: PsiPackage => "Package:" + p.getQualifiedName
         case _ => null
       }
     }
