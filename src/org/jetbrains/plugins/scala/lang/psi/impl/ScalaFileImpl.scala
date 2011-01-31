@@ -34,6 +34,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.search.GlobalSearchScope
 import finder.ScalaSourceFilterScope
 import com.intellij.openapi.project.Project
+import reflect.NameTransformer
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
@@ -396,7 +397,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (isCompiled) {
       val name = getVirtualFile.getNameWithoutExtension()
       if (name != "package") {
-        return Collections.singleton(name)
+        return Collections.singleton(NameTransformer.decode(name))
       }
     }
     val res = new HashSet[String]

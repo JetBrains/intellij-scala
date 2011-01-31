@@ -108,7 +108,8 @@ object ScalaPsiUtil {
     lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" && exprType.map(_.isInstanceOf[ValType]).getOrElse(false)
-    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = e.implicitMap().filter({
+    val mp = e.implicitMap()
+    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = mp.filter({
       case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
         ProgressManager.checkCanceled
         if (!isHardCoded || !t.isInstanceOf[ValType]) {
@@ -124,9 +125,11 @@ object ScalaPsiUtil {
           val mrp = processor.asInstanceOf[MethodResolveProcessor]
           val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
             mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
-          newProc.processType(t, e, ResolveState.initial)
+          val tp = t
+          newProc.processType(tp, e, ResolveState.initial)
           val cand = newProc.candidatesS
-          !cand.filter(_.isApplicable).isEmpty
+          val filtered = !cand.filter(_.isApplicable).isEmpty
+          filtered
         }
       })
     }
@@ -366,7 +369,7 @@ object ScalaPsiUtil {
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                  typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty, 
+                                 subst: ScSubstitutor = ScSubstitutor.empty,
                                  shouldUndefineParameters: Boolean = true): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
   }
@@ -495,6 +498,19 @@ object ScalaPsiUtil {
         }
       }
       case _ => elem.getNextSibling
+    }
+  }
+
+  def extractReturnType(tp: ScType): Option[ScType] = {
+    tp match {
+      case ScFunctionType(retType, _) => Some(retType)
+      case ScParameterizedType(des, args) => {
+        ScType.extractClass(des) match {
+          case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Some(args(args.length - 1))
+          case _ => None
+        }
+      }
+      case _ => None
     }
   }
 

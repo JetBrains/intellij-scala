@@ -3,6 +3,7 @@ package conversion
 
 
 import collection.mutable.{ArrayBuffer, LinkedHashSet}
+import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -513,12 +514,17 @@ object JavaToScala {
         if (attributes nonEmpty) {
           res.append("(")
           for (attribute <- attributes) {
-            // TODO wrap vararg annotation arguments in Array(..)
             if (attribute.getName != null) {
               res.append(escapeKeyword(attribute.getName))
               res.append(" = ")
             }
-            res.append(convertPsiToText(attribute.getValue))
+            val value = attribute.getValue
+            value match {
+              case a:PsiArrayInitializerMemberValue => res.append(convertPsiToText(value))
+              case v:PsiAnnotationMemberValue if isArrayAnnotationParameter(attribute) =>
+                    res.append("Array(").append(convertPsiToText(value)).append(")")
+              case _ => res.append(convertPsiToText(value))
+            }
             res.append(", ")
           }
           res.delete(res.length - 2, res.length)
@@ -555,5 +561,15 @@ object JavaToScala {
     }
     res.delete(res.length - 1, res.length)
     return res.toString
+  }
+
+  def isArrayAnnotationParameter(pair: PsiNameValuePair): Boolean = {
+    AnnotationUtil.getAnnotationMethod(pair) match {
+      case method: PsiMethod => {
+        val returnType = method.getReturnType
+        return returnType != null && returnType.isInstanceOf[PsiArrayType];
+      }
+      case _ => false
+    }
   }
 }

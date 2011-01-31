@@ -43,6 +43,7 @@ object ScalaRefactoringUtil {
   def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true) {
     var start = editor.getSelectionModel.getSelectionStart
     var end = editor.getSelectionModel.getSelectionEnd
+    if (start == end) return
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
             (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
             file.getText.charAt(start) == '\n' ||

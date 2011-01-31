@@ -40,16 +40,18 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
       }))
       expectedType match {
         case Some(f@ScFunctionType(retType, params)) => {
-          return Success(new ScFunctionType(clausesType, params, f.getProject, f.getScope), Some(this))
+          return Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts),
+            f.getProject, f.getScope), Some(this))
         }
         case Some(tp@ScParameterizedType(des, typeArgs)) => {
           ScType.extractClass(tp) match {
             case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => {
-              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1), clazz.getProject,
-                clazz.getResolveScope), Some(this))
+              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts),
+                clazz.getProject, clazz.getResolveScope), Some(this))
             }
             case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => {
-              return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1) ++ Seq(clausesType)), Some(this))
+              return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts) ++
+                Seq(clausesType)), Some(this))
             }
             case _ => return Failure("Cannot infer type without expected type", Some(this))
           }
@@ -68,18 +70,18 @@ class ScBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScBlock 
           case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
             case obj: ScObject => {
               val t = existize(leastClassType(obj))
-              m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
+              m.put(obj.name, new ScExistentialArgument("_", Nil, t, t))
               new ScTypeVariable(obj.name)
             }
             case clazz: ScTypeDefinition => {
               val t = existize(leastClassType(clazz))
               val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
-              m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
+              m.put(clazz.name, new ScExistentialArgument("_", vars, t, t))
               new ScTypeVariable(clazz.name)
             }
             case typed: ScTypedDefinition => {
               val t = existize(typed.getType(TypingContext.empty).getOrElse(Any))
-              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
+              m.put(typed.name, new ScExistentialArgument("_", Nil, t, t))
               new ScTypeVariable(typed.name)
             }
             case _ => t

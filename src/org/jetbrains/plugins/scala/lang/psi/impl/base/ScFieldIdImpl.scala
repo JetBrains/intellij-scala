@@ -29,8 +29,8 @@ class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with
 
   def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
-  override def isStable = getParent match {
-    case l: ScIdList => l.getParent match {
+  override def isStable = getContext match {
+    case l: ScIdList => l.getContext match {
       case _: ScVariable => false
       case _ => true
     }

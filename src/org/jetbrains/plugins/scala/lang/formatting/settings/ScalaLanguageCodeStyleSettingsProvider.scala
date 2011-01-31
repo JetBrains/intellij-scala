@@ -131,6 +131,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
       showCustomOption("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
+
+      showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -144,6 +146,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   private val METHOD_DEFINITION = "Method definition"
   private val ANONYMOUS_METHOD = "Anonymous method definition"
   private val CLASS_DEFINITION = "Class definition"
+  private val XML_FORMATTING = "Xml formatting"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = null
 

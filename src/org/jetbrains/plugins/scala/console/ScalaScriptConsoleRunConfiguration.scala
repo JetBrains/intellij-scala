@@ -108,7 +108,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
             var fileWithParams: File = File.createTempFile("scalaconsole", ".tmp")
             var printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
             printer.println("-classpath")
-            printer.println(getClassPath(project))
+            printer.println(getClassPath(project, facet))
             val parms: Array[String] = ParametersList.parse(consoleArgs)
             for (parm <- parms) {
               printer.println(parm)
@@ -123,7 +123,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
           }
         } else {
           params.getProgramParametersList.add("-classpath")
-          params.getProgramParametersList.add(getClassPath(project))
+          params.getProgramParametersList.add(getClassPath(project, facet))
           params.getProgramParametersList.addParametersString(consoleArgs)
         }
         return params
@@ -259,9 +259,10 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
   }
 
-  private def getClassPath(project: Project): String = {
-    val pathes = for (module <- ModuleManager.getInstance(project).getModules) yield getClassPath(module)
-    pathes.mkString(File.pathSeparator)
+  private def getClassPath(project: Project, facet: ScalaFacet): String = {
+    val pathes: Seq[String] = (for (module <- ModuleManager.getInstance(project).getModules) yield
+      getClassPath(module)).toSeq
+    pathes.mkString(File.pathSeparator) + File.pathSeparator + getClassPath(facet)
   }
   private def getClassPath(module: Module): String = {
     val moduleRootManager = ModuleRootManager.getInstance(module)
@@ -277,6 +278,20 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       if (jarSeparatorIndex > 0) {
         path = path.substring(0, jarSeparatorIndex)
       }
+      res.append(path).append(File.pathSeparator)
+    }
+    return res.toString
+  }
+
+  private def getClassPath(facet: ScalaFacet): String = {
+    val res = new StringBuilder("")
+    for (file <- facet.files) {
+      var path = file.getPath
+      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
+      if (jarSeparatorIndex > 0) {
+        path = path.substring(0, jarSeparatorIndex)
+      }
+      path = PathUtil.getCanonicalPath(path).replace('/', File.separatorChar)
       res.append(path).append(File.pathSeparator)
     }
     return res.toString

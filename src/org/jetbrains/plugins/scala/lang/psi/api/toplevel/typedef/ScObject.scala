@@ -7,6 +7,7 @@ package typedef
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
+import com.intellij.psi.PsiClass
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
 
 trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember {
 
-  override def getContainingClass = null
+  override def getContainingClass: ScTemplateDefinition = null
 
   //Is this object generated as case class companion module
   private var isSyntheticCaseClassCompanion: Boolean = false

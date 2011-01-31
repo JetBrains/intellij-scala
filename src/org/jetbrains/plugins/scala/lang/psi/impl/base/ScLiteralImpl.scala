@@ -96,13 +96,19 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.tINTEGER =>
         if (child.getText.endsWith("l") || child.getText.endsWith("L"))
           try {
-            java.lang.Long.valueOf(text)
+            java.lang.Long.valueOf(text.substring(0, text.length - 1))
           } catch {
             case e => null
           }
         else {
           try {
-            java.lang.Integer.valueOf(text)
+            if (text.startsWith("0x")) {
+              Integer.valueOf(java.lang.Integer.parseInt(text.substring(2), 16))
+            } else if (text.startsWith("0")) {
+              Integer.valueOf(Integer.parseInt(text, 8))
+            } else {
+              Integer.valueOf(text)
+            }
           } catch {
             case e => null
           }
@@ -110,7 +116,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.tFLOAT =>
         if (child.getText.endsWith("f") || child.getText.endsWith("F"))
           try {
-            java.lang.Float.valueOf(text)
+            java.lang.Float.valueOf(text.substring(0, text.length - 1))
           } catch {
             case e => null
           }

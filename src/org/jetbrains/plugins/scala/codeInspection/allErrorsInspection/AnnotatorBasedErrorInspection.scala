@@ -60,6 +60,9 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
           def getCurrentAnnotationSession: AnnotationSession = {
             new AnnotationSession(element.getContainingFile)
           }
+          def createWeakWarningAnnotation(p1: TextRange, p2: String): Annotation = FakeAnnotation
+          def createWeakWarningAnnotation(p1: ASTNode, p2: String): Annotation = FakeAnnotation
+          def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = FakeAnnotation
         }
         annotator.annotate(element, annotationHolder)
       }

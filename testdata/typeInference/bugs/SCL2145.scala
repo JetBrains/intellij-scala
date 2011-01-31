@@ -1,8 +1,8 @@
 object Test
 {
   def main(args: Array[String]) {
-    val x = /*start*/List(Some(5)).flatMap(e => e)/*end*/
+    val x = /*start*/Some(5)/*end*/
 
   }
 }
-//List[Int]
+//Some[Int]
