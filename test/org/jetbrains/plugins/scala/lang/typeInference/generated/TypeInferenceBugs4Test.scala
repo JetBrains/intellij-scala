@@ -7,6 +7,8 @@ class TypeInferenceBugs4Test extends TypeInferenceTestBase {
 
   def testSCL2298 = doTest
 
+  def testSCL2397 = doTest
+
   def testSCL2416 = doTest
 
   def testSCL2416B = doTest

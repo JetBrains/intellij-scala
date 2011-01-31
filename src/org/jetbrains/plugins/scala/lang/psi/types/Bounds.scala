@@ -118,8 +118,8 @@ object Bounds {
       } else if (substed2 conforms substed1) {
         new ScExistentialArgument("_", List.empty, substed2, substed1)
       } else {
-        new ScExistentialArgument("_", List.empty, Nothing, new ScCompoundType(Seq(substed1, substed2), Seq.empty,
-            Seq.empty, ScSubstitutor.empty))
+        new ScExistentialArgument("_", List.empty, new ScCompoundType(Seq(substed1, substed2), Seq.empty,
+            Seq.empty, ScSubstitutor.empty), Any)
       }
     }
   }
