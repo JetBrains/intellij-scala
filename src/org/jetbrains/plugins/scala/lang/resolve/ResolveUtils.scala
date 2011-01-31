@@ -148,11 +148,17 @@ object ResolveUtils {
               val bind = ref.resolve
               if (bind == null) return true
               def processPackage(packageName: String): Boolean = {
-                val placeEnclosing: PsiElement = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
-                  classOf[ScalaFile])
+                def context(place: PsiElement): PsiElement =
+                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
+                    classOf[ScObject], classOf[ScalaFile])
+                var placeEnclosing: PsiElement = context(place)
+                while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
+                         !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
+                  placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
+                  case obj: ScObject => obj.getQualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
                 return placePackageName.startsWith(packageName)
@@ -210,11 +216,17 @@ object ResolveUtils {
               val bind = ref.resolve
               if (bind == null) return true
               def processPackage(packageName: String): Option[Boolean] = {
-                val placeEnclosing: PsiElement = ScalaPsiUtil.
-                        getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                def context(place: PsiElement): PsiElement =
+                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
+                    classOf[ScObject], classOf[ScalaFile])
+                var placeEnclosing: PsiElement = context(place)
+                while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
+                         !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
+                  placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return Some(false) //not Scala
                 val placePackageName = placeEnclosing match {
                   case file: ScalaFile => file.getPackageName
+                  case obj: ScObject => obj.getQualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
                 if (placePackageName.startsWith(packageName)) return Some(true)

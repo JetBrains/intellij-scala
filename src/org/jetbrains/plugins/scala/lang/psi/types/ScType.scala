@@ -531,7 +531,6 @@ object ScType {
   // TODO: Review this against SLS 3.2.1
   def isStable(t: ScType): Boolean = {
     t match {
-      //case x if t.conforms(Singleton) => true //todo it seems singleton is dropped type.
       case ScThisType(_) => true
       case ScProjectionType(projected, element: ScObject, _) => isStable(projected)
       case ScProjectionType(projected, element: ScTypedDefinition, _) => isStable(projected) && element.isStable

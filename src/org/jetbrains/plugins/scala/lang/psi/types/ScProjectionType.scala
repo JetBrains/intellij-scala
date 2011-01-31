@@ -3,11 +3,11 @@ package lang
 package psi
 package types
 
-import api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import api.statements.ScTypeAlias
 import resolve.{ResolveTargets, StdKinds}
 import resolve.processor.{BaseProcessor, ResolveProcessor}
-import com.intellij.psi. {ResolveState, PsiElement, PsiNamedElement}
+import api.toplevel.typedef.{ScTrait, ScClass, ScMember, ScTemplateDefinition}
+import com.intellij.psi.{PsiClass, ResolveState, PsiElement, PsiNamedElement}
 
 /**
  * @author ilyas
@@ -46,6 +46,24 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       }
       case _ => (element, emptySubst followed subst)
     }
+    /*val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+    val a = element
+    val name = a.getName
+    import ResolveTargets._
+    val proc = new ResolveProcessor(ValueSet(CLASS, OBJECT), a, name)
+    proc.processType(projected, a, ResolveState.initial, true)
+    val candidates = proc.candidates
+    if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
+      val res = (element, candidates(0)) match {
+        case (_: PsiClass, _: PsiClass) => true
+        case (_: ScTypeAlias, _: ScTypeAlias) => true
+        case _ => false
+      }
+      if (res) (candidates(0).element, emptySubst followed candidates(0).substitutor)
+      else (element, emptySubst followed subst)
+    } else {
+      (element, emptySubst followed subst)
+    }*/
   }
 }
 

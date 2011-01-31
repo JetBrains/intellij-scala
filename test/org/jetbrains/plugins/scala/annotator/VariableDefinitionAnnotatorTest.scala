@@ -10,7 +10,7 @@ import lang.psi.api.statements.ScVariableDefinition
  */
 
 class VariableDefinitionAnnotatorTest extends SimpleTestCase {
-  val Header = "class A; class B; object A extends A; object B extends B\n"
+  final val Header = "class A; class B; object A extends A; object B extends B\n"
 
   def testFine {
     assertMatches(messages("var v = A")) {
@@ -57,7 +57,7 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def messages(@Language("Scala") code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val definition = (Header + code).parse.depthFirst.findByType(classOf[ScVariableDefinition]).get
     
     val annotator = new VariableDefinitionAnnotator() {}

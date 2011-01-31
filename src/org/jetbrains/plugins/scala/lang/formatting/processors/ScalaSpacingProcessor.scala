@@ -112,7 +112,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     //ScalaDocs
     (leftNode.getElementType, rightNode.getElementType,
-            leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
       case (_, ScalaDocTokenType.DOC_COMMENT_END, _, _) => return NO_SPACING_WITH_NEWLINE
       case (ScalaDocTokenType.DOC_COMMENT_START, _, _, _) => return NO_SPACING_WITH_NEWLINE
@@ -122,13 +122,80 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case _ =>
-  }
-
-    if (leftElementType == XmlTokenType.XML_DATA_CHARACTERS || rightElementType == XmlTokenType.XML_DATA_CHARACTERS) {
-      return Spacing.getReadOnlySpacing
     }
-    if (rightElementType == ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START) return WITHOUT_SPACING
-    if (leftElementType == ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END) return WITHOUT_SPACING
+
+    //Xml
+    (leftNode.getElementType, rightNode.getElementType,
+            leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      case (ScalaElementTypes.XML_START_TAG, ScalaElementTypes.XML_END_TAG, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return WITHOUT_SPACING
+      case (ScalaElementTypes.XML_START_TAG, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return WITHOUT_SPACING
+      case (XmlTokenType.XML_DATA_CHARACTERS, ScalaElementTypes.XML_END_TAG, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return WITHOUT_SPACING
+      case (ScalaElementTypes.XML_START_TAG, _, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return ON_NEW_LINE
+      case (_, ScalaElementTypes.XML_END_TAG, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return ON_NEW_LINE
+      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return WITH_SPACING
+      case (XmlTokenType.XML_DATA_CHARACTERS, _, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return ON_NEW_LINE
+      case (_, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return ON_NEW_LINE
+      case (ScalaElementTypes.XML_EMPTY_TAG, ScalaElementTypes.XML_EMPTY_TAG, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return ON_NEW_LINE
+      case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_START_TAG_START | XmlTokenType.XML_END_TAG_START |
+              XmlTokenType.XML_CDATA_START | XmlTokenType.XML_PI_START, _, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (_, XmlTokenType.XML_TAG_END | XmlTokenType.XML_EMPTY_ELEMENT_END |
+              XmlTokenType.XML_CDATA_END | XmlTokenType.XML_PI_END, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_NAME, ScalaElementTypes.XML_ATTRIBUTE, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return COMMON_SPACING
+      case (XmlTokenType.XML_NAME, XmlTokenType.XML_EQ, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_EQ, XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER |
+              ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (_, XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_END
+              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_START
+              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _, _) =>
+        if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
+        return NO_SPACING
+      case (el1, el2, _, _) if scalaSettings.KEEP_XML_FORMATTING &&
+        (XML_ELEMENTS.contains(el1) || XML_ELEMENTS.contains(el2)) => return Spacing.getReadOnlySpacing
+      case _ =>
+    }
 
     if (leftElementType == tLPARENTHESIS &&
             (leftPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
@@ -859,7 +926,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
       val block = leftNode.getTreeParent
       val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
-      return Spacing.createSpacing(1, 0, minLineFeeds, true, keepBlankLinesInCode)
+      return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTreeParent.getTextRange)
     }
 
 
@@ -883,32 +950,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               leftNode.getTreePrev.getTreePrev.getElementType == ScalaTokenTypes.kPACKAGE => ON_NEW_LINE
       //case for covariant or contrvariant type params
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementTypes.TYPE_PARAM, ScalaElementTypes.TYPE_PARAM) => return NO_SPACING
-      //xml
-      case (ScalaElementTypes.XML_START_TAG, ScalaElementTypes.XML_END_TAG, _, _) => return WITHOUT_SPACING
-      case (ScalaElementTypes.XML_START_TAG, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return WITHOUT_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS, ScalaElementTypes.XML_END_TAG, _, _) => return WITHOUT_SPACING
-      case (ScalaElementTypes.XML_START_TAG, _, _, _) => return ON_NEW_LINE
-      case (_, ScalaElementTypes.XML_END_TAG, _, _) => return ON_NEW_LINE
-      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return WITH_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS, _, _, _) => return ON_NEW_LINE
-      case (_, XmlTokenType.XML_DATA_CHARACTERS, _, _) => return ON_NEW_LINE
-      case (ScalaElementTypes.XML_EMPTY_TAG, ScalaElementTypes.XML_EMPTY_TAG, _, _) => return ON_NEW_LINE
-      case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_START_TAG_START | XmlTokenType.XML_END_TAG_START |
-              XmlTokenType.XML_CDATA_START | XmlTokenType.XML_PI_START, _, _, _) => return NO_SPACING
-      case (_, XmlTokenType.XML_TAG_END | XmlTokenType.XML_EMPTY_ELEMENT_END |
-              XmlTokenType.XML_CDATA_END | XmlTokenType.XML_PI_END, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_NAME, ScalaElementTypes.XML_ATTRIBUTE, _, _) => return COMMON_SPACING
-      case (XmlTokenType.XML_NAME, XmlTokenType.XML_EQ, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_EQ, XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER |
-              ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => return NO_SPACING
-      case (ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _, _) => return NO_SPACING
-      case (_, XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_END
-              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _) => return NO_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_START
-              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _, _) => return NO_SPACING
+
       //class params
       case (ScalaTokenTypes.tIDENTIFIER | ScalaElementTypes.TYPE_PARAM_CLAUSE, ScalaElementTypes.PRIMARY_CONSTRUCTOR, _, _)
         if !rightNode.getPsi.asInstanceOf[ScPrimaryConstructor].hasAnnotation &&

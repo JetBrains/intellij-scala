@@ -12,6 +12,9 @@ import collection.immutable.{Map, HashMap}
 import java.lang.String
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType, ScMethodType}
 import com.intellij.psi._
+import api.base.patterns.ScBindingPattern
+import result.TypingContext
+import api.toplevel.ScTypedDefinition
 
 object ScSubstitutor {
   val empty: ScSubstitutor = new ScSubstitutor()
@@ -63,6 +66,14 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
 
+  private def extractTpt(tpt: ScTypeParameterType, t: ScType): ScType = {
+    if (tpt.args.length == 0) t
+    else t match {
+      case ScParameterizedType(t, _) => t
+      case _ => t
+    }
+  }
+
   protected def substInternal(t: ScType) : ScType = t match {
     case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal _),
       f.getProject, f.getScope)
@@ -79,23 +90,28 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     case ScThisType(clazz) => {
       updateThisType match {
         case Some(tp) => {
-          ScType.extractClass(tp) match {
-            case Some(cl) if cl == clazz => return tp
-            case Some(cl) => {
-              if (cl.isInheritor(clazz, true)) return tp
-              else return t
+          def update(typez: ScType): ScType = {
+            ScType.extractDesignated(typez) match {
+              case Some((cl: PsiClass, subst)) if cl == clazz => return tp
+              case Some((cl: PsiClass, subst)) => {
+                if (cl.isInheritor(clazz, true)) return tp
+                else return t
+              }
+              case Some((named: ScTypedDefinition, subst)) =>
+                return update(named.getType(TypingContext.empty).getOrElse(Any))
+              case _ =>
             }
-            case _ =>
-          }
-          BaseTypes.get(tp).find(tp => {
-            ScType.extractClass(tp) match {
-              case Some(cl) if cl == clazz => true
-              case _ => false
+            BaseTypes.get(typez).find(tp => {
+              ScType.extractClass(tp) match {
+                case Some(cl) if cl == clazz => true
+                case _ => false
+              }
+            }) match {
+              case Some(_) => return tp
+              case _ => return t
             }
-          }) match {
-            case Some(_) => return tp
-            case _ => return t
           }
+          update(tp)
         }
         case _ => return t
       }
@@ -103,20 +119,20 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
     case tpt : ScTypeParameterType => tvMap.get((tpt.name, tpt.getId)) match {
       case None => tpt
-      case Some(v) => v
+      case Some(v) => extractTpt(tpt, v)
     }
     case u: ScUndefinedType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
       case None => u
       case Some(v) => v match {
         case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
-        case _ => v
+        case _ => extractTpt(u.tpt, v)
       }
     }
     case u: ScAbstractType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
       case None => u
       case Some(v) => v match {
         case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
-        case _ => v
+        case _ => extractTpt(u.tpt, v)
       }
     }
     case tv : ScTypeVariable => tvMap.get((tv.name, "")) match {

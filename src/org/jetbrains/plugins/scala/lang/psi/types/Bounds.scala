@@ -112,7 +112,16 @@ object Bounds {
   }
 
   private def calcForTypeParamWithoutVariance(substed1: ScType, substed2: ScType): ScType = {
-    if (substed1 equiv substed2) substed1 else Any
+    if (substed1 equiv substed2) substed1 else {
+      if (substed1 conforms substed2) {
+        new ScExistentialArgument("_", List.empty, substed1, substed2)
+      } else if (substed2 conforms substed1) {
+        new ScExistentialArgument("_", List.empty, substed2, substed1)
+      } else {
+        new ScExistentialArgument("_", List.empty, new ScCompoundType(Seq(substed1, substed2), Seq.empty,
+            Seq.empty, ScSubstitutor.empty), Any)
+      }
+    }
   }
 
   private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int): ScType = {
@@ -137,7 +146,7 @@ object Bounds {
           resTypeArgs += (baseClass.getClazz.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
-            case _ => calcForTypeParamWithoutVariance(substed1, substed2) //todo: _ >: substed1 with substed2
+            case _ => calcForTypeParamWithoutVariance(substed1, substed2)
           })
         }
         return ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)

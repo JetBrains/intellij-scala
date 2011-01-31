@@ -14,7 +14,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   // ("Foo is already defined as class Foo, object Foo in object Holder")
   // TODO Suggest "rename" quick fix 
   
-  val Header = "class Foo; class Bar; "
+  final val Header = "class Foo; class Bar; "
   
   def testEmpty {
     assertFine("")
@@ -476,24 +476,24 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def clashesOf(code: String) = {
+  def clashesOf(@Language(value = "Scala", prefix = Header) code: String) = {
     messages(code).map {
       case error: Error => error.element
       case message => Assert.fail("Unexpected message: " + message)
     }
   }
 
-  def assertClashes(code: String, pairs: String*) {
+  def assertClashes(@Language(value = "Scala", prefix = Header) code: String, pairs: String*) {
     val expectation = pairs.flatMap(p => List(p, p))
     Assert.assertEquals("Incorrect clashed elements", expectation.mkString(", "), clashesOf(code).mkString(", "))
   }
   
-  def assertFine(code: String) {
+  def assertFine(@Language(value = "Scala", prefix = Header) code: String) {
     val clashes = clashesOf(code)
     if(!clashes.isEmpty) Assert.fail("Unexpected clashes: " + clashes.mkString(", "))
   }
   
-  def messages(@Language("Scala") code: String): List[Message] = {
+  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val psi = (Header + code).parse
     val annotator = new ScopeAnnotator() {}
     val mock = new AnnotatorHolderMock

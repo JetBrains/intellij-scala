@@ -32,17 +32,19 @@ trait ScCallExprImpl extends ScExpression {
           case fun: ScFunction => s.subst(fun.polymorphicType)
           case fun: ScFun => s.subst(fun.polymorphicType)
           case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, s, getResolveScope)
+          case t: ScTypedDefinition => s.subst(t.getType(TypingContext.empty).getOrElse(Any))
           case _ => Any
         }
         //tp  = if (fromType != None) tp.updateThisType(fromType.get) else tp
-
-        tp = tp match {
-          case ScMethodType(ret, _, _) => ret
-          case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
-            val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
-            ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
+        if (!isInstanceOf[ScPostfixExpr]) {
+          tp = tp match {
+            case ScMethodType(ret, _, _) => ret
+            case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
+              val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
+              ScalaPsiUtil.localTypeInference(retType, params, exprs, typeParams)
+            }
+            case _ => tp
           }
-          case _ => tp
         }
         Success(tp, Some(this))
       }

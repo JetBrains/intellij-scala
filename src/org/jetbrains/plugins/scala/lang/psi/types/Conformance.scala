@@ -19,11 +19,11 @@ import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
 import collection.mutable.{MultiMap, HashMap}
 import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
-import api.toplevel.{ScNamedElement, ScTypedDefinition}
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
 
 object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
@@ -72,7 +72,7 @@ object Conformance {
       (r, l) match {
         case (Byte, Short | Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Short, Int | Long | Float | Double) => return (true, undefinedSubst)
-        case (Char, Int | Long | Float | Double) => return (true, undefinedSubst)
+        case (Char, Byte | Short | Int | Long | Float | Double) => return (true, undefinedSubst)
         case (Int, Long | Float | Double) => return (true, undefinedSubst)
         case (Long, Float | Double) => return (true, undefinedSubst)
         case (Float, Double) => return (true, undefinedSubst)
@@ -294,7 +294,9 @@ object Conformance {
       case (_, ScDesignatorType(v: ScFieldId)) => {
         return conformsInner(l, v.getType(TypingContext.empty).getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
       }
-      case (ScParameterizedType(ScProjectionType(projected, a: ScTypeAlias, subst), args), _) => {
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAlias]
+        val subst = proj.actualSubst
         val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
@@ -484,12 +486,16 @@ object Conformance {
         }
       }
       case (ScParameterizedType(owner: ScUndefinedType, args1), ScParameterizedType(owner1: ScType, args2)) => {
-        undefinedSubst = undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), r)
+        val parameterType = owner.tpt
+        val anotherType = ScParameterizedType(owner1, parameterType.args)
+        undefinedSubst = undefinedSubst.addLower((owner.tpt.name, owner.tpt.getId), anotherType)
         if (args1.length != args2.length) return (false, undefinedSubst)
         return checkParameterizedType(owner.tpt.args.map(_.param).iterator, args1, args2)
       }
       case (ScParameterizedType(owner1: ScType, args1), ScParameterizedType(owner: ScUndefinedType, args2)) => {
-        undefinedSubst = undefinedSubst.addUpper((owner.tpt.name, owner.tpt.getId), l)
+        val parameterType = owner.tpt
+        val anotherType = ScParameterizedType(owner1, parameterType.args)
+        undefinedSubst = undefinedSubst.addUpper((owner.tpt.name, owner.tpt.getId), anotherType)
         if (args1.length != args2.length) return (false, undefinedSubst)
         return checkParameterizedType(owner.tpt.args.map(_.param).iterator, args1, args2)
       }
@@ -506,6 +512,20 @@ object Conformance {
           }
           case _ => return (false, undefinedSubst)
         }
+      }
+      case (ScParameterizedType(proj1@ScProjectionType(p1, elem1, subst1), args1),
+            ScParameterizedType(proj2@ScProjectionType(p2, elem2, subst2), args2))
+            if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement)=> {
+        val t = conformsInner(proj1, proj2, visited, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        if (args1.length != args2.length) return (false, undefinedSubst)
+        val parametersIterator = proj1.actualElement match {
+          case td: ScTypeParametersOwner => td.typeParameters.iterator
+          case td: PsiTypeParameterListOwner => td.getTypeParameters.iterator
+          case _ => return (false, undefinedSubst)
+        }
+        return checkParameterizedType(parametersIterator, args1, args2)
       }
 
       case (ScDesignatorType(a: ScTypeAlias), _) => {

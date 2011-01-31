@@ -19,6 +19,7 @@ import lang.psi.api.statements.params.ScParameter
 import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import lang.psi.api.base.ScFieldId
 import lang.psi.types.{ScType, ScSubstitutor}
+import javax.swing.JLabel
 
 /**
  * Pavel.Fatin, 16.04.2010
@@ -66,8 +67,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
   }
 
   def showTypeHint(editor: Editor, text: String) {
-    var label = HintUtil.createInformationLabel(text)
-    label.setUI(new MultiLineLabelUI)
+    val label = HintUtil.createInformationLabel(text)
     label.setFont(UIUtil.getLabelFont)
 
     val hint: LightweightHint = new LightweightHint(label)

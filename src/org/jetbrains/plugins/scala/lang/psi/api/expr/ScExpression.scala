@@ -24,6 +24,7 @@ import lexer.ScalaTokenTypes
 import types.Conformance.AliasType
 import statements.{ScTypeAliasDefinition, ScFunction}
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
+import java.lang.Integer
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -48,23 +49,50 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         }
       }
       val tr = getTypeWithoutImplicits(TypingContext.empty)
-      val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
 
-      if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
+      def tryTp(tr: TypeResult[ScType], expected: ScType, fromUnder: Boolean): ScExpression.ExpressionTypeResult = {
+        val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
+        if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
 
-      val tp = tr.getOrElse(return defaultResult)
-      //if this result is ok, we do not need to think about implicits
-      if (tp.conforms(expected)) return defaultResult
+        val tp = tr.getOrElse(return defaultResult)
+        //if this result is ok, we do not need to think about implicits
+        if (tp.conforms(expected)) return defaultResult
 
-      //this functionality for checking if this expression can be implicitly changed and then
-      //it will conform to expected type
-      val f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = implicitMap(expectedOption).filter(_._1.conforms(expected))
-      if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
-      else if (f.length == 0) return defaultResult
-      else {
-        val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
-        return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
+        //this functionality for checking if this expression can be implicitly changed and then
+        //it will conform to expected type
+        val mp = implicitMap(Some(expected), fromUnder)
+        val f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = mp.filter(_._1.conforms(expected))
+        if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
+        else if (f.length == 0) return defaultResult
+        else {
+          val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet).getOrElse(return defaultResult)
+          return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
+        }
       }
+      getText.indexOf("_") match {
+        case -1 => return tryTp(tr, expected, false)
+        case _ => {
+          val unders = ScUnderScoreSectionUtil.underscores(this)
+          if (unders.length == 0)return tryTp(tr, expected, false)
+          else {
+            //here we should update implicits twice for result expression and for all expression
+            val newTr = tr.map(tp => {
+              tp match {
+                case f@ScFunctionType(ret, args) =>
+                  ScalaPsiUtil.extractReturnType(expected) match {
+                    case Some(expRet) =>
+                      new ScFunctionType(tryTp(Success(ret, Some(this)), expRet, true).tr.getOrElse(ret), args,
+                        f.getProject, f.getScope)
+                    case _ => tp
+                  }
+                case _ => tp
+              }
+            })
+            return tryTp(newTr, expected, false)
+          }
+        }
+      }
+
     }
     if (!checkImplicits || isShape || expectedOption != None) return inner //no cache with strange parameters
 
@@ -96,6 +124,20 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     return tp
   }
 
+  def getTypeWithoutImplicitsWihoutUnderscore(ctx: TypingContext): TypeResult[ScType] = {
+    ProgressManager.checkCanceled
+    if (ctx != TypingContext.empty) return valueType(ctx, true)
+    var tp = exprTypeWithoutUnderscore
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && exprTypeModCountWithoutUnderscore == curModCount) {
+      return tp
+    }
+    tp = valueType(ctx, true)
+    exprTypeWithoutUnderscore = tp
+    exprTypeModCountWithoutUnderscore = curModCount
+    return tp
+  }
+
   def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
 
   def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
@@ -122,12 +164,16 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   @volatile
   private var exprType: TypeResult[ScType] = null
   @volatile
+  private var exprTypeWithoutUnderscore: TypeResult[ScType] = null
+  @volatile
   private var exprAfterImplicitType: ExpressionTypeResult = null
   @volatile
   private var expectedTypesCache: Array[ScType] = null
 
   @volatile
   private var exprTypeModCount: Long = 0
+  @volatile
+  private var exprTypeModCountWithoutUnderscore: Long = 0
   @volatile
   private var expectedTypesModCount: Long = 0
   @volatile
@@ -145,7 +191,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(ctx)
         else {
-          new Success(new ScMethodType(valueType(ctx, true).getOrElse(Any),
+          new Success(new ScMethodType(getTypeWithoutImplicitsWihoutUnderscore(ctx).getOrElse(Any),
             unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false)), false,
             getProject, getResolveScope), Some(this))
         }
@@ -343,7 +389,20 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         }
         if (needsNarrowing) {
           try {
-            lazy val i = Integer.parseInt(this.getText)
+            lazy val i = this match {
+              case l: ScLiteral => l.getValue match {
+                case i: Integer => i.intValue
+                case _ => scala.Int.MaxValue
+              }
+              case p: ScPrefixExpr =>
+                val mult = if (p.operation.getText == "-") -1 else 1
+                p.operand match {
+                  case l: ScLiteral => l.getValue match {
+                    case i: Integer => mult * i.intValue
+                    case _ => scala.Int.MaxValue
+                  }
+                }
+            }
             expected match {
               case types.Char => {
                 if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
@@ -371,7 +430,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         (valType, expected) match {
           case (Byte, Short | Int | Long | Float | Double) => return Success(expected, Some(this))
           case (Short, Int | Long | Float | Double) => return Success(expected, Some(this))
-          case (Char, Int | Long | Float | Double) => return Success(expected, Some(this))
+          case (Char, Byte | Short | Int | Long | Float | Double) => return Success(expected, Some(this))
           case (Int, Long | Float | Double) => return Success(expected, Some(this))
           case (Long, Float | Double) => return Success(expected, Some(this))
           case (Float, Double) => return Success(expected, Some(this))
