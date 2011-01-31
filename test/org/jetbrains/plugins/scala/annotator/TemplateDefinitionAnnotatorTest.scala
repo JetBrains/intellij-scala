@@ -80,6 +80,42 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testTraitInstantiation {
+    assertMatches(messages("trait T; new T {}")) {
+      case Nil =>
+    }
+
+    assertMatches(messages("trait T; new T")) {
+      case Error("T", "Trait T is abstract; cannot be instantiated") :: Nil =>
+    }
+  }
+
+  def testAbstractClassInstantiation {
+    assertMatches(messages("abstract class C; new C {}")) {
+      case Nil =>
+    }
+
+    assertMatches(messages("abstract class C; new C")) {
+      case Error("C", "Class C is abstract; cannot be instantiated") :: Nil =>
+    }
+  }
+
+  def testConcreteClassInstantiation {
+    assertMatches(messages("class C; new C {}")) {
+      case Nil =>
+    }
+
+    assertMatches(messages("class C; new C")) {
+      case Nil =>
+    }
+  }
+
+  def testAbstractTypeExtension {
+    assertMatches(messages("object O { trait A; trait B extends A }")) {
+      case Nil =>
+    }
+  }
+
   private def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val definition = (Header + code).parse.depthFirst.toSeq.reverseIterator.findByType(classOf[ScTemplateDefinition]).get
     
