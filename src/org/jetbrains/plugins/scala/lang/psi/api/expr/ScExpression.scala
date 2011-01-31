@@ -395,7 +395,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                 case _ => scala.Int.MaxValue
               }
               case p: ScPrefixExpr =>
-                val mult = if (p.operand.getText == "-") -1 else 1
+                val mult = if (p.operation.getText == "-") -1 else 1
                 p.operand match {
                   case l: ScLiteral => l.getValue match {
                     case i: Integer => mult * i.intValue
