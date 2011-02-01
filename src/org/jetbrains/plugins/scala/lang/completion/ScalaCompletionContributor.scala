@@ -86,7 +86,7 @@ class ScalaCompletionContributor extends CompletionContributor {
             case refImpl: ScTypeProjectionImpl =>
               refImpl.doResolve(new CompletionProcessor(refImpl.getKinds(false), postProcess = postProcessMethod _))
             case _ =>
-              for (variant <- ref.getVariants) {
+              for (variant <- ref.getVariants()) {
                 applyVariant(variant)
               }
           }
