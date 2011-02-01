@@ -34,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
-import org.jetbrains.plugins.scala.editor.ScalaEditorActionsManager;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner;
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler;
@@ -67,9 +66,6 @@ public class ScalaLoader implements ApplicationComponent {
   public static void loadScala() {
     /*CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
             ScalaToolsFactory.getInstance().createScalaCompletionData());*/
-
-    ScalaEditorActionsManager.registerScalaActionHandlers();
-
     ChangeUtil.registerCopyHandler(new ScalaChangeUtilSupport());
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {

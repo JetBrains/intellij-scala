@@ -21,7 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
-import java.util.List;
+import java.util.List
+import scaladoc.psi.api.ScDocComment
+;
 
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
@@ -88,6 +90,7 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
+      case _: ScDocComment => new ChildAttributes(Indent.getSpaceIndent(1), null)
       case _ => new ChildAttributes(Indent.getNoneIndent(), null)
     }
   }
