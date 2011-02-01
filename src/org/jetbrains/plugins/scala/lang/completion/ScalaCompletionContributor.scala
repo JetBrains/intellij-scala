@@ -4,20 +4,25 @@ package completion
 
 import com.intellij.codeInsight.completion._
 import psi.api.ScalaFile
-import psi.api.base.ScReferenceElement
 import com.intellij.util.ProcessingContext
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.patterns.{PlatformPatterns}
 import lexer.ScalaTokenTypes
 import scala.util.Random
-import resolve.ResolveUtils
 import psi.api.statements.ScFun
 import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import refactoring.util.ScalaNamesUtil
-import com.intellij.psi.{PsiReference, PsiClass, PsiMember, PsiElement};
+import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import psi.impl.base.ScStableCodeReferenceElementImpl
+import lang.resolve.processor.CompletionProcessor
+import com.intellij.psi._
+import lang.resolve.{ScalaResolveResult, ResolveUtils}
+import psi.impl.expr.ScReferenceExpressionImpl
+import psi.impl.base.types.ScTypeProjectionImpl
+;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,8 +34,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
-          val variants: Array[Object] = ref.getVariants
-          for (variant <- variants) {
+          def applyVariant(variant: Object): Unit = {
             variant match {
               case (el: LookupElement, elem: PsiElement, _) => {
                 elem match {
@@ -48,14 +52,14 @@ class ScalaCompletionContributor extends CompletionContributor {
                   }
                   case memb: PsiMember => {
                     if (parameters.getInvocationCount > 1 ||
-                            ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                      ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
                   }
                   case patt: ScBindingPattern => {
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
                       case memb: PsiMember => {
                         if (parameters.getInvocationCount > 1 ||
-                            ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                          ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
                       }
                       case _ => result.addElement(el)
                     }
@@ -65,6 +69,26 @@ class ScalaCompletionContributor extends CompletionContributor {
               }
               case _ =>
             }
+          }
+          def postProcessMethod(result: ScalaResolveResult): Unit = {
+            applyVariant(ResolveUtils.getLookupElement(result))
+          }
+          ref match {
+            case refImpl: ScStableCodeReferenceElementImpl =>
+              refImpl.doResolve(refImpl,
+                new CompletionProcessor(refImpl.getKinds(false), postProcess = postProcessMethod _)
+              )
+            case refImpl: ScReferenceExpressionImpl =>
+              refImpl.doResolve(refImpl,
+                new CompletionProcessor(refImpl.getKinds(false), collectImplicits = true,
+                  postProcess = postProcessMethod _)
+              )
+            case refImpl: ScTypeProjectionImpl =>
+              refImpl.doResolve(new CompletionProcessor(refImpl.getKinds(false), postProcess = postProcessMethod _))
+            case _ =>
+              for (variant <- ref.getVariants) {
+                applyVariant(variant)
+              }
           }
           result.stopHere
         }

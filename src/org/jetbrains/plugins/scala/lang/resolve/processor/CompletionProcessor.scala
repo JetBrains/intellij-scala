@@ -18,7 +18,8 @@ import psi.implicits.ScImplicitlyConvertible
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val collectImplicits: Boolean = false,
-                          forName: Option[String] = None) extends BaseProcessor(kinds) {
+                          forName: Option[String] = None,
+                          postProcess: ScalaResolveResult => Unit = r => {}) extends BaseProcessor(kinds) {
   
   private val signatures = new HashSet[Signature]
   private val names = new HashSet[(String, Boolean)]
@@ -61,11 +62,18 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
     element match {
       case td: ScTypeDefinition if !names.contains(Tuple(td.getName, false)) => {
-        if (kindMatches(td)) candidatesSet += new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
-          implicitFunction = implFunction)
+        if (kindMatches(td)) {
+          val result = new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
+            implicitFunction = implFunction)
+          candidatesSet += result
+          postProcess(result)
+        }
         ScalaPsiUtil.getCompanionModule(td) match {
-          case Some(td: ScTypeDefinition) if kindMatches(td)=> candidatesSet += new ScalaResolveResult(td, substitutor,
-            nameShadow = isRenamed, implicitFunction = implFunction)
+          case Some(td: ScTypeDefinition) if kindMatches(td)=>
+            val result = new ScalaResolveResult(td, substitutor,
+              nameShadow = isRenamed, implicitFunction = implFunction)
+            candidatesSet += result
+            postProcess(result)
           case _ =>
         }
       }
@@ -76,22 +84,28 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               val sign = new PhysicalSignature(method, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
+                val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                   implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                candidatesSet += result
+                postProcess(result)
               }
             }
             case bindingPattern: ScBindingPattern => {
               val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Stream.empty, 0, substitutor)
               if (!signatures.contains(sign)) {
                 signatures += sign
-                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
+                val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                   implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                candidatesSet += result
+                postProcess(result)
               }
             }
             case _ => {
               if (!names.contains((named.getName, isNamedParameter))) {
-                candidatesSet += new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
+                val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                   implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                candidatesSet += result
+                postProcess(result)
                 names += Tuple(isRenamed.getOrElse(named.getName), isNamedParameter)
               }
             }
