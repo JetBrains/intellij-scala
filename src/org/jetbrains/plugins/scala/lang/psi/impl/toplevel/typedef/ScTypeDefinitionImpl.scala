@@ -328,32 +328,47 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
-      if (visited.contains(drv)) false
-      else drv match {
-        case drg: ScTypeDefinition => drg.superTypes.find{
-          t => ScType.extractClass(t) match {
-            case Some(c) => {
-              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
-                case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                case _: ScClass if c.isInstanceOf[ScClass] => true
-                case _ if !c.isInstanceOf[ScTypeDefinition] => true
-                case _ => false
+    val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
+    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
+      if (!visited.contains(drv)) {
+        visited.add(drv)
+        drv match {
+          case drg: ScTypeDefinition =>
+            val supers = drg.superTypes
+            val supersIterator = supers.iterator
+            while (supersIterator.hasNext) {
+              val t = supersIterator.next
+              ScType.extractClass(t) match {
+                case Some(c) => {
+                  val value = baseClass match {
+                    case _: ScTrait if c.isInstanceOf[ScTrait] => true
+                    case _: ScClass if c.isInstanceOf[ScClass] => true
+                    case _ if !c.isInstanceOf[ScTypeDefinition] => true
+                    case _ => false
+                  }
+                  if (c.getQualifiedName == baseClass.getQualifiedName && value) return true
+                  if (deep && isInheritorInner(base, c, deep)) return true
+                }
+                case _ =>
               }
-              (c.getQualifiedName == baseClass.getQualifiedName && value) || (deep && isInheritorInner(base, c, deep, visited + drg))
             }
-            case _ => false
-          }
-        }
-        case _ => drv.getSuperTypes.find {
-          psiT =>
-                  val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == baseClass || (deep && isInheritorInner(base, c, deep, visited + drv))
+          case _ =>
+            val supers = drv.getSuperTypes
+            val supersIterator = supers.iterator
+            while (supersIterator.hasNext) {
+              val psiT = supersIterator.next
+              val c = psiT.resolveGenerics.getElement
+              if (c != null) {
+                if (c == baseClass) return true
+                if (deep && isInheritorInner(base, c, deep)) return true
+              }
+            }
         }
       }
+      return false
     }
     if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
-    isInheritorInner(baseClass, this, deep, Set.empty)
+    isInheritorInner(baseClass, this, deep)
   }
 
   
