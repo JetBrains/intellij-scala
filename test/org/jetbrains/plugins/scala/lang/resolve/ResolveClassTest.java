@@ -3,6 +3,10 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.codeStyle.CodeStyleManager;
+import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
@@ -94,10 +98,18 @@ public class ResolveClassTest extends ScalaResolveTestCase {
   }
 
   public void testLocalClass() throws Exception {
-    PsiReference ref = configureByFile("loc/MyClass.scala");
-    PsiElement resolved = ref.resolve();
-    assertTrue(resolved instanceof ScTrait);
-    assertEquals(((PsiClass) resolved).getQualifiedName(), "org.MyTrait");
+    try {
+      CodeStyleSettingsManager.getInstance(myProject).getCurrentSettings().
+          getCustomSettings(ScalaCodeStyleSettings.class).IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = true;
+      PsiReference ref = configureByFile("loc/MyClass.scala");
+      PsiElement resolved = ref.resolve();
+      assertTrue(resolved instanceof ScTrait);
+      assertEquals(((PsiClass) resolved).getQualifiedName(), "org.MyTrait");
+    }
+    finally {
+      CodeStyleSettingsManager.getInstance(myProject).getCurrentSettings().
+        getCustomSettings(ScalaCodeStyleSettings.class).IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
+    }
   }
 
   public void testWildcardImport() throws Exception {

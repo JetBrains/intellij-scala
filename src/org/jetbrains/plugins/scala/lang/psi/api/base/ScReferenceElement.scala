@@ -57,58 +57,10 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
-    def eqviv(elem1: PsiElement, elem2: PsiElement): Boolean = {
-      if (elem1 == null || elem2 == null || elem1.getNode == null || elem2.getNode == null) return false
-      if (elem1.getNode.getElementType != elem2.getNode.getElementType) return false
-      elem1 match {
-        case n1: PsiNamedElement => {
-          import ScalaPsiUtil.nameContext
-          val n2 = elem2.asInstanceOf[PsiNamedElement]
-          if (n1.getName != n2.getName) return false
-          n1 match {
-            case n1: ScNamedElement =>
-              val context1 = nameContext(n1)
-              if (context1.getContext.isInstanceOf[ScalaFile] || context1.getContext.isInstanceOf[ScPackaging]) {
-                if (context1.isInstanceOf[ScTypeDefinition]) {
-                  return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
-                }
-              }
-              if (!context1.getContext.isInstanceOf[ScTemplateBody]) {
-                return elem1 == elem2
-              }
-              val context2 = nameContext(n2)
-              if (context2.getContext.isInstanceOf[ScalaFile] || context2.getContext.isInstanceOf[ScPackaging]) {
-                if (context2.isInstanceOf[ScTypeDefinition]) {
-                  return elem1.asInstanceOf[PsiClass].getQualifiedName == elem2.asInstanceOf[PsiClass].getQualifiedName
-                }
-              }
-              if (!context2.getContext.isInstanceOf[ScTemplateBody]) {
-                return elem1 == elem2
-              }
-              val clazz1 = ScalaPsiUtil.getContextOfType(context1, true, classOf[ScTemplateDefinition]).
-                asInstanceOf[ScTemplateDefinition]
-              val clazz2 = ScalaPsiUtil.getContextOfType(context2, true, classOf[ScTemplateDefinition]).
-                asInstanceOf[ScTemplateDefinition]
-              return eqviv(clazz1, clazz2)
-            case memb1: PsiMember => {
-              val memb2 = elem2.asInstanceOf[PsiMember]
-              val clazz1 = memb1.getContainingClass
-              val clazz2 = memb2.getContainingClass
-              if (clazz1 == null || clazz2 == null) return elem1 == elem2
-              return eqviv(clazz1, clazz2)
-            }
-            case _ => return elem1 == elem2
-          }
-        }
-        case _ => return elem1 == elem2
-      }
-    }
-    class Eqv(elem: PsiElement) {
-      def eqv(elem2: PsiElement): Boolean = {
-        eqviv(elem, elem2)
-      }
-    }
-    implicit def psi2eqv(psi: PsiElement) = new Eqv(psi)
+    //todo why this buggy code was written?
+    //todo if there are a reason, fix it in other way
+    /*def eqviv(elem1: PsiElement, elem2: PsiElement): Boolean = {...}*/
+
     val res = resolve
     if (res == null) {
       //case for imports with reference to Class and Object
@@ -118,7 +70,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             case Some(comp) => {
               val res = multiResolve(false)
               if (res.length == 2) {
-                return res.find(_.getElement eqv td) != None && res.find(_.getElement eqv comp) != None
+                return res.find(_.getElement == td) != None && res.find(_.getElement == comp) != None
               } else return false
             }
             case _ => return false
@@ -127,12 +79,12 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         case _ => return false
       }
     }
-    if (res eqv element) return true
+    if (res == element) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
         res match {
           case method: PsiMethod if method.isConstructor => {
-            if (td eqv method.getContainingClass) return true
+            if (td == method.getContainingClass) return true
           }
           case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
             method.getName == "unapplySeq" => {
@@ -140,7 +92,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
             val methods = td.allMethods
             for (n <- methods if !break) {
               if (n.method.getName == method.getName) {
-                if (method.getContainingClass eqv n.method.getContainingClass)
+                if (method.getContainingClass == n.method.getContainingClass)
                   break = true
               }
             }
@@ -155,7 +107,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           }
           case obj: ScObject if obj.isSyntheticObject => {
             ScalaPsiUtil.getCompanionModule(td) match {
-              case Some(td) if td eqv obj => return true
+              case Some(td) if td == obj => return true
               case _ =>
             }
           }
