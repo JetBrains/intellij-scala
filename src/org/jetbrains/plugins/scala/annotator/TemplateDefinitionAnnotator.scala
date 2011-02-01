@@ -29,7 +29,7 @@ trait TemplateDefinitionAnnotator {
 
     refs.headOption.foreach {
       case (refElement, Some(psiClass)) => {
-        if(newWithoutBody && isAbstract(psiClass))
+        if(refs.tail.isEmpty && newWithoutBody && isAbstract(psiClass))
           error(refElement, "%s %s is abstract; cannot be instantiated", kindOf(psiClass), psiClass.getName)
       }
       case _ =>

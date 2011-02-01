@@ -86,7 +86,7 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
 
     assertMatches(messages("trait T; new T")) {
-      case Error("T", "Trait T is abstract; cannot be instantiated") :: Nil =>
+      case Error("T", AbstractInstantiation("Trait T")) :: Nil =>
     }
   }
 
@@ -96,7 +96,7 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
 
     assertMatches(messages("abstract class C; new C")) {
-      case Error("C", "Class C is abstract; cannot be instantiated") :: Nil =>
+      case Error("C", AbstractInstantiation("Class C")) :: Nil =>
     }
   }
 
@@ -106,6 +106,12 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
 
     assertMatches(messages("class C; new C")) {
+      case Nil =>
+    }
+  }
+
+  def testAbstractAndWithInstantiation {
+    assertMatches(messages("abstract class C; trait T; new C with T")) {
       case Nil =>
     }
   }
@@ -131,4 +137,6 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
   private val MultipleTraitInheritance = "Trait (\\w+) inherited multiple times".r
 
   private val NeedsToBeTrait = "Class (\\w+) needs to be trait to be mixed in".r
+
+  private val AbstractInstantiation = "(\\w+\\s\\w+) is abstract; cannot be instantiated".r
 }
