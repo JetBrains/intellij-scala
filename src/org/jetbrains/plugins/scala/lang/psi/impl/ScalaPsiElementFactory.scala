@@ -619,7 +619,7 @@ object ScalaPsiElementFactory {
     } else null
   }
 
-  def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
+  def createPatterListFromText(text : String, context: PsiElement, child: PsiElement): ScPatternList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239"))

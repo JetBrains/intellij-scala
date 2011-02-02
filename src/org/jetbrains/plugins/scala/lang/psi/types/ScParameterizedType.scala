@@ -61,7 +61,18 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     case _ => None
   }
 
-  lazy val substitutor : ScSubstitutor = {
+  @volatile
+  private var sub: ScSubstitutor = null
+
+  def substitutor: ScSubstitutor = {
+    var res = sub
+    if (res != null) return res
+    res = substitutorInner
+    sub = res
+    res
+  }
+
+  private def substitutorInner : ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
       var res = initial
       val argsIterator = typeArgs.iterator

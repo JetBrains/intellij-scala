@@ -67,12 +67,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         case _ => {
 //          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, new ScTypeParameterType(tp.getName, List.empty, () => Nothing, () => Any, tp)) //to prevent SOE
           val lower = () => Nothing
-          lazy val scType = tp.getSuperTypes match {
+          val upper = () => tp.getSuperTypes match {
             case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
-            case many => new ScCompoundType(collection.immutable.Seq(many.map{ScType.create(_, project)}.toSeq: _*),
+            case many => new ScCompoundType(collection.immutable.Seq(many.map {
+              ScType.create(_, project)
+            }.toSeq: _*),
               Seq.empty, Seq.empty, ScSubstitutor.empty)
           }
-          val upper = () => scType
           val res = new ScTypeParameterType(tp.getName, Nil, lower, upper, tp)
 //          tp.putUserData(ScalaPsiManager.TYPE_VARIABLE_KEY, res)
           res

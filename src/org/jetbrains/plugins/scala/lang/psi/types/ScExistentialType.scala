@@ -74,11 +74,42 @@ object ScExistentialTypeReducer {
 
 case class ScExistentialType(val quantified : ScType,
                              val wildcards : List[ScExistentialArgument]) extends ValueType {
-  lazy val boundNames = wildcards.map {_.name}
 
-  lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+  @volatile
+  private var _boundNames: List[String] = null
+  def boundNames: List[String] = {
+    var res = _boundNames
+    if (res != null) return res
+    res = boundNamesInner
+    _boundNames = res
+    res
+  }
+  private def boundNamesInner: List[String] = wildcards.map {_.name}
 
-  lazy val skolem = {
+  @volatile
+  private var _substitutor: ScSubstitutor = null
+
+  def substitutor: ScSubstitutor = {
+    var res = _substitutor
+    if (res != null) return res
+    res = substitutorInner
+    _substitutor = res
+    res
+  }
+  def substitutorInner: ScSubstitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+
+  @volatile
+  private var _skolem: ScType = null
+
+  def skolem: ScType = {
+    var res = _skolem
+    if (res != null) return res
+    res = skolemInner
+    _skolem = res
+    res
+  }
+
+  private def skolemInner: ScType = {
     val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p.unpack)}
     skolemSubst.subst(quantified)
   }

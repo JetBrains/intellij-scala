@@ -43,10 +43,11 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
     import ParserDefinition._
-    lazy val imp: ScImportStmt = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt])
-    if ((rightNode.getElementType != ScalaTokenTypes.tWHITE_SPACE_IN_LINE || !rightNode.getText.contains("\n")) &&
-      imp != null && rightNode.getTextRange.getStartOffset == imp.getTextRange.getEndOffset)
-      return SpaceRequirements.MUST_LINE_BREAK
+    if ((rightNode.getElementType != ScalaTokenTypes.tWHITE_SPACE_IN_LINE || !rightNode.getText.contains("\n"))) {
+      val imp: ScImportStmt = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt])
+      if (imp != null && rightNode.getTextRange.getStartOffset == imp.getTextRange.getEndOffset)
+        return SpaceRequirements.MUST_LINE_BREAK
+    }
     (leftNode.getElementType, rightNode.getElementType) match {
       case (_, ScalaTokenTypes.kIMPORT) => SpaceRequirements.MUST_LINE_BREAK
       case _ => super.spaceExistanceTypeBetweenTokens(leftNode, rightNode)
