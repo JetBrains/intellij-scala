@@ -29,19 +29,7 @@ import settings.ScalaApplicationSettings
  */
 
 object ScalaOIUtil {
-  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean) {
-    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
-    def getParentClass(elem: PsiElement): PsiElement = {
-      elem match {
-        case _: ScTemplateDefinition | null => return elem
-        case _ => getParentClass(elem.getParent)
-      }
-    }
-    val parent = getParentClass(elem)
-    if (parent == null) return
-    val clazz = parent.asInstanceOf[ScTemplateDefinition]
-    val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
-    if (candidates.isEmpty) return
+  def toMembers(candidates: Seq[Any]): Array[ClassMember] = {
     val classMembersBuf = new ArrayBuffer[ClassMember]
     for (candidate <- candidates) {
       candidate match {
@@ -75,7 +63,23 @@ object ScalaOIUtil {
         case x => throw new IncorrectOperationException("Not supported type:" + x)
       }
     }
-    val classMembers = classMembersBuf.toArray
+    classMembersBuf.toArray
+  }
+
+  def invokeOverrideImplement(project: Project, editor: Editor, file: PsiFile, isImplement: Boolean) {
+    val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
+    def getParentClass(elem: PsiElement): PsiElement = {
+      elem match {
+        case _: ScTemplateDefinition | null => return elem
+        case _ => getParentClass(elem.getParent)
+      }
+    }
+    val parent = getParentClass(elem)
+    if (parent == null) return
+    val clazz = parent.asInstanceOf[ScTemplateDefinition]
+    val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
+    if (candidates.isEmpty) return
+    val classMembers = toMembers(candidates)
     val chooser = new {
       private val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
         ScalaBundle.message("specify.return.type.explicitly"))
