@@ -11,7 +11,7 @@ import com.intellij.lang.PsiBuilder
  * Program parses all content in scala source file
  */
 
-class Program {
+object Program {
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = 0

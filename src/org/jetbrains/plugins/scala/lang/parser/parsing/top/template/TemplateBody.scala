@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.ScalaBundle
 import builder.ScalaPsiBuilder
+import annotation.tailrec
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -33,6 +34,7 @@ object TemplateBody {
     }
     SelfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
+    @tailrec
     def subparse(): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {

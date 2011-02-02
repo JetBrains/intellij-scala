@@ -4,21 +4,13 @@ package surroundWith
 package surrounders
 package expression
 
-import psi.impl.expr.ScBlockImpl
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import lang.psi.api.expr._
-import lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.parser._
-
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import lang.psi.api.statements._
 import com.intellij.psi.PsiWhiteSpace
-import psi.{ScalaPsiUtil, ScalaPsiElementImpl}
+import psi.ScalaPsiUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -35,7 +27,7 @@ class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(element: PsiElement): Boolean = {
     element match {
       case _: ScBlockExpr => true
-      case _: ScBlockImpl => false
+      case _: ScBlock => false
       case _: ScExpression | _: PsiWhiteSpace => {
         true
       }

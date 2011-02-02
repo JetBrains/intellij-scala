@@ -2,13 +2,19 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.psi.tree.IStubFileElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import psi.stubs.elements._
 import psi.stubs.elements.signatures.{ScClassParameterElementType, ScParameterElementType, ScParamClauseElementType, ScParamClausesElementType}
 import com.intellij.psi.stubs.PsiFileStub
 import psi.api.statements.{ScFunction, ScVariable, ScValue}
+import com.intellij.psi.tree.{ICompositeElementType, IErrorCounterReparseableElementType, IElementType, IStubFileElementType}
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiFile
+import com.intellij.pom.java.LanguageLevel
+import psi.impl.expr.ScBlockExprImpl
+import com.intellij.openapi.project.Project
+import com.intellij.lexer.Lexer
+import lexer.{ScalaTokenTypes, ScalaLexer, ScalaElementType}
+import org.jetbrains.annotations.NotNull
 
 /**
  * User: Dmitry.Krasilschikov
@@ -194,7 +200,7 @@ object ScalaElementTypes {
   val GUARD = new ScalaElementType("guard")
   val EXPRS = new ScalaElementType("list of expressions")
   val ARG_EXPRS = new ScalaElementType("arguments of function")
-  val BLOCK_EXPR = new ScalaElementType("block of expressions")
+  val BLOCK_EXPR = new ScCodeBlockElementType
   val CONSTR_BLOCK = new ScalaElementType("constructor block")
   val ERROR_STMT = new ScalaElementType("error statement")
   val BLOCK = new ScalaElementType("block")
@@ -266,4 +272,37 @@ object ScalaElementTypes {
   val XML_COMMENT = new ScalaElementType("Xml comment")
   val XML_ELEMENT = new ScalaElementType("Xml element")
 
+  class ScCodeBlockElementType private[ScalaElementTypes]() extends IErrorCounterReparseableElementType("block of expressions",
+    ScalaFileType.SCALA_LANGUAGE) with ICompositeElementType {
+
+    override def createNode(text: CharSequence): ASTNode = {
+      return new ScBlockExprImpl(text)
+    }
+
+    @NotNull def createCompositeNode: ASTNode = {
+      return new ScBlockExprImpl(null)
+    }
+
+    def getErrorsCount(seq: CharSequence, project: Project): Int = {
+      import IErrorCounterReparseableElementType._
+      val lexer: Lexer = new ScalaLexer
+      lexer.start(seq)
+      if (lexer.getTokenType != ScalaTokenTypes.tLBRACE) return FATAL_ERROR
+      lexer.advance
+      var balance: Int = 1
+      var flag = false
+      while (!flag) {
+        val tp : IElementType = lexer.getTokenType
+        if (tp == null) flag = true
+        else if (balance == 0) return FATAL_ERROR
+        else if (tp == ScalaTokenTypes.tLBRACE) {
+          balance += 1
+        } else if (tp == ScalaTokenTypes.tRBRACE) {
+          balance -= 1
+        }
+        lexer.advance
+      }
+      return balance
+    }
+  }
 }

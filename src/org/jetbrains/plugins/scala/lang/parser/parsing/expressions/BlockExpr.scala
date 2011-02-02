@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
+import util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -32,34 +33,29 @@ object BlockExpr {
         return false
       }
     }
-    builder.getTokenType match {
-      case ScalaTokenTypes.kCASE => {
-        val backMarker = builder.mark
-        builder.advanceLexer
-        builder.getTokenType match {
-          case ScalaTokenTypes.kCLASS |
-               ScalaTokenTypes.kOBJECT => {
-             backMarker.rollbackTo
-            Block parse builder
-          }
-          case _ => {
-            backMarker.rollbackTo
-            CaseClauses parse builder
+    def foo() {
+      builder.getTokenType match {
+        case ScalaTokenTypes.kCASE => {
+          val backMarker = builder.mark
+          builder.advanceLexer
+          builder.getTokenType match {
+            case ScalaTokenTypes.kCLASS |
+                 ScalaTokenTypes.kOBJECT => {
+               backMarker.rollbackTo
+              Block parse builder
+            }
+            case _ => {
+              backMarker.rollbackTo
+              CaseClauses parse builder
+            }
           }
         }
-      }
-      case _ => {
-        Block parse builder
-      }
-    }
-    builder.getTokenType match {
-      case ScalaTokenTypes.tRBRACE => {
-        builder.advanceLexer //Ate }
-      }
-      case _ => {
-        builder error ScalaBundle.message("rbrace.expected")
+        case _ => {
+          Block parse builder
+        }
       }
     }
+    ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState
     blockExprMarker.done(ScalaElementTypes.BLOCK_EXPR)
     return true

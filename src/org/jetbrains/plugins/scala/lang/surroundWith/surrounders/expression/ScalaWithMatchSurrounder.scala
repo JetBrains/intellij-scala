@@ -9,17 +9,11 @@ package expression
 * Date: 28.04.2008
  */
 
-import psi.impl.expr.ScBlockImpl
 import com.intellij.psi.PsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-
-
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr._
-import com.intellij.psi.PsiWhiteSpace
-import psi.{ScalaPsiUtil, ScalaPsiElementImpl}
-;
+import psi.ScalaPsiUtil
 import com.intellij.psi.PsiWhiteSpace;
 
 class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
@@ -32,13 +26,9 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(element: PsiElement): Boolean = {
     element match {
       case _: ScBlockExpr => true
-      case _: ScBlockImpl => false
-      case _: ScExpression | _: PsiWhiteSpace => {
-        true
-      }
-      case e => {
-        ScalaPsiUtil.isLineTerminator(e)
-      }
+      case _: ScBlock => false
+      case _: ScExpression | _: PsiWhiteSpace => true
+      case e => ScalaPsiUtil.isLineTerminator(e)
     }
   }
 

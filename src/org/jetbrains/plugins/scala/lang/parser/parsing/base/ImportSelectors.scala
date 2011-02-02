@@ -71,19 +71,25 @@ object ImportSelectors extends ParserNode {
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
-            case _ => {
-              builder error ErrMsg("rbrace.expected")
+            case null => {
               builder.restoreNewlinesState
               importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
               return true
             }
+            case _ => {
+              builder error ErrMsg("rbrace.expected")
+              builder.advanceLexer
+            }
           }
         }
-        case _ => {
-          builder error ErrMsg("rbrace.expected")
+        case null => {
           builder.restoreNewlinesState
           importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTORS)
           return true
+        }
+        case _ => {
+          builder error ErrMsg("rbrace.expected")
+          builder.advanceLexer
         }
       }
     }
