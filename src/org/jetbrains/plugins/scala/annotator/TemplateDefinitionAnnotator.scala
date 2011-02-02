@@ -57,9 +57,10 @@ trait TemplateDefinitionAnnotator {
     }
 
     refs.groupBy(_._2).foreach {
-      case (Some(psiClass: ScTrait), entries) if entries.size > 1 => entries.map(_._1).foreach { refElement =>
-        error(refElement, "%s %s inherited multiple times", kindOf(psiClass), psiClass.getName)
-      }
+      case (Some(psiClass), entries) if isMixable(psiClass) && entries.size > 1 =>
+        entries.map(_._1).foreach { refElement =>
+          error(refElement, "%s %s inherited multiple times", kindOf(psiClass), psiClass.getName)
+        }
       case _ =>
     }
 
