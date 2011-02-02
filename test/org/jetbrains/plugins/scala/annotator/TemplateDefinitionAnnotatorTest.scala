@@ -12,13 +12,13 @@ import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
   final val Header = ""
 
-  def testFine {
+  def testInheritanceFromNonFinalClass {
     assertMatches(messages("class C; new C {}")) {
       case Nil =>
     }
   }
 
-  def testFinal {
+  def testInheritanceFromFinalClass {
     assertMatches(messages("final class F; new F {}")) {
       case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
     }
@@ -28,13 +28,41 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testFinalWithoutBody {
+  def testInheritanceFromFinalClassWithoutBody {
     assertMatches(messages("final class F; new F")) {
       case Nil =>
     }
   }
 
-  def testMixingClass {
+  def testInheritanceFromFinalClassWithTypeDefinition {
+    assertMatches(messages("object O { final class F {}; class C extends F }")) {
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
+    }
+
+    assertMatches(messages("object O { final class F {}; class C extends F {} }")) {
+      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
+    }
+  }
+
+  def testMultipleTraitInheritance {
+    assertMatches(messages("trait T; new T with T {}")) {
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
+    }
+
+    assertMatches(messages("object O { trait T; class C extends T with T {} }")) {
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
+    }
+
+    assertMatches(messages("trait T; new T with T with T {}")) {
+      case Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) ::
+              Error("T", MultipleTraitInheritance("T")) :: Nil =>
+    }
+  }
+
+  def testNeedsToBeTrait {
     assertMatches(messages("class C; trait T; new C with T")) {
       case Nil =>
     }
@@ -50,37 +78,14 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  //TODO Why do we need an enclosing object for F to be resolved?
-  def testFinalWithTypeDefinition {
-    assertMatches(messages("object O { final class F {}; class C extends F }")) {
-      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
-    }
 
-    assertMatches(messages("object O { final class F {}; class C extends F {} }")) {
-      case Error("F", InheritanceFromFinalClass("F")) :: Nil =>
-    }
-  }
-
-  def testMultiInheritance {
-    assertMatches(messages("trait T; new T with T {}")) {
-      case Error("T", MultipleTraitInheritance("T")) ::
-              Error("T", MultipleTraitInheritance("T")) :: Nil =>
-    }
-
-    assertMatches(messages("trait T; new T with T with T {}")) {
-      case Error("T", MultipleTraitInheritance("T")) ::
-              Error("T", MultipleTraitInheritance("T")) ::
-              Error("T", MultipleTraitInheritance("T")) :: Nil =>
-    }
-  }
-
-  def testMultiInheritanceWithMixinClass {
+  def testNeedsToBeTraitAndMultipleTraitInheritance {
     assertMatches(messages("class C; new C with C")) {
       case Error("C", NeedsToBeTrait("C")) :: Nil =>
     }
   }
 
-  def testTraitInstantiation {
+  def testAbstractInstantiationWithTrait {
     assertMatches(messages("trait T; new T {}")) {
       case Nil =>
     }
@@ -90,7 +95,7 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testAbstractClassInstantiation {
+  def testAbstractInstantiationWithClass {
     assertMatches(messages("abstract class C; new C {}")) {
       case Nil =>
     }
@@ -100,7 +105,7 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testConcreteClassInstantiation {
+  def testAbstractInstantiationWithConcreteClass {
     assertMatches(messages("class C; new C {}")) {
       case Nil =>
     }
@@ -110,15 +115,78 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-  def testAbstractAndWithInstantiation {
+  def testAbstractInstantiationWithInstantiation {
     assertMatches(messages("abstract class C; trait T; new C with T")) {
       case Nil =>
     }
   }
 
-  def testAbstractTypeExtension {
+  def testAbstractInstantiationTypeExtension {
     assertMatches(messages("object O { trait A; trait B extends A }")) {
       case Nil =>
+    }
+  }
+
+  def testNeedsToBeAbstract {
+    val Message = TemplateDefinitionAnnotator.needsToBeAbstract(
+      "Class", "C", ("f: Unit", "O.T"))
+
+    assertMatches(messages("object O { trait T { def f }; class C extends T {} }")) {
+      case Error("C", Message) :: Nil =>
+    }
+  }
+
+  def testNeedsToBeAbstractWithTrait {
+    assertMatches(messages("object O { trait A { def f }; trait B extends A {} }")) {
+      case Nil =>
+    }
+  }
+
+  def testNeedsToBeAbstractWithAbstractClass {
+    assertMatches(messages("object O { trait A { def f }; abstract class B extends A {} }")) {
+      case Nil =>
+    }
+  }
+
+  def testNeedsToBeAbstractMultipleMembers {
+    val Message = TemplateDefinitionAnnotator.needsToBeAbstract(
+      "Class", "C", ("a: Unit", "O.T"), ("b: Unit", "O.T"))
+
+    assertMatches(messages("object O { trait T { def a; def b }; class C extends T {} }")) {
+      case Error("C", Message) :: Nil =>
+    }
+  }
+
+  def testNeedsToBeAbstractPlaceDiffer {
+    val Message = TemplateDefinitionAnnotator.needsToBeAbstract(
+      "Class", "C", ("a: Unit", "O.A"), ("b: Unit", "O.B"))
+
+    assertMatches(messages("object O { trait A { def a }; trait B { def b }; class C extends A with B {} }")) {
+      case Error("C", Message) :: Nil =>
+    }
+  }
+
+  def testObjectCreationImpossible {
+    val Message = TemplateDefinitionAnnotator.objectCreationImpossible(("f: Unit", "T"))
+
+    assertMatches(messages("trait T { def f }; new T {}")) {
+      case Error("T", Message) :: Nil =>
+    }
+  }
+
+  def testObjectCreationImpossibleAndWith {
+    val Message = TemplateDefinitionAnnotator.objectCreationImpossible(("f: Unit", "T"))
+
+    assertMatches(messages("class C; trait T { def f }; new C with T {}")) {
+      case Error("C", Message) :: Nil =>
+    }
+  }
+
+  def testObjectCreationImpossibleWithoutBody {
+    val Message = TemplateDefinitionAnnotator.objectCreationImpossible(("f: Unit", "T"))
+
+    assertMatches(messages("class C; trait T { def f }; new C with T")) {
+      case Error("C", Message) :: Nil =>
     }
   }
 

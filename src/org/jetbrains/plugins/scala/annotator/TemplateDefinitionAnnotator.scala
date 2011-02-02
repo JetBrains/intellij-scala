@@ -5,7 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import lang.psi.api.expr.ScNewTemplateDefinition
 import overrideImplement.ScalaOIUtil
-import lang.psi.types.{PhysicalSignature, ScType}
+import lang.psi.types.ScType
 import com.intellij.psi.{PsiClass, PsiElement}
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait, ScTemplateDefinition}
 
@@ -25,12 +25,27 @@ trait TemplateDefinitionAnnotator {
       (refElement, psiClass)
     }
 
-    val newWithoutBody = defintion.isInstanceOf[ScNewTemplateDefinition] && block.templateBody.isEmpty
+    val newObject = defintion.isInstanceOf[ScNewTemplateDefinition]
+    val hasBody = block.templateBody.isDefined
 
     refs.headOption.foreach {
       case (refElement, Some(psiClass)) => {
-        if(refs.tail.isEmpty && newWithoutBody && isAbstract(psiClass))
+        if(refs.tail.isEmpty && newObject && !hasBody && isAbstract(psiClass))
           error(refElement, "%s %s is abstract; cannot be instantiated", kindOf(psiClass), psiClass.getName)
+
+        if(!isAbstract(defintion)) {
+          val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(defintion))
+          val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
+          if(!undefined.isEmpty) {
+            if(newObject) {
+              holder.createErrorAnnotation(refElement,
+                TemplateDefinitionAnnotator.objectCreationImpossible(undefined: _*))
+            } else {
+              holder.createErrorAnnotation(defintion.nameId,
+                TemplateDefinitionAnnotator.needsToBeAbstract(kindOf(defintion), defintion.getName, undefined: _*))
+            }
+          }
+        }
       }
       case _ =>
     }
@@ -48,7 +63,7 @@ trait TemplateDefinitionAnnotator {
       case _ =>
     }
 
-    if (newWithoutBody) return
+    if (newObject && !hasBody) return
 
     refs.foreach {
       case (refElement, Some(psiClass)) if psiClass.getModifierList.hasModifierProperty("final") =>
@@ -81,4 +96,17 @@ trait TemplateDefinitionAnnotator {
     case c: PsiClass if c.hasModifierProperty("abstract") => true
     case _ => false
   }
+}
+
+object TemplateDefinitionAnnotator {
+  def needsToBeAbstract(kind: String, name: String, members: (String, String)*) = {
+    "%s %s needs to be abstract, since %s".format(kind, name,
+      members.map(p => " member %s in %s is not defined".format(p._1, p._2)).mkString("; "))
+  }
+
+  def objectCreationImpossible(members: (String, String)*) = {
+    "Object creation impossible, since %s".format(
+      members.map(p => " member %s in %s is not defined".format(p._1, p._2)).mkString("; "))
+  }
+
 }
