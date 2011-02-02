@@ -178,12 +178,19 @@ public interface ScalaTokenTypes {
   final IElementType tAT = new ScalaElementType("@");
   final IElementType tQUESTION = new ScalaElementType("?");
 
-  public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
+  public static TokenSet WHITES_SPACES_FOR_FORMATTER_TOKEN_SET = TokenSet.create(
       tWHITE_SPACE_IN_LINE,
       ScalaDocTokenType.DOC_WHITESPACE,
       XML_REAL_WHITE_SPACE,
       XML_WHITE_SPACE,
       TAG_WHITE_SPACE
+  );
+
+  public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
+          tWHITE_SPACE_IN_LINE,
+          XML_REAL_WHITE_SPACE,
+          XML_WHITE_SPACE,
+          TAG_WHITE_SPACE
   );
 
   TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
