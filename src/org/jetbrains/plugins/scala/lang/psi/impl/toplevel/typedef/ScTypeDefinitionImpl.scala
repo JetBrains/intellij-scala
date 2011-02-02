@@ -329,6 +329,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
     val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
+    val baseQualifiedName = baseClass.getQualifiedName
+    val baseName = baseClass.getName
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
       if (!visited.contains(drv)) {
         visited.add(drv)
@@ -346,7 +348,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
                     case _ if !c.isInstanceOf[ScTypeDefinition] => true
                     case _ => false
                   }
-                  if (c.getQualifiedName == baseClass.getQualifiedName && value) return true
+                  if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
                   if (deep && isInheritorInner(base, c, deep)) return true
                 }
                 case _ =>
@@ -359,7 +361,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
               val psiT = supersIterator.next
               val c = psiT.resolveGenerics.getElement
               if (c != null) {
-                if (c == baseClass) return true
+                if (c.getName == baseName && c.getQualifiedName == baseQualifiedName) return true
                 if (deep && isInheritorInner(base, c, deep)) return true
               }
             }
