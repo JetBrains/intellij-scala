@@ -4,10 +4,10 @@ package parser
 package parsing
 package top
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import statements.PatVarDef
 import builder.ScalaPsiBuilder
+import annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,7 +17,6 @@ import builder.ScalaPsiBuilder
 /*
  * EarlyDef ::= '{' [PatVarDef {semi PatVarDef}] '}' 'with'
  */
-
 object EarlyDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark
@@ -33,6 +32,7 @@ object EarlyDef {
       }
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
+    @tailrec
     def subparse: Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
@@ -64,12 +64,13 @@ object EarlyDef {
         }
       }
     }
-    builder.restoreNewlinesState
     if (!subparse) {
+      builder.restoreNewlinesState
       builder error ScalaBundle.message("unreachable.error")
       earlyMarker.rollbackTo
       return false
     }
+    builder.restoreNewlinesState
     //finally look for 'with' keyword
     builder.getTokenType match {
       case ScalaTokenTypes.kWITH => {

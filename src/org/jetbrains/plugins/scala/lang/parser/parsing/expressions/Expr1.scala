@@ -9,6 +9,7 @@ import lexer.ScalaTokenTypes
 import nl.LineTerminator
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
+import util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -118,17 +119,12 @@ object Expr1 {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate {
             builder.enableNewlines
-            if (!Block.parse(builder, false)) {
-              builder error ErrMsg("block.expected")
-            }
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE => {
-                builder.advanceLexer //Ate }
-              }
-              case _ => {
-                builder error ErrMsg("rbrace.expected")
+            def foo() {
+              if (!Block.parse(builder, false)) {
+                builder error ErrMsg("block.expected")
               }
             }
+            ParserUtils.parseLoopUntilRBrace(builder, foo _)
             builder.restoreNewlinesState
           }
           case _ => {
@@ -146,17 +142,12 @@ object Expr1 {
               case ScalaTokenTypes.tLBRACE => {
                 builder.advanceLexer //Ate }
                 builder.enableNewlines
-                if (!CaseClauses.parse(builder)) {
-                  builder error ErrMsg("case.clauses.expected")
-                }
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tRBRACE => {
-                    builder.advanceLexer //Ate }
-                  }
-                  case _ => {
-                    builder error ErrMsg("rbrace.expected")
+                def foo() {
+                  if (!CaseClauses.parse(builder)) {
+                    builder error ErrMsg("case.clauses.expected")
                   }
                 }
+                ParserUtils.parseLoopUntilRBrace(builder, foo _)
                 builder.restoreNewlinesState
               }
               case _ => {
@@ -232,13 +223,12 @@ object Expr1 {
           case ScalaTokenTypes.tLBRACE => {
             builder.advanceLexer //Ate {
             builder.enableNewlines
-            if (!Enumerators.parse(builder)) {
-              builder error ErrMsg("enumerators.expected")
+            def foo() {
+              if (!Enumerators.parse(builder)) {
+                builder error ErrMsg("enumerators.expected")
+              }
             }
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE => builder.advanceLexer
-              case _ => builder error ErrMsg("rbrace.expected")
-            }
+            ParserUtils.parseLoopUntilRBrace(builder, foo _)
             builder.restoreNewlinesState
           }
           case ScalaTokenTypes.tLPARENTHESIS => {
@@ -347,15 +337,12 @@ object Expr1 {
               case ScalaTokenTypes.tLBRACE => {
                 builder.advanceLexer //Ate {
                 builder.enableNewlines
-                if (!CaseClauses.parse(builder)) {
-                  builder error ErrMsg("case.clauses.expected")
-                }
-                builder.getTokenType match {
-                  case ScalaTokenTypes.tRBRACE => {
-                    builder.advanceLexer //Ate }
+                def foo() {
+                  if (!CaseClauses.parse(builder)) {
+                    builder error ErrMsg("case.clauses.expected")
                   }
-                  case _ => builder error ErrMsg("rbrace.expected")
                 }
+                ParserUtils.parseLoopUntilRBrace(builder, foo _)
                 builder.restoreNewlinesState
               }
               case _ => builder error ErrMsg("case.clauses.expected")

@@ -9,6 +9,7 @@ import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import nl.LineTerminator
 import builder.ScalaPsiBuilder
+import util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -34,24 +35,18 @@ object AnnotationExpr {
         }
         builder.advanceLexer //Ate }
         builder.enableNewlines
-        while (NameValuePair.parse(builder)) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tCOMMA => builder.advanceLexer
-            case _ =>
+        def foo() =
+          while (NameValuePair.parse(builder)) {
+            builder.getTokenType match {
+              case ScalaTokenTypes.tCOMMA => builder.advanceLexer
+              case _ =>
+            }
+            while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
+              builder.error(ScalaBundle.message("wrong.annotation.expression"))
+              builder.advanceLexer
+            }
           }
-          while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-            builder.error(ScalaBundle.message("wrong.annotation.expression"))
-            builder.advanceLexer
-          }
-        }
-        builder.getTokenType match {
-          case ScalaTokenTypes.tRBRACE => {
-            builder.advanceLexer
-          }
-          case _ => {
-            builder error ScalaBundle.message("rbrace.expected")
-          }
-        }
+        ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
         return true
