@@ -1,19 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import nonvalue.{ScTypePolymorphicType, ScMethodType}
-import org.jetbrains.plugins.scala.Suspension
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import com.intellij.psi.{PsiNamedElement, PsiClass}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScThisReference, ScSuperReference}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement, ScPathElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.progress.ProgressManager
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import result.Success
 
 /**
  * User: Alexander Podkhalyuzin
@@ -82,7 +77,7 @@ object Equivalence {
 
         if (l.signatureMap.size != r.signatureMap.size) return (false, undefinedSubst)
         
-        val iterator2 = l.signatureMap.elements
+        val iterator2 = l.signatureMap.iterator
         while (iterator2.hasNext) {
           val (sig, t) = iterator2.next
           r.signatureMap.get(sig) match {
@@ -101,7 +96,9 @@ object Equivalence {
         val subst2 = r.subst
         if (types1.size != l.types.size) return (false, undefinedSubst)
         else {
-          for ((name, bounds1) <- types1) {
+          val types1iterator = types1.iterator
+          while (types1iterator.hasNext) {
+            val (name, bounds1) = types1iterator.next
             types2.get(name) match {
               case None => return (false, undefinedSubst)
               case Some (bounds2) => {
@@ -183,7 +180,10 @@ object Equivalence {
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = proj.actualSubst
-        val lBound = subst.subst(a.lowerBound.getOrElse(return (false, undefinedSubst)))
+        val lBound = subst.subst(a.lowerBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        })
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         return equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
@@ -191,27 +191,42 @@ object Equivalence {
       case (_, ScParameterizedType(proj@ScProjectionType(projected, _, _), args)) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = proj.actualSubst
-        val uBound = subst.subst(a.upperBound.getOrElse(return (false, undefinedSubst)))
+        val uBound = subst.subst(a.upperBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        })
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         return equivInner(l, genericSubst.subst(uBound), undefinedSubst, falseUndef)
       }
       case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
-        val lBound = a.lowerBound.getOrElse(return (false, undefinedSubst))
+        val lBound = a.lowerBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         return equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
       case (_, ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args)) => {
-        val uBound = a.upperBound.getOrElse(return (false, undefinedSubst))
+        val uBound = a.upperBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
         return equivInner(l, genericSubst.subst(uBound), undefinedSubst, falseUndef)
       }
       case (ScDesignatorType(a: ScTypeAliasDefinition), _) =>
-        equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), r, undefinedSubst, falseUndef)
+        equivInner(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }, r, undefinedSubst, falseUndef)
       case (_, ScDesignatorType(a: ScTypeAliasDefinition)) =>
-        equivInner(a.aliasedType.getOrElse(return (false, undefinedSubst)), l, undefinedSubst, falseUndef)
+        equivInner(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }, l, undefinedSubst, falseUndef)
       case (ScDesignatorType(element), ScDesignatorType(element1)) =>
         (ScEquivalenceUtil.smartEquivalence(element, element1), undefinedSubst)
       case (JavaArrayType(arg), JavaArrayType(arg2)) => equivInner (arg, arg2, undefinedSubst, falseUndef)
@@ -252,12 +267,18 @@ object Equivalence {
       case (proj@ScProjectionType(projected, _, _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = proj.actualSubst
-        equivInner(subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), r, undefinedSubst, falseUndef)
+        equivInner(subst.subst(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }), r, undefinedSubst, falseUndef)
       }
       case (_, proj@ScProjectionType(projected, _, _)) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
         val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = proj.actualSubst
-        equivInner(l, subst.subst(a.aliasedType.getOrElse(return (false, undefinedSubst))), undefinedSubst, falseUndef)
+        equivInner(l, subst.subst(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }), undefinedSubst, falseUndef)
       }
       case (proj1@ScProjectionType(projected, element, subst), proj2@ScProjectionType(p1, element1, subst1)) => {
         if (proj1.actualElement != proj2.actualElement) return (false, undefinedSubst)
@@ -268,26 +289,29 @@ object Equivalence {
         var t = equivInner(m.returnType, returnType,undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
-        for (i <- 0 until params.length) {
+        var i = 0
+        while (i < params.length) {
           //todo: Seq[Type] instead of Type*
           if (params(i).isRepeated != m.params(i).isRepeated) return (false, undefinedSubst)
           t = equivInner(params(i).paramType, m.params(i).paramType, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
+          i = i + 1
         }
         return (true, undefinedSubst)
       }
       case (ScTypePolymorphicType(internalType, typeParameters), p: ScTypePolymorphicType) => {
         if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
-        for (i <- 0 until typeParameters.length) {
+        var i = 0
+        while (i < typeParameters.length) {
           var t = equivInner(typeParameters(i).lowerType, p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
           if (!t._1) return (false,undefinedSubst)
           undefinedSubst = t._2
           t = equivInner(typeParameters(i).upperType, p.typeParameters(i).upperType, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
+          i = i + 1
         }
-        import Suspension._
         val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++
                 typeParameters.zip(p.typeParameters).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
