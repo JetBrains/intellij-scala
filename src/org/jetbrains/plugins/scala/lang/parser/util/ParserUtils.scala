@@ -113,6 +113,23 @@ object ParserUtils extends ParserUtilsBase {
       case ScalaTokenTypes.tRBRACE =>
         builder.advanceLexer
         return
+      case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
+        if (!braceReported) {
+          builder error ErrMsg("rbrace.expected")
+          br = true
+        }
+        var balance = 1
+        builder.advanceLexer
+        while (balance != 0 && !builder.eof) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tRBRACE => balance -= 1
+            case ScalaTokenTypes.tLBRACE => balance += 1
+            case _ =>
+          }
+          builder.advanceLexer
+        }
+        if (builder.eof)
+          return
       case _ =>
         if (!braceReported) {
           builder error ErrMsg("rbrace.expected")
