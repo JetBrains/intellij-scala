@@ -122,6 +122,25 @@ case class ScExistentialType(val quantified : ScType,
 
   override def updateThisType(tp: ScType) = ScExistentialType(quantified.updateThisType(tp),
     wildcards.map(_.updateThisType(tp).asInstanceOf[ScExistentialArgument]))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case ex: ScExistentialType => {
+        val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
+        val list = wildcards.zip(ex.wildcards)
+        val iterator = list.iterator
+        while (iterator.hasNext) {
+          val (w1, w2) = iterator.next
+          val t = Equivalence.equivInner(w1, unify.subst(w2), undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        Equivalence.equivInner(substitutor.subst(quantified), ex.substitutor.subst(ex.quantified), undefinedSubst, falseUndef)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
@@ -134,6 +153,20 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
 
   override def updateThisType(tp: ScType) =
     ScExistentialArgument(name, args, lowerBound.updateThisType(tp), upperBound.updateThisType(tp))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case exist: ScExistentialArgument => {
+        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, ""), p._2)}
+        val t = Equivalence.equivInner(lowerBound, s.subst(exist.lowerBound), undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        Equivalence.equivInner(upperBound, s.subst(exist.upperBound), undefinedSubst, falseUndef)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)

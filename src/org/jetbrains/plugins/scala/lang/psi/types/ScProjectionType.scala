@@ -3,12 +3,14 @@ package lang
 package psi
 package types
 
-import api.statements.ScTypeAlias
-import resolve.{ResolveTargets, StdKinds}
-import resolve.processor.{BaseProcessor, ResolveProcessor}
-import api.toplevel.typedef.{ScTrait, ScClass, ScMember, ScTemplateDefinition}
-import com.intellij.psi.{PsiClass, ResolveState, PsiElement, PsiNamedElement}
-import result.TypeResult
+import resolve.ResolveTargets
+import resolve.processor.ResolveProcessor
+import com.intellij.psi.{ResolveState, PsiElement, PsiNamedElement}
+import impl.toplevel.synthetic.ScSyntheticClass
+import result.Success
+import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import api.toplevel.typedef._
 
 /**
  * @author ilyas
@@ -62,6 +64,30 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       case _ => (element, emptySubst followed subst)
     }
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    r match {
+      case t: StdType => {
+        element match {
+          case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
+      }
+      case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = actualSubst
+        Equivalence.equivInner(subst.subst(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, uSubst)
+        }), r, uSubst, falseUndef)
+      }
+      case proj2@ScProjectionType(p1, element1, subst1) => {
+        if (actualElement != proj2.actualElement) return (false, uSubst)
+        Equivalence.equivInner(projected, p1, uSubst, falseUndef)
+      }
+      case _ => (false, uSubst)
+    }
+  }
 }
 
 /**
@@ -80,24 +106,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
  */
 case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
   override def updateThisType(place: PsiElement): ScType = {
-    /*def workWithClazz(clazz: ScTemplateDefinition): ScType = {
-      var td: ScTemplateDefinition = ScalaPsiUtil.getPlaceTd(place)
-      while (td != null) {
-        if (td == clazz || td.isInheritor(clazz, true)) return ScThisType(td.getType(TypingContext.empty).getOrElse(return tp))
-        td = ScalaPsiUtil.getPlaceTd(td)
-      }
-      tp.updateThisType(place)
-    }
-    tp match {
-      case ScParameterizedType(ScDesignatorType(clazz: ScTemplateDefinition), _) => {
-        workWithClazz(clazz)
-      }
-      case ScDesignatorType(clazz: ScTemplateDefinition) => {
-        workWithClazz(clazz)
-      }
-      case _ => tp.updateThisType(place)
-    }*/
-    this //todo:
+    this
   }
 
   override def updateThisType(tp: ScType): ScType = {
@@ -115,6 +124,16 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
       case _ => this
     }
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    (this, r) match {
+      case (ScThisType(clazz1), ScThisType(clazz2)) =>
+        return (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), uSubst)
+      case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
+        return (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), uSubst)
+      case _ => (false, uSubst)
+    }
+  }
 }
 
 /**
@@ -130,6 +149,19 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   def this(elem: PsiNamedElement, isStaticClass: Boolean) {
     this (elem)
     this.isStaticClass = isStaticClass
+  }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    (this, r) match {
+      case (ScDesignatorType(a: ScTypeAliasDefinition), _) =>
+        Equivalence.equivInner(a.aliasedType match {
+          case Success(tp, _) => tp
+          case _ => return (false, uSubst)
+        }, r, uSubst, falseUndef)
+      case (ScDesignatorType(element), ScDesignatorType(element1)) =>
+        (ScEquivalenceUtil.smartEquivalence(element, element1), uSubst)
+      case _ => (false, uSubst)
+    }
   }
 }
 

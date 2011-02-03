@@ -98,4 +98,62 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   override def updateThisType(tp: ScType) =
     ScCompoundType(components.map(_.updateThisType(tp)), decls, typeDecls, subst)
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case r: ScCompoundType => {
+        if (r == this) return (true, undefinedSubst)
+        if (components.length != r.components.length) return (false, undefinedSubst)
+        val list = components.zip(r.components)
+        val iterator = list.iterator
+        while (iterator.hasNext) {
+          val (w1, w2) = iterator.next
+          val t = Equivalence.equivInner(w1, w2, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+
+        if (signatureMap.size != r.signatureMap.size) return (false, undefinedSubst)
+
+        val iterator2 = signatureMap.iterator
+        while (iterator2.hasNext) {
+          val (sig, t) = iterator2.next
+          r.signatureMap.get(sig) match {
+            case None => false
+            case Some(t1) => {
+              val f = Equivalence.equivInner(t, t1, undefinedSubst, falseUndef)
+              if (!f._1) return (false, undefinedSubst)
+              undefinedSubst = f._2
+            }
+          }
+        }
+
+        val types1 = types
+        val subst1 = subst
+        val types2 = r.types
+        val subst2 = r.subst
+        if (types1.size != types.size) return (false, undefinedSubst)
+        else {
+          val types1iterator = types1.iterator
+          while (types1iterator.hasNext) {
+            val (name, bounds1) = types1iterator.next
+            types2.get(name) match {
+              case None => return (false, undefinedSubst)
+              case Some (bounds2) => {
+                var t = Equivalence.equivInner(subst1.subst(bounds1._1), subst2.subst(bounds2._1), undefinedSubst, falseUndef)
+                if (!t._1) return (false, undefinedSubst)
+                undefinedSubst = t._2
+                t = Equivalence.equivInner(subst1.subst(bounds1._2), subst2.subst(bounds2._2), undefinedSubst, falseUndef)
+                if (!t._1) return (false, undefinedSubst)
+                undefinedSubst = t._2
+              }
+            }
+          }
+          (true, undefinedSubst)
+        }
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
