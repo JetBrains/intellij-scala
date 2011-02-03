@@ -29,6 +29,7 @@ import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
+import psi.util.CommonClassesSearcher
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -62,10 +63,10 @@ object TypeDefinitionMembers {
       clazz.getName match {
         case "Any" => {
           val project = clazz.getProject
-          val facade = JavaPsiFacade.getInstance(project)
-          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
-          if (obj != null) {
-            for (m <- obj.getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
+          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
+            "java.lang.Object")
+          if (obj.length > 0) {
+            for (m <- obj(0).getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
               val sig = new PhysicalSignature(m, subst)
               map += ((sig, new Node(sig, subst)))
             }
@@ -244,14 +245,14 @@ object TypeDefinitionMembers {
       clazz.getName match {
         case "Any" => {
           val project = clazz.getProject
-          val facade = JavaPsiFacade.getInstance(project)
-          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
-          if (obj != null) {
-            for (m <- obj.getMethods if !m.isConstructor) {
+          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
+            "java.lang.Object")
+          if (obj.length > 0) {
+            for (m <- obj(0).getMethods if !m.isConstructor) {
               val phys = new PhysicalSignature(m, subst)
               val psiRet = m.getReturnType
               val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
-              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj))
+              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj(0)))
               map += ((sig, new Node(sig, subst)))
             }
           }
