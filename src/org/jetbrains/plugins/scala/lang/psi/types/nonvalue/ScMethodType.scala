@@ -57,6 +57,29 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
 
   override def updateThisType(tp: ScType) = new ScMethodType(returnType.updateThisType(tp),
     params.map(p => Parameter(p.name, p.paramType.updateThisType(tp), p.isDefault, p.isRepeated)), isImplicit, project, scope)
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case m: ScMethodType => {
+        if (m.params.length != params.length) return (false, undefinedSubst)
+        var t = Equivalence.equivInner(m.returnType, returnType,undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        var i = 0
+        while (i < params.length) {
+          //todo: Seq[Type] instead of Type*
+          if (params(i).isRepeated != m.params(i).isRepeated) return (false, undefinedSubst)
+          t = Equivalence.equivInner(params(i).paramType, m.params(i).paramType, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+          i = i + 1
+        }
+        return (true, undefinedSubst)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
@@ -96,6 +119,35 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   override def updateThisType(typez: ScType) = ScTypePolymorphicType(internalType.updateThisType(typez), typeParameters.map(tp => {
     TypeParameter(tp.name, tp.lowerType.updateThisType(typez), tp.upperType.updateThisType(typez), tp.ptp)
   }))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case p: ScTypePolymorphicType => {
+        if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
+        var i = 0
+        while (i < typeParameters.length) {
+          var t = Equivalence.equivInner(typeParameters(i).lowerType, p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
+          if (!t._1) return (false,undefinedSubst)
+          undefinedSubst = t._2
+          t = Equivalence.equivInner(typeParameters(i).upperType, p.typeParameters(i).upperType, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+          i = i + 1
+        }
+        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++
+                typeParameters.zip(p.typeParameters).map({
+          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
+            tuple._2.ptp match {
+              case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
+              case _ => Nil
+            }, tuple._2.lowerType, tuple._2.upperType, tuple._2.ptp))
+        }), Map.empty, None)
+        Equivalence.equivInner(subst.subst(internalType), p.internalType, undefinedSubst, falseUndef)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 /*case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {

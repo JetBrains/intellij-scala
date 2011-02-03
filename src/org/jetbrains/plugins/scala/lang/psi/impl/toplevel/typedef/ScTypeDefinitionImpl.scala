@@ -327,53 +327,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     return buffer.toArray
   }
 
-  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
-    val baseQualifiedName = baseClass.getQualifiedName
-    val baseName = baseClass.getName
-    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
-      if (!visited.contains(drv)) {
-        visited.add(drv)
-        drv match {
-          case drg: ScTypeDefinition =>
-            val supers = drg.superTypes
-            val supersIterator = supers.iterator
-            while (supersIterator.hasNext) {
-              val t = supersIterator.next
-              ScType.extractClass(t) match {
-                case Some(c) => {
-                  val value = baseClass match {
-                    case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                    case _: ScClass if c.isInstanceOf[ScClass] => true
-                    case _ if !c.isInstanceOf[ScTypeDefinition] => true
-                    case _ => false
-                  }
-                  if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
-                  if (deep && isInheritorInner(base, c, deep)) return true
-                }
-                case _ =>
-              }
-            }
-          case _ =>
-            val supers = drv.getSuperTypes
-            val supersIterator = supers.iterator
-            while (supersIterator.hasNext) {
-              val psiT = supersIterator.next
-              val c = psiT.resolveGenerics.getElement
-              if (c != null) {
-                if (c.getName == baseName && c.getQualifiedName == baseQualifiedName) return true
-                if (deep && isInheritorInner(base, c, deep)) return true
-              }
-            }
-        }
-      }
-      return false
-    }
-    if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
-    isInheritorInner(baseClass, this, deep)
-  }
+  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
+    super[ScTypeDefinition].isInheritor(baseClass, deep)
 
-  
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
     (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield

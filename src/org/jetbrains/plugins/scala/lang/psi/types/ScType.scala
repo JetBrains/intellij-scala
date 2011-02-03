@@ -49,9 +49,15 @@ trait ScType {
    */
   def removeAbstracts = this
 
+  @deprecated("use ScSubstitutor.subst")
   def updateThisType(place: PsiElement): ScType = this
 
+  @deprecated("use ScSubstitutor.subst")
   def updateThisType(tp: ScType): ScType = this
+
+  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    (false, uSubst)
+  }
 }
 
 trait ValueType extends ScType {
@@ -71,6 +77,19 @@ abstract case class StdType(name: String, tSuper: Option[StdType]) extends Value
     if (SyntheticClasses.get(project).isClassesRegistered)
       Some(SyntheticClasses.get(project).byName(name).get)
     else None
+  }
+
+  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    (this, r) match {
+      case (l: StdType, r: StdType) => (l == r, subst)
+      case (AnyRef, r) => {
+        ScType.extractClass(r) match {
+          case Some(clazz) if clazz.getQualifiedName == "java.lang.Object" => (true, subst)
+          case _ => (false, subst)
+        }
+      }
+      case _ => (false, subst)
+    }
   }
 }
 
