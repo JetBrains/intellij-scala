@@ -225,8 +225,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def getHint[T](hintKey: Key[T]): T = {
-    if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
-    else super.getHint(hintKey)
+    hintKey match {
+      case NameHint.KEY if name != "" => ScalaNameHint.asInstanceOf[T]
+      case _ => super.getHint(hintKey)
+    }
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {

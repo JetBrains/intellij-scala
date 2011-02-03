@@ -61,10 +61,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   def getHint[T](hintKey: Key[T]): T = {
-    if (hintKey == ElementClassHint.KEY) {
-      return MyElementClassHint.asInstanceOf[T]
-    } else {
-      return null.asInstanceOf[T]
+    hintKey match {
+      case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
+      case _ => null.asInstanceOf[T]
     }
   }
 
