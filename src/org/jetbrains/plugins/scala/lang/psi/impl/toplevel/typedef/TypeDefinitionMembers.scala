@@ -10,10 +10,10 @@ package typedef
 
 import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
-import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import impl.light.LightMethod
+import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
 import types._
 import api.toplevel.typedef._
 import api.statements._
@@ -478,19 +478,34 @@ object TypeDefinitionMembers {
                                   syntheticMethods: => Seq[(PhysicalSignature, MethodNodes.Node)] = Seq.empty): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
+    val nameHint = processor.getHint(NameHint.KEY)
+    val name = if (nameHint == null) "" else nameHint.getName(state)
+    val isNotScalaProcessor = !processor.isInstanceOf[BaseProcessor]
+    def checkName(s: String): Boolean = {
+      if (name == null || name == "") true
+      else s == name
+    }
+    def checkNameGetSetIs(s: String): Boolean = {
+      if (name == null || name == "") true
+      else {
+        val capitalizeName = name.capitalize
+        s == "is" + capitalizeName || s == "get" + capitalizeName || s == "set" + capitalizeName
+      }
+    }
     if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
       val v1 = shouldProcessVals(processor)
-      val v2 = !processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)
+      val v2 = isNotScalaProcessor && shouldProcessMethods(processor)
       val iterator = vals.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
         ProgressManager.checkCanceled
         n.info match {
-          case p: ScClassParameter if v1 && !p.isVar && !p.isVal => {
+          case p: ScClassParameter if v1 && !p.isVar && !p.isVal &&
+            (checkName(p.getName) || checkNameGetSetIs(p.getName)) => {
             val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
             if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
               //this is member only for class scope
-              if (PsiTreeUtil.isContextAncestor(clazz, place, false)) {
+              if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.getName)) {
                 //we can accept this member
                 if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
               } else {
@@ -502,9 +517,10 @@ object TypeDefinitionMembers {
           case _ => if (!tail) return false
         }
         def tail: Boolean = {
-          if (v1 && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (v1 && checkName(n.info.getName) &&
+            !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
           //this is for Java: to find methods, which is vals in Scala
-          if (v2) {
+          if (v2 && checkNameGetSetIs(n.info.getName)) {
             n.info match {
               case t: ScTypedDefinition => {
                 implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
@@ -584,8 +600,11 @@ object TypeDefinitionMembers {
         while (iterator.hasNext) {
           val (_, n) = iterator.next
           ProgressManager.checkCanceled
-          val substitutor = n.substitutor followed subst
-          if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+          val method = n.info.method
+          if (checkName(method.getName)) {
+            val substitutor = n.substitutor followed subst
+            if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+          }
         }
         None
       }
@@ -607,8 +626,10 @@ object TypeDefinitionMembers {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
-        ProgressManager.checkCanceled
-        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        if (checkName(n.info.getName)) {
+          ProgressManager.checkCanceled
+          if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
       }
     }
     //inner classes
@@ -616,8 +637,10 @@ object TypeDefinitionMembers {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
-        ProgressManager.checkCanceled
-        if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        if (checkName(n.info.getName)) {
+          ProgressManager.checkCanceled
+          if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
       }
     }
 
