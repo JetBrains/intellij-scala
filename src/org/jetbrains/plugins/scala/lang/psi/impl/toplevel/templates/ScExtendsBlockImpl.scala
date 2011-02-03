@@ -22,6 +22,7 @@ import result.{TypingContext, Success}
 import stubs.{ScExtendsBlockStub}
 import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import collection.Seq
+import util.CommonClassesSearcher
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -111,13 +112,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   private def scalaObject(): ScType = {
-    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.ScalaObject", getResolveScope)
-    if (so != null) new ScDesignatorType(so) else null
+    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.ScalaObject")
+    if (so.length > 0) new ScDesignatorType(so(0)) else null
   }
 
   private def scalaProduct(): ScType = {
-    val so = JavaPsiFacade.getInstance(getProject).findClass("scala.Product", getResolveScope)
-    if (so != null) new ScDesignatorType(so) else null
+    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Product")
+    if (so.length > 0) new ScDesignatorType(so(0)) else null
   }
 
   def isAnonymousClass: Boolean = {
