@@ -24,6 +24,7 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import com.intellij.ide.{IdeBundle, IdeView}
 import java.util.Properties
 import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
+import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -66,7 +67,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
     val module: Module = dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    if (!ScalaUtils.isSuitableModule(module)) {
+    if (!ScalaFacet.isPresentIn(module)) {
       return false
     }
     val view = dataContext.getData(LangDataKeys.IDE_VIEW.getName).asInstanceOf[IdeView]
