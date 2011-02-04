@@ -125,8 +125,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        //todo: checkImplementedMethods(x, holder)
-        annotateTemplateDefinition(x, holder)
+        // TODO ScalaOIUtil must have tests before the line enablement
+//        annotateTemplateDefinition(x, holder)
       }
       case ref: ScReferenceElement => {
         if(advancedHighlighting) annotateReference(ref, holder)
