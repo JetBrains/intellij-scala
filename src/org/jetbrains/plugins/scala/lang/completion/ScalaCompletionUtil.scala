@@ -162,7 +162,11 @@ object ScalaCompletionUtil {
       case _: PsiErrorElement => return true
       case _ =>
     }
-    for (child <- elem.getChildren if checkErrors(child)) return true
+    val iterator = elem.getChildren.iterator
+    while (iterator.hasNext) {
+      val child = iterator.next
+      if (checkErrors(child)) return true
+    }
     return false
   }
 }
