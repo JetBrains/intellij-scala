@@ -36,8 +36,8 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
     val num = dataStream.readByte
-    val modifiers = new Array[StringRef](num)
-    for (i <- 1 to num) modifiers(i-1) = dataStream.readName
+    val modifiers = new Array[String](num)
+    for (i <- 1 to num) modifiers(i-1) = dataStream.readName.toString
     new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers)
   }
 
