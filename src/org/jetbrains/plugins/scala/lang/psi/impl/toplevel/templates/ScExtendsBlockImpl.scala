@@ -74,7 +74,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   def superTypes: List[ScType] = {
     var tp = superTypesCache
-    val curModCount = getManager.getModificationTracker.getModificationCount
+    val curModCount = getManager.getModificationTracker.getJavaStructureModificationCount
     if (tp != null && curModCount == superTypesModCount) {
       return tp
     }

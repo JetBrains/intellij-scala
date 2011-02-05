@@ -12,6 +12,7 @@ import api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
+import impl.expr.ScBlockExprImpl
 import impl.toplevel.typedef.{ScObjectImpl, MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
@@ -916,6 +917,23 @@ object ScalaPsiUtil {
             _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
+  }
+
+  def shouldChangeModificationCount(place: PsiElement): Boolean = {
+    var parent = place.getParent
+    while (parent != null) {
+      parent match {
+        case f: ScFunction => f.returnTypeElement match {
+          case Some(ret) => return false
+          case None => if (!f.hasAssign) return false
+        }
+        case t: PsiClass => return true
+        case bl: ScBlockExprImpl => return bl.shouldChangeModificationCount(null)
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    return false
   }
 
 }

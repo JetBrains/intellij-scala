@@ -8,16 +8,19 @@ package expr
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import parser.ScalaElementTypes
-import com.intellij.psi.PsiElement
 import com.intellij.util.ReflectionCache
 import java.util.{List, ArrayList}
+import api.statements.{ScFunction, ScVariable, ScValue}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiModifiableCodeBlock, PsiElement}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
-class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text) with ScBlockExpr {
+class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
+  with ScBlockExpr with PsiModifiableCodeBlock {
   override def toString: String = "BlockExpression"
 
   override def isAnonymousFunction: Boolean = caseClauses != None
@@ -39,5 +42,26 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       cur = cur.getNextSibling
     }
     return null
+  }
+
+  def shouldChangeModificationCount(place: PsiElement): Boolean = {
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case f: ScFunction => f.returnTypeElement match {
+          case Some(ret) => return false
+          case None =>
+            if (!f.hasAssign) return false
+            return ScalaPsiUtil.shouldChangeModificationCount(f)
+        }
+        case v: ScValue => return ScalaPsiUtil.shouldChangeModificationCount(v)
+        case v: ScVariable => return ScalaPsiUtil.shouldChangeModificationCount(v)
+        case t: PsiClass => return true
+        case bl: ScBlockExprImpl => return bl.shouldChangeModificationCount(this)
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    return false
   }
 }
