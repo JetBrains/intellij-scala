@@ -10,6 +10,7 @@ import psi.types._
 
 import result.TypingContext
 import scala._
+import collection.mutable.ArrayBuffer
 import collection.Set
 import psi.api.toplevel.ScTypedDefinition
 /**
@@ -38,22 +39,26 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
           val parentImports = getImports(state)
           val typez = bind.getType(TypingContext.empty).getOrElse(return true)
           var seq = false
+          val buffer = new ArrayBuffer[ScalaResolveResult]
           val proc = new BaseProcessor(StdKinds.methodRef) {
             def execute(element: PsiElement, state: ResolveState): Boolean = {
               val subst = getSubst(state)
               element match {
                 case fun: ScFunction if fun.name == "unapply" || (seq && fun.name == "unapplySeq") =>
-                  ExpandedExtractorResolveProcessor.this.addResult(new ScalaResolveResult(fun,
-                    parentSubst.followed(subst), parentImports, parentElement = Some(bind)))
+                  buffer += new ScalaResolveResult(fun,
+                    parentSubst.followed(subst), parentImports, parentElement = Some(bind))
                 case _ =>
               }
               true
             }
           }
           proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
+          addResults(buffer.toSeq)
           if (candidatesSet.isEmpty && levelSet.isEmpty) {
+            buffer.clear
             seq = true
             proc.processType(parentSubst.subst(typez), ref, ResolveState.initial)
+            addResults(buffer.toSeq)
           }
         }
         case _ => return super.execute(element, state)
