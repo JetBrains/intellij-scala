@@ -121,7 +121,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
   override def syntheticMembers(): scala.Seq[PsiMethod] = {
     var answer = syntheticMembersRes
-    val count = getManager.getModificationTracker.getModificationCount
+    val count = getManager.getModificationTracker.getJavaStructureModificationCount
     if (answer != null && count == modCount) return answer
     val res = new ArrayBuffer[PsiMethod]
     res ++= super.syntheticMembers

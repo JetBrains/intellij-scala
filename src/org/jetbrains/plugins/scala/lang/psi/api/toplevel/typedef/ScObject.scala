@@ -5,11 +5,9 @@ package api
 package toplevel
 package typedef
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.ScDesignatorType
-import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiMethod
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
@@ -22,4 +20,5 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember {
   private var isSyntheticCaseClassCompanion: Boolean = false
   def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion
   def setSyntheticObject: Unit = isSyntheticCaseClassCompanion = true
+  def objectSyntheticMembers: Seq[PsiMethod]
 }

@@ -18,7 +18,7 @@ import types._
 import api.toplevel.typedef._
 import api.statements._
 import nonvalue.Parameter
-import result.{Failure, TypingContext}
+import result.TypingContext
 import types.PhysicalSignature
 import com.intellij.openapi.util.Key
 import fake.FakePsiMethod
@@ -76,13 +76,9 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (member <- template.members) {
         member match {
-          /*case primary: ScPrimaryConstructor if !noPrivates => {
-            val sig = new PhysicalSignature(primary, subst)
-            map += ((sig, new Node(sig, subst)))
-          }*/
           case method: ScFunction if isAccessible(place, method) &&
                   !method.isConstructor => {
             val sig = new PhysicalSignature(method, subst)
@@ -91,6 +87,15 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+      template match {
+        case obj: ScObject =>
+          for (method <- obj.objectSyntheticMembers) {
+            val sig = new PhysicalSignature(method, subst)
+            map += ((sig, new Node(sig, subst)))
+          }
+        case _ =>
+      }
+    }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       for (decl <- cp.decls) {

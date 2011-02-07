@@ -57,6 +57,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
             case _ =>
           }
           clazz match {
+            case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
+              return o
             case td: ScTypeDefinition if td.syntheticMembers.contains(fun) =>
               return td
             case _ =>

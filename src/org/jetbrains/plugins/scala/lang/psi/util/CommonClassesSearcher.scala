@@ -17,7 +17,7 @@ object CommonClassesSearcher {
 
   def getCachedClass(manager: PsiManager, scope: GlobalSearchScope, fqn: String): Seq[PsiClass] = {
     var res: Seq[PsiClass] = cachedClasses.get(manager.getProject, fqn).getOrElse(null)
-    val count = manager.getModificationTracker.getModificationCount
+    val count = manager.getModificationTracker.getJavaStructureModificationCount
     val count1: Option[Long] = modCount.get((manager.getProject, fqn))
     if (res == null || count1 == null || count != count1.get) {
       res = getCachedClassImpl(manager, fqn)

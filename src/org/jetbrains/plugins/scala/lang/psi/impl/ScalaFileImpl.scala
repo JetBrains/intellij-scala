@@ -182,7 +182,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (!withCashing) return isScriptFileImpl
     //todo: modCount only for changed file?
     var option = isScriptFileCache
-    val curModCount = getManager.getModificationTracker.getModificationCount
+    val curModCount = getManager.getModificationTracker.getJavaStructureModificationCount
     if (option != None && isScriptFileCacheModCount == curModCount) {
       return option.get
     }
@@ -422,7 +422,7 @@ object ImplicitlyImported {
 
   def implicitlyImportedObjects(manager: PsiManager, scope: GlobalSearchScope): Seq[PsiClass] = {
     var res: Seq[PsiClass] = importedObjects.get(manager.getProject).getOrElse(null)
-    val count = manager.getModificationTracker.getModificationCount
+    val count = manager.getModificationTracker.getJavaStructureModificationCount
     val count1: Option[Long] = modCount.get(manager.getProject)
     if (res != null && count1 != null && count == count1.get) {
       val filter = new ScalaSourceFilterScope(scope, manager.getProject)

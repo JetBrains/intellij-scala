@@ -55,8 +55,8 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         val proc = new ResolveProcessor(ValueSet(CLASS), a, name)
         proc.processType(projected, a, ResolveState.initial, true)
         val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[ScTypeAlias]) {
-          (candidates(0).element.asInstanceOf[ScTypeAlias], candidates(0).substitutor)
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
         } else {
           (element, emptySubst followed subst)
         }
