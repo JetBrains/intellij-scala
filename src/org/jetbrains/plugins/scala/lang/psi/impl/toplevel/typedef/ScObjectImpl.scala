@@ -5,21 +5,15 @@ package impl
 package toplevel
 package typedef
 
-import api.toplevel.ScTypedDefinition
 import java.lang.String
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import psi.stubs.ScTemplateDefinitionStub
 import com.intellij.lang.ASTNode
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import types.{ScDesignatorType, ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
-import api.base.ScPrimaryConstructor
-import refactoring.util.ScTypeUtil
-import types.result.TypingContext
 import api.ScalaElementVisitor
 
 /**
@@ -79,15 +73,14 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
   @volatile
   private var modCount: Long = 0L
 
-  override def syntheticMembers(): Seq[PsiMethod] = {
-    if (isSyntheticObject) return super.syntheticMembers
+  def objectSyntheticMembers: Seq[PsiMethod] = {
+    if (isSyntheticObject) return Seq.empty
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         var answer = syntheticMembersRes
-        val count = getManager.getModificationTracker.getModificationCount
+        val count = getManager.getModificationTracker.getJavaStructureModificationCount
         if (answer != null && count == modCount) return answer
         val res = new ArrayBuffer[PsiMethod]
-        res ++= super.syntheticMembers
         val texts = c.getSyntheticMethodsText
         Seq(texts._1, texts._2).foreach(s => {
           try {
@@ -102,7 +95,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         modCount = count
         syntheticMembersRes = answer
         return answer
-      case _ => return super.syntheticMembers
+      case _ => return Seq.empty
     }
   }
 }

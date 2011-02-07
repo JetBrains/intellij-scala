@@ -49,6 +49,11 @@ public class SuperMemberTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testClassAliasSuper() throws Exception {
+    String name = "class/ClassAliasDependent.scala";
+    runTest(name);
+  }
+
   private void configureFile(final VirtualFile vFile, String exceptName, final VirtualFile newDir) {
     if (vFile.isDirectory()) {
       for (VirtualFile file : vFile.getChildren()) {

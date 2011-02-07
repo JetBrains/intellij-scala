@@ -646,12 +646,7 @@ object ScalaPsiUtil {
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "apply" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
-    (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(_.getName == "apply").
-              map(new PhysicalSignature(_, ScSubstitutor.empty))
-      case _ => Seq.empty[PhysicalSignature]
-    })
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
@@ -659,7 +654,7 @@ object ScalaPsiUtil {
           if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
                   (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq ++
     (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
+      case c: ScObject => c.objectSyntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -668,12 +663,7 @@ object ScalaPsiUtil {
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "update" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
-    (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(_.getName == "update").
-              map(new PhysicalSignature(_, ScSubstitutor.empty))
-      case _ => Seq.empty[PhysicalSignature]
-    })
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   /**
