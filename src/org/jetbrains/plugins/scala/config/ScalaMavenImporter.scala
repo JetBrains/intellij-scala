@@ -104,7 +104,8 @@ private class ScalaConfiguration(project: MavenProject) {
 
   def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
-  private def compilerPlugin = project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption
+  private def compilerPlugin =
+    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault)
 
   private def compilerConfiguration = compilerPlugin.flatMap(_.getConfigurationElement.toOption)
 
@@ -136,5 +137,5 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
 
-  def valid = compilerPlugin.filter(!_.isDefault).isDefined && compilerVersion.isDefined
+  def valid = compilerPlugin.isDefined && compilerVersion.isDefined
 }
