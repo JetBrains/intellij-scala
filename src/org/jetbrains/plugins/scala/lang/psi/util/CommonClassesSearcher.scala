@@ -19,7 +19,7 @@ object CommonClassesSearcher {
     var res: Seq[PsiClass] = cachedClasses.get(manager.getProject, fqn).getOrElse(null)
     val count = manager.getModificationTracker.getJavaStructureModificationCount
     val count1: Option[Long] = modCount.get((manager.getProject, fqn))
-    if (res == null || count1 == null || count != count1.get) {
+    if (res == null || count1 == null || count != count1.getOrElse(-1l)) {
       res = getCachedClassImpl(manager, fqn)
       cachedClasses((manager.getProject, fqn)) = res
       modCount((manager.getProject, fqn)) = count
