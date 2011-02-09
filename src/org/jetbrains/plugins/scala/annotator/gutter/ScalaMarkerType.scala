@@ -48,7 +48,7 @@ object ScalaMarkerType {
         case method: ScFunction => {
           val signatures: Seq[FullSignature] = method.superSignatures
           //removed assertion, because can be change before adding gutter, so just need to return ""
-          if (signatures.length != 0) return ""
+          if (signatures.length == 0) return ""
           val optionClazz = signatures(0).clazz
           assert(optionClazz != None)
           val clazz = optionClazz.get
