@@ -64,13 +64,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   }
                   else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
                   else {
-                    try
                     result = Some(params(i).removeAbstracts)
-                    catch {
-                      case e: Exception => {
-                        "stop"
-                      }
-                    }
                     forEqualsParamLength = true
                   }
                 }
@@ -96,7 +90,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 case _ =>
               }
             }
-            if (result == null) result = None
+            if (result == null) {
+              expectedType match {
+                case Some(tp: ScType) => result = Some(tp)
+                case _ => result = None
+              }
+            }
             result match {
               case None => Failure("No type inferred", None)
               case Some(t) => Success(t, None)

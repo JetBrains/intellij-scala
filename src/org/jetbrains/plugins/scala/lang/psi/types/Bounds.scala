@@ -40,6 +40,15 @@ object Bounds {
     else new ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
   }
 
+  def glb(typez: Seq[ScType]): ScType = {
+    if (typez.length == 1) typez(0)
+    var res = typez(0)
+    for (i <- 1 until typez.length) {
+      res = glb(res, typez(i))
+    }
+    return res
+  }
+
   def lub(t1: ScType, t2: ScType): ScType = lub(t1, t2, 0)
 
   private def lub(t1: ScType, t2: ScType, depth : Int): ScType = {
