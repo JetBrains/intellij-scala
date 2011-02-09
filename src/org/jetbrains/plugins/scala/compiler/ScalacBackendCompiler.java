@@ -64,8 +64,11 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     myProject = project;
   }
 
+  //@Override
   public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-    if(!super.isCompilableFile(file, context)) return false;
+    // TODO use the first line when ExternalCompiler.isCompilableFile will be available in all IDEAs
+//    if(!super.isCompilableFile(file, context)) return false;
+    if(!getCompilableFileTypes().contains(file.getFileType())) return false;
 
     Module module = context.getModuleByFile(file);
 
