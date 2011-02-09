@@ -26,7 +26,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
-import processor.{ResolveProcessor, ResolverEnv}
+import processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -125,11 +125,12 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
           case None =>
         }
       }
-      case _ =>
+      case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
         for (p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
           if (!processor.execute(method, state)) return false
         }
+      case _ => //do not execute synthetic methods to not Scala processors.
     }
 
     true
