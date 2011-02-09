@@ -239,7 +239,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       if (!visited.contains(drv)) {
         visited.add(drv)
         drv match {
-          case drg: ScTypeDefinition =>
+          case drg: ScTemplateDefinition =>
             val supers = drg.superTypes
             val supersIterator = supers.iterator
             while (supersIterator.hasNext) {
@@ -249,7 +249,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                   val value = baseClass match {
                     case _: ScTrait if c.isInstanceOf[ScTrait] => true
                     case _: ScClass if c.isInstanceOf[ScClass] => true
-                    case _ if !c.isInstanceOf[ScTypeDefinition] => true
+                    case _ if !c.isInstanceOf[ScTemplateDefinition] => true
                     case _ => false
                   }
                   if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
