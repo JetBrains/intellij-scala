@@ -3,14 +3,16 @@ package lang
 package psi
 package types
 
-import resolve.ResolveTargets
-import resolve.processor.ResolveProcessor
 import com.intellij.psi.{ResolveState, PsiElement, PsiNamedElement}
 import impl.toplevel.synthetic.ScSyntheticClass
-import result.Success
-import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
+import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
+import api.base.patterns.ScBindingPattern
+import result.{TypingContext, Success}
+import api.toplevel.ScTypedDefinition
+import resolve.processor.{BaseProcessor, ResolveProcessor}
+import resolve.{StdKinds, ResolveTargets}
 
 /**
  * @author ilyas
@@ -61,30 +63,78 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           (element, emptySubst followed subst)
         }
       }
+      case d: ScTypedDefinition if d.isStable => {
+        val name = d.getName
+        import ResolveTargets._
+        val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
+        proc.processType(projected, d, ResolveState.initial, true)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
+        } else {
+          (element, emptySubst followed subst)
+        }
+      }
       case _ => (element, emptySubst followed subst)
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
-      case t: StdType => {
+      case t: StdType =>
         element match {
           case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      }
-      case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+      case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val a = actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = actualSubst
         Equivalence.equivInner(subst.subst(a.aliasedType match {
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
         }), r, uSubst, falseUndef)
-      }
       case proj2@ScProjectionType(p1, element1, subst1) => {
-        if (actualElement != proj2.actualElement) return (false, uSubst)
+        if (actualElement != proj2.actualElement) {
+          actualElement match {
+            case o: ScObject =>
+            case t: ScTypedDefinition if t.isStable =>
+              val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst
+              t.getType(TypingContext.empty) match {
+                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                  return Equivalence.equivInner(s.subst(tp), r, uSubst, falseUndef)
+                case _ =>
+              }
+            case _ =>
+          }
+          proj2.actualElement match {
+            case o: ScObject =>
+            case t: ScTypedDefinition =>
+              val s: ScSubstitutor =
+                new ScSubstitutor(Map.empty, Map.empty, Some(p1)) followed proj2.actualSubst
+              t.getType(TypingContext.empty) match {
+                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                  return Equivalence.equivInner(s.subst(tp), this, uSubst, falseUndef)
+                case _ =>
+              }
+            case _ =>
+          }
+          return (false, uSubst)
+        }
         Equivalence.equivInner(projected, p1, uSubst, falseUndef)
       }
+      case ScThisType(clazz) =>
+        element match {
+          case o: ScObject => (false, uSubst)
+          case t: ScTypedDefinition if t.isStable =>
+            t.getType(TypingContext.empty) match {
+              case Success(singl, _) if ScType.isSingletonType(singl) =>
+                val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(projected)))
+                return Equivalence.equivInner(r, newSubst.subst(singl), uSubst, falseUndef)
+              case _ => (false, uSubst)
+            }
+          case _ => (false, uSubst)
+        }
       case _ => (false, uSubst)
     }
   }
@@ -125,12 +175,30 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
         return (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), uSubst)
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
         return (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), uSubst)
+      case (ScThisType(clazz), ScDesignatorType(obj: ScObject)) =>
+        return (false, uSubst)
+      case (ScThisType(clazz), ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
+        typed.getType(TypingContext.empty) match {
+          case Success(tp, _) if ScType.isSingletonType(tp) =>
+            return Equivalence.equivInner(this, tp, uSubst, falseUndef)
+          case _ =>
+            return (false, uSubst)
+        }
+      case (ScThisType(clazz), ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
+      case (ScThisType(clazz), p@ScProjectionType(tp, elem: ScTypedDefinition, subst)) if elem.isStable =>
+        elem.getType(TypingContext.empty) match {
+          case Success(singl, _) if ScType.isSingletonType(singl) =>
+            val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+            return Equivalence.equivInner(this, newSubst.subst(singl), uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
       case _ => (false, uSubst)
     }
   }
@@ -151,7 +219,8 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
     this.isStaticClass = isStaticClass
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
       case (ScDesignatorType(a: ScTypeAliasDefinition), _) =>
         Equivalence.equivInner(a.aliasedType match {
@@ -159,7 +228,29 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
           case _ => return (false, uSubst)
         }, r, uSubst, falseUndef)
       case (ScDesignatorType(element), ScDesignatorType(element1)) =>
-        (ScEquivalenceUtil.smartEquivalence(element, element1), uSubst)
+        if (ScEquivalenceUtil.smartEquivalence(element, element1)) return (true, uSubst)
+        if (ScType.isSingletonType(this) && ScType.isSingletonType(r)) {
+          element match {
+            case o: ScObject =>
+            case bind: ScTypedDefinition if bind.isStable =>
+              bind.getType(TypingContext.empty) match {
+                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                  return Equivalence.equivInner(tp, r, uSubst, falseUndef)
+                case _ =>
+              }
+            case _ =>
+          }
+          element1 match {
+            case o: ScObject =>
+            case bind: ScTypedDefinition if bind.isStable =>
+              bind.getType(TypingContext.empty) match {
+                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                  return Equivalence.equivInner(tp, this, uSubst, falseUndef)
+                case _ =>
+              }
+          }
+        }
+        (false, uSubst)
       case _ => (false, uSubst)
     }
   }

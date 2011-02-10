@@ -118,6 +118,23 @@ object Byte extends ValType("Byte")
 object Short extends ValType("Short")
 
 object ScType {
+  def isSingletonType(tp: ScType): Boolean = {
+    tp match {
+      case _: ScThisType => true
+      case ScDesignatorType(v) =>
+        v match {
+          case t: ScTypedDefinition => t.isStable
+          case _ => false
+        }
+      case ScProjectionType(_, elem, _) =>
+        elem match {
+          case t: ScTypedDefinition => t.isStable
+          case _ => false
+        }
+      case _ => false
+    }
+  }
+
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
              paramTopLevel: Boolean = false): ScType = {
     if (deep > 2) return Any;
