@@ -4,6 +4,5 @@ def f(p: Int => Unit) {}
 def a(p: String) {}
 def b(p: Int) {}
 
-println(/* resolved: false */f(a(_)))
-println(/* resolved: false */f(b(_)))
-
+println(/* line: 1 */f(a(_)))
+println(/* line: 2 */f(b(_)))
