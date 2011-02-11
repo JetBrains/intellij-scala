@@ -6,7 +6,10 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import com.intellij.ui.components.labels.LinkLabel;
+import com.intellij.ui.components.labels.LinkListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.DesktopUtils;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
@@ -39,11 +42,13 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox typeLamdasCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
+  private LinkLabel moreInfoLink;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     setSettings(scalaSettings);
+    moreInfoLink.setListener(new MoreInfoLinkListener(), null);
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
@@ -178,5 +183,11 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
+  }
+
+  private static class MoreInfoLinkListener implements LinkListener {
+    public void linkSelected(LinkLabel aSource, Object aLinkData) {
+      DesktopUtils.browse("http://confluence.jetbrains.net/display/SCA/Type-aware+highlighting");
+    }
   }
 }
