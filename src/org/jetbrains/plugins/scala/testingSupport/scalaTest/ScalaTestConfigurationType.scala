@@ -45,8 +45,10 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
         case pack: PsiPackage => pack
       }
       if (pack == null) return null
-      val settings = RunManager.getInstance(location.getProject).createRunConfiguration(pack.getQualifiedName, confFactory)
+      val displayName = ScalaBundle.message("test.in.scope.scalatest.presentable.text", pack.getQualifiedName)
+      val settings = RunManager.getInstance(location.getProject).createRunConfiguration(displayName, confFactory)
       settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setTestPackagePath(pack.getQualifiedName)
+      settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration].setGeneratedName(displayName)
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)

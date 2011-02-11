@@ -86,6 +86,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   def setSystemFilter(s: String): Unit = sysFilter = s
   def setExampleFilter(s: String): Unit = exampleFilter = s
 
+  private var generatedName: String = ""
+  override def getGeneratedName = generatedName
+  def setGeneratedName(name: String) {generatedName = name}
+  override def isGeneratedName = getName == null || getName.equals(suggestedName)
+  override def suggestedName = getGeneratedName
+
   def apply(configuration: SpecsRunConfigurationForm) {
     if (configuration.isClassSelected) {
       setTestClassPath(configuration.getTestClassPath)
