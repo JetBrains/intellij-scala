@@ -48,15 +48,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement) = {
     if (isStable) {
-      val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
-      getType(TypingContext.empty) match {
-        case Success(tp, _) =>
-          (processor, place) match {
-            case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst tp, p, state)
-            case _ => true
-          }
-        case _ => true
-      }
+      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
     } else true
   }
 }

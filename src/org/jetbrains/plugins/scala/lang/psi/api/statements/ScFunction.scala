@@ -52,6 +52,8 @@ trait ScFun extends ScTypeParametersOwner {
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder {
+  override def isStable = false
+
   private var synthCopy = false
   def isSyntheticCopy: Boolean = synthCopy
   def setSyntheticCopy: Unit = synthCopy = true

@@ -151,9 +151,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             case _ =>
               extendsBlock match {
                 case e: ScExtendsBlock if e != null => {
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                  }
                   selfTypeElement match {
                     case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) &&
-                            PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
+                      PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
                       case Some(t) => (processor, place) match {
                         case (b : BaseProcessor, s: ScalaPsiElement) => {
                           if (!b.processType(t.getType(TypingContext.empty).getOrElse(Any), s, state)) return false
@@ -163,9 +166,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                       case None =>
                     }
                     case _ =>
-                  }
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                   }
                 }
                 case _ => true
