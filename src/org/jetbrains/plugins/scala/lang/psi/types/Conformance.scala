@@ -511,7 +511,7 @@ object Conformance {
       }
       case (ScParameterizedType(proj1@ScProjectionType(p1, elem1, subst1), args1),
             ScParameterizedType(proj2@ScProjectionType(p2, elem2, subst2), args2))
-            if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement)=> {
+            if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) => {
         val t = conformsInner(proj1, proj2, visited, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2

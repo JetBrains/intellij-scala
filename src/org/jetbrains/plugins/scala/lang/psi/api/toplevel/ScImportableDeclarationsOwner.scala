@@ -6,9 +6,9 @@ package toplevel
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{ResolveState, PsiElement}
-import imports.ScImportStmt
-import types.{ScSubstitutor, ScCompoundType, ScType, Any}
-import types.result.{TypeResult, Success, TypingContext}
+import types.ScSubstitutor
+import types.result.{Success, TypingContext}
+import resolve.processor.BaseProcessor
 
 /**
  * @author ilyas
@@ -22,7 +22,15 @@ trait ScImportableDeclarationsOwner extends ScalaPsiElement {
    */
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement) =
     if (isStable) {
-      ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+      val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
+      getType(TypingContext.empty) match {
+        case Success(tp, _) =>
+          (processor, place) match {
+            case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst tp, p, state)
+            case _ => true
+          }
+        case _ => true
+      }
     } else true
 
 }
