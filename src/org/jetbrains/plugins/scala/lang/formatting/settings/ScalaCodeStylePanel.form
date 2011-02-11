@@ -262,14 +262,6 @@
                   <text value="Highlighting options:"/>
                 </properties>
               </component>
-              <component id="d7325" class="javax.swing.JCheckBox" binding="enableExpetimentalErrorHighlightingCheckBox" default-binding="true">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Enable experimental error highlighting (possibly shows many wrong red code)"/>
-                </properties>
-              </component>
               <component id="e5bf2" class="javax.swing.JCheckBox" binding="showImplicitConversionsInCheckBox" default-binding="true">
                 <constraints>
                   <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -295,6 +287,28 @@
                   <text value="Resolve to all classes, even in wrong directories (this may cause performance problems)"/>
                 </properties>
               </component>
+              <grid id="4cd93" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="d7325" class="javax.swing.JCheckBox" binding="enableExpetimentalErrorHighlightingCheckBox" default-binding="true">
+                    <constraints border-constraint="West"/>
+                    <properties>
+                      <text value="Type-aware highlighting (beta)"/>
+                      <toolTipText value="Show type mismatches, unresolved symbols, etc."/>
+                    </properties>
+                  </component>
+                  <component id="5108b" class="com.intellij.ui.components.labels.LinkLabel" binding="moreInfoLink">
+                    <constraints border-constraint="Center"/>
+                    <properties>
+                      <text value="More info"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
             </children>
           </grid>
         </children>
