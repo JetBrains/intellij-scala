@@ -228,13 +228,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       //need to process scala way
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, newSubst), null, place)
-      case des: ScTypedDefinition if des.isStable =>
+      case des: ScTypedDefinition =>
         des.getType(TypingContext.empty) match {
           case Success(tp, _) =>
             processType(newSubst subst tp, place, state.put(ScSubstitutor.key, newSubst), false, false)
           case _ => true
         }
-      case _ => true
+      case des =>
+        des.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place)
     }
   }
 
