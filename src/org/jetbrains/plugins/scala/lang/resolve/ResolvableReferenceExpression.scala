@@ -16,12 +16,13 @@ import caches.CachesUtil
 import com.intellij.psi._
 import psi.types.result.TypingContext
 import psi.ScalaPsiUtil
-import psi.types.{ScDesignatorType, ScSubstitutor, ScType}
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
 import psi.api.statements.params.{ScParameters, ScParameter}
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.ScTypeDefinition
+import psi.api.toplevel.ScTypedDefinition
+import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -301,7 +302,18 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ => false
     }
 
-    processor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, aType))
+    val fromType = e match {
+      case ref: ScReferenceExpression => ref.bind match {
+        case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
+          r.fromType match {
+            case Some(fT) => ScProjectionType(fT, b, ScSubstitutor.empty)
+            case None => ScDesignatorType(b)
+          }
+        case _ => aType
+      }
+      case _ => aType
+    }
+    processor.processType(aType, e, ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, fromType))
 
     val candidates = processor.candidatesS
 
