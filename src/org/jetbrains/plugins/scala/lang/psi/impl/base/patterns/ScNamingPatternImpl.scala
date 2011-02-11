@@ -11,9 +11,10 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
-import psi.types.{Bounds, ScType}
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
+import lang.resolve.processor.BaseProcessor
+import psi.types.{ScSubstitutor, Bounds, ScType}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,6 +47,16 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement) = {
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+    if (isStable) {
+      val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
+      getType(TypingContext.empty) match {
+        case Success(tp, _) =>
+          (processor, place) match {
+            case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst tp, p, state)
+            case _ => true
+          }
+        case _ => true
+      }
+    } else true
   }
 }

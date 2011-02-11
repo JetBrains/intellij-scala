@@ -24,7 +24,6 @@ import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScClass, ScTemplateDefinition}
-import com.sun.net.httpserver.Authenticator._
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -152,7 +151,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       }
       case proj@ScProjectionType(des, elem, subst) => {
-        val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(des)) followed proj.actualSubst
+        val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
         processElement(proj.actualElement, s, place, state)
       }
 

@@ -19,6 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
 import api.statements.ScDeclaredElementsHolder
 import api.{ScalaElementVisitor, ScalaFile}
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,7 +69,17 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
+    if (isStable) {
+      val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty)
+      getType(TypingContext.empty) match {
+        case Success(tp, _) =>
+          (processor, place) match {
+            case (b: BaseProcessor, p: ScalaPsiElement) => b.processType(subst subst tp, p, state)
+            case _ => true
+          }
+        case _ => true
+      }
+    } else true
   }
 
 }
