@@ -10,10 +10,10 @@ import com.intellij.openapi.ui.Messages
 
 object DesktopUtils {
   def browse(url: String) {
-    val desktop = Desktop.getDesktop
+    val supported = Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.BROWSE)
 
-    if(desktop.isSupported(Desktop.Action.BROWSE))
-      desktop.browse(new URI(url))
+    if(supported)
+      Desktop.getDesktop.browse(new URI(url))
     else
       Messages.showWarningDialog(
         "Unable to launch a web browser, please open: %s".format(url),
