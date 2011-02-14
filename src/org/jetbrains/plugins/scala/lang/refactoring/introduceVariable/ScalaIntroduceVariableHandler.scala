@@ -66,7 +66,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler {
     }
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
-      val element: PsiElement = file.findElementAt(offset)
+      val element: PsiElement = file.findElementAt(offset) match {
+        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset && offset != null &&
+          w.getText.contains("\n") => file.findElementAt(offset - 1)
+        case p => p
+      }
       def getExpressions: Array[ScExpression] = {
         val res = new ArrayBuffer[ScExpression]
         var parent = element
