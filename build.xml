@@ -394,6 +394,62 @@
         <fileset dir="${test.dest}">
           <include name="**/*Test.class"/>
           <exclude name="**/*ActualTest.class"/>
+          <exclude name="**/*Problematic*Test.class"/>
+        </fileset>
+      </batchtest>
+
+    </junit>
+    <delete dir="${test.dist}/config"/>
+    <delete dir="${test.dist}/system"/>
+
+  </target>
+
+  <target name="run.problematic.tests" depends="build.tests">
+
+    <copy toDir="${main.dest}/testdata">
+      <fileset dir="${base.dir}/testdata"/>
+    </copy>
+
+    <mkdir dir="${base.dir}/logs"/>
+    <mkdir dir="${test.dist}/config"/>
+    <mkdir dir="${test.dist}/system"/>
+
+    <echo message="${tools.jar}"/>
+
+    <junit fork="yes"
+           dir="${base.dir}"
+           showoutput="yes"
+           printsummary="yes"
+           haltonfailure="no"
+           haltonerror="no">
+
+      <classpath>
+        <path refid="base.path"/>
+        <path location="${main.dest}"/>
+        <path location="${runners.dest}"/>
+        <path location="${test.dest}"/>
+      </classpath>
+
+      <jvmarg value="-Xbootclasspath/p:./SDK/boot/boot.jar"/>
+      <jvmarg value="-Djava.awt.headless=true"/>
+      <jvmarg value="-Xmx256M"/>
+      <jvmarg value="-ea"/>
+      <jvmarg value="-Djava.compiler=NONE"/>
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5113"/>
+
+      <jvmarg value="-Didea.config.path=${test.dist}/config"/>
+      <jvmarg value="-Didea.system.path=${test.dist}/system"/>
+      <jvmarg value="-Didea.plugins.path=${production.dest}"/>
+
+      <jvmarg value="-Didea.load.plugins.id=org.intellij.scala"/>
+
+      <formatter type="plain"/>
+
+      <batchtest todir="${base.dir}/logs">
+        <fileset dir="${test.dest}">
+          <include name="**/*Problematic*Test.class"/>
+          <exclude name="**/*ActualTest.class"/>
         </fileset>
       </batchtest>
 

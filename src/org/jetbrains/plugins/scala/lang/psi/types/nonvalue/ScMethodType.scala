@@ -92,6 +92,15 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType else tp.lowerType))),
       Map.empty, None)
 
+  def polymorphicTypeSubstitutorMissedEmptyParams: ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.flatMap(tp =>
+      if (tp.upperType.equiv(Any))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType))
+      else if (tp.lowerType.equiv(Nothing))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType))
+      else Seq.empty
+    )),  Map.empty, None)
+
   def abstractTypeSubstitutor: ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
             new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), tp.lowerType, tp.upperType)))), Map.empty, None)
