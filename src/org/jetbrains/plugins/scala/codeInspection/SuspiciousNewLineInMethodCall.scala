@@ -3,12 +3,10 @@ package codeInspection
 
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any, AnyVal}
 import com.intellij.codeInspection._
-import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiFile}
 
 /**
  * Detects method calls with suspicuous new-lines:

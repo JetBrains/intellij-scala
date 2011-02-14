@@ -13,7 +13,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import impl.expr.ScBlockExprImpl
-import impl.toplevel.typedef.{ScObjectImpl, MixinNodes, TypeDefinitionMembers}
+import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import api.expr._
@@ -26,7 +26,6 @@ import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
-import lexer.ScalaTokenTypes
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
 import types.Compatibility.Expression
 import params._
@@ -38,13 +37,13 @@ import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
-import collection.immutable.Stream
-import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
+import collection.mutable.{HashSet, ArrayBuffer}
+import collection.immutable.{HashMap, Stream}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -375,6 +374,16 @@ object ScalaPsiUtil {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
   }
 
+  def polymorphicTypeSubstitutorMissedEmptyParams(typeParameters: Seq[TypeParameter]): ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ Map(typeParameters.flatMap(tp =>
+      if (tp.upperType.equiv(Any))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType))
+      else if (tp.lowerType.equiv(Nothing))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType))
+      else Seq.empty
+    ) : _*),  Map.empty, None)
+
+
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                  typeParams: Seq[TypeParameter],
                                  subst: ScSubstitutor = ScSubstitutor.empty,
@@ -384,14 +393,15 @@ object ScalaPsiUtil {
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     (if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst
+      val prevInfoSubst = polymorphicTypeSubstitutorMissedEmptyParams(typeParams) followed subst
       ScTypePolymorphicType(retType, typeParams.map(tp => {
         var lower = tp.lowerType
         var upper = tp.upperType
         for ((name, addLower) <- un.lowerMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) {
-          lower = Bounds.lub(lower, subst.subst(addLower))
+          lower = Bounds.lub(lower, prevInfoSubst.subst(addLower))
         }
         for ((name, addUpperSeq) <- un.upperMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)); addUpper <- addUpperSeq) {
-          upper = Bounds.glb(upper, subst.subst(addUpper))
+          upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper))
         }
         TypeParameter(tp.name, lower, upper, tp.ptp)
       }))

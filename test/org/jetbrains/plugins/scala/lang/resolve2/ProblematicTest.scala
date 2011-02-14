@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
-class PendingTest extends ResolveTestBase {
+class ProblematicTest extends ResolveTestBase {
   override def getTestDataPath: String = {
-    super.getTestDataPath + "pending/"
+    super.getTestDataPath + "problematic/"
   }
 
   def testSCL1707 = doTest
@@ -20,4 +20,10 @@ class PendingTest extends ResolveTestBase {
   def testSCL2386E = doTest
 
   def testSCL2456 = doTest
+
+  def testFromCompanion = doTest
+
+  def testValueFunction11 = doTest
+
+  def testSCL2169 = doTest
 }
