@@ -199,10 +199,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getSuperParameter: Option[ScParameter] = {
     getParent match {
       case clause: ScParameterClause => {
-        lazy val i = clause.parameters.indexOf(this)
+        val i = clause.parameters.indexOf(this)
         clause.getParent match {
           case p: ScParameters => {
-            lazy val j = p.clauses.indexOf(clause)
+            val j = p.clauses.indexOf(clause)
             p.getParent match {
               case fun: ScFunction => {
                 fun.superMethod match {
