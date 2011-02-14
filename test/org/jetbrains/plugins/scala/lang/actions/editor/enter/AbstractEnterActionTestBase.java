@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import java.io.IOException;
 
 
-abstract public class AbstractEnterActionTest extends ActionTestBase {
+abstract public class AbstractEnterActionTestBase extends ActionTestBase {
 
 
 
@@ -43,7 +43,7 @@ abstract public class AbstractEnterActionTest extends ActionTestBase {
   protected String newDocumentText;
   protected PsiFile myFile;
 
-  public AbstractEnterActionTest(String DATA_PATH) {
+  public AbstractEnterActionTestBase(String DATA_PATH) {
     super(System.getProperty("path") != null ?
             System.getProperty("path") :
             DATA_PATH
