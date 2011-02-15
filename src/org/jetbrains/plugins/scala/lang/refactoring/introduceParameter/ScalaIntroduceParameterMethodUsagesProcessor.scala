@@ -19,7 +19,7 @@ import com.intellij.util.containers.MultiMap
  * Date: 11.06.2009
  */
 
-class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMethodUsagesProcessor{
+class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMethodUsagesProcessor {
   def processAddDefaultConstructor(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = false
 
   def processAddSuperCall(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = false

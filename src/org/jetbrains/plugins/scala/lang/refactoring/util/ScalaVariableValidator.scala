@@ -1,51 +1,32 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package introduceVariable
+package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.util.TextRange
-import psi.api.statements.params.ScParameters
-import psi.api.statements.ScFunction
-import psi.api.statements.ScValue
-import psi.api.statements.ScVariable
-import psi.api.toplevel.typedef.ScTypeDefinition
-import psi.api.toplevel.typedef.ScTrait
-import psi.api.toplevel.typedef.ScClass
-import lexer.ScalaTokenTypes
-import psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryBlock
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScEnumerator
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import util.NameValidator
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScClass}
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import params.{ScParameters, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
 * User: Alexander Podkhalyuzin
 * Date: 24.06.2008
 */
 
-class ScalaVariableValidator(introduceVariableBase: ScalaIntroduceVariableHandler,
-                            myProject: Project,
-                            selectedExpr: ScExpression,
-                            occurrences: Array[TextRange],
-                            enclosingContainerAll: PsiElement, enclosingOne: PsiElement) extends NameValidator {
-
-
+class ScalaVariableValidator(introduceVariableBase: ConflictsReporter,
+                             myProject: Project,
+                             selectedExpr: ScExpression,
+                             occurrences: Array[TextRange],
+                             enclosingContainerAll: PsiElement, enclosingOne: PsiElement) extends NameValidator {
   def getProject(): Project = {
     myProject
   }
 
-  def isOK(dialog: ScalaIntroduceVariableDialog): Boolean = {
+  def isOK(dialog: NamedDialog): Boolean = {
     if (occurrences.length == 0) return true
     val name = dialog.getEnteredName
     val allOcc = dialog.isReplaceAllOccurrences

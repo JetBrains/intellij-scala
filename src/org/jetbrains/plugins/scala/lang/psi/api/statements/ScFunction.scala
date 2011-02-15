@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import com.intellij.psi._
 
@@ -19,7 +18,7 @@ import types._
 import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import com.sun.swing.internal.plaf.synth.resources.synth
+import expr.ScBlock
 
 /**
  * @author Alexander Podkhalyuzin
@@ -212,5 +211,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
       case _ => None
     }
+  }
+
+  /**
+   * physical getContainingClass.
+   */
+  def containingClass: Option[ScTemplateDefinition] = {
+    var parent = getParent
+    while (parent != null) {
+      parent match {
+        case t: ScTemplateDefinition => return Some(t)
+        case b: ScBlock => return None
+        case _ => parent = parent.getParent
+      }
+    }
+    return None
   }
 }

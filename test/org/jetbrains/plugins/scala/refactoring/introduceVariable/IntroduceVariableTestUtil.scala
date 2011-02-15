@@ -10,11 +10,10 @@ import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.util.PsiTreeUtil
 import lang.psi.api.ScalaFile
-import lang.psi.api.base.patterns.ScCaseClause
-
-import lang.refactoring.introduceVariable.{ScalaIntroduceVariableHandler, ScalaVariableValidator}
-import lang.refactoring.util.ScalaRefactoringUtil
+import lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 import lang.psi.types.ScType
+import lang.refactoring.util.{ScalaVariableValidator, ScalaRefactoringUtil}
+
 /**
  * @author Alexander Podkhalyuzin
  * @date 05.04.2009
