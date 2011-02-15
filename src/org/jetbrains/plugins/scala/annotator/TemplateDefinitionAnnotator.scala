@@ -14,7 +14,7 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScTrait, ScTem
  */
 
 trait TemplateDefinitionAnnotator {
-  def annotateTemplateDefinition(defintion: ScTemplateDefinition, holder: AnnotationHolder) {
+  def annotateTemplateDefinition(defintion: ScTemplateDefinition, holder: AnnotationHolder, advanced: Boolean) {
     def error(e: PsiElement, format: String, args: Any*) =
       holder.createErrorAnnotation(e, format.format(args: _*))
 
@@ -30,19 +30,20 @@ trait TemplateDefinitionAnnotator {
 
     refs.headOption.foreach {
       case (refElement, Some(psiClass)) => {
-        if(refs.tail.isEmpty && newObject && !hasBody && isAbstract(psiClass))
+        if(refs.tail.isEmpty && newObject && !hasBody && isAbstract(psiClass)) {
           error(refElement, "%s %s is abstract; cannot be instantiated", kindOf(psiClass), psiClass.getName)
-
-        if(!isAbstract(defintion)) {
-          val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(defintion))
-          val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
-          if(!undefined.isEmpty) {
-            if(newObject) {
-              holder.createErrorAnnotation(refElement,
-                TemplateDefinitionAnnotator.objectCreationImpossible(undefined: _*))
-            } else {
-              holder.createErrorAnnotation(defintion.nameId,
-                TemplateDefinitionAnnotator.needsToBeAbstract(kindOf(defintion), defintion.getName, undefined: _*))
+        } else {
+          if(advanced && !isAbstract(defintion)) {
+            val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(defintion))
+            val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
+            if(!undefined.isEmpty) {
+              if(newObject) {
+                holder.createErrorAnnotation(refElement,
+                  TemplateDefinitionAnnotator.objectCreationImpossible(undefined: _*))
+              } else {
+                holder.createErrorAnnotation(defintion.nameId,
+                  TemplateDefinitionAnnotator.needsToBeAbstract(kindOf(defintion), defintion.getName, undefined: _*))
+              }
             }
           }
         }
