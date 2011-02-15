@@ -1,28 +1,19 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
-import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaVariableValidator;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import scala.Some;
-import scala.Tuple2;
 
 import java.io.IOException;
 
@@ -75,7 +66,7 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
       String varName = "value";
       final ScType varType = null;
 
-      ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(myProject, myEditor, 
+      ScalaVariableValidator validator = IntroduceVariableTestUtil.getValidator(myProject, myEditor,
           (ScalaFile) myFile, startOffset, endOffset);
       String[] res = validator.isOKImpl(varName, replaceAllOccurences);
       for (String s: res) result += s + "\n";

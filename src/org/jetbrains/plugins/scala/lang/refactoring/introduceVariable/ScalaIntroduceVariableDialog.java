@@ -15,9 +15,7 @@ import com.intellij.ui.StringComboboxEditor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 
@@ -31,7 +29,7 @@ import java.util.HashMap;
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
-public class ScalaIntroduceVariableDialog extends DialogWrapper {
+public class ScalaIntroduceVariableDialog extends DialogWrapper implements NamedDialog {
   private JCheckBox myCbTypeSpec;
   private JCheckBox declareVariableCheckBox;
   private JCheckBox myCbReplaceAllOccurences;
