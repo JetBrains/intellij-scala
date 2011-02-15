@@ -105,6 +105,12 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testAbstractInstantiationAndMethod {
+    assertMatches(messages("trait T { def f }; new T")) {
+      case Error("T", AbstractInstantiation("Trait T")) :: Nil =>
+    }
+  }
+
   def testAbstractInstantiationWithConcreteClass {
     assertMatches(messages("class C; new C {}")) {
       case Nil =>
@@ -196,7 +202,7 @@ class TemplateDefinitionAnnotatorTest extends SimpleTestCase {
     val annotator = new TemplateDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock
     
-    annotator.annotateTemplateDefinition(definition, mock)
+    annotator.annotateTemplateDefinition(definition, mock, true)
     mock.annotations
   }
   
