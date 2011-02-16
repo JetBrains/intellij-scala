@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package annotator.applicability
+package lang.psi.applicability
 
 import lang.psi.types._
 
