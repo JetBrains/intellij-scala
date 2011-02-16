@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala
-package annotator.applicability
+package lang.psi.applicability
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import lang.psi.api.base.ScReferenceElement
