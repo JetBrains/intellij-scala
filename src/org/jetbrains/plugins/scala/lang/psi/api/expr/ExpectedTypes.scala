@@ -196,13 +196,13 @@ private[expr] object ExpectedTypes {
         res.toArray
       }
       //SLS[4.1]
-      case v: ScPatternDefinition if v.expr.getStartOffsetInParent == expr.getStartOffsetInParent => {
+      case v: ScPatternDefinition if v.expr == expr.getChild => {
         v.typeElement match {
           case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
         }
       }
-      case v: ScVariableDefinition if v.expr.getStartOffsetInParent == expr.getStartOffsetInParent => {
+      case v: ScVariableDefinition if v.expr == expr.getChild => {
         v.typeElement match {
           case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
           case _ => Array.empty
@@ -211,7 +211,7 @@ private[expr] object ExpectedTypes {
       //SLS[4.6]
       case v: ScFunctionDefinition if (v.body match {
         case None => false
-        case Some(b) => b.getStartOffsetInParent == expr.getStartOffsetInParent
+        case Some(b) => b == expr.getChild
       }) => {
         v.getInheritedReturnType.toArray
       }

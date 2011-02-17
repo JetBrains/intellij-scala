@@ -27,6 +27,7 @@ import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import stubs.ScModifiersStub
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
@@ -44,6 +45,8 @@ import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
 import collection.mutable.{HashSet, ArrayBuffer}
 import collection.immutable.{HashMap, Stream}
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.StubElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -467,19 +470,26 @@ object ScalaPsiUtil {
   }
 
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
+    def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
+      val parent = stub.getParentStub
+      val children = parent.getChildrenStubs
+      val index = children.indexOf(stub)
+      if (index == -1) {
+        elem.getPrevSibling
+      } else if (index == 0) {
+        null
+      } else {
+        children.get(index - 1).getPsi
+      }
+    }
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
         val stub = st.getStub
-        val parent = stub.getParentStub
-        val children = parent.getChildrenStubs
-        val index = children.indexOf(stub)
-        if (index == -1) {
-          elem.getPrevSibling
-        } else if (index == 0) {
-          null
-        } else {
-          children.get(index - 1).getPsi
-        }
+        workWithStub(stub)
+      }
+      case file: PsiFileImpl if file.getStub != null => {
+        val stub = file.getStub
+        workWithStub(stub)
       }
       case _ => elem.getPrevSibling
     }
@@ -642,7 +652,12 @@ object ScalaPsiUtil {
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
     if (modifiers == null) return ""
     val buffer = new StringBuilder("")
-    for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
+    modifiers match {
+      case st: StubBasedPsiElement[_] if st.getStub != null =>
+        for (modifier <- st.getStub.asInstanceOf[ScModifiersStub].getModifiers) buffer.append(modifier + " ")
+      case _ =>
+        for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
+    }
     return buffer.toString
   }
 
@@ -729,6 +744,10 @@ object ScalaPsiUtil {
           new ArrayFactory[PsiElement] {
             def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
           })
+      case file: PsiFileImpl if file.getStub != null => file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
+        new ArrayFactory[PsiElement] {
+          def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
+        })
       case _ => scope.getChildren
     }
     td match {

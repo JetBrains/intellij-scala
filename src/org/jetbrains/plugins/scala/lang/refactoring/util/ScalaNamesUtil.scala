@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 object ScalaNamesUtil {
   def isIdentifier(text: String): Boolean = {
     ApplicationManager.getApplication.assertReadAccessAllowed
-    if (text == null) return false
+    if (text == null || text == "") return false
 
     val lexer = new ScalaLexer();
     lexer.start(text, 0, text.length, 0)

@@ -70,7 +70,7 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
     if (stub != null) {
       stub.findChildStubByType(ScalaElementTypes.SELF_TYPE) match {
         case null => return None
-        case s => Some(s.getPsi)
+        case s => return Some(s.getPsi)
       }
     }
     findChildByType(ScalaElementTypes.SELF_TYPE) match {

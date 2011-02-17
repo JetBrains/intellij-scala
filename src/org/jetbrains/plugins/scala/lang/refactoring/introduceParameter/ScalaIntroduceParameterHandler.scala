@@ -9,13 +9,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import psi.api.ScalaFile
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
 import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.ui.ConflictsDialog
 import psi.types.ScType
 import psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.base.patterns.ScCaseClause
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
 import namesSuggester.NameSuggester
@@ -24,8 +22,9 @@ import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefacto
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import collection.mutable.ArrayBuffer
 import com.intellij.psi._
-import com.intellij.refactoring.introduceParameter.EnclosingMethodSelectionDialog
-import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
+import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.ide.util.SuperMethodWarningUtil
+import com.intellij.refactoring.{RefactoringBundle, HelpID, RefactoringActionHandler}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -79,62 +78,28 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         showErrorMessage(ScalaBundle.message("cannot.refactor.no.function"), project, editor)
       }
 
+      val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
+      if (methodToSearchFor == null) return
+      if (!CommonRefactoringUtil.checkReadOnlyStatus(project, methodToSearchFor)) return
+
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), function)
       // Getting settings
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, function, function)
-      var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
-      if (!dialog.isOK) return
+      val validator = new ScalaVariableValidator(this, project, expr, occurrences, function, function)
+      // Add occurrences highlighting
+      if (occurrences.length > 1)
+        ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
-      val varName: String = dialog.getEnteredName
-      var varType: ScType = dialog.getSelectedType
-      val isDefault: Boolean = dialog.isDeclareDefault
-      val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-      runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, varName, varType,
-        replaceAllOccurrences, isDefault, function)
+      val possibleNames = NameSuggester.suggestNames(expr, validator)
+      val dialog = new ScalaIntroduceParameterDialog(project, typez, occurrences,
+        validator, possibleNames, methodToSearchFor, startOffset, endOffset, function)
+      dialog.show
     }
     catch {
       case _: IntroduceException => return
     }
   }
 
-  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
-                           occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                           replaceAllOccurrences: Boolean, isDefault: Boolean, function: ScFunctionDefinition) {
-
-  }
-
-   def runRefactoring(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
-                    occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                    replaceAllOccurrences: Boolean, isDefault: Boolean, function: ScFunctionDefinition) {
-    val runnable = new Runnable() {
-      def run() {
-        runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
-          varType, replaceAllOccurrences, isDefault, function) //this for better debug
-      }
-    }
-
-    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME);
-    editor.getSelectionModel.removeSelection
-  }
-
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {/*do nothing*/}
-
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[TextRange],
-                          declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceParameterDialog = {
-    // Add occurrences highlighting
-    if (occurrences.length > 1)
-      ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
-
-    val possibleNames = NameSuggester.suggestNames(expr, validator)
-    val dialog = new ScalaIntroduceParameterDialog(project, typez, occurrences.length, validator, possibleNames)
-    dialog.show
-    if (!dialog.isOK()) {
-      if (occurrences.length > 1) {
-        WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
-      }
-    }
-    return dialog
-  }
 
   def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
     val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
@@ -163,7 +128,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
     if (enclosingMethods.size > 1) {
       var methodsNotImplementingLibraryInterfaces = new ArrayBuffer[ScFunctionDefinition]
       for (enclosing <- enclosingMethods) {
-        var superMethods: Seq[PsiMethod] = enclosing.superMethods
+        val superMethods: Seq[PsiMethod] = enclosing.superMethods
         var libraryInterfaceMethod: Boolean = false
         for (superMethod <- superMethods) {
           libraryInterfaceMethod |= isLibraryInterfaceMethod(superMethod)

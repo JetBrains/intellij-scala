@@ -34,5 +34,5 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    */
   def attributes = annotationExpr.getAttributes
 
-  def typeElement: ScTypeElement = annotationExpr.constr.typeElement
+  def typeElement: ScTypeElement
 }

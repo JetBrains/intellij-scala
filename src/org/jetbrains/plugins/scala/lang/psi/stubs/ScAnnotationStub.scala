@@ -6,6 +6,7 @@ package stubs
 
 import api.expr.ScAnnotation
 import com.intellij.psi.stubs.StubElement
+import api.base.types.ScTypeElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,4 +15,8 @@ import com.intellij.psi.stubs.StubElement
 
 trait ScAnnotationStub extends StubElement[ScAnnotation] {
   def getName: String
+
+  def getTypeElement: ScTypeElement
+
+  def getTypeText: String
 }

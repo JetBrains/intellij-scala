@@ -285,7 +285,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     syntheticObjects = new HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-              createFileFromText("dummy" + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
         ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
       val obj = dummyFile.typeDefinitions.apply(0).asInstanceOf[ScObject]
       syntheticObjects += obj

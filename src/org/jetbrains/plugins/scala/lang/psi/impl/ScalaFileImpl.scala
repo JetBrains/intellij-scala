@@ -55,13 +55,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def isCompiled = compiled
 
   def sourceName = {
-    if (isCompiled) {
-      if (virtualFileChanged) {
-        sourceFileName = DecompilerUtil.decompile(virtualFile.contentsToByteArray, virtualFile)._2
-        virtualFileChanged = false
-      }
-      sourceFileName
-    }
+    if (isCompiled) sourceFileName
     else ""
   }
 
