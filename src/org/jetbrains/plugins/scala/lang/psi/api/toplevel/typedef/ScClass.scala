@@ -39,7 +39,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         if (res != null && count == modCount) return res
         val texts = getSyntheticMethodsText
         val objText = "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
-        val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, this)
+        val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
+        val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
         val objOption = obj.toOption
         objOption.foreach(_.setSyntheticObject)
         res = objOption
