@@ -6,7 +6,10 @@ import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.HelpID;
+import com.intellij.refactoring.ui.RefactoringDialog;
 import com.intellij.ui.EditorComboBoxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
 import com.intellij.ui.EditorTextField;
@@ -14,6 +17,7 @@ import com.intellij.ui.StringComboboxEditor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
@@ -27,7 +31,7 @@ import java.util.HashMap;
 /**
  * @author Alexander Podkhalyuzin
  */
-public class ScalaIntroduceParameterDialog extends DialogWrapper implements NamedDialog {
+public class ScalaIntroduceParameterDialog extends RefactoringDialog implements NamedDialog {
   private JPanel contentPane;
   private JComboBox typeComboBox;
   private ComboBox myNameComboBox;
@@ -45,31 +49,54 @@ public class ScalaIntroduceParameterDialog extends DialogWrapper implements Name
 
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title");
   private HashMap<String, ScType> myTypeMap;
+  private ItemListener listener;
+  private DocumentListener documentListener;
+  private PsiMethod methodToSearchFor;
+  private TextRange[] occurrences;
+  private int startOffset;
+  private int endOffset;
+  private ScFunctionDefinition function;
 
   protected ScalaIntroduceParameterDialog(Project project,
                                           ScType myType,
-                                          int occurrencesCount,
+                                          TextRange[] occurrences,
                                           ScalaVariableValidator validator,
-                                          String[] possibleNames) {
+                                          String[] possibleNames, PsiMethod methodToSearchFor,
+                                          int startOffset, int endOffset, ScFunctionDefinition function) {
     super(project, true);
     this.project = project;
     this.myType = myType;
-    this.occurrencesCount = occurrencesCount;
+    this.occurrencesCount = occurrences.length;
+    this.occurrences = occurrences;
     this.validator = validator;
     this.possibleNames = possibleNames;
-    setUpNameComboBox(possibleNames);
+    this.methodToSearchFor = methodToSearchFor;
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
+    this.function = function;
 
-    setModal(true);
-    getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
+    setUpNameComboBox(possibleNames);
     setUpDialog();
     updateOkStatus();
   }
 
   @Override
-  protected JComponent createCenterPanel() {
+  protected JComponent createNorthPanel() {
     return contentPane;
+  }
+
+  @Override
+  protected JComponent createCenterPanel() {
+    return null;
+  }
+
+  @Override
+  protected void dispose() {
+     myNameComboBox.removeItemListener(listener);
+    ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).removeDocumentListener(documentListener);
+    super.dispose();
   }
 
   private void setUpNameComboBox(String[] possibleNames) {
@@ -83,23 +110,24 @@ public class ScalaIntroduceParameterDialog extends DialogWrapper implements Name
     myNameComboBox.setMaximumRowCount(8);
     myListenerList.add(DataChangedListener.class, new DataChangedListener());
 
+    listener = new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        fireNameDataChanged();
+      }
+    };
     myNameComboBox.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            fireNameDataChanged();
-          }
-        }
+        listener
     );
 
-    ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
+    documentListener = new DocumentListener() {
       public void beforeDocumentChange(DocumentEvent event) {
       }
 
       public void documentChanged(DocumentEvent event) {
         fireNameDataChanged();
       }
-    }
-    );
+    };
+    ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(documentListener);
 
     contentPane.registerKeyboardAction(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -130,7 +158,16 @@ public class ScalaIntroduceParameterDialog extends DialogWrapper implements Name
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+    boolean enabled = ScalaNamesUtil.isIdentifier(text);
+    if (!enabled) {
+      String errorText = text;
+      if (errorText == null) errorText = "\"\"";
+      errorText += " is not valid identifier";
+      setErrorText(errorText);
+    }
+    else setErrorText(null);
+    getPreviewAction().setEnabled(enabled);
+    getRefactorAction().setEnabled(enabled);
   }
 
   private void fireNameDataChanged() {
@@ -186,10 +223,6 @@ public class ScalaIntroduceParameterDialog extends DialogWrapper implements Name
 
   }
 
-  protected Action[] createActions() {
-    return new Action[]{getOKAction(), getCancelAction(), getHelpAction()};
-  }
-
   public ScType getSelectedType() {
     if (myTypeMap.size() == 0) return null;
     return myTypeMap.get(typeComboBox.getSelectedItem());
@@ -203,13 +236,17 @@ public class ScalaIntroduceParameterDialog extends DialogWrapper implements Name
     return makeWithDefaultValueCheckBox.isSelected();
   }
 
-  protected void doOKAction() {
+  @Override
+  protected void doAction() {
     if (!validator.isOK(this)) {
       return;
     }
     if (makeWithDefaultValueCheckBox.isEnabled()) {
       ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT = makeWithDefaultValueCheckBox.isSelected();
     }
-    super.doOKAction();
+    ScalaIntroduceParameterProcessor scalaIntroduceParameterProcessor =
+        new ScalaIntroduceParameterProcessor(project, methodToSearchFor, function,
+            isReplaceAllOccurrences(), occurrences, startOffset, endOffset);
+    invokeRefactoring(scalaIntroduceParameterProcessor);
   }
 }
