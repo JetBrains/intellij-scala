@@ -6,9 +6,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 
 import javax.swing.*;
@@ -26,9 +24,11 @@ public class ScalacConfigurable implements Configurable {
   private JCheckBox scalacBeforeCheckBox;
   private JCheckBox useFscFastScalacCheckBox;
   private JTextField serverPortTextField;
+  private JTextField fscArgumentsTextField;
   private JCheckBox resetFscServerCheckBox;
   private JCheckBox shutdownFscServerCheckBox;
   private JLabel serverPortLabel;
+  private JLabel fscArgumentsLabel;
   private ScalacSettings mySettings;
   private Project myProject;
 
@@ -38,10 +38,12 @@ public class ScalacConfigurable implements Configurable {
     useFscFastScalacCheckBox.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         boolean enabled = useFscFastScalacCheckBox.isSelected();
+        serverPortLabel.setEnabled(enabled);
         serverPortTextField.setEnabled(enabled);
+        fscArgumentsLabel.setEnabled(enabled);
+        fscArgumentsTextField.setEnabled(enabled);
         resetFscServerCheckBox.setEnabled(enabled);
         shutdownFscServerCheckBox.setEnabled(enabled);
-        serverPortLabel.setEnabled(enabled);
       }
     });
   }
@@ -69,6 +71,7 @@ public class ScalacConfigurable implements Configurable {
     if (mySettings.SERVER_SHUTDOWN != shutdownFscServerCheckBox.isSelected()) return true;
     if (mySettings.USE_FSC != useFscFastScalacCheckBox.isSelected()) return true;
     if (!mySettings.SERVER_PORT.equals(serverPortTextField.getText())) return true;
+    if (!mySettings.FSC_ARGUMENTS.equals(fscArgumentsTextField.getText())) return true;
 
     return false;
   }
@@ -76,6 +79,7 @@ public class ScalacConfigurable implements Configurable {
   public void apply() throws ConfigurationException {
     mySettings.USE_FSC = useFscFastScalacCheckBox.isSelected();
     mySettings.SERVER_PORT = serverPortTextField.getText();
+    mySettings.FSC_ARGUMENTS = fscArgumentsTextField.getText();
     mySettings.SERVER_RESET = resetFscServerCheckBox.isSelected();
     mySettings.SERVER_SHUTDOWN = shutdownFscServerCheckBox.isSelected();
     if (scalacBeforeCheckBox.isSelected() && mySettings.SCALAC_BEFORE != scalacBeforeCheckBox.isSelected()) {
@@ -99,6 +103,7 @@ public class ScalacConfigurable implements Configurable {
     shutdownFscServerCheckBox.setSelected(mySettings.SERVER_SHUTDOWN);
     resetFscServerCheckBox.setSelected(mySettings.SERVER_RESET);
     serverPortTextField.setText(mySettings.SERVER_PORT);
+    fscArgumentsTextField.setText(mySettings.FSC_ARGUMENTS);
     useFscFastScalacCheckBox.setSelected(mySettings.USE_FSC);
   }
 

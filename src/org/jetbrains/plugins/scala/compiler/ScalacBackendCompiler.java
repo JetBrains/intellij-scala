@@ -266,6 +266,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     
     CompilerUtil.addLocaleOptions(commandLine, false);
 
+    // add JAVA_OPTS from user settings to command line
+    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    while (tokenizer.hasMoreTokens()) {
+      String param = tokenizer.nextToken();
+      if (param.startsWith("-D")) {
+        commandLine.add(param);
+      }
+    }
+
     commandLine.add("-cp");
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
     final StringBuilder classPathBuilder = new StringBuilder();
