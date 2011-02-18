@@ -19,7 +19,6 @@ import lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import lang.resolve.ResolveUtils
 import java.awt.Point
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.ScImportsHolder
 import scala.util.ScalaUtils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInspection.HintAction
@@ -36,6 +35,8 @@ import javax.swing.{Icon, JList}
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep, PopupChooserBuilder}
 import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
+import collection.mutable.ArrayBuffer
+import lang.psi.{ScalaPsiUtil, ScImportsHolder}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -228,6 +229,11 @@ object ScalaImportClassFix {
       else t.getParent
     }
     clazz match {
+      case o: ScObject if o.isSyntheticObject =>
+        ScalaPsiUtil.getCompanionModule(o) match {
+          case Some(cl) => notInner(cl, ref)
+          case _ => true
+        }
       case t: ScTypeDefinition => {
        parent(t) match {
           case _: ScalaFile => true
@@ -247,15 +253,34 @@ object ScalaImportClassFix {
     if (!ref.isValid) return Array.empty
     val kinds = ref.getKinds(false)
     val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
-    val classes = cache.getClassesByName(ref.refName, ref.getResolveScope).filter {
-      clazz => clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
-              ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
-              !JavaCompletionUtil.isInExcludedPackage(clazz)
+    val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
+    val buffer = new ArrayBuffer[PsiClass]
+    for (clazz <- classes) {
+      def addClazz(clazz: PsiClass) {
+        if (clazz != null && clazz.getQualifiedName() != null && clazz.getQualifiedName.indexOf(".") > 0 &&
+          ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
+          !JavaCompletionUtil.isInExcludedPackage(clazz)) {
+          buffer += clazz
+        }
+      }
+      addClazz(clazz)
+      clazz match {
+        case c: ScClass if c.isCase =>
+          if (ScalaPsiUtil.getBaseCompanionModule(c) == None) {
+            ScalaPsiUtil.getCompanionModule(c) match {
+              case Some(c) => addClazz(c)
+              case _ =>
+            }
+          }
+        case _ =>
+      }
     }
     if (ref.getParent.isInstanceOf[ScMethodCall]) {
-      classes.filter((clazz: PsiClass) => (clazz.isInstanceOf[ScClass] && clazz.hasModifierProperty("case")) ||
-              (clazz.isInstanceOf[ScObject] && clazz.asInstanceOf[ScObject].functionsByName("apply").length > 0))
+      buffer.filter {clazz: PsiClass =>
+        clazz.isInstanceOf[ScObject] &&
+          clazz.asInstanceOf[ScObject].functionsByName("apply").length > 0
+      }.toArray
     }
-    else classes
+    else buffer.toArray
   }
 }
