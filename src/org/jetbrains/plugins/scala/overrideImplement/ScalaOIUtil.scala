@@ -141,7 +141,7 @@ object ScalaOIUtil {
     }, clazz.getProject, if (isImplement) "Implement method" else "Override method")
   }
 
-  def getMembersToImplement(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
+  def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false): Seq[ScalaObject] = {
     val buf = new ArrayBuffer[ScalaObject]
     buf ++= clazz.allSignatures
     buf ++= clazz.allTypeAliases
@@ -155,7 +155,7 @@ object ScalaOIUtil {
           m match {
             case _ if isProductAbstractMethod(m, clazz) =>
             case x if x.getName == "$tag" || x.getName == "$init$" =>
-            case x if x.getContainingClass == clazz =>
+            case x if !withOwn && x.getContainingClass == clazz =>
             case x if x.getContainingClass.isInterface && !x.getContainingClass.isInstanceOf[ScTrait] => {
               buf2 += sign
             }
@@ -170,9 +170,9 @@ object ScalaOIUtil {
         }
         case (name: PsiNamedElement, subst: ScSubstitutor) => {
           ScalaPsiUtil.nameContext(name) match {
-            case x: ScValueDeclaration if x.getContainingClass != clazz => buf2 += element
-            case x: ScVariableDeclaration if x.getContainingClass != clazz => buf2 += element
-            case x: ScTypeAliasDeclaration if x.getContainingClass != clazz => buf2 += element
+            case x: ScValueDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
+            case x: ScVariableDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
+            case x: ScTypeAliasDeclaration if withOwn || x.getContainingClass != clazz => buf2 += element
             case _ =>
           }
         }
@@ -181,10 +181,10 @@ object ScalaOIUtil {
     }
     return buf2.toSeq
   }
-
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass) : Boolean = clazz match {
     case td: ScTypeDefinition if td.isCase => {
       if (m.getName == "apply") return true
+      if (m.getName == "canEqual") return true
       val clazz = m.getContainingClass
       clazz != null && clazz.getQualifiedName == "scala.Product" &&
               (m.getName match {
