@@ -604,7 +604,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       var left = leftNode
       // For operations like
       // var Object_!= : Symbol = _
-      if (scalaSettings.SPACE_BEFORE_COLON) return WITH_SPACING  //todo:
+      if (scalaSettings.SPACE_BEFORE_TYPE_COLON) return WITH_SPACING  //todo:
       while (left != null && left.getLastChildNode != null) {
         left = left.getLastChildNode
       }
@@ -629,7 +629,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else return WITHOUT_SPACING
     }
     if (leftNode.getElementType == ScalaTokenTypes.tCOLON) {
-      if (scalaSettings.SPACE_AFTER_COLON) return WITH_SPACING
+      if (scalaSettings.SPACE_AFTER_TYPE_COLON) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == ';') {
