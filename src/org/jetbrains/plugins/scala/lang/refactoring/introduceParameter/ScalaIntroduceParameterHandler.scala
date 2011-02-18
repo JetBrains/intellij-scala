@@ -90,8 +90,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
       val possibleNames = NameSuggester.suggestNames(expr, validator)
-      val dialog = new ScalaIntroduceParameterDialog(project, typez, occurrences,
-        validator, possibleNames, methodToSearchFor, startOffset, endOffset, function)
+      val dialog = new ScalaIntroduceParameterDialog(project, editor, typez, occurrences,
+        validator, possibleNames, methodToSearchFor, startOffset, endOffset, function, expr)
       dialog.show
     }
     catch {

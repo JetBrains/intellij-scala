@@ -54,8 +54,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def isCompiled = compiled
 
-  def sourceName = {
-    if (isCompiled) sourceFileName
+  def sourceName: String = {
+    if (isCompiled) {
+      val stub = getStub
+      if (stub != null) {
+        return stub.asInstanceOf[ScFileStub].getFileName
+      }
+      val virtualFile = getVirtualFile
+      DecompilerUtil.decompile(virtualFile.contentsToByteArray, virtualFile)._2
+    }
     else ""
   }
 
