@@ -301,7 +301,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       if (element != null) buffer.append("@").append(element.getText)
                     }
                     if (lastSize != buffer.length) buffer.append(" ")
-                    val paramType = param.getType
+                    val paramType = param.getType match {
+                      case arr: PsiArrayType if param.isVarArgs => arr.getComponentType
+                      case tp => tp
+                    }
 
                     val name = param.getName
                     if (name != null) {
@@ -311,6 +314,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     buffer.append(ScType.presentableText(subst.subst(
                       ScType.create(paramType, method.getProject, paramTopLevel = true)
                     )))
+                    if (param.isVarArgs) buffer.append("*")
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
                     else {
