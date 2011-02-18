@@ -64,8 +64,8 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
   private val scalaSettings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   def showHint(editor: Editor): Boolean = {
     if (!ref.isValid) return false
+    if (ref.qualifier != None) return false
     ref.getContext match {
-      case ref: ScReferenceElement => return false
       case postf: ScPostfixExpr if postf.operation == ref => return false
       case pref: ScPrefixExpr if pref.operation == ref => return false
       case inf: ScInfixExpr if inf.operation == ref => return false
