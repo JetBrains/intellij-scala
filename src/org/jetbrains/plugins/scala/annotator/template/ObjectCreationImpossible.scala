@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 
 /**
  * Pavel Fatin
@@ -32,7 +33,8 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
           if(!undefined.isEmpty) {
             val element = if(isNew) refElement else definition.asInstanceOf[ScObject].nameId
-            holder.createErrorAnnotation(element, message(undefined: _*))
+            val annotation = holder.createErrorAnnotation(element, message(undefined: _*))
+            annotation.registerFix(new ImplementMethodsQuickFix(definition))
           }
         }
         case _ =>

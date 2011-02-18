@@ -5,6 +5,9 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
+import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
  * Pavel Fatin
@@ -24,8 +27,13 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
     val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
 
     if(!undefined.isEmpty) {
-      holder.createErrorAnnotation(definition.nameId,
+      val annotation = holder.createErrorAnnotation(definition.nameId,
         message(kindOf(definition), definition.getName, undefined: _*))
+      definition match {
+        case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
+        case _ =>
+      }
+      annotation.registerFix(new ImplementMethodsQuickFix(definition))
     }
   }
 
