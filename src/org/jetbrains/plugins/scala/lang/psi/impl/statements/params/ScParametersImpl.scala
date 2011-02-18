@@ -36,4 +36,9 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
   def getParametersCount = params.length
 
   override def getParameters = params.toArray
+
+  def addClause(clause: ScParameterClause): ScParameters = {
+    getNode.addChild(clause.getNode)
+    return this
+  }
 }

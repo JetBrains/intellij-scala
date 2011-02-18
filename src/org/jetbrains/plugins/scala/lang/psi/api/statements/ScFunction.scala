@@ -19,6 +19,7 @@ import nonvalue._
 import result.{Failure, Success, TypingContext, TypeResult}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import expr.ScBlock
+import psi.impl.ScalaPsiElementFactory
 
 /**
  * @author Alexander Podkhalyuzin
@@ -226,5 +227,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
     }
     return None
+  }
+
+  def addParameter(param: ScParameter): ScFunction = {
+    if (paramClauses.clauses.length > 0)
+      paramClauses.clauses.apply(0).addParameter(param)
+    else {
+      val clause: ScParameterClause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+      val newClause = clause.addParameter(param)
+      paramClauses.addClause(newClause)
+    }
+    return this
   }
 }

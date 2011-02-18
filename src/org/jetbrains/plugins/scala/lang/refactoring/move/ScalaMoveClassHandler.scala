@@ -48,7 +48,7 @@ class ScalaMoveClassHandler extends MoveClassHandler {
     }
 
     val classes = newFile.asInstanceOf[ScalaFile].getClasses
-    var newClass = classes.head.replace(aClass).asInstanceOf[PsiClass]
+    val newClass = classes.head.replace(aClass).asInstanceOf[PsiClass]
     aClass.delete
     classes.tail.foreach(_.delete)
 

@@ -14,6 +14,7 @@ import com.intellij.psi.stubs.StubElement
 import templates.{ScExtendsBlock, ScTemplateBody}
 import com.intellij.psi.impl.source.PsiFileImpl
 import collection.mutable.ArrayBuffer
+import base.ScPrimaryConstructor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -87,6 +88,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       }
       case _ => this
     }
+    case c: ScTypeDefinition if this.isInstanceOf[ScPrimaryConstructor] => //primary constructor
+      c.getNavigationElement match {
+        case td: ScClass =>
+          td.constructor match {
+            case Some(constr) => constr
+            case _ => this
+          }
+        case _ => this
+      }
     case _ => this
   }
 
