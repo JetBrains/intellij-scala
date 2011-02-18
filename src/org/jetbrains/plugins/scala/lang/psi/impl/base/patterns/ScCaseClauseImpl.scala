@@ -13,6 +13,8 @@ import com.intellij.psi._
 import impl.source.JavaDummyHolder
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
+import tree.TokenSet
+import parser.ScalaElementTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -49,7 +51,18 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
           case _ =>
             guard match {
               case Some(g) if g.getStartOffsetInParent == lastParent.getStartOffsetInParent => if (!process) return false
-              case _ =>
+              case _ => {
+                //todo: is this good? Maybe parser => always expression.
+                val last = findLastChildByType(TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION,
+                  ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.PATTERN_DEFINITION,
+                  ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.VARIABLE_DECLARATION,
+                  ScalaElementTypes.VARIABLE_DEFINITION, ScalaElementTypes.TYPE_DECLARATION,
+                  ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.CLASS_DEF,
+                  ScalaElementTypes.TRAIT_DEF, ScalaElementTypes.OBJECT_DEF))
+                if (last != null && last.getStartOffsetInParent == lastParent.getStartOffsetInParent) {
+                  if (!process) return false
+                }
+              }
             }
         }
       }
