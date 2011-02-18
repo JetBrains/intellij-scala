@@ -132,6 +132,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         NeedsToBeAbstract.annotate(x, holder, advancedHighlighting)
         NeedsToBeTrait.annotate(x, holder, advancedHighlighting)
         SealedClassInheritance.annotate(x, holder, advancedHighlighting)
+        UndefinedMember.annotate(x, holder, advancedHighlighting)
       }
       case ref: ScReferenceElement => {
         if(advancedHighlighting) annotateReference(ref, holder)
