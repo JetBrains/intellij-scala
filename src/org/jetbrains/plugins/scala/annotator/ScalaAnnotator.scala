@@ -127,6 +127,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case x: ScTemplateDefinition => {
         AbstractInstantiation.annotate(x, holder, advancedHighlighting)
         FinalClassInheritance.annotate(x, holder, advancedHighlighting)
+        ObjectCreationImpossible.annotate(x, holder, advancedHighlighting)
         MultipleInheritance.annotate(x, holder, advancedHighlighting)
         NeedsToBeAbstract.annotate(x, holder, advancedHighlighting)
         NeedsToBeTrait.annotate(x, holder, advancedHighlighting)
