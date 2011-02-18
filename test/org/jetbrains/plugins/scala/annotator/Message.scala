@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.PsiElement
-
 /**
  * Pavel.Fatin, 18.05.2010
  */

@@ -53,6 +53,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
+  def refs = {
+    extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
+      val psiClass = refElement.getType(TypingContext.empty).toOption.flatMap(ScType.extractClass(_))
+      (refElement, psiClass)
+    }
+  }
+
   def innerExtendsListTypes = {
     val eb = extendsBlock
     if (eb != null) {
