@@ -21,6 +21,10 @@ import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
 import processor.{ExpandedExtractorResolveProcessor, CompletionProcessor}
 import api.ScalaElementVisitor
+import annotator.intention.ScalaImportClassFix
+import usages.ImportSelectorUsed
+import api.toplevel.packaging.ScPackaging
+import util.PsiTreeUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -98,14 +102,38 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
           return ref
         }
-        val qname = c.getQualifiedName
-        if (qname != null) org.jetbrains.plugins.scala.annotator.intention.
-                ScalaImportClassFix.getImportHolder(ref = this, project = getProject).
-                addImportForClass(c, ref = this) //todo: correct handling
+        updateImports(c)
         this
       }
       case t: ScTypeAlias => return this //todo: do something
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
+    }
+  }
+
+  //todo: correct handling, this is just a band-aid solution. For example,
+  //      there could also have been usages through a wildcard import.
+  private def updateImports(newTarget: PsiClass) {
+    val qname = newTarget.getQualifiedName
+    if (qname != null) {
+      val importSelectors = getContainingFile.breadthFirst.collect {
+        case selector: ScImportSelector if selector.reference == this => selector
+      }.toStream
+
+      if (importSelectors.isEmpty) {
+        // The class must have been in the current scope, or imported through a wildcard. Add an import for it.
+        val importHolder = ScalaImportClassFix.getImportHolder(ref = this, project = getProject)
+        importHolder.addImportForClass(newTarget, ref = this)
+      } else {
+        // The class was specifically mentioned in an import selector. Move that selector to a new
+        // import statement with the new qualifier.
+        val (newQualifier, newName) = {
+          //todo: Can we get this more cleanly from the PsiClass?
+          val i = qname.lastIndexOf('.')
+          val (qual, dotAndName) = qname.splitAt(i)
+          (qual, dotAndName.drop(1))
+        }
+        importSelectors.foreach(_.moveSelector(newQualifier, newName))
+      }
     }
   }
 
