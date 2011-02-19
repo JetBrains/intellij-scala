@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import builder.ScalaPsiBuilder
+import util.ParserUtils
 
 
 /** 
@@ -37,15 +38,10 @@ object Refinement {
         return false
       }
     }
-    RefineStatSeq parse builder
-    builder.getTokenType match {
-      case ScalaTokenTypes.tRBRACE => {
-        builder.advanceLexer //Ate }
-      }
-      case _ => {
-        builder error ScalaBundle.message("rbrace.expected")
-      }
+    def foo() {
+      RefineStatSeq parse builder
     }
+    ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState
     refineMarker.done(ScalaElementTypes.REFINEMENT)
     return true

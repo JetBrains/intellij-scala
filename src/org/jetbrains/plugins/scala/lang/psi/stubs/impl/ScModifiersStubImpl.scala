@@ -16,20 +16,13 @@ import com.intellij.util.io.StringRef
 class ScModifiersStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScModifierList](parent, elemType) with ScModifiersStub {
-  def getModifiers(): Array[String] = modifiers.map(StringRef.toString(_))
+  def getModifiers(): Array[String] = modifiers
 
-  private var modifiers: Array[StringRef] = Array[StringRef]()
+  private var modifiers: Array[String] = Array[String]()
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
           modifiers: Array[String]) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.modifiers = modifiers.map(StringRef.fromString(_))
-  }
-
-  def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          modifiers: Array[StringRef]) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.modifiers = modifiers
   }

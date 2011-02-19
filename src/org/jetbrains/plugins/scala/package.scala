@@ -37,10 +37,10 @@ package object scala {
   }
 
   class RichIterator[A](delegate: Iterator[A]) {
-    def findByType[T <: A](aClass: Class[T]): Option[T] =
+    def findByType[T](aClass: Class[T]): Option[T] =
       delegate.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
 
-    def filterByType[T <: A](aClass: Class[T]): Iterator[T] =
+    def filterByType[T](aClass: Class[T]): Iterator[T] =
       delegate.filter(aClass.isInstance(_)).map(_.asInstanceOf[T])
   }
 

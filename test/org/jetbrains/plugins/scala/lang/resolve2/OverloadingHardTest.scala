@@ -28,5 +28,4 @@ class OverloadingHardTest extends ResolveTestBase {
   def testFunctionObject2 = doTest
   def testParameterlessFunction = doTest
   def testParameterlessFunction2 = doTest
-  def testValueFunction11 = doTest
 }

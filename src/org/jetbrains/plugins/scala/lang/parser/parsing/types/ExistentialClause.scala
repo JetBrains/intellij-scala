@@ -8,6 +8,7 @@ import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.Scal
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import builder.ScalaPsiBuilder
+import util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,11 +42,10 @@ object ExistentialClause {
         return true
       }
     }
-    ExistentialDclSeq parse builder
-    builder.getTokenType match {
-      case ScalaTokenTypes.tRBRACE => builder.advanceLexer //Ate }
-      case _ => builder error ScalaBundle.message("rbrace.expected")
+    def foo() {
+      ExistentialDclSeq parse builder
     }
+    ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState
     existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
     return true

@@ -79,22 +79,27 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def injectUsingPatterns(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]) {
-    var done = false
+    Extensions.getExtensions(LanguageInjectionSupport.EP_NAME).find(_.getId == "scala").foreach { support =>
+      val injections = myInjectionConfiguration.getInjections(support.getId).toIterator
 
-    Extensions.getExtensions(LanguageInjectionSupport.EP_NAME).find(_.getId == "scala").foreach{support =>
-      myInjectionConfiguration.getInjections(support.getId).view // non-strict evaluation
-              .takeWhile(_ => !done).filter(_.acceptsPsiElement(host)).foreach{injection =>
-        val language = InjectedLanguage.findLanguageById(injection.getInjectedLanguageId)
-        if (language != null) {
-          val injectedLanguage = InjectedLanguage.create(injection.getInjectedLanguageId, injection.getPrefix, injection.getSuffix, false)
-          val list = new ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]
-          literals.foreach { literal =>
-            for (range <- injection.getInjectedArea(literal)) {
-              list.add(Trinity.create(literal, injectedLanguage, range))
+      var done = false
+
+      while(!done && injections.hasNext) {
+        val injection = injections.next
+
+        if(injection.acceptsPsiElement(host)) {
+          val language = InjectedLanguage.findLanguageById(injection.getInjectedLanguageId)
+          if (language != null) {
+            val injectedLanguage = InjectedLanguage.create(injection.getInjectedLanguageId, injection.getPrefix, injection.getSuffix, false)
+            val list = new ArrayList[Trinity[PsiLanguageInjectionHost, InjectedLanguage, TextRange]]
+            literals.foreach { literal =>
+              for (range <- injection.getInjectedArea(literal)) {
+                list.add(Trinity.create(literal, injectedLanguage, range))
+              }
             }
+            InjectorUtils.registerInjection(language, list, host.getContainingFile, registrar)
+            InjectorUtils.registerSupport(support, true, registrar)
           }
-          InjectorUtils.registerInjection(language, list, host.getContainingFile, registrar)
-          InjectorUtils.registerSupport(support, true, registrar)
           done = true
         }
       }

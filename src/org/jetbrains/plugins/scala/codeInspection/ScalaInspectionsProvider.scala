@@ -32,7 +32,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[ScalaDeprecationInspection]
     res += classOf[CaseClassParamInspection]
     res += classOf[SupsiciousInferredTypeInspection]
-    res += classOf[SuspiciousNewLineInMethodCall]
+    //todo parser doesn't give info now to work this inspection
+    //res += classOf[SuspiciousNewLineInMethodCall]
     res += classOf[VarCouldBeValInspection]
     res += classOf[FunctionTupleSyntacticSugarInspection]
     res += classOf[ScalaDefaultFileTemplateUsageInspection]

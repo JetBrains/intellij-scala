@@ -19,6 +19,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
 import api.statements.ScDeclaredElementsHolder
 import api.{ScalaElementVisitor, ScalaFile}
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander Podkhalyuzin

@@ -39,13 +39,17 @@ object ConstrBlock {
               if (!BlockStat.parse(builder)) {
                 builder error ErrMsg("rbrace.expected")
                 builder.restoreNewlinesState
+                while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&
+                  !builder.newlineBeforeCurrentToken) {
+                  builder.advanceLexer
+                }
                 constrExprMarker.done(ScalaElementTypes.CONSTR_BLOCK)
                 return true
               }
             case _ => {
               builder error ErrMsg("rbrace.expected")
               builder.restoreNewlinesState
-              while (!builder.eof && !ScalaTokenTypes.tLBRACE.eq(builder.getTokenType) &&
+              while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&
                 !builder.newlineBeforeCurrentToken) {
                 builder.advanceLexer
               }

@@ -101,6 +101,12 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
+  def findDeepestSuperMethod: PsiMethod = {
+    val s = superMethods
+    if (s.length == 0) return null
+    else s(s.length - 1)
+  }
+
   def getReturnTypeElement = null
 
   def findSuperMethods(parentClass: PsiClass) = PsiMethod.EMPTY_ARRAY
@@ -108,8 +114,6 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
 
   def findSuperMethods = PsiMethod.EMPTY_ARRAY
-
-  def findDeepestSuperMethod = null
 
   def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
 

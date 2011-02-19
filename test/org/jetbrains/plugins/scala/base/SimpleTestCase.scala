@@ -34,7 +34,13 @@ abstract class SimpleTestCase extends TestCase {
             .dropWhile(_.isInstanceOf[PsiWhiteSpace])
             .next
   }
-  
+
+  def assertNothing[T](actual: T) {
+    assertMatches(actual) {
+      case Nil =>
+    }
+  }
+
   def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
     Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
   }

@@ -6,9 +6,7 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.patterns.PsiJavaElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
@@ -81,7 +79,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
     });
   }
 
-  public static class Capture<T extends ScalaPsiElement> extends ScalaElementPattern<T, Capture<T>> {
+  public static class Capture<T extends ScLiteral> extends ScalaElementPattern<T, Capture<T>> {
     public Capture(final Class<T> aClass) {
       super(aClass);
     }

@@ -45,4 +45,15 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
       stub.asInstanceOf[ScParamClauseStub].isImplicit
     } else getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
   }
+
+  def addParameter(param: ScParameter): ScParameterClause = {
+    val rParen = getLastChild.getNode
+    val comma = ScalaPsiElementFactory.createComma(getManager).getNode
+    val space =  ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    val node = getNode
+    node.addChild(comma, rParen)
+    node.addChild(space, rParen)
+    node.addChild(param.getNode, rParen)
+    return this
+  }
 }

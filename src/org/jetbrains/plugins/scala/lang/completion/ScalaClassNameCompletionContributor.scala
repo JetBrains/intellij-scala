@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
@@ -21,7 +22,11 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
       val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
       val isInImport = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScImportStmt]) != null
-      val onlyClasses = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScStableCodeReferenceElement]) != null
+      val refElement = ScalaPsiUtil.getParentOfType(insertedElement, classOf[ScStableCodeReferenceElement])
+      val onlyClasses = refElement != null && (refElement.getContext match {
+        case _: ScConstructorPattern => false
+        case _ => true
+      })
       AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, parameters.getInvocationCount <= 1,
         new Consumer[PsiClass] {
           def consume(psiClass: PsiClass): Unit = {

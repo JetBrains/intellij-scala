@@ -25,6 +25,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
   public boolean SCALAC_BEFORE = true;
   public boolean USE_FSC = false;
   public String SERVER_PORT = "";
+  public String FSC_ARGUMENTS = "";
   public boolean SERVER_RESET = false;
   public boolean SERVER_SHUTDOWN = false;
 
@@ -53,6 +54,9 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
       }
       if (!SERVER_PORT.equals("")) {
         options.append("-server:").append(SERVER_PORT).append(" ");
+      }
+      if (!FSC_ARGUMENTS.equals("")) {
+        options.append(FSC_ARGUMENTS).append(" ");
       }
     }
     final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();

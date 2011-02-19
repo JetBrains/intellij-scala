@@ -14,6 +14,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.PsiBuilder
 import parsing.builder.ScalaPsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
+import annotation.tailrec
 
 
 object ParserUtils extends ParserUtilsBase {
@@ -65,7 +66,7 @@ object ParserUtils extends ParserUtilsBase {
   }
 
 
-  def build(t : ScalaElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
+  def build(t : IElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
     val marker = builder.mark
     val parsed = inner
     if (parsed) marker.done(t) else marker.rollbackTo
@@ -102,6 +103,44 @@ object ParserUtils extends ParserUtilsBase {
     val res = builder.getTokenType
     marker.rollbackTo
     res
+  }
+
+  @tailrec
+  def parseLoopUntilRBrace(builder: ScalaPsiBuilder, fun: () => Unit, braceReported: Boolean = false) {
+    var br = braceReported
+    fun()
+    builder.getTokenType match {
+      case ScalaTokenTypes.tRBRACE =>
+        builder.advanceLexer
+        return
+      case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
+        if (!braceReported) {
+          builder error ErrMsg("rbrace.expected")
+          br = true
+        }
+        var balance = 1
+        builder.advanceLexer
+        while (balance != 0 && !builder.eof) {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tRBRACE => balance -= 1
+            case ScalaTokenTypes.tLBRACE => balance += 1
+            case _ =>
+          }
+          builder.advanceLexer
+        }
+        if (builder.eof)
+          return
+      case _ =>
+        if (!braceReported) {
+          builder error ErrMsg("rbrace.expected")
+          br = true
+        }
+        builder.advanceLexer
+        if (builder.eof) {
+          return
+        }
+    }
+    parseLoopUntilRBrace(builder, fun, br)
   }
 
   def elementCanStartStatement(element: IElementType, builder: ScalaPsiBuilder): Boolean = {

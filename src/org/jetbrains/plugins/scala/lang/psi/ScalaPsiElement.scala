@@ -16,6 +16,13 @@ trait ScalaPsiElement extends PsiElement with RichPsiElement with MonadTransform
     this.child = child
   }
 
+  def getSameElementInContext: PsiElement = {
+    child match {
+      case null => this
+      case _ => child
+    }
+  }
+
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]

@@ -56,12 +56,13 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case cc: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
-          for (sign: PhysicalSignature <- o.signaturesByName("apply")) {
+          val seq = o.signaturesByName("apply").map(sign => {
             val m = sign.method
             val subst = sign.substitutor
-            addResult(new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,
-              implicitFunction = implFunction, implicitType = implType, fromType = fromType))
-          }
+            new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,
+              implicitFunction = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(o))
+          })
+          addResults(seq)
         case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), None, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType))

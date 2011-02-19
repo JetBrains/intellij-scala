@@ -327,36 +327,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     return buffer.toArray
   }
 
-  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean, visited: Set[PsiClass]): Boolean = {
-      if (visited.contains(drv)) false
-      else drv match {
-        case drg: ScTypeDefinition => drg.superTypes.find{
-          t => ScType.extractClass(t) match {
-            case Some(c) => {
-              val value = baseClass match { //todo: it was wrong to write baseClass.isInstanceOf[c.type]
-                case _: ScTrait if c.isInstanceOf[ScTrait] => true
-                case _: ScClass if c.isInstanceOf[ScClass] => true
-                case _ if !c.isInstanceOf[ScTypeDefinition] => true
-                case _ => false
-              }
-              (c.getQualifiedName == baseClass.getQualifiedName && value) || (deep && isInheritorInner(base, c, deep, visited + drg))
-            }
-            case _ => false
-          }
-        }
-        case _ => drv.getSuperTypes.find {
-          psiT =>
-                  val c = psiT.resolveGenerics.getElement
-                  if (c == null) false else c == baseClass || (deep && isInheritorInner(base, c, deep, visited + drv))
-        }
-      }
-    }
-    if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
-    isInheritorInner(baseClass, this, deep, Set.empty)
-  }
+  override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
+    super[ScTypeDefinition].isInheritor(baseClass, deep)
 
-  
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
     (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield

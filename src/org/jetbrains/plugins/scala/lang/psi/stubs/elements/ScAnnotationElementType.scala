@@ -27,6 +27,7 @@ class ScAnnotationElementType[Func <: ScAnnotation]
         extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
+    dataStream.writeName(stub.getTypeText)
   }
 
   def createPsi(stub: ScAnnotationStub): ScAnnotation = {
@@ -48,12 +49,14 @@ class ScAnnotationElementType[Func <: ScAnnotation]
       }
       case _ => ""
     }
-    new ScAnnotationStubImpl(parentStub, this, StringRef.fromString(name))
+    val typeText = psi.typeElement.getText
+    new ScAnnotationStubImpl(parentStub, this, StringRef.fromString(name), StringRef.fromString(typeText))
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAnnotationStub = {
     val name = dataStream.readName
-    new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name)
+    val typeText = dataStream.readName
+    new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name, typeText)
   }
 
   def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {

@@ -66,7 +66,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
     if (!element.getContainingFile.isInstanceOf[ScalaFile]) return null
-    var e = getDocedElement(element).getNavigationElement
+    val e = getDocedElement(element).getNavigationElement
     e match {
       case clazz: ScTypeDefinition => {
         val buffer: StringBuilder = new StringBuilder("")
@@ -310,7 +310,7 @@ object ScalaDocumentationProvider {
     comment match {
       case Some(x) => {
         val text = elem match {
-          case _: ScTypeDefinition => x.getText + "\nclass A"
+          case _: ScTypeDefinition => x.getText + "\nclass A {\n }"
           case f: ScFunction => {
             "class A {\n" + x.getText + "\npublic int f" + getParams(f) + " {}\n}"
           }
@@ -333,7 +333,9 @@ object ScalaDocumentationProvider {
           case _ => ("", "")
         }
         return s1 + (elem match {
-          case _: ScTypeDefinition => javadoc.substring(110, javadoc.length - 14)
+          case _: ScTypeDefinition =>
+            val i = javadoc.indexOf("</PRE>")
+            javadoc.substring(i + 6, javadoc.length - 14)
           case f: ScFunction => {
             val i = javadoc.indexOf("</PRE>")
             javadoc.substring(i + 6, javadoc.length - 14)

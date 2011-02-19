@@ -103,33 +103,59 @@ abstract class MixinNodes {
     val map = new Map
     val superTypesBuff = new ListBuffer[Map]
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
-    val (superTypes, subst): (Seq[ScType], ScSubstitutor) = tp match {
+    val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
       case ScDesignatorType(template: ScTypeDefinition) => {
         place = Some(template.extendsBlock)
         processScala(template, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
-        (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty))
+        var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+        var placer = template.getContext
+        while (placer != null) {
+          placer match {
+            case t: ScTemplateDefinition => zSubst = zSubst.followed(
+              new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+            )
+            case _ =>
+          }
+          placer = placer.getContext
+        }
+        (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
       }
       case ScDesignatorType(template : ScTemplateDefinition) => {
         place = Some(template.getLastChild)
         processScala(template, ScSubstitutor.empty, map, place)
-        (MixinNodes.linearization(template, collection.immutable.HashSet.empty), Bounds.putAliases(template, ScSubstitutor.empty))
+        var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+        var placer = template.getContext
+        while (placer != null) {
+          placer match {
+            case t: ScTemplateDefinition => zSubst = zSubst.followed(
+              new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+            )
+            case _ =>
+          }
+          placer = placer.getContext
+        }
+        (MixinNodes.linearization(template, collection.immutable.HashSet.empty),
+          Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
         processSyntheticScala(syn, ScSubstitutor.empty, map)
-        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType], ScSubstitutor.empty)
+        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
+          ScSubstitutor.empty, ScSubstitutor.empty)
       }
       case ScDesignatorType(clazz: PsiClass) => {
         place = Some(clazz.getLastChild)
         processJava(clazz, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
-        (if (!lin.isEmpty) lin.tail else lin, ScSubstitutor.empty)
+        (if (!lin.isEmpty) lin.tail else lin,
+          ScSubstitutor.empty, ScSubstitutor.empty)
       }
       case cp: ScCompoundType => {
         processRefinement(cp, map, place)
-        (MixinNodes.linearization(cp), ScSubstitutor.empty)
+        (MixinNodes.linearization(cp), ScSubstitutor.empty,
+          new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp)))
       }
-      case _ => (Seq.empty, ScSubstitutor.empty)
+      case _ => (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
     }
 
     val iter = superTypes.iterator
@@ -139,10 +165,7 @@ abstract class MixinNodes {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.getQualifiedName == "scala.ScalaObject" && isPredef)) {
-            val newSubst = tp match {
-              case ScDesignatorType(c: ScTemplateDefinition) => combine(s, subst, superClass)
-              case _ => combine(s, subst, superClass)
-            }
+            val newSubst = combine(s, subst, superClass).followed(thisTypeSubst)
             val newMap = new Map
             superClass match {
               case template : ScTemplateDefinition => {

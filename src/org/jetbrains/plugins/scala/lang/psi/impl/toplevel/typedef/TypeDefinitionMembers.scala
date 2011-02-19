@@ -10,15 +10,15 @@ package typedef
 
 import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
-import com.intellij.psi.scope.{PsiScopeProcessor, ElementClassHint}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import impl.light.LightMethod
+import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
 import types._
 import api.toplevel.typedef._
 import api.statements._
 import nonvalue.Parameter
-import result.{Failure, TypingContext}
+import result.TypingContext
 import types.PhysicalSignature
 import com.intellij.openapi.util.Key
 import fake.FakePsiMethod
@@ -29,6 +29,7 @@ import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
+import psi.util.CommonClassesSearcher
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -62,10 +63,10 @@ object TypeDefinitionMembers {
       clazz.getName match {
         case "Any" => {
           val project = clazz.getProject
-          val facade = JavaPsiFacade.getInstance(project)
-          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
-          if (obj != null) {
-            for (m <- obj.getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
+          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
+            "java.lang.Object")
+          if (obj.length > 0) {
+            for (m <- obj(0).getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
               val sig = new PhysicalSignature(m, subst)
               map += ((sig, new Node(sig, subst)))
             }
@@ -75,13 +76,9 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
+    def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (member <- template.members) {
         member match {
-          /*case primary: ScPrimaryConstructor if !noPrivates => {
-            val sig = new PhysicalSignature(primary, subst)
-            map += ((sig, new Node(sig, subst)))
-          }*/
           case method: ScFunction if isAccessible(place, method) &&
                   !method.isConstructor => {
             val sig = new PhysicalSignature(method, subst)
@@ -90,6 +87,15 @@ object TypeDefinitionMembers {
           case _ =>
         }
       }
+      template match {
+        case obj: ScObject =>
+          for (method <- obj.objectSyntheticMembers) {
+            val sig = new PhysicalSignature(method, subst)
+            map += ((sig, new Node(sig, subst)))
+          }
+        case _ =>
+      }
+    }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       for (decl <- cp.decls) {
@@ -244,14 +250,14 @@ object TypeDefinitionMembers {
       clazz.getName match {
         case "Any" => {
           val project = clazz.getProject
-          val facade = JavaPsiFacade.getInstance(project)
-          val obj = facade.findClass("java.lang.Object", GlobalSearchScope.allScope(project))
-          if (obj != null) {
-            for (m <- obj.getMethods if !m.isConstructor) {
+          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
+            "java.lang.Object")
+          if (obj.length > 0) {
+            for (m <- obj(0).getMethods if !m.isConstructor) {
               val phys = new PhysicalSignature(m, subst)
               val psiRet = m.getReturnType
               val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
-              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj))
+              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj(0)))
               map += ((sig, new Node(sig, subst)))
             }
           }
@@ -379,7 +385,7 @@ object TypeDefinitionMembers {
 
   class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
     def compute() = new CachedValueProvider.Result(builder(e),
-      PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+      PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT)
   }
 
   def processDeclarations(clazz: PsiClass,
@@ -477,19 +483,34 @@ object TypeDefinitionMembers {
                                   syntheticMethods: => Seq[(PhysicalSignature, MethodNodes.Node)] = Seq.empty): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
+    val nameHint = processor.getHint(NameHint.KEY)
+    val name = if (nameHint == null) "" else nameHint.getName(state)
+    val isNotScalaProcessor = !processor.isInstanceOf[BaseProcessor]
+    def checkName(s: String): Boolean = {
+      if (name == null || name == "") true
+      else s == name
+    }
+    def checkNameGetSetIs(s: String): Boolean = {
+      if (name == null || name == "") true
+      else {
+        val capitalizeName = name.capitalize
+        s == "is" + capitalizeName || s == "get" + capitalizeName || s == "set" + capitalizeName
+      }
+    }
     if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
       val v1 = shouldProcessVals(processor)
-      val v2 = !processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor)
+      val v2 = isNotScalaProcessor && shouldProcessMethods(processor)
       val iterator = vals.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
         ProgressManager.checkCanceled
         n.info match {
-          case p: ScClassParameter if v1 && !p.isVar && !p.isVal => {
+          case p: ScClassParameter if v1 && !p.isVar && !p.isVal &&
+            (checkName(p.getName) || checkNameGetSetIs(p.getName)) => {
             val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
             if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
               //this is member only for class scope
-              if (PsiTreeUtil.isContextAncestor(clazz, place, false)) {
+              if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.getName)) {
                 //we can accept this member
                 if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
               } else {
@@ -501,9 +522,10 @@ object TypeDefinitionMembers {
           case _ => if (!tail) return false
         }
         def tail: Boolean = {
-          if (v1 && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (v1 && checkName(n.info.getName) &&
+            !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
           //this is for Java: to find methods, which is vals in Scala
-          if (v2) {
+          if (v2 && checkNameGetSetIs(n.info.getName)) {
             n.info match {
               case t: ScTypedDefinition => {
                 implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
@@ -583,8 +605,11 @@ object TypeDefinitionMembers {
         while (iterator.hasNext) {
           val (_, n) = iterator.next
           ProgressManager.checkCanceled
-          val substitutor = n.substitutor followed subst
-          if (!processor.execute(n.info.method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+          val method = n.info.method
+          if (checkName(method.getName)) {
+            val substitutor = n.substitutor followed subst
+            if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return Some(false)
+          }
         }
         None
       }
@@ -606,8 +631,10 @@ object TypeDefinitionMembers {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
-        ProgressManager.checkCanceled
-        if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        if (checkName(n.info.getName)) {
+          ProgressManager.checkCanceled
+          if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
       }
     }
     //inner classes
@@ -615,8 +642,10 @@ object TypeDefinitionMembers {
       val iterator = types.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
-        ProgressManager.checkCanceled
-        if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        if (checkName(n.info.getName)) {
+          ProgressManager.checkCanceled
+          if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
       }
     }
 

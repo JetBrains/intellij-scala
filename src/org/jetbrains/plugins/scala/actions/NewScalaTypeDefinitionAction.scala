@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala.actions
 
 import java.lang.String
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.openapi.project.{Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.DumbAware
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
 import org.jetbrains.plugins.scala.icons.Icons
-import com.intellij.CommonBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -14,16 +13,14 @@ import org.jetbrains.annotations.NonNls
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.fileTypes.StdFileTypes
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaBundle}
-import com.intellij.ide.actions.CreateFileFromTemplateDialog.Builder
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager, ProjectFileIndex}
-import com.intellij.ide.{IdeBundle, IdeView}
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.ide.IdeView
 import java.util.Properties
 import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
+import org.jetbrains.plugins.scala.config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,7 +35,6 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.addKind("Object", Icons.OBJECT, "Scala Object");
     builder.addKind("Trait", Icons.TRAIT, "Scala Trait");
     builder.setTitle("Create New Scala Class")
-    return builder;
   }
 
   def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
@@ -66,7 +62,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
     val module: Module = dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
-    if (!ScalaUtils.isSuitableModule(module)) {
+    if (!ScalaFacet.isPresentIn(module)) {
       return false
     }
     val view = dataContext.getData(LangDataKeys.IDE_VIEW.getName).asInstanceOf[IdeView]
@@ -117,7 +113,7 @@ object NewScalaTypeDefinitionAction {
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
     val template: FileTemplate = FileTemplateManager.getInstance.getInternalTemplate(templateName)
-    var properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties)
+    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties)
     JavaTemplateUtil.setPackageNameAttribute(properties, directory)
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
     properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))

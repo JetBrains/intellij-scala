@@ -41,7 +41,7 @@ public class ScalaStringLiteralManipulator extends AbstractElementManipulator<Sc
   }
 
   public static TextRange getLiteralRange(String text) {
-    if (text.length() > 6 && text.startsWith("\"\"\"") && text.endsWith("\"\"\"")) {
+    if (text.length() >= 6 && text.startsWith("\"\"\"") && text.endsWith("\"\"\"")) {
       return new TextRange(3, text.length() - 3);
     }
     return new TextRange(1, Math.max(1, text.length() - 1));

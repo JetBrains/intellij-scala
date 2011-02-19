@@ -56,11 +56,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
   public boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
+  public boolean SPACE_BEFORE_TYPE_COLON = false;
+  public boolean SPACE_AFTER_TYPE_COLON = true;
 
   //todo: add to spacing settings
   //spcaing settings:
-  public boolean SPACE_BEFORE_COLON = false;
-  public boolean SPACE_AFTER_COLON = true;
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
 

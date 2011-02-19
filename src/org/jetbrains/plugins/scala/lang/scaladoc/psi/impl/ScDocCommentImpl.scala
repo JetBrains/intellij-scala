@@ -5,16 +5,16 @@ package psi
 package impl
 
 
-import com.intellij.lang.ASTNode
 import api.ScDocComment
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
 import com.intellij.psi.tree.IElementType
 import java.lang.String
-import lang.psi.{ScalaPsiElement, ScalaPsiElementImpl}
-import lexer.ScalaDocTokenType
+import lang.psi.ScalaPsiElement
 import parser.ScalaDocElementTypes
 import com.intellij.psi.{PsiDocCommentOwner, PsiElement}
+import com.intellij.util.ReflectionCache
+import java.util.{List, ArrayList}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -40,7 +40,22 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
 
   def findTagsByName(name: String): Array[PsiDocTag] = null
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClassScala(clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
+    val result: List[T] = new ArrayList[T]
+    var cur: PsiElement = getFirstChild
+    while (cur != null) {
+      if (ReflectionCache.isInstance(cur, aClass)) result.add(cur.asInstanceOf[T])
+      cur = cur.getNextSibling
+    }
+    return result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
+  }
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClassScala(clazz)
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
+    var cur: PsiElement = getFirstChild
+    while (cur != null) {
+      if (ReflectionCache.isInstance(cur, aClass)) return cur.asInstanceOf[T]
+      cur = cur.getNextSibling
+    }
+    return null
+  }
 }

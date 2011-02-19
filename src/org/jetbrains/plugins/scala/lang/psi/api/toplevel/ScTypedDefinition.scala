@@ -4,8 +4,7 @@ package psi
 package api
 package toplevel
 
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import types.result.{TypeResult, TypingContextOwner}
+import types.result.TypingContextOwner
 
 /**
  * Member definitions, classes, named patterns which have types

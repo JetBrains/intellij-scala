@@ -18,9 +18,9 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
   def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor) =
     this (name, stream, paramLength, Array[PsiTypeParameter](), substitutor)
 
-  def types = typesEval
+  def types: scala.Stream[ScType] = typesEval
 
-  def substitutedTypes = types.map(substitutor.subst(_))
+  def substitutedTypes: Stream[ScType] = types.map(substitutor.subst(_))
 
   def equiv(other: Signature): Boolean = {
     name == other.name &&
@@ -32,8 +32,8 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     if (paramLength != other.paramLength) return false
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-    val typesIterator = types.iterator
-    val otherTypesIterator = other.types.iterator
+    val typesIterator = substitutedTypes.iterator
+    val otherTypesIterator = other.substitutedTypes.iterator
     while (typesIterator.hasNext && otherTypesIterator.hasNext) {
       val t1 = typesIterator.next
       val t2 = otherTypesIterator.next
@@ -87,8 +87,8 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubs
                   (!phys1.hasRepeatedParam && hasRepeatedParam)) return false
           val unified1 = unify(substitutor, typeParams, typeParams)
           val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-          val otherTypesIterator = other.types.iterator
-          val typesIterator = types.iterator
+          val otherTypesIterator = other.substitutedTypes.iterator
+          val typesIterator = substitutedTypes.iterator
           while (typesIterator.hasNext && otherTypesIterator.hasNext) {
             val t1 = typesIterator.next
             val t2 = otherTypesIterator.next

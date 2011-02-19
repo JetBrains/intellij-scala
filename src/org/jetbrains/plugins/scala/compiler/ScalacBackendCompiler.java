@@ -64,6 +64,19 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     myProject = project;
   }
 
+  //@Override
+  public boolean isCompilableFile(VirtualFile file, CompileContext context) {
+    // TODO use the first line when ExternalCompiler.isCompilableFile will be available in all IDEAs
+//    if(!super.isCompilableFile(file, context)) return false;
+    if(!getCompilableFileTypes().contains(file.getFileType())) return false;
+
+    Module module = context.getModuleByFile(file);
+
+    if(module == null) return false;
+
+    return ScalaFacet.isPresentIn(module);
+  }
+
   public boolean checkCompiler(CompileScope scope) {
     // Do not run compiler for pure Java projects
     final Module[] allModules = scope.getAffectedModules();
@@ -252,6 +265,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
     
     CompilerUtil.addLocaleOptions(commandLine, false);
+
+    // add JAVA_OPTS from user settings to command line
+    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    while (tokenizer.hasMoreTokens()) {
+      String param = tokenizer.nextToken();
+      if (param.startsWith("-D")) {
+        commandLine.add(param);
+      }
+    }
 
     commandLine.add("-cp");
     String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);

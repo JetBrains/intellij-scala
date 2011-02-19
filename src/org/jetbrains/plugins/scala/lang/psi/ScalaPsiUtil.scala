@@ -12,7 +12,8 @@ import api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
-import impl.toplevel.typedef.{ScObjectImpl, MixinNodes, TypeDefinitionMembers}
+import impl.expr.ScBlockExprImpl
+import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import api.expr._
@@ -25,8 +26,8 @@ import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
-import lexer.ScalaTokenTypes
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import stubs.ScModifiersStub
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
@@ -37,13 +38,15 @@ import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
-import collection.immutable.Stream
-import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
 import com.intellij.openapi.module.Module
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
+import collection.mutable.{HashSet, ArrayBuffer}
+import collection.immutable.{HashMap, Stream}
+import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.StubElement
 
 /**
  * User: Alexander Podkhalyuzin
@@ -374,6 +377,16 @@ object ScalaPsiUtil {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
   }
 
+  def polymorphicTypeSubstitutorMissedEmptyParams(typeParameters: Seq[TypeParameter]): ScSubstitutor =
+    new ScSubstitutor(new HashMap[(String, String), ScType] ++ Map(typeParameters.flatMap(tp =>
+      if (tp.upperType.equiv(Any))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType))
+      else if (tp.lowerType.equiv(Nothing))
+        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType))
+      else Seq.empty
+    ) : _*),  Map.empty, None)
+
+
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                  typeParams: Seq[TypeParameter],
                                  subst: ScSubstitutor = ScSubstitutor.empty,
@@ -383,14 +396,15 @@ object ScalaPsiUtil {
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     (if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst
+      val prevInfoSubst = polymorphicTypeSubstitutorMissedEmptyParams(typeParams) followed subst
       ScTypePolymorphicType(retType, typeParams.map(tp => {
         var lower = tp.lowerType
         var upper = tp.upperType
         for ((name, addLower) <- un.lowerMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) {
-          lower = Bounds.lub(lower, subst.subst(addLower))
+          lower = Bounds.lub(lower, prevInfoSubst.subst(addLower))
         }
         for ((name, addUpperSeq) <- un.upperMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)); addUpper <- addUpperSeq) {
-          upper = Bounds.glb(upper, subst.subst(addUpper))
+          upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper))
         }
         TypeParameter(tp.name, lower, upper, tp.ptp)
       }))
@@ -456,19 +470,26 @@ object ScalaPsiUtil {
   }
 
   def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
+    def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
+      val parent = stub.getParentStub
+      val children = parent.getChildrenStubs
+      val index = children.indexOf(stub)
+      if (index == -1) {
+        elem.getPrevSibling
+      } else if (index == 0) {
+        null
+      } else {
+        children.get(index - 1).getPsi
+      }
+    }
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
         val stub = st.getStub
-        val parent = stub.getParentStub
-        val children = parent.getChildrenStubs
-        val index = children.indexOf(stub)
-        if (index == -1) {
-          elem.getPrevSibling
-        } else if (index == 0) {
-          null
-        } else {
-          children.get(index - 1).getPsi
-        }
+        workWithStub(stub)
+      }
+      case file: PsiFileImpl if file.getStub != null => {
+        val stub = file.getStub
+        workWithStub(stub)
       }
       case _ => elem.getPrevSibling
     }
@@ -631,7 +652,12 @@ object ScalaPsiUtil {
   def getModifiersPresentableText(modifiers: ScModifierList): String = {
     if (modifiers == null) return ""
     val buffer = new StringBuilder("")
-    for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
+    modifiers match {
+      case st: StubBasedPsiElement[_] if st.getStub != null =>
+        for (modifier <- st.getStub.asInstanceOf[ScModifiersStub].getModifiers) buffer.append(modifier + " ")
+      case _ =>
+        for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
+    }
     return buffer.toString
   }
 
@@ -645,12 +671,7 @@ object ScalaPsiUtil {
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "apply" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
-    (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(_.getName == "apply").
-              map(new PhysicalSignature(_, ScSubstitutor.empty))
-      case _ => Seq.empty[PhysicalSignature]
-    })
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
@@ -658,7 +679,7 @@ object ScalaPsiUtil {
           if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
                   (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq ++
     (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
+      case c: ScObject => c.objectSyntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -667,12 +688,7 @@ object ScalaPsiUtil {
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
           if n.method.getName == "update" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq ++
-    (clazz match {
-      case c: ScObject => c.syntheticMembers.filter(_.getName == "update").
-              map(new PhysicalSignature(_, ScSubstitutor.empty))
-      case _ => Seq.empty[PhysicalSignature]
-    })
+                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   /**
@@ -728,6 +744,10 @@ object ScalaPsiUtil {
           new ArrayFactory[PsiElement] {
             def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
           })
+      case file: PsiFileImpl if file.getStub != null => file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
+        new ArrayFactory[PsiElement] {
+          def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
+        })
       case _ => scope.getChildren
     }
     td match {
@@ -916,6 +936,23 @@ object ScalaPsiUtil {
             _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
+  }
+
+  def shouldChangeModificationCount(place: PsiElement): Boolean = {
+    var parent = place.getParent
+    while (parent != null) {
+      parent match {
+        case f: ScFunction => f.returnTypeElement match {
+          case Some(ret) => return false
+          case None => if (!f.hasAssign) return false
+        }
+        case t: PsiClass => return true
+        case bl: ScBlockExprImpl => return bl.shouldChangeModificationCount(null)
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    return false
   }
 
 }

@@ -6,9 +6,9 @@ package toplevel
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{ResolveState, PsiElement}
-import imports.ScImportStmt
-import types.{ScSubstitutor, ScCompoundType, ScType, Any}
-import types.result.{TypeResult, Success, TypingContext}
+import types.ScSubstitutor
+import types.result.{Success, TypingContext}
+import resolve.processor.BaseProcessor
 
 /**
  * @author ilyas

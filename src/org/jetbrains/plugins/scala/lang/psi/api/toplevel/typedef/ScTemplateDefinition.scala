@@ -25,6 +25,7 @@ import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import search.GlobalSearchScope
+import com.intellij.openapi.project.DumbService
 
 /**
  * @author ven
@@ -50,6 +51,13 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
     getLastChild.asInstanceOf[ScExtendsBlock]
+  }
+
+  def refs = {
+    extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
+      val psiClass = refElement.getType(TypingContext.empty).toOption.flatMap(ScType.extractClass(_))
+      (refElement, psiClass)
+    }
   }
 
   def innerExtendsListTypes = {
@@ -150,9 +158,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             case _ =>
               extendsBlock match {
                 case e: ScExtendsBlock if e != null => {
+                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
+                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
+                  }
                   selfTypeElement match {
                     case Some(ste) if (!PsiTreeUtil.isContextAncestor(ste, place, true)) &&
-                            PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
+                      PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
                       case Some(t) => (processor, place) match {
                         case (b : BaseProcessor, s: ScalaPsiElement) => {
                           if (!b.processType(t.getType(TypingContext.empty).getOrElse(Any), s, state)) return false
@@ -162,9 +173,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                       case None =>
                     }
                     case _ =>
-                  }
-                  if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
-                    if (!TypeDefinitionMembers.processDeclarations(this, processor, state, lastParent, place)) return false
                   }
                 }
                 case _ => true
@@ -228,5 +236,51 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       res.add(new Pair[PsiMethod, PsiSubstitutor](method, ScalaPsiUtil.getPsiSubstitutor(substitutor, getProject, getResolveScope)))
     }
     res
+  }
+
+  def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
+    val visited: _root_.java.util.Set[PsiClass] = new _root_.java.util.HashSet[PsiClass]
+    val baseQualifiedName = baseClass.getQualifiedName
+    val baseName = baseClass.getName
+    def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
+      if (!visited.contains(drv)) {
+        visited.add(drv)
+        drv match {
+          case drg: ScTemplateDefinition =>
+            val supers = drg.superTypes
+            val supersIterator = supers.iterator
+            while (supersIterator.hasNext) {
+              val t = supersIterator.next
+              ScType.extractClass(t) match {
+                case Some(c) => {
+                  val value = baseClass match {
+                    case _: ScTrait if c.isInstanceOf[ScTrait] => true
+                    case _: ScClass if c.isInstanceOf[ScClass] => true
+                    case _ if !c.isInstanceOf[ScTemplateDefinition] => true
+                    case _ => false
+                  }
+                  if (value && c.getName == baseName && c.getQualifiedName == baseQualifiedName && value) return true
+                  if (deep && isInheritorInner(base, c, deep)) return true
+                }
+                case _ =>
+              }
+            }
+          case _ =>
+            val supers = drv.getSuperTypes
+            val supersIterator = supers.iterator
+            while (supersIterator.hasNext) {
+              val psiT = supersIterator.next
+              val c = psiT.resolveGenerics.getElement
+              if (c != null) {
+                if (c.getName == baseName && c.getQualifiedName == baseQualifiedName) return true
+                if (deep && isInheritorInner(base, c, deep)) return true
+              }
+            }
+        }
+      }
+      return false
+    }
+    if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
+    isInheritorInner(baseClass, this, deep)
   }
 }

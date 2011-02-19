@@ -37,10 +37,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               fromType = getFromType(state)))
           }
           else {
-            for (constr <- constructors) {
-              addResult(new ScalaResolveResult(constr, subst, getImports(state), parentElement = Some(clazz),
-                boundClass = getBoundClass(state), fromType = getFromType(state)))
-            }
+            addResults(constructors.toSeq.map(new ScalaResolveResult(_, subst, getImports(state),
+              parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = getFromType(state))))
           }
         }
         case ta: ScTypeAliasDeclaration => {
@@ -59,10 +57,8 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               val constructors: Array[PsiMethod] = clazz.getConstructors.filter(isAccessible(_, ref))
               if (constructors.isEmpty) addResult(r)
               else {
-                for (constr <- constructors) {
-                  addResult(new ScalaResolveResult(constr, subst.followed(s), getImports(state),
-                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state)))
-                }
+                addResults(constructors.toSeq.map(new ScalaResolveResult(_, subst.followed(s), getImports(state),
+                    parentElement = Some(ta), boundClass = getBoundClass(state), fromType = getFromType(state))))
               }
             }
             case _ => {

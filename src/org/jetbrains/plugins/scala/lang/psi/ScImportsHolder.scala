@@ -151,12 +151,11 @@ trait ScImportsHolder extends ScalaPsiElement {
       selectors += "_"
       isPlaceHolderImport = true
     }
-    var importString =
-      if (selectors.length == 1) selectors(0)
-      else {
-        selectors.mkString("{", ", ", "}")
-      }
 
+    var importString = selectors.distinct match {
+      case Seq(s) => s
+      case ss => ss.mkString("{", ", ", "}")
+    }
 
     val completionProcessor = new CompletionProcessor(StdKinds.packageRef)
     val place = getLastChild

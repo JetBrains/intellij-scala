@@ -55,9 +55,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   /**
    * Do not add ResolveResults through candidatesSet. It may break precedence. Use this method instead.
    */
-  protected def addResult(result: ScalaResolveResult): Boolean = {
+  protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
+  protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+    if (results.length == 0) return true
     lazy val qualifiedName: String = {
-      result.element match {
+      results(0).getActualElement match {
         case c: ScTypeParam => null
         case c: ScObject => "Object:" + c.getQualifiedName
         case c: PsiClass => "Class:" + c.getQualifiedName
@@ -67,11 +69,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case _ => null
       }
     }
-    def addResult {
+    def addResults {
       if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
-      levelSet += result
+      levelSet ++= results
     }
-    val currentPrecedence = getPrecendence(result)
+    val currentPrecedence = getPrecendence(results(0))
     if (currentPrecedence < precedence) return false
     else if (currentPrecedence == precedence && levelSet.isEmpty) return false
     else if (currentPrecedence == precedence && !levelSet.isEmpty) {
@@ -79,7 +81,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
               qualifiedNamesSet.contains(qualifiedName))) {
         return false
       }
-      addResult
+      addResults
     } else {
       if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
               qualifiedNamesSet.contains(qualifiedName))) {
@@ -90,7 +92,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         levelSet.clear
         levelSet ++= newSet
         levelQualifiedNamesSet.clear
-        addResult
+        addResults
       }
     }
     true
@@ -225,8 +227,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def getHint[T](hintKey: Key[T]): T = {
-    if (hintKey == NameHint.KEY && name != "") ScalaNameHint.asInstanceOf[T]
-    else super.getHint(hintKey)
+    hintKey match {
+      case NameHint.KEY if name != "" => ScalaNameHint.asInstanceOf[T]
+      case _ => super.getHint(hintKey)
+    }
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
