@@ -5,7 +5,6 @@ package impl
 package toplevel
 package imports
 
-import api.toplevel.imports.{ScImportSelectors, ScImportExpr, ScImportSelector}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -14,6 +13,7 @@ import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import parser.ScalaElementTypes
 import stubs.ScImportSelectorStub
+import api.toplevel.imports.{ScImportStmt, ScImportSelectors, ScImportExpr, ScImportSelector}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -60,5 +60,20 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
         t = node.getElementType
       }
     } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
+  }
+
+  def moveSelector(newQualifier: String, newName: String): Unit = {
+    val stmt: ScImportStmt = PsiTreeUtil.getParentOfType(this, classOf[ScImportStmt])
+    val importHolder = PsiTreeUtil.getParentOfType(stmt, classOf[ScImportsHolder])
+
+    // TODO If an import expression already exists with `newQualifier`, append to it
+    //      rather than adding a new import statement
+    val selectorText = newName + (if (newName == importedName) "" else " => " + importedName)
+    val stmtText: String = "import " + newQualifier + ".{" + selectorText + "}"
+    val newStmt = ScalaPsiElementFactory.createImportFromText(stmtText, getManager)
+    importHolder.addImportBefore(newStmt, stmt)
+
+    deleteSelector
+
   }
 }

@@ -27,6 +27,7 @@ class ScalaMoveClassHandler extends MoveClassHandler {
     }
   }
 
+  // Only one template definition in the file, so move the entire file.
   private def moveSingular(aClass: PsiClass, file: ScalaFile,
                            newDirectory: PsiDirectory, newPackage: PsiPackage): PsiClass = {
 
@@ -36,9 +37,12 @@ class ScalaMoveClassHandler extends MoveClassHandler {
       file.setPackageName(newPackage.getQualifiedName)
     }
 
-    aClass
-  }
+    // important to return the class from the new file, it will have new qualifier.
+    file.getClasses().head
+  } 
 
+  // To move one class from a file with >1 template definitions, copy the file.
+  // In the original file, delete this class. In the copy, delete everything else.
   private def movePlural(aClass: PsiClass, file: ScalaFile,
                          newDirectory: PsiDirectory, newPackage: PsiPackage): PsiClass = {
     val newFile = newDirectory.copyFileFrom(getName(aClass), file).asInstanceOf[ScalaFile]
