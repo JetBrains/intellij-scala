@@ -12,7 +12,6 @@ import api.toplevel.{ScTypeParametersOwner}
 import api.statements.params.ScTypeParam
 import nonvalue.NonValueType
 import psi.impl.ScalaPsiManager
-import result.TypingContext
 import api.base.{ScStableCodeReferenceElement, ScPathElement}
 import lang.resolve.ScalaResolveResult
 import com.intellij.openapi.project.Project
@@ -24,6 +23,7 @@ import caches.CachesUtil
 
 import com.intellij.psi._
 import collection.immutable.{::, Map, HashMap}
+import result.{Success, TypingContext}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -53,6 +53,19 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   override def updateThisType(tp: ScType) = {
     JavaArrayType(arg.updateThisType(tp))
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    r match {
+      case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
+      case ScParameterizedType(des, args) if args.length == 1 => {
+        ScType.extractClass(des) match {
+          case Some(td) if td.getQualifiedName == "scala.Array" => Equivalence.equivInner(arg, args(0), uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
+      }
+      case _ => (false, uSubst)
+    }
+  }
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
@@ -61,7 +74,18 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     case _ => None
   }
 
-  lazy val substitutor : ScSubstitutor = {
+  @volatile
+  private var sub: ScSubstitutor = null
+
+  def substitutor: ScSubstitutor = {
+    var res = sub
+    if (res != null) return res
+    res = substitutorInner
+    sub = res
+    res
+  }
+
+  private def substitutorInner : ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
       var res = initial
       val argsIterator = typeArgs.iterator
@@ -115,6 +139,46 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   override def updateThisType(tp: ScType) = ScParameterizedType(designator.updateThisType(tp),
     typeArgs.map(_.updateThisType(tp)))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    (this, r) match {
+      case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] => {
+        val a = proj.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        val subst = proj.actualSubst
+        val lBound = subst.subst(a.lowerBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        })
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
+      }
+      case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
+        val lBound = a.lowerBound match {
+          case Success(tp, _) => tp
+          case _ => return (false, undefinedSubst)
+        }
+        val genericSubst = ScalaPsiUtil.
+                typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
+        return Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
+      }
+      case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
+        var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        if (typeArgs.length != typeArgs1.length) return (false, undefinedSubst)
+        val iterator1 = typeArgs.iterator
+        val iterator2 = typeArgs1.iterator
+        while (iterator1.hasNext && iterator2.hasNext) {
+          t = Equivalence.equivInner(iterator1.next, iterator2.next, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        return (true, undefinedSubst)
+      }
+      case _ => return (false, undefinedSubst)
+    }
+  }
 }
 
 object ScParameterizedType {
@@ -159,6 +223,27 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
     param match {
       case tp: ScTypeParam => tp.isContravariant
       case _ => false
+    }
+  }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case stp: ScTypeParameterType => {
+        if (r eq this) return (true, undefinedSubst)
+        (CyclicHelper.compute(param, stp.param)(() => {
+          val t = Equivalence.equivInner(lower.v, stp.lower.v, undefinedSubst, falseUndef)
+          if (!t._1) (false, undefinedSubst)
+          else {
+            undefinedSubst = t._2
+            Equivalence.equivInner(upper.v, stp.upper.v, undefinedSubst, falseUndef)
+          }
+        }) match {
+          case None => (true, undefinedSubst)
+          case Some(b) => b
+        })
+      }
+      case _ => (false, undefinedSubst)
     }
   }
 }

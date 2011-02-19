@@ -74,11 +74,42 @@ object ScExistentialTypeReducer {
 
 case class ScExistentialType(val quantified : ScType,
                              val wildcards : List[ScExistentialArgument]) extends ValueType {
-  lazy val boundNames = wildcards.map {_.name}
 
-  lazy val substitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+  @volatile
+  private var _boundNames: List[String] = null
+  def boundNames: List[String] = {
+    var res = _boundNames
+    if (res != null) return res
+    res = boundNamesInner
+    _boundNames = res
+    res
+  }
+  private def boundNamesInner: List[String] = wildcards.map {_.name}
 
-  lazy val skolem = {
+  @volatile
+  private var _substitutor: ScSubstitutor = null
+
+  def substitutor: ScSubstitutor = {
+    var res = _substitutor
+    if (res != null) return res
+    res = substitutorInner
+    _substitutor = res
+    res
+  }
+  def substitutorInner: ScSubstitutor = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p)}
+
+  @volatile
+  private var _skolem: ScType = null
+
+  def skolem: ScType = {
+    var res = _skolem
+    if (res != null) return res
+    res = skolemInner
+    _skolem = res
+    res
+  }
+
+  private def skolemInner: ScType = {
     val skolemSubst = wildcards.foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p.name, ""), p.unpack)}
     skolemSubst.subst(quantified)
   }
@@ -91,6 +122,25 @@ case class ScExistentialType(val quantified : ScType,
 
   override def updateThisType(tp: ScType) = ScExistentialType(quantified.updateThisType(tp),
     wildcards.map(_.updateThisType(tp).asInstanceOf[ScExistentialArgument]))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case ex: ScExistentialType => {
+        val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
+        val list = wildcards.zip(ex.wildcards)
+        val iterator = list.iterator
+        while (iterator.hasNext) {
+          val (w1, w2) = iterator.next
+          val t = Equivalence.equivInner(w1, unify.subst(w2), undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        Equivalence.equivInner(substitutor.subst(quantified), ex.substitutor.subst(ex.quantified), undefinedSubst, falseUndef)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScExistentialArgument(val name : String, val args : List[ScTypeParameterType],
@@ -103,6 +153,20 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
 
   override def updateThisType(tp: ScType) =
     ScExistentialArgument(name, args, lowerBound.updateThisType(tp), upperBound.updateThisType(tp))
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case exist: ScExistentialArgument => {
+        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, ""), p._2)}
+        val t = Equivalence.equivInner(lowerBound, s.subst(exist.lowerBound), undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        Equivalence.equivInner(upperBound, s.subst(exist.upperBound), undefinedSubst, falseUndef)
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)

@@ -56,6 +56,24 @@ object ScalaPsiElementFactory {
     dummyFile.getLastChild.getLastChild.getLastChild.getNode
   }
 
+  def createClauseFromText(clauseText: String, manager: PsiManager): ScParameterClause = {
+    val text = "def foo" + clauseText + " = null"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val fun = dummyFile.getFirstChild.asInstanceOf[ScFunction]
+    fun.paramClauses.clauses.apply(0)
+  }
+
+  def createParameterFromText(paramText: String, manager: PsiManager): ScParameter = {
+    val text = "def foo(" + paramText + ") = null"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val fun = dummyFile.getFirstChild.asInstanceOf[ScFunction]
+    fun.parameters(0)
+  }
+
   def createMethodFromText(text: String, manager: PsiManager): ScFunction = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
@@ -619,7 +637,7 @@ object ScalaPsiElementFactory {
     } else null
   }
 
-  def createPatterListFromText(text: String, context: PsiElement, child: PsiElement): ScPatternList = {
+  def createPatterListFromText(text : String, context: PsiElement, child: PsiElement): ScPatternList = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "val " + text + " = 239"))

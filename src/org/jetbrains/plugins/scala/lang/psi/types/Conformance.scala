@@ -7,7 +7,6 @@ import caches.CachesUtil
 import com.intellij.openapi.progress.ProgressManager
 import nonvalue.{ScTypePolymorphicType, NonValueType, ScMethodType}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.Misc._
 import api.statements._
 import params._
 import api.toplevel.typedef.ScTypeDefinition
@@ -17,13 +16,13 @@ import _root_.scala.collection.immutable.HashSet
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
 import collection.Seq
-import collection.mutable.{MultiMap, HashMap}
-import lang.resolve.processor.{BaseProcessor, CompoundTypeCheckProcessor, ResolveProcessor}
+import collection.mutable.HashMap
+import lang.resolve.processor.CompoundTypeCheckProcessor
 import result.{TypingContext, TypeResult}
 import api.base.patterns.ScBindingPattern
 import api.base.ScFieldId
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
+import api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 
 object Conformance {
   case class AliasType(ta: ScTypeAlias, lower: TypeResult[ScType], upper: TypeResult[ScType])
@@ -81,10 +80,8 @@ object Conformance {
     }
     (l, r) match {
       case (ScAbstractType(_, lower, upper), right) =>
-//        return conformsInner(right, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
         return conformsInner(upper, right, visited, undefinedSubst, noBaseTypes, checkWeak)
       case (left, ScAbstractType(_, lower, upper)) =>
-//        return conformsInner(left, upper, visited, undefinedSubst, noBaseTypes, checkWeak)
         return conformsInner(left, lower, visited, undefinedSubst, noBaseTypes, checkWeak)
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
         return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
@@ -192,7 +189,6 @@ object Conformance {
           undefinedSubst = t._2
           i = i + 1
         }
-        import Suspension._
         val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
                   new ScTypeParameterType(tuple._2.name,
@@ -515,7 +511,7 @@ object Conformance {
       }
       case (ScParameterizedType(proj1@ScProjectionType(p1, elem1, subst1), args1),
             ScParameterizedType(proj2@ScProjectionType(p2, elem2, subst2), args2))
-            if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement)=> {
+            if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) => {
         val t = conformsInner(proj1, proj2, visited, undefinedSubst)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
@@ -693,6 +689,7 @@ object Conformance {
 
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
+    if (!leftClass.isInheritor(rightClass, true)) return (false, null)
     smartIsInheritor(leftClass, substitutor, rightClass, new collection.mutable.HashSet[PsiClass])
   }
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass,

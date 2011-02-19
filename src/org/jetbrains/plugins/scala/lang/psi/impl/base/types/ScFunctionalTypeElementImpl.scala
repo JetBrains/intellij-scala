@@ -21,20 +21,16 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   protected def innerType(ctx: TypingContext) = {
     val returnTypeRes = wrap(returnTypeElement).flatMap(_.getType(ctx))
 
-    paramTypeElement match {
+    val paramTypes = paramTypeElement match {
       case tup: ScTupleTypeElement =>
-        val comps = tup.components.map(_.getType(ctx))
-        val result = Success(new ScFunctionType(returnTypeRes.getOrElse(Any), comps.map(_.getOrElse(Nothing)), getProject, getResolveScope), Some(this))
-        (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ comps) yield f).foldLeft(result)(_.apply(_))
-      case other: ScTypeElement => {
+        tup.components.map(_.getType(ctx)).map(_.getOrElse(Nothing))
+      case par: ScParenthesisedTypeElement if par.typeElement == None => Seq.empty
+      case other => {
         val oType = other.getType(ctx)
-        val paramTypes = oType.getOrElse(Any) match {
-          case Unit => Seq.empty
-          case t => Seq(t)
-        }
-        val result = Success(new ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes, getProject, getResolveScope), Some(this))
-        (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
+        Seq(oType.getOrElse(Any))
       }
     }
+    val result = Success(new ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes, getProject, getResolveScope), Some(this))
+    (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
   }
 }

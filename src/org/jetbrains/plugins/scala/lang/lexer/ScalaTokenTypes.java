@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
+import com.intellij.lexer.DocCommentTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import static com.intellij.psi.xml.XmlTokenType.*;
@@ -22,6 +23,7 @@ import static org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.*;
 
 import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 /**
@@ -176,6 +178,14 @@ public interface ScalaTokenTypes {
   final IElementType tAT = new ScalaElementType("@");
   final IElementType tQUESTION = new ScalaElementType("?");
 
+  public static TokenSet WHITES_SPACES_FOR_FORMATTER_TOKEN_SET = TokenSet.create(
+      tWHITE_SPACE_IN_LINE,
+      ScalaDocTokenType.DOC_WHITESPACE,
+      XML_REAL_WHITE_SPACE,
+      XML_WHITE_SPACE,
+      TAG_WHITE_SPACE
+  );
+
   public static TokenSet WHITES_SPACES_TOKEN_SET = TokenSet.create(
           tWHITE_SPACE_IN_LINE,
           XML_REAL_WHITE_SPACE,
@@ -189,6 +199,8 @@ public interface ScalaTokenTypes {
           tSH_COMMENT,
           ScalaDocElementTypes.SCALA_DOC_COMMENT
   );
+
+  TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.andSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
 
   public static TokenSet KEYWORDS = TokenSet.create(
           kCASE,

@@ -80,8 +80,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
 
   def hasExplicitModifiers: Boolean = {
     val access = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
-    lazy val mods = findChildrenByType(TokenSets.MODIFIERS)
-    access != null || mods.size > 0
+    access != null || findChildrenByType(TokenSets.MODIFIERS).size > 0
   }
 
   def hasExplicitModifier(name: String) = false

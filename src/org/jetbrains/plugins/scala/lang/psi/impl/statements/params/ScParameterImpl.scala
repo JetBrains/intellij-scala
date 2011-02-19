@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
 import api.toplevel.typedef.ScClass
 import types.Conformance.AliasType
+import api.base.types.ScTypeElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -69,9 +70,15 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def getTypeElement = null
 
-  def typeElement = paramType match {
-    case Some(x) if x.typeElement != null => Some(x.typeElement)
-    case _ => None
+  def typeElement: Option[ScTypeElement] = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScParameterStub].getTypeElement
+    }
+    paramType match {
+      case Some(x) if x.typeElement != null => Some(x.typeElement)
+      case _ => None
+    }
   }
 
   override def getUseScope = {
@@ -199,10 +206,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   def getSuperParameter: Option[ScParameter] = {
     getParent match {
       case clause: ScParameterClause => {
-        lazy val i = clause.parameters.indexOf(this)
+        val i = clause.parameters.indexOf(this)
         clause.getParent match {
           case p: ScParameters => {
-            lazy val j = p.clauses.indexOf(clause)
+            val j = p.clauses.indexOf(clause)
             p.getParent match {
               case fun: ScFunction => {
                 fun.superMethod match {

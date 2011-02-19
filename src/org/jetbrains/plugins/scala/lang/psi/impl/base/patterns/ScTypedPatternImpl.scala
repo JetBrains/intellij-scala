@@ -11,9 +11,10 @@ import com.intellij.lang.ASTNode
 import lang.lexer._
 import com.intellij.psi._
 import psi.types.result.{Success, TypingContext}
-import psi.types.ScType
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
+import lang.resolve.processor.BaseProcessor
+import psi.types.{ScSubstitutor, ScType}
 
 /**
 * @author Alexander Podkhalyuzin

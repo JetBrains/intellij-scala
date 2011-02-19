@@ -66,6 +66,33 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
     this(returnType, params)
     Implicit = isImplicit
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case ScFunctionType(rt1, params1) => {
+        if (params1.length != params.length) return (false, undefinedSubst)
+        var t = Equivalence.equivInner(returnType, rt1, undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        val iter1 = params.iterator
+        val iter2 = params1.iterator
+        while (iter1.hasNext) {
+          t = Equivalence.equivInner(iter1.next, iter2.next, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        (true, undefinedSubst)
+      }
+      case p: ScParameterizedType => {
+        p.getFunctionType match {
+          case Some(function) => this.equivInner(function, undefinedSubst, falseUndef)
+          case _ => (false, undefinedSubst)
+        }
+      }
+      case _ => (false, undefinedSubst)
+    }
+  }
 }
 
 case class ScTupleType private (components: Seq[ScType]) extends ValueType {
@@ -96,6 +123,29 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
         Some(ScParameterizedType(ScDesignatorType(t), typeParams))
       }
       case _ => None
+    }
+  }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefinedSubst = uSubst
+    r match {
+      case ScTupleType(c1) if c1.length == components.length => {
+        val iter1 = components.iterator
+        val iter2 = c1.iterator
+        while (iter1.hasNext) {
+          val t = Equivalence.equivInner(iter1.next, iter2.next, undefinedSubst, falseUndef)
+          if (!t._1) return (false, undefinedSubst)
+          undefinedSubst = t._2
+        }
+        (true, undefinedSubst)
+      }
+      case p: ScParameterizedType => {
+        p.getTupleType match {
+          case Some(tuple) => this.equivInner(tuple, undefinedSubst, falseUndef)
+          case _ => (false, undefinedSubst)
+        }
+      }
+      case _ => (false, undefinedSubst)
     }
   }
 

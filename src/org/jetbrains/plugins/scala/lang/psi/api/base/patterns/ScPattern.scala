@@ -7,10 +7,10 @@ package patterns
 
 import collection.mutable.ArrayBuffer
 import psi.types._
-import result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
 import expr._
+import result.{Success, Failure, TypeResult, TypingContext}
 import statements.{ScFunction, ScValue, ScVariable}
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve._
@@ -76,7 +76,10 @@ trait ScPattern extends ScalaPsiElement {
           val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
               substitutor))))
-          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty).getOrElse(return None))
+          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
+            case Success(tp, _) => tp
+            case _ => return None
+          })
           expected match {
             case Some(tp) => {
               val t = Conformance.conforms(tp, funType)
@@ -91,32 +94,34 @@ trait ScPattern extends ScalaPsiElement {
             case _ => substitutor
           }
         }
-        for (rt <- fun.returnType) {
-          if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
-          rt match {
-            case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-              case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
-                      clazz.getQualifiedName == "scala.Some" => true
-              case _ => false
-            }) => {
-              if (args.length != 1) return None
-              args(0) match {
-                case ScTupleType(args) => {
-                  if (i < args.length) return Some(subst.subst(args(i)))
-                  else return None
-                }
-                case p@ScParameterizedType(des, args) if p.getTupleType != None => {
-                  if (i < args.length) return Some(subst.subst(args(i)))
-                  else return None
-                }
-                case tp => {
-                  if (i == 0) return Some(subst.subst(tp))
-                  else return None
+        fun.returnType match {
+          case Success(rt, _) =>
+            if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
+            rt match {
+              case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
+                case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
+                        clazz.getQualifiedName == "scala.Some" => true
+                case _ => false
+              }) => {
+                if (args.length != 1) return None
+                args(0) match {
+                  case ScTupleType(args) => {
+                    if (i < args.length) return Some(subst.subst(args(i)))
+                    else return None
+                  }
+                  case p@ScParameterizedType(des, args) if p.getTupleType != None => {
+                    if (i < args.length) return Some(subst.subst(args(i)))
+                    else return None
+                  }
+                  case tp => {
+                    if (i == 0) return Some(subst.subst(tp))
+                    else return None
+                  }
                 }
               }
+              case _ => return None
             }
-            case _ => return None
-          }
+          case _ =>
         }
         None
       }
@@ -126,7 +131,10 @@ trait ScPattern extends ScalaPsiElement {
           val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
               substitutor))))
-          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty).getOrElse(return None))
+          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
+            case Success(tp, _) => tp
+            case _ => return None
+          })
           expected match {
             case Some(tp) => {
               val t = Conformance.conforms(tp, funType)
@@ -141,32 +149,34 @@ trait ScPattern extends ScalaPsiElement {
             case _ => substitutor
           }
         }
-        for (rt <- fun.returnType) {
-          subst.subst(rt) match {
-            case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
-              case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
-                      clazz.getQualifiedName == "scala.Some" => true
-              case _ => false
-            }) => {
-              if (args.length != 1) return None
-              (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
-                case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
-                  case _ => false
-                }) => true
+        fun.returnType match {
+          case Success(rt, _) =>
+            subst.subst(rt) match {
+              case ScParameterizedType(des, args) if (ScType.extractClass(des) match {
+                case Some(clazz) if clazz.getQualifiedName == "scala.Option" ||
+                        clazz.getQualifiedName == "scala.Some" => true
                 case _ => false
-              }) match {
-                case Some(seq@ScParameterizedType(des, args)) => {
-                  this match {
-                    case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
-                    case _ => return Some(subst.subst(args(0)))
+              }) => {
+                if (args.length != 1) return None
+                (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
+                  case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
+                    case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
+                    case _ => false
+                  }) => true
+                  case _ => false
+                }) match {
+                  case Some(seq@ScParameterizedType(des, args)) => {
+                    this match {
+                      case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
+                      case _ => return Some(subst.subst(args(0)))
+                    }
                   }
+                  case _ => return None
                 }
-                case _ => return None
               }
+              case _ => return None
             }
-            case _ => return None
-          }
+          case _ =>
         }
         None
       }
@@ -193,8 +203,14 @@ trait ScPattern extends ScalaPsiElement {
 
   private def innerExpectedType: Option[ScType] = getContext match {
     case list : ScPatternList => list.getContext match {
-      case _var : ScVariable => Some(_var.getType(TypingContext.empty).getOrElse(return None))
-      case _val : ScValue => Some(_val.getType(TypingContext.empty).getOrElse(return None))
+      case _var : ScVariable => Some(_var.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
+      case _val : ScValue => Some(_val.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
     }
     case argList : ScPatternArgumentList => {
       argList.getContext match {
@@ -282,7 +298,10 @@ trait ScPattern extends ScalaPsiElement {
     }
     case enum: ScEnumerator => {
       if (enum.rvalue == null) return None
-      Some(enum.rvalue.getType(TypingContext.empty).getOrElse(return None))
+      Some(enum.rvalue.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
     }
     case _ => None
   }

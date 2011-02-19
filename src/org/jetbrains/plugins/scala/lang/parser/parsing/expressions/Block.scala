@@ -7,6 +7,8 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
+import annotation.tailrec
+import util.ParserUtils
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +21,7 @@ import builder.ScalaPsiBuilder
 
 object Block {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def parse(builder: ScalaPsiBuilder) {
     while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       val rollMarker = builder.mark
       if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
@@ -37,7 +39,6 @@ object Block {
         rollMarker.rollbackTo
       }
     }
-    return true
   }
 
   private def parseImpl(builder: ScalaPsiBuilder): Int = {
@@ -65,15 +66,7 @@ object Block {
           return false
         }
       }
-      parse(builder)
-      builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE => {
-          builder.advanceLexer
-        }
-        case _ => {
-          builder error ErrMsg("rbrace.expected")
-        }
-      }
+      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
       builder.restoreNewlinesState
       blockMarker.done(ScalaElementTypes.BLOCK_EXPR)
     }

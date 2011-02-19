@@ -50,6 +50,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               e = e.getContext
             }
             val i = unders.findIndexOf(_.getTextRange.getStartOffset == startOffset)
+            if (i < 0) return Failure("Not found under", None)
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes if result != None) {
@@ -63,13 +64,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   }
                   else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
                   else {
-                    try
                     result = Some(params(i).removeAbstracts)
-                    catch {
-                      case e: Exception => {
-                        "stop"
-                      }
-                    }
                     forEqualsParamLength = true
                   }
                 }
@@ -95,7 +90,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 case _ =>
               }
             }
-            if (result == null) result = None
+            if (result == null) {
+              expectedType match {
+                case Some(tp: ScType) => result = Some(tp)
+                case _ => result = None
+              }
+            }
             result match {
               case None => Failure("No type inferred", None)
               case Some(t) => Success(t, None)

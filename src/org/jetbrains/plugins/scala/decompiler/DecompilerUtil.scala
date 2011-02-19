@@ -22,10 +22,8 @@ import scala.reflect.generic.ByteCodecs
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 123
-  private val decompiledTextAttribute = new FileAttribute("_file_decompiled_text_", DECOMPILER_VERSION)
-  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION)
-  private val sourceFileAttribute = new FileAttribute("_scala_source_file_", DECOMPILER_VERSION)
+  val DECOMPILER_VERSION = 129
+  private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
     isScalaFile(file, file.contentsToByteArray)
@@ -82,9 +80,7 @@ object DecompilerUtil {
 
     val isPackageObject = file.getName == "package.class"
     val byteCode = ByteCode(bytes)
-    val ba = decompiledTextAttribute.readAttributeBytes(file)
-    val sf = sourceFileAttribute.readAttributeBytes(file)
-    val (bts, sourceFile) = if (ba != null && sf != null) (ba, sf) else {
+    val (bts, sourceFile) = {
       def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
         import classFile._
         classFile.annotation(SCALA_SIG_ANNOTATION) match {
@@ -138,7 +134,6 @@ object DecompilerUtil {
         printer.printSymbol(c)
       }
       val bs = baos.toByteArray
-      decompiledTextAttribute.writeAttributeBytes(file, bs, 0, bs.length)
 
       // Obtain source file name
       val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
@@ -148,7 +143,6 @@ object DecompilerUtil {
         case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
         case _ => Array.empty
       }
-      sourceFileAttribute.writeAttributeBytes(file, sBytes, 0, sBytes.length)
       (bs, sBytes)
     }
 

@@ -29,20 +29,22 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
       named match {
         case o: ScObject if o.isPackageObject => return true
         case obj: ScObject =>
-          for (sign <- obj.signaturesByName("unapply")) {
+          var seq = obj.signaturesByName("unapply").map {sign =>
             val m = sign.method
             val subst = sign.substitutor
-            addResult(new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj)))
+            new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
+              fromType = getFromType(state), parentElement = Some(obj))
           }
+          addResults(seq)
           //unapply has bigger priority then unapplySeq
           if (candidatesSet.isEmpty)
-          for (sign <- obj.signaturesByName("unapplySeq")) {
+          seq = obj.signaturesByName("unapplySeq").map {sign =>
             val m = sign.method
             val subst = sign.substitutor
-            addResult(new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
-              fromType = getFromType(state), parentElement = Some(obj)))
+            new ScalaResolveResult(m, getSubst(state).followed(subst), getImports(state),
+              fromType = getFromType(state), parentElement = Some(obj))
           }
+          addResults(seq)
           return true
         case bind: ScBindingPattern =>
           addResult(new ScalaResolveResult(bind, getSubst(state), getImports(state), fromType = getFromType(state)))

@@ -7,17 +7,20 @@ import com.intellij.lang.ASTNode
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import parsing.builder.ScalaPsiBuilderImpl
+import parsing.expressions.{BlockExpr, Block}
 import parsing.Program
-import parsing.types.Type
-
 
 class ScalaParser extends PsiParser {
 
   def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
-    val rootMarker = builder.mark
-    val program: Program = new Program
-    program.parse(new ScalaPsiBuilderImpl(builder))
-    rootMarker.done(root)
+    root match {
+      case ScalaElementTypes.BLOCK_EXPR =>
+        BlockExpr.parse(new ScalaPsiBuilderImpl(builder))
+      case _ =>
+        val rootMarker = builder.mark
+        Program.parse(new ScalaPsiBuilderImpl(builder))
+        rootMarker.done(root)
+    }
     builder.getTreeBuilt
   }
 }

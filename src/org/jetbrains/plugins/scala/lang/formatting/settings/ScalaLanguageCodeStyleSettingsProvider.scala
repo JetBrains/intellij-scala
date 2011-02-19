@@ -138,6 +138,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     if (settingsType == SettingsType.SPACING_SETTINGS) {
       showCustomOption("SPACE_AFTER_MODIFIERS_CONSTRUCTOR", "Constructor parameters with modifiers",
         CodeStyleSettingsCustomizable.SPACES_BEFORE_PARENTHESES)
+      showCustomOption("SPACE_AFTER_TYPE_COLON", "Space after colon, before declarations' type",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACE_BEFORE_TYPE_COLON", "Space before colon, after declarations' name",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }

@@ -28,17 +28,13 @@ public class ScalacRunner {
   public static final String SCALAC_QUALIFIED_NAME = "scala.tools.nsc.Main";
 
   public static void main(String[] args) {
-    if (args.length != 1) {
-      System.err.println("ScalacRunner usage: ScalacRunner args_for_scalac_file");
-      return;
-    }
+    if (args.length != 1)
+      throw new RuntimeException("ScalacRunner usage: ScalacRunner args_for_scalac_file");
 
     String fileName = args[0];
     File f = new File(fileName);
-    if (!f.exists()) {
-      System.err.println("ScalacRunner: args_for_scalac_file not found");
-      return;
-    }
+    if (!f.exists())
+      throw new RuntimeException("ScalacRunner: args_for_scalac_file not found");
 
     List<String> scalacArgs = new ArrayList<String>();
     BufferedReader reader = null;
@@ -52,16 +48,13 @@ public class ScalacRunner {
         if (line != null) scalacArgs.add(line);
       } while (line != null);
     } catch (IOException e) {
-      e.printStackTrace();
-      System.err.println("Scalac internal error: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
-      return;
+      throw new RuntimeException("Scalac internal error", e);
     } finally {
       try {
         if (reader != null) try {
           reader.close();
         } catch (IOException e) {
-          e.printStackTrace();
-          System.err.println("Scalac internal error: " + e.getMessage()+ "\n" + Arrays.toString(e.getStackTrace()));
+          // do nothing
         }
       } finally {
         f.delete();
@@ -72,21 +65,8 @@ public class ScalacRunner {
       Class<?> scalacMain = Class.forName(SCALAC_QUALIFIED_NAME);
       Method method = scalacMain.getMethod("main", String[].class);
       method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
-    }
-    catch (Throwable e) {
-      Throwable cause = e.getCause();
-      System.err.println("Scalac internal error: " + e.getClass() + " " + Arrays.toString(e.getStackTrace()) +
-              (cause != null ? Arrays.toString(e.getCause().getStackTrace()) : ""));
-      for (StackTraceElement element : e.getStackTrace()) {
-        System.err.println(element);
-      }
-      while (cause != null) {
-        System.err.println("Caused by " + cause);
-        for (StackTraceElement element : cause.getStackTrace()) {
-          System.err.println(element);
-        }
-        cause = cause.getCause();
-      }
+    } catch (Throwable e) {
+      throw new RuntimeException("Compiler classes not found: ", e);
     }
   }
 }

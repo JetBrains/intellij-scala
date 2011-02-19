@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.ScalaBundle
+import util.ParserUtils
+
 //import org.jetbrains.plugins.scala.ScalaBundleImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.nl.LineTerminator
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
@@ -41,23 +43,13 @@ object Packaging {
             }
             builder.advanceLexer //Ate '{'
             builder.enableNewlines
-            //parse packaging body
-            TopStatSeq parse (builder, true)
-            //Look for '}'
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRBRACE => {
-                builder.advanceLexer //Ate '}'
-                builder.restoreNewlinesState
-                packMarker.done(ScalaElementTypes.PACKAGING)
-                return true
-              }
-              case _ => {
-                builder error ScalaBundle.message("rbrace.expected")
-                builder.restoreNewlinesState
-                packMarker.done(ScalaElementTypes.PACKAGING)
-                return true
-              }
-            }
+            ParserUtils.parseLoopUntilRBrace(builder, () => {
+              //parse packaging body
+              TopStatSeq parse (builder, true)
+            })
+            builder.restoreNewlinesState
+            packMarker.done(ScalaElementTypes.PACKAGING)
+            return true
           }
           case _ => {
             builder error ScalaBundle.message("lbrace.expected")

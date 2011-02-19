@@ -26,7 +26,7 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import java.lang.String
 import com.intellij.openapi.progress.ProcessCanceledException
-import processor.{ResolveProcessor, ResolverEnv}
+import processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
 import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -125,11 +125,12 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
           case None =>
         }
       }
-      case _ =>
+      case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
         for (p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
           if (!processor.execute(method, state)) return false
         }
+      case _ => //do not execute synthetic methods to not Scala processors.
     }
 
     true
@@ -269,9 +270,14 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     scriptSyntheticValues = new HashSet[ScSyntheticValue]
     //todo: remove all scope => method value
     //todo: handle process cancelled exception
-    val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
-    if (stringClass != null) {
-      scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
+    try {
+      val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", GlobalSearchScope.allScope(project))
+      if (stringClass != null) {
+        scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
+      }
+    }
+    catch {
+      case _: ProcessCanceledException =>
     }
     stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
 
@@ -279,7 +285,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     syntheticObjects = new HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-              createFileFromText("dummy" + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
         ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
       val obj = dummyFile.typeDefinitions.apply(0).asInstanceOf[ScObject]
       syntheticObjects += obj

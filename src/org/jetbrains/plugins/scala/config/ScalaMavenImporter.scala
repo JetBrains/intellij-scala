@@ -18,7 +18,9 @@ import org.jetbrains.idea.maven.facade.{NativeMavenProjectHolder, MavenEmbedderW
 
 class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfiguration, ScalaFacetType](
   "org.scala-tools", "maven-scala-plugin", ScalaFacet.Type, "Scala") {
-  
+
+  private val LibraryName = "Maven: org.scala-lang:scala-compiler-bundle:%s".format(_)
+
   private implicit def toRichMavenProject(project: MavenProject) = new {
     def localPathTo(id: MavenId) = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
             id.getArtifactId / id.getVersion / "%s-%s.jar".format(id.getArtifactId, id.getVersion)
@@ -36,21 +38,19 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
     result.add(if (goalConfigValue == null) defaultDir else goalConfigValue)
   }
 
-  override def isApplicable(mavenProject: MavenProject) = super.isApplicable(mavenProject) && mavenProject.getPackaging != "pom"
+  // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
+  override def isApplicable(mavenProject: MavenProject) =
+    validConfigurationIn(mavenProject).isDefined
 
   def reimportFacet(modelsProvider: MavenModifiableModelsProvider, module: Module, rootModel: MavenRootModelAdapter,
                     facet: ScalaFacet, mavenTree: MavenProjectsTree, mavenProject: MavenProject, 
                     changes: MavenProjectChanges, mavenProjectToModuleName: Map[MavenProject, String], 
                     postTasks: List[MavenProjectsProcessorTask]) = {
     validConfigurationIn(mavenProject).foreach { configuration =>
-      val libraryName = "Maven: org.scala-lang:scala-compiler-bundle:" + configuration.compilerVersion.mkString
-      
-      val library = {
-        val existingLibrary = modelsProvider.getLibraryByName(libraryName)
-        if(existingLibrary == null)
-          createCompilerLibrary(libraryName, configuration, mavenProject, modelsProvider)
-        else
-          existingLibrary
+      val name = LibraryName(configuration.compilerVersion.mkString)
+
+      val library = modelsProvider.getLibraryByName(name).toOption.getOrElse {
+        createCompilerLibrary(name, configuration, mavenProject, modelsProvider)
       }
 
       facet.compilerLibraryId = LibraryId(library.getName, LibraryLevel.Project)
@@ -81,11 +81,11 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
       val compilerId = configuration.compilerId
       embedder.resolve(new MavenArtifactInfo(compilerId, "pom", null), repositories)
       embedder.resolve(new MavenArtifactInfo(compilerId, "jar", null), repositories)
-      
+
       val libraryId = configuration.libraryId
       embedder.resolve(new MavenArtifactInfo(libraryId, "pom", null), repositories)
       embedder.resolve(new MavenArtifactInfo(libraryId, "jar", null), repositories)
-      
+
       configuration.plugins.foreach { pluginId =>
         embedder.resolve(new MavenArtifactInfo(pluginId, "pom", null), repositories)
         embedder.resolve(new MavenArtifactInfo(pluginId, "jar", null), repositories)
@@ -104,8 +104,10 @@ private class ScalaConfiguration(project: MavenProject) {
 
   def libraryId = new MavenId("org.scala-lang", "scala-library", compilerVersion.mkString)
 
-  private def compilerConfiguration =
-    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.flatMap(_.getConfigurationElement.toOption)
+  private def compilerPlugin =
+    project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault)
+
+  private def compilerConfiguration = compilerPlugin.flatMap(_.getConfigurationElement.toOption)
 
   private def standardLibrary = project.findDependencies("org.scala-lang", "scala-library").headOption
 
@@ -135,5 +137,5 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfiguration.flatMap(_.getChild(name).toOption)
 
-  def valid = compilerVersion.isDefined
+  def valid = compilerPlugin.isDefined && compilerVersion.isDefined
 }

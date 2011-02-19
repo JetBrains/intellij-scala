@@ -25,7 +25,6 @@ import collection.mutable.ArrayBuffer
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import psi.types._
 import psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -33,6 +32,8 @@ import lang.resolve.ScalaResolveResult
 import psi.api.expr.xml.ScXmlExpr
 import psi.ScalaPsiElement
 import psi.api.base.ScLiteral
+import com.intellij.openapi.editor.{VisualPosition, Editor}
+import com.intellij.openapi.actionSystem.DataContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -430,4 +431,61 @@ object ScalaRefactoringUtil {
     }
     builder.toString
   }
+
+  private[refactoring] def getLineText(editor: Editor): String = {
+    val lineNumber = editor.getCaretModel.getLogicalPosition.line
+    if (lineNumber >= editor.getDocument.getLineCount) return ""
+    val caret = editor.getCaretModel.getVisualPosition
+    val lineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line, 0));
+    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
+    val start = editor.logicalPositionToOffset(lineStart)
+    val end = editor.logicalPositionToOffset(nextLineStart)
+    return editor.getDocument.getText.substring(start, end)
+  }
+
+  def invokeRefactoring(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
+                        refactoringName: String, invokesNext: () => Unit) {
+
+    if (!editor.getSelectionModel.hasSelection) {
+      val offset = editor.getCaretModel.getOffset
+      val element: PsiElement = file.findElementAt(offset) match {
+        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+          w.getText.contains("\n") => file.findElementAt(offset - 1)
+        case p => p
+      }
+      def getExpressions: Array[ScExpression] = {
+        val res = new ArrayBuffer[ScExpression]
+        var parent = element
+        while (parent != null && !parent.getText.contains("\n")) {
+          parent match {
+            case expr: ScExpression => res += expr
+            case _ =>
+          }
+          parent = parent.getParent
+        }
+        res.toArray
+      }
+      val expressions = getExpressions
+      def chooseExpression(expr: ScExpression) {
+        editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset,
+          expr.getTextRange.getEndOffset)
+        invokesNext()
+      }
+      if (expressions.length == 0)
+        editor.getSelectionModel.selectLineAtCaret
+      else if (expressions.length == 1) {
+        chooseExpression(expressions(0))
+        return
+      } else {
+        ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
+          chooseExpression(elem.asInstanceOf[ScExpression]), "Choose Expression for " + refactoringName, (expr: ScExpression) => {
+          ScalaRefactoringUtil.getShortText(expr)
+        })
+        return
+      }
+    }
+    invokesNext()
+  }
+
+  private[refactoring] class IntroduceException extends Exception
 }

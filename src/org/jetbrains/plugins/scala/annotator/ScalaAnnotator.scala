@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import template._
 import types.ScTypeElement
 import scala.collection.Set
 import scala.Some
@@ -52,7 +53,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         with ParametersAnnotator with ApplicationAnnotator
         with AssignmentAnnotator with VariableDefinitionAnnotator
         with TypedStatementAnnotator with PatternDefinitionAnnotator
-        with TemplateDefinitionAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val advancedHighlighting = isAdvancedHighlightingEnabled(element)
@@ -125,8 +125,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        //todo: checkImplementedMethods(x, holder)
-        annotateTemplateDefinition(x, holder)
+        AbstractInstantiation.annotate(x, holder, advancedHighlighting)
+        FinalClassInheritance.annotate(x, holder, advancedHighlighting)
+        ObjectCreationImpossible.annotate(x, holder, advancedHighlighting)
+        MultipleInheritance.annotate(x, holder, advancedHighlighting)
+        NeedsToBeAbstract.annotate(x, holder, advancedHighlighting)
+        NeedsToBeTrait.annotate(x, holder, advancedHighlighting)
+        SealedClassInheritance.annotate(x, holder, advancedHighlighting)
+        UndefinedMember.annotate(x, holder, advancedHighlighting)
       }
       case ref: ScReferenceElement => {
         if(advancedHighlighting) annotateReference(ref, holder)

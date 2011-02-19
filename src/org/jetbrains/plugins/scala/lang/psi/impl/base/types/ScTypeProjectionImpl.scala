@@ -61,7 +61,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   def multiResolve(incomplete: Boolean) =
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
   def getVariants: Array[Object] = {
-    _resolve(new CompletionProcessor(getKinds(true))).map(
+    doResolve(new CompletionProcessor(getKinds(true))).map(
       r => {
         r match {
           case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
@@ -77,11 +77,11 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScTypeProjectionImpl] {
     def resolve(projection: ScTypeProjectionImpl, incomplete: Boolean) = {
-      projection._resolve(new ResolveProcessor(projection.getKinds(incomplete), projection, projection.refName))
+      projection.doResolve(new ResolveProcessor(projection.getKinds(incomplete), projection, projection.refName))
     }
   }
 
-  private def _resolve(proc : BaseProcessor) = {
+  def doResolve(proc: BaseProcessor) = {
     val projected = typeElement.getType(TypingContext.empty).getOrElse(Any)
     proc.processType(projected, this)
     proc.candidates.map {r : ScalaResolveResult =>
@@ -93,5 +93,5 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getSameNameVariants: Array[ResolveResult] = _resolve(new CompletionProcessor(getKinds(true), false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(true), false, Some(refName)))
 }

@@ -194,7 +194,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             } else {
               val result = refPatt.getType(TypingContext.empty)
-              s.subst(result.getOrElse(return result))
+              result match {
+                case Success(tp, _) => s.subst(tp)
+                case _ => return result
+              }
             }
           }
         }
@@ -207,7 +210,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val seqClass = JavaPsiFacade.getInstance(getProject).
                 findClass("scala.collection.Seq", getResolveScope)
         val result = param.getType(TypingContext.empty)
-        val computeType = s.subst(result.getOrElse(return result))
+        val computeType = s.subst(result match {
+          case Success(tp, _) => tp
+          case _ => return result
+        })
         if (seqClass != null) {
           ScParameterizedType(ScDesignatorType(seqClass), Seq(computeType))
         } else computeType
@@ -220,7 +226,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
         val result = typed.getType(TypingContext.empty)
-        s.subst(result.getOrElse(return result))
+        s.subst(result match {
+          case Success(tp, _) => tp
+          case _ => return result
+        })
       }
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase => {

@@ -24,4 +24,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   def hasAssign: Boolean
 
   def getReturnUsages: Array[PsiElement]
+
+
 }

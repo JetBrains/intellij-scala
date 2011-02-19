@@ -24,7 +24,6 @@ import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScClass, ScTemplateDefinition}
-import com.sun.net.httpserver.Authenticator._
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -61,10 +60,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   def getHint[T](hintKey: Key[T]): T = {
-    if (hintKey == ElementClassHint.KEY) {
-      return MyElementClassHint.asInstanceOf[T]
-    } else {
-      return null.asInstanceOf[T]
+    hintKey match {
+      case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
+      case _ => null.asInstanceOf[T]
     }
   }
 
@@ -74,11 +72,16 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def processType(t: ScType, place: PsiElement): Boolean = processType(t, place, ResolveState.initial)
 
-  def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean = {
+  def processType(t: ScType, place: PsiElement, state: ResolveState): Boolean =
     processType(t, place, state, false)
-  }
 
-  def processType(t: ScType, place: PsiElement, state: ResolveState, noBounds: Boolean): Boolean = {
+
+
+  def processType(t: ScType, place: PsiElement, state: ResolveState, noBounds: Boolean): Boolean =
+    processType(t, place, state, noBounds, true)
+
+  def processType(t: ScType, place: PsiElement, state: ResolveState,
+                  noBounds: Boolean, updateWithProjectionSubst: Boolean): Boolean = {
     ProgressManager.checkCanceled
 
     t match {
@@ -153,7 +156,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       }
       case proj@ScProjectionType(des, elem, subst) => {
-        val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(des)) followed proj.actualSubst
+        val s: ScSubstitutor = if (updateWithProjectionSubst)
+          new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
+        else proj.actualSubst
         processElement(proj.actualElement, s, place, state)
       }
 
@@ -197,7 +202,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           }
         }
 
-        if (kinds.contains(CLASS)) {
+        if (kinds.contains(CLASS))
+        {
           for (t <- types) {
             if (!execute(t, newState)) return false
           }
@@ -214,15 +220,22 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
   }
 
   private def processElement (e : PsiNamedElement, s : ScSubstitutor, place: PsiElement, state: ResolveState) = {
+    val subst = state.get(ScSubstitutor.key)
+    val newSubst = if (subst != null) subst followed s else s
     e match {
-      case ta: ScTypeAlias => processType(s.subst(ta.upperBound.getOrElse(Any)), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
-
+      case ta: ScTypeAlias =>
+        processType(s.subst(ta.upperBound.getOrElse(Any)), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       //need to process scala way
       case clazz: PsiClass =>
-        TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, s),
-          null, place)
-
-      case des => des.processDeclarations(this, state.put(ScSubstitutor.key, s), null, place)
+        TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, newSubst), null, place)
+      case des: ScTypedDefinition =>
+        des.getType(TypingContext.empty) match {
+          case Success(tp, _) =>
+            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, newSubst), false, false)
+          case _ => true
+        }
+      case des =>
+        des.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place)
     }
   }
 

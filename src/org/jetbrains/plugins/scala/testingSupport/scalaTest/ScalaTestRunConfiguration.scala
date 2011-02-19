@@ -87,6 +87,12 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def setScalaTestVersion(b: Boolean): Unit = scalaTestVersion = b
   def setWorkingDirectory(s: String): Unit = workingDirectory = s
 
+  private var generatedName: String = ""
+  override def getGeneratedName = generatedName
+  def setGeneratedName(name: String) {generatedName = name}
+  override def isGeneratedName = getName == null || getName.equals(suggestedName)
+  override def suggestedName = getGeneratedName
+
   def apply(configuration: ScalaTestRunConfigurationForm) {
     if (configuration.isClassSelected) {
       setTestClassPath(configuration.getTestClassPath)
