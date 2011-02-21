@@ -8,7 +8,6 @@ import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, Intr
 import java.lang.String
 import com.intellij.usageView.UsageInfo
 import java.util.{Collections, List}
-import psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import psi.api.statements.ScFunction
 import resolve.ScalaResolveResult
 import com.intellij.psi.PsiElement
@@ -16,6 +15,10 @@ import com.intellij.util.containers.MultiMap
 import psi.types.ScType
 import psi.impl.ScalaPsiElementFactory
 import util.ScalaNamesUtil
+import conversion.JavaToScala
+import com.intellij.psi.util.PsiTreeUtil
+import psi.impl.expr.ScCallExprImpl
+import psi.api.expr._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,7 +62,10 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
 
     //remove parameters
     val paramsToRemove = data.getParametersToRemove
-    //todo:
+    val params = fun.parameters
+    for (i <- paramsToRemove.toNativeArray.reverseIterator) {
+      params(i).remove
+    }
 
     //add parameter
     val needSpace = ScalaNamesUtil.isIdentifier(paramName + ":")
@@ -70,8 +76,160 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     false
   }
 
+  private def isElementInUsages(data: IntroduceParameterData, element: PsiElement, usages: Array[UsageInfo]): Boolean = {
+    for (usage <- usages) {
+      usage.getElement match {
+        case fun: ScFunction =>
+          if (PsiTreeUtil.isAncestor(fun, element, false)) return true
+        case _ =>
+      }
+    }
+    return false
+  }
+
   def processChangeMethodUsage(data: IntroduceParameterData, usage: UsageInfo, usages: Array[UsageInfo]): Boolean = {
-    if (!isMethodUsage(usage)) return true
+    val element = usage.getElement
+    if (element.getLanguage != ScalaFileType.SCALA_LANGUAGE) return true
+    data match {
+      case data: ScalaIntroduceParameterProcessor if data.isDeclareDefault => return true //shouldn't do anything
+      case _ =>
+    }
+
+
+    element match {
+      case ref: ScReferenceExpression =>
+        val call: ScMethodCall = ref.getParent match {
+          case u: ScUnderscoreSection => return false
+          case call: ScMethodCall =>
+            if (call.args.isBraceArgs) {
+              val newCall = ScalaPsiElementFactory.createExpressionFromText(
+                ref.getText + "(" + call.args.getText + ")", element.getManager
+              )
+              newCall match {
+                case c: ScMethodCall =>
+                  call.replaceExpression(c, true)
+                  c
+                case _ => return false
+              }
+            } else call
+          case postf: ScPostfixExpr =>
+            val newPostf = ScalaPsiElementFactory.createExpressionFromText(
+              postf.operand.getText + "." + postf.operation.getText + "()", element.getManager
+            )
+            newPostf match {
+              case call: ScMethodCall =>
+                postf.replaceExpression(call, true)
+                call
+              case _ => return false
+            }
+          case pref: ScPrefixExpr =>
+            val newPref = ScalaPsiElementFactory.createExpressionFromText(
+              pref.operand.getText + ".unary_" + pref.operand.getText + "()", element.getManager
+            )
+            newPref match {
+              case call: ScMethodCall =>
+                pref.replaceExpression(call, true)
+                call
+              case _ => return false
+            }
+          case inf: ScInfixExpr =>
+            val newInf = ScalaPsiElementFactory.createExpressionFromText(
+              inf.getBaseExpr.getText + "." + inf.operation.getText + "(" + inf.getArgExpr + ")", element.getManager
+            )
+            newInf match {
+              case call: ScMethodCall =>
+                inf.replaceExpression(call, true)
+                call
+              case _ => return false
+            }
+          case _ =>
+            val newCall = ScalaPsiElementFactory.createExpressionFromText(
+              ref.getText + "()", element.getManager
+            )
+            newCall match {
+              case call: ScMethodCall =>
+                ref.replaceExpression(call, true)
+                call
+              case _ => return false
+            }
+        }
+        val isInUsages = isElementInUsages(data, element.getParent, usages)
+          val expression: ScExpression =
+            if (isInUsages) {
+              ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
+            }
+            else {
+              data match {
+                case proc: ScalaIntroduceParameterProcessor =>
+                  if (!proc.hasDefaults) proc.getScalaExpressionToSearch
+                  else {
+                    val text = proc.getParameterName + " = " + proc.getScalaExpressionToSearch.getText
+                    try {
+                      ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
+                    } catch {
+                      case e: Exception =>
+                        proc.getScalaExpressionToSearch
+                    }
+                  }
+                case _ =>
+                  val text = JavaToScala.convertPsiToText(data.getParameterInitializer)
+                  try {
+                    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
+                  } catch {
+                    case e: Exception =>
+                      ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
+                  }
+              }
+            }
+        val args = call.args
+        val exprs = args.exprs
+        if (exprs.length == 0) {
+          args.addExpr(expression)
+        } else {
+          data match {
+            case data: ScalaIntroduceParameterProcessor =>
+              if (data.posNumber == 0) args.addExpr(expression)
+              else {
+                val anchor =
+                  if (data.posNumber >= exprs.length)
+                    exprs(exprs.length - 1)
+                  else
+                    exprs(data.posNumber - 1)
+                anchor match {
+                  case ass: ScAssignStmt =>
+                    expression match {
+                      case _: ScAssignStmt => args.addExprAfter(expression, anchor)
+                      case _ =>
+                        val text = data.getParameterName + " = " + expression.getText
+                        val newExpr = try {
+                          ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
+                        } catch {
+                          case e: Exception =>
+                            expression
+                        }
+                        args.addExprAfter(newExpr, anchor)
+                    }
+                  case _ => args.addExprAfter(expression, anchor)
+                }
+              }
+            case _ =>
+              if (exprs.length == 0) args.addExpr(expression)
+              else if (!data.getMethodToSearchFor.isVarArgs) {
+                args.addExprAfter(expression, exprs(exprs.length - 1))
+              } else if (data.getMethodToSearchFor.getParameterList.getParametersCount > exprs.length) {
+                args.addExprAfter(expression, exprs(exprs.length - 1))
+              } else if (data.getMethodToSearchFor.getParameterList.getParametersCount == 1) {
+                args.addExpr(expression)
+              } else {
+                val anchor = exprs(data.getMethodToSearchFor.getParameterList.getParametersCount - 2)
+                args.addExprAfter(expression, anchor)
+              }
+          }
+        }
+
+      case _ => //todo: patterns, this, constructors, new usages
+    }
+
     false
   }
 

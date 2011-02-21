@@ -12,12 +12,12 @@ import com.intellij.openapi.util.TextRange
 import collection.mutable.ArrayBuffer
 import java.util.{Comparator, Arrays}
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import gnu.trove.TIntArrayList
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterMethodUsagesProcessor, IntroduceParameterData}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,8 +28,21 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
                                        occurrences: Array[TextRange], startOffset: Int, endOffset: Int,
                                        paramName: String, isDefaultParam: Boolean, tp: ScType, expression: ScExpression)
         extends BaseRefactoringProcessor(project) with IntroduceParameterData {
+
   private val document = editor.getDocument
   private val file = function.getContainingFile
+
+  val (hasDefaults, hasRep, posNumber) = {
+    val clauses = function.paramClauses.clauses
+    if (clauses.length == 0) (false, false, 0)
+    else {
+      val hasDef = clauses.apply(0).parameters.find(p => p.isDefaultParam) != None
+      val hasRep = clauses.apply(0).parameters.find(p => p.isRepeatedParameter) != None
+      val num = clauses.apply(0).parameters.length - (if (hasRep) 1 else 0)
+      (hasDef, hasRep, num)
+    }
+  }
+
   private def getRangeElementOrFile(range: TextRange): PsiElement = {
     val startElement = file.findElementAt(range.getStartOffset)
     val endElement = file.findElementAt(range.getEndOffset - 1)
@@ -45,6 +58,24 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
   private def changeMethodSignatureAndResolveFieldConflicts(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
     for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
       if (!processor.processChangeMethodSignature(this, usage, usages)) return
+    }
+  }
+
+  private def changeExternalUsage(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+    for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
+      if (!processor.processChangeMethodUsage(this, usage, usages)) return
+    }
+  }
+
+  private def addDefaultConstructor(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+    for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
+      if (!processor.processAddDefaultConstructor(this, usage, usages)) return
+    }
+  }
+
+  private def addSuperCall(usage: UsageInfo, usages: Array[UsageInfo]): Unit = {
+    for (processor <- IntroduceParameterMethodUsagesProcessor.EP_NAME.getExtensions) {
+      if (!processor.processAddSuperCall(this, usage, usages)) return
     }
   }
 
@@ -71,6 +102,14 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
         case IPUsageInfo(method) =>
           changeMethodSignatureAndResolveFieldConflicts(usage, usages)
         case MethodUsageInfo(ref) =>
+          ref match {
+            case clazz: PsiClass =>
+              addDefaultConstructor(usage, usages)
+            case method: PsiMethod if method.isConstructor =>
+              addSuperCall(usage, usages)
+            case _ =>
+              changeExternalUsage(usage, usages)
+          }
         case ElementRangeUsageInfo(element, range) =>
           element match {
             case expr: ScExpression =>
@@ -149,9 +188,11 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
 
   def getScalaExpressionToSearch: ScExpression = expression
 
-  def getExpressionToSearch: PsiExpression = null //todo:
+  def getExpressionToSearch: PsiExpression =
+    JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
 
-  def getParameterInitializer: PsiExpression = null //todo:
+  def getParameterInitializer: PsiExpression =
+    JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
 
   def getMethodToSearchFor: PsiMethod = methodToSearchFor
 

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
@@ -214,8 +215,16 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
       }
     }
 
-    if (ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT != null) {
-      makeWithDefaultValueCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT);
+    if (methodToSearchFor instanceof ScFunction) {
+      if (ScalaApplicationSettings.getInstance().INTRODUCE_PARAMETER_CREATE_DEFAULT != null) {
+        makeWithDefaultValueCheckBox.setSelected(ScalaApplicationSettings.getInstance().
+            INTRODUCE_PARAMETER_CREATE_DEFAULT);
+      }
+      makeWithDefaultValueCheckBox.setEnabled(true);
+    } else {
+      makeWithDefaultValueCheckBox.setSelected(false);
+      makeWithDefaultValueCheckBox.setEnabled(false);
+      makeWithDefaultValueCheckBox.setVisible(false);
     }
 
     // Replace occurences

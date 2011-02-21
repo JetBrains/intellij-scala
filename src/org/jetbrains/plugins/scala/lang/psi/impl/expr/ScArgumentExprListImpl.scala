@@ -273,4 +273,33 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       super.addBefore(element, anchor)
     }
   }
+
+  def addExpr(expr: ScExpression): ScArgumentExprList = {
+    val par = findChildByType(ScalaTokenTypes.tLPARENTHESIS)
+    val nextNode = par.getNode.getTreeNext
+    val comma = ScalaPsiElementFactory.createComma(getManager)
+    val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    val node = getNode
+    node.addChild(expr.getNode, nextNode)
+    node.addChild(comma.getNode, nextNode)
+    node.addChild(space, nextNode)
+    this
+  }
+
+  def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
+    val nextNode = anchor.getNode.getTreeNext
+    val comma = ScalaPsiElementFactory.createComma(getManager)
+    val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    val node = getNode
+    if (nextNode != null) {
+      node.addChild(comma.getNode, nextNode)
+      node.addChild(space, nextNode)
+      node.addChild(expr.getNode, nextNode)
+    } else {
+      node.addChild(comma.getNode)
+      node.addChild(space)
+      node.addChild(expr.getNode)
+    }
+    this
+  }
 }

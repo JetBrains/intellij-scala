@@ -7,6 +7,7 @@ import com.intellij.lang.refactoring.RefactoringSupportProvider
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.RefactoringActionHandler
 import extractMethod.ScalaExtractMethodHandler
+import introduceParameter.ScalaIntroduceParameterHandler
 import introduceVariable.ScalaIntroduceVariableHandler
 import psi.api.toplevel.typedef.ScTypeDefinition
 import rename.ScalaInplaceVariableRenamer
@@ -27,7 +28,7 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
 
   override def getIntroduceFieldHandler: RefactoringActionHandler = null
 
-  override def getIntroduceParameterHandler: RefactoringActionHandler = null
+  override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
 
   override def isSafeDeleteAvailable(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
 

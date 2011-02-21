@@ -48,4 +48,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType]
 
   def getSuperParameter: Option[ScParameter]
+
+  def remove: Unit
 }

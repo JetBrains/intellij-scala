@@ -85,7 +85,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    var descriptors = new ArrayBuffer[FoldingDescriptor]
+    val descriptors = new ArrayBuffer[FoldingDescriptor]
     appendDescriptors(astNode, document, descriptors);
     descriptors.toArray
   }

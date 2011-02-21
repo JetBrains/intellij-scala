@@ -73,5 +73,9 @@ trait ScArgumentExprList extends ScArguments {
     return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
   }
 
+  def addExpr(expr: ScExpression): ScArgumentExprList
+
+  def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList
+
   def isBraceArgs: Boolean = findChild(classOf[ScBlock]) != None
 }
