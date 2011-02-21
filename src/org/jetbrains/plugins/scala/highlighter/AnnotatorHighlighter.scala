@@ -36,7 +36,7 @@ object AnnotatorHighlighter {
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
       case el: ScalaStubBasedElementImpl[_] => getParentStub(el)
-      case _ => x.getParent
+      case _ => x.getContext
     }
   }
 
@@ -127,6 +127,14 @@ object AnnotatorHighlighter {
       }
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration) => {
         if (x != null) {
+          val fun = x.asInstanceOf[ScFunction]
+          val clazz = fun.getContainingClass
+          clazz match {
+            case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
+              annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
+              return
+            case _ =>
+          }
           getParentByStub(x) match {
             case _: ScTemplateBody | _: ScEarlyDefinitions => {
               getParentByStub(getParentByStub(getParentByStub(x))) match {
