@@ -27,5 +27,9 @@ trait ScParameterClause extends ScalaPsiElement {
       Parameter(param.name, param.getType(TypingContext.empty).getOrElse(Nothing),param.isDefaultParam, param.isRepeatedParameter))
   }
 
+  /**
+   * add parameter as last parameter in clause
+   * if clause has repeated parameter, add before this parameter.
+   */
   def addParameter(param: ScParameter): ScParameterClause
 }

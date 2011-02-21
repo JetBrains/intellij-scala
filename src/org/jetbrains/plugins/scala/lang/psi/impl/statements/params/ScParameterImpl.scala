@@ -21,6 +21,7 @@ import result.{Failure, Success, TypingContext, TypeResult}
 import api.toplevel.typedef.ScClass
 import types.Conformance.AliasType
 import api.base.types.ScTypeElement
+import collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -238,5 +239,36 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     if (res == None) {
       getSuperParameter.flatMap(_.getDefaultExpression)
     } else res
+  }
+
+  def remove: Unit = {
+    val node = getNode
+    val toRemove: ArrayBuffer[ASTNode] = ArrayBuffer.apply(node)
+    getParent match {
+      case clause: ScParameterClause =>
+        val index = clause.parameters.indexOf(this)
+        val length = clause.parameters.length
+        if (length != 1) {
+          if (index != length) {
+            var n = node.getTreeNext
+            while (n != null && n.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+              !n.getPsi.isInstanceOf[ScParameter]) {
+              toRemove += n
+              n = n.getTreeNext
+            }
+          } else {
+            var n = node.getTreePrev
+            while (n != null && n.getElementType != ScalaTokenTypes.tLPARENTHESIS &&
+              !n.getPsi.isInstanceOf[ScParameter]) {
+              toRemove += n
+              n = n.getTreePrev
+            }
+          }
+        }
+      case _ =>
+    }
+    for (elem <- toRemove) {
+      elem.getTreeParent.removeChild(elem)
+    }
   }
 }

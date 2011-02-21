@@ -20,6 +20,10 @@ trait ScInfixExpr extends ScExpression {
 
   def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
 
+  def getBaseExpr = if (isLeftAssoc) rOp else lOp
+
+  def getArgExpr = if (isLeftAssoc) lOp else rOp
+
   def isLeftAssoc: Boolean = {
     val opText = operation.getText
     opText.endsWith(":")

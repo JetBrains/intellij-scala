@@ -22,19 +22,24 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
+ * @author Alexander Podkhalyuzin
+ * Date: 22.02.2008
+ */
 
 class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause] with ScParameterClause {
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScParamClauseStub) = {this(); setStub(stub); setNode(null)}
+  def this(node: ASTNode) = {
+    this (); setNode(node)
+  }
+
+  def this(stub: ScParamClauseStub) = {
+    this (); setStub(stub); setNode(null)
+  }
 
   override def toString: String = "ParametersClause"
 
   def parameters: Seq[ScParameter] = {
-    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, new ArrayFactory[ScParameter]{
+    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, new ArrayFactory[ScParameter] {
       def create(count: Int): Array[ScParameter] = new Array[ScParameter](count)
     })
   }
@@ -47,13 +52,25 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
   }
 
   def addParameter(param: ScParameter): ScParameterClause = {
-    val rParen = getLastChild.getNode
-    val comma = ScalaPsiElementFactory.createComma(getManager).getNode
-    val space =  ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    val params = parameters
+    val vararg =
+      if (params.length == 0) false
+      else params(params.length - 1).isRepeatedParameter
+    val rParen = if (vararg) params(params.length - 1).getNode else getLastChild.getNode
     val node = getNode
-    node.addChild(comma, rParen)
-    node.addChild(space, rParen)
+    if (params.length > 0 && !vararg) {
+      val comma = ScalaPsiElementFactory.createComma(getManager).getNode
+      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+      node.addChild(comma, rParen)
+      node.addChild(space, rParen)
+    }
     node.addChild(param.getNode, rParen)
+    if (vararg) {
+      val comma = ScalaPsiElementFactory.createComma(getManager).getNode
+      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+      node.addChild(comma, rParen)
+      node.addChild(space, rParen)
+    }
     return this
   }
 }
