@@ -7,7 +7,7 @@ package introduceParameter
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, IntroduceParameterMethodUsagesProcessor}
 import java.lang.String
 import com.intellij.usageView.UsageInfo
-import java.util.{Collections, List}
+import java.util.Collections
 import psi.api.statements.ScFunction
 import resolve.ScalaResolveResult
 import com.intellij.psi.PsiElement
@@ -17,8 +17,8 @@ import psi.impl.ScalaPsiElementFactory
 import util.ScalaNamesUtil
 import conversion.JavaToScala
 import com.intellij.psi.util.PsiTreeUtil
-import psi.impl.expr.ScCallExprImpl
 import psi.api.expr._
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -107,8 +107,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
               )
               newCall match {
                 case c: ScMethodCall =>
-                  call.replaceExpression(c, true)
-                  c
+                  call.replaceExpression(c, true).asInstanceOf[ScMethodCall]
                 case _ => return false
               }
             } else call
@@ -118,8 +117,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newPostf match {
               case call: ScMethodCall =>
-                postf.replaceExpression(call, true)
-                call
+                postf.replaceExpression(call, true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case pref: ScPrefixExpr =>
@@ -128,18 +126,16 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newPref match {
               case call: ScMethodCall =>
-                pref.replaceExpression(call, true)
-                call
+                pref.replaceExpression(call, true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case inf: ScInfixExpr =>
             val newInf = ScalaPsiElementFactory.createExpressionFromText(
-              inf.getBaseExpr.getText + "." + inf.operation.getText + "(" + inf.getArgExpr + ")", element.getManager
+              inf.getBaseExpr.getText + "." + inf.operation.getText + "(" + inf.getArgExpr.getText + ")", element.getManager
             )
             newInf match {
               case call: ScMethodCall =>
-                inf.replaceExpression(call, true)
-                call
+                inf.replaceExpression(call, true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
           case _ =>
@@ -148,39 +144,47 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
             )
             newCall match {
               case call: ScMethodCall =>
-                ref.replaceExpression(call, true)
-                call
+                ref.replaceExpression(call, true).asInstanceOf[ScMethodCall]
               case _ => return false
             }
         }
         val isInUsages = isElementInUsages(data, element.getParent, usages)
-          val expression: ScExpression =
-            if (isInUsages) {
-              ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
-            }
-            else {
-              data match {
-                case proc: ScalaIntroduceParameterProcessor =>
-                  if (!proc.hasDefaults) proc.getScalaExpressionToSearch
-                  else {
-                    val text = proc.getParameterName + " = " + proc.getScalaExpressionToSearch.getText
-                    try {
-                      ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
-                    } catch {
-                      case e: Exception =>
-                        proc.getScalaExpressionToSearch
-                    }
-                  }
-                case _ =>
-                  val text = JavaToScala.convertPsiToText(data.getParameterInitializer)
+        val expression: ScExpression =
+          if (isInUsages) {
+            ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
+          }
+          else {
+            data match {
+              case proc: ScalaIntroduceParameterProcessor =>
+                if (!proc.hasDefaults) {
+                  val text = proc.getScalaExpressionToSearch.getText
                   try {
                     ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
                   } catch {
                     case e: Exception =>
-                      ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
+                      proc.getScalaExpressionToSearch
                   }
-              }
+                }
+                else {
+                  val text = proc.getParameterName + " = " + proc.getScalaExpressionToSearch.getText
+                  try {
+                    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
+                  } catch {
+                    case e: Exception =>
+                      proc.getScalaExpressionToSearch
+                  }
+                }
+              case _ =>
+                val text = JavaToScala.convertPsiToText(data.getParameterInitializer)
+                try {
+                  ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
+                } catch {
+                  case e: Exception =>
+                    ScalaPsiElementFactory.createExpressionFromText(data.getParameterName, element.getManager)
+                }
             }
+          }
+        CodeEditUtil.setNodeGenerated(expression.getNode, true)
         val args = call.args
         val exprs = args.exprs
         if (exprs.length == 0) {
@@ -207,6 +211,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
                           case e: Exception =>
                             expression
                         }
+                        CodeEditUtil.setNodeGenerated(newExpr.getNode, true)
                         args.addExprAfter(newExpr, anchor)
                     }
                   case _ => args.addExprAfter(expression, anchor)

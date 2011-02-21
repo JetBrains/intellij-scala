@@ -49,7 +49,7 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
     var element = PsiTreeUtil.findCommonParent(startElement, endElement)
     while (element.getTextRange.getStartOffset >= range.getStartOffset &&
            element.getTextRange.getEndOffset   <= range.getEndOffset) {
-      if (element.getTextRange.equals(range)) return element
+      if (element.getTextRange.equals(range) && element.isInstanceOf[ScExpression]) return element
       element = element.getParent
     }
     return file
@@ -115,10 +115,15 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
             case expr: ScExpression =>
               val refExpr = ScalaPsiElementFactory.createExpressionFromText(paramName, element.getManager)
               expr.replaceExpression(refExpr, true)
-            case _ => document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
+            case _ =>
+              PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
+              document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
+              PsiDocumentManager.getInstance(project).commitDocument(document)
           }
         case FileRangeUsageInfo(file, range) =>
+          PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
           document.replaceString(range.getStartOffset, range.getEndOffset, paramName)
+          PsiDocumentManager.getInstance(project).commitDocument(document)
 
       }
     }
