@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 object NeedsToBeTrait extends AnnotatorPart[ScTemplateDefinition] {
   def kind = classOf[ScTemplateDefinition]
 
-  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, advanced: Boolean) {
+  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     definition.refs.drop(1).foreach {
       case (refElement, Some(psiClass)) if !isMixable(psiClass) =>
         holder.createErrorAnnotation(refElement,

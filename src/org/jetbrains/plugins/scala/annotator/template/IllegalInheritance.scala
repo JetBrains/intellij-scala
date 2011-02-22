@@ -1,0 +1,29 @@
+package org.jetbrains.plugins.scala
+package annotator.template
+
+import org.jetbrains.plugins.scala.annotator.AnnotatorPart
+import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+
+/**
+ * Pavel Fatin
+ */
+
+object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
+  val Message = "Illegal inheritance, self-type %s does not conform to %s".format(_: String, _: String)
+
+  def kind = classOf[ScTemplateDefinition]
+
+  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+    if(!typeAware) return
+
+    definition.selfType.orElse(definition.getType(TypingContext.empty).toOption).foreach { ownType =>
+      definition.refs.foreach {
+        case (refElement, Some(SelfType(Some(aType)))) if !ownType.conforms(aType) =>
+          holder.createErrorAnnotation(refElement, Message(ownType.presentableText, aType.presentableText))
+        case _ =>
+      }
+    }
+  }
+}

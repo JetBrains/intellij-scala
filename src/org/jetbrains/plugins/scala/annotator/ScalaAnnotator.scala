@@ -55,7 +55,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         with TypedStatementAnnotator with PatternDefinitionAnnotator
         with ControlFlowInspections with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val advancedHighlighting = isAdvancedHighlightingEnabled(element)
+    val typeAware = isAdvancedHighlightingEnabled(element)
 
     val compiled = element.getContainingFile match {
       case file: ScalaFile => file.isCompiled
@@ -80,15 +80,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     if (element.isInstanceOf[ScVariableDefinition]) {
-      annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, advancedHighlighting)
+      annotateVariableDefinition(element.asInstanceOf[ScVariableDefinition], holder, typeAware)
     }
 
     if (element.isInstanceOf[ScTypedStmt]) {
-      annotateTypedStatement(element.asInstanceOf[ScTypedStmt], holder, advancedHighlighting)
+      annotateTypedStatement(element.asInstanceOf[ScTypedStmt], holder, typeAware)
     }
 
     if (!compiled && element.isInstanceOf[ScPatternDefinition]) {
-      annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, advancedHighlighting)
+      annotatePatternDefinition(element.asInstanceOf[ScPatternDefinition], holder, typeAware)
     }
     if (element.isInstanceOf[ScMethodCall]) {
       annotateMethodCall(element.asInstanceOf[ScMethodCall], holder)
@@ -112,12 +112,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     element match {
-      case a: ScAssignStmt => annotateAssignment(a, holder, advancedHighlighting)
+      case a: ScAssignStmt => annotateAssignment(a, holder, typeAware)
       
       case ps: ScParameters => annotateParameters(ps, holder) 
       
       case f: ScFunctionDefinition if !compiled && !f.isConstructor => {
-        annotateFunction(f, holder, advancedHighlighting)
+        annotateFunction(f, holder, typeAware)
       }
       
       case x: ScFunction if x.getParent.isInstanceOf[ScTemplateBody] => {
@@ -125,17 +125,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        AbstractInstantiation.annotate(x, holder, advancedHighlighting)
-        FinalClassInheritance.annotate(x, holder, advancedHighlighting)
-        ObjectCreationImpossible.annotate(x, holder, advancedHighlighting)
-        MultipleInheritance.annotate(x, holder, advancedHighlighting)
-        NeedsToBeAbstract.annotate(x, holder, advancedHighlighting)
-        NeedsToBeTrait.annotate(x, holder, advancedHighlighting)
-        SealedClassInheritance.annotate(x, holder, advancedHighlighting)
-        UndefinedMember.annotate(x, holder, advancedHighlighting)
+        AbstractInstantiation.annotate(x, holder, typeAware)
+        FinalClassInheritance.annotate(x, holder, typeAware)
+        IllegalInheritance.annotate(x, holder, typeAware)
+        ObjectCreationImpossible.annotate(x, holder, typeAware)
+        MultipleInheritance.annotate(x, holder, typeAware)
+        NeedsToBeAbstract.annotate(x, holder, typeAware)
+        NeedsToBeTrait.annotate(x, holder, typeAware)
+        SealedClassInheritance.annotate(x, holder, typeAware)
+        UndefinedMember.annotate(x, holder, typeAware)
       }
       case ref: ScReferenceElement => {
-        if(advancedHighlighting) annotateReference(ref, holder)
+        if(typeAware) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
