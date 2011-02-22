@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefiniti
 object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def kind = classOf[ScTemplateDefinition]
 
-  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, advanced: Boolean) {
+  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     definition.refs.groupBy(_._2).foreach {
       case (Some(psiClass), entries) if isMixable(psiClass) && entries.size > 1 =>
         entries.map(_._1).foreach { refElement =>

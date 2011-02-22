@@ -1,6 +1,7 @@
 package org.jetbrains.plugins
 
 import scala.lang.psi.api.base.ScReferenceElement
+import scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import scala.lang.psi.RichPsiElement
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.openapi.util.Computable
@@ -53,6 +54,10 @@ package object scala {
         if (parent == null) None else Some(parent)
       }
     }
+  }
+
+  object SelfType {
+    def unapply(definition: ScTemplateDefinition) = Some(definition.selfType)
   }
 
   object Resolved {

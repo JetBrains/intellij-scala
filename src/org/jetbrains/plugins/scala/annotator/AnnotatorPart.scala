@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScObj
 trait AnnotatorPart[T <: ScalaPsiElement] {
   def kind: Class[T]
 
-  def annotate(element: T, holder: AnnotationHolder, advanced: Boolean)
+  def annotate(element: T, holder: AnnotationHolder, typeAware: Boolean)
 
   //TODO move to PsiClass extensions
 
