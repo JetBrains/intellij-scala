@@ -33,7 +33,9 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
         case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
         case _ =>
       }
-      annotation.registerFix(new ImplementMethodsQuickFix(definition))
+      if(!ScalaOIUtil.getMembersToImplement(definition).isEmpty) {
+        annotation.registerFix(new ImplementMethodsQuickFix(definition))
+      }
     }
   }
 
