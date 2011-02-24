@@ -10,6 +10,9 @@ import java.io.File
 import com.intellij.openapi.vfs.newvfs.persistent.FSRecords
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 
+/**
+ * Pavel Fatin
+ */
 
 //TODO Housekeeping class, should be remvoved in the future
 class FileTemplatesCleaner extends ApplicationComponent {
@@ -33,7 +36,7 @@ class FileTemplatesCleaner extends ApplicationComponent {
 
   def getComponentName = "FileTemplatesCleaner"
 
-  def initComponent {
+  def initComponent() {
     if(!orphanFiles.isEmpty) {
       Notifications.Bus.notify(new Notification("scala", "File Templates update required",
         Message, NotificationType.WARNING, Listener))
@@ -50,7 +53,7 @@ class FileTemplatesCleaner extends ApplicationComponent {
 
   private def orphanFiles: Seq[File] = rootFiles.filter(_.getName.startsWith("Scala"))
 
-  private def clean {
+  private def clean() {
     val deleteRoot = rootFiles.size == orphanFiles.size
     orphanFiles.foreach(_.deleteForSure())
     if(deleteRoot) TemplatesRoot.deleteForSure()
@@ -58,13 +61,13 @@ class FileTemplatesCleaner extends ApplicationComponent {
     ApplicationManager.getApplication.restart
   }
 
-  def disposeComponent {}
+  def disposeComponent() {}
 
   private object Listener extends NotificationListener {
     def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
       val url = event.getURL
       if (url == null) {
-        clean
+        clean()
       } else {
         DesktopUtils.browse(url)
       }
