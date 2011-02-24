@@ -27,7 +27,7 @@ class FileTemplatesCleaner extends ApplicationComponent {
     <br>
     <a href=''>Perform the required actions</a>
    </body>
-  </html>""""
+  </html>"""
 
   private val TemplatesRoot = file(PathManager.getConfigPath) / "fileTemplates" / "internal"
 
