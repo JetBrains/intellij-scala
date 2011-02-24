@@ -69,6 +69,9 @@ object FileAPI {
     def toLibraryRootURL = VfsUtil.getUrlForLibraryRoot(delegate)
     def parent: Option[File] = Option(delegate.getParent).map(new File(_))
     def findByName(name: String): Option[File] = delegate.listFiles.find(_.getName == name)
+    def deleteForSure() {
+      if(!delegate.delete()) delegate.deleteOnExit()
+    }
   }
   
   class RichVirtualFile(delegate: VirtualFile) {
