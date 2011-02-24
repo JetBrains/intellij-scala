@@ -1,14 +1,18 @@
 package org.jetbrains.plugins.scala
 
-import java.net.URI
 import java.awt.Desktop
 import com.intellij.openapi.ui.Messages
+import java.net.{URL, URI}
 
 /**
  * Pavel Fatin
  */
 
 object DesktopUtils {
+  def browse(url: URL) {
+    browse(url.toExternalForm)
+  }
+
   def browse(url: String) {
     val supported = Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.BROWSE)
 
