@@ -7,6 +7,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
+import quickfix.ReportHighlightingErrorQuickFix
 import result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import com.intellij.psi.{PsiParameter, PsiNamedElement, PsiMethod}
@@ -39,8 +40,9 @@ trait ApplicationAnnotator {
                 case TypeMismatch(expression, expectedType) =>
                   for(t <- expression.getType(TypingContext.empty)) {
                     //TODO show parameter name
-                    holder.createErrorAnnotation(expression,
+                    val annotation = holder.createErrorAnnotation(expression,
                       "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+                    annotation.registerFix(ReportHighlightingErrorQuickFix)
                   }
                 case MissedValueParameter(_) => // simultaneously handled above
                 case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
@@ -94,8 +96,9 @@ trait ApplicationAnnotator {
       case TypeMismatch(expression, expectedType) =>
         for(t <- expression.getType(TypingContext.empty)) {
           //TODO show parameter name
-          holder.createErrorAnnotation(expression,
+          val annotation = holder.createErrorAnnotation(expression,
             "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
         }
       case MissedValueParameter(_) => // simultaneously handled above
       case UnresolvedParameter(_) => // don't show function inapplicability, unresolved

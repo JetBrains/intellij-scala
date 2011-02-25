@@ -68,6 +68,7 @@ class FileTemplatesCleaner extends ApplicationComponent {
       val url = event.getURL
       if (url == null) {
         clean()
+        notification.expire()
       } else {
         DesktopUtils.browse(url)
       }

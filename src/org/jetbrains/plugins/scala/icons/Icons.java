@@ -53,7 +53,11 @@ public interface Icons {
 
   //Console
   Icon SCALA_CONSOLE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_console.png");
-  
+
+  // Highlighting (status bar)
+  Icon TYPED = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/typed.png");
+  Icon UNTYPED = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/untyped.png");
+
   Icon ERROR = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/error.png");
   Icon WARNING = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/warning.png");
 }
