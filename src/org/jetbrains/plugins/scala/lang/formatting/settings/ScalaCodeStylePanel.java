@@ -38,17 +38,14 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox enableConversionOnCopyCheckBox;
   private JCheckBox donTShowDialogCheckBox;
   private JCheckBox addFullQualifiedImportsCheckBox;
-  private JCheckBox enableExpetimentalErrorHighlightingCheckBox;
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox typeLamdasCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
-  private LinkLabel moreInfoLink;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
     setSettings(scalaSettings);
-    moreInfoLink.setListener(new MoreInfoLinkListener(), null);
   }
 
   protected EditorHighlighter createHighlighter(EditorColorsScheme scheme) {
@@ -95,7 +92,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_IMPORT_IN_HEADER = headerImportStatementsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
 
-    scalaSettings.ENABLE_ERROR_HIGHLIGHTING = enableExpetimentalErrorHighlightingCheckBox.isSelected();
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
     scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = myResolveToAllClassesCheckBox.isSelected();
   }
@@ -105,9 +101,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
     if (scalaSettings.SHOW_IMPLICIT_CONVERSIONS != showImplicitConversionsInCheckBox.isSelected()) {
-      return true;
-    }
-    if (scalaSettings.ENABLE_ERROR_HIGHLIGHTING != enableExpetimentalErrorHighlightingCheckBox.isSelected()) {
       return true;
     }
 
@@ -168,7 +161,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(typeLamdasCheckBox, settings.FOLD_TYPE_LAMBDA);
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
-    setValue(enableExpetimentalErrorHighlightingCheckBox, settings.ENABLE_ERROR_HIGHLIGHTING);
 
     setValue(myResolveToAllClassesCheckBox, settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES);
   }
@@ -183,11 +175,5 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
 
   private static void setValue(final JComboBox box, final int value) {
     box.setSelectedIndex(value);
-  }
-
-  private static class MoreInfoLinkListener implements LinkListener {
-    public void linkSelected(LinkLabel aSource, Object aLinkData) {
-      DesktopUtils.browse("http://confluence.jetbrains.net/display/SCA/Type-aware+highlighting");
-    }
   }
 }

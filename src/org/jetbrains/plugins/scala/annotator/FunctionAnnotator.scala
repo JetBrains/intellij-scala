@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import lang.psi.api.base.ScReferenceElement
+import quickfix.ReportHighlightingErrorQuickFix
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -67,7 +68,8 @@ trait FunctionAnnotator {
           val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
           val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
-          holder.createErrorAnnotation(returnExpression.getOrElse(usage), message)
+          val annotation = holder.createErrorAnnotation(returnExpression.getOrElse(usage), message)
+          annotation.registerFix(ReportHighlightingErrorQuickFix)
         }
       }
     }

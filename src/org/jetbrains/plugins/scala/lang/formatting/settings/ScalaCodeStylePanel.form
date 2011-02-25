@@ -208,7 +208,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="daf84" layout-manager="GridLayoutManager" row-count="10" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="daf84" layout-manager="GridLayoutManager" row-count="9" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Other settings"/>
@@ -226,7 +226,7 @@
               </component>
               <vspacer id="3d803">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="b82bf" class="javax.swing.JLabel">
@@ -264,7 +264,7 @@
               </component>
               <component id="e5bf2" class="javax.swing.JCheckBox" binding="showImplicitConversionsInCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="true"/>
@@ -273,7 +273,7 @@
               </component>
               <component id="c3afd" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Performance options:"/>
@@ -281,34 +281,12 @@
               </component>
               <component id="522e7" class="javax.swing.JCheckBox" binding="myResolveToAllClassesCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Resolve to all classes, even in wrong directories (this may cause performance problems)"/>
                 </properties>
               </component>
-              <grid id="4cd93" layout-manager="BorderLayout" hgap="0" vgap="0">
-                <constraints>
-                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="d7325" class="javax.swing.JCheckBox" binding="enableExpetimentalErrorHighlightingCheckBox" default-binding="true">
-                    <constraints border-constraint="West"/>
-                    <properties>
-                      <text value="Type-aware highlighting (beta)"/>
-                      <toolTipText value="Show type mismatches, unresolved symbols, etc."/>
-                    </properties>
-                  </component>
-                  <component id="5108b" class="com.intellij.ui.components.labels.LinkLabel" binding="moreInfoLink">
-                    <constraints border-constraint="Center"/>
-                    <properties>
-                      <text value="More info"/>
-                    </properties>
-                  </component>
-                </children>
-              </grid>
             </children>
           </grid>
         </children>

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.types._
-import quickfix.{ReportHighlightingErrorQuickFix, DisableTypeAwareHighlightingQuickFix}
+import quickfix.ReportHighlightingErrorQuickFix
 import result.TypingContext
 import lang.psi.api.statements.{ScPatternDefinition, ScValue, ScFunction}
 import lang.psi.api.toplevel.typedef.ScClass
@@ -71,7 +71,6 @@ trait AssignmentAnnotator {
           if(!rType.conforms(lType)) {
             val annotation = holder.createErrorAnnotation(expression,
               "Type mismatch, expected: %s, actual: %s".format(lType.presentableText, rType.presentableText))
-            annotation.registerFix(DisableTypeAwareHighlightingQuickFix)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }
         }

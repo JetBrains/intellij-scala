@@ -21,6 +21,8 @@ object ScalaFacet{
   def findIn(modules: Array[Module]): Array[ScalaFacet] = modules.flatMap(findIn(_).toList)
   
   def findModulesIn(project: Project) = ModuleManager.getInstance(project).getModules.filter(isPresentIn _)
+
+  def isPresentIn(project: Project): Boolean = !findModulesIn(project).isEmpty
   
   def createIn(module: Module)(action: ScalaFacet => Unit) = {
     var facetManager = FacetManager.getInstance(module)
