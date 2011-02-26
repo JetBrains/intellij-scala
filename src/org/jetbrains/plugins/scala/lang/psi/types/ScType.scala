@@ -418,7 +418,13 @@ object ScType {
                   e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") => {
             buffer.append(nameWithPointFun(clazz)).append(refName)
           }
-          case _ => inner(p); buffer.append("#").append(refName)
+          case ct: ScCompoundType =>
+            buffer.append("(")
+            inner(p)
+            buffer.append(")")
+            buffer.append("#").append(refName)
+          case _ =>
+            inner(p); buffer.append("#").append(refName)
         }
       }
       case p: ScParameterizedType if p.getTupleType != None => inner(p.getTupleType.get)
