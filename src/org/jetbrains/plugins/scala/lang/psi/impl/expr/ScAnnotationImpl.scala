@@ -106,20 +106,20 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
             while (prev != null && (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]))
               prev = prev.getPrevSibling
             if (prev != null && prev.getNode.getElementType == ScalaTokenTypes.tCOMMA) {
-              elem.delete
-              prev.delete
+              elem.delete()
+              prev.delete()
             } else {
               var next = elem.getNextSibling
               while (next != null && (ScalaPsiUtil.isLineTerminator(next) || next.isInstanceOf[PsiWhiteSpace]))
                 next = next.getNextSibling
               if (next != null && next.getNode.getElementType == ScalaTokenTypes.tCOMMA) {
-                elem.delete
-                next.delete
+                elem.delete()
+                next.delete()
               } else {
-                elem.delete
+                elem.delete()
               }
             }
-          case _ => elem.delete
+          case _ => elem.delete()
         }
       }
 

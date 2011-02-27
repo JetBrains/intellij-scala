@@ -191,7 +191,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       parent = toDelete.getParent
     }
     toDelete match {
-      case file: ScalaFile => file.delete
+      case file: ScalaFile => file.delete()
       case _ => parent.getNode.removeChild(toDelete.getNode)
     }
   }
