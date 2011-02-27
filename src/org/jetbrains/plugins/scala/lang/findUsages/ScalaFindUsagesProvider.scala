@@ -36,7 +36,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
 
   @NotNull
   override def getType(element: PsiElement): String = {
-    element match {
+      element match {
       case _: ScTypeAlias => "type"
       case _: ScClass => "class"
       case _: ScObject => "object"
