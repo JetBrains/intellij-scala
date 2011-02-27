@@ -93,13 +93,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
           for (importUsed <- unusedImports) {
             importUsed match {
               case ImportExprUsed(expr) => {
-                expr.deleteExpr
+                expr.deleteExpr()
               }
               case ImportWildcardSelectorUsed(expr) => {
                 expr.wildcardElement match {
                   case Some(element: PsiElement) => {
                     if (expr.selectors.length == 0) {
-                      expr.deleteExpr
+                      expr.deleteExpr()
                     } else {
                       var node = element.getNode
                       var prev = node.getTreePrev
