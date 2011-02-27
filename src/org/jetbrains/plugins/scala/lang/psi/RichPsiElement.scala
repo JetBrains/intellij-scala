@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiReference, PsiFile, PsiElement}
 import iterator._
@@ -79,4 +80,9 @@ trait RichPsiElement {
   def isScope: Boolean = ScalaPsiUtil.isScope(delegate)
 
   def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope(_))
+
+  def containingScalaFile: Option[ScalaFile] = delegate.getContainingFile match {
+    case sf: ScalaFile => Some(sf)
+    case _ => None
+  }
 }

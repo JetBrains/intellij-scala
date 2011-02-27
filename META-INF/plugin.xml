@@ -55,7 +55,6 @@
     <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
     <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
     <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
-    <!--<enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterAfterCaseClauseArrowHandlerDelegate"/> -->
     <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler"/>
     <frameworkSupport implementation="org.jetbrains.plugins.scala.config.ScalaFacetSupportProvider"/>
     <facetType implementation="org.jetbrains.plugins.scala.config.ScalaFacetType"/>
@@ -68,6 +67,8 @@
     <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
     <codeInsight.implementMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaImplementMethodsHandler"/>
     <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
+    <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
+    <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
     <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
     <compilerSettingsFactory implementation="org.jetbrains.plugins.scala.compiler.ScalaCompilerSettingsFactory"/>
     <internalFileTemplate name="Scala Class"/>
