@@ -16,6 +16,7 @@ import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.impl.ApplicationImpl
+import typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
 import varCouldBeValInspection.VarCouldBeValInspection
 
 /**
@@ -37,6 +38,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[VarCouldBeValInspection]
     res += classOf[FunctionTupleSyntacticSugarInspection]
     res += classOf[ScalaDefaultFileTemplateUsageInspection]
+    res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }
