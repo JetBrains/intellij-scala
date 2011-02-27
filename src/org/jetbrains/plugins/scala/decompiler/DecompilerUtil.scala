@@ -22,7 +22,7 @@ import scala.reflect.generic.ByteCodecs
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 129
+  val DECOMPILER_VERSION = 130
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
