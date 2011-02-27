@@ -7,7 +7,6 @@ package templates
 
 
 import _root_.scala.collection.mutable.ListBuffer
-import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import api.expr.ScNewTemplateDefinition
 import api.toplevel.{ScEarlyDefinitions}
 import com.intellij.lang.ASTNode
@@ -23,6 +22,7 @@ import stubs.{ScExtendsBlockStub}
 import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import collection.Seq
 import util.CommonClassesSearcher
+import api.base.types._
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -150,25 +150,31 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       case Some(parents) => {
         val res = new ArrayBuffer[String]
         val pars = parents.typeElements
-        for (par <- pars) {
-          par match {
+
+        def process(te: ScTypeElement) {
+          te match {
             case s: ScSimpleTypeElement =>
               s.reference match {
                 case Some(ref) => res += ref.refName
                 case _ =>
               }
+            case x: ScInfixTypeElement =>
+              res += x.ref.refName
             case x: ScParameterizedTypeElement =>
               x.typeElement match {
-                case s: ScSimpleTypeElement =>
-                  s.reference match {
-                    case Some(ref) => res += ref.refName
-                    case _ =>
-                  }
+                case s: ScTypeElement => process(s)
                 case _ =>
+              }
+            case x: ScParenthesisedTypeElement =>
+              x.typeElement match {
+                case Some(te) => process(te)
+                case None =>
               }
             case _ =>
           }
         }
+        pars.foreach(process)
+
         res += "Object"
         res += "ScalaObject"
         if (isUnderCaseClass) res += "Product"
