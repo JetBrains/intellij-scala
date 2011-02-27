@@ -15,7 +15,7 @@ import com.intellij.codeInspection.{ProblemDescriptor, LocalQuickFix}
 
 class RemoveValQuickFix(param: ScClassParameter) extends LocalQuickFix{
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    param.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete)
+    param.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
     CodeStyleManager.getInstance(param.getProject()).reformatText(param.getContainingFile,
       param.getModifierList.getTextRange.getStartOffset,
       param.getModifierList.getTextRange.getEndOffset)

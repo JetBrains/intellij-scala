@@ -70,7 +70,7 @@ object Update extends Strategy {
   }
 
   def removeTypeAnnotation(e: PsiElement) {
-    e.prevSiblings.find(_.getText == ":").foreach(_.delete)
-    e.delete
+    e.prevSiblings.find(_.getText == ":").foreach(_.delete())
+    e.delete()
   }
 }

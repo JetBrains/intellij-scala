@@ -50,8 +50,8 @@ class ScalaMoveClassHandler extends MoveClassHandler {
     //todo: Handle comments correctly in both the original and the new file.
     val classes = newFile.asInstanceOf[ScalaFile].getClasses
     val newClass = classes.head.replace(aClass).asInstanceOf[PsiClass]
-    aClass.delete
-    classes.tail.foreach(_.delete)
+    aClass.delete()
+    classes.tail.foreach(_.delete())
 
     newClass
   }
