@@ -147,9 +147,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
               case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
                   settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
               case _: ScBlockExpr => Indent.getNoneIndent
-              case _: ScExpression => Indent.getNormalIndent
               case _: ScGuard => Indent.getNormalIndent
-              case _ => Indent.getNoneIndent
+              case _ => Indent.getNormalIndent
             }
         }
       }
