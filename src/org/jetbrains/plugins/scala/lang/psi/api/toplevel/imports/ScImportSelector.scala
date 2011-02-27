@@ -19,22 +19,4 @@ trait ScImportSelector extends ScalaPsiElement {
   def reference : ScStableCodeReferenceElement
 
   def deleteSelector: Unit
-
-  /**
-   * Delete this selector from the containing import statement, and
-   * add an import statement based on `newQualifier` that contains this selector.
-   *
-   * moveSelector("newqualifier", "f")
-   *
-   * Before:
-   *
-   * import a.b.{c, /*this*/d => e}, x
-   *
-   * After:
-   *
-   * import newqualifier.{f => e}
-   * import a.b.{c}, x
-   *
-   */
-  def moveSelector(newQualifier: String, newName: String): Unit
 }
