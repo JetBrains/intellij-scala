@@ -32,7 +32,7 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def qualifier: ScStableCodeReferenceElement
 
-  def deleteExpr: Unit
+  def deleteExpr(): Unit
 
   def getNames: Array[String] = getLastChild match {
     case s: ScImportSelectors => (for (selector <- selectors) yield selector.getText).toArray

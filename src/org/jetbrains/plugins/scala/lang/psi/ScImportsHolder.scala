@@ -129,7 +129,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           if (qn == classPackageQualifier) {
             hasRenamedImport ||= expr.selectors.exists(s => s.reference.refName != s.importedName)
             selectors ++= expr.getNames
-            expr.deleteExpr
+            expr.deleteExpr()
           }
         }
       }

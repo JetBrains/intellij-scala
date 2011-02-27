@@ -46,7 +46,7 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
   def deleteSelector: Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
     if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
-      expr.deleteExpr
+      expr.deleteExpr()
     }
     val forward: Boolean = expr.selectors.apply(0) == this
     var node = this.getNode
