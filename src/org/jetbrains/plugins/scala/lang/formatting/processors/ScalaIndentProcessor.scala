@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.PsiComment
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -66,6 +67,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScMatchStmt => {
         child.getPsi match {
           case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
+          case _: PsiComment => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
       }
