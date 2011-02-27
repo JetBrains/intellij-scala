@@ -1,5 +1,6 @@
 class a {
 1 match {
+// comment
 case _ =>
 0
 case _ =>
@@ -23,6 +24,7 @@ type X = Int
 -----
 class a {
   1 match {
+    // comment
     case _ =>
       0
     case _ =>
