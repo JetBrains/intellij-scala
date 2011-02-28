@@ -116,7 +116,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                 }
               }
               case ImportSelectorUsed(sel) => {
-                sel.deleteSelector
+                sel.deleteSelector()
               }
             }
           }
