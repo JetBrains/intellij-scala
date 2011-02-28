@@ -25,13 +25,13 @@ import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import params.{ScParameters, ScClassParameter}
 import patterns.{ScInfixPattern, ScBindingPattern}
-import quickfix.ImplementMethodsQuickFix
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
+import quickfix.{ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
 import template._
 import types.ScTypeElement
 import scala.collection.Set
@@ -189,6 +189,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val annotation = holder.createErrorAnnotation(refElement.nameId, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation, fixes: _*)
+        annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
     }
 
@@ -254,6 +255,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      annotation.registerFix(ReportHighlightingErrorQuickFix)
     }
   }
 
@@ -321,6 +323,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      annotation.registerFix(ReportHighlightingErrorQuickFix)
     }
   }
 
