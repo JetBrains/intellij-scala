@@ -57,4 +57,10 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
       case Error("C", Message) :: Nil =>
     }
   }
+
+  def testObjectOverrideDef {
+    assertMatches(messages("trait A { def a }; class D extends A { object a };")) {
+      case Nil =>
+    }
+  }
 }

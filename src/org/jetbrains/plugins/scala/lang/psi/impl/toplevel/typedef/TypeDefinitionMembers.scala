@@ -304,6 +304,8 @@ object TypeDefinitionMembers {
           }
           case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
+          case o: ScObject if (isAccessible(place, o)) =>
+            addSignature(new Signature(o.name, Stream.empty, 0, subst), subst.subst(o.getType(TypingContext.empty).getOrElse(Any)), o)
           case _ =>
         }
       }
