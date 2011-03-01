@@ -4,10 +4,6 @@ import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
 import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import org.jetbrains.plugins.scala.DesktopUtils
-import com.intellij.openapi.components.ProjectComponent
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.wm.{StatusBarWidget, WindowManager, StatusBar}
 import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import org.jetbrains.plugins.scala.icons.Icons
@@ -20,9 +16,13 @@ import org.jetbrains.plugins.scala.config.ScalaFacet
 import com.intellij.facet.{ProjectWideFacetAdapter, ProjectWideFacetListenersRegistry}
 import com.intellij.openapi.actionSystem.{DataContext, PlatformDataKeys}
 import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.util.AsyncResult
+import com.intellij.openapi.util._
+import com.intellij.openapi.components._
 
-class HighlightingAdvisor(project: Project) extends ProjectComponent {
+@State(name = "HighlightingAdvisor", storages = Array(
+  new Storage(id = "default", file = "$PROJECT_FILE$"),
+    new Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/highlighting.xml", scheme = StorageScheme.DIRECTORY_BASED)))
+class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
   @Language("HTML")
   private val AdviceMessage = """
   <html>
@@ -58,6 +58,8 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
 
   private var installed = false
 
+  private var settings = new HighlightingSettings()
+
   def getComponentName = "HighlightingAdvisor"
 
   def initComponent {}
@@ -73,6 +75,12 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
   def projectClosed {
     registry.unregisterListener(ScalaFacet.Id, FacetListener)
     configureWidget()
+  }
+
+  def getState = settings
+
+  def loadState(state: HighlightingSettings) {
+    settings = state
   }
 
   private def configureWidget() {
@@ -91,7 +99,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
   }
 
   private def notifyIfNeeded() {
-    if(settings.SUGGEST_ERROR_HIGHLIGHTING && !enabled && applicable) {
+    if(settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING && !enabled && applicable) {
       notify("Configure type-aware highlighting for the project", AdviceMessage, NotificationType.WARNING)
     }
   }
@@ -112,18 +120,14 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
 
   private def applicable = ScalaFacet.isPresentIn(project)
 
-  private def enabled = settings.ENABLE_ERROR_HIGHLIGHTING
+  def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
 
   private def enabled_=(enabled: Boolean) {
-    if(settings.SUGGEST_ERROR_HIGHLIGHTING) {
-      settings.SUGGEST_ERROR_HIGHLIGHTING = false
-      ApplicationManager.getApplication.saveSettings()
-    }
+    settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
 
     if(this.enabled == enabled) return
 
-    settings.ENABLE_ERROR_HIGHLIGHTING = enabled
-    project.save()
+    settings.TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled
 
     updateWidget()
     reparseActiveFile()
@@ -154,8 +158,6 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
       }
     })
   }
-
-  private def settings = ScalaCodeStyleSettings.getInstance(project)
 
   private def bar = WindowManager.getInstance().getStatusBar(project)
 
