@@ -44,6 +44,8 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit, FullSignature}
+import components.HighlightingAdvisor
+
 /**
  *    User: Alexander Podkhalyuzin
  *    Date: 23.06.2008
@@ -165,8 +167,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             .getCustomSettings(classOf[ScalaCodeStyleSettings])
   }
 
-  def isAdvancedHighlightingEnabled(element: PsiElement) = {
-    settings(element).ENABLE_ERROR_HIGHLIGHTING
+  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
+    HighlightingAdvisor.getInstance(element.getProject).enabled
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
