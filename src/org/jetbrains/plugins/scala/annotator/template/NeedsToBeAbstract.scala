@@ -16,7 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
   def kind = classOf[ScTemplateDefinition]
 
-  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, advanced: Boolean) {
+  def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+    if(!typeAware) return
+
     if (definition.isInstanceOf[ScNewTemplateDefinition]) return
 
     if (definition.isInstanceOf[ScObject]) return
