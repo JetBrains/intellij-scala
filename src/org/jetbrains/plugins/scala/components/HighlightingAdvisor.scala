@@ -123,7 +123,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
     if(this.enabled == enabled) return
 
     settings.ENABLE_ERROR_HIGHLIGHTING = enabled
-    ApplicationManager.getApplication.saveSettings()
+    project.save()
 
     updateWidget()
     reparseActiveFile()
@@ -135,7 +135,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
   }
 
   private def status = "Type-aware highlighting: %s"
-          .format(if(enabled) "Enabled" else "Disabled")
+          .format(if(enabled) "enabled" else "disabled")
 
   private def updateWidget() {
     bar.updateWidget(Widget.ID)
@@ -155,8 +155,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent {
     })
   }
 
-  private def settings: ScalaCodeStyleSettings =
-    CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
+  private def settings = ScalaCodeStyleSettings.getInstance(project)
 
   private def bar = WindowManager.getInstance().getStatusBar(project)
 
