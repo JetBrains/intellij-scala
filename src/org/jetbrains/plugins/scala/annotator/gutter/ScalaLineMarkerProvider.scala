@@ -22,7 +22,9 @@ import lang.psi.{ScalaPsiUtil}
 import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, CodeInsightColors}
 import com.intellij.openapi.editor.markup.{SeparatorPlacement, GutterIconRenderer}
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo, LineMarkerProvider}
-import lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition, ScTrait}
+import lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTrait}
+import javax.swing.Icon
+import GutterIcons._
 
 
 /**
@@ -64,18 +66,19 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       val offset = element.getTextRange.getStartOffset
       def getParent: PsiElement = {
         var e = element
-        while (e != null && !e.isInstanceOf[ScFunction] && !e.isInstanceOf[ScValue] && !e.isInstanceOf[ScVariable]) e = e.getParent
+        while (e != null && !e.isInstanceOf[ScFunction] && !e.isInstanceOf[ScValue] && !e.isInstanceOf[ScVariable] && !e.isInstanceOf[ScObject]) e = e.getParent
         e
       }
+      def marker(element: PsiElement, icon: Icon, typez: ScalaMarkerType): LineMarkerInfo[PsiElement] =
+        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+
       getParent match {
         case method: ScFunction if method.getParent.isInstanceOf[ScTemplateBody] && method.nameId == element => {
           val signatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
-          val icon = if (GutterUtil.isOverrides(method)) GutterIcons.OVERRIDING_METHOD_ICON
-                     else GutterIcons.IMPLEMENTING_METHOD_ICON
+          val icon = if (GutterUtil.isOverrides(method)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
-            return new LineMarkerInfo[PsiElement](method.nameId, offset, icon, Pass.UPDATE_ALL,
-              typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+            return marker(method.nameId, icon, typez)
           }
         }
         case x@(_: ScValue | _: ScVariable) if x.getParent.isInstanceOf[ScTemplateBody] &&
@@ -84,13 +87,22 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val signature = new ArrayBuffer[FullSignature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
-          val icon = if (GutterUtil.isOverrides(x)) GutterIcons.OVERRIDING_METHOD_ICON
-                     else GutterIcons.IMPLEMENTING_METHOD_ICON
+          val icon = if (GutterUtil.isOverrides(x)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signature.length > 0) {
-            return new LineMarkerInfo[PsiElement](x match {case v: ScValue => v.getValToken
-              case v: ScVariable => v.getVarToken}, offset, icon, Pass.UPDATE_ALL,
-              typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+            val token = x match {
+              case v: ScValue => v.getValToken
+              case v: ScVariable => v.getVarToken
+            }
+            return marker(token, icon, typez)
+          }
+        }
+        case x : ScObject if x.getParent.isInstanceOf[ScTemplateBody] && x.nameId == element => {
+          val signature = ScalaPsiUtil.superValsSignatures(x)
+          val icon = if (GutterUtil.isOverrides(x)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
+          val typez = ScalaMarkerType.OVERRIDING_MEMBER
+          if (signature.length > 0) {
+            return marker(x.getObjectToken, icon, typez)
           }
         }
         case _ =>
@@ -128,8 +140,8 @@ private object GutterUtil {
     if (inheritor != null) {
       val offset = clazz.getTextOffset
       val icon = clazz match {
-        case _: ScTrait => GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
-        case _ => GutterIcons.SUBCLASSED_CLASS_MARKER_RENDERER
+        case _: ScTrait => IMPLEMENTED_INTERFACE_MARKER_RENDERER
+        case _ => SUBCLASSED_CLASS_MARKER_RENDERER
       }
       val typez = ScalaMarkerType.SUBCLASSED_CLASS
       val info = new LineMarkerInfo[PsiElement](clazz.nameId, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
@@ -149,8 +161,7 @@ private object GutterUtil {
       val overrides = new ArrayBuffer[PsiNamedElement]
       for (member <- members if overrides.length == 0) overrides ++= ScalaOverridengMemberSearch.search(member, false)
       if (overrides.length > 0) {
-        val icon = if (!GutterUtil.isAbstract(member)) GutterIcons.OVERRIDEN_METHOD_MARKER_RENDERER
-                   else GutterIcons.IMPLEMENTED_INTERFACE_MARKER_RENDERER
+        val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val info = new LineMarkerInfo[PsiElement](member match {case memb: ScNamedElement => memb.nameId
           case _ => member}, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)

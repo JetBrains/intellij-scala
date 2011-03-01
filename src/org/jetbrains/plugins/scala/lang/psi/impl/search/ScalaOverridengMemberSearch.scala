@@ -32,7 +32,6 @@ object ScalaOverridengMemberSearch {
       case _ => return Array[PsiNamedElement]()
     }
 
-
     val parentClass = member match {
       case m: PsiMethod => m.getContainingClass
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
