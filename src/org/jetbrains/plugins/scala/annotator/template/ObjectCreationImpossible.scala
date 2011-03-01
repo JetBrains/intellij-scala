@@ -28,7 +28,8 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
     if(hasAbstract) {
       refs.headOption.foreach {
         case (refElement, Some(psiClass)) => {
-          val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(definition))
+          val toImplement = ScalaOIUtil.getMembersToImplement(definition)
+          val members = ScalaOIUtil.toMembers(toImplement)
           val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
 
           if(!undefined.isEmpty) {

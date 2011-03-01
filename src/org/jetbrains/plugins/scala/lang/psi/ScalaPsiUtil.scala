@@ -579,18 +579,18 @@ object ScalaPsiUtil {
   def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Stream.empty, 0, ScSubstitutor.empty)
 
   def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
-    val empty = Seq.empty
+    val empty = Seq.empty 
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
-    val context: PsiElement = nameContext(typed) match {
-      case value: ScValue if value.getParent.isInstanceOf[ScTemplateBody] => value
-      case value: ScVariable if value.getParent.isInstanceOf[ScTemplateBody] => value
+    val clazz: ScTemplateDefinition = nameContext(typed) match {
+      case e @ (_: ScValue | _: ScVariable) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
+      case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] => e.containingClass.orNull // todo unify these two cases.
       case _ => return empty
     }
-    val clazz = context.asInstanceOf[PsiMember].getContainingClass
     val s = new FullSignature(namedElementSig(x), new Suspension(() => typed.getType(TypingContext.empty).getOrElse(Any)),
       x.asInstanceOf[NavigatablePsiElement], Some(clazz))
-    val t = (TypeDefinitionMembers.getSignatures(clazz).get(s): @unchecked) match {
-    //partial match
+    val sigs = TypeDefinitionMembers.getSignatures(clazz)
+    val t = (sigs.get(s): @unchecked) match {
+      //partial match
       case Some(x) => x.supers.map {_.info}
     }
     return t
@@ -601,7 +601,7 @@ object ScalaPsiUtil {
     def isAppropriatePsiElement(x: PsiElement): Boolean = {
       x match {
         case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod | _: PsiField |
-                _: ScCaseClause | _: PsiClass | _: PsiPackage | _: ScGenerator | _: ScEnumerator => true
+                _: ScCaseClause | _: PsiClass | _: PsiPackage | _: ScGenerator | _: ScEnumerator | _: ScObject => true
         case _ => false
       }
     }

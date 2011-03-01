@@ -11,45 +11,44 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import lang.psi.api.statements._
-import lang.psi.api.toplevel.typedef.{ScTemplateDefinition}
 import lang.psi.ScalaPsiUtil
 import ScalaMarkerType.ScCellRenderer
 import lang.psi.api.toplevel.ScTypedDefinition
+import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.11.2008
  */
-
-class ScalaGoToSuperActionHandler extends CodeInsightActionHandler{
+class ScalaGoToSuperActionHandler extends CodeInsightActionHandler {
   def startInWriteAction = false
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val offset = editor.getCaretModel.getOffset
-    val superElements = ScalaGoToSuperActionHandler.findSuperElements(file, offset);
-    superElements.length match {
-      case 0 => return
-      case 1 => {
-        superElements(0) match {
-          case n: NavigatablePsiElement if n.canNavigate => n.navigate(true)
-          case _ =>
-        }
-      }
-      case _ => {
-        val title = superElements(0) match {
-          case _: PsiClass => ScalaBundle.message("goto.super.class.chooser.title")
-          case _ => ScalaBundle.message("goto.super.member.chooser.title")
-        }
-        NavigationUtil.getPsiElementPopup[PsiElement](superElements, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
-          def execute(element: PsiElement): Boolean = {
-            val descriptor = EditSourceUtil.getDescriptor(element)
-            if (descriptor != null && descriptor.canNavigate) {
-              descriptor.navigate(true)
-            }
-            return true
+    val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset);
+
+    def popupChooser(superElements: Seq[PsiElement], title: String) {
+      NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
+        def execute(element: PsiElement): Boolean = {
+          val descriptor = EditSourceUtil.getDescriptor(element)
+          if (descriptor != null && descriptor.canNavigate) {
+            descriptor.navigate(true)
           }
-        }).showInBestPositionFor(editor)
-      }
+          return true
+        }
+      }).showInBestPositionFor(editor)
+    }
+
+    (superClasses, superSignatureElements) match {
+      case (Seq(), Seq()) => return
+      case (Seq(c: NavigatablePsiElement), Seq()) if c.canNavigate => c.navigate(true)
+      case (Seq(), Seq(c: NavigatablePsiElement)) if c.canNavigate => c.navigate(true)
+      case (superClassElems, Seq()) =>
+        popupChooser(superClassElems, ScalaBundle.message("goto.super.class.chooser.title"))
+      case (Seq(), superSigElems) =>
+        popupChooser(superSigElems, ScalaBundle.message("goto.super.member.chooser.title"))
+      case (superClassElems, superSigElems) =>
+        popupChooser(superClassElems ++ superSigElems, ScalaBundle.message("goto.super.class.or.member.chooser.title"))
     }
   }
 }
@@ -57,35 +56,47 @@ class ScalaGoToSuperActionHandler extends CodeInsightActionHandler{
 private object ScalaGoToSuperActionHandler {
   val empty = Array[PsiElement]()
 
-  def findSuperElements(file: PsiFile, offset: Int): Array[PsiElement] = {
+  def findSuperElements(file: PsiFile, offset: Int): (Seq[PsiElement], Seq[PsiElement]) = {
     var element = file.findElementAt(offset)
     def test(e: PsiElement): Boolean = e match {
       case _: ScTemplateDefinition | _: ScFunction | _: ScValue
-        | _: ScVariable | _: ScTypeAlias => true
+              | _: ScVariable | _: ScTypeAlias | _: ScObject => true
       case _ => false
     }
     while (element != null && !test(element)) element = element.getParent
 
+    def templateSupers(template: ScTemplateDefinition): Array[PsiElement] = {
+      def ignored = Set("java.lang.Object", "scala.ScalaObject", "scala.Any", "scala.AnyRef")
+      val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.getQualifiedName))
+      HashSet[PsiClass](supers: _*).toArray
+    }
+
+    def declaredElementHolderSupers(d: ScDeclaredElementsHolder): Array[PsiElement] = {
+      var el = file.findElementAt(offset)
+      val elOrig = el
+      while (el != null && !(el.isInstanceOf[ScTypedDefinition] && el != elOrig)) el = el.getParent
+      val elements = d.declaredElements
+      if (elements.length == 0) return empty
+      val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
+        ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
+      } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element): _*)
+      return supers.toArray
+    }
+
     element match {
+      case x: ScTemplateDefinition with ScDeclaredElementsHolder =>
+        (templateSupers(x), declaredElementHolderSupers(x))
       case template: ScTemplateDefinition => {
-        val supers = template.supers.filter((x: PsiClass) => x.getQualifiedName != "java.lang.Object" && x.getQualifiedName != "scala.ScalaObject")
-        return (HashSet[PsiClass](supers: _*)).toArray
+        (templateSupers(template), Seq())
       }
       case func: ScFunction => {
         val supers = HashSet[NavigatablePsiElement](func.superSignatures.map(_.element): _*)
-        return supers.toArray
+        (Seq(), supers.toSeq)
       }
       case d: ScDeclaredElementsHolder => {
-        var el = file.findElementAt(offset)
-        while (el != null && !el.isInstanceOf[ScTypedDefinition]) el = el.getParent
-        val elements = d.declaredElements
-        if (elements.length == 0) return empty
-        val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
-          ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
-        } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element): _*)
-        return supers.toArray
+        (Seq(), declaredElementHolderSupers(d))
       }
-      case _ => empty//todo:
+      case _ => (Seq.empty, Seq.empty) //todo: type alias and nested class/trait. Case class synthetic companion object could also implement a value member.
     }
   }
 }
