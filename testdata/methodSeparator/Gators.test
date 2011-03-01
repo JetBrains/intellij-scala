@@ -1,6 +1,8 @@
 class A {
   def foo = {
   }
+
+  def blerg: Any // -
 }
 
 class B extends A { // -
@@ -9,4 +11,6 @@ class B extends A { // -
 
   override def foo = { // -
   }
+
+  object blerg // -
 }

@@ -240,4 +240,4 @@ object ScalaMarkerType {
   }
 }
 
-case class ScalaMarkerType(val fun: com.intellij.util.Function[PsiElement,String], val handler: GutterIconNavigationHandler[PsiElement])
+case class ScalaMarkerType(fun: com.intellij.util.Function[PsiElement,String], handler: GutterIconNavigationHandler[PsiElement])
