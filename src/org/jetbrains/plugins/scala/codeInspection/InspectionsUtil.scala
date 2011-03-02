@@ -7,6 +7,9 @@ package codeInspection
  */
 
 object InspectionsUtil {
-  val ERROR_HANDLING = "Error Handling (Scala)"
+  val ERROR_HANDLING = "(Scala) Error Handling"
+
   val SCALA = "Scala"
+
+  val MethodSignature = "Scala (Method signature)"
 }
