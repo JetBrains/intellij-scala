@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import impl.ScalaPsiElementFactory
 import types.ScType
 import statements.params.{ScTypeParam, ScParameters}
+import lexer.ScalaTokenTypes
+import com.intellij.psi.PsiElement
 
 /**
 * @author Alexander Podkhalyuzin
@@ -121,4 +123,8 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                 paramStringRes + " = throw new Error()"
     (applyText, unapplyText)
   }
+
+  def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
+
+  def getObjectClassOrTraitToken = getClassToken
 }

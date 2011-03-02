@@ -6,8 +6,9 @@ package toplevel
 package typedef
 
 import base.ScModifierList
-import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.{PsiElement, PsiModifierList}
+import lexer.ScalaTokenTypes
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,4 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScTrait extends ScTypeDefinition {
+  def getTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
+  def getObjectClassOrTraitToken = getTraitToken
 }

@@ -596,6 +596,20 @@ object ScalaPsiUtil {
     return t
   }
 
+  def superTypeMembers(element: PsiNamedElement): Seq[PsiNamedElement] = {
+    val empty = Seq.empty
+    val clazz: ScTemplateDefinition = nameContext(element) match {
+      case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
+      case _ => return empty
+    }
+    val sigs = TypeDefinitionMembers.getTypes(clazz)
+    val t = (sigs.get(element): @unchecked) match {
+      //partial match
+      case Some(x) => x.supers.map {_.info}
+    }
+    return t
+  }
+
   def nameContext(x: PsiNamedElement): PsiElement = {
     var parent = x.getParent
     def isAppropriatePsiElement(x: PsiElement): Boolean = {

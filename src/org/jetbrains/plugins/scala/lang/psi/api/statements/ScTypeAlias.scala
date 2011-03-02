@@ -4,7 +4,6 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.PsiDocCommentOwner
 import icons.Icons
 import javax.swing.Icon
 import psi.ScalaPsiElement
@@ -12,6 +11,8 @@ import toplevel.ScPolymorphicElement
 import toplevel.typedef.{ScDocCommentOwner, ScMember}
 import types.ScType
 import base.types.ScExistentialClause
+import com.intellij.psi.{PsiElement, PsiDocCommentOwner}
+import lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -36,4 +37,6 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
 
   override def isDeprecated =
     hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
+
+  def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
 }

@@ -16,6 +16,7 @@ import com.intellij.util.{QueryFactory, EmptyQuery, Query}
 import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
 import types.{Bounds, FullSignature, PhysicalSignature, ScSubstitutor}
+import api.toplevel.ScTypedDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,6 +28,7 @@ object ScalaOverridengMemberSearch {
     member match {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
+      case td: ScTypeDefinition if !td.isObject => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null && ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
       case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
@@ -46,6 +48,22 @@ object ScalaOverridengMemberSearch {
       val signatures: Iterable[FullSignature] = (TypeDefinitionMembers.getSignatures(inheritor).values.map {n => n.info}.
               map(_.asInstanceOf[FullSignature]).
               filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor))
+
+      def inheritorsOfType(name: String): Boolean = {
+        inheritor match {
+            case inheritor: ScTypeDefinition => for (aliass <- inheritor.aliases if name == aliass.getName) {
+              buffer += aliass
+              if (!deep) return false
+            }
+            for (td <- inheritor.typeDefinitions if !td.isObject && name == td.getName) {
+              buffer += td
+              if (!deep) return false
+            }
+            case _ =>
+          }
+        return true
+      }
+
       member match {
         case method: PsiMethod => {
           val sign = new PhysicalSignature(method, substitutor)
@@ -54,15 +72,12 @@ object ScalaOverridengMemberSearch {
             if (!deep) return false
           }
         }
-        case alias: ScTypeAlias => {
-          inheritor match {
-            case inheritor: ScTypeDefinition => for (aliass <- inheritor.aliases if alias.getName == aliass.getName) {
-              buffer += aliass
-              if (!deep) return false
-            }
-            case _ =>
-          }
-        }
+        case alias: ScTypeAlias =>
+          val continue = inheritorsOfType(alias.getName)
+          if (!continue) return false
+        case td: ScTypeDefinition if !td.isObject =>
+          val continue = inheritorsOfType(td.getName)
+          if (!continue) return false
         case x: PsiNamedElement => {
           val sign = ScalaPsiUtil.namedElementSig(x)
           for (signature <- signatures if sign.equiv(signature.sig)) {

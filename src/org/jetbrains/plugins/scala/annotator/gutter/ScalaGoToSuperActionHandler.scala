@@ -71,6 +71,7 @@ private object ScalaGoToSuperActionHandler {
       HashSet[PsiClass](supers: _*).toArray
     }
 
+    // TODO refactor a bit more.
     def declaredElementHolderSupers(d: ScDeclaredElementsHolder): Array[PsiElement] = {
       var el = file.findElementAt(offset)
       val elOrig = el
@@ -85,9 +86,9 @@ private object ScalaGoToSuperActionHandler {
 
     element match {
       case x: ScTemplateDefinition with ScDeclaredElementsHolder =>
-        (templateSupers(x), declaredElementHolderSupers(x))
+        (templateSupers(x), declaredElementHolderSupers(x) ++ ScalaPsiUtil.superTypeMembers(x))
       case template: ScTemplateDefinition => {
-        (templateSupers(template), Seq())
+        (templateSupers(template), ScalaPsiUtil.superTypeMembers(template))
       }
       case func: ScFunction => {
         val supers = HashSet[NavigatablePsiElement](func.superSignatures.map(_.element): _*)
@@ -96,7 +97,11 @@ private object ScalaGoToSuperActionHandler {
       case d: ScDeclaredElementsHolder => {
         (Seq(), declaredElementHolderSupers(d))
       }
-      case _ => (Seq.empty, Seq.empty) //todo: type alias and nested class/trait. Case class synthetic companion object could also implement a value member.
+      case d: ScTypeAlias => {
+        val superTypeMembers = ScalaPsiUtil.superTypeMembers(d)
+        (Seq(), superTypeMembers)
+      }
+      case _ => (Seq.empty, Seq.empty) //Case class synthetic companion object could also implement a value member.
     }
   }
 }

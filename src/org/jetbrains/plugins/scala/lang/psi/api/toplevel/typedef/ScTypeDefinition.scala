@@ -20,6 +20,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isCase : Boolean = false
 
+  def isObject : Boolean = false
+
   def isTopLevel = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition]) 
   
   def getPath: String = {
@@ -40,4 +42,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   def isPackageObject = false
 
   override def accept(visitor: ScalaElementVisitor) = visitor.visitTypeDefintion(this)
+
+  def getObjectClassOrTraitToken: PsiElement
 }

@@ -30,5 +30,7 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
 
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 
+  def getObjectClassOrTraitToken = getObjectToken
+
   def declaredElements = Seq(this)
 }
