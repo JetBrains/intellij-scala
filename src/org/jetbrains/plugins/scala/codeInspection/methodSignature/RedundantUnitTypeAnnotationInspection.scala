@@ -26,7 +26,7 @@ class RedundantUnitTypeAnnotationInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
     case f: ScFunction => f.returnTypeElement.foreach { e =>
-      if(e.getType(TypingContext.empty).get == UnitType)
+      if(e.getType(TypingContext.empty).filter(_ == UnitType).isDefined)
         holder.registerProblem(e, getDisplayName, new QuickFix(f))
     }
   }
@@ -42,8 +42,7 @@ class RedundantUnitTypeAnnotationInspection extends LocalInspectionTool {
       val last = f match {
         case declaration: ScFunctionDeclaration => Some(e)
         case definition: ScFunctionDefinition =>
-          e.nextSiblings.takeWhile(!_.isInstanceOf[PsiExpression])
-                  .find(_.getNode.getElementType == ScalaTokenTypes.tASSIGN)
+          e.nextSiblings.toList.find(_.getNode.getElementType == ScalaTokenTypes.tASSIGN)
        }
       f.deleteChildRange(first.getOrElse(e), last.getOrElse(e))
     }
