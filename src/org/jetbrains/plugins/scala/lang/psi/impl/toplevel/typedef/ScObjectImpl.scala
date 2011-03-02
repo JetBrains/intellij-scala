@@ -42,6 +42,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
+  override def isObject : Boolean = true
 
   override def isPackageObject: Boolean = {
     val stub = getStub
