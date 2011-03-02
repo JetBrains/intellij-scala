@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection
+package org.jetbrains.plugins.scala.codeInspection
 
 
 import allErrorsInspection.AnnotatorBasedErrorInspection
@@ -9,9 +8,8 @@ import defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection
 import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
-import java.lang.String
+import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.PackageNameInspection
-import referenceInspections.CyclicReferencesInspection
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
@@ -39,6 +37,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[FunctionTupleSyntacticSugarInspection]
     res += classOf[ScalaDefaultFileTemplateUsageInspection]
     res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
+    res += classOf[RedundantUnitTypeAnnotationInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }
