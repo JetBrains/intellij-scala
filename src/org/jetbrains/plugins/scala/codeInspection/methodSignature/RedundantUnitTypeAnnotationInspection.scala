@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 class RedundantUnitTypeAnnotationInspection extends LocalInspectionTool {
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
-  def getDisplayName = "Redundant Unit type annotation"
+  def getDisplayName = "Redundant Unit return type annotation"
 
   def getShortName = getDisplayName
 
   override def isEnabledByDefault = true
 
   override def getStaticDescription =
-    "Redundant Unit type annotation in method signature"
+    "Redundant Unit return type annotation in method signature"
 
   override def getID = "RedundantUnitType"
 
@@ -32,7 +32,7 @@ class RedundantUnitTypeAnnotationInspection extends LocalInspectionTool {
   }
 
   private class QuickFix(f: ScFunction) extends LocalQuickFix {
-    def getName = "Remove redundant Unit type annotation"
+    def getName = "Remove redundant Unit return type annotation"
 
     def getFamilyName = getName
 

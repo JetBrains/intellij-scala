@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, Unit => UnitT
 class BracelessUnitMethodInspection extends LocalInspectionTool {
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
-  def getDisplayName = "Braceless method with Unit type"
+  def getDisplayName = "Braceless method with Unit return type"
 
   def getShortName = getDisplayName
 
