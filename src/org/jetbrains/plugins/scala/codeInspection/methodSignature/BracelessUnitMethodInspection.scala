@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, Unit => UnitType}
 
 
 class BracelessUnitMethodInspection extends LocalInspectionTool {
@@ -24,9 +24,14 @@ class BracelessUnitMethodInspection extends LocalInspectionTool {
   override def getID = "BracelessUnitMethod"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if f.paramClauses.clauses.isEmpty &&
-            f.getType(TypingContext.empty).get == UnitType =>
-        holder.registerProblem(f.nameId, getDisplayName, new QuickFix(f))
+    case f: ScFunction if f.paramClauses.clauses.isEmpty && isUnit(f) =>
+      holder.registerProblem(f.nameId, getDisplayName, new QuickFix(f))
+  }
+
+  private def isUnit(f: ScFunction) = f.getType(TypingContext.empty) match {
+    case Success(UnitType, _) => true
+    case Success(ScFunctionType(UnitType, _), _) => true
+    case _ => false
   }
 
   private class QuickFix(f: ScFunction) extends LocalQuickFix {
