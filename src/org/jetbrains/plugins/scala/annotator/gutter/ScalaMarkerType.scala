@@ -18,8 +18,6 @@ import javax.swing.Icon
 import com.intellij.util.NullableFunction
 import java.awt.event.MouseEvent
 import lang.psi.api.statements.params.ScClassParameter
-import lang.psi.api.statements.{ScFunction, ScValue, ScDeclaredElementsHolder, ScVariable}
-import lang.psi.api.toplevel.typedef.{ScTrait, ScMember, ScObject}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.FullSignature
@@ -28,6 +26,9 @@ import presentation.java.ClassPresentationUtil
 import util.PsiTreeUtil
 import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.base.patterns.ScBindingPattern
+import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
+import lang.psi.api.statements._
+import a.j.td
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,15 +36,19 @@ import lang.psi.api.base.patterns.ScBindingPattern
  */
 
 object ScalaMarkerType {
+  private def elemFor(element: PsiElement): PsiElement = element.getNode.getElementType match {
+    case ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kCLASS =>
+      PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
+    case ScalaTokenTypes.kTYPE =>
+      PsiTreeUtil.getParentOfType(element, classOf[ScTypeAlias])
+    case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
+      PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+    case _ => element
+  }
+
   val OVERRIDING_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String] {
     def fun(element: PsiElement): String = {
-      var elem = element
-      element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
-          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
-        case _ =>
-      }
+      val elem = elemFor(element)
       elem match {
         case method: ScFunction => {
           val signatures: Seq[FullSignature] = method.superSignatures
@@ -66,18 +71,18 @@ object ScalaMarkerType {
           if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
         }
+        case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
+          val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement])
+          assert(superMembers.length != 0)
+          val optionClazz = superMembers(0)
+          ScalaBundle.message("overrides.type.from.super", optionClazz.getName)
+        }
         case _ => null
       }
     }
   }, new GutterIconNavigationHandler[PsiElement]{
     def navigate(e: MouseEvent, element: PsiElement) {
-      var elem = element
-      element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
-          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        }
-        case _ =>
-      }
+      val elem = elemFor(element)
       elem match {
         case method: ScFunction => {
           val signatures = method.superSignatures
@@ -111,6 +116,21 @@ object ScalaMarkerType {
             case _ => {
               val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
               ScalaBundle.message("goto.override.val.declaration"))
+              gotoDeclarationPopup.show(new RelativePoint(e))
+            }
+          }
+        }
+        case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
+          val elems = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement])
+
+          elems.toSeq match {
+            case Seq() =>
+            case Seq(x: NavigatablePsiElement) => {
+              if (x.canNavigate) x.navigate(true)
+            }
+            case _ => {
+              val gotoDeclarationPopup = NavigationUtil.getPsiElementPopup(elems.toArray, new ScCellRenderer,
+              ScalaBundle.message("goto.override.type.declaration"))
               gotoDeclarationPopup.show(new RelativePoint(e))
             }
           }
