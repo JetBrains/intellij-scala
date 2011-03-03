@@ -23,7 +23,7 @@ class ExcessiveParensInQueryOverrideInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
     case f: ScFunction if f.hasEmptyParens && !f.hasUnitReturnType =>
-      f.superMethod match {
+      f.superMethods.headOption match {  // f.superMethod returns None for some reason
         case Some(_: ScalaPsiElement) => // do nothing
         case Some(method) if method.isQuery =>
           holder.registerProblem(f.nameId, getDisplayName, new RemoveParensQuickFix(f))

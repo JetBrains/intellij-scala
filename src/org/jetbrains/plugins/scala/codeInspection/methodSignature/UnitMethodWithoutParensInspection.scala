@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 
 class UnitMethodWithoutParensInspection extends LocalInspectionTool {
