@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiType, PsiMethod}
  */
 
 class PsiMethodExt(repr: PsiMethod) {
-  private val QueryNamePattern = """(?-i)(?:get|is)\p{Lu}.*""".r
+  private val QueryNamePattern = """(?-i)(?:get|is|can|has)\p{Lu}.*""".r
 
   def isQuery: Boolean = {
     hasQueryLikeName && !hasVoidReturnType
