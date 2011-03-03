@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.extensions
 
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiType, PsiMethod}
 
 /**
  * Pavel Fatin
@@ -10,9 +10,17 @@ class PsiMethodExt(repr: PsiMethod) {
   private val QueryNamePattern = """(?-i)(?:get|is)\p{Lu}.*""".r
 
   def isQuery: Boolean = {
-    repr.getNameIdentifier.getText match {
-      case QueryNamePattern() => true
-      case _ => false
-    }
+    hasQueryLikeName && !hasVoidReturnType
   }
+
+  def isModifier: Boolean = {
+    !hasQueryLikeName && hasVoidReturnType
+  }
+
+  private def hasQueryLikeName = repr.getNameIdentifier.getText match {
+    case QueryNamePattern() => true
+    case _ => false
+  }
+
+  def hasVoidReturnType = repr.getReturnType() == PsiType.VOID
 }
