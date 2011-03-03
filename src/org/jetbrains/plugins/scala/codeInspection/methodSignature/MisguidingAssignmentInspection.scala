@@ -2,14 +2,9 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiWhiteSpace, PsiElement, PsiExpression}
 import codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, Unit => UnitType}
-
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 class MisguidingAssignmentInspection extends LocalInspectionTool {
   def getGroupDisplayName = InspectionsUtil.MethodSignature
@@ -26,29 +21,19 @@ class MisguidingAssignmentInspection extends LocalInspectionTool {
   override def getID = "MisguidingAssignment"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunctionDefinition if !f.hasExplicitType && isUnit(f) =>
-      assignmentIn(f).foreach { assignment =>
-        holder.registerProblem(assignment, getDisplayName, new QuickFix(assignment))
+    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitReturnType =>
+      f.assignment.foreach { assignment =>
+        holder.registerProblem(assignment, getDisplayName, new QuickFix(f))
       }
   }
 
-  private def isUnit(f: ScFunction) = f.getType(TypingContext.empty) match {
-    case Success(UnitType, _) => true
-    case Success(ScFunctionType(UnitType, _), _) => true
-    case _ => false
-  }
-
-  private def assignmentIn(f: ScFunction) =
-    f.children.toList.find(_.getNode.getElementType == ScalaTokenTypes.tASSIGN)
-
-  private class QuickFix(assignment: PsiElement) extends LocalQuickFix {
+  private class QuickFix(f: ScFunctionDefinition) extends LocalQuickFix {
     def getName = "Remove misguiding assignment"
 
     def getFamilyName = getName
 
     def applyFix(project: Project, descriptor: ProblemDescriptor) {
-      assignment.prevSiblings.takeWhile(_.isInstanceOf[PsiWhiteSpace]).foreach(_.delete())
-      assignment.delete()
+      f.removeAssignment()
     }
   }
 }

@@ -89,7 +89,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     if (stub != null) {
       return stub.asInstanceOf[ScFunctionStub].hasAssign
     }
-    findChildByType(ScalaTokenTypes.tASSIGN) != null
+    assignment.isDefined
+  }
+
+  def assignment = Option(findChildByType(ScalaTokenTypes.tASSIGN))
+
+  def removeAssignment() {
+    assignment.foreach(_.delete())
   }
 
   def getReturnUsages: Array[PsiElement] = {
