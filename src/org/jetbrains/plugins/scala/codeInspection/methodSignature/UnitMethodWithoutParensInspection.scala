@@ -30,8 +30,3 @@ class UnitMethodWithoutParensInspection extends LocalInspectionTool {
 // TODO warning: Detected apparent refinement of Unit; are you missing an '=' sign?
 // TODO call to Scala method with parens or Java modifier and forgot parens
 // TODO call to Java property and use parens
-// TODO overrides method and forgot without parens
-// TODO overrides Java property and use parens
-
-// override add parens
-// query override use parens

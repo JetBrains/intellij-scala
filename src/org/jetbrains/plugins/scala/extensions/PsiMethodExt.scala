@@ -7,11 +7,11 @@ import com.intellij.psi.PsiMethod
  */
 
 class PsiMethodExt(repr: PsiMethod) {
-  private val QueryNamePattern = """(?:get|is)\p{Lu}.*""".r
+  private val QueryNamePattern = """(?-i)(?:get|is)\p{Lu}.*""".r
 
   def isQuery: Boolean = {
-    repr.getName match {
-      case QueryNamePattern => true
+    repr.getNameIdentifier.getText match {
+      case QueryNamePattern() => true
       case _ => false
     }
   }
