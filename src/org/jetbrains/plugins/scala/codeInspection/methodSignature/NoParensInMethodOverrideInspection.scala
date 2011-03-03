@@ -20,7 +20,7 @@ class NoParensInMethodOverrideInspection extends LocalInspectionTool {
   override def getID = "NoParensInMethodOverride"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if !f.hasEmptyParens && !f.hasUnitReturnType =>
+    case f: ScFunction if !f.hasParens && !f.hasUnitReturnType =>
       f.superMethod match {
         case Some(method: ScFunction) if method.hasEmptyParens =>
           holder.registerProblem(f.nameId, getDisplayName, new AddParensQuickFix(f))

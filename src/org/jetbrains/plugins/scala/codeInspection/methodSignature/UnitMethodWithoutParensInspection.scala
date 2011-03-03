@@ -19,7 +19,7 @@ class UnitMethodWithoutParensInspection extends LocalInspectionTool {
   override def getID = "UnitMethodWithoutParens"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if !f.hasEmptyParens && f.hasUnitReturnType =>
+    case f: ScFunction if !f.hasParens && f.hasUnitReturnType =>
       holder.registerProblem(f.nameId, getDisplayName, new AddParensQuickFix(f))
   }
 }
