@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType}
 import com.intellij.psi._
 
 import psi.stubs.ScFunctionStub
@@ -20,6 +21,7 @@ import result.{Failure, Success, TypingContext, TypeResult}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import expr.ScBlock
 import psi.impl.ScalaPsiElementFactory
+import lexer.ScalaTokenTypes
 
 /**
  * @author Alexander Podkhalyuzin
@@ -55,6 +57,19 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   private var synthCopy = false
   def isSyntheticCopy: Boolean = synthCopy
   def setSyntheticCopy: Unit = synthCopy = true
+
+  def hasUnitReturnType = getType(TypingContext.empty) match {
+    case Success(UnitType, _) => true
+    case Success(ScFunctionType(UnitType, _), _) => true
+    case _ => false
+  }
+
+  def hasParens = !paramClauses.clauses.isEmpty
+
+  def addParens() {
+    val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+    paramClauses.addClause(clause)
+  }
 
   /**
    * This method is important for expected type evaluation.
@@ -153,6 +168,14 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
 
   def hasExplicitType = returnTypeElement.isDefined
+
+  def removeExplicitType() {
+    val colon = children.find(_.getNode.getElementType == ScalaTokenTypes.tCOLON)
+    (colon, returnTypeElement) match {
+      case (Some(first), Some(last)) => deleteChildRange(first, last)
+      case _ =>
+    }
+  }
 
   def paramClauses: ScParameters
 

@@ -11,5 +11,5 @@ object InspectionsUtil {
 
   val SCALA = "Scala"
 
-  val MethodSignature = "Scala (Method signature)"
+  val MethodSignature = "Scala: method signature"
 }
