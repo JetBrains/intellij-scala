@@ -40,7 +40,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[RedundantUnitTypeAnnotationInspection]
     res += classOf[MisguidingAssignmentInspection]
     res += classOf[UnitMethodWithoutParensInspection]
-    res += classOf[NoParensInMethodOverrideInspection]
+    res += classOf[LeftParensInMethodOverrideInspection]
+    res += classOf[NoParensInModifierOverrideInspection]
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }
