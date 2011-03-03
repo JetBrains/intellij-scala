@@ -5,10 +5,10 @@ import com.intellij.codeInspection._
 import codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-class NoParensInMethodOverrideInspection extends LocalInspectionTool {
+class LeftParensInMethodOverrideInspection extends LocalInspectionTool {
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
-  def getDisplayName = "No parens in method override"
+  def getDisplayName = "Left parens in method override"
 
   def getShortName = getDisplayName
 
@@ -17,7 +17,7 @@ class NoParensInMethodOverrideInspection extends LocalInspectionTool {
   override def getStaticDescription =
     "Method left parens that present in overriden method"
 
-  override def getID = "NoParensInMethodOverride"
+  override def getID = "LeftParensInMethodOverride"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
     case f: ScFunction if !f.hasParens && !f.hasUnitReturnType =>
