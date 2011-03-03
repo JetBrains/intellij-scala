@@ -95,6 +95,13 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
   def assignment = Option(findChildByType(ScalaTokenTypes.tASSIGN))
 
   def removeAssignment() {
+    body match {
+      case Some(block: ScBlockExpr) => // do nothing
+      case Some(exp: ScExpression) =>
+        val block = ScalaPsiElementFactory.createBlockFromExpr(exp, exp.getManager)
+        exp.replace(block)
+      case _ =>
+    }
     assignment.foreach(_.delete())
   }
 
