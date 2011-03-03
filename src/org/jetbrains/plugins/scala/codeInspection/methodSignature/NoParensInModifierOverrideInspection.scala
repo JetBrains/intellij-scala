@@ -23,7 +23,7 @@ class NoParensInModifierOverrideInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
     case f: ScFunction if !f.hasParens && !f.hasUnitReturnType =>
-      f.superMethod match {
+      f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(_: ScalaPsiElement) => // do nothing
         case Some(method) if method.isModifier =>
           holder.registerProblem(f.nameId, getDisplayName, new AddParensQuickFix(f))
