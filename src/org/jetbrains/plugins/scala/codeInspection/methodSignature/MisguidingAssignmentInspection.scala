@@ -37,5 +37,3 @@ class MisguidingAssignmentInspection extends LocalInspectionTool {
     }
   }
 }
-
-// warning: Detected apparent refinement of Unit; are you missing an '=' sign?

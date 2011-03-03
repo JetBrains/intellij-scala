@@ -35,8 +35,6 @@ class UnitMethodWithoutParensInspection extends LocalInspectionTool {
   }
 }
 
-// function.removeAssignment - wrap body in {}
-// descriptions
-// tests
-
-// warning: Detected apparent refinement of Unit; are you missing an '=' sign?
+// TODO descriptions
+// TODO tests
+// TODO warning: Detected apparent refinement of Unit; are you missing an '=' sign?
