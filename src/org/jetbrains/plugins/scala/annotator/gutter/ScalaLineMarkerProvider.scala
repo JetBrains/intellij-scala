@@ -25,7 +25,6 @@ import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerIn
 import lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
 import GutterIcons._
-import a.j.td
 import lang.psi.api.base.ScReferenceElement
 
 

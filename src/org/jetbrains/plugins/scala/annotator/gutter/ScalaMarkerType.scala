@@ -28,7 +28,6 @@ import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
-import a.j.td
 
 /**
  * User: Alexander Podkhalyuzin
