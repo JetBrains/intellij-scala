@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.Extensions._
 class QueryLikeMethodHasParensInspection extends LocalInspectionTool {
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
-  def getDisplayName = "Query-like method has parens"
+  def getDisplayName = "Query-like method has empty parens"
 
   def getShortName = getDisplayName
 
@@ -21,7 +21,7 @@ class QueryLikeMethodHasParensInspection extends LocalInspectionTool {
   override def getID = "QueryLikeMethodHasParens"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if f.hasQueryLikeName && f.hasEmptyParens && !f.hasUnitReturnType =>
+    case f: ScFunction if f.hasQueryLikeName && f.hasEmptyParens && !f.hasUnitReturnType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new RemoveParensQuickFix(f))
   }
 }
