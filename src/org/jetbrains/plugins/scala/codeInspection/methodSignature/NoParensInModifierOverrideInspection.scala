@@ -25,7 +25,7 @@ class NoParensInModifierOverrideInspection extends LocalInspectionTool {
     case f: ScFunction if !f.hasEmptyParens && !f.hasUnitReturnType =>
       f.superMethod match {
         case Some(_: ScalaPsiElement) => // do nothing
-        case Some(method) if !method.isQuery =>
+        case Some(method) if method.isModifier =>
           holder.registerProblem(f.nameId, getDisplayName, new AddParensQuickFix(f))
         case _ =>
       }
