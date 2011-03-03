@@ -17,7 +17,7 @@ class PsiMethodExt(repr: PsiMethod) {
     !hasQueryLikeName && hasVoidReturnType
   }
 
-  private def hasQueryLikeName = repr.getNameIdentifier.getText match {
+  def hasQueryLikeName = repr.getNameIdentifier.getText match {
     case QueryNamePattern() => true
     case _ => false
   }
