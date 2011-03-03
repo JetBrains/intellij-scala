@@ -20,7 +20,7 @@ class UnitMethodWithoutParensInspection extends LocalInspectionTool {
   override def getID = "UnitMethodWithoutParens"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if !f.hasParens && f.hasUnitReturnType =>
+    case f: ScFunction if !f.hasEmptyParens && f.hasUnitReturnType =>
       holder.registerProblem(f.nameId, getDisplayName, new AddParensQuickFix(f))
   }
 }
@@ -32,3 +32,6 @@ class UnitMethodWithoutParensInspection extends LocalInspectionTool {
 // TODO call to Java property and use parens
 // TODO overrides method and forgot without parens
 // TODO overrides Java property and use parens
+
+// override add parens
+// query override use parens
