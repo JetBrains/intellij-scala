@@ -28,7 +28,7 @@ are expected to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(compu
   override def getID = "AccessorLikeMethodIsUnit"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if f.hasQueryLikeName && f.hasUnitReturnType =>
+    case f: ScFunction if f.hasQueryLikeName && f.hasUnitReturnType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName)
   }
 }
