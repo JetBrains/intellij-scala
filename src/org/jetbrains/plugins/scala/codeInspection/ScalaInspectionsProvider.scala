@@ -37,15 +37,19 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[FunctionTupleSyntacticSugarInspection]
     res += classOf[ScalaDefaultFileTemplateUsageInspection]
     res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
-    res += classOf[RedundantUnitTypeAnnotationInspection]
-    res += classOf[MisguidingAssignmentInspection]
-    res += classOf[UnitMethodWithoutParensInspection]
-    res += classOf[NoParensInMethodOverrideInspection]
-    res += classOf[NoParensInModifierOverrideInspection]
-    res += classOf[ExcessiveParensInMemberOverrideInspection]
-    res += classOf[ExcessiveParensInQueryOverrideInspection]
-    res += classOf[QueryLikeMethodHasParensInspection]
-    res += classOf[QueryLikeUnitMethodInspection]
+
+    res += classOf[AccessorLikeMethodIsEmptyParen]
+    res += classOf[AccessorLikeMethodIsUnit]
+    res += classOf[EmptyParenMethodOverridenAsParameterless]
+    res += classOf[JavaAccessorMethodOverridenAsEmptyParen]
+    res += classOf[JavaMutatorMethodOverridenAsParameterless]
+    res += classOf[MutatorLikeMethodIsParameterless]
+    res += classOf[ParameterlessMemberOverridenAsEmptyParen]
+    res += classOf[UnitMethodDeclaredWithTypeAnnotation]
+    res += classOf[UnitMethodDefinedLikeFunction]
+    res += classOf[UnitMethodDefinedWithEqualsSign]
+    res += classOf[UnitMethodIsParameterless]
+
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }

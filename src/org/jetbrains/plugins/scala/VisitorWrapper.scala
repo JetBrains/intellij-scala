@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.methodSignature
+package org.jetbrains.plugins.scala
 
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 

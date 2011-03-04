@@ -9,7 +9,7 @@ package codeInspection
 object InspectionsUtil {
   val ERROR_HANDLING = "(Scala) Error Handling"
 
-  val SCALA = "Scala"
+  val SCALA = "Scala: General"
 
-  val MethodSignature = "Scala: method signature"
+  val MethodSignature = "Scala: Method signature"
 }
