@@ -7,18 +7,27 @@ import com.intellij.psi.{PsiType, PsiMethod}
  */
 
 class PsiMethodExt(repr: PsiMethod) {
-  private val QueryNamePattern = """(?-i)(?:get|is|can|has)\p{Lu}.*""".r
+  private val AccessorNamePattern =
+    """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*""".r
 
-  def isQuery: Boolean = {
+  private val MutatorNamePattern =
+    """(?-i)(?:do|add|remove|insert|delete|open|close|aquire|release)(?:\p{Lu}.*)""".r
+
+  def isAccessor: Boolean = {
     hasQueryLikeName && !hasVoidReturnType
   }
 
-  def isModifier: Boolean = {
-    !hasQueryLikeName && hasVoidReturnType
+  def isMutator: Boolean = {
+    hasVoidReturnType || hasMutatorLikeName
   }
 
   def hasQueryLikeName = repr.getNameIdentifier.getText match {
-    case QueryNamePattern() => true
+    case AccessorNamePattern() => true
+    case _ => false
+  }
+
+  def hasMutatorLikeName = repr.getNameIdentifier.getText match {
+    case MutatorNamePattern() => true
     case _ => false
   }
 

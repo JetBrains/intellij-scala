@@ -64,11 +64,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     case _ => false
   }
 
-  def hasParens = !paramClauses.clauses.isEmpty
+  def isParameterless = paramClauses.clauses.isEmpty
 
-  def hasEmptyParens = paramClauses.clauses.size == 1 && paramClauses.params.size == 0
+  def isEmptyParen = paramClauses.clauses.size == 1 && paramClauses.params.size == 0
 
-  def addParens() {
+  def addEmptyParens() {
     val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
     paramClauses.addClause(clause)
   }
