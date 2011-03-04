@@ -1,0 +1,45 @@
+object AccessorLikeMethodIsEmptyParen {
+  def isFoo() = true
+}
+
+object AccessorLikeMethodIsUnit {
+  def isFoo() { }
+}
+
+object EmptyParenMethodOverridenAsParameterless {
+  trait T { def foo() = true }
+  class C extends T { def foo = false }
+}
+
+object JavaAccessorMethodOverridenAsEmptyParen {
+  class C extends J { def getFoo() = "foo" }
+}
+
+object JavaMutatorMethodOverridenAsParameterless {
+  class C extends J { def addFoo = true }
+}
+
+object MutatorLikeMethodIsParameterless {
+  def addFoo = true
+}
+
+object ParameterlessMemberOverridenAsEmptyParen {
+  trait T { def foo = true }
+  class C extends T { def foo() = false }
+}
+
+trait UnitMethodDeclaredWithTypeAnnotation {
+  def foo(): Unit
+}
+
+object UnitMethodDefinedLikeFunction {
+  def foo(): Unit = {}
+}
+
+object UnitMethodDefinedWithEqualsSign {
+  def foo() = {}
+}
+
+object UnitMethodIsParameterless {
+  def foo {}
+}
