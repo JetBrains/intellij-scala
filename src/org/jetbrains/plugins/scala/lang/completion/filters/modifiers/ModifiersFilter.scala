@@ -28,6 +28,8 @@ import org.jetbrains.plugins.scala.lang.parser._
 class ModifiersFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
+    if (context.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) return false // "object a" should not complete "abstract".
+    if (element.isInstanceOf[PsiIdentifier]) return false
     var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
     if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
     if (leaf != null) {
