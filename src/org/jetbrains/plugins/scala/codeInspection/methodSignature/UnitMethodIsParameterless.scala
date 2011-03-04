@@ -27,7 +27,7 @@ class UnitMethodIsParameterless extends LocalInspectionTool {
   override def getID = "UnitMethodIsParameterless"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
-    case f: ScFunction if f.isParameterless && f.hasUnitReturnType =>
+    case f: ScFunction if f.isParameterless && f.hasUnitReturnType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))
   }
 }
