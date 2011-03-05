@@ -5,13 +5,13 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.Extensions._
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.VisitorWrapper
 import quickfix.RemoveParentheses
 
-class JavaAccessorMethodOverridenAsEmptyParen extends LocalInspectionTool {
+class JavaAccessorMethodOverridenAsEmptyParen extends AbstractInspection(
+  "JavaAccessorMethodOverridenAsEmptyParen", "Java accessor method overriden as empty-paren") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  val description =
 """Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are expected
 to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
@@ -31,17 +31,7 @@ the overriding method must also be declared as a method without side effects.
 
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Java accessor method overriden as empty-paren"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "JavaAccessorMethodOverridenAsEmptyParen"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.isEmptyParen && !f.hasUnitReturnType =>
       f.superMethods.headOption match {  // f.superMethod returns None for some reason
         case Some(_: ScalaPsiElement) => // do nothing

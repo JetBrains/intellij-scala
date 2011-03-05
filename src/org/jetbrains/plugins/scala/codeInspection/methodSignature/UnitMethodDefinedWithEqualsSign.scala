@@ -4,12 +4,13 @@ package codeInspection.methodSignature
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import quickfix.RemoveEqualsSign
 
-class UnitMethodDefinedWithEqualsSign extends LocalInspectionTool {
+class UnitMethodDefinedWithEqualsSign extends AbstractInspection(
+  "UnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  val description =
 """Methods with a result type of <code>Unit</code> are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
 A better way to express such methods is to leave off the equals sign, and enclose
@@ -23,17 +24,7 @@ for its side effects:
   <span style="color:#808080">// concise form, side-effect is clearly stated, result type is always <code>Unit</code></span><br>  <strong style="color:#000080">def</strong> close() { file.delete() }</code></pre>
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Method with Unit result type defined with equals sign"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "UnitMethodDefinedWithEqualsSign"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitReturnType =>
       f.assignment.foreach { assignment =>
         holder.registerProblem(assignment, getDisplayName, new RemoveEqualsSign(f))

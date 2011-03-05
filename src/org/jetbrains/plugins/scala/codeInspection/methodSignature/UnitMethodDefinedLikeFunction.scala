@@ -3,14 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.VisitorWrapper
 import quickfix.RemoveTypeAnnotationAndEqualSign
 
+class UnitMethodDefinedLikeFunction extends AbstractInspection(
+  "UnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
-class UnitMethodDefinedLikeFunction extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription =
+  val description =
 """Methods with a result type of <code>Unit</code> are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
 A better way to express such methods is to leave off the result type and the equals sign,
@@ -23,17 +22,7 @@ for its side effects:
   <span style="color:#808080">// concise form, side-effect is clearly stated</span><br>  <strong style="color:#000080">def</strong> close() { file.delete() }</code></pre>
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Method with Unit result type defined like function"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "UnitMethodDefinedLikeFunction"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunctionDefinition if f.hasUnitReturnType =>
       f.returnTypeElement.foreach { e =>
         holder.registerProblem(e, getDisplayName, new RemoveTypeAnnotationAndEqualSign(f))

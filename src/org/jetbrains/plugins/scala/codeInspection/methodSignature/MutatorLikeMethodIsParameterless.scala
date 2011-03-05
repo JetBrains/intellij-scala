@@ -4,30 +4,20 @@ import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.Extensions._
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.VisitorWrapper
 import quickfix.AddEmptyParentheses
 
-class MutatorLikeMethodIsParameterless extends LocalInspectionTool {
+class MutatorLikeMethodIsParameterless extends AbstractInspection(
+  "MutatorLikeMethodIsParameterless", "Method with mutator-like name is parameterless") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  override val description =
  """Methods with mutator-like name are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
 The convention is that you include parentheses if the method has side effects.
 
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Method with mutator-like name is parameterless"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "MutatorLikeMethodIsParameterless"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.hasMutatorLikeName && f.isParameterless && !f.hasUnitReturnType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))
   }
