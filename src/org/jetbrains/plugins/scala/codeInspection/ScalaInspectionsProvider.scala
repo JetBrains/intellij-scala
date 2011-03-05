@@ -54,6 +54,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[JavaAccessorMethodCalledAsEmptyParen]
     res += classOf[JavaMutatorMethodAccessedAsParameterless]
 
+    res += classOf[ApparentRefinementOfResultType]
+
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
     }
