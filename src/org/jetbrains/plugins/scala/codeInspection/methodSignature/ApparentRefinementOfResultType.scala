@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 
 class ApparentRefinementOfResultType extends AbstractInspection(
-  "ApparentRefinementOfResultType", "Apparent refinement of Unit; are you missing an '=' sign?") {
+  "ApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
   @Language("HTML")
   val description = null
