@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.VisitorWrapper
 import quickfix.AddEmptyParentheses
 import org.intellij.lang.annotations.Language
 
-class EmptyParenMethodOverridenAsParameterless extends LocalInspectionTool {
+class EmptyParenMethodOverridenAsParameterless extends AbstractInspection(
+  "EmptyParenMethodOverridenAsParameterless", "Empy-paren Scala method overriden as parameterless") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  val description =
 """The convention is that you include parentheses if the method has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
 In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, as overriden method is empty-paren,
@@ -17,17 +17,7 @@ the overriding method must also be declared as a method with side effects.
 
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Empy-paren Scala method overriden as parameterless"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "EmptyParenMethodOverridenAsParameterless"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.isParameterless && !f.hasUnitReturnType =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(method: ScFunction) if method.isEmptyParen =>

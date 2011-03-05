@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
-import org.jetbrains.plugins.scala.VisitorWrapper
 import quickfix.RemoveParentheses
 
-class ParameterlessMemberOverridenAsEmptyParen extends LocalInspectionTool {
+class ParameterlessMemberOverridenAsEmptyParen extends AbstractInspection(
+  "ParameterlessMemberOverridenAsEmptyParen", "Parameterless Scala member overriden as empty-paren") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  override val description =
 """The recommended convention is to use a parameterless method whenever there are
 no parameters and the method have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
@@ -21,17 +21,7 @@ the overriding method must also be declared as a method without side effects.
 
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Parameterless Scala member overriden as empty-paren"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "ParameterlessMemberOverridenAsEmptyParen"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.isEmptyParen && !f.hasUnitReturnType =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(method: ScFunction) if !method.isEmptyParen =>

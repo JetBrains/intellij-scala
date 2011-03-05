@@ -2,17 +2,17 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.VisitorWrapper
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.RemoveCallParentheses
 
-class JavaAccessorMethodCalledAsEmptyParen extends LocalInspectionTool {
+class JavaAccessorMethodCalledAsEmptyParen extends AbstractInspection(
+  "JavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
+
   @Language("HTML")
-  override val getStaticDescription =
+  val description =
 """Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are expected
 to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
@@ -29,17 +29,7 @@ on an invocation of function that takes no arguments.
 
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
-  def getGroupDisplayName = InspectionsUtil.MethodSignature
-
-  def getDisplayName = "Java accessor method called as empty-paren"
-
-  def getShortName = getDisplayName
-
-  override def isEnabledByDefault = true
-
-  override def getID = "JavaAccessorMethodCalledAsEmptyParen"
-
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean) = VisitorWrapper {
+  def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression => e.getParent match {
       case call: ScMethodCall if call.argumentExpressions.isEmpty => e.resolve match {
         case _: ScalaPsiElement => // do nothing
