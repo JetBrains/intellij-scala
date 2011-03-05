@@ -12,8 +12,7 @@ import quickfix.AddEmptyParentheses
 class JavaMutatorMethodOverridenAsParameterless extends LocalInspectionTool {
   @Language("HTML")
   override val getStaticDescription = """<html><body>
-<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming convention for mutators
-are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
+<p>Methods that has mutators-like name are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
 <p>The convention is that you include parentheses if the method has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
 <p>In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
 as overriden method has side effects, the overriding method must also be declared as a method with side effects.</p>

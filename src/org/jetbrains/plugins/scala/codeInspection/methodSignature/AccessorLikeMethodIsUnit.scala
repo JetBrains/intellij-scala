@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.Extensions._
 class AccessorLikeMethodIsUnit extends LocalInspectionTool {
   @Language("HTML")
   override val getStaticDescription = """<html><body>
-<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming convention for accessors
+<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors
 are expected to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
 <p>However, methods with a result type of <code>Unit</code> are only executed for their side effects.</p>
 <p><small>* Refer to Programming in Scala, 2.3 Define some functions</small></p>

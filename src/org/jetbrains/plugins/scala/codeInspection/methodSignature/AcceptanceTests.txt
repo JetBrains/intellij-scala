@@ -43,3 +43,16 @@ object UnitMethodDefinedWithEqualsSign {
 object UnitMethodIsParameterless {
   def foo {}
 }
+
+object EmptyParenMethodAccessedAsParameterless {
+  def foo() = true
+  foo
+}
+
+object JavaAccessorMethodCalledAsEmptyParen {
+  new J().getFoo()
+}
+
+object JavaMutatorMethodAccessedAsParameterless {
+  new J().doEtc
+}

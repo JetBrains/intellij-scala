@@ -32,8 +32,4 @@ class UnitMethodIsParameterless extends LocalInspectionTool {
   }
 }
 
-// TODO descriptions
-// TODO tests
-// TODO warning: Detected apparent refinement of Unit; are you missing an '=' sign?
-// TODO call to Scala method with parens or Java modifier and forgot parens
-// TODO call to Java property and use parens
+// warning: Detected apparent refinement of Unit; are you missing an '=' sign?
