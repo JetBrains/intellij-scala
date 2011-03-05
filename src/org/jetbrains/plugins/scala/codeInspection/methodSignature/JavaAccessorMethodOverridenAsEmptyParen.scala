@@ -11,20 +11,25 @@ import quickfix.RemoveParentheses
 
 class JavaAccessorMethodOverridenAsEmptyParen extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription = """<html><body>
-<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors
-are expected to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
-<p>The recommended convention is to use a parameterless method whenever there are no parameters
-and the method have no side effect.</p>
-<p>This convention supports the <a href="http://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
-which says that client code should not be affected by a decision to implement an attribute as a field or method.</p>
-<p>The problem is that Java does not implement the uniform access principle.</p>
-<p>To bridge that gap, Scala allows you to override an empty-paren method with a parameterless method.</p>
-<p>In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
-as overriden method has no side effects, the overriding method must also be declared as a method without side effects.</p>
-<p><small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small></p>
-</body></html>
-    """
+  override val getStaticDescription =
+"""Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are expected
+to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+
+The recommended convention is to use a parameterless method whenever there are
+no parameters and the method have no side effect.
+
+This convention supports the <a href="http://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>, which says that client code
+should not be affected by a decision to implement an attribute as a field or method.
+
+The problem is that Java does not implement the uniform access principle.
+
+To bridge that gap, Scala allows you to override an empty-paren method with
+a parameterless method.
+
+In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, as overriden method has no side effects,
+the overriding method must also be declared as a method without side effects.
+
+<small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 

@@ -10,19 +10,12 @@ import quickfix.RemoveTypeAnnotation
 
 class UnitMethodDeclaredWithTypeAnnotation extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription = """<html><body>
-<code>Unit</code> result type annotation is redundant:
-<br>
-<pre><code>
-  <span style="color:#808080">// excessive clutter</span>
-  <strong style="color:#000080">def</strong> foo(): Unit
+  override val getStaticDescription =
+ """<code>Unit</code> result type annotation is redundant:
 
-  <span style="color:#808080">// concise form</span>
-  <strong style="color:#000080">def</strong> foo()
-</code></pre>
-<p><small>* Refer to Programming in Scala, 2.3 Define some functions</small></p>
-</body></html>
-    """
+<pre><code><span style="color:#808080">  // excessive clutter</span><br>  <strong style="color:#000080">def</strong> foo(): Unit
+  <span style="color:#808080">// concise form</span><br>  <strong style="color:#000080">def</strong> foo()</code></pre>
+<small>* Refer to Programming in Scala, 2.3 Define some functions</small>"""
 
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 

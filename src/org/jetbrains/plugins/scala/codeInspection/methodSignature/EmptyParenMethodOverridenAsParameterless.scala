@@ -9,13 +9,13 @@ import org.intellij.lang.annotations.Language
 
 class EmptyParenMethodOverridenAsParameterless extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription = """<html><body>
-<p>The convention is that you include parentheses if the method has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
-<p>In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
-as overriden method is empty-paren, the overriding method must also be declared as a method with side effects.</p>
-<p><small>* Refer to Programming in Scala, 5.3 Operators are methods</small></p>
-</body></html>
-    """
+  override val getStaticDescription =
+"""The convention is that you include parentheses if the method has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+
+In accordance with <a href="http://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, as overriden method is empty-paren,
+the overriding method must also be declared as a method with side effects.
+
+<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
