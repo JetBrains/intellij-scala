@@ -11,7 +11,7 @@ import quickfix.RemoveParentheses
 class AccessorLikeMethodIsEmptyParen extends LocalInspectionTool {
   @Language("HTML")
   override val getStaticDescription = """<html><body>
-<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming convention for accessors
+<p>Methods that follow <a href="http://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors
 are expected to have no <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
 <p>The recommended convention is to use a parameterless method whenever there are no parameters
 and the method have no side effect.</p>
