@@ -10,15 +10,14 @@ import quickfix.AddCallParentheses
 
 class EmptyParenMethodAccessedAsParameterless extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription = """<html><body>
-<p>The convention is that method includes parentheses if it has side effects.</p>
-<p>While it's possible to leave out empty parentheses in method calls (to adapt to
-the <a href="http://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a> to Java),
-it's recommended to still write the empty parentheses when the invoked method
-represents more than a property of its receiver object.</p>
-<p><small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small></p>
-</body></html>
-    """
+  override val getStaticDescription =
+"""The convention is that method includes parentheses if it has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+
+While it's possible to leave out empty parentheses in method calls (to adapt
+the <a href="http://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a> to Java), it's recommended to still write the empty parentheses
+when the invoked method represents more than a property of its receiver object.
+
+<small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 

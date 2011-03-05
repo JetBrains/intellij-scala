@@ -9,12 +9,12 @@ import quickfix.AddEmptyParentheses
 
 class UnitMethodIsParameterless extends LocalInspectionTool {
   @Language("HTML")
-  override val getStaticDescription = """<html><body>
-<p>Methods with a result type of <code>Unit</code> are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
-<p>The convention is that you include parentheses if the method has side effects.</p>
-<p><small>* Refer to Programming in Scala, 5.3 Operators are methods</small></p>
-</body></html>
-    """
+  override val getStaticDescription =
+"""Methods with a result type of <code>Unit</code> are only executed for their <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+
+The convention is that you include parentheses if the method has side effects.
+
+<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def getGroupDisplayName = InspectionsUtil.MethodSignature
 
