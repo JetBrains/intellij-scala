@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
-import quickfix.RemoveParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import quickfix.InsertMissingEquals
 
 class ApparentRefinementOfResultType extends AbstractInspection(
   "ApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
@@ -15,9 +15,8 @@ class ApparentRefinementOfResultType extends AbstractInspection(
   def actionFor(holder: ProblemsHolder) = {
     case f: ScFunctionDeclaration  => f.typeElement match {
       case Some(e: ScCompoundTypeElement) if e.refinement.isDefined =>
-        holder.registerProblem(e, getDisplayName, new RemoveParentheses(f)) // TODO wrong quickix.
+        holder.registerProblem(e, getDisplayName, new InsertMissingEquals(f))
       case _ =>
     }
   }
 }
-
