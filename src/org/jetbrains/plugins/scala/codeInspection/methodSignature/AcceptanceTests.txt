@@ -56,3 +56,7 @@ object JavaAccessorMethodCalledAsEmptyParen {
 object JavaMutatorMethodAccessedAsParameterless {
   new J().doEtc
 }
+
+trait ApparentRefinementOfResultType {
+  def foo(): Unit {}
+}
