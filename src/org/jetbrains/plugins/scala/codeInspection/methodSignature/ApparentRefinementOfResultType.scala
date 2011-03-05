@@ -15,7 +15,7 @@ class ApparentRefinementOfResultType extends AbstractInspection(
   def actionFor(holder: ProblemsHolder) = {
     case f: ScFunctionDeclaration  => f.typeElement match {
       case Some(e: ScCompoundTypeElement) if e.refinement.isDefined =>
-        holder.registerProblem(e, getDisplayName, new RemoveParentheses(f))
+        holder.registerProblem(e, getDisplayName, new RemoveParentheses(f)) // TODO wrong quickix.
       case _ =>
     }
   }
