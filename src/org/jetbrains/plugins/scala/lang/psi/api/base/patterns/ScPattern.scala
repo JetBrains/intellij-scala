@@ -247,13 +247,13 @@ trait ScPattern extends ScalaPsiElement {
         }
         tuple.expectedType match {
           case Some(ScTupleType(comps)) => {
-            for ((t, p) <- comps.elements.zip(patternList.patterns.elements)) {
+            for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
               if (p == this) return Some(t)
             }
             None
           }
           case Some(par@ScParameterizedType(des, typeArgs)) if par.getTupleType != None => {
-            for ((t, p) <- par.getTupleType.get.components.elements.zip(patternList.patterns.elements)) {
+            for ((t, p) <- par.getTupleType.get.components.iterator.zip(patternList.patterns.iterator)) {
               if (p == this) return Some(t)
             }
             None
