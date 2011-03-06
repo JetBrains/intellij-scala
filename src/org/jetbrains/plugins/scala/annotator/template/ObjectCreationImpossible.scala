@@ -15,6 +15,8 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
   def kind = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+    if(!typeAware) return
+
     val isNew = definition.isInstanceOf[ScNewTemplateDefinition]
     val isObject = definition.isInstanceOf[ScObject]
 
