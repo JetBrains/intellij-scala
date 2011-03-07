@@ -5,6 +5,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import quickfix.AddEmptyParentheses
 import org.intellij.lang.annotations.Language
 
+/**
+ * Pavel Fatin
+ */
+
 class EmptyParenMethodOverridenAsParameterless extends AbstractInspection(
   "EmptyParenMethodOverridenAsParameterless", "Empy-paren Scala method overriden as parameterless") {
 
@@ -18,7 +22,7 @@ the overriding method must also be declared as a method with side effects.
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.isParameterless && !f.hasUnitReturnType =>
+    case f: ScFunction if f.isParameterless =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(method: ScFunction) if method.isEmptyParen =>
           holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))

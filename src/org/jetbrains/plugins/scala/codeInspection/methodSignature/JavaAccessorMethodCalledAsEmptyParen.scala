@@ -8,6 +8,10 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.RemoveCallParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class JavaAccessorMethodCalledAsEmptyParen extends AbstractInspection(
   "JavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
 

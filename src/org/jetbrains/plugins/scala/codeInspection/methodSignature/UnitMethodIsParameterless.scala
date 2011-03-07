@@ -5,6 +5,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import quickfix.AddEmptyParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class UnitMethodIsParameterless extends AbstractInspection(
   "UnitMethodIsParameterless", "Method with Unit result type is parameterless") {
 
@@ -17,7 +21,7 @@ class UnitMethodIsParameterless extends AbstractInspection(
   <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.isParameterless && f.hasUnitReturnType && f.superMethods.isEmpty =>
+    case f: ScFunction if f.isParameterless && f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))
   }
 }

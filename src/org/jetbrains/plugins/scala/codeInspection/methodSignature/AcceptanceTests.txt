@@ -1,22 +1,43 @@
+/**
+ * Pavel Fatin
+ */
+
 object AccessorLikeMethodIsEmptyParen {
-  def isFoo() = true
+  def getFoo() = "foo"
 }
 
 object AccessorLikeMethodIsUnit {
-  def isFoo() { }
+  def getFoo {}
+}
+
+trait ApparentRefinementOfResultType {
+  def foo(): Unit {}
+}
+
+object EmptyParenMethodAccessedAsParameterless {
+  def foo() {}
+  foo
 }
 
 object EmptyParenMethodOverridenAsParameterless {
-  trait T { def foo() = true }
-  class C extends T { def foo = false }
+  trait T { def foo() = "foo" }
+  class C extends T { def foo = "bar" }
+}
+
+object JavaAccessorMethodCalledAsEmptyParen {
+  new J().getFoo()
 }
 
 object JavaAccessorMethodOverridenAsEmptyParen {
-  class C extends J { def getFoo() = "foo" }
+  class C extends J { def getFoo() = "bar" }
 }
 
 object JavaMutatorMethodOverridenAsParameterless {
-  class C extends J { def addFoo = true }
+  class C extends J { def addFoo {} }
+}
+
+object JavaMutatorMethodAccessedAsParameterless {
+  new J().addFoo
 }
 
 object MutatorLikeMethodIsParameterless {
@@ -24,8 +45,8 @@ object MutatorLikeMethodIsParameterless {
 }
 
 object ParameterlessMemberOverridenAsEmptyParen {
-  trait T { def foo = true }
-  class C extends T { def foo() = false }
+  trait T { def foo = "foo" }
+  class C extends T { def foo() = "bar" }
 }
 
 trait UnitMethodDeclaredWithTypeAnnotation {
@@ -42,21 +63,4 @@ object UnitMethodDefinedWithEqualsSign {
 
 object UnitMethodIsParameterless {
   def foo {}
-}
-
-object EmptyParenMethodAccessedAsParameterless {
-  def foo() = true
-  foo
-}
-
-object JavaAccessorMethodCalledAsEmptyParen {
-  new J().getFoo()
-}
-
-object JavaMutatorMethodAccessedAsParameterless {
-  new J().doEtc
-}
-
-trait ApparentRefinementOfResultType {
-  def foo(): Unit {}
 }
