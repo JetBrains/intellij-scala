@@ -8,6 +8,10 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.AddCallParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class JavaMutatorMethodAccessedAsParameterless extends AbstractInspection(
   "JavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
 

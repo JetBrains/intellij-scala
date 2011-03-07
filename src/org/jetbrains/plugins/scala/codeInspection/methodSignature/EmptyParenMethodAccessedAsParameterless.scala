@@ -6,6 +6,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import quickfix.AddCallParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class EmptyParenMethodAccessedAsParameterless extends AbstractInspection(
   "EmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 

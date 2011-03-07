@@ -6,6 +6,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.RemoveParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class AccessorLikeMethodIsEmptyParen extends AbstractInspection(
   "AccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
 
@@ -23,7 +27,7 @@ should not be affected by a decision to implement an attribute as a field or met
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.hasQueryLikeName && f.isEmptyParen && !f.hasUnitReturnType && f.superMethods.isEmpty =>
+    case f: ScFunction if f.hasQueryLikeName && f.isEmptyParen && !f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName, new RemoveParentheses(f))
   }
 }

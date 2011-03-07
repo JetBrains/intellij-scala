@@ -13,7 +13,7 @@ class InsertMissingEquals(functionDecl: ScFunctionDeclaration) extends LocalQuic
 
   def getName = "Insert missing '='"
 
-  def applyFix(project: Project, descriptor: ProblemDescriptor) = {
+  def applyFix(project: Project, descriptor: ProblemDescriptor) {
     functionDecl.typeElement match {
       case Some(cte: ScCompoundTypeElement) =>
         val typeElem = cte.components.last

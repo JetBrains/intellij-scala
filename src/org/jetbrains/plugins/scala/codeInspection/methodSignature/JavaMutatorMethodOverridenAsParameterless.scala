@@ -8,6 +8,10 @@ import org.jetbrains.plugins.scala.Extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import quickfix.AddEmptyParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class JavaMutatorMethodOverridenAsParameterless extends AbstractInspection(
   "JavaMutatorMethodOverridenAsParameterless", "Java mutator method overriden as parameterless") {
 
@@ -23,7 +27,7 @@ the overriding method must also be declared as a method with side effects.
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.isParameterless && !f.hasUnitReturnType =>
+    case f: ScFunction if f.isParameterless =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
         case Some(_: ScalaPsiElement) => // do nothing
         case Some(method) if method.isMutator =>
