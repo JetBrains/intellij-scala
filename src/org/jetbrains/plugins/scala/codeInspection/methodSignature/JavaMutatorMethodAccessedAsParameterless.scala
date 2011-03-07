@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.AddCallParentheses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 
 /**
  * Pavel Fatin
@@ -25,7 +25,8 @@ The convention is that you include empty parentheses in method call if the metho
 
   def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
-            !e.getParent.isInstanceOf[ScInfixExpr] => e.resolve match {
+            !e.getParent.isInstanceOf[ScInfixExpr] &&
+            !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
         case _: ScalaPsiElement => // do nothing
         case (m: PsiMethod) if m.isMutator =>
           holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
