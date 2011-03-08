@@ -2,11 +2,15 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.Extensions._
 import quickfix.AddCallParentheses
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+
+/**
+ * Pavel Fatin
+ */
 
 class JavaMutatorMethodAccessedAsParameterless extends AbstractInspection(
   "JavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
@@ -20,7 +24,9 @@ The convention is that you include empty parentheses in method call if the metho
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] => e.resolve match {
+    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
+            !e.getParent.isInstanceOf[ScInfixExpr] &&
+            !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
         case _: ScalaPsiElement => // do nothing
         case (m: PsiMethod) if m.isMutator =>
           holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))

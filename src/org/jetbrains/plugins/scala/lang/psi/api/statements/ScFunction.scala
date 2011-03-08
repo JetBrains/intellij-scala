@@ -58,7 +58,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isSyntheticCopy: Boolean = synthCopy
   def setSyntheticCopy: Unit = synthCopy = true
 
-  def hasUnitReturnType = getType(TypingContext.empty) match {
+  def hasUnitResultType = getType(TypingContext.empty) match {
     case Success(UnitType, _) => true
     case Success(ScFunctionType(UnitType, _), _) => true
     case _ => false

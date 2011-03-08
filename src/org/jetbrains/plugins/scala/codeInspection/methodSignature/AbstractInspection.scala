@@ -6,6 +6,10 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.VisitorWrapper
 
+/**
+ * Pavel Fatin
+ */
+
 abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
   override final def getID = id
 

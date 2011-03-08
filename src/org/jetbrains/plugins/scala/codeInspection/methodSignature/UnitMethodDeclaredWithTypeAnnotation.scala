@@ -5,6 +5,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import quickfix.RemoveTypeAnnotation
 
+/**
+ * Pavel Fatin
+ */
+
 class UnitMethodDeclaredWithTypeAnnotation extends AbstractInspection(
   "UnitMethodDeclaredWithTypeAnnotation", "Redundant Unit result type annotation") {
 
@@ -17,7 +21,7 @@ class UnitMethodDeclaredWithTypeAnnotation extends AbstractInspection(
 <small>* Refer to Programming in Scala, 2.3 Define some functions</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunctionDeclaration if f.hasUnitReturnType =>
+    case f: ScFunctionDeclaration if f.hasUnitResultType =>
       f.returnTypeElement.foreach { e =>
         holder.registerProblem(e, getDisplayName, new RemoveTypeAnnotation(f))
       }

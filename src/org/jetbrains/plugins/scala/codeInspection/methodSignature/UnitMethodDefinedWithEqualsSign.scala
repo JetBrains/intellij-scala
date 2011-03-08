@@ -6,6 +6,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import quickfix.RemoveEqualsSign
 
+/**
+ * Pavel Fatin
+ */
+
 class UnitMethodDefinedWithEqualsSign extends AbstractInspection(
   "UnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
 
@@ -25,7 +29,7 @@ for its side effects:
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitReturnType =>
+    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitResultType =>
       f.assignment.foreach { assignment =>
         holder.registerProblem(assignment, getDisplayName, new RemoveEqualsSign(f))
       }
