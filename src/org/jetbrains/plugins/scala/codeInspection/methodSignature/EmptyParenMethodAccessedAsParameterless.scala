@@ -3,8 +3,12 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import quickfix.AddCallParentheses
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+
+/**
+ * Pavel Fatin
+ */
 
 class EmptyParenMethodAccessedAsParameterless extends AbstractInspection(
   "EmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
@@ -20,7 +24,9 @@ when the invoked method represents more than a property of its receiver object.
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] => e.resolve match {
+    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
+            !e.getParent.isInstanceOf[ScInfixExpr] &&
+            !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
       case (f: ScFunction) if f.isEmptyParen =>
         holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
       case _ =>

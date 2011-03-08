@@ -5,6 +5,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import quickfix.RemoveParentheses
 
+/**
+ * Pavel Fatin
+ */
+
 class ParameterlessMemberOverridenAsEmptyParen extends AbstractInspection(
   "ParameterlessMemberOverridenAsEmptyParen", "Parameterless Scala member overriden as empty-paren") {
 
@@ -22,9 +26,9 @@ the overriding method must also be declared as a method without side effects.
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.isEmptyParen && !f.hasUnitReturnType =>
+    case f: ScFunction if f.isEmptyParen =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
-        case Some(method: ScFunction) if !method.isEmptyParen =>
+        case Some(method: ScFunction) if method.isParameterless =>
           holder.registerProblem(f.nameId, getDisplayName, new RemoveParentheses(f))
         case _ =>
       }

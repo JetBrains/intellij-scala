@@ -6,6 +6,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import quickfix.InsertMissingEquals
 
+/**
+ * Pavel Fatin
+ */
+
 class ApparentRefinementOfResultType extends AbstractInspection(
   "ApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 

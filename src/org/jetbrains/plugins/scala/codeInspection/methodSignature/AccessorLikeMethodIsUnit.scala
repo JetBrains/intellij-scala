@@ -6,6 +6,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.Extensions._
 
+/**
+ * Pavel Fatin
+ */
+
 class AccessorLikeMethodIsUnit extends AbstractInspection(
   "AccessorLikeMethodIsUnit", "Method with accessor-like name has Unit result type") {
 
@@ -19,7 +23,7 @@ However, methods with a result type of <code>Unit</code> are only executed for t
 <small>* Refer to Programming in Scala, 2.3 Define some functions</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.hasQueryLikeName && f.hasUnitReturnType && f.superMethods.isEmpty =>
+    case f: ScFunction if f.hasQueryLikeName && f.hasUnitResultType && f.superMethods.isEmpty =>
       holder.registerProblem(f.nameId, getDisplayName)
   }
 }

@@ -5,6 +5,10 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import quickfix.RemoveTypeAnnotationAndEqualSign
 
+/**
+ * Pavel Fatin
+ */
+
 class UnitMethodDefinedLikeFunction extends AbstractInspection(
   "UnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
@@ -23,7 +27,7 @@ for its side effects:
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunctionDefinition if f.hasUnitReturnType =>
+    case f: ScFunctionDefinition if f.hasUnitResultType =>
       f.returnTypeElement.foreach { e =>
         holder.registerProblem(e, getDisplayName, new RemoveTypeAnnotationAndEqualSign(f))
       }
