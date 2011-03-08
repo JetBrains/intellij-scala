@@ -75,4 +75,10 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
       case Error("A", Message) :: Nil =>
     }
   }
+
+  def testSkipTypeDeclarationSCL2887 {
+    assertMatches(messages("trait A { type a }; new A {}")) {
+      case Nil =>
+    }
+  }
 }

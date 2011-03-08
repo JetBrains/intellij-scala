@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.annotator.template
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
+import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
 
 /**
  * Pavel Fatin
@@ -30,11 +30,14 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
     if(hasAbstract) {
       refs.headOption.foreach {
         case (refElement, Some(psiClass)) => {
-          val toImplement = ScalaOIUtil.getMembersToImplement(definition)
-          val members = ScalaOIUtil.toMembers(toImplement)
-          val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
+          import ScalaOIUtil._
 
-          if(!undefined.isEmpty) {
+          val undefined = for {
+            member <- toMembers(getMembersToImplement(definition))
+            if !member.isInstanceOf[ScAliasMember] // See SCL-2887
+          } yield (member.getText, member.getParentNodeDelegate.getText)
+
+          if(undefined.nonEmpty) {
             val element = if(isNew) refElement else definition.asInstanceOf[ScObject].nameId
             val annotation = holder.createErrorAnnotation(element, message(undefined: _*))
             annotation.registerFix(new ImplementMethodsQuickFix(definition))
