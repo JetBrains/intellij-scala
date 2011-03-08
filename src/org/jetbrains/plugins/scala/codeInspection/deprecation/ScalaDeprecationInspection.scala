@@ -8,13 +8,13 @@ import infos.MethodCandidateInfo
 import com.intellij.psi.PsiClassType.ClassResolveResult
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightMessageUtil
 import com.intellij.codeInsight.daemon.JavaErrorMessages
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr}
 import com.intellij.codeInspection._
 import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -38,7 +38,13 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         }
         case _ => return
       }
-      val description: String = "Symbol " + name + " is deprecated"
+      val message = context match {
+        case holder: ScAnnotationsHolder =>
+          holder.hasAnnotation("scala.deprecated").flatMap(ann => ScalaPsiUtil.readAttribute(ann, "value"))
+        case _ =>
+          None
+      }
+      val description: String = "Symbol " + name + " is deprecated" + message.map(m => ". " + m).getOrElse("")
       holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
         ProblemHighlightType.LIKE_DEPRECATED))
     }

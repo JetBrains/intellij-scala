@@ -27,12 +27,12 @@ import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
 import lang.psi.impl.ScalaPsiElementFactory
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
+import patterns.{ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
 import types.Compatibility.Expression
 import params._
 import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
-import patterns.{ScReferencePattern, ScCaseClause}
 import result.{TypingContext, Success, TypeResult}
 import structureView.ScalaElementPresentation
 import com.intellij.util.ArrayFactory
@@ -967,6 +967,22 @@ object ScalaPsiUtil {
       parent = parent.getParent
     }
     return false
+  }
+
+  def stringValueOf(e: PsiLiteral): Option[String] = e.getValue.toOption.flatMap(_.asOptionOf(classOf[String]))
+
+  def readAttribute(annotation: PsiAnnotation, name: String): Option[String] = {
+    annotation.findAttributeValue(name) match {
+      case literal: PsiLiteral => stringValueOf(literal)
+      case element: ScReferenceElement => element.getReference.toOption
+              .flatMap(_.resolve.asOptionOf(classOf[ScBindingPattern]))
+              .flatMap(_.getParent.asOptionOf(classOf[ScPatternList]))
+              .filter(_.allPatternsSimple)
+              .flatMap(_.getParent.asOptionOf(classOf[ScPatternDefinition]))
+              .flatMap(_.expr.asOptionOf(classOf[PsiLiteral]))
+              .flatMap(stringValueOf(_))
+      case _ => None
+    }
   }
 
 }

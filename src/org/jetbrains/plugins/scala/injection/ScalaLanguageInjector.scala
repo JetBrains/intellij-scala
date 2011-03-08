@@ -15,6 +15,7 @@ import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefin
 import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import lang.psi.api.base.{ScPatternList, ScReferenceElement, ScLiteral}
+import lang.psi.ScalaPsiUtil.readAttribute
 
 /**
  * Pavel Fatin
@@ -158,22 +159,5 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     case p: ScReferencePattern => p.getParent.getParent
     case field: PsiField => field.getModifierList
     case _ => element
-  }
-
-  private def stringValueOf(e: PsiLiteral) =
-    e.getValue.toOption.flatMap(_.asOptionOf(classOf[String]))
-
-  private def readAttribute(annotation: PsiAnnotation, name: String) = {
-    annotation.findAttributeValue(name) match {
-      case literal: PsiLiteral => stringValueOf(literal)
-      case element: ScReferenceElement => element.getReference.toOption
-              .flatMap(_.resolve.asOptionOf(classOf[ScBindingPattern]))
-              .flatMap(_.getParent.asOptionOf(classOf[ScPatternList]))
-              .filter(_.allPatternsSimple)
-              .flatMap(_.getParent.asOptionOf(classOf[ScPatternDefinition]))
-              .flatMap(_.expr.asOptionOf(classOf[PsiLiteral]))
-              .flatMap(stringValueOf(_))
-      case _ => None
-    }
   }
 }
