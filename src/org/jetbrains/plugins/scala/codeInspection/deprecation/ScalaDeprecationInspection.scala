@@ -1,22 +1,16 @@
-package org.jetbrains.plugins.scala.codeInspection.deprecation
+package org.jetbrains.plugins.scala
+package codeInspection.deprecation
 
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import com.intellij.psi._
-import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
-import infos.MethodCandidateInfo
-import com.intellij.psi.PsiClassType.ClassResolveResult
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightMessageUtil
-import com.intellij.codeInsight.daemon.JavaErrorMessages
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportExpr}
-import com.intellij.codeInspection._
-import collection.mutable.ArrayBuffer
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction}
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder, LocalInspectionTool}
+import lang.psi.ScalaPsiUtil
+import lang.psi.api.ScalaElementVisitor
+import lang.psi.api.statements.{ScFunction, ScAnnotationsHolder}
+import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 
-/**
+
+/** 
  * User: Alexander Podkhalyuzin
  * Date: 13.04.2010
  */
@@ -38,13 +32,13 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
         }
         case _ => return
       }
-      val message = context match {
-        case holder: ScAnnotationsHolder =>
-          holder.hasAnnotation("scala.deprecated").flatMap(ann => ScalaPsiUtil.readAttribute(ann, "value"))
-        case _ =>
-          None
-      }
-      val description: String = "Symbol " + name + " is deprecated" + message.map(m => ". " + m).getOrElse("")
+      val message = for {
+        holder <- context.asOptionOf(classOf[ScAnnotationsHolder])
+        annotation <- holder.hasAnnotation("scala.deprecated")
+        message <- ScalaPsiUtil.readAttribute(annotation, "value")
+      } yield message
+      
+      val description: String = Seq(Some("Symbol " + name + " is deprecated"),  message).flatten.mkString(". ")
       holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
         ProblemHighlightType.LIKE_DEPRECATED))
     }
