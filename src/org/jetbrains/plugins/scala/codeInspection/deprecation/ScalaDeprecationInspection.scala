@@ -10,7 +10,7 @@ import lang.psi.api.statements.{ScFunction, ScAnnotationsHolder}
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
 
 
-/** 
+/**
  * User: Alexander Podkhalyuzin
  * Date: 13.04.2010
  */
