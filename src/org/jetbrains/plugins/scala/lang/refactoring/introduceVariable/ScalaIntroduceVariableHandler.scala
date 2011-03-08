@@ -97,17 +97,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
          (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
       val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
-      val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
-        classOf[ScTemplateBody])
+      val container: PsiElement = Option(commonParent).flatMap(_.scopes.toStream.headOption).orNull
       val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
-      val containerOne = ScalaPsiUtil.getParentOfType(commonParentOne, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
-        classOf[ScTemplateBody])
-      var validator = new ScalaVariableValidator(this, project, expr, occurrences, container, containerOne)
-      var dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
+      val containerOne = Option(commonParentOne).flatMap(_.scopes.toStream.headOption).orNull
+      val validator = new ScalaVariableValidator(this, project, expr, occurrences, container, containerOne)
+      val dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
       if (!dialog.isOK) return
 
       val varName: String = dialog.getEnteredName
-      var varType: ScType = dialog.getSelectedType
+      val varType: ScType = dialog.getSelectedType
       val isVariable: Boolean = dialog.isDeclareVariable
       val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
       runRefactoring(startOffset, endOffset, file, editor, expr, occurrences, varName, varType, replaceAllOccurrences, isVariable)
