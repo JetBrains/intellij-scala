@@ -11,7 +11,7 @@ class PsiMethodExt(repr: PsiMethod) {
     """(?-i)(?:get|is|can|could|has|have|to)\p{Lu}.*""".r
 
   private val MutatorNamePattern =
-    """(?-i)(?:do|set|add|remove|insert|delete|aquire|release)(?:\p{Lu}.*)""".r
+    """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)""".r
 
   def isAccessor: Boolean = {
     hasQueryLikeName && !hasVoidReturnType
