@@ -7,7 +7,7 @@ object AccessorLikeMethodIsEmptyParen {
 }
 
 object AccessorLikeMethodIsUnit {
-  def getFoo {}
+  def getFoo() {}
 }
 
 trait ApparentRefinementOfResultType {

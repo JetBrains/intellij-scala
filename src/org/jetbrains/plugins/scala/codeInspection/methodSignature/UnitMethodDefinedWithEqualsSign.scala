@@ -24,8 +24,8 @@ In this form, the method looks like a <dfn>procedure</dfn>, a method that is exe
 for its side effects:
 
 <pre><code>  <span style="color:#808080">// excessive clutter, looks like a function</span><br>  <strong style="color:#000080">def</strong> close() = { println("closed") }
-  <span style="color:#808080">// may accidentally change its result type after changes in body</span><br>  <strong style="color:#000080">def</strong> close() = { file.delete() } <span style="color:#808080">// method result type is <code>Boolean</code> now</span>
-  <span style="color:#808080">// concise form, side-effect is clearly stated, result type is always <code>Unit</code></span><br>  <strong style="color:#000080">def</strong> close() { file.delete() }</code></pre>
+  <span style="color:#808080">// may accidentally change its result type<br>  // after changes in body</span><br>  <strong style="color:#000080">def</strong> close() = { file.delete() } <span style="color:#808080">// result type is <code>Boolean</code></span>
+  <span style="color:#808080">// concise form, side-effect is clearly stated<br>  // result type is always <code>Unit</code></span><br>  <strong style="color:#000080">def</strong> close() { file.delete() }</code></pre>
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
