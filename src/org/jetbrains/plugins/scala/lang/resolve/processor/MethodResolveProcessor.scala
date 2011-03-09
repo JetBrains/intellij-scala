@@ -163,13 +163,18 @@ object MethodResolveProcessor {
           Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
         }
         case _ => {
+          def constructorCanBeCalledNoArgList(c: ScPrimaryConstructor): Boolean = {
+            val implicitParamClause = c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)
+            val onlyParamList = c.parameterList.clauses match { case Seq(p) => Some(p); case _ => None}
+            val onlyDefaultOrVarargs = onlyParamList.exists(_.parameters.forall(p => p.isDefaultParam || p.isVarArgs))
+            implicitParamClause || onlyDefaultOrVarargs
+          }
           fun match {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
                     fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
             case fun: ScFun if fun.parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
-            case c: ScPrimaryConstructor
-              if(c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)) =>
+            case c: ScPrimaryConstructor if constructorCanBeCalledNoArgList(c) => // TODO proper handling of contructor applicability
               ConformanceExtResult(Seq.empty)
             case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
