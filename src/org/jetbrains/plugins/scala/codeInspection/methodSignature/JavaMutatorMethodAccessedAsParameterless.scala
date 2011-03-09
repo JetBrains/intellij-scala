@@ -19,7 +19,8 @@ class JavaMutatorMethodAccessedAsParameterless extends AbstractInspection(
   override val description =
 """Methods that has mutators-like name are expected to have <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
-The convention is that you include empty parentheses in method call if the method has side effects.
+The convention is that you include empty parentheses in method call
+if the method has side effects.
 
 <small>* Refer to Programming in Scala, 5.3 Operators are methods</small>"""
 
