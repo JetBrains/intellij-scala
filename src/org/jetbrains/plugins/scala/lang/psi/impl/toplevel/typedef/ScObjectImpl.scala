@@ -51,6 +51,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     } else findChildByType(ScalaTokenTypes.kPACKAGE) != null || getName == "`package`"
   }
 
+  def hasPackageKeyword: Boolean = findChildByType(ScalaTokenTypes.kPACKAGE) != null
+
   override def isCase = hasModifierProperty("case")
 
   override def getContainingClass: ScTemplateDefinition = null
