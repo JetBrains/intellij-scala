@@ -22,6 +22,7 @@ class PsiMethodExt(repr: PsiMethod) {
   }
 
   def hasQueryLikeName = repr.getNameIdentifier.getText match {
+    case "getInstance" => false // TODO others?
     case AccessorNamePattern() => true
     case _ => false
   }
