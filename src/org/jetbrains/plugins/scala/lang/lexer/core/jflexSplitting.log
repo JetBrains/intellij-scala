@@ -1,7 +1,7 @@
 Reading skeleton file "splitting.skeleton".
 Reading "split_lexer.flex"
-Constructing NFA : 168 states in NFA
+Constructing NFA : 176 states in NFA
 Converting NFA to DFA : 
-..........................................
-46 states before minimization, 33 states in minimized DFA
+.............................................
+49 states before minimization, 35 states in minimized DFA
 Writing code to "_ScalaSplittingLexer.java"

@@ -46,6 +46,8 @@ CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAP
 STRING_LITERAL=\"([^\\\"\r\n]|{ESCAPE_SEQUENCE})*(\"|\\)? |
                \"\"\" ( (\"(\")?)? [^\"] )* \"\"\"                                                 // Multi-line string
 
+BACKQUOTED_IDENTIFIER=\`[^`]*\`
+
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 
@@ -60,6 +62,7 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 
 {CHARACTER_LITERAL}        {  return SCALA_PLAIN_CONTENT; }
 {STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
+{BACKQUOTED_IDENTIFIER}    {  return SCALA_PLAIN_CONTENT; }
 {END_OF_LINE_COMMENT}      {  return SCALA_PLAIN_CONTENT; }
 
 {SIMPLE_BLOCK_COMMENT}   {  return tBLOCK_COMMENT; }
