@@ -12,6 +12,7 @@ import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
 import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
 import types._
@@ -441,7 +442,8 @@ object TypeDefinitionMembers {
             Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
     //fake enum methods
-    if (clazz.isEnum && shouldProcessMethods(processor)) {
+    val isJavaSourceEnum = !clazz.isInstanceOf[ClsClassImpl] && clazz.isEnum
+    if (isJavaSourceEnum && shouldProcessMethods(processor)) {
       val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(clazz.getProject).getElementFactory
       //todo: cache like in PsiClassImpl
       val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + clazz.getName +

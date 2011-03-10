@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.scope._
 import com.intellij.psi._
 import _root_.scala.collection.Set
+import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
 import base.ScStableCodeReferenceElement
@@ -115,7 +116,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
         //todo: duplicate TypeDefinitionMembers
         //fake enum static methods
-        if (e.isEnum) {
+        val isJavaSourceEnum = !e.isInstanceOf[ClsClassImpl] && e.isEnum
+        if (isJavaSourceEnum) {
           val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(e.getProject).getElementFactory
           //todo: cache like in PsiClassImpl
           val valuesMethod: PsiMethod = elementFactory.createMethodFromText("public static " + e.getName +
@@ -134,7 +136,6 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
           case Success(tp, _) => processType(tp, place, state, noBounds)
           case _ => true
         }
-      // TODO SCL-2386 we don't want to get here if the reference is to the synthesized companion object of a case class.
       case ScDesignatorType(e) => processElement(e, ScSubstitutor.empty, place, state)
       case ScTypeParameterType(_, Nil, _, upper, _) => processType(upper.v, place)
       case j: JavaArrayType =>
