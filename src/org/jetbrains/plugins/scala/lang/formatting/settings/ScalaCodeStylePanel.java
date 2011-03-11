@@ -38,6 +38,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox typeLamdasCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
+  private JCheckBox showArgumentsToByNameParametersCheckBox;
+  private JCheckBox includeBlockExpressionsExpressionsCheckBox;
+  private JCheckBox includeLiteralsCheckBox;
   private JCheckBox treatDocCommentAsBlockComment;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
@@ -92,6 +95,10 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_BLOCK_COMMENTS = blockCommentsCheckBox.isSelected();
 
     scalaSettings.SHOW_IMPLICIT_CONVERSIONS = showImplicitConversionsInCheckBox.isSelected();
+    scalaSettings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = showArgumentsToByNameParametersCheckBox.isSelected();
+    scalaSettings.INCLUDE_BLOCK_EXPRESSIONS = includeBlockExpressionsExpressionsCheckBox.isSelected();
+    scalaSettings.INCLUDE_LITERALS = includeLiteralsCheckBox.isSelected();
+
     scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = myResolveToAllClassesCheckBox.isSelected();
   }
 
@@ -100,6 +107,18 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     ScalaCodeStyleSettings scalaSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
 
     if (scalaSettings.SHOW_IMPLICIT_CONVERSIONS != showImplicitConversionsInCheckBox.isSelected()) {
+      return true;
+    }
+
+    if (scalaSettings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS != showArgumentsToByNameParametersCheckBox.isSelected()) {
+      return true;
+    }
+
+    if (scalaSettings.INCLUDE_BLOCK_EXPRESSIONS != includeBlockExpressionsExpressionsCheckBox.isSelected()) {
+      return true;
+    }
+
+    if (scalaSettings.INCLUDE_LITERALS != includeLiteralsCheckBox.isSelected()) {
       return true;
     }
 
@@ -162,6 +181,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(typeLamdasCheckBox, settings.FOLD_TYPE_LAMBDA);
 
     setValue(showImplicitConversionsInCheckBox, settings.SHOW_IMPLICIT_CONVERSIONS);
+    setValue(showArgumentsToByNameParametersCheckBox, settings.SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS);
+    setValue(includeBlockExpressionsExpressionsCheckBox, settings.INCLUDE_BLOCK_EXPRESSIONS);
+    setValue(includeLiteralsCheckBox, settings.INCLUDE_LITERALS);
 
     setValue(myResolveToAllClassesCheckBox, settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES);
   }

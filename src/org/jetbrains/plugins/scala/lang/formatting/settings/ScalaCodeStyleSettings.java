@@ -39,6 +39,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean FOLD_TYPE_LAMBDA = false;
 
   public boolean SHOW_IMPLICIT_CONVERSIONS = true;
+  public boolean SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = true;
+  public boolean INCLUDE_BLOCK_EXPRESSIONS = false;
+  public boolean INCLUDE_LITERALS = false;
 
   public boolean WRAP_BEFORE_WITH_KEYWORD = false;
   public int METHOD_BRACE_FORCE = 0;
