@@ -16,11 +16,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClsRepositoryPsiElement
 import com.intellij.psi.PsiManager
 import lang.psi.stubs.ScFileStub
+import lang.formatting.settings.ScalaCodeStyleSettings
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 
 /**
  * @author ilyas
  */
-
 class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
 
   def isApplicable(project: Project, vFile: VirtualFile): Boolean = {
@@ -33,7 +34,10 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
     } else false
   }
 
-  def createHighlighter(projet: Project, file: VirtualFile) = new ScalaSyntaxHighlighter
+  def createHighlighter(project: Project, file: VirtualFile) = {
+    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment)
+  }
 
   def obtainFileText(project: Project, file: VirtualFile): String = {
     val bytes = file.contentsToByteArray

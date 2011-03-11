@@ -6,10 +6,7 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.ui.components.labels.LinkLabel;
-import com.intellij.ui.components.labels.LinkListener;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.DesktopUtils;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.highlighter.ScalaEditorHighlighter;
 
@@ -41,6 +38,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox showImplicitConversionsInCheckBox;
   private JCheckBox typeLamdasCheckBox;
   private JCheckBox myResolveToAllClassesCheckBox;
+  private JCheckBox treatDocCommentAsBlockComment;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -80,6 +78,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
     scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION = enableConversionOnCopyCheckBox.isSelected();
     scalaSettings.DONT_SHOW_CONVERSION_DIALOG = donTShowDialogCheckBox.isSelected();
+    scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = treatDocCommentAsBlockComment.isSelected();
 
     scalaSettings.FOLD_FILE_HEADER = fileHeaderCheckBox.isSelected();
     scalaSettings.FOLD_IMPORT_STATEMENTS = importStatementsCheckBox.isSelected();
@@ -112,6 +111,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION != enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG != donTShowDialogCheckBox.isSelected()) return true;
+    if (scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT != treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
@@ -148,6 +148,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);
     setValue(enableConversionOnCopyCheckBox, settings.ENABLE_JAVA_TO_SCALA_CONVERSION);
     setValue(donTShowDialogCheckBox, settings.DONT_SHOW_CONVERSION_DIALOG);
+    setValue(treatDocCommentAsBlockComment, settings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT);
 
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);

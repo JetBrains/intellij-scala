@@ -17,6 +17,7 @@ package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexAdapter;
 import com.intellij.lexer.MergingLexerAdapter;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
@@ -30,7 +31,11 @@ import java.io.Reader;
 public class ScalaSplittingLexer extends MergingLexerAdapter implements ScalaTokenTypesEx, ScalaDocElementTypes {
 
   public ScalaSplittingLexer() {
-    super(new ScalaSplittingFlexLexer(),
+    this(false);
+  }
+
+  public ScalaSplittingLexer(boolean treatDocCommentAsBlockComment) {
+    super(new ScalaSplittingFlexLexer(treatDocCommentAsBlockComment),
         TokenSet.create(
             SCALA_DOC_COMMENT,
             tBLOCK_COMMENT,
@@ -39,8 +44,22 @@ public class ScalaSplittingLexer extends MergingLexerAdapter implements ScalaTok
   }
 
   private static class ScalaSplittingFlexLexer extends FlexAdapter {
-    public ScalaSplittingFlexLexer() {
+    private boolean treatDocCommentAsBlockComment;
+
+    @Override
+    public IElementType getTokenType() {
+      IElementType tokenType = super.getTokenType();
+
+      if (treatDocCommentAsBlockComment && tokenType != null && tokenType.equals(SCALA_DOC_COMMENT)) {
+        return tBLOCK_COMMENT;
+      }
+      return tokenType;
+    }
+
+    public ScalaSplittingFlexLexer(boolean treatDocCommentAsBlockComment) {
       super(new _ScalaSplittingLexer((Reader) null));
+
+      this.treatDocCommentAsBlockComment = treatDocCommentAsBlockComment;
     }
   }
 }

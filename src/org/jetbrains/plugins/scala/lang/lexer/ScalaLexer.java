@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.lexer.core._ScalaCoreLexer;
  */
 public class ScalaLexer extends Lexer {
 
-  protected final Lexer myScalaPlainLexer = new ScalaPlainLexer();
+  protected final Lexer myScalaPlainLexer;
   private final Lexer myXmlLexer = new XmlLexer();
 
   protected Lexer myCurrentLexer;
@@ -57,6 +57,11 @@ public class ScalaLexer extends Lexer {
   public final String XML_BEGIN_PATTERN = "<\\w";
 
   public ScalaLexer() {
+    this(false);
+  }
+
+  public ScalaLexer(boolean treatDocCommentAsBlockComment) {
+    myScalaPlainLexer = new ScalaPlainLexer(treatDocCommentAsBlockComment);
     myCurrentLexer = myScalaPlainLexer;
   }
 
