@@ -62,17 +62,17 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   def getComponentName = "HighlightingAdvisor"
 
-  def initComponent {}
+  def initComponent() {}
 
-  def disposeComponent {}
+  def disposeComponent() {}
 
-  def projectOpened {
+  def projectOpened() {
     registry.registerListener(ScalaFacet.Id, FacetListener)
     configureWidget()
     notifyIfNeeded()
   }
 
-  def projectClosed {
+  def projectClosed() {
     registry.unregisterListener(ScalaFacet.Id, FacetListener)
     configureWidget()
   }
@@ -159,7 +159,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     })
   }
 
-  private def bar = WindowManager.getInstance().getStatusBar(project)
+  private def bar = WindowManager.getInstance.getStatusBar(project)
 
   private object HyperlinkListener extends NotificationListener {
     def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
@@ -196,7 +196,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
     def install(statusBar: StatusBar) {}
 
-    def dispose = {}
+    def dispose() {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
       def getIcon = if(enabled) Icons.TYPED else Icons.UNTYPED

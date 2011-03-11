@@ -67,6 +67,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (element.isInstanceOf[ScExpression]) {
       checkExpressionType(element.asInstanceOf[ScExpression], holder)
       checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
+      ByNameParameter.annotate(element.asInstanceOf[ScExpression], holder, typeAware)
     }
 
     if (element.isInstanceOf[ScTypeElement]) {

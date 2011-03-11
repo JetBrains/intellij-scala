@@ -208,7 +208,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="daf84" layout-manager="GridLayoutManager" row-count="10" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="daf84" layout-manager="GridLayoutManager" row-count="13" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Other settings"/>
@@ -226,7 +226,7 @@
               </component>
               <vspacer id="3d803">
                 <constraints>
-                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="b82bf" class="javax.swing.JLabel">
@@ -268,12 +268,12 @@
                 </constraints>
                 <properties>
                   <selected value="true"/>
-                  <text value="Show implicit conversions in editor"/>
+                  <text value="Highlight methods added via implicit conversion "/>
                 </properties>
               </component>
               <component id="c3afd" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Performance options:"/>
@@ -281,19 +281,48 @@
               </component>
               <component id="522e7" class="javax.swing.JCheckBox" binding="myResolveToAllClassesCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="Resolve to all classes, even in wrong directories (this may cause performance problems)"/>
                 </properties>
               </component>
-              <component id="17172" class="javax.swing.JCheckBox" binding="treatDocCommentAsBlockComment">
+              <component id="cbbbd" class="javax.swing.JCheckBox" binding="showArgumentsToByNameParametersCheckBox">
                 <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)"/>
+                  <selected value="true"/>
+                  <text value="Highlight arguments to by-name parameters"/>
                 </properties>
+              </component>
+              <component id="eb5f4" class="javax.swing.JCheckBox" binding="includeBlockExpressionsExpressionsCheckBox">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Include block expressions"/>
+                  <toolTipText value="Include expressions enclosed in in curly braces"/>
+                </properties>
+              </component>
+              <component id="595b0" class="javax.swing.JCheckBox" binding="includeLiteralsCheckBox">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <selected value="true"/>
+                  <text value="Include literals "/>
+                  <toolTipText value="Include string, number, etc"/>
+                </properties>
+              </component>
+               <component id="17172" class="javax.swing.JCheckBox" binding="treatDocCommentAsBlockComment">
+               <constraints>
+                 <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+               </constraints>
+               <properties>
+                <text value="Disable parsing of documentation comments. This may improve editor performance for very large files. (SCL-2900)"/>
+               </properties>
               </component>
             </children>
           </grid>
