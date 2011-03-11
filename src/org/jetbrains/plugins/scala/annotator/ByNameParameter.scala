@@ -41,7 +41,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
       }
     }
   }
-
+  // TODO named parameters, constructors
   private def parameterOf(exp: ScExpression): Option[ScParameter] = {
     exp.getParent match {
       case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
