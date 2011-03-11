@@ -24,6 +24,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SEARCH_ALL_SYMBOLS = false;
   public boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
   public boolean DONT_SHOW_CONVERSION_DIALOG = false;
+  public boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
 
   //collapse by default
   public boolean FOLD_FILE_HEADER = true;

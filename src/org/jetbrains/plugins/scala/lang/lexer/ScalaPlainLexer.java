@@ -40,7 +40,7 @@ public class ScalaPlainLexer extends Lexer {
 
 
   private ScalaCoreLexer myScalaLexer = new ScalaCoreLexer();
-  private Lexer mySplittingLexer = new ScalaSplittingLexer();
+  private Lexer mySplittingLexer;
 
   private int myBufferEnd;
   private int myTokenStart;
@@ -50,6 +50,14 @@ public class ScalaPlainLexer extends Lexer {
   private Queue<Token> myTokenQueue;
 
   private int myLastScalaState;
+
+  public ScalaPlainLexer(boolean treatDocCommentAsBlockComment) {
+    mySplittingLexer = new ScalaSplittingLexer(treatDocCommentAsBlockComment);
+  }
+
+  public ScalaPlainLexer() {
+    this(false);
+  }
 
   private static class Token {
     public Token(final int tokenEnd, final int tokenStart, final IElementType tokenType) {

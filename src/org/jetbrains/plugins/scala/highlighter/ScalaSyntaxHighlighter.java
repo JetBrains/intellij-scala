@@ -173,6 +173,11 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
+  private boolean treatDocCommentAsBlockComment;
+
+  public ScalaSyntaxHighlighter(boolean treatDocCommentAsBlockComment) {
+    this.treatDocCommentAsBlockComment = treatDocCommentAsBlockComment;
+  }
 
   static {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tLINE_COMMENTS, DefaultHighlighter.LINE_COMMENT);
@@ -199,12 +204,12 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
 
   @NotNull
   public Lexer getHighlightingLexer() {
-    return new CompoundLexer();
+    return new CompoundLexer(treatDocCommentAsBlockComment);
   }
   
   private static class CompoundLexer extends LayeredLexer {
-    CompoundLexer() {
-      super(new CustomScalaLexer());
+    CompoundLexer(boolean treatDocCommentAsBlockComment) {
+      super(new CustomScalaLexer(treatDocCommentAsBlockComment));
 
       registerSelfStoppingLayer(new StringLiteralLexer('\"', ScalaTokenTypes.tSTRING),
                                 new IElementType[]{ScalaTokenTypes.tSTRING}, IElementType.EMPTY_ARRAY);
@@ -216,6 +221,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   }
   
   private static class CustomScalaLexer extends ScalaLexer {
+    public CustomScalaLexer(boolean treatDocCommentAsBlockComment) {
+      super(treatDocCommentAsBlockComment);
+    }
+
     public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
       myCurrentLexer = myScalaPlainLexer;
       myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
