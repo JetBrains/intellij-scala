@@ -15,7 +15,7 @@ import psi.types._
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember with PsiMethod {
+trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
   /**
    *  @return has annotation
    */
@@ -41,7 +41,6 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod {
    */
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
-  def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses

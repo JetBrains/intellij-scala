@@ -31,4 +31,6 @@ class Bug2Test extends ResolveTestBase {
 
   def testDependent = doTest
   def testDependentEquality = doTest
+
+  def testSCL2904 = doTest
 }

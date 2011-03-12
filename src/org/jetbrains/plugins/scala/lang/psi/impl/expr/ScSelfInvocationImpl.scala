@@ -13,12 +13,12 @@ import api.statements.ScFunction
 import util.PsiTreeUtil
 import types.Compatibility.Expression
 import lang.resolve.StdKinds
-import api.base.ScPrimaryConstructor
 import api.toplevel.typedef.{ScTemplateDefinition, ScClass}
 import api.toplevel.ScTypeParametersOwner
 import types.result.{Success, Failure, TypeResult}
 import types.nonvalue.{ScTypePolymorphicType, TypeParameter}
 import types.{Any, Nothing, ScType}
+import api.base.{ScMethodLike, ScPrimaryConstructor}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -54,8 +54,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   def shapeType(i: Int): TypeResult[ScType] = {
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal(true) match {
-      case Some(c: ScFunction) => (c.methodType, c.getContainingClass)
-      case Some(c: ScPrimaryConstructor) => (c.methodType, c.getContainingClass)
+      case Some(c: ScMethodLike) =>
+        val methodType = ScType.nested(c.methodType, i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
+        (methodType, c.getContainingClass)
       case _ => return Failure("Cannot shape resolve self invocation", Some(this))
     }
     clazz match {

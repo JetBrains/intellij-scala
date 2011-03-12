@@ -4,8 +4,8 @@ package psi
 package types
 
 import decompiler.DecompilerUtil
-import nonvalue.NonValueType
 import com.intellij.psi._
+import nonvalue.{ScMethodType, NonValueType}
 import result.TypingContext
 import com.intellij.openapi.project.Project
 import api.toplevel.typedef.ScObject
@@ -119,6 +119,14 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case ScDesignatorType(o: ScObject) => true
     case ScDesignatorType(r: ScTypedDefinition) if r.isStable => true
     case _ => false
+  }
+
+  def nested(tpe: ScType, n: Int): Option[ScType] = {
+    if (n == 0) Some(tpe)
+    else tpe match {
+      case mt: ScMethodType => nested(mt.returnType, n - 1)
+      case _ => None
+    }
   }
 }
 
