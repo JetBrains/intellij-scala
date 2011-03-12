@@ -42,12 +42,6 @@ trait ScType {
    */
   def removeAbstracts = this
 
-  @deprecated("use ScSubstitutor.subst")
-  def updateThisType(place: PsiElement): ScType = this
-
-  @deprecated("use ScSubstitutor.subst")
-  def updateThisType(tp: ScType): ScType = this
-
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
   }

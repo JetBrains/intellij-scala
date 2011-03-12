@@ -46,14 +46,6 @@ case class JavaArrayType(arg: ScType) extends ValueType {
 
   override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
 
-  override def updateThisType(place: PsiElement) = {
-    JavaArrayType(arg.updateThisType(place))
-  }
-
-  override def updateThisType(tp: ScType) = {
-    JavaArrayType(arg.updateThisType(tp))
-  }
-
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
@@ -133,12 +125,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
   }
 
   override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
-
-  override def updateThisType(place: PsiElement) = ScParameterizedType(designator.updateThisType(place),
-    typeArgs.map(_.updateThisType(place)))
-
-  override def updateThisType(tp: ScType) = ScParameterizedType(designator.updateThisType(tp),
-    typeArgs.map(_.updateThisType(tp)))
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst

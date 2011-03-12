@@ -68,9 +68,5 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
 
   override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))
 
-  override def updateThisType(place: PsiElement) = ScTupleType(components.map(_.updateThisType(place)))
-
-  override def updateThisType(tp: ScType) = ScTupleType(components.map(_.updateThisType(tp)))
-
   private def tupleTraitName = "scala.Tuple" + components.length
 }
