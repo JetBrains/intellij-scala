@@ -35,6 +35,7 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import api.base.patterns.{ScWildcardPattern, ScReferencePattern}
 
 object ScalaPsiElementFactory {
 
@@ -635,6 +636,13 @@ object ScalaPsiElementFactory {
       psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
       psi.asInstanceOf[ScTypeElement]
     } else null
+  }
+
+  def createWildcardPattern(manager: PsiManager): ScWildcardPattern = {
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "val _ = x").asInstanceOf[ScalaFile]
+    dummyFile.getChildren.head.getChildren.apply(2).getChildren.head.asInstanceOf[ScWildcardPattern]
   }
 
   def createPatterListFromText(text : String, context: PsiElement, child: PsiElement): ScPatternList = {

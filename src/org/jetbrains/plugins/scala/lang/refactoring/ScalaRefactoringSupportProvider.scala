@@ -11,6 +11,9 @@ import introduceParameter.ScalaIntroduceParameterHandler
 import introduceVariable.ScalaIntroduceVariableHandler
 import psi.api.toplevel.typedef.ScTypeDefinition
 import rename.ScalaInplaceVariableRenamer
+import psi.api.base.patterns.ScReferencePattern
+import psi.api.statements._
+import psi.api.base.ScFieldId
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,7 +33,10 @@ class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
 
   override def getIntroduceParameterHandler: RefactoringActionHandler = new ScalaIntroduceParameterHandler
 
-  override def isSafeDeleteAvailable(element: PsiElement): Boolean = element.isInstanceOf[ScTypeDefinition]
+  override def isSafeDeleteAvailable(element: PsiElement): Boolean = element match {
+    case _: ScTypeDefinition | _: ScFunction | _: ScFieldId | _: ScReferencePattern => true
+    case _ => false
+  }
 
   override def getExtractMethodHandler: RefactoringActionHandler = new ScalaExtractMethodHandler
 }

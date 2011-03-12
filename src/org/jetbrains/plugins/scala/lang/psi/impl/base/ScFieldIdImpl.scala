@@ -36,4 +36,12 @@ class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with
     }
     case _ => true
   }
+
+  override def delete() {
+    getContext match {
+      case id: ScIdList if id.fieldIds == Seq(this) =>
+        id.getContext.delete()
+      case _ => throw new UnsupportedOperationException("Cannot delete on id in a list of field ides.")
+    }
+  }
 }
