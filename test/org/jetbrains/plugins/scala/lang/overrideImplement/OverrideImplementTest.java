@@ -158,6 +158,11 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testUnitReturn() throws Exception {
+    String name = "simpleTests/unitoverride.scala";
+    runTest(name);
+  }
+
 
   private void runTest(String name) throws Exception {
     String filePath = rootPath + name;

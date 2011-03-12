@@ -358,8 +358,13 @@ object ScalaOIUtil {
       }
       case _ => return
     }
-    val offset = body.getTextRange.getStartOffset
-    editor.getCaretModel.moveToOffset(offset)
-    editor.getSelectionModel.setSelection(body.getTextRange.getStartOffset, body.getTextRange.getEndOffset)
+    val range = body.getTextRange
+    val offset = range.getStartOffset
+    if (body.getText == "{}") {
+      editor.getCaretModel.moveToOffset(offset + 1)
+    } else {
+      editor.getCaretModel.moveToOffset(offset)
+      editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+    }
   }
 }
