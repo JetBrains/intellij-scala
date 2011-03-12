@@ -22,6 +22,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import expr.ScBlock
 import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
+import base.ScMethodLike
 
 /**
  * @author Alexander Podkhalyuzin
@@ -53,7 +54,7 @@ trait ScFun extends ScTypeParametersOwner {
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
-        with ScDeclaredElementsHolder with ScAnnotationsHolder {
+        with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike {
   private var synthCopy = false
   def isSyntheticCopy: Boolean = synthCopy
   def setSyntheticCopy: Unit = synthCopy = true
@@ -129,7 +130,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * Returns pure `function' type as it was defined as a field with functional value
    */
-  def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = paramClauses
     val clauses = parameters.clauses

@@ -85,7 +85,6 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   }
 
   def shapeType(i: Int): TypeResult[ScType] = {
-    if (i > 0) return Failure("doesn't implemented yet", Some(this)) //todo: implement me
     def FAILURE = Failure("Can't resolve type", Some(this))
     def processSimple(s: ScSimpleTypeElement): TypeResult[ScType] = {
       s.reference match {
@@ -98,9 +97,12 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 case _ => parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, true).getOrElse(return FAILURE), clazz, subst)
               }
               val res = constr match {
-                case fun: ScFunction => subst.subst(fun.methodType(Some(tp)))
-                case fun: ScPrimaryConstructor => subst.subst(fun.methodType(Some(tp)))
-                case method: PsiMethod => ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
+                case fun: ScMethodLike =>
+                  val methodType = ScType.nested(fun.methodType(Some(tp)), i).getOrElse(return FAILURE)
+                  subst.subst(methodType)
+                case method: PsiMethod =>
+                  if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
+                  ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
               }
               val typeParameters: Seq[TypeParameter] = r.getActualElement match {
                 case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
