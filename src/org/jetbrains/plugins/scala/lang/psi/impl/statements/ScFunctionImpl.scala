@@ -113,7 +113,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods = PsiMethod.EMPTY_ARRAY
+  def findSuperMethods = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
 
   def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
 
