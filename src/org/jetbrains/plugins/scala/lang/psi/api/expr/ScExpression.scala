@@ -547,6 +547,46 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     }
     (implicits, implicitFunction)
   }
+
+  final def calculateReturns: Seq[PsiElement] = {
+    val res = new ArrayBuffer[PsiElement]
+    def calculateReturns0(el: PsiElement) {
+      el match {
+        case tr: ScTryStmt => {
+          calculateReturns0(tr.tryBlock)
+          tr.catchBlock match {
+            case Some(cBlock) => cBlock.getBranches.foreach(calculateReturns0)
+            case None =>
+          }
+        }
+        case block: ScBlock => {
+          block.lastExpr match {
+            case Some(expr) => calculateReturns0(expr)
+            case _ => res += block
+          }
+        }
+        case m: ScMatchStmt => {
+          m.getBranches.foreach(calculateReturns0)
+        }
+        case i: ScIfStmt => {
+          i.elseBranch match {
+            case Some(e) => {
+              calculateReturns0(e)
+              i.thenBranch match {
+                case Some(e) => calculateReturns0(e)
+                case _ =>
+              }
+            }
+            case _ => res += i
+          }
+        }
+        //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
+        case _ => if (!res.contains(el)) res += el
+      }
+    }
+    calculateReturns0(this)
+    res
+  }
 }
 
 object ScExpression {

@@ -113,42 +113,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
         case _ =>
       }
     }
-    def calculateReturns(expr: ScExpression): Unit = {
-      expr match {
-        case tr: ScTryStmt => {
-          calculateReturns(tr.tryBlock)
-          tr.catchBlock match {
-            case Some(cBlock) => cBlock.getBranches.foreach(calculateReturns(_))
-            case None =>
-          }
-        }
-        case block: ScBlock => {
-          block.lastExpr match {
-            case Some(expr) => calculateReturns(expr)
-            case _ => res += block
-          }
-        }
-        case m: ScMatchStmt => {
-          m.getBranches.foreach(calculateReturns(_))
-        }
-        case i: ScIfStmt => {
-          i.elseBranch match {
-            case Some(e) => {
-              calculateReturns(e)
-              i.thenBranch match {
-                case Some(e) => calculateReturns(e)
-                case _ =>
-              }
-            }
-            case _ => res += i
-          }
-        }
-        //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
-        case _ => if (!res.contains(expr)) res += expr
-      }
-    }
     body match {
-      case Some(expr) => calculateReturns(expr)
+      case Some(expr) => res ++= expr.calculateReturns
       case _ =>
     }
     res.filter(p => p.getContainingFile == getContainingFile).toArray
