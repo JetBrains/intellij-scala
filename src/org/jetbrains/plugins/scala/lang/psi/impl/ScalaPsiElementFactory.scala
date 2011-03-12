@@ -402,14 +402,21 @@ object ScalaPsiElementFactory {
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
           }
         }
-        if (needsInferType) {
-          method.returnTypeElement foreach {
-            x => res = res + (if (res.endsWith("_")) " " else "") + ": " +
-                    ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
-          }
+        val retType = {
+          method.returnTypeElement.flatMap(_.getType(TypingContext.empty).toOption).map(t => substitutor.subst(t))
         }
-        res = res + " = "
-        res = res + body
+
+        val retAndBody = (needsInferType, retType) match {
+          case (_, Some(Unit)) =>
+            " {}"
+          case (true, Some(retType)) =>
+            var text = ScType.canonicalText(retType)
+            if (text == "_root_.java.lang.Object") text = "AnyRef"
+            ": " + text + " = " + body
+          case _ =>
+            " = " + body
+        }
+        res += retAndBody
       }
       case _ => {
         body = getStandardValue(substitutor subst ScType.create(method.getReturnType, method.getProject))
@@ -442,7 +449,13 @@ object ScalaPsiElementFactory {
           }
           res = res + strings.mkString("[", ", ", "]")
         }
-        res = res + (if (method.getParameterList.getParametersCount == 0) "" else "(")
+
+        import Extensions.toPsiMethodExt
+
+        val paramCount = method.getParameterList.getParametersCount
+        val omitParamList = paramCount == 0 && method.hasQueryLikeName
+
+        res = res + (if (omitParamList) "" else "(")
         for (param <- method.getParameterList.getParameters) {
           val paramName = param.getName match {
             case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
@@ -455,14 +468,22 @@ object ScalaPsiElementFactory {
           if (text == "_root_.java.lang.Object") text = "Any"
           res = res + text + ", "
         }
-        if (method.getParameterList.getParametersCount != 0) res = res.substring(0, res.length - 2)
-        res = res + (if (method.getParameterList.getParametersCount == 0) "" else ")")
-        if (needsInferType) {
-          var text = ScType.canonicalText(substitutor.subst(ScType.create(method.getReturnType, method.getProject)))
-          if (text == "_root_.java.lang.Object") text = "AnyRef"
-          res = res + ": " + text
+        if (paramCount > 0) res = res.substring(0, res.length - 2)
+        res = res + (if (omitParamList) "" else ")")
+        val retType = substitutor.subst(ScType.create(method.getReturnType, method.getProject))
+        val retAndBody = (needsInferType, retType) match {
+          case (_, Unit) =>
+            " {}"
+          case (true, _) =>
+            var text = ScType.canonicalText(retType)
+            if (text == "_root_.java.lang.Object") text = "AnyRef"
+            ": " + text + " = " + body
+          case (false, _) =>
+            " = " + body
         }
-        res = res + " = " + body
+
+        res = res + retAndBody
+
       }
     }
     return res
