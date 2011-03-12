@@ -178,6 +178,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   public ScalaSyntaxHighlighter(boolean treatDocCommentAsBlockComment) {
     this.treatDocCommentAsBlockComment = treatDocCommentAsBlockComment;
   }
+  
+  public ScalaSyntaxHighlighter() {
+    this(false);
+  }
 
   static {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tLINE_COMMENTS, DefaultHighlighter.LINE_COMMENT);
