@@ -93,12 +93,6 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
 
-  override def updateThisType(place: PsiElement) =
-    ScCompoundType(components.map(_.updateThisType(place)), decls, typeDecls, subst)
-
-  override def updateThisType(tp: ScType) =
-    ScCompoundType(components.map(_.updateThisType(tp)), decls, typeDecls, subst)
-
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {

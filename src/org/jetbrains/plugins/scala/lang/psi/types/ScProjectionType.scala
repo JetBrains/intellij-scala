@@ -26,14 +26,6 @@ import resolve.{StdKinds, ResolveTargets}
 case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: ScSubstitutor) extends ValueType {
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, subst)
 
-  override def updateThisType(place: PsiElement): ScType = {
-    ScProjectionType(projected.updateThisType(place), element, subst)
-  }
-
-  override def updateThisType(tp: ScType): ScType = {
-    ScProjectionType(projected.updateThisType(tp), element, subst)
-  }
-
   private def actual: (PsiNamedElement, ScSubstitutor) = {
     var res = actualInnerTuple
     if (res != null) return res
@@ -155,25 +147,6 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
  * So when expression is typed, we should replace all such types be return value.
  */
 case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
-  override def updateThisType(place: PsiElement): ScType = {
-    this
-  }
-
-  override def updateThisType(tp: ScType): ScType = {
-    ScType.extractClass(tp) match {
-      case Some(cl) if cl == clazz => return tp
-      case _ =>
-    }
-    BaseTypes.get(tp).find(tp => {
-      ScType.extractClass(tp) match {
-        case Some(cl) if cl == clazz => true
-        case _ => false
-      }
-    }) match {
-      case Some(_) => tp
-      case _ => this
-    }
-  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {

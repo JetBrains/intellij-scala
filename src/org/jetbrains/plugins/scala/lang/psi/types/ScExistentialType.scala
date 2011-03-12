@@ -117,12 +117,6 @@ case class ScExistentialType(val quantified : ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
 
-  override def updateThisType(place: PsiElement) = ScExistentialType(quantified.updateThisType(place),
-    wildcards.map(_.updateThisType(place).asInstanceOf[ScExistentialArgument]))
-
-  override def updateThisType(tp: ScType) = ScExistentialType(quantified.updateThisType(tp),
-    wildcards.map(_.updateThisType(tp).asInstanceOf[ScExistentialArgument]))
-
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
@@ -148,11 +142,6 @@ case class ScExistentialArgument(val name : String, val args : List[ScTypeParame
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
 
   override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
-  override def updateThisType(place: PsiElement) =
-    ScExistentialArgument(name, args, lowerBound.updateThisType(place), upperBound.updateThisType(place))
-
-  override def updateThisType(tp: ScType) =
-    ScExistentialArgument(name, args, lowerBound.updateThisType(tp), upperBound.updateThisType(tp))
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
@@ -173,9 +162,4 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], low
 extends ValueType {
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  override def updateThisType(place: PsiElement) =
-    ScSkolemizedType(name, args, lower.updateThisType(place), upper.updateThisType(place))
-
-  override def updateThisType(tp: ScType) =
-    ScSkolemizedType(name, args, lower.updateThisType(tp), upper.updateThisType(tp))
 }

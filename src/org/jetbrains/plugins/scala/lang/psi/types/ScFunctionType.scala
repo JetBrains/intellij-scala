@@ -45,12 +45,6 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
 
   override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts), project, scope)
 
-  override def updateThisType(place: PsiElement) =
-    new ScFunctionType(returnType.updateThisType(place), params.map(_.updateThisType(place)), project, scope)
-
-  override def updateThisType(tp: ScType) =
-    new ScFunctionType(returnType.updateThisType(tp), params.map(_.updateThisType(tp)), project, scope)
-
   private def functionTraitName = "scala.Function" + params.length
 
   private var Implicit: Boolean = false

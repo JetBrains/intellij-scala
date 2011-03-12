@@ -52,12 +52,6 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
     params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit, project, scope)
 
-  override def updateThisType(place: PsiElement) = new ScMethodType(returnType.updateThisType(place),
-    params.map(p => Parameter(p.name, p.paramType.updateThisType(place), p.isDefault, p.isRepeated)), isImplicit, project, scope)
-
-  override def updateThisType(tp: ScType) = new ScMethodType(returnType.updateThisType(tp),
-    params.map(p => Parameter(p.name, p.paramType.updateThisType(tp), p.isDefault, p.isRepeated)), isImplicit, project, scope)
-
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
@@ -119,14 +113,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
 
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
     TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
-  }))
-
-  override def updateThisType(place: PsiElement) = ScTypePolymorphicType(internalType.updateThisType(place), typeParameters.map(tp => {
-    TypeParameter(tp.name, tp.lowerType.updateThisType(place), tp.upperType.updateThisType(place), tp.ptp)
-  }))
-
-  override def updateThisType(typez: ScType) = ScTypePolymorphicType(internalType.updateThisType(typez), typeParameters.map(tp => {
-    TypeParameter(tp.name, tp.lowerType.updateThisType(typez), tp.upperType.updateThisType(typez), tp.ptp)
   }))
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
