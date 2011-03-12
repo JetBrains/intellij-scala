@@ -97,6 +97,7 @@
     <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassHandler" order="first"/>
     <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
     <refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>
+    <refactoring.safeDeleteProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.delete.ScalaSafeDeleteProcessorDelegate" order="first"/>
     <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
     <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
     <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>

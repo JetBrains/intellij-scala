@@ -17,9 +17,10 @@ import psi.types.result.{Failure, TypingContext, Success}
 import psi.types.{ScSubstitutor, ScCompoundType, ScType, Nothing}
 import com.intellij.psi.util.PsiTreeUtil
 import api.toplevel.typedef.ScMember
-import api.statements.ScDeclaredElementsHolder
 import api.{ScalaElementVisitor, ScalaFile}
 import lang.resolve.processor.BaseProcessor
+import api.statements.{ScPatternDefinition, ScDeclaredElementsHolder}
+import api.base.ScPatternList
 
 /**
  * @author Alexander Podkhalyuzin
@@ -72,4 +73,19 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
     ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
   }
 
+  override def delete() {
+    getContext match {
+      case pList: ScPatternList if pList.patterns == Seq(this) =>
+        val context: PsiElement = pList.getContext
+        context.getContext.deleteChildRange(context, context)
+      case pList: ScPatternList if pList.allPatternsSimple =>
+        // TODO delete extra ','
+        super.delete()
+      case x =>
+        // val (a, b) = t
+        // val (_, b) = t
+        val anonymousRefPattern = ScalaPsiElementFactory.createWildcardPattern(getManager)
+        replace(anonymousRefPattern)
+    }
+  }
 }
