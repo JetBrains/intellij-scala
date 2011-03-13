@@ -141,6 +141,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   /**
    * Creates a type that designates `element`. Usually this will be a ScDesignatorType, except for the
    * special case when `element` represent a standard type, such as scala.Double.
+   *
+   * @see http://youtrack.jetbrains.net/issue/SCL-2913
    */
   def designator(element: PsiNamedElement): ScType = {
     element match {

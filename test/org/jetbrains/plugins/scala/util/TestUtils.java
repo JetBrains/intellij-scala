@@ -104,12 +104,35 @@ public class TestUtils {
     return getTestDataPath() + "/mockJDK";
   }
 
+  public enum ScalaSdkVersion {
+    _2_8("mockScalaLib"), _2_9("mockScala29Lib");
+    private String path;
+
+    ScalaSdkVersion(String path) {
+      this.path = path;
+    }
+
+    public String getPath() {
+      return path;
+    }
+  }
+
+  public static final ScalaSdkVersion DEFAULT_SCALA_SDK_VERSION = ScalaSdkVersion._2_8;
+
   public static String getMockScalaLib() {
-    return getTestDataPath() + "/mockScalaLib/scala.jar";
+    return getMockScalaLib(ScalaSdkVersion._2_8);
   }
 
   public static String getMockScalaSrc() {
-    return getTestDataPath() + "/mockScalaLib/scala-src.jar";
+    return getMockScalaSrc(ScalaSdkVersion._2_8);
+  }
+
+  public static String getMockScalaLib(ScalaSdkVersion version) {
+    return getTestDataPath() + "/" + version.getPath() + "/scala.jar";
+  }
+
+  public static String getMockScalaSrc(ScalaSdkVersion version) {
+    return getTestDataPath() + "/" + version.getPath() + "/scala-src.jar";
   }
   
   public static String removeCaretMarker(String text) {
