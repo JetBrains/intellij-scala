@@ -67,6 +67,10 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     return false;
   }
 
+  public TestUtils.ScalaSdkVersion scalaSdkVersion() {
+    return TestUtils.DEFAULT_SCALA_SDK_VERSION;
+  }
+
   protected void setUp() throws Exception {
     super.setUp();
     myProject.getComponent(SyntheticClasses.class).registerClasses();
@@ -91,10 +95,10 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
     LibraryTable libraryTable = rootModel.getModuleLibraryTable();
     Library scalaLib = libraryTable.createLibrary("scala_lib");
     final Library.ModifiableModel libModel = scalaLib.getModifiableModel();
-    File libRoot = new File(TestUtils.getMockScalaLib());
+    File libRoot = new File(TestUtils.getMockScalaLib(scalaSdkVersion()));
     assertTrue(libRoot.exists());
 
-    File srcRoot = new File(TestUtils.getMockScalaSrc());
+    File srcRoot = new File(TestUtils.getMockScalaSrc(scalaSdkVersion()));
     assertTrue(srcRoot.exists());
 
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES);
