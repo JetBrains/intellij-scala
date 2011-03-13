@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import params.ScTypeParamClause
 import com.intellij.openapi.util._
+import psi.api.base.patterns.ScCaseClause
 
 /*
 *
@@ -59,6 +60,12 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScFunction]) {
         psi match {
           case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange())
+          case _ =>
+        }
+      }
+      if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScCaseClause]) {
+        psi match {
+          case _: ScBlock => descriptors += new FoldingDescriptor(node, node.getTextRange())
           case _ =>
         }
       }
