@@ -39,11 +39,23 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
       //Process synthetic classes for scala._ package
       if (pack.getQualifiedName == "scala") {
+        /**
+         * Does the "scala" package already contain a class named `className`?
+         *
+         * @see http://youtrack.jetbrains.net/issue/SCL-2913
+         */
+        def alreadyContains(className: String) = pack match {
+          case psiPackImpl: PsiPackageImpl => psiPackImpl.containsClassNamed(className)
+          case _ => false
+        }
+
         for (synth <- SyntheticClasses.get(getProject).getAll) {
-          processor.execute(synth, ResolveState.initial)
+          if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
         }
         for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
-          processor.execute(synthObj, ResolveState.initial)
+          // Assume that is the scala package contained a class with the same names as the synthetic object, then it must also contain the object.
+          // TODO Find a better way to directly check if the object already exists.
+          if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
         }
       }
       

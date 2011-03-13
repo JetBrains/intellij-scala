@@ -228,20 +228,3 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
     }
   }
 }
-
-// SLS 3.2.3
-//
-// A type designator refers to a named value type. It can be simple or
-// qualified. All such type designators are shorthands for type projections.
-//
-// Specifically, the unqualified type name `t` where `t` is bound in some
-// class, object, or package `C` is taken as a shorthand for
-// `C.this.type#t`. If `t` is not bound in a class, object, or package, then `t` is taken as a
-// shorthand for `ε.type#t`
-//
-object ExpandDesignatorToProjection {
-  def unapply(t: ScDesignatorType): Option[ScProjectionType] = t.element match {
-    case m: ScMember => Some(ScProjectionType(ScDesignatorType(m.getContainingClass), m, ScSubstitutor.empty))
-    case _ => None
-  }
-}

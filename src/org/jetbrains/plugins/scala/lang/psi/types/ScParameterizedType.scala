@@ -39,7 +39,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     if (arrayClass != null) {
       val tps = arrayClass.getTypeParameters
       if (tps.length == 1) {
-        Some(new ScParameterizedType(new ScDesignatorType(arrayClass), Seq(arg)))
+        Some(new ScParameterizedType(ScType.designator(arrayClass), Seq(arg)))
       } else None
     } else None
   }
@@ -169,7 +169,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
 object ScParameterizedType {
   def create(c: PsiClass, s : ScSubstitutor) =
-    new ScParameterizedType(new ScDesignatorType(c), collection.immutable.Seq(c.getTypeParameters.map({
+    new ScParameterizedType(ScType.designator(c), collection.immutable.Seq(c.getTypeParameters.map({
       tp => s subst(ScalaPsiManager.typeVariable(tp))
     }).toSeq : _*))
 }

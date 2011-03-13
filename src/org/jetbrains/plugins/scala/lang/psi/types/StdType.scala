@@ -29,9 +29,33 @@ abstract case class StdType(name: String, tSuper: Option[StdType]) extends Value
           case _ => (false, subst)
         }
       }
-      case _ => (false, subst)
+      case (_, r) => {
+        ScType.extractClass(r) match {
+          case Some(clazz) if clazz.getQualifiedName == "scala." + name => (true, subst)
+          case _ => (false, subst)
+        }
+      }
     }
   }
+}
+
+object StdType {
+  val QualNameToType = Map(
+    "scala.Any" -> Any,
+    "scala.AnyRef" -> AnyRef,
+    "scala.AnyVal" -> AnyVal,
+    "scala.Unit" -> Unit,
+    "scala.Boolean" -> Boolean,
+    "scala.Byte" -> Byte,
+    "scala.Short" -> Short,
+    "scala.Char" -> Char,
+    "scala.Int" -> Int,
+    "scala.Long" -> Long,
+    "scala.Double" -> Double,
+    "scala.Null" -> Null,
+    "scala.Nothing" -> Nothing,
+    "scala.Singleton" -> Singleton
+  )
 }
 
 trait ValueType extends ScType {

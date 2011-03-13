@@ -205,7 +205,7 @@ object ScSimpleTypeElementImpl {
       case Some(qual) => {
         qual.resolve match {
           case pack: PsiPackage => {
-            return Success(ScDesignatorType(resolvedElement), Some(ref))
+            return Success(ScType.designator(resolvedElement), Some(ref))
           }
           case _ => {
             calculateReferenceType(qual, shapesOnly) match {
@@ -234,7 +234,7 @@ object ScSimpleTypeElementImpl {
             return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
           }
           case None => {
-            if (fromType == None) return Success(ScDesignatorType(resolvedElement), Some(ref))
+            if (fromType == None) return Success(ScType.designator(resolvedElement), Some(ref))
             return Success(ScProjectionType(fromType.get, resolvedElement, subst), Some(ref))
           }
         }

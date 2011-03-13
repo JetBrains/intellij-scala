@@ -160,7 +160,7 @@ object Compatibility {
             if (!param.isRepeated) 
               problems ::= new ExpansionForNonRepeatedParameter(expr)
             
-            val tp = ScParameterizedType(ScDesignatorType(seqClass), Seq(paramType))
+            val tp = ScParameterizedType(ScType.designator(seqClass), Seq(paramType))
             
             for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(tp)).tr) yield {
               val conforms = Conformance.conforms(tp, exprType, true)

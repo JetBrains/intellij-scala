@@ -37,7 +37,7 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
     findClass(tupleTraitName) match {
       case Some(t: ScClass) => {
         val typeParams = components.toList
-        Some(ScParameterizedType(ScDesignatorType(t), typeParams))
+        Some(ScParameterizedType(ScType.designator(t), typeParams))
       }
       case _ => None
     }

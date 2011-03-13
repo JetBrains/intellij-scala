@@ -190,7 +190,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             if (stableTypeRequired) {
               r.fromType match {
                 case Some(fT) => ScProjectionType(fT, refPatt, ScSubstitutor.empty)
-                case None => ScDesignatorType(refPatt)
+                case None => ScType.designator(refPatt)
               }
             } else {
               val result = refPatt.getType(TypingContext.empty)
@@ -215,13 +215,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => return result
         })
         if (seqClass != null) {
-          ScParameterizedType(ScDesignatorType(seqClass), Seq(computeType))
+          ScParameterizedType(ScType.designator(seqClass), Seq(computeType))
         } else computeType
       }
       case Some(ScalaResolveResult(obj: ScObject, s)) => {
         fromType match {
           case Some(tp) => ScProjectionType(tp, obj, s)
-          case _ => ScDesignatorType(obj)
+          case _ => ScType.designator(obj)
         }
       }
       case Some(ScalaResolveResult(typed: ScTypedDefinition, s)) => {
@@ -231,13 +231,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => return result
         })
       }
-      case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScDesignatorType(pack)
+      case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScType.designator(pack)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase => {
         s.subst(clazz.constructor.
                 getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
       }
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
-        s.subst(ScParameterizedType(ScDesignatorType(clazz),
+        s.subst(ScParameterizedType(ScType.designator(clazz),
           collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>

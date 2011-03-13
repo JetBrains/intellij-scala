@@ -95,7 +95,7 @@ abstract class MixinNodes {
     primarySupers
   }
 
-  def build(clazz: PsiClass): (Map, Map) = build(ScDesignatorType(clazz))
+  def build(clazz: PsiClass): (Map, Map) = build(ScType.designator(clazz))
 
   def build(tp : ScType): (Map, Map) = {
     var isPredef = false
@@ -220,7 +220,7 @@ object MixinNodes {
   def linearization(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
     clazz match {
       case obj: ScObject if obj.isPackageObject && obj.getQualifiedName == "scala" => {
-        return Seq(ScDesignatorType(obj))
+        return Seq(ScType.designator(obj))
       }
       case _ =>
     }
@@ -284,8 +284,8 @@ object MixinNodes {
 
   def linearizationInner(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
     val tp = {
-      if (clazz.getTypeParameters.length == 0) ScDesignatorType(clazz)
-      else ScParameterizedType(ScDesignatorType(clazz), clazz.
+      if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
+      else ScParameterizedType(ScType.designator(clazz), clazz.
               getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
     }
     val supers: Seq[ScType] = {

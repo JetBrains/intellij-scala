@@ -307,7 +307,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, b, ScSubstitutor.empty)
-            case None => ScDesignatorType(b)
+            case None => ScType.designator(b)
           }
         case _ => aType
       }

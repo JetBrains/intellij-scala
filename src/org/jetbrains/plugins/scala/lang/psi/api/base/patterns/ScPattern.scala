@@ -270,7 +270,7 @@ trait ScPattern extends ScalaPsiElement {
       }
       case _: ScCatchBlock => {
         val thr = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Throwable", getResolveScope)
-        if (thr != null) Some(new ScDesignatorType(thr)) else None
+        if (thr != null) Some(ScType.designator(thr)) else None
       }
       case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
         case Some(ScFunctionType(ret, params)) => {
