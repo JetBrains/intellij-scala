@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.completion.handlers
+package org.jetbrains.plugins.scala
+package lang.completion.handlers
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
@@ -8,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi.{PsiDocumentManager, PsiClass}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import lang.psi.api.toplevel.imports.ScImportStmt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -20,6 +22,7 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
     var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
+    val useFullyQualiedName = (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null)
     if (ref == null) return
     item.getObject match {
       case ScalaLookupObject(cl: PsiClass, _) =>
@@ -29,11 +32,13 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
                   case _ => true
                 }))
           ref = ref.getParent.asInstanceOf[ScReferenceElement]
-        val newRef = ref match {
-          case ref: ScReferenceExpression =>
+        val newRef = (useFullyQualiedName, ref) match {
+          case (false, ref: ScReferenceExpression) =>
             ScalaPsiElementFactory.createExpressionFromText(cl.getName, cl.getManager).asInstanceOf[ScReferenceExpression]
-          case _ =>
+          case (false, _) =>
             ScalaPsiElementFactory.createReferenceFromText(cl.getName, cl.getManager)
+          case (true, _) =>
+            ScalaPsiElementFactory.createReferenceFromText(cl.getQualifiedName, cl.getManager)
         }
         ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
         newRef.bindToElement(cl)
