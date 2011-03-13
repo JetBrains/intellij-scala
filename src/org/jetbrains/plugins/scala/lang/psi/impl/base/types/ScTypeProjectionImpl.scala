@@ -46,7 +46,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
           case Success(ScDesignatorType(pack: PsiPackage), a) => {
-            Success(ScDesignatorType(elem), Some(this))
+            Success(ScType.designator(elem), Some(this))
           }
           case _ =>
             te map {ScProjectionType(_, elem, subst)}

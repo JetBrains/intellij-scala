@@ -130,7 +130,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     state = state.put(BaseProcessor.FROM_TYPE_KEY,
       if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScDesignatorType(this))
+      else ScType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {

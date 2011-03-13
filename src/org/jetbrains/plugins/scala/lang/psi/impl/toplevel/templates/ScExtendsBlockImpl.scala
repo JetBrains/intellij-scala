@@ -113,12 +113,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def scalaObject(): ScType = {
     val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.ScalaObject")
-    if (so.length > 0) new ScDesignatorType(so(0)) else null
+    if (so.length > 0) ScType.designator(so(0)) else null
   }
 
   private def scalaProduct(): ScType = {
     val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Product")
-    if (so.length > 0) new ScDesignatorType(so(0)) else null
+    if (so.length > 0) ScType.designator(so(0)) else null
   }
 
   def isAnonymousClass: Boolean = {

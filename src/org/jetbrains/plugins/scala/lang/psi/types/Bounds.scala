@@ -137,7 +137,7 @@ object Bounds {
     val baseClassDesignator = {
       baseClass.projectionOption match {
         case Some(proj) => ScProjectionType(proj, baseClass.getClazz, ScSubstitutor.empty)
-        case None => ScDesignatorType(baseClass.getClazz)
+        case None => ScType.designator(baseClass.getClazz)
       }
     }
     if (baseClass.getClazz.getTypeParameters.length == 0) return baseClassDesignator
@@ -168,10 +168,10 @@ object Bounds {
   private def getTypeForAppending(clazz1: PsiClass, subst1: ScSubstitutor,
                                   clazz2: PsiClass, subst2: ScSubstitutor,
                                   baseClass: PsiClass, depth: Int): ScType = {
-    if (baseClass.getTypeParameters.length == 0) return ScDesignatorType(baseClass)
+    if (baseClass.getTypeParameters.length == 0) return ScType.designator(baseClass)
     (superSubstitutor(baseClass, clazz1, subst1), superSubstitutor(baseClass, clazz2, subst2)) match {
       case (Some(superSubst1), Some(superSubst2)) => {
-        val tp = ScParameterizedType(ScDesignatorType(baseClass), baseClass.
+        val tp = ScParameterizedType(ScType.designator(baseClass), baseClass.
                 getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getProject).typeVariable(tp)))
         val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
@@ -185,7 +185,7 @@ object Bounds {
             case _ => calcForTypeParamWithoutVariance(substed1, substed2) //todo: _ >: substed1 with substed2
           })
         }
-        return ScParameterizedType(ScDesignatorType(baseClass), resTypeArgs.toSeq)
+        return ScParameterizedType(ScType.designator(baseClass), resTypeArgs.toSeq)
       }
       case _ => Any
     }
@@ -278,7 +278,7 @@ object Bounds {
             }
             checkClasses(aClass.getClazz match {
               case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).toArray
-              case p: PsiClass => p.getSupers.map(cl => new Options(ScDesignatorType(cl)))
+              case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
             }, if (baseIndex == -1) i else baseIndex)
           }
           j += 1

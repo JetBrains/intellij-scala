@@ -37,7 +37,7 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
     findClass(functionTraitName) match {
       case Some(t: ScTrait) => {
         val typeParams = params.toList ++ List(returnType)
-        Some(ScParameterizedType(ScDesignatorType(t), typeParams))
+        Some(ScParameterizedType(ScType.designator(t), typeParams))
       }
       case _ => None
     }

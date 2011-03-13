@@ -8,9 +8,9 @@ import com.intellij.psi._
 import nonvalue.{ScMethodType, NonValueType}
 import result.TypingContext
 import com.intellij.openapi.project.Project
-import api.toplevel.typedef.ScObject
 import api.statements._
 import api.toplevel.ScTypedDefinition
+import api.toplevel.typedef.{ScClass, ScObject}
 
 
 trait ScType {
@@ -121,11 +121,31 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case _ => false
   }
 
+  /**
+   * Unwraps the method type corresponding to the parameter secion at index `n`.
+   *
+   * For example:
+   *
+   * def foo(a: Int)(b: String): Boolean
+   *
+   * nested(foo.methodType(...), 1) => MethodType(retType = Boolean, params = Seq(String))
+   */
   def nested(tpe: ScType, n: Int): Option[ScType] = {
     if (n == 0) Some(tpe)
     else tpe match {
       case mt: ScMethodType => nested(mt.returnType, n - 1)
       case _ => None
+    }
+  }
+
+  /**
+   * Creates a type that designates `element`. Usually this will be a ScDesignatorType, except for the
+   * special case when `element` represent a standard type, such as scala.Double.
+   */
+  def designator(element: PsiNamedElement): ScType = {
+    element match {
+      case td: ScClass => StdType.QualNameToType.getOrElse(td.getQualifiedName, new ScDesignatorType(element))
+      case _ => new ScDesignatorType(element)
     }
   }
 }

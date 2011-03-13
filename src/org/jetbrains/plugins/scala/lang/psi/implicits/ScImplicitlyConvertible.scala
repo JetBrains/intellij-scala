@@ -132,7 +132,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           val fun = "scala.Function1"
           val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
           funClass match {
-            case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
+            case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
               new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
           }
         }
@@ -235,7 +235,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         val fun = "scala.Function1"
         val funClass = JavaPsiFacade.getInstance(element.getProject).findClass(fun, element.getResolveScope)
         funClass match {
-          case cl: ScTrait => new ScParameterizedType(ScDesignatorType(funClass), cl.typeParameters.map(tp =>
+          case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
             new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
           case _ => return true
         }

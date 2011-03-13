@@ -29,6 +29,6 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     rType <- rop.getType(ctx)
     lType <- lOp.getType(ctx)
   }
-  yield new ScParameterizedType(new ScDesignatorType(element), Seq(lType, rType))
+  yield new ScParameterizedType(ScType.designator(element), Seq(lType, rType))
 
 }

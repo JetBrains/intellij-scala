@@ -86,7 +86,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("for {")
           gen.pattern.desugarizedPatternIndex = exprText.length
           exprText.append(gen.pattern.getText).
-                  append(" <- ((").append(gen.rvalue.getText).append(").filter { case ").
+                  append(" <- ((").append(gen.rvalue.getText).append(").filter { case "). // TODO withFilter, since 2.8
                   append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ").
                   append(guard.expr.map(_.getText).getOrElse("true")).append(";true").append("})")
           next = next.getNextSibling

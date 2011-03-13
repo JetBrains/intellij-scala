@@ -53,7 +53,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case f@Success(tp: ScType, elem) => {
         val seq = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", getResolveScope)
         if (seq != null) {
-          return Success(new ScParameterizedType(new ScDesignatorType(seq), Seq(tp)), elem)
+          return Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
         } else return f
       }
       case f => return f
