@@ -131,7 +131,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
                         // Register shadowing import selector
-                        val elementIsShadowed = shadowed.find(p => elem.equals(p._2))
+                        val elementIsShadowed = shadowed.find(p => element == p._2)
 
                         var newState = elementIsShadowed match {
                           case Some((selector, elem)) => {
