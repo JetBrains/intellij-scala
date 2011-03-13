@@ -86,7 +86,6 @@ private[expr] object ExpectedTypes {
         case Some(e) if e == expr => finalize(tb.getContext.asInstanceOf[ScTryStmt])
         case _ => Array.empty
       }
-      //todo: make catch block an expression with appropriate type and expected type (PartialFunction[Throwable, pt])
       case fb: ScFinallyBlock => Array(types.Unit)
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
@@ -103,6 +102,8 @@ private[expr] object ExpectedTypes {
             case _ => Array[ScType]()
           })
         }
+        case cb: ScCatchBlock =>
+          finalize(cb.getContext.asInstanceOf[ScTryStmt])
         case _ => Array.empty
       }
       //see SLS[6.23]
@@ -272,6 +273,10 @@ private[expr] object ExpectedTypes {
           }
         }
         res.toArray
+      }
+      case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock] || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock] => b.lastExpr match {
+        case Some(e) if e == expr => finalize(b)
+        case _ => Array.empty
       }
       case _ => Array.empty
     }
