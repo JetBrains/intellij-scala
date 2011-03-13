@@ -14,6 +14,8 @@ import tools.scalap.scalax.rules.scalasig._
 import java.lang.String
 import tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
 import scala.reflect.generic.ByteCodecs
+import org.jetbrains.plugins.scala.Suspension
+import CharsetToolkit.UTF8
 
 /**
  * @author ilyas
@@ -76,31 +78,36 @@ object DecompilerUtil {
   val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
   val BYTES_VALUE = "bytes"
 
-  def decompile(bytes: Array[Byte], file: VirtualFile) = {
+  /**
+   * @return (Suspension(sourceText), sourceFileName)
+   */
+  def decompile(bytes: Array[Byte], file: VirtualFile): (Suspension[String], String) = {
 
     val isPackageObject = file.getName == "package.class"
     val byteCode = ByteCode(bytes)
-    val (bts, sourceFile) = {
-      def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
-        import classFile._
-        classFile.annotation(SCALA_SIG_ANNOTATION) match {
-          case None => null
-          case Some(Annotation(_, elements)) =>
-            val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
-            val bytes = ((bytesElem.elementValue match {case ConstValueIndex(index) => constantWrapped(index)})
-                    .asInstanceOf[StringBytesPair].bytes)
-            val length = ByteCodecs.decode(bytes)
-            val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
-            scalaSig
-        }
+    def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
+      import classFile._
+      classFile.annotation(SCALA_SIG_ANNOTATION) match {
+        case None => null
+        case Some(Annotation(_, elements)) =>
+          val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
+          val bytes = ((bytesElem.elementValue match {
+            case ConstValueIndex(index) => constantWrapped(index)
+          }).asInstanceOf[StringBytesPair].bytes)
+          val length = ByteCodecs.decode(bytes)
+          val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
+          scalaSig
       }
-      val classFile = ClassFileParser.parse(byteCode)
-      val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
-        // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-        case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
-        case scalaSig => scalaSig
-      }
+    }
+    val classFile = ClassFileParser.parse(byteCode)
+    val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
+      // No entries in ScalaSig attribute implies that the signature is stored in the annotation
+      case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
+      case scalaSig => scalaSig
+    }
 
+    // Lazy so that ScalaFileImpl#sourceName, called frequently during debugging, is fast. See SCL-2852
+    lazy val sourceText = {
       val baos = new ByteArrayOutputStream
       val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
       if (scalaSig == null) {
@@ -108,8 +115,8 @@ object DecompilerUtil {
       }
       val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
       // Print package with special treatment for package objects
-      syms.first.parent match {
-      //Partial match
+      syms.head.parent match {
+        //Partial match
         case Some(p) if (p.name != "<empty>") => {
           val path = p.path
           if (!isPackageObject) {
@@ -127,25 +134,28 @@ object DecompilerUtil {
         }
         case _ =>
       }
+
       // Print classes
       val printer = new ScalaSigPrinter(stream, false)
 
       for (c <- syms) {
         printer.printSymbol(c)
       }
-      val bs = baos.toByteArray
+      val sourceBytes = baos.toByteArray
+      new String(sourceBytes, UTF8)
+    }
 
-      // Obtain source file name
+    val sourceFileName = {
       val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
       val c = classFile.header.constants(index)
       val sBytes: Array[Byte] = c match {
-        case s: String => s.getBytes(CharsetToolkit.UTF8)
+        case s: String => s.getBytes(UTF8)
         case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
         case _ => Array.empty
       }
-      (bs, sBytes)
+      new String(sBytes, UTF8)
     }
 
-    (new String(bts, CharsetToolkit.UTF8), new String(sourceFile, CharsetToolkit.UTF8))
+    (new Suspension(() => sourceText), sourceFileName)
   }
 }
