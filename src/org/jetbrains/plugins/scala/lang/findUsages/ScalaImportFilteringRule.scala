@@ -7,6 +7,7 @@ import com.intellij.usages.Usage
 import com.intellij.psi.{PsiFile, PsiJavaFile, PsiImportList, PsiElement}
 import com.intellij.usages.rules.{PsiElementUsage, ImportFilteringRule}
 import psi.api.ScalaFile
+import org.jetbrains.plugins.scala.extensions._
 
 final class ScalaImportFilteringRule extends ImportFilteringRule {
 

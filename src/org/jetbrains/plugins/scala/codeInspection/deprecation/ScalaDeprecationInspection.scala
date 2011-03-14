@@ -8,6 +8,7 @@ import lang.psi.ScalaPsiUtil
 import lang.psi.api.ScalaElementVisitor
 import lang.psi.api.statements.{ScFunction, ScAnnotationsHolder}
 import lang.psi.api.base.{ScReferenceElement, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.extensions._
 
 
 /**

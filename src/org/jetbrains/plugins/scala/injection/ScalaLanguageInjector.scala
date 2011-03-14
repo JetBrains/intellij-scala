@@ -16,6 +16,7 @@ import com.intellij.psi._
 import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import lang.psi.api.base.{ScPatternList, ScReferenceElement, ScLiteral}
 import lang.psi.ScalaPsiUtil.readAttribute
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

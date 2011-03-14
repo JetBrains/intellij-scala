@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
 import lang.psi.api.expr.ScAssignStmt
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 18.05.2010

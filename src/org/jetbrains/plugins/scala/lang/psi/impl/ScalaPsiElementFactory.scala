@@ -450,7 +450,7 @@ object ScalaPsiElementFactory {
           res = res + strings.mkString("[", ", ", "]")
         }
 
-        import Extensions.toPsiMethodExt
+        import extensions.toPsiMethodExt
 
         val paramCount = method.getParameterList.getParametersCount
         val omitParamList = paramCount == 0 && method.hasQueryLikeName

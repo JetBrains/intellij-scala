@@ -15,6 +15,7 @@ import lang.psi.api.expr._
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.ScalaPsiUtil
 import com.intellij.psi.{PsiNamedElement, PsiElement}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 31.05.2010

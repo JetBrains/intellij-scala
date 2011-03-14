@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, Applicati
 import com.intellij.openapi.roots.libraries.Library.ModifiableModel
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable}
-
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 04.08.2010

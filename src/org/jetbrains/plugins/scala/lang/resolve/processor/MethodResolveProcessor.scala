@@ -23,6 +23,7 @@ import psi.types.Compatibility.{ConformanceExtResult, Expression}
 import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
 import psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.extensions._
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,

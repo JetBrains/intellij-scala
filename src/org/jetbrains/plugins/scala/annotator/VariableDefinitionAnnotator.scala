@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import lang.psi.api.statements.ScVariableDefinition
 import lang.psi.api.base.types.ScSimpleTypeElement
 import AnnotatorUtils._
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 18.05.2010

@@ -24,6 +24,7 @@ import base.types.ScSimpleTypeElementImpl
 import api.base.ScStableCodeReferenceElement
 import types.result.Failure
 import types.{ScSubstitutor, ScDesignatorType}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Alexander Podkhalyuzin

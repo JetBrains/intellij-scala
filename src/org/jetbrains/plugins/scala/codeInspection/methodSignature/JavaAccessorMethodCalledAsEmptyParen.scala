@@ -5,7 +5,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.Extensions._
+import org.jetbrains.plugins.scala.extensions._
 import quickfix.RemoveCallParentheses
 
 /**

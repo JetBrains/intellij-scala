@@ -9,6 +9,7 @@ import lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import junit.framework.Assert
 import lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 18.05.2010

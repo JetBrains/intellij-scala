@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.{ScalaFileType}
 import com.intellij.psi.{PsiElement, PsiWhiteSpace, PsiComment, PsiFileFactory}
 import junit.framework.{TestCase, Assert}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 18.05.2010

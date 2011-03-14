@@ -6,9 +6,10 @@ import api.ScalaElementVisitor
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
+import extensions.implementation.PsiElementExt
 
-trait ScalaPsiElement extends PsiElement with RichPsiElement with MonadTransformer {
-  protected override def delegate = this 
+trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransformer {
+  protected override def repr = this
   protected var context: PsiElement = null
   protected var child: PsiElement = null
   def setContext(element: PsiElement, child: PsiElement) {

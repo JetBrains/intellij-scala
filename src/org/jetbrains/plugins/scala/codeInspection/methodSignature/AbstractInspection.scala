@@ -4,7 +4,7 @@ import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.VisitorWrapper
+import org.jetbrains.plugins.scala.extensions.VisitorWrapper
 
 /**
  * Pavel Fatin

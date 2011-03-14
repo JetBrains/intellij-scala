@@ -7,6 +7,7 @@ import lang.psi.types.Compatibility
 import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.expr.ScMethodCall
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 18.05.2010

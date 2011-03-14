@@ -11,6 +11,7 @@ import org.jdom.Element
 import FileAPI._
 import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
 import org.jetbrains.idea.maven.facade.{NativeMavenProjectHolder, MavenEmbedderWrapper}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 03.08.2010

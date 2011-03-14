@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.psi.{PsiFile, PsiElement}
 import lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 22.04.2010

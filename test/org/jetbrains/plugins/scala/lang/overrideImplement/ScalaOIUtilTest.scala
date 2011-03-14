@@ -6,6 +6,7 @@ import overrideImplement.ScalaOIUtil
 import lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import junit.framework.Assert
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.psi.iterator
+package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
 

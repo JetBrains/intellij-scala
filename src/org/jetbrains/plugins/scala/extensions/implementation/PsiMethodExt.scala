@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.extensions
+package org.jetbrains.plugins.scala.extensions.implementation
 
 import com.intellij.psi.{PsiType, PsiMethod}
 
