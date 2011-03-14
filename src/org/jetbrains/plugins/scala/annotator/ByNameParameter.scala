@@ -9,8 +9,9 @@ import lang.psi.api.statements.params.ScParameter
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.base.ScLiteral
 import lang.psi.api.expr._
+import lang.psi.api.toplevel.typedef.ScClass
+import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScLiteral}
 
 /**
  * Pavel Fatin
@@ -58,9 +59,16 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
               case _ => None
             }
           case args: ScArgumentExprList =>
-            args.callReference match {
-              case Some(Resolved(f: ScFunction, _)) => f.parameters.lift(args.exprs.indexOf(exp))
-              case _ => None
+            args.getParent match {
+              case constructor: ScConstructor =>
+                constructor.reference
+                        .flatMap(_.resolve().asOptionOf(classOf[ScPrimaryConstructor]))
+                        .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))
+              case _ =>
+                args.callReference match {
+                  case Some(Resolved(f: ScFunction, _)) => f.parameters.lift(args.exprs.indexOf(exp))
+                  case _ => None
+                }
             }
           case _ => None
         }
