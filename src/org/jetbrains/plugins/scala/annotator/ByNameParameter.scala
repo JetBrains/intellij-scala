@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import lang.psi.api.statements.params.ScParameter
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
-import lang.psi.api.expr.{ScBlockExpr, ScInfixExpr, ScArgumentExprList, ScExpression}
 import com.intellij.openapi.util.TextRange
 import lang.psi.api.base.ScLiteral
+import lang.psi.api.expr._
 
 /**
  * Pavel Fatin
@@ -41,20 +41,29 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
       }
     }
   }
-  // TODO named parameters, constructors
+
   private def parameterOf(exp: ScExpression): Option[ScParameter] = {
-    exp.getParent match {
-      case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
-        ie.operation match {
-          case Resolved(f: ScFunction, _) => f.parameters.headOption
+    exp match {
+      case assignment: ScAssignStmt =>
+        assignment.getLExpression match {
+          case ref: ScReferenceExpression =>
+            ref.resolve().asOptionOf(classOf[ScParameter])
           case _ => None
         }
-      case args: ScArgumentExprList =>
-        args.callReference match {
-          case Some(Resolved(f: ScFunction, _)) => f.parameters.take(args.exprs.indexOf(exp) + 1).lastOption
+      case _ =>
+        exp.getParent match {
+          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
+            ie.operation match {
+              case Resolved(f: ScFunction, _) => f.parameters.headOption
+              case _ => None
+            }
+          case args: ScArgumentExprList =>
+            args.callReference match {
+              case Some(Resolved(f: ScFunction, _)) => f.parameters.lift(args.exprs.indexOf(exp))
+              case _ => None
+            }
           case _ => None
         }
-      case _ => None
     }
   }
 
