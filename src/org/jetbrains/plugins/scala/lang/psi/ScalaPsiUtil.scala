@@ -47,6 +47,7 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import collection.immutable.{HashMap, Stream}
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * User: Alexander Podkhalyuzin

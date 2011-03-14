@@ -21,6 +21,7 @@ import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions._
 
 class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def handlesElement(element: PsiElement) =

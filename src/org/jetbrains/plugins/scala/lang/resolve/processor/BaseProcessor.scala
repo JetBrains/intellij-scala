@@ -25,6 +25,7 @@ import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
 import toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.extensions._
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)

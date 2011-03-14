@@ -5,6 +5,7 @@ package findUsages
 import com.intellij.psi.PsiElement
 import psi.api.toplevel.imports.ScImportExpr
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProvider}
+import org.jetbrains.plugins.scala.extensions._
 
 final class ScalaUsageTypeProvider extends UsageTypeProvider {
   def getUsageType(element: PsiElement) = {

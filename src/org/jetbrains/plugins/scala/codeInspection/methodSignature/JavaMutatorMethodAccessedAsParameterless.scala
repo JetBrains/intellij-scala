@@ -4,7 +4,7 @@ import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.Extensions._
+import org.jetbrains.plugins.scala.extensions._
 import quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 

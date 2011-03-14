@@ -35,6 +35,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import finder.ScalaSourceFilterScope
 import com.intellij.openapi.project.Project
 import reflect.NameTransformer
+import org.jetbrains.plugins.scala.extensions._
 
 
 class ScalaFileImpl(viewProvider: FileViewProvider)

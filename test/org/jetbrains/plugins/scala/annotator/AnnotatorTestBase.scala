@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import junit.framework.Assert._
 import com.intellij.psi.{PsiReference, PsiErrorElement}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

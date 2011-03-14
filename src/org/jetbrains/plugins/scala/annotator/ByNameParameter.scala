@@ -10,8 +10,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.util.TextRange
 import lang.psi.api.expr._
-import lang.psi.api.toplevel.typedef.ScClass
 import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScLiteral}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

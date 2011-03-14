@@ -7,6 +7,7 @@ import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
 import junit.framework.Assert._
 import java.util.ArrayList
 import collection.JavaConversions._
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

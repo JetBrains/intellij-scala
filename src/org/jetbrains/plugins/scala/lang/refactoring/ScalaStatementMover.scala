@@ -10,6 +10,7 @@ import lang.psi.api.toplevel.typedef.ScMember
 import lang.psi.ScalaPsiElement
 import lang.psi.api.base.patterns.ScCaseClause
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin

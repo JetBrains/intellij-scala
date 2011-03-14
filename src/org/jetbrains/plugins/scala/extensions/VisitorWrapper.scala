@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala
+package org.jetbrains.plugins.scala.extensions
 
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 

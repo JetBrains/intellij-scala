@@ -32,6 +32,7 @@ import psi.api.toplevel.typedef.ScMember
 import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
 * User: Alexander Podkhalyuzin

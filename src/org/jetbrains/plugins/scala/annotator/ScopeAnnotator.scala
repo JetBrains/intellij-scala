@@ -14,6 +14,7 @@ import lang.psi.types.ScType
 import lang.psi.api.base.types.{ScRefinement, ScCompoundTypeElement, ScExistentialClause}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition, ScNamedElement}
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 25.05.2010

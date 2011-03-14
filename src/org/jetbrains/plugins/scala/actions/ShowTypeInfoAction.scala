@@ -20,6 +20,7 @@ import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import lang.psi.api.base.ScFieldId
 import lang.psi.types.{ScType, ScSubstitutor}
 import javax.swing.JLabel
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel.Fatin, 16.04.2010
