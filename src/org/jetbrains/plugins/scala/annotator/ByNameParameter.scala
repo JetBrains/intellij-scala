@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 object ByNameParameter extends AnnotatorPart[ScExpression] {
+  private val Foreground = new Color(128, 128, 128)
+
   def kind = classOf[ScExpression]
 
   def annotate(exp: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
@@ -32,7 +34,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
 
     parameter.filter(_.isCallByNameParameter).foreach { p =>
       val attributes = new TextAttributes()
-      attributes.setForegroundColor(Color.GRAY)
+      attributes.setForegroundColor(Foreground)
 
       val ranges = if(settings.INCLUDE_LITERALS) Seq(exp.getTextRange) else nonLiteralRangesIn(exp)
 
