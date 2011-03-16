@@ -1,98 +1,92 @@
-package org.jetbrains.plugins.scala.conversion
-package copy
+package org.jetbrains.plugins.scala.conversion.copy
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{RangeMarker, Editor}
-import com.intellij.codeInsight.editorActions.{TextBlockTransferableData, CopyPastePostProcessor}
-import java.awt.datatransfer.{DataFlavor, Transferable}
-import collection.mutable.ArrayBuffer
-import com.intellij.psi.{PsiDocumentManager, PsiJavaFile, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.application.ApplicationManager
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import java.lang.Boolean
-import com.intellij.openapi.util.Ref
+import java.awt.datatransfer.Transferable
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.openapi.ui.Messages
+import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
+import collection.JavaConversions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.extensions._
+import com.intellij.codeInsight.editorActions.CopyPastePostProcessor
+import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.util.{TextRange, Ref}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.conversion.copy.ScalaData.ReferenceData
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.11.2009
+ * Pavel Fatin
  */
 
-class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
-  def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
-    val settings: ScalaCodeStyleSettings = CodeStyleSettingsManager.getSettings(file.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION) return new StringTransferableData("")
-    if (!file.isInstanceOf[PsiJavaFile]) return new StringTransferableData("")
-    val buffer = new ArrayBuffer[PsiElement]
-    try {
-      for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-        var elem: PsiElement = file.findElementAt(startOffset)
-        while (elem != null && elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-                elem.getParent.getTextRange.getEndOffset <= endOffset) {
-          elem = elem.getParent
-        }
-        buffer += elem
-        while (elem.getTextRange.getEndOffset < endOffset) {
-          elem = elem.getNextSibling
-          buffer += elem
-        }
+class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[ScalaData] {
+  def collectTransferableData(file: PsiFile, editor: Editor,
+                              startOffsets: Array[Int], endOffsets: Array[Int]): ScalaData = {
+    if(!file.isInstanceOf[ScalaFile]) return null
+
+    var refs = List[ReferenceData]()
+
+    for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
+        element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+        reference <- element.asOptionOf(classOf[ScReferenceElement]) if reference.qualifier.isEmpty;
+        target <- reference.resolve().toOption if target.getContainingFile != file) {
+      target match {
+        case t: PsiClass => refs ::= createReferenceData(element, startOffset, t.getQualifiedName)
+        case _ =>
       }
-      val newText = JavaToScala.convertPsiToText(buffer.toArray)
-      new StringTransferableData(newText)
-    } catch {
-      case e: Exception => new StringTransferableData("")
     }
+
+    new ScalaData(refs.reverse.toArray)
   }
 
-  def extractTransferableData(content: Transferable): TextBlockTransferableData = {
-    if (!content.isDataFlavorSupported(StringTransferableData.flavor)) return new StringTransferableData("")
-    content.getTransferData(StringTransferableData.flavor).asInstanceOf[TextBlockTransferableData]
+  private def createReferenceData(element: PsiElement, startOffset: Int,
+                                  className: String, memberName: String = null) = {
+    val range = element.getTextRange
+    new ReferenceData(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className, memberName)
   }
 
-  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker, i: Int, ref: Ref[Boolean], value: TextBlockTransferableData) {
-    val settings = CodeStyleSettingsManager.getSettings(project)
-    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    if (!scalaSettings.ENABLE_JAVA_TO_SCALA_CONVERSION) return
-    if (value == null) return
-    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+  def extractTransferableData(content: Transferable) = {
+    if(content.isDataFlavorSupported(ReferenceData.getDataFlavor))
+      content.getTransferData(ReferenceData.getDataFlavor).asInstanceOf[ScalaData]
+    else
+      null
+  }
+
+  def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker,
+                              caretColumn: Int, indented: Ref[Boolean], value: ScalaData) {
+    if (DumbService.getInstance(project).isDumb) return
+
+    val document = editor.getDocument
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(document)
+
     if (!file.isInstanceOf[ScalaFile]) return
-    val dialog = new ScalaPasteFromJavaDialog(project)
-    val text = value match {
-      case s: StringTransferableData => s.data
-      case _ => ""
+
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+
+    val data = value.getData
+    val refs = findReferencesIn(file, bounds, data)
+
+    refs.foreach { it =>
+
     }
-    if (text == "") return //copy as usually
-    if (!scalaSettings.DONT_SHOW_CONVERSION_DIALOG) dialog.show()
-    if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
-      inWriteAction {
-        editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
-        editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
-        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-        val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
-        val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
-        val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-        val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-        settings.KEEP_BLANK_LINES_IN_CODE = 0
-        settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
-        settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-        manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
-        settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-        settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-        settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+  }
+
+  private def findReferencesIn(file: PsiFile, bounds: RangeMarker,
+                               datas: Array[ReferenceData]): Seq[ScReferenceElement] = {
+    val manager = file.getManager
+    val facade = JavaPsiFacade.getInstance(manager.getProject)
+
+    var refs = List[ScReferenceElement]()
+
+    for(data <- datas; refClass <- Option(facade.findClass(data.qClassName, file.getResolveScope))) {
+      val range = new TextRange(data.startOffset, data.endOffset).shiftRight(bounds.getStartOffset)
+      val ref = file.findElementAt(range.getStartOffset)
+      ref match {
+        case Parent(expr: ScReferenceElement) if expr.getTextRange == range => refs ::= expr
+        case _ =>
       }
     }
-  }
 
-  class StringTransferableData(val data: String) extends TextBlockTransferableData {
-    def setOffsets(offsets: Array[Int], index: Int): Int = 0
-    def getOffsets(offsets: Array[Int], index: Int): Int = 0
-    def getOffsetCount: Int = 0
-    def getFlavor: DataFlavor = StringTransferableData.flavor
-  }
-
-  object StringTransferableData {
-    val flavor: DataFlavor = new DataFlavor(classOf[ScalaCopyPastePostProcessor], "class: ScalaCopyPastePostProcessor")
+    refs.reverse
   }
 }
