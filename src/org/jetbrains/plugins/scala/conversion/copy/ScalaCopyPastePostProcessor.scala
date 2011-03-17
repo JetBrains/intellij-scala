@@ -65,10 +65,10 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
 
     val facade = JavaPsiFacade.getInstance(file.getProject)
 
-    for((data, Some(ref)) <- refs if ref.resolve() == null;
-        refClass <- Option(facade.findClass(data.qClassName, file.getResolveScope));
-        holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
-      inWriteAction {
+    inWriteAction {
+      for((data, Some(ref)) <- refs if ref.resolve() == null;
+          refClass <- Option(facade.findClass(data.qClassName, file.getResolveScope));
+          holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
         holder.addImportForClass(refClass, ref)
       }
     }
