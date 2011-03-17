@@ -11,7 +11,6 @@ import com.intellij.codeInsight.editorActions.CopyPastePostProcessor
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{TextRange, Ref}
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.conversion.copy.ScalaData.ReferenceData
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 
@@ -19,12 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
  * Pavel Fatin
  */
 
-class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[ScalaData] {
+class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData] {
   def collectTransferableData(file: PsiFile, editor: Editor,
-                              startOffsets: Array[Int], endOffsets: Array[Int]): ScalaData = {
+                              startOffsets: Array[Int], endOffsets: Array[Int]): DependencyData = {
     if(!file.isInstanceOf[ScalaFile]) return null
 
-    var refs = List[ReferenceData]()
+    var dependencies = List[Dependency]()
 
     for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
         element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
@@ -32,34 +31,28 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[ScalaData] {
         target <- reference.resolve().toOption if target.getContainingFile != file) {
       target match {
         case e: PsiClass =>
-          refs ::= createReferenceData(element, startOffset, e.getQualifiedName)
+          dependencies ::= TypeDependency(element, startOffset, e.getQualifiedName)
         case e: ScPrimaryConstructor =>
           e.getParent match {
-            case e: PsiClass =>
-              refs ::= createReferenceData(element, startOffset, e.getQualifiedName)
+            case parent: PsiClass =>
+              dependencies ::= PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
             case _ =>
           }
         case _ =>
       }
     }
 
-    new ScalaData(refs.reverse.toArray)
-  }
-
-  private def createReferenceData(element: PsiElement, startOffset: Int,
-                                  className: String, memberName: String = null) = {
-    val range = element.getTextRange
-    new ReferenceData(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className, memberName)
+    new DependencyData(dependencies.reverse)
   }
 
   def extractTransferableData(content: Transferable) = {
-    content.isDataFlavorSupported(ReferenceData.getDataFlavor)
-            .ifTrue(content.getTransferData(ReferenceData.getDataFlavor).asInstanceOf[ScalaData])
+    content.isDataFlavorSupported(DependencyData.Flavor)
+            .ifTrue(content.getTransferData(DependencyData.Flavor).asInstanceOf[DependencyData])
             .orNull
   }
 
   def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker,
-                              caretColumn: Int, indented: Ref[Boolean], value: ScalaData) {
+                              caretColumn: Int, indented: Ref[Boolean], value: DependencyData) {
     if (DumbService.getInstance(project).isDumb) return
 
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
@@ -68,7 +61,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[ScalaData] {
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val refs = findReferencesIn(file, bounds, value.getData)
+    val refs = findReferencesIn(file, bounds, value.dependencies)
 
     val facade = JavaPsiFacade.getInstance(file.getProject)
 
@@ -81,13 +74,13 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[ScalaData] {
     }
   }
 
-  private def findReferencesIn(file: PsiFile, bounds: RangeMarker, datas: Array[ReferenceData]) = {
-    for(data <- datas;
-        range = new TextRange(data.startOffset, data.endOffset).shiftRight(bounds.getStartOffset);
+  private def findReferencesIn(file: PsiFile, bounds: RangeMarker, dependencies: Seq[Dependency]) = {
+    for(dependency <- dependencies;
+        range = new TextRange(dependency.startOffset, dependency.endOffset).shiftRight(bounds.getStartOffset);
         ref = file.findElementAt(range.getStartOffset)) yield
       ref match {
-        case Parent(expr: ScReferenceElement) if expr.getTextRange == range => (data, Some(expr))
-        case _ => (data, None)
+        case Parent(expr: ScReferenceElement) if expr.getTextRange == range => (dependency, Some(expr))
+        case _ => (dependency, None)
       }
   }
 }
