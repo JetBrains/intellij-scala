@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.openapi.editor.{RangeMarker, Editor}
+import dependency._
 import java.lang.Boolean
 import java.awt.datatransfer.Transferable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
