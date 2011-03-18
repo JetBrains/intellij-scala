@@ -24,33 +24,54 @@ object DependencyData {
   lazy val Flavor = new DataFlavor(classOf[Dependency], "ScalaReferenceData")
 }
 
-trait Dependency {
+sealed trait Dependency {
   def startOffset: Int
 
   def endOffset: Int
-
-  def qClassName: String
 }
 
-class TypeDependency(val startOffset: Int, val endOffset: Int, val qClassName: String) extends Dependency with Cloneable {
-  override def clone() = new TypeDependency(startOffset, endOffset, qClassName)
+case class TypeDependency(startOffset: Int, endOffset: Int, className: String) extends Dependency with Cloneable {
+  override def clone() = new TypeDependency(startOffset, endOffset, className)
 }
 
 object TypeDependency {
-  def apply(element: PsiElement, startOffset: Int, name: String) = {
+  def apply(element: PsiElement, startOffset: Int, className: String) = {
     val range = element.getTextRange
-    new TypeDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, name)
+    new TypeDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className)
   }
 }
 
-class PrimaryConstructorDependency(val startOffset: Int, val endOffset: Int, val qClassName: String) extends Dependency with Cloneable {
-  override def clone() = new PrimaryConstructorDependency(startOffset, endOffset, qClassName)
+case class PrimaryConstructorDependency(startOffset: Int, endOffset: Int, className: String) extends Dependency with Cloneable {
+  override def clone() = new PrimaryConstructorDependency(startOffset, endOffset, className)
 }
 
 object PrimaryConstructorDependency {
-  def apply(element: PsiElement, startOffset: Int, name: String) = {
+  def apply(element: PsiElement, startOffset: Int, className: String) = {
     val range = element.getTextRange
-    new PrimaryConstructorDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, name)
+    new PrimaryConstructorDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className)
   }
 }
+
+case class MemberDependency(startOffset: Int, endOffset: Int, className: String, memberName: String) extends Dependency with Cloneable {
+  override def clone() = new MemberDependency(startOffset, endOffset, className, memberName)
+}
+
+object MemberDependency {
+  def apply(element: PsiElement, startOffset: Int, className: String, memberName: String) = {
+    val range = element.getTextRange
+    new MemberDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className, memberName)
+  }
+}
+
+case class ConversionDependency(startOffset: Int, endOffset: Int, className: String, memberName: String) extends Dependency with Cloneable {
+  override def clone() = new ConversionDependency(startOffset, endOffset, className, memberName)
+}
+
+object ConversionDependency {
+  def apply(element: PsiElement, startOffset: Int, className: String, memberName: String) = {
+    val range = element.getTextRange
+    new ConversionDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, className, memberName)
+  }
+}
+
 

@@ -108,9 +108,13 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
       case _ =>
     }
+    addImportForPath(clazz.getQualifiedName, ref)
+  }
+
+  def addImportForPath(path: String, ref: PsiElement = null) {
     val selectors = new ArrayBuffer[String]
 
-    val qualifiedName = clazz.getQualifiedName
+    val qualifiedName = path
     val index = qualifiedName.lastIndexOf('.')
     if (index == -1) return  //cannot import anything
     var classPackageQualifier = qualifiedName.substring(0, index)
@@ -143,7 +147,8 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     //creating selectors string (after last '.' in import expression)
     var isPlaceHolderImport = false
-    clazz.getName +: selectors
+    val simpleName = path.substring(path.lastIndexOf('.') + 1)
+    simpleName +: selectors
     
     if (!hasRenamedImport &&
             (selectors.exists(_ == "_") || selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
