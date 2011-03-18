@@ -58,6 +58,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
       case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
         MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)
+      case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
+        TypeDependency(element, startOffset, aClass.getQualifiedName)
       case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
         MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)
     }
