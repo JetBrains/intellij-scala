@@ -6,13 +6,14 @@ import java.awt.datatransfer.Transferable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
 import collection.JavaConversions._
-import org.jetbrains.plugins.scala.extensions._
 import com.intellij.codeInsight.editorActions.CopyPastePostProcessor
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{TextRange, Ref}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * Pavel Fatin
@@ -23,26 +24,25 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
                               startOffsets: Array[Int], endOffsets: Array[Int]): DependencyData = {
     if(!file.isInstanceOf[ScalaFile]) return null
 
-    var dependencies = List[Dependency]()
+    val dependencies =
+      for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
+          element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+          reference <- element.asOptionOf(classOf[ScReferenceElement]) if reference.qualifier.isEmpty;
+          target <- reference.resolve().toOption if target.getContainingFile != file;
+          dependency <- dependencyFor(element, startOffset, target)) yield dependency
 
-    for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
-        element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
-        reference <- element.asOptionOf(classOf[ScReferenceElement]) if reference.qualifier.isEmpty;
-        target <- reference.resolve().toOption if target.getContainingFile != file) {
-      target match {
-        case e: PsiClass =>
-          dependencies ::= TypeDependency(element, startOffset, e.getQualifiedName)
-        case e: ScPrimaryConstructor =>
-          e.getParent match {
-            case parent: PsiClass =>
-              dependencies ::= PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
-            case _ =>
-          }
-        case _ =>
-      }
+    new DependencyData(dependencies)
+  }
+
+  private def dependencyFor(element: PsiElement, startOffset: Int, target: PsiElement) = {
+    Some(target) collect {
+      case e: PsiClass =>
+        TypeDependency(element, startOffset, e.getQualifiedName)
+      case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
+        PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
+      case Both(m: ScMember, ContainingClass(obj: ScObject)) =>
+        MemberDependency(element, startOffset, obj.getQualifiedName, m.getName)
     }
-
-    new DependencyData(dependencies.reverse)
   }
 
   def extractTransferableData(content: Transferable) = {
@@ -63,13 +63,23 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
 
     val refs = findReferencesIn(file, bounds, value.dependencies)
 
-    val facade = JavaPsiFacade.getInstance(file.getProject)
+    object ClassFromName {
+      def unapply(name: String) =
+        Option(JavaPsiFacade.getInstance(file.getProject).findClass(name, file.getResolveScope))
+    }
 
     inWriteAction {
-      for((data, Some(ref)) <- refs if ref.resolve() == null;
-          refClass <- Option(facade.findClass(data.qClassName, file.getResolveScope));
+      for((dependency, Some(ref)) <- refs if ref.resolve() == null;
           holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
-        holder.addImportForClass(refClass, ref)
+        dependency match {
+          case TypeDependency(_, _, ClassFromName(aClass)) =>
+            holder.addImportForClass(aClass, ref)
+          case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
+            holder.addImportForClass(aClass, ref)
+          case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
+            holder.addImportForPath("%s.%s".format(className, "_"), ref)
+          case _ =>
+        }
       }
     }
   }
