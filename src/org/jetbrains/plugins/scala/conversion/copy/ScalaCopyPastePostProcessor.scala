@@ -40,7 +40,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
     val conversionDependencies =
       for((element, startOffset) <- elements;
         exp <- element.asOptionOf(classOf[ScExpression]);
-        tr = exp.getTypeAfterImplicitConversion() if tr.importsUsed.nonEmpty;
+        tr = exp.getTypeAfterImplicitConversion();
         named <- tr.implicitFunction;
         Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf(classOf[ScMember]))
       yield ImplicitConversionDependency(element, startOffset, obj.getQualifiedName, member.getName)
@@ -79,16 +79,16 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val refs = findReferencesIn(file, bounds, value.dependencies)
-
     object ClassFromName {
       def unapply(name: String) =
         Option(JavaPsiFacade.getInstance(file.getProject).findClass(name, file.getResolveScope))
     }
 
+    val elements = zipElementsTo(value.dependencies, file, bounds)
+
     inWriteAction {
       // add imports for reference dependencies
-      for((dependency, Some(ref)) <- refs if ref.resolve() == null;
+      for((dependency, Some(ref: ScReferenceElement)) <- elements if ref.resolve() == null;
           holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
         dependency match {
           case TypeDependency(_, _, ClassFromName(aClass)) =>
@@ -104,23 +104,24 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
       }
 
       // add imports for implicit conversion dependencies
-      for(dependency <- value.dependencies) {
+      for((dependency, Some(exp: ScExpression)) <- elements;
+          tr = exp.getTypeAfterImplicitConversion() if tr.implicitFunction.isEmpty) {
         dependency match {
           case ImplicitConversionDependency(_, _, className @ ClassFromName(_), memberName) =>
             val holder = file.asInstanceOf[ScalaFile]
-            holder.addImportForPath("%s.%s".format(className, "_"))
+            holder.addImportForPath("%s.%s".format(className, "_"), exp)
           case _ =>
         }
       }
     }
   }
 
-  private def findReferencesIn(file: PsiFile, bounds: RangeMarker, dependencies: Seq[Dependency]) = {
+  private def zipElementsTo(dependencies: Seq[Dependency], file: PsiFile, bounds: RangeMarker) = {
     for(dependency <- dependencies;
         range = new TextRange(dependency.startOffset, dependency.endOffset).shiftRight(bounds.getStartOffset);
         ref <- Option(file.findElementAt(range.getStartOffset))) yield
       ref match {
-        case Parent(expr: ScReferenceElement) if expr.getTextRange == range => (dependency, Some(expr))
+        case Parent(e) if e.getTextRange == range => (dependency, Some(e))
         case _ => (dependency, None)
       }
   }
