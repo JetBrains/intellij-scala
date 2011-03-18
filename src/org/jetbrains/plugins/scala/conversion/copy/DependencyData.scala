@@ -52,6 +52,17 @@ object PrimaryConstructorDependency {
   }
 }
 
+case class PackageDependency(startOffset: Int, endOffset: Int, packageName: String) extends Dependency with Cloneable {
+  override def clone() = new PackageDependency(startOffset, endOffset, packageName)
+}
+
+object PackageDependency {
+  def apply(element: PsiElement, startOffset: Int, packageName: String) = {
+    val range = element.getTextRange
+    new PackageDependency(range.getStartOffset - startOffset, range.getEndOffset - startOffset, packageName)
+  }
+}
+
 case class MemberDependency(startOffset: Int, endOffset: Int, className: String, memberName: String) extends Dependency with Cloneable {
   override def clone() = new MemberDependency(startOffset, endOffset, className, memberName)
 }

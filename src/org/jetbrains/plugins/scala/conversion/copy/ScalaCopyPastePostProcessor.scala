@@ -38,6 +38,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
     Some(target) collect {
       case e: PsiClass =>
         TypeDependency(element, startOffset, e.getQualifiedName)
+      case e: PsiPackage =>
+        PackageDependency(element, startOffset, e.getQualifiedName)
       case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
         PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
       case Both(m: ScMember, ContainingClass(obj: ScObject)) =>
@@ -76,6 +78,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         dependency match {
           case TypeDependency(_, _, ClassFromName(aClass)) =>
             holder.addImportForClass(aClass, ref)
+          case PackageDependency(_, _, packageName) =>
+            holder.addImportForPath(packageName, ref)
           case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
             holder.addImportForClass(aClass, ref)
           case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
