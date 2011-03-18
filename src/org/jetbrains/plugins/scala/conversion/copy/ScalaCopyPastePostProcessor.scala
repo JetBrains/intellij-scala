@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Pavel Fatin
@@ -75,6 +76,10 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
                               caretColumn: Int, indented: Ref[Boolean], value: DependencyData) {
     if (DumbService.getInstance(project).isDumb) return
 
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
+    if(!settings.ADD_IMPORTS_ON_PASTE) return
+
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
 
     if (!file.isInstanceOf[ScalaFile]) return
@@ -100,7 +105,10 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
           case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
             holder.addImportForClass(aClass, ref)
           case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
-            holder.addImportForPath("%s.%s".format(className, "_"), ref)
+            if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE)
+              holder.addImportForPath("%s.%s".format(className, "_"), ref)
+            else
+              holder.addImportForPath("%s.%s".format(className, memberName), ref)
           case _ =>
         }
       }
