@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Pavel Fatin
@@ -25,14 +26,26 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
                               startOffsets: Array[Int], endOffsets: Array[Int]): DependencyData = {
     if(!file.isInstanceOf[ScalaFile]) return null
 
-    val dependencies =
+    val elements = 
       for((startOffset, endOffset) <- startOffsets.zip(endOffsets);
-          element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+          element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset))
+      yield (element, startOffset)
+     
+    val referenceDependencies =
+      for((element, startOffset) <- elements;
           reference <- element.asOptionOf(classOf[ScReferenceElement]) if reference.qualifier.isEmpty;
           target <- reference.resolve().toOption if target.getContainingFile != file;
           dependency <- dependencyFor(element, startOffset, target)) yield dependency
 
-    new DependencyData(dependencies)
+    val conversionDependencies =
+      for((element, startOffset) <- elements;
+        exp <- element.asOptionOf(classOf[ScExpression]);
+        tr = exp.getTypeAfterImplicitConversion() if tr.importsUsed.nonEmpty;
+        named <- tr.implicitFunction;
+        Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf(classOf[ScMember]))
+      yield ImplicitConversionDependency(element, startOffset, obj.getQualifiedName, member.getName)
+
+    new DependencyData(referenceDependencies ++ conversionDependencies)
   }
 
   private def dependencyFor(element: PsiElement, startOffset: Int, target: PsiElement) = {
@@ -43,10 +56,10 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         PackageDependency(element, startOffset, e.getQualifiedName)
       case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
         PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
-      case Both(m: ScMember, ContainingClass(obj: ScObject)) =>
-        MemberDependency(element, startOffset, obj.getQualifiedName, m.getName)
-      case Both(m: PsiMember, ContainingClass(aClass: PsiClass)) =>
-        MemberDependency(element, startOffset, aClass.getQualifiedName, m.getName)
+      case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
+        MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)
+      case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
+        MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)
     }
   }
 
@@ -74,6 +87,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
     }
 
     inWriteAction {
+      // add imports for reference dependencies
       for((dependency, Some(ref)) <- refs if ref.resolve() == null;
           holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
         dependency match {
@@ -88,13 +102,23 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
           case _ =>
         }
       }
+
+      // add imports for implicit conversion dependencies
+      for(dependency <- value.dependencies) {
+        dependency match {
+          case ImplicitConversionDependency(_, _, className @ ClassFromName(_), memberName) =>
+            val holder = file.asInstanceOf[ScalaFile]
+            holder.addImportForPath("%s.%s".format(className, "_"))
+          case _ =>
+        }
+      }
     }
   }
 
   private def findReferencesIn(file: PsiFile, bounds: RangeMarker, dependencies: Seq[Dependency]) = {
     for(dependency <- dependencies;
         range = new TextRange(dependency.startOffset, dependency.endOffset).shiftRight(bounds.getStartOffset);
-        ref = file.findElementAt(range.getStartOffset)) yield
+        ref <- Option(file.findElementAt(range.getStartOffset))) yield
       ref match {
         case Parent(expr: ScReferenceElement) if expr.getTextRange == range => (dependency, Some(expr))
         case _ => (dependency, None)

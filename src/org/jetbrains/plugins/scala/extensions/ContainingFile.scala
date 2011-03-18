@@ -1,0 +1,18 @@
+package org.jetbrains.plugins.scala.extensions
+
+import com.intellij.psi.{PsiFile, PsiMember, PsiClass}
+
+/**
+ * Pavel Fatin
+ */
+
+object ContainingFile {
+  def unapply(e: PsiMember): Option[PsiFile] = {
+    if (e == null) {
+      None
+    } else {
+      val file = e.getContainingFile
+      if (file == null) None else Some(file)
+    }
+  }
+}
