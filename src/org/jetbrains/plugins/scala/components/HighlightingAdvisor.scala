@@ -138,7 +138,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
       notify(status, DisabledMessage, NotificationType.INFORMATION)
   }
 
-  private def status = "Scala Type-aware highlighting: %s"
+  private def status = "Scala type-aware highlighting: %s"
           .format(if(enabled) "enabled" else "disabled")
 
   private def updateWidget() {
