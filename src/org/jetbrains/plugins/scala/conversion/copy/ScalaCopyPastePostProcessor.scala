@@ -105,10 +105,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
           case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
             holder.addImportForClass(aClass, ref)
           case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
-            if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE)
-              holder.addImportForPath("%s.%s".format(className, "_"), ref)
-            else
-              holder.addImportForPath("%s.%s".format(className, memberName), ref)
+            val name = if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE) "_" else memberName
+            holder.addImportForPath("%s.%s".format(className, name), ref)
           case _ =>
         }
       }
