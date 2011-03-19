@@ -91,6 +91,15 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file)
         }
       }
+      case ScalaTokenTypes.tFUNTYPE => {
+        val funcExprNullable = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionExpr])
+        for {
+          funcExpr <- Option(funcExprNullable)
+          resultExpr <- funcExpr.result
+        } {
+          return new ScalaHighlightExprResultHandler(resultExpr, editor, file)
+        }
+      }
       case _ =>
     }
     return null
