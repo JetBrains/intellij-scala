@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Pavel Fatin
@@ -58,6 +59,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
         PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
       case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
         MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)
+      case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
+        TypeDependency(element, startOffset, aClass.getQualifiedName)
       case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
         MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)
     }
@@ -72,6 +75,10 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
   def processTransferableData(project: Project, editor: Editor, bounds: RangeMarker,
                               caretColumn: Int, indented: Ref[Boolean], value: DependencyData) {
     if (DumbService.getInstance(project).isDumb) return
+
+    val settings = ScalaCodeStyleSettings.getInstance(project)
+
+    if(!settings.ADD_IMPORTS_ON_PASTE) return
 
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
 
@@ -98,7 +105,8 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
           case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
             holder.addImportForClass(aClass, ref)
           case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
-            holder.addImportForPath("%s.%s".format(className, "_"), ref)
+            val name = if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE) "_" else memberName
+            holder.addImportForPath("%s.%s".format(className, name), ref)
           case _ =>
         }
       }
