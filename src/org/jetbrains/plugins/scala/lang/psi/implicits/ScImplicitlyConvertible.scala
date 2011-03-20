@@ -167,7 +167,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
           case _ => ScSubstitutor.empty
         }
-        if (!typez.conforms(newSubst.subst(tp))) {
+        if (!typez.weakConforms(newSubst.subst(tp))) {
           (false, r, tp, retTp)
         } else {
           r.element match {
