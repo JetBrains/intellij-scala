@@ -34,16 +34,16 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
      
     val referenceDependencies =
       for((element, startOffset) <- elements;
-          reference <- element.asOptionOf(classOf[ScReferenceElement]) if reference.qualifier.isEmpty;
+          reference <- element.asOptionOf[ScReferenceElement] if reference.qualifier.isEmpty;
           target <- reference.resolve().toOption if target.getContainingFile != file;
           dependency <- dependencyFor(element, startOffset, target)) yield dependency
 
     val conversionDependencies =
       for((element, startOffset) <- elements;
-        exp <- element.asOptionOf(classOf[ScExpression]);
+        exp <- element.asOptionOf[ScExpression];
         tr = exp.getTypeAfterImplicitConversion();
         named <- tr.implicitFunction;
-        Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf(classOf[ScMember]))
+        Both(member, ContainingClass(obj: ScObject)) <- named.asOptionOf[ScMember])
       yield ImplicitConversionDependency(element, startOffset, obj.getQualifiedName, member.getName)
 
     new DependencyData(referenceDependencies ++ conversionDependencies)

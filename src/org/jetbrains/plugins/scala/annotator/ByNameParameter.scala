@@ -50,7 +50,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
       case assignment: ScAssignStmt =>
         assignment.getLExpression match {
           case ref: ScReferenceExpression =>
-            ref.resolve().asOptionOf(classOf[ScParameter])
+            ref.resolve().asOptionOf[ScParameter]
           case _ => None
         }
       case _ =>
@@ -64,7 +64,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
             args.getParent match {
               case constructor: ScConstructor =>
                 constructor.reference
-                        .flatMap(_.resolve().asOptionOf(classOf[ScPrimaryConstructor]))
+                        .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor])
                         .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))
               case _ =>
                 args.callReference match {
@@ -79,7 +79,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
 
   private def conversionParameterOf(exp: ScExpression): Option[ScParameter] = {
     exp.getImplicitConversions._2
-            .flatMap(_.asOptionOf(classOf[ScFunction]))
+            .flatMap(_.asOptionOf[ScFunction])
             .flatMap(_.parameters.headOption)
   }
 

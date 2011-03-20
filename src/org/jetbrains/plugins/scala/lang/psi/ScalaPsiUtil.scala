@@ -970,17 +970,17 @@ object ScalaPsiUtil {
     return false
   }
 
-  def stringValueOf(e: PsiLiteral): Option[String] = e.getValue.toOption.flatMap(_.asOptionOf(classOf[String]))
+  def stringValueOf(e: PsiLiteral): Option[String] = e.getValue.toOption.flatMap(_.asOptionOf[String])
 
   def readAttribute(annotation: PsiAnnotation, name: String): Option[String] = {
     annotation.findAttributeValue(name) match {
       case literal: PsiLiteral => stringValueOf(literal)
       case element: ScReferenceElement => element.getReference.toOption
-              .flatMap(_.resolve.asOptionOf(classOf[ScBindingPattern]))
-              .flatMap(_.getParent.asOptionOf(classOf[ScPatternList]))
+              .flatMap(_.resolve.asOptionOf[ScBindingPattern])
+              .flatMap(_.getParent.asOptionOf[ScPatternList])
               .filter(_.allPatternsSimple)
-              .flatMap(_.getParent.asOptionOf(classOf[ScPatternDefinition]))
-              .flatMap(_.expr.asOptionOf(classOf[PsiLiteral]))
+              .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
+              .flatMap(_.expr.asOptionOf[PsiLiteral])
               .flatMap(stringValueOf(_))
       case _ => None
     }
