@@ -351,8 +351,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
       case _ =>
     }
+    val name = processor match {
+      case rp: ResolveProcessor => rp.name // See SCL-2934.
+      case _ => refName
+    }
     val (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) =
-      ScalaPsiUtil.findImplicitConversion(e, refName, processor.kinds, this, processor) match {
+      ScalaPsiUtil.findImplicitConversion(e, name, processor.kinds, this, processor) match {
         case Some(a) => a
         case None => return
       }
