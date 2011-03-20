@@ -50,7 +50,7 @@ trait AssignmentAnnotator {
 
     if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
 
-    val ref: Option[PsiElement] = l.asOptionOf(classOf[ScReferenceElement]).flatMap(_.resolve.toOption)
+    val ref: Option[PsiElement] = l.asOptionOf[ScReferenceElement].flatMap(_.resolve.toOption)
     val reassignment = ref.find(isReadonly).isDefined
     
     if(reassignment) {

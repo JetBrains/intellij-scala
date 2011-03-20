@@ -117,16 +117,16 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def implicitAnnotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = {
-    literal.getImplicitConversions._2.flatMap(_.asOptionOf(classOf[ScFunction])).flatMap(_.parameters.headOption)
+    literal.getImplicitConversions._2.flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
   }
 
   private def assignmentTarget(assignment: ScAssignStmt): Option[PsiAnnotationOwner] = {
     val l = assignment.getLExpression
     // map(x) = y check
-    if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf(classOf[ScReferenceElement])
+    if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]
             .flatMap(_.resolve.toOption)
             .map(contextOf)
-            .flatMap(_.asOptionOf(classOf[PsiAnnotationOwner]))
+            .flatMap(_.asOptionOf[PsiAnnotationOwner])
     }
 
   private def parameterOf(argument: ScExpression): Option[PsiAnnotationOwner] = argument.getParent match {
@@ -135,7 +135,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
       if(index == -1) None else {
         args.getParent match {
           case call: ScMethodCall => {
-            call.getInvokedExpr.asOptionOf(classOf[ScReferenceExpression]).flatMap { ref =>
+            call.getInvokedExpr.asOptionOf[ScReferenceExpression].flatMap { ref =>
               ref.resolve.toOption match {
                 case Some(f: ScFunction) => {
                   val parameters = f.parameters
