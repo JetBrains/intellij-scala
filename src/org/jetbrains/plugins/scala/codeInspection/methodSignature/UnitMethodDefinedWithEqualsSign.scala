@@ -10,7 +10,7 @@ import quickfix.RemoveEqualsSign
  * Pavel Fatin
  */
 
-class UnitMethodDefinedWithEqualsSign extends AbstractInspection(
+class UnitMethodDefinedWithEqualsSign extends AbstractMethodSignatureInspection(
   "UnitMethodDefinedWithEqualsSign", "Method with Unit result type defined with equals sign") {
 
   @Language("HTML")

@@ -12,7 +12,7 @@ import quickfix.AddEmptyParentheses
  * Pavel Fatin
  */
 
-class JavaMutatorMethodOverridenAsParameterless extends AbstractInspection(
+class JavaMutatorMethodOverridenAsParameterless extends AbstractMethodSignatureInspection(
   "JavaMutatorMethodOverridenAsParameterless", "Java mutator method overriden as parameterless") {
 
   @Language("HTML")

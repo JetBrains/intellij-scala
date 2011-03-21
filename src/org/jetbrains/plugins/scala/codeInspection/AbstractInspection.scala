@@ -1,27 +1,25 @@
-package org.jetbrains.plugins.scala.codeInspection.methodSignature
+package org.jetbrains.plugins.scala.codeInspection
 
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.VisitorWrapper
 
 /**
  * Pavel Fatin
  */
-
 abstract class AbstractInspection(id: String, name: String) extends LocalInspectionTool {
   override final def getID = id
 
-  final def getGroupDisplayName = InspectionsUtil.MethodSignature
+  def getGroupDisplayName = InspectionsUtil.SCALA
 
   final def getDisplayName = name
 
   final def getShortName = name
 
-  override final def isEnabledByDefault = true
+  override def isEnabledByDefault = true
 
-  override final def getStaticDescription = description
+  override def getStaticDescription = description
 
   @Language("HTML")
   val description: String

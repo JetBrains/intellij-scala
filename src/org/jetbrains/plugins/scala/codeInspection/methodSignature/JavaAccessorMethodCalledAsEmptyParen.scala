@@ -12,7 +12,7 @@ import quickfix.RemoveCallParentheses
  * Pavel Fatin
  */
 
-class JavaAccessorMethodCalledAsEmptyParen extends AbstractInspection(
+class JavaAccessorMethodCalledAsEmptyParen extends AbstractMethodSignatureInspection(
   "JavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
 
   @Language("HTML")

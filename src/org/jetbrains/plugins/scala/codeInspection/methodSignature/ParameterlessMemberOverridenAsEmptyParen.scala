@@ -9,7 +9,7 @@ import quickfix.RemoveParentheses
  * Pavel Fatin
  */
 
-class ParameterlessMemberOverridenAsEmptyParen extends AbstractInspection(
+class ParameterlessMemberOverridenAsEmptyParen extends AbstractMethodSignatureInspection(
   "ParameterlessMemberOverridenAsEmptyParen", "Parameterless Scala member overriden as empty-paren") {
 
   @Language("HTML")
