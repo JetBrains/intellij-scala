@@ -57,7 +57,7 @@ class ToggleTypeArgs extends PsiElementBaseIntentionAction {
     val referencedTypeParamOwner = for {
       re <- refExprOpt
       resolveResult <- re.advancedResolve
-      typeParamOwner <- resolveResult.element.asOptionOf[PsiTypeParameterListOwner]
+      typeParamOwner <- resolveResult.element.asOptionOf[PsiTypeParameterListOwner] // TODO follow aliases
     } yield (resolveResult, typeParamOwner)
 
     val typeParamsOpt = for {
