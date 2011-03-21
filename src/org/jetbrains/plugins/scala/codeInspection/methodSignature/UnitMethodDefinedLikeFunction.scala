@@ -9,7 +9,7 @@ import quickfix.RemoveTypeAnnotationAndEqualSign
  * Pavel Fatin
  */
 
-class UnitMethodDefinedLikeFunction extends AbstractInspection(
+class UnitMethodDefinedLikeFunction extends AbstractMethodSignatureInspection(
   "UnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
   @Language("HTML")

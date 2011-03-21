@@ -9,7 +9,7 @@ import quickfix.RemoveTypeAnnotation
  * Pavel Fatin
  */
 
-class UnitMethodDeclaredWithTypeAnnotation extends AbstractInspection(
+class UnitMethodDeclaredWithTypeAnnotation extends AbstractMethodSignatureInspection(
   "UnitMethodDeclaredWithTypeAnnotation", "Redundant Unit result type annotation") {
 
   @Language("HTML")

@@ -9,7 +9,7 @@ import quickfix.AddEmptyParentheses
  * Pavel Fatin
  */
 
-class UnitMethodIsParameterless extends AbstractInspection(
+class UnitMethodIsParameterless extends AbstractMethodSignatureInspection(
   "UnitMethodIsParameterless", "Method with Unit result type is parameterless") {
 
   @Language("HTML")

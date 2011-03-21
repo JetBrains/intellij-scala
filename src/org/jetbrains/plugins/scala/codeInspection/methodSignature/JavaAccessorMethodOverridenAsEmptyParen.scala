@@ -11,7 +11,7 @@ import quickfix.RemoveParentheses
  * Pavel Fatin
  */
 
-class JavaAccessorMethodOverridenAsEmptyParen extends AbstractInspection(
+class JavaAccessorMethodOverridenAsEmptyParen extends AbstractMethodSignatureInspection(
   "JavaAccessorMethodOverridenAsEmptyParen", "Java accessor method overriden as empty-paren") {
 
   @Language("HTML")

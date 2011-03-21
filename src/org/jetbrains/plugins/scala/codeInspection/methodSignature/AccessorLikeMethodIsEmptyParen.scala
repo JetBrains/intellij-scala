@@ -10,7 +10,7 @@ import quickfix.RemoveParentheses
  * Pavel Fatin
  */
 
-class AccessorLikeMethodIsEmptyParen extends AbstractInspection(
+class AccessorLikeMethodIsEmptyParen extends AbstractMethodSignatureInspection(
   "AccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
 
   @Language("HTML")

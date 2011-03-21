@@ -10,7 +10,7 @@ import quickfix.AddEmptyParentheses
  * Pavel Fatin
  */
 
-class MutatorLikeMethodIsParameterless extends AbstractInspection(
+class MutatorLikeMethodIsParameterless extends AbstractMethodSignatureInspection(
   "MutatorLikeMethodIsParameterless", "Method with mutator-like name is parameterless") {
 
   @Language("HTML")

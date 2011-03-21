@@ -10,7 +10,7 @@ import quickfix.InsertMissingEquals
  * Pavel Fatin
  */
 
-class ApparentRefinementOfResultType extends AbstractInspection(
+class ApparentRefinementOfResultType extends AbstractMethodSignatureInspection(
   "ApparentRefinementOfResultType", "Apparent refinement of result type; are you missing an '=' sign?") {
 
   @Language("HTML")

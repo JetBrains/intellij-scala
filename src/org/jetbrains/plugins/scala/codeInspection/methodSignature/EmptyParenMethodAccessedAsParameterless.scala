@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInf
  * Pavel Fatin
  */
 
-class EmptyParenMethodAccessedAsParameterless extends AbstractInspection(
+class EmptyParenMethodAccessedAsParameterless extends AbstractMethodSignatureInspection(
   "EmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 
   @Language("HTML")
