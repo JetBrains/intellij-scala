@@ -135,7 +135,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def isConstructor = name == "this"
 
-  def getBody = null
+  def getBody: PsiCodeBlock = null
 
   def getThrowsList = findChildByClass(classOf[ScAnnotations])
 
