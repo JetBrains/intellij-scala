@@ -4,7 +4,7 @@ package lang.psi.impl.statements
 import com.intellij.psi._
 import impl.light.LightElement
 import com.intellij.openapi.util.TextRange
-import lang.psi.api.expr.ScExpression
+import lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
 final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getManager, body.getLanguage) with PsiCodeBlock {
   def shouldChangeModificationCount(place: PsiElement): Boolean = false
@@ -17,11 +17,14 @@ final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getMa
 
   def getFirstBodyElement: PsiElement = null
 
-  def getStatements: Array[PsiStatement] = Array(new FakePsiStatement(body))
+  def getStatements: Array[PsiStatement] = body match {
+    case x: ScBlockExpr => x.statements.map(new FakePsiStatement(_)).toArray
+    case _ => Array(new FakePsiStatement(body))
+  }
 }
 
-final class FakePsiStatement(body: ScExpression) extends LightElement(body.getManager, body.getLanguage) with PsiStatement {
-  override def getTextRange: TextRange = body.getTextRange
+final class FakePsiStatement(elem: PsiElement) extends LightElement(elem.getManager, elem.getLanguage) with PsiStatement {
+  override def getTextRange: TextRange = elem.getTextRange
 
-  override def getTextOffset: Int = body.getTextOffset
+  override def getTextOffset: Int = elem.getTextOffset
 }
