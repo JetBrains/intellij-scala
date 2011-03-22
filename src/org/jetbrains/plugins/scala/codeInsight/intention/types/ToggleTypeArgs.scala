@@ -26,7 +26,7 @@ class ToggleTypeArgs extends PsiElementBaseIntentionAction {
         val args = inferred.map(ScType.urlText).mkString("[", ", ", "]")
         setText("Explicitly provide inferred type arguments: %s".format(args))
         true
-      case Other => false
+      case _ => false
     }
   }
 
