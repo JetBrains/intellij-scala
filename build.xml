@@ -17,9 +17,9 @@
 
   <property name="base.dir" value="."/>
 
-  <property name="scala.lib" value="${base.dir}/SDK/scala"/>
-  
   <property file="${base.dir}/scala.properties"/>
+
+  <property name="scala.lib" value="${base.dir}/SDK/scala"/>
 
   <property name="runners.dir" value="${base.dir}/Runners"/>
 
