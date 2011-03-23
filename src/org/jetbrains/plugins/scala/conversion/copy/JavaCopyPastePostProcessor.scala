@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.extensions._
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPasteReferenceProcessor, TextBlockTransferableData, CopyPastePostProcessor}
 import collection.mutable.{ListBuffer, ArrayBuffer}
-import org.jetbrains.plugins.scala.conversion.JavaToScala.Offset
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 
 /**
