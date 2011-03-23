@@ -2,14 +2,17 @@ package org.jetbrains.plugins.scala
 package conversion
 
 
-import collection.mutable.{ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.StdLanguages
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import copy.dependency.{MemberDependency, TypeDependency, Dependency}
 import lang.refactoring.util.ScalaNamesUtil
 import lang.psi.types.ScType
 import java.lang.String
+import com.intellij.openapi.util.TextRange
+import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
+import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 
 /**
  * @author: Alexander Podkhalyuzin
@@ -19,10 +22,34 @@ import java.lang.String
 object JavaToScala {
   def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name;
 
-  def convertPsiToText(element: PsiElement): String = {
+  class Offset(val value: Int) {
+    override def toString = value.toString
+  }
+
+  def convertPsiToText(element: PsiElement)
+                      (implicit dependencies: ListBuffer[Dependency] = new ListBuffer(),
+                       refs: Seq[ReferenceData] = Seq.empty, offset: Offset = new Offset(0)): String = {
     if (element == null) return ""
     if (element.getLanguage != StdLanguages.JAVA) return ""
+
     val res = new StringBuilder("")
+
+    class SpecificOffset(override val value: Int) extends Offset(value)
+    implicit def startOffset = new SpecificOffset(offset.value + res.length)
+
+    def dependencyFor(element: PsiElement) = {
+      refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == element.getTextRange).map { ref =>
+        val i = startOffset.value
+        if(ref.staticMemberName == null) {
+          TypeDependency(i, i + element.getTextLength, ref.qClassName)
+        } else {
+          MemberDependency(i, i + element.getTextLength, ref.qClassName, ref.staticMemberName)
+        }
+      }
+    }
+
+    dependencies ++= dependencyFor(element).toSeq
+
     element match {
       case docCommentOwner: PsiDocCommentOwner if docCommentOwner.getDocComment != null => {
         res.append(docCommentOwner.getDocComment.getText).append("\n")
@@ -246,13 +273,18 @@ object JavaToScala {
       }
       case n: PsiNewExpression if n.getAnonymousClass == null => {
         if (n.getArrayInitializer != null) {
+          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           res.append(n.getArrayInitializer.getInitializers.map(convertPsiToText(_)).mkString("(", ", ", ")"))
         } else if (n.getArrayDimensions.length > 0) {
-          res.append("new ").append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
+          res.append("new ")
+          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
+          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           res.append(n.getArrayDimensions.map(convertPsiToText(_)).mkString("(", ", ", ")"))
         } else {
-          res.append("new ").append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
+          res.append("new ")
+          for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
+          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           if (n.getArgumentList.getExpressions.size == 0) {
             // if the new expression is used as a qualifier, force parentheses for empty argument list
             n.getParent match {
@@ -554,10 +586,12 @@ object JavaToScala {
     return res.toString
   }
 
-  def convertPsiToText(elements: Array[PsiElement]): String = {
+  def convertPsisToText(elements: Array[PsiElement],
+                       dependencies: ListBuffer[Dependency] = new ListBuffer(),
+                       refs: Seq[ReferenceData] = Seq.empty): String = {
     val res = new StringBuilder("")
     for (element <- elements) {
-      res.append(convertPsiToText(element)).append("\n")
+      res.append(convertPsiToText(element)(dependencies, refs, new Offset(res.length))).append("\n")
     }
     res.delete(res.length - 1, res.length)
     return res.toString
