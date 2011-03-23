@@ -3,17 +3,20 @@ package copy
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{RangeMarker, Editor}
-import com.intellij.codeInsight.editorActions.{TextBlockTransferableData, CopyPastePostProcessor}
+import dependency.{DependencyData, Dependency}
 import java.awt.datatransfer.{DataFlavor, Transferable}
-import collection.mutable.ArrayBuffer
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import java.lang.Boolean
 import com.intellij.openapi.util.Ref
 import org.jetbrains.plugins.scala.extensions._
+import com.intellij.openapi.extensions.Extensions
+import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPasteReferenceProcessor, TextBlockTransferableData, CopyPastePostProcessor}
+import collection.mutable.{ListBuffer, ArrayBuffer}
+import org.jetbrains.plugins.scala.conversion.JavaToScala.Offset
+import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,6 +24,12 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransferableData] {
+  private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
+          .find(_.isInstanceOf[CopyPasteReferenceProcessor]).get
+
+  private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
+            .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
+
   def collectTransferableData(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     val settings = CodeStyleSettingsManager.getSettings(file.getProject)
             .getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -42,16 +51,29 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
           buffer += elem
         }
       }
-      val newText = JavaToScala.convertPsiToText(buffer.toArray)
-      new StringTransferableData(newText)
+
+      val refs = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
+              .asInstanceOf[ReferenceTransferableData]
+
+      val dependencies = new ListBuffer[Dependency]()
+
+      val shift = startOffsets.headOption.getOrElse(0)
+
+      val data = refs.getData.map { it =>
+        new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
+      }
+
+      val newText = JavaToScala.convertPsisToText(buffer.toArray, dependencies, data)
+
+      new ConvertedCode(newText, dependencies.toArray)
     } catch {
       case _ => null
     }
   }
 
   def extractTransferableData(content: Transferable): TextBlockTransferableData = {
-    if (content.isDataFlavorSupported(StringTransferableData.flavor))
-      content.getTransferData(StringTransferableData.flavor).asInstanceOf[TextBlockTransferableData]
+    if (content.isDataFlavorSupported(ConvertedCode.flavor))
+      content.getTransferData(ConvertedCode.flavor).asInstanceOf[TextBlockTransferableData]
     else
       null
   }
@@ -64,9 +86,9 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
     val dialog = new ScalaPasteFromJavaDialog(project)
-    val text = value match {
-      case s: StringTransferableData => s.data
-      case _ => ""
+    val (text, dependencies) = value match {
+      case code: ConvertedCode => (code.data, code.dependencies)
+      case _ => ("", Array.empty)
     }
     if (text == "") return //copy as usually
     if (!scalaSettings.DONT_SHOW_CONVERSION_DIALOG) dialog.show()
@@ -75,6 +97,8 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
         editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+        val marker = editor.getDocument.createRangeMarker(bounds.getStartOffset, bounds.getStartOffset + text.length)
+        scalaProcessor.processTransferableData(project, editor, bounds, i, ref, new DependencyData(dependencies))
         val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
         val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
         val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
@@ -82,7 +106,8 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
         settings.KEEP_BLANK_LINES_IN_CODE = 0
         settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
         settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-        manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
+        manager.reformatText(file, marker.getStartOffset, marker.getEndOffset)
+        marker.dispose()
         settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
         settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
         settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
@@ -90,14 +115,14 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     }
   }
 
-  class StringTransferableData(val data: String) extends TextBlockTransferableData {
+  class ConvertedCode(val data: String, val dependencies: Array[Dependency]) extends TextBlockTransferableData {
     def setOffsets(offsets: Array[Int], index: Int): Int = 0
     def getOffsets(offsets: Array[Int], index: Int): Int = 0
     def getOffsetCount: Int = 0
-    def getFlavor: DataFlavor = StringTransferableData.flavor
+    def getFlavor: DataFlavor = ConvertedCode.flavor
   }
 
-  object StringTransferableData {
+  object ConvertedCode {
     val flavor: DataFlavor = new DataFlavor(classOf[JavaCopyPastePostProcessor], "class: ScalaCopyPastePostProcessor")
   }
 }
