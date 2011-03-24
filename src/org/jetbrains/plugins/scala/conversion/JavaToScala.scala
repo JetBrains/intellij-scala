@@ -50,6 +50,18 @@ object JavaToScala {
 
     dependencies ++= dependencyFor(element).toSeq
 
+    def append(elements: Seq[PsiElement], prefix: String = "(", separator: String = ", ", suffix: String = ")") {
+      if (elements.nonEmpty) {
+        res.append(prefix)
+        val it = elements.iterator
+        while(it.hasNext) {
+          res.append(convertPsiToText(it.next()))
+          if(it.hasNext) res.append(separator)
+        }
+        res.append(suffix)
+      }
+    }
+
     element match {
       case docCommentOwner: PsiDocCommentOwner if docCommentOwner.getDocComment != null => {
         res.append(docCommentOwner.getDocComment.getText).append("\n")
@@ -275,12 +287,12 @@ object JavaToScala {
         if (n.getArrayInitializer != null) {
           for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          res.append(n.getArrayInitializer.getInitializers.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+          append(n.getArrayInitializer.getInitializers)
         } else if (n.getArrayDimensions.length > 0) {
           res.append("new ")
           for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          res.append(n.getArrayDimensions.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+          append(n.getArrayDimensions)
         } else {
           res.append("new ")
           for(ref <- Option(n.getClassReference)) dependencies ++= dependencyFor(ref).toSeq
@@ -565,14 +577,15 @@ object JavaToScala {
         res.append(" ")
       }
       case v:PsiArrayInitializerMemberValue => {
-        res.append(v.getInitializers.map(convertPsiToText(_)).mkString("Array(", ", ", ")"))
+        res.append("Array")
+        append(v.getInitializers)
       }
       case r: PsiReferenceParameterList => {
-       if (r.getTypeParameterElements.length > 0) res.append(r.getTypeParameterElements.map(convertPsiToText(_)).mkString("[" ,", ", "]"))
+        append(r.getTypeParameterElements, "[", ", ", "]")
       }
       case p: PsiParameterList => {
         if (p.getParametersCount > 0) {
-          res.append(p.getParameters.map(convertPsiToText(_)).mkString("(", ", ", ")"))
+          append(p.getParameters)
         }
       }
       case comment: PsiComment => res.append(comment.getText)
