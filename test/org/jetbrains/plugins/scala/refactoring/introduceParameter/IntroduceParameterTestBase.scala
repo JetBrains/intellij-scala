@@ -28,18 +28,22 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
   override protected def rootPath = super.rootPath + "introduceParameter/"
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
+  private val allMarker = "//all = "
+  private val nameMarker = "//name = "
+  private val defaultMarker = "//default = "
 
   protected def doTest = {
     import _root_.junit.framework.Assert._
     val filePath = rootPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val project = getProject
     val scalaFile: ScalaFile = PsiManager.getInstance(project).
       findFile(file).asInstanceOf[ScalaFile]
     val fileText = scalaFile.getText
     val startOffset = fileText.indexOf(startMarker) + startMarker.length
-    assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    assert(startOffset != -1 + startMarker.length,
+      "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
@@ -49,6 +53,35 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
     var res: String = null
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+
+    //getting settings
+    val allOffset = fileText.indexOf(allMarker)
+    val replaceAllOccurrences = if (allOffset == -1) true else {
+      val comment = scalaFile.findElementAt(allOffset)
+      val commentText = comment.getText
+      val text = commentText.substring(allMarker.length)
+      text match {
+        case "true" => true
+        case "false" => false
+      }
+    }
+
+    val nameOffset = fileText.indexOf(nameMarker)
+    val paramName = if (nameOffset == -1) "param" else {
+      val comment = scalaFile.findElementAt(nameOffset)
+      val commentText = comment.getText
+      commentText.substring(nameMarker.length)
+    }
+
+    val defaultOffset = fileText.indexOf(defaultMarker)
+    val isDefaultParam = if (defaultOffset == -1) false else {
+      val comment = scalaFile.findElementAt(defaultOffset)
+      val commentText = comment.getText
+      commentText.substring(defaultMarker.length) match {
+        case "true" => true
+        case "false" => false
+      }
+    }
 
     //start to inline
     try {
@@ -65,10 +98,8 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
-            val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), function)
-            val paramName = "param" //todo: test setting
-            val replaceAllOccurrences = true //todo: test setting
-            val isDefaultParam = false //todo: test setting
+            val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr),
+              function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
               replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)
             processor.run

@@ -83,11 +83,11 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
   def members(): Seq[ScMember] = extendsBlock.members
-  def syntheticMembers(): Seq[PsiMethod] = Seq.empty
-  def functions(): Seq[ScFunction] = extendsBlock.functions
-  def aliases(): Seq[ScTypeAlias] = extendsBlock.aliases
+  def syntheticMembers: Seq[PsiMethod] = Seq.empty
+  def functions: Seq[ScFunction] = extendsBlock.functions
+  def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  def typeDefinitions(): Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
+  def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
     val qual = getQualifiedName

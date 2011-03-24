@@ -119,7 +119,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   @volatile
   private var modCount: Long = 0L
 
-  override def syntheticMembers(): scala.Seq[PsiMethod] = {
+  override def syntheticMembers: scala.Seq[PsiMethod] = {
     var answer = syntheticMembersRes
     val count = getManager.getModificationTracker.getJavaStructureModificationCount
     if (answer != null && count == modCount) return answer

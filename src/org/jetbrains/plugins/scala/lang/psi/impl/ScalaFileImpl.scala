@@ -286,7 +286,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
-        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject()).findPackage(""))
+        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
@@ -329,7 +329,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val clazz = implObjIter.next
       ProgressManager.checkCanceled
       //val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
-      if (clazz != null && !clazz.processDeclarations(processor, state, null, place)) return false
+      val isScalaClass = typeDefinitions.length == 1 && typeDefinitions.apply(0).getQualifiedName == "scala"
+      if (clazz != null && !(isScalaClass && clazz.getQualifiedName == "scala.Predef") &&
+        !clazz.processDeclarations(processor, state, null, place)) return false
     }
 
     import toplevel.synthetic.SyntheticClasses
@@ -353,7 +355,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
       while (syntheticValueIterator.hasNext) {
         val syntheticValue = syntheticValueIterator.next
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         if (!processor.execute(syntheticValue, state)) return false
       }
     }
@@ -361,7 +363,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val implPIterator = ImplicitlyImported.packages.iterator
     while (implPIterator.hasNext) {
       val implP = implPIterator.next
-      ProgressManager.checkCanceled
+      ProgressManager.checkCanceled()
       val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }
@@ -397,7 +399,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   import java.util.Collections
   def getClassNames: Set[String] = {
     if (isCompiled) {
-      val name = getVirtualFile.getNameWithoutExtension()
+      val name = getVirtualFile.getNameWithoutExtension
       if (name != "package") {
         return Collections.singleton(NameTransformer.decode(name))
       }

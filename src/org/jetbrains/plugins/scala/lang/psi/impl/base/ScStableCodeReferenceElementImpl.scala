@@ -35,7 +35,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getVariants(): Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).map(r => {
+  def getVariants: Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).map(r => {
     r match {
       case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
       case _ => r.getElement
