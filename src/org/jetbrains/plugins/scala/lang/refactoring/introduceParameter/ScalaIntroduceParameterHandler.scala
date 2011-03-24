@@ -39,7 +39,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
-    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Variable", invokes _)
+    ScalaRefactoringUtil.invokeRefactoring(project, editor, file, dataContext, "Introduce Parameter", invokes _)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
@@ -82,7 +82,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       if (methodToSearchFor == null) return
       if (!CommonRefactoringUtil.checkReadOnlyStatus(project, methodToSearchFor)) return
 
-      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr), function)
+      val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrences(ScalaRefactoringUtil.unparExpr(expr),
+        function.body.getOrElse(function))
       // Getting settings
       val validator = new ScalaVariableValidator(this, project, expr, occurrences, function, function)
       // Add occurrences highlighting
