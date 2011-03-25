@@ -12,7 +12,7 @@ import parser.ScalaElementTypes
 import com.intellij.openapi.progress.ProgressManager
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
-  def typeParameters(): Seq[ScTypeParam] = typeParametersClause match {
+  def typeParameters: Seq[ScTypeParam] = typeParametersClause match {
     case Some(clause) => clause.typeParameters
     case _ => Seq.empty
   }

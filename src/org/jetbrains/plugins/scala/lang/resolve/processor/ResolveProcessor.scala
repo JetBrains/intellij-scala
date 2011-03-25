@@ -20,6 +20,7 @@ import psi.api.statements.params.ScTypeParam
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.statements.ScTypeAlias
 import psi.api.toplevel.templates.ScTemplateBody
+import reflect.NameTransformer
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -223,7 +224,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (name == "") return false
       if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name
     } else if (nameSet.charAt(0) == '`') nameSet.substring(1, nameSet.length - 1) else nameSet
-    elName == name && kindMatches(named)
+    NameTransformer.decode(elName) == NameTransformer.decode(name) && kindMatches(named)
   }
 
   override def getHint[T](hintKey: Key[T]): T = {
