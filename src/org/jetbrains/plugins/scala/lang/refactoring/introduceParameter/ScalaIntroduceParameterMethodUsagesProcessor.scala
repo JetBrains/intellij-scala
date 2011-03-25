@@ -175,7 +175,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
                   }
                 }
               case _ =>
-                val text = JavaToScala.convertPsiToText(data.getParameterInitializer)
+                val text = JavaToScala.convertPsiToText(data.getParameterInitializer.getExpression)
                 try {
                   ScalaPsiElementFactory.createExpressionFromText(text, element.getManager)
                 } catch {
