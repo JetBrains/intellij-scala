@@ -10,7 +10,7 @@ import collection.JavaConversions._
 import org.jdom.Element
 import FileAPI._
 import org.jetbrains.idea.maven.model.{MavenArtifactInfo, MavenId}
-import org.jetbrains.idea.maven.facade.{NativeMavenProjectHolder, MavenEmbedderWrapper}
+import org.jetbrains.idea.maven.server.{NativeMavenProjectHolder, MavenEmbedderWrapper}
 import org.jetbrains.plugins.scala.extensions._
 
 /**

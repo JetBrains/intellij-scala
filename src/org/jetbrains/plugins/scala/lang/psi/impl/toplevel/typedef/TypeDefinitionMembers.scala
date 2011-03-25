@@ -662,7 +662,7 @@ object TypeDefinitionMembers {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
     case _ => {
       val hint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
-      hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.VARIABLE)
+      hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.VARIABLE)
     }
   }
 
@@ -670,7 +670,7 @@ object TypeDefinitionMembers {
     case BaseProcessor(kinds) => kinds contains METHOD
     case _ => {
       val hint = processor.getHint(ElementClassHint.KEY)
-      hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.METHOD)
+      hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.METHOD)
     }
   }
 
@@ -682,6 +682,6 @@ object TypeDefinitionMembers {
   def shouldProcessJavaInnerClasses(processor: PsiScopeProcessor): Boolean = {
     if (processor.isInstanceOf[BaseProcessor]) return false
     val hint = processor.getHint(ElementClassHint.KEY)
-    hint == null || hint.shouldProcess(ElementClassHint.DeclaractionKind.CLASS)
+    hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)
   }
 }

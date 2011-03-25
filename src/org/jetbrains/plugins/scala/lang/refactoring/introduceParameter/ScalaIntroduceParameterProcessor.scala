@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.psi._
 import gnu.trove.TIntArrayList
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import com.intellij.refactoring.introduceParameter.{IntroduceParameterMethodUsagesProcessor, IntroduceParameterData}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import com.intellij.refactoring.introduceParameter.{JavaExpressionWrapper, IntroduceParameterMethodUsagesProcessor, IntroduceParameterData}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,7 +28,6 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
                                        occurrences: Array[TextRange], startOffset: Int, endOffset: Int,
                                        paramName: String, isDefaultParam: Boolean, tp: ScType, expression: ScExpression)
         extends BaseRefactoringProcessor(project) with IntroduceParameterData {
-
   private val document = editor.getDocument
   private val file = function.getContainingFile
 
@@ -92,8 +91,9 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
     val sortedUsages = Arrays.copyOf(usages, usages.length)
     Arrays.sort(sortedUsages, new Comparator[UsageInfo] {
       def compare(o1: UsageInfo, o2: UsageInfo): Int =
-        if (o1.startOffset != o2.startOffset) o1.startOffset - o2.startOffset
-        else o1.endOffset - o2.endOffset
+        if (o1.getRangeInElement.getStartOffset != o2.getRangeInElement.getStartOffset)
+          o1.getRangeInElement.getStartOffset - o2.getRangeInElement.getStartOffset
+        else o1.getRangeInElement.getEndOffset - o2.getRangeInElement.getEndOffset
     })
     val iter = sortedUsages.reverseIterator
     while (iter.hasNext) {
@@ -196,8 +196,10 @@ class ScalaIntroduceParameterProcessor(project: Project, editor: Editor, methodT
   def getExpressionToSearch: PsiExpression =
     JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
 
-  def getParameterInitializer: PsiExpression =
-    JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
+  def getParameterInitializer =
+    new JavaExpressionWrapper(
+      JavaPsiFacade.getElementFactory(function.getProject).createExpressionFromText(getParameterName, expression.getContext)
+    )
 
   def getMethodToSearchFor: PsiMethod = methodToSearchFor
 

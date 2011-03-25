@@ -62,4 +62,8 @@ class ScalaMoveClassHandler extends MoveClassHandler {
       case _ => null
     }
   }
+
+  def finishMoveClass(aClass: PsiClass) {}
+
+  def prepareMove(aClass: PsiClass) {}
 }
