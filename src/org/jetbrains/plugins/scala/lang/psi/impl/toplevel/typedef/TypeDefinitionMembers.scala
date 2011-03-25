@@ -31,6 +31,7 @@ import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
 import psi.util.CommonClassesSearcher
+import reflect.NameTransformer
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -489,16 +490,20 @@ object TypeDefinitionMembers {
     val subst = if (substK == null) ScSubstitutor.empty else substK
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
+    val decodedName = if (name != null) NameTransformer.decode(name) else ""
     val isNotScalaProcessor = !processor.isInstanceOf[BaseProcessor]
     def checkName(s: String): Boolean = {
       if (name == null || name == "") true
-      else s == name
+      else NameTransformer.decode(s) == decodedName
     }
     def checkNameGetSetIs(s: String): Boolean = {
       if (name == null || name == "") true
       else {
-        val capitalizeName = name.capitalize
-        s == "is" + capitalizeName || s == "get" + capitalizeName || s == "set" + capitalizeName
+        val capitalizeName = decodedName.capitalize
+        val decoded = NameTransformer.decode(s)
+        decoded == "is" + capitalizeName ||
+          decoded == "get" + capitalizeName ||
+          decoded == "set" + capitalizeName
       }
     }
     if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
