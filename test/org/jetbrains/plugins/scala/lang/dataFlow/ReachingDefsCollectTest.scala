@@ -17,16 +17,16 @@ import scala.util.Sorting
  */
 
 class ReachingDefsCollectTest extends LightScalaTestCase {
-  override protected  def getBasePath: String = TestUtils.getTestDataPath() + "/dataFlow/reachingDefsCollect/"
+  override protected  def getBasePath: String = TestUtils.getTestDataPath + "/dataFlow/reachingDefsCollect/"
 
-  override def setUp = {
-    super.setUp
+  override def setUp() {
+    super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
 
   def readInput = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
 
-  def doTest {
+  def doTest() {
     val input = readInput
     myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
@@ -51,11 +51,15 @@ class ReachingDefsCollectTest extends LightScalaTestCase {
     builder.append("\nOUTPUT:\n")
     builder.append(Sorting.stableSort(infos.outputVariables.
             map(p => p.element.toString + " : " + p.element.getName).toSeq).mkString("\n"))
-    return builder.toString
+    return builder.toString()
   }
 
-  def testSimpleFragment = doTest
-  def testClosure1 = doTest
+  def testSimpleFragment() {
+    doTest()
+  }
+  def testClosure1() {
+    doTest()
+  }
 
 
 }

@@ -19,8 +19,8 @@ abstract class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
   override def getProjectDescriptor = LightScalaTestCase.SCALA_DESCRIPTOR
 
 
-  override def setUp {
-    super.setUp
+  override def setUp() {
+    super.setUp()
     myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses
   }
 }
