@@ -25,11 +25,7 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
 
   def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 
-  def clauses: Seq[ScParameterClause] = {
-    getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, new ArrayFactory[ScParameterClause]{
-      def create(count: Int): Array[ScParameterClause] = new Array[ScParameterClause](count)
-    }).toSeq
-  }
+  def clauses: Seq[ScParameterClause] = getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, ScalaPsiUtil.arrayFactory[ScParameterClause]).toSeq
 
   def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
 

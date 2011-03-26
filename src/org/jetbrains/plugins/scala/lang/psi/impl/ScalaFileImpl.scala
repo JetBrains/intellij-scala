@@ -225,9 +225,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def getPackagings: Array[ScPackaging] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PACKAGING, new ArrayFactory[ScPackaging] {
-        def create(count: Int): Array[ScPackaging] = new Array[ScPackaging](count)
-      })
+      stub.getChildrenByType(ScalaElementTypes.PACKAGING, ScalaPsiUtil.arrayFactory[ScPackaging])
     } else findChildrenByClass(classOf[ScPackaging])
   }
 

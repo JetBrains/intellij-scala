@@ -89,9 +89,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
         ScalaElementTypes.OBJECT_DEF,
         ScalaElementTypes.CLASS_DEF,
         ScalaElementTypes.TRAIT_DEF
-        ), new ArrayFactory[ScTypeDefinition] {
-        def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
-      })
+        ), ScalaPsiUtil.arrayFactory[ScTypeDefinition])
     } else {
       val buffer = new ArrayBuffer[ScTypeDefinition]
       var curr = getFirstChild

@@ -43,9 +43,7 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
   def typeParameters(): Seq[ScTypeParam] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM, new ArrayFactory[ScTypeParam] {
-        def create(count: Int): Array[ScTypeParam] = new Array[ScTypeParam](count)
-      }).toSeq
+      stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM, ScalaPsiUtil.arrayFactory[ScTypeParam]).toSeq
     } else {
       val buffer = new ArrayBuffer[ScTypeParam]
       var curr = getFirstChild

@@ -38,9 +38,5 @@ class ScImportSelectorsImpl extends ScalaStubBasedElementImpl[ScImportSelectors]
     else None
   }
 
-  def selectors: Array[ScImportSelector] = {
-    getStubOrPsiChildren(ScalaElementTypes.IMPORT_SELECTOR, new ArrayFactory[ScImportSelector]{
-      def create(count: Int): Array[ScImportSelector] = new Array[ScImportSelector](count)
-    })
-  }
+  def selectors: Array[ScImportSelector] = getStubOrPsiChildren(ScalaElementTypes.IMPORT_SELECTOR, ScalaPsiUtil.arrayFactory[ScImportSelector])
 }

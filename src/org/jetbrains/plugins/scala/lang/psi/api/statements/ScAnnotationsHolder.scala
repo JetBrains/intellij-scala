@@ -30,9 +30,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
       case _ => null
     }
     if (stub != null) {
-      val annots = stub.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS), new ArrayFactory[ScAnnotations] {
-        def create(count: Int): Array[ScAnnotations] = new Array[ScAnnotations](count)
-      })
+      val annots = stub.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS), ScalaPsiUtil.arrayFactory[ScAnnotations])
       if (annots.length > 0) {
         return annots(0).getAnnotations.toSeq
       } else return Seq.empty

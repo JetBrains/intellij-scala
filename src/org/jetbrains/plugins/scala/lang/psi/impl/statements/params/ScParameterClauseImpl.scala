@@ -38,11 +38,7 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
 
   override def toString: String = "ParametersClause"
 
-  def parameters: Seq[ScParameter] = {
-    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, new ArrayFactory[ScParameter] {
-      def create(count: Int): Array[ScParameter] = new Array[ScParameter](count)
-    })
-  }
+  def parameters: Seq[ScParameter] = getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, ScalaPsiUtil.arrayFactory[ScParameter])
 
   def isImplicit: Boolean = {
     val stub = getStub
