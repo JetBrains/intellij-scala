@@ -25,9 +25,7 @@ class ScPatternListImpl private () extends ScalaStubBasedElementImpl[ScPatternLi
   def patterns: Seq[ScPattern] = {
     val stub = getStub
     if (stub != null && allPatternsSimple) {
-      return stub.getChildrenByType[ScReferencePattern](ScalaElementTypes.REFERENCE_PATTERN, new ArrayFactory[ScReferencePattern] {
-        def create(count: Int): Array[ScReferencePattern] = new Array[ScReferencePattern](count)
-      })
+      return stub.getChildrenByType[ScReferencePattern](ScalaElementTypes.REFERENCE_PATTERN, ScalaPsiUtil.arrayFactory[ScReferencePattern])
     }
     return findChildrenByClass[ScPattern](classOf[ScPattern])
   }

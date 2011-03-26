@@ -37,9 +37,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       case st: ScalaStubBasedElementImpl[_] => {
         val stub = st.getStub
         if (stub != null) {
-          val array = stub.getChildrenByType(ScalaElementTypes.EXTENDS_BLOCK, new ArrayFactory[ScExtendsBlock] {
-            def create(count: Int): Array[ScExtendsBlock] = new Array[ScExtendsBlock](count)
-          })
+          val array = stub.getChildrenByType(ScalaElementTypes.EXTENDS_BLOCK, ScalaPsiUtil.arrayFactory[ScExtendsBlock])
           if (array.length == 0) {
             return null
           } else {

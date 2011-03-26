@@ -32,45 +32,19 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
   def aliases: Array[ScTypeAlias] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(TokenSets.ALIASES_SET, new ArrayFactory[ScTypeAlias] {
-        def create(count: Int) = new Array[ScTypeAlias](count)
-      })
+      stub.getChildrenByType(TokenSets.ALIASES_SET, ScalaPsiUtil.arrayFactory[ScTypeAlias])
     } else findChildrenByClass(classOf[ScTypeAlias])
   }
 
-  def functions: Array[ScFunction] = {
-    getStubOrPsiChildren(TokenSets.FUNCTIONS, new ArrayFactory[ScFunction] {
-      def create(count: Int) = new Array[ScFunction](count)
-    })
-  }
+  def functions: Array[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, ScalaPsiUtil.arrayFactory[ScFunction])
 
+  def typeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, ScalaPsiUtil.arrayFactory[ScTypeDefinition])
 
-  def typeDefinitions: Seq[ScTypeDefinition] = {
-    getStubOrPsiChildren[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
-      def create(count: Int) = new Array[ScTypeDefinition](count)
-    })
-  }
+  def members: Array[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, ScalaPsiUtil.arrayFactory[ScMember])
 
+  def holders: Array[ScDeclaredElementsHolder] = getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, ScalaPsiUtil.arrayFactory[ScDeclaredElementsHolder])
 
-  def members: Array[ScMember] = {
-    getStubOrPsiChildren(TokenSets.MEMBERS, new ArrayFactory[ScMember] {
-      def create(count: Int) = new Array[ScMember](count)
-    })
-  }
-
-
-  def holders: Array[ScDeclaredElementsHolder] = {
-    getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, new ArrayFactory[ScDeclaredElementsHolder] {
-      def create(count: Int) = new Array[ScDeclaredElementsHolder](count)
-    })
-  }
-
-  def exprs: Array[ScExpression] = {
-    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, new ArrayFactory[ScExpression] {
-      def create(count: Int) = new Array[ScExpression](count)
-    })
-  }
-
+  def exprs: Array[ScExpression] = getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, ScalaPsiUtil.arrayFactory[ScExpression])
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
     val stub = getStub

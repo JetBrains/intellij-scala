@@ -20,10 +20,5 @@ class ScAnnotationsImpl extends ScalaStubBasedElementImpl[ScAnnotations] with Sc
   def this(stub: ScAnnotationsStub) = {this(); setStub(stub); setNode(null)}
   override def toString: String = "AnnotationsList"
 
-
-  def getAnnotations: Array[ScAnnotation] = {
-    getStubOrPsiChildren(ScalaElementTypes.ANNOTATION, new ArrayFactory[ScAnnotation] {
-      def create(count: Int): Array[ScAnnotation] = new Array[ScAnnotation](count)
-    })
-  }
+  def getAnnotations: Array[ScAnnotation] = getStubOrPsiChildren(ScalaElementTypes.ANNOTATION, ScalaPsiUtil.arrayFactory[ScAnnotation])
 }

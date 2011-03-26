@@ -39,14 +39,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def templateBody: Option[ScTemplateBody] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, new ArrayFactory[ScTemplateBody] {
-        def create(count: Int): Array[ScTemplateBody] = new Array[ScTemplateBody](count)
-      })
-      if (array.length == 0) {
-        return None
-      } else {
-        return Some(array.apply(0))
-      }
+      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, ScalaPsiUtil.arrayFactory[ScTemplateBody])
+      array.headOption
     } else {
       getLastChild match {
         case tb: ScTemplateBody => Some(tb)
@@ -218,23 +212,16 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def templateParents: Option[ScTemplateParents] = {
     val stub = getStub
     if (stub != null) {
-
-      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, new ArrayFactory[ScTemplateParents] {
-        def create(count: Int): Array[ScTemplateParents] = new Array[ScTemplateParents](count)
-      })
-      if (array.length == 0) None
-      else Some(array.apply(0))
+      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, ScalaPsiUtil.arrayFactory[ScTemplateParents])
+      array.headOption
     } else findChild(classOf[ScTemplateParents])
   }
 
   def earlyDefinitions: Option[ScEarlyDefinitions] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, new ArrayFactory[ScEarlyDefinitions] {
-        def create(count: Int): Array[ScEarlyDefinitions] = new Array[ScEarlyDefinitions](count)
-      })
-      if (array.length == 0) None
-      else Some(array.apply(0))
+      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, ScalaPsiUtil.arrayFactory[ScEarlyDefinitions])
+      array.headOption
     } else findChild(classOf[ScEarlyDefinitions])
   }
 

@@ -22,9 +22,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
       case st: ScalaStubBasedElementImpl[_] => {
         val stub = st.getStub
         if (stub != null) {
-          val array = stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM_CLAUSE, new ArrayFactory[ScTypeParamClause] {
-            def create(count: Int): Array[ScTypeParamClause] = new Array[ScTypeParamClause](count)
-          })
+          val array = stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM_CLAUSE, ScalaPsiUtil.arrayFactory[ScTypeParamClause])
           if (array.length == 0) {
             return None
           } else {

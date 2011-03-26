@@ -755,14 +755,8 @@ object ScalaPsiUtil {
     val scope: PsiElement = td.getContext
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
-          new ArrayFactory[PsiElement] {
-            def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
-          })
-      case file: PsiFileImpl if file.getStub != null => file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET,
-        new ArrayFactory[PsiElement] {
-          def create(count: Int): Array[PsiElement] = new Array[PsiElement](count)
-        })
+        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, arrayFactory[PsiElement])
+      case file: PsiFileImpl if file.getStub != null => file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, arrayFactory[PsiElement])
       case _ => scope.getChildren
     }
     td match {
@@ -986,4 +980,8 @@ object ScalaPsiUtil {
     }
   }
 
+  def arrayFactory[T <: AnyRef : Manifest] = new ArrayFactory[T] {
+    // See http://lampsvn.epfl.ch/trac/scala/ticket/4390
+    def create(count: Int): Array[T with Object] = Array.ofDim[T](count).asInstanceOf[Array[T with Object]]
+  }
 }

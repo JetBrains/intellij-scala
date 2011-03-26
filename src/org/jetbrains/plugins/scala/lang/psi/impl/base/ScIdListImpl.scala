@@ -22,9 +22,7 @@ class ScIdListImpl private () extends ScalaStubBasedElementImpl[ScIdList] with S
   def fieldIds: Seq[ScFieldId]  = {
     val stub = getStub
     if (stub != null) {
-      collection.immutable.Seq(stub.getChildrenByType(ScalaElementTypes.FIELD_ID, new ArrayFactory[ScFieldId] {
-        def create(count: Int): Array[ScFieldId] = new Array[ScFieldId](count)
-      }).toSeq: _*)
+      collection.immutable.Seq(stub.getChildrenByType(ScalaElementTypes.FIELD_ID, ScalaPsiUtil.arrayFactory[ScFieldId]).toSeq: _*)
     } else
       collection.immutable.Seq(findChildrenByClass(classOf[ScFieldId]).toSeq: _*)
   }
