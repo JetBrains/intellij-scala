@@ -23,7 +23,7 @@ class ToggleTypeArgs extends PsiElementBaseIntentionAction {
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     check(element) match {
       case MethodCallWithInferedTypeArgs(call, inferred) =>
-        val args = inferred.map(ScType.urlText).mkString("[", ", ", "]")
+        val args = inferred.map(ScType.presentableText).mkString("[", ", ", "]")
         setText("Explicitly provide inferred type arguments: %s".format(args))
         true
       case _ => false
