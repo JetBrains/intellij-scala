@@ -137,4 +137,6 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     case Some(b) => new FakePsiCodeBlock(b) // Needed so that LineBreakpoint.canAddLineBreakpoint allows line breakpoints on one-line method definitions
     case None => null
   }
+
+  def isSecondaryConstructor: Boolean = name == "this"
 }

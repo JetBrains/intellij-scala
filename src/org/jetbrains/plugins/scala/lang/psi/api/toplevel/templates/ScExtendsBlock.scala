@@ -52,5 +52,4 @@ trait ScExtendsBlock extends ScalaPsiElement {
   
   def isUnderCaseClass: Boolean
 
-
 }

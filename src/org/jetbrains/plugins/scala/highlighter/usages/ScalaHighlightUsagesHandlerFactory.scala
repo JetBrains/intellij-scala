@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -98,6 +99,14 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
           resultExpr <- funcExpr.result
         } {
           return new ScalaHighlightExprResultHandler(resultExpr, editor, file)
+        }
+      }
+      case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT => {
+        val templateDefOpt = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
+        for {
+          templateDef <- Option(templateDefOpt)
+        } {
+          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file)
         }
       }
       case _ =>
