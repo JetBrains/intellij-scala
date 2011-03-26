@@ -10,6 +10,7 @@ import nl.LineTerminator
 import patterns.CaseClauses
 import builder.ScalaPsiBuilder
 import util.ParserUtils
+import types.Path
 
 /**
 * @author Alexander Podkhalyuzin
@@ -19,7 +20,7 @@ import util.ParserUtils
 /*
  * Expr1 ::= 'if' '(' Expr ')' {nl} Expr [[semi] else Expr]
  *         | 'while' '(' Expr ')' {nl} Expr
- *         | 'try' '{' Block '}' [catch '{' CaseClauses '}'] ['finally' Expr ]
+ *         | 'try' '{' Block '}' [catch CatchHandler] ['finally' Expr ]
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
  *         | 'for' ('(' Enumerators ')' | '{' Enumerators '}') {nl} ['yield'] Expr
  *         | 'throw' Expr
@@ -32,8 +33,12 @@ import util.ParserUtils
  *         | PostfixExpr
  *         | PostfixExpr Ascription
  *         | PostfixExpr 'match' '{' CaseClauses '}'
+ *
+ * CatchHandler ::= '{' CaseClauses '}'
+ *                | '{' Path '}'
+ *                | '(' Path ')'
+ *                | Path
  */
-
 object Expr1 {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark
@@ -139,19 +144,48 @@ object Expr1 {
           case ScalaTokenTypes.kCATCH => {
             builder.advanceLexer //Ate catch
             builder.getTokenType match {
-              case ScalaTokenTypes.tLBRACE => {
+              case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS => {
+                val openToken = builder.getTokenType
                 builder.advanceLexer //Ate }
-                builder.enableNewlines
-                def foo() {
-                  if (!CaseClauses.parse(builder)) {
-                    builder error ErrMsg("case.clauses.expected")
-                  }
+                val marker = builder.mark
+                val isRef = Path parse (builder, ScalaElementTypes.REFERENCE_EXPRESSION)
+                (openToken, isRef) match {
+                  case (ScalaTokenTypes.tLPARENTHESIS, true) =>
+                    marker.drop
+                    builder.getTokenType match {
+                      case ScalaTokenTypes.tRPARENTHESIS =>
+                        builder.advanceLexer
+                      case _ =>
+                        builder error ErrMsg("rparenthesis.expected")
+                    }
+
+                  case (ScalaTokenTypes.tLBRACE, true) =>
+                    marker.drop
+                    builder.getTokenType match {
+                      case ScalaTokenTypes.tRBRACE =>
+                        builder.advanceLexer
+                      case _ =>
+                        builder error ErrMsg("rbrace.expected")
+                    }
+                  case (ScalaTokenTypes.tLPARENTHESIS, false) =>
+                    marker.drop
+                    builder error ErrMsg("wrong.qual.identifier")
+                  case (ScalaTokenTypes.tLBRACE, false) =>
+                    marker.rollbackTo
+                    builder.enableNewlines
+                    def foo() {
+                      if (!CaseClauses.parse(builder)) {
+                        builder error ErrMsg("case.clauses.or.qualified.reference.expected")
+                      }
+                    }
+                    ParserUtils.parseLoopUntilRBrace(builder, foo _)
+                    builder.restoreNewlinesState
                 }
-                ParserUtils.parseLoopUntilRBrace(builder, foo _)
-                builder.restoreNewlinesState
               }
               case _ => {
-                builder error ErrMsg("case.clauses.expected")
+                if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
+                  builder error ErrMsg("case.clauses.or.qualified.reference.expected")
+                }
               }
             }
             catchMarker.done(ScalaElementTypes.CATCH_BLOCK)

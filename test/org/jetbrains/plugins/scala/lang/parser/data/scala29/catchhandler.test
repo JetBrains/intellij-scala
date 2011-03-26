@@ -1,0 +1,81 @@
+try a catch b
+try a catch {b}
+try a catch (b)
+try a catch super[X].b
+try a catch this
+-----
+ScalaFile
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('b')
+  PsiWhiteSpace('\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      ReferenceExpression
+        PsiElement(identifier)('b')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement(()('(')
+      ReferenceExpression
+        PsiElement(identifier)('b')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        SuperReference
+          PsiElement(super)('super')
+          PsiElement([)('[')
+          PsiElement(identifier)('X')
+          PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('b')
+  PsiWhiteSpace('\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      ThisReference
+        PsiElement(this)('this')
