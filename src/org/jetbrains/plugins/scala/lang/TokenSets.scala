@@ -6,7 +6,7 @@ package lang
  */
 
 import com.intellij.psi.tree.TokenSet
-import lexer.ScalaTokenTypes
+import lexer.{ScalaElementType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import parser.ScalaElementTypes
@@ -88,7 +88,12 @@ object TokenSets {
           BLOCK_EXPR,
           ERROR_STMT,
           BLOCK,
-          PARENT_EXPR))
+          PARENT_EXPR,
+          METHOD_CALL,
+          REFERENCE_EXPRESSION,
+          THIS_REFERENCE,
+          SUPER_REFERENCE,
+          GENERIC_CALL))
 
   val SIMPLE_EXPR_BIT_SET = TokenSet.create(PLACEHOLDER_EXPR,
       LITERAL,

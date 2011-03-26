@@ -10,6 +10,8 @@ import statements.{ScFunction, ScDeclaredElementsHolder, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import toplevel.typedef.ScMember
 import api.toplevel.typedef._
+import expr.ScExpression
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -26,6 +28,8 @@ trait ScTemplateBody extends ScalaPsiElement {
   def aliases: Array[ScTypeAlias]
 
   def typeDefinitions: Seq[ScTypeDefinition]
+
+  def exprs: Array[ScExpression]
 
   def selfTypeElement: Option[ScSelfTypeElement]
 }

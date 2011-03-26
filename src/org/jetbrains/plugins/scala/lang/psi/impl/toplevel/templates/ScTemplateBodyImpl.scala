@@ -14,6 +14,7 @@ import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import parser.ScalaElementTypes
 import stubs.{ScTemplateBodyStub, ScPrimaryConstructorStub}
+import api.expr.ScExpression
 
 /**
 * @author Alexander Podkhalyuzin
@@ -32,35 +33,41 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(TokenSets.ALIASES_SET, new ArrayFactory[ScTypeAlias] {
-        def create(count: Int): Array[ScTypeAlias] = new Array[ScTypeAlias](count)
+        def create(count: Int) = new Array[ScTypeAlias](count)
       })
     } else findChildrenByClass(classOf[ScTypeAlias])
   }
 
   def functions: Array[ScFunction] = {
     getStubOrPsiChildren(TokenSets.FUNCTIONS, new ArrayFactory[ScFunction] {
-      def create(count: Int): Array[ScFunction] = new Array[ScFunction](count)
+      def create(count: Int) = new Array[ScFunction](count)
     })
   }
 
 
   def typeDefinitions: Seq[ScTypeDefinition] = {
     getStubOrPsiChildren[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, new ArrayFactory[ScTypeDefinition] {
-      def create(count: Int): Array[ScTypeDefinition] = new Array[ScTypeDefinition](count)
+      def create(count: Int) = new Array[ScTypeDefinition](count)
     })
   }
 
 
   def members: Array[ScMember] = {
     getStubOrPsiChildren(TokenSets.MEMBERS, new ArrayFactory[ScMember] {
-      def create(count: Int): Array[ScMember] = new Array[ScMember](count)
+      def create(count: Int) = new Array[ScMember](count)
     })
   }
 
 
   def holders: Array[ScDeclaredElementsHolder] = {
     getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, new ArrayFactory[ScDeclaredElementsHolder] {
-      def create(count: Int): Array[ScDeclaredElementsHolder] = new Array[ScDeclaredElementsHolder](count)
+      def create(count: Int) = new Array[ScDeclaredElementsHolder](count)
+    })
+  }
+
+  def exprs: Array[ScExpression] = {
+    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, new ArrayFactory[ScExpression] {
+      def create(count: Int) = new Array[ScExpression](count)
     })
   }
 
