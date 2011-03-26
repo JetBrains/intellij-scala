@@ -1,0 +1,78 @@
+try a catch {case}
+
+try a catch (b}
+
+try a catch {b)
+
+try a catch {catch}
+-----
+ScalaFile
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiErrorElement:Pattern expected
+            <empty list>
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement(()('(')
+      ReferenceExpression
+        PsiElement(identifier)('b')
+      PsiErrorElement:')' expected
+        <empty list>
+  PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      ReferenceExpression
+        PsiElement(identifier)('b')
+      PsiErrorElement:'}' expected
+        <empty list>
+  PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  TryStatement
+    TryBlock
+      PsiElement(try)('try')
+      PsiWhiteSpace(' ')
+      ReferenceExpression
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    CatchBlock
+      PsiElement(catch)('catch')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiErrorElement:Case clauses or qualified reference expected
+        <empty list>
+      PsiElement(catch)('catch')
+      PsiErrorElement:Case clauses or qualified reference expected
+        <empty list>
+      PsiElement(})('}')
