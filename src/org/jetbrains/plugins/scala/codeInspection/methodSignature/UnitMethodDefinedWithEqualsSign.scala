@@ -29,7 +29,7 @@ for its side effects:
 <small>* Refer to Programming in Scala, 4.1 Classes, fields, and methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitResultType =>
+    case f: ScFunctionDefinition if !f.hasExplicitType && f.hasUnitResultType && !f.isSecondaryConstructor =>
       f.assignment.foreach { assignment =>
         holder.registerProblem(assignment, getDisplayName, new RemoveEqualsSign(f))
       }

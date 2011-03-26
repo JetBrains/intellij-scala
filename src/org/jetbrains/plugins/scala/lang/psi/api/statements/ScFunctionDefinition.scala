@@ -26,4 +26,6 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
   def removeAssignment()
 
   def getReturnUsages: Array[PsiElement]
+
+  def isSecondaryConstructor: Boolean
 }
