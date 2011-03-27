@@ -16,7 +16,9 @@ import api.statements._
 trait ScTypePsiTypeBridge {
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
              paramTopLevel: Boolean = false): ScType = {
-    if (deep > 2) return Any;
+    if (deep > 3) // Cranked up from 2 to 3 to solve SCL-2976. But why is this really needed?
+      return Any;
+
     psiType match {
       case classType: PsiClassType => {
         val result = classType.resolveGenerics
