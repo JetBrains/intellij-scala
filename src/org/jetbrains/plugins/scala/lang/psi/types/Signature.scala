@@ -11,6 +11,8 @@ import api.statements.params.ScParameter
 import psi.impl.ScalaPsiManager
 import result.TypingContext
 import com.intellij.psi._
+import com.intellij.ide.highlighter.JavaFileType
+import util.{MethodSignatureUtil}
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
@@ -24,8 +26,21 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
 
   def equiv(other: Signature): Boolean = {
     name == other.name &&
-            typeParams.length == other.typeParams.length &&
-            paramTypesEquiv(other)
+            ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || (paramLength == other.paramLength && javaErasedEquiv(other)))
+  }
+
+  // This is a quick fix for SCL-2973.
+  // TODO Handle this properly
+  def javaErasedEquiv(other: Signature): Boolean = {
+    (this, other) match {
+      case (ps1: PhysicalSignature, ps2: PhysicalSignature) if ps1.isJava && ps2.isJava =>
+        val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor, ps1.method.getProject, ps1.method.getResolveScope)
+        val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor, ps2.method.getProject, ps2.method.getResolveScope)
+        val psiSig1 = ps1.method.getSignature(psiSub1)
+        val psiSig2 = ps2.method.getSignature(psiSub2)
+        MethodSignatureUtil.METHOD_PARAMETERS_ERASURE_EQUALITY.equals(psiSig1, psiSig2)
+      case _ => false
+    }
   }
 
   protected def paramTypesEquiv(other: Signature): Boolean = {
@@ -100,6 +115,8 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubs
         case _ => false
       }
     }
+
+  def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }
 
 case class FullSignature(sig: Signature, retType: Suspension[ScType], element: NavigatablePsiElement, clazz: Option[PsiClass]) {
