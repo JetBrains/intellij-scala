@@ -43,8 +43,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionType
 import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit, FullSignature}
 import components.HighlightingAdvisor
+import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, FullSignature}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     if (element.isInstanceOf[ScExpression]) {
-      checkExpressionType(element.asInstanceOf[ScExpression], holder)
+      checkExpressionType(element.asInstanceOf[ScExpression], holder, typeAware)
       checkExpressionImplicitParameters(element.asInstanceOf[ScExpression], holder)
       ByNameParameter.annotate(element.asInstanceOf[ScExpression], holder, typeAware)
     }
@@ -449,7 +449,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     annotation.setTooltip(tooltip)
   }
 
-  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder) {
+  private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
     expr match {
       case m: ScMatchStmt =>
       case bl: ScBlock if bl.lastStatement != None =>
@@ -480,10 +480,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             }
             val conformance = ScalaAnnotator.smartCheckConformance(expectedType, exprType)
             if (!conformance) {
-              val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
-                ScType.presentableText(exprType.getOrElse(Nothing)), ScType.presentableText(expectedType.get))
-              val annotation: Annotation = holder.createErrorAnnotation(expr, error)
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+              if (typeAware) {
+                val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
+                  ScType.presentableText(exprType.getOrElse(Nothing)), ScType.presentableText(expectedType.get))
+                val annotation: Annotation = holder.createErrorAnnotation(expr, error)
+                annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+              }
             } else ImportTracker.getInstance(expr.getProject).
                     registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
           }
@@ -568,11 +570,11 @@ object ScalaAnnotator {
    * Check conformance in case l = r.
    */
   def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
-    /*for (leftType <- l; rightType <- r) {
+    for (leftType <- l; rightType <- r) {
       if (!Conformance.conforms(leftType, rightType)) {
         return false
       } else return true
-    }*/
+    }
     return true
   }
 }
