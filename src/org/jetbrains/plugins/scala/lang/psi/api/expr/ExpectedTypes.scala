@@ -48,6 +48,7 @@ private[expr] object ExpectedTypes {
       case _ => None
     }
   }
+
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false): Array[ScType] = {
     //this method needs to replace expected type to return type if it's placholder function expression
     def finalize(expr: ScExpression): Array[ScType] = {
