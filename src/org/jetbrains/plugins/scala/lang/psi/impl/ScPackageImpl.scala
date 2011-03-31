@@ -12,11 +12,11 @@ import scope.PsiScopeProcessor
 import java.lang.String
 import com.intellij.openapi.util.Key
 import collection.Iterator
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
 import statements.ScFunctionImpl
 import toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import util.{PsiModificationTracker, CachedValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -25,6 +25,7 @@ import util.{PsiModificationTracker, CachedValue}
 
 class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     if (!pack.processDeclarations(processor, state, lastParent, place)) return false
@@ -58,8 +59,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
           if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
         }
       }
-      
-      val manager = ScalaCachesManager.getInstance(getProject)
+
       if (getQualifiedName == "scala") {
         val iterator: Iterator[PsiClass] = ImplicitlyImported.implicitlyImportedObjects(place.getManager,
           place.getResolveScope, "scala").iterator
@@ -68,21 +68,28 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
           if (!obj.processDeclarations(processor, state, lastParent, place)) return false
         }
       } else {
-        var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
-        val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-        if (tuple == null || tuple._2.longValue != count) {
-          val cache = manager.getNamesCache
-          val clazz = cache.getPackageObjectByName(getQualifiedName, place.getResolveScope)
-          tuple = (clazz, java.lang.Long.valueOf(count))
-          pack.putUserData(CachesUtil.PACKAGE_OBJECT_KEY, tuple)
-        }
-        val obj = tuple._1
-        if (obj != null) {
-          if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+        findPackageObject(place.getResolveScope) match {
+          case Some(obj) =>
+            if (!obj.processDeclarations(processor, state, lastParent, place)) return false
+          case None =>
         }
       }
     }
     return true
+  }
+
+  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
+    val manager = ScalaCachesManager.getInstance(getProject)
+
+    var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
+    val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+    if (tuple == null || tuple._2.longValue != count) {
+      val cache = manager.getNamesCache
+      val clazz = cache.getPackageObjectByName(getQualifiedName, scope)
+      tuple = (clazz, java.lang.Long.valueOf(count)) // TODO is it safe to cache this ignoreing `scope`?
+      pack.putUserData(CachesUtil.PACKAGE_OBJECT_KEY, tuple)
+    }
+    Option(tuple._1)
   }
 
   override def getParentPackage: PsiPackage = {

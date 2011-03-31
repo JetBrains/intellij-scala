@@ -7,11 +7,10 @@ package packaging
 
 import statements.ScDeclaredElementsHolder
 import base.ScStableCodeReferenceElement
-import psi.ScalaPsiElement
-import api.toplevel.typedef._
 import api.toplevel._
 
-trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageContainer with ScDeclaredElementsHolder {
+
+trait ScPackaging extends ScToplevelElement with ScImportsHolder with ScPackageContainer with ScDeclaredElementsHolder with ScPackageLike {
   def fullPackageName: String
 
   def getPackageName: String

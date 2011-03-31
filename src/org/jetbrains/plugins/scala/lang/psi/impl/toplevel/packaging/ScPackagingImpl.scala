@@ -10,6 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.IStubElementType
+import impl.file.PsiPackageImpl._
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
 import psi.ScalaPsiElementImpl
@@ -19,10 +20,11 @@ import psi.stubs.elements.wrappers.DummyASTNode
 import com.intellij.openapi.progress.ProgressManager
 import java.lang.String
 import api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import caches.ScalaCachesManager
+import search.GlobalSearchScope
 import tree.{IElementType, TokenSet}
 import com.intellij.util.ArrayFactory
 import collection.mutable.ArrayBuffer
+import caches.{CachesUtil, ScalaCachesManager}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -138,6 +140,13 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
     true
   }
+  
+  def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
+    val manager = ScalaCachesManager.getInstance(getProject)
+    val cache = manager.getNamesCache
+    Option(cache.getPackageObjectByName(getPackageName, scope))
+  }
+
 
   def getBodyText: String = {
     if (isExplicit) {
