@@ -4,11 +4,11 @@ package psi
 
 import api.base._
 import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
+import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
 import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
-import api.toplevel.packaging.ScPackageContainer
-import api.{ScalaFile, ScalaRecursiveElementVisitor}
+import api.{ScPackageLike, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
@@ -268,13 +268,19 @@ object ScalaPsiUtil {
         }
         case _=> {
           ScType.extractClass(tp) match {
-            case Some(pair) => Seq(pair)
+            case Some(pair) =>
+              val packObjects = pair.contexts.flatMap {
+                case x: ScPackageLike =>
+                  x.findPackageObject(place.getResolveScope).toIterator
+                case _ => Iterator()
+              }
+              Seq(pair) ++ packObjects
             case _ => Seq.empty
           }
         }
       }
     }
-    val parts = collectParts(tp, place)
+    val parts: scala.Seq[PsiClass] = collectParts(tp, place)
     val res: HashSet[ScObject] = new HashSet
     for (part <- parts) {
       for (tp <- MixinNodes.linearization(part, collection.immutable.HashSet.empty)) {
