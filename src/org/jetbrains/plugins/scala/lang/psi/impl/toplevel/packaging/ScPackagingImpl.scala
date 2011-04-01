@@ -126,12 +126,11 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
       return false
     }
 
-    /*val manager = ScalaCachesManager.getInstance(getProject)
-    val cache = manager.getNamesCache
-    val obj = cache.getPackageObjectByName(pName, getResolveScope)
-    if (obj != null) {
-      if (!obj.processDeclarations(processor, state, lastParent, place)) return false
-    }*/
+    findPackageObject(place.getResolveScope) match {
+      case Some(po) =>
+        if (!po.processDeclarations(processor, state, lastParent, place)) return false
+      case _ =>
+    }
 
     if (lastParent != null && lastParent.getContext == this) {
       if (!super[ScImportsHolder].processDeclarations(processor,
