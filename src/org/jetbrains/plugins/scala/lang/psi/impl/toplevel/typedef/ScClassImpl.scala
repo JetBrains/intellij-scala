@@ -167,6 +167,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         }.mkString(start, ", ", ")")
     }.mkString("")
 
-    "def copy" + typeParamString + paramString + " : " + name + typeParamString + " = throw new Error(\"\")"
+    val returnType = name + typeParameters.map(_.getName).mkString("[", ",", "]")
+    "def copy" + typeParamString + paramString + " : " + returnType + " = throw new Error(\"\")"
   }
 }
