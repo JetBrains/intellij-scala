@@ -37,9 +37,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def typeParameters: Seq[ScTypeParam]
 
-  def methodType: ScMethodType = {
-    new ScMethodType(retType, parameters, false, getProject, getResolveScope)
-  }
+  def methodType: ScMethodType = new ScMethodType(retType, parameters, false)(getProject, getResolveScope)
 
   def polymorphicType: ScType = {
     if (typeParameters.length == 0) return methodType
@@ -140,9 +138,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.length > 0)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit, getProject, getResolveScope)
+        new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
       }
-      else new ScMethodType(resultType, Seq.empty, false, getProject, getResolveScope)
+      else new ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
     res.asInstanceOf[ScMethodType]
   }
 

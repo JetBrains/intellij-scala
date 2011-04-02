@@ -195,9 +195,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(ctx)
         else {
-          new Success(new ScMethodType(getTypeWithoutImplicitsWihoutUnderscore(ctx).getOrElse(Any),
-            unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false)), false,
-            getProject, getResolveScope), Some(this))
+          val params = unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false))
+          val methType = new ScMethodType(getTypeWithoutImplicitsWihoutUnderscore(ctx).getOrElse(Any), params, false)(getProject, getResolveScope)
+          new Success(methType, Some(this))
         }
       }
     }

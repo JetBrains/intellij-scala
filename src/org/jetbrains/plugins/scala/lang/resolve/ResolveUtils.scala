@@ -97,7 +97,7 @@ object ResolveUtils {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
       }
       Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs)
-    }).toSeq, false, m.getProject, scope)
+    }).toSeq, false)(m.getProject, scope)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
