@@ -12,6 +12,7 @@ import psi.api.statements.params.ScParameter
 import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, LookupItem}
 import resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiMethod}
+import extensions._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,21 +36,25 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         editor.getCaretModel.moveToOffset(endOffset + 3)
       }
       case ScalaLookupObject(_: PsiMethod, _) | ScalaLookupObject(_: ScFun, _) => {
-        val (count, methodName) = item.getObject match {
+        val (count, methodName, isAccessor) = item.getObject match {
           case ScalaLookupObject(fun: ScFunction, _) => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) return
             if (clauses.apply(0).isImplicit) return
-            (clauses(0).parameters.length, fun.getName)
+            (clauses(0).parameters.length, fun.getName, false)
           }
-          case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName)
-          case ScalaLookupObject(fun: ScFun, _) => (fun.parameters.length, fun.asInstanceOf[ScSyntheticFunction].name)
+          case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
+          case ScalaLookupObject(fun: ScFun, _) => (fun.parameters.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
         }
-        if (count > 0) {
-          val endOffset = startOffset + lookupStringLength
-          val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
-          val element = file.findElementAt(startOffset)
 
+        val endOffset = startOffset + lookupStringLength
+        val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
+        val element = file.findElementAt(startOffset)
+        if (count == 0 && !isAccessor) {
+          methodName
+          document.insertString(endOffset, "()")
+          editor.getCaretModel.moveToOffset(endOffset + 2)
+        } else if (count > 0) {
           // for infix expressions
           if (element.getParent != null && !(element.getParent.isInstanceOf[ScReferenceExpression] &&
                   element.getParent.asInstanceOf[ScReferenceExpression].qualifier != None)) {
