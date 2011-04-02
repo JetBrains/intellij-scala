@@ -87,8 +87,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                 case f@ScFunctionType(ret, args) =>
                   ScalaPsiUtil.extractReturnType(expected) match {
                     case Some(expRet) =>
-                      new ScFunctionType(tryTp(Success(ret, Some(this)), expRet, true).tr.getOrElse(ret), args,
-                        f.getProject, f.getScope)
+                      new ScFunctionType(tryTp(Success(ret, Some(this)), expRet, true).tr.getOrElse(ret), args)(f.getProject, f.getScope)
                     case _ => tp
                   }
                 case _ => tp
@@ -156,9 +155,8 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
-            (new ScFunctionType(expr.result.map(_.getShape(true)._1).getOrElse(Nothing), Seq.fill(i)(Any),
-              getProject, getResolveScope), "")
-          case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any), getProject, getResolveScope), "")
+            (new ScFunctionType(expr.result.map(_.getShape(true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
+          case (i, _) => (new ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
       }
       case _ => (Nothing, "")

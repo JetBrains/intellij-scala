@@ -114,7 +114,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       else getTypeWithoutImplicitsWihoutUnderscore(TypingContext.empty).getOrElse(return Seq.empty)
 
     val expandedType: ScType = exp match {
-      case Some(expected) => new ScFunctionType(expected, Seq(typez), getProject, getResolveScope)
+      case Some(expected) => new ScFunctionType(expected, Seq(typez))(getProject, getResolveScope)
       case None => typez
     }
     for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {

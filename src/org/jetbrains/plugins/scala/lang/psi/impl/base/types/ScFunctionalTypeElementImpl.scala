@@ -30,7 +30,8 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
         Seq(oType.getOrElse(Any))
       }
     }
-    val result = Success(new ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes, getProject, getResolveScope), Some(this))
+    val funType = new ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes)(getProject, getResolveScope)
+    val result = Success(funType, Some(this))
     (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
   }
 }

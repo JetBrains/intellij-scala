@@ -12,20 +12,10 @@ import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
 /**
 * @author ilyas
 */
-case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) extends ValueType {
-  private var project: Project = null
-  private var scope: GlobalSearchScope = GlobalSearchScope.allScope(getProject)
-  def getProject: Project = {
-    if (project != null) project else DecompilerUtil.obtainProject
-  }
+case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Project, scope: GlobalSearchScope) extends ValueType {
+  def getProject: Project = project
 
   def getScope = scope
-
-  def this(returnType: ScType, params: Seq[ScType], project: Project, scope: GlobalSearchScope) {
-    this(returnType, params)
-    this.project = project
-    this.scope = scope
-  }
 
   def resolveFunctionTrait: Option[ScParameterizedType] = resolveFunctionTrait(getProject)
 
@@ -43,18 +33,9 @@ case class ScFunctionType private (returnType: ScType, params: Seq[ScType]) exte
     }
   }
 
-  override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts), project, scope)
+  override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
 
   private def functionTraitName = "scala.Function" + params.length
-
-  private var Implicit: Boolean = false
-
-  def isImplicit: Boolean = Implicit
-
-  def this(returnType: ScType, params: Seq[ScType], isImplicit: Boolean) = {
-    this(returnType, params)
-    Implicit = isImplicit
-  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst

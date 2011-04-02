@@ -33,14 +33,15 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       }))
       expectedType match {
         case Some(f@ScFunctionType(retType, params)) => {
-          return Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts),
-            f.getProject, f.getScope), Some(this))
+          val funType = new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope)
+          return Success(funType, Some(this))
         }
         case Some(tp@ScParameterizedType(des, typeArgs)) => {
           ScType.extractClass(tp) match {
             case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => {
-              return Success(new ScFunctionType(clausesType, typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts),
-                clazz.getProject, clazz.getResolveScope), Some(this))
+              val tParams = typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts)
+              val funType = new ScFunctionType(clausesType, tParams)(clazz.getProject, clazz.getResolveScope)
+              return Success(funType, Some(this))
             }
             case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => {
               return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts) ++
@@ -58,7 +59,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         val m = new HashMap[String, ScExistentialArgument]
         def existize(t: ScType): ScType = t match {
           case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret),
-            collection.immutable.Seq(params.map({existize _}).toSeq: _*), fun.getProject, fun.getScope)
+            collection.immutable.Seq(params.map({existize _}).toSeq: _*))(fun.getProject, fun.getScope)
           case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
           case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
             case obj: ScObject => {

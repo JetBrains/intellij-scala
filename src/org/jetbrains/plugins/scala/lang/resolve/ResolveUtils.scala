@@ -83,7 +83,7 @@ object ResolveUtils {
         //scala hack: Objects in java are modelled as Any in scala
         if (pt.equalsToText("java.lang.Object")) Any
         else s.subst(ScType.create(pt, m.getProject, scope))
-      }).toSeq: _*), m.getProject, scope)
+      }).toSeq: _*))(m.getProject, scope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     val retType: ScType = (m, returnType) match {

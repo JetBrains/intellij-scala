@@ -74,8 +74,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
   protected def substInternal(t: ScType) : ScType = {
     t match {
-      case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal(_)),
-        f.getProject, f.getScope)
+      case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal(_)))(f.getProject, f.getScope)
       case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal))(t1.getProject, t1.getScope)
       case ScProjectionType(proj, element, subst) => new ScProjectionType(substInternal(proj), element, subst)
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType), params.map(p => {
@@ -318,7 +317,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
 object ScUndefinedSubstitutor {
   def removeUndefindes(tp: ScType): ScType = tp match {
      case f@ScFunctionType(ret, params) => new ScFunctionType(removeUndefindes(ret),
-      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*), f.getProject, f.getScope)
+      collection.immutable.Seq(params.map(removeUndefindes _).toSeq : _*))(f.getProject, f.getScope)
     case t1@ScTupleType(comps) => new ScTupleType(comps map {removeUndefindes _})(t1.getProject, t1.getScope)
     case ScProjectionType(proj, element, subst) => new ScProjectionType(removeUndefindes(proj), element, subst)
     case tpt : ScTypeParameterType => tpt
