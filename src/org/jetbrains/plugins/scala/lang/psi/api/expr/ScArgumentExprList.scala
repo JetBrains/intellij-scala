@@ -62,9 +62,9 @@ trait ScArgumentExprList extends ScArguments {
 
   /**
    * Mapping from argument expressions to corresponding parameters, as found during
-   * applicatiblity checking.
+   * applicability checking.
    */
-  def matchedArguments: Option[Map[ScExpression, Parameter]]
+  def matchedParameters: Option[Map[ScExpression, Parameter]]
 
   /**
    * Return possible applications without using resolve of reference to this call (to avoid SOE)

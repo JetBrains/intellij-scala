@@ -123,10 +123,10 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def matchedArguments: Option[Map[ScExpression, Parameter]] = {
+  def matchedParameters: Option[Map[ScExpression, Parameter]] = {
     getContext match {
       case call: ScMethodCall => {
-        Some(call.matchedArguments)
+        Some(call.matchedParameters)
       }
       case _ => None
     }

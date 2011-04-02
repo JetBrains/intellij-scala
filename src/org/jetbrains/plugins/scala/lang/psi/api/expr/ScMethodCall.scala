@@ -53,7 +53,7 @@ trait ScMethodCall extends ScExpression {
 
   def applicationProblems: Seq[ApplicabilityProblem]
 
-  def matchedArguments: Map[ScExpression, Parameter]
+  def matchedParameters: Map[ScExpression, Parameter]
 
   /**
    * This method useful in case if you want to update some polymorphic type

@@ -82,7 +82,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       val c = fun(exprs)
       def tail: ScType = {
         applicabilityProblemsVar = c._2
-        matchedArgumentsVar = c._3
+        matchedParametersVar = c._3
 
         c._1
       }
@@ -93,7 +93,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
             if (!cd._2.isEmpty) tail
             else {
               applicabilityProblemsVar = cd._2
-              matchedArgumentsVar = cd._3
+              matchedParametersVar = cd._3
               cd._1
             }
           }
@@ -172,7 +172,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         }
         case tp => {
           applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
-          matchedArgumentsVar = Seq()
+          matchedParametersVar = Seq()
           tp
         }
       }
@@ -183,15 +183,15 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   }
 
   private var applicabilityProblemsVar: Seq[ApplicabilityProblem] = Seq.empty
-  private var matchedArgumentsVar: Seq[(Parameter, ScExpression)] = Seq.empty
+  private var matchedParametersVar: Seq[(Parameter, ScExpression)] = Seq.empty
 
   def applicationProblems: scala.Seq[ApplicabilityProblem] = {
     getType(TypingContext.empty) //update applicabilityProblemsVar if needed
     applicabilityProblemsVar
   }
 
-  def matchedArguments: Map[ScExpression, Parameter] = {
+  def matchedParameters: Map[ScExpression, Parameter] = {
     getType(TypingContext.empty) //update matchedArgumentsVar if needed
-    matchedArgumentsVar.map{ case (a, b) => (b, a)}.toMap
+    matchedParametersVar.map{ case (a, b) => (b, a)}.toMap
   }
 }
