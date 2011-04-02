@@ -537,7 +537,7 @@ object TypeDefinitionMembers {
           if (v2 && checkNameGetSetIs(n.info.getName)) {
             n.info match {
               case t: ScTypedDefinition => {
-                implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
+                implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))
                 val context = ScalaPsiUtil.nameContext(t)
                 if (!processor.execute(new FakePsiMethod(t, context match {
                   case o: PsiModifierListOwner => o.hasModifierProperty _

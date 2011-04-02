@@ -316,21 +316,21 @@ private[expr] object ExpectedTypes {
       case Success(ScMethodType(_, params, _), _) => {
         if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
           params.apply(0).paramType match {
-            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false)))
+            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false, false)))
             case p: ScParameterizedType if p.getTupleType != None =>
-              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false)))
+              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false, false)))
             case _ =>
           }
         } else applyForParams(params)
       }
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) => {
         val subst = t.abstractTypeSubstitutor
-        val newParams = params.map(p => Parameter(p.name, subst.subst(p.paramType), p.isDefault, p.isRepeated))
+        val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
           newParams.apply(0).paramType match {
-            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false)))
+            case ScTupleType(args) => applyForParams(args.map(Parameter("", _, false, false, false)))
             case p: ScParameterizedType if p.getTupleType != None =>
-              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false)))
+              applyForParams(p.getTupleType.get.components.map(Parameter("", _, false, false, false)))
             case _ =>
           }
         } else applyForParams(newParams)

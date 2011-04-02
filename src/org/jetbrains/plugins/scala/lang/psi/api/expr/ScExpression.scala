@@ -195,7 +195,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(ctx)
         else {
-          val params = unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false))
+          val params = unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false, false))
           val methType = new ScMethodType(getTypeWithoutImplicitsWihoutUnderscore(ctx).getOrElse(Any), params, false)(getProject, getResolveScope)
           new Success(methType, Some(this))
         }
@@ -361,7 +361,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     res match {
       case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
         def updateRes(expected: ScType) {
-          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false)),
+          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false) //here should work in different way:
         }

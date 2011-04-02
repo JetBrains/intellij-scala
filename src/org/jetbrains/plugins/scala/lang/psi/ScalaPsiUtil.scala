@@ -407,7 +407,7 @@ object ScalaPsiUtil {
                                              subst: ScSubstitutor = ScSubstitutor.empty,
                                              shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
-    val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
+    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType)))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     val tpe = if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst
@@ -1015,5 +1015,38 @@ object ScalaPsiUtil {
           None
       }
     case _ => None
+  }
+
+  /**
+   * @return Some(parameter) if the expression is an argument expression that can be resolved to a corresponding
+   *         parameter; None otherwise.
+   */
+  def parameterOf(exp: ScExpression): Option[Parameter] = {
+    exp match {
+      case assignment: ScAssignStmt =>
+        assignment.getLExpression match {
+          case ref: ScReferenceExpression =>
+            ref.resolve().asOptionOf[ScParameter].map(p => new Parameter(p))
+          case _ => None
+        }
+      case _ =>
+        exp.getParent match {
+          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
+            ie.operation match {
+              case Resolved(f: ScFunction, _) => f.parameters.headOption.map(p => new Parameter(p))
+              case _ => None
+            }
+          case args: ScArgumentExprList =>
+            args.getParent match {
+              case constructor: ScConstructor =>
+                constructor.reference
+                        .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
+                        .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))   // TODO secondary parameter lists
+                        .map(p => new Parameter(p))
+              case _ => args.matchedArguments.getOrElse(Map.empty).get(exp)
+            }
+          case _ => None
+        }
+    }
   }
 }

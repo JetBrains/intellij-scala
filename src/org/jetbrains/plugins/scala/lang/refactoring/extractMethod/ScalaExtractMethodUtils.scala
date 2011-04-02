@@ -284,7 +284,7 @@ object ScalaExtractMethodUtils {
         new ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
-    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, Parameter("", tp, false, false), definition.getName)
+    val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, Parameter("", tp, false, false, false), definition.getName)
     new ScalaVariableData(definition, isMutable, isInside, tp, param)
   }
 

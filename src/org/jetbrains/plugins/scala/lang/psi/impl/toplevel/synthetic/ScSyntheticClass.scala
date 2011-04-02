@@ -152,7 +152,7 @@ class ScSyntheticFunction(manager: PsiManager, val name: String,
 extends SyntheticNamedElement(manager, name) with ScFun {
   
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[ScType]) =
-    this(manager, name, retType, paramTypes.map(Parameter("", _, false, false)), Seq.empty)
+    this(manager, name, retType, paramTypes.map(Parameter("", _, false, false, false)), Seq.empty)
 
   val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
   override def typeParameters = typeParams
@@ -219,7 +219,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
     anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
-      override val parameters: Seq[Parameter] = Seq(Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false))
+      override val parameters: Seq[Parameter] = Seq(Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false, false))
       override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 

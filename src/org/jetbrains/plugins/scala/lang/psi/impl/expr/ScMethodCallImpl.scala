@@ -49,7 +49,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
             case _ => internal
           }
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(subIntenal,
-            Seq(Parameter("", expected, false, false)),
+            Seq(Parameter("", expected, false, false, false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(subIntenal.inferValueType))),
             typeParams, shouldUndefineParameters = false)
           nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(this)) //here should work in different way:
@@ -109,7 +109,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
         def fun(t: Seq[Expression]) = {
           val conformanceExt = Compatibility.checkConformanceExt(true, params.zipWithIndex.map {
             case (tp, i) => {
-              new Parameter("v" + (i + 1), tp, false, false)
+              new Parameter("v" + (i + 1), tp, false, false, false)
             }
           }, t, true, false)
           (retType, conformanceExt.problems, conformanceExt.matchedArgs)
@@ -132,7 +132,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
       case Success(ScTypePolymorphicType(ScFunctionType(retType, params), typeParams), _) => {
         val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
         def fun(t: Seq[Expression]) = ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params.zipWithIndex.map {
-          case (tp, i) => new Parameter("v" + (i + 1), tp, false, false)
+          case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
         }, t, typeParams)
         tuplizyCase(fun, exprs)
       }
@@ -141,7 +141,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           val exprs: Seq[Expression] = argumentExpressionsIncludeUpdateCall.map(Expression(_))
           def fun(t: Seq[Expression]) = {
             val conformanceExt = Compatibility.checkConformanceExt(true, params.zipWithIndex.map {
-              case (tp, i) => new Parameter("v" + (i + 1), tp, false, false)
+              case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
             }, t, true, false)
             (retType, conformanceExt.problems, conformanceExt.matchedArgs)
           }
@@ -164,7 +164,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
           val exprs: Seq[Expression] = argumentExpressionsIncludeUpdateCall.map(expr => new Expression(expr))
           def fun(t: Seq[Expression]) = {
             val params1 = params.zipWithIndex.map {
-              case (tp, i) => new Parameter("v" + (i + 1), tp, false, false)
+              case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
             }
             ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params1, t, typeParams)
           }

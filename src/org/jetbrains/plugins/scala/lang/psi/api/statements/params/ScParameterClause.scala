@@ -24,7 +24,7 @@ trait ScParameterClause extends ScalaPsiElement {
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
   def getSmartParameters: Seq[Parameter] = {
     parameters.map(param =>
-      Parameter(param.name, param.getType(TypingContext.empty).getOrElse(Nothing),param.isDefaultParam, param.isRepeatedParameter))
+      Parameter(param.name, param.getType(TypingContext.empty).getOrElse(Nothing),param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter))
   }
 
   /**

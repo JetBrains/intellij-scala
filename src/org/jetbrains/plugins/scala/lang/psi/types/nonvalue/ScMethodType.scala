@@ -22,9 +22,9 @@ trait NonValueType extends ScType {
   def isValue = false
 }
 
-case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean) {
+case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean, isByName: Boolean) {
   def this(param: ScParameter) {
-    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam, param.isRepeatedParameter)
+    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter)
   }
 }
 case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp: PsiTypeParameter)
@@ -42,7 +42,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
-    params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit)(project, scope)
+    params.map(p => p.copy(paramType = p.paramType.removeAbstracts)), isImplicit)(project, scope)
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
