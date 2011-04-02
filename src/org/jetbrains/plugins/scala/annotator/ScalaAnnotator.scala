@@ -45,6 +45,7 @@ import java.awt.{Font, Color}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, FullSignature}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -253,6 +254,16 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
       refElement.getParent match {
         case s: ScImportSelector if resolve.length > 0 => return
+        case mc: ScMethodCall =>
+          val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, mc.getContext, mc)
+          if (refWithoutArgs.multiResolve(false).nonEmpty) {
+            // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
+            val error = ScalaBundle.message("cannot.resolve.apply.method", refElement.refName)
+            val annotation = holder.createErrorAnnotation(refElement.nameId, error)
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+            annotation.registerFix(ReportHighlightingErrorQuickFix)
+            return
+          }
         case _ =>
       }
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
