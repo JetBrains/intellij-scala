@@ -11,6 +11,8 @@ class IntroduceParameterSimpleTest extends IntroduceParameterTestBase {
 
   def testOtherName = doTest
 
+  def testSCL2967 = doTest
+
   def testSimple = doTest
 
   def testTwoOccurences = doTest
