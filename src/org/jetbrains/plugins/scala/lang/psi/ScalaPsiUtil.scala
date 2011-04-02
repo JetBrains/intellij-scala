@@ -1043,7 +1043,7 @@ object ScalaPsiUtil {
                         .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor]) // TODO secondary constructors
                         .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))   // TODO secondary parameter lists
                         .map(p => new Parameter(p))
-              case _ => args.matchedArguments.getOrElse(Map.empty).get(exp)
+              case _ => args.matchedParameters.getOrElse(Map.empty).get(exp)
             }
           case _ => None
         }
