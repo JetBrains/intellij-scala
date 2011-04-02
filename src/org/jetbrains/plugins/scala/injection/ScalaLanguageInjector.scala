@@ -49,7 +49,9 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     })
 
     if(suitable)
-      expressions.filter(_.isInstanceOf[ScLiteral]).map(_.asInstanceOf[ScLiteral])
+      expressions.collect {
+        case x: ScLiteral if x.isString => x
+      }
     else
       Seq.empty
   }
