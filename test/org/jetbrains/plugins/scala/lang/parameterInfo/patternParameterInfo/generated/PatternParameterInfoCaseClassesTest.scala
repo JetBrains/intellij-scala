@@ -6,4 +6,6 @@ class PatternParameterInfoCaseClassesTest extends PatternParameterInfoTestBase {
   override def rootPath: String = super.rootPath + "caseClasses/"
 
   def testCaseClass = doTest
+
+  def testCaseClassB = doTest
 }

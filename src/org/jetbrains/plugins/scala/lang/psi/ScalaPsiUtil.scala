@@ -990,4 +990,21 @@ object ScalaPsiUtil {
     // See http://lampsvn.epfl.ch/trac/scala/ticket/4390
     def create(count: Int): Array[T with Object] = Array.ofDim[T](count).asInstanceOf[Array[T with Object]]
   }
+
+  /**
+   * Finds the n-th parameter from the primiary constructor of `cls`
+   */
+  def nthConstructorParam(cls: ScClass, n: Int): Option[ScParameter] = cls.constructor match {
+    case Some(x: ScPrimaryConstructor) =>
+      val clauses = x.parameterList.clauses
+      if (clauses.length == 0) None
+      else {
+        val params = clauses(0).parameters
+        if (params.length > n)
+          Some(params(n))
+        else
+          None
+      }
+    case _ => None
+  }
 }
