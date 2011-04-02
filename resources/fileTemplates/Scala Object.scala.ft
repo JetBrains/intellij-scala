@@ -3,4 +3,6 @@
 #end
 #parse("File Header.java")
 
-object ${NAME} 
+object ${NAME} {
+
+}
