@@ -155,7 +155,13 @@ object NameSuggester {
       case x: ScMethodCall => {
         generateNamesByExpr(x.getInvokedExpr, names, validator)
       }
-      case _ =>
+      case _ => expr.getContext match {
+        case x: ScAssignStmt => x.assignName.foreach(names +=)
+        case x: ScArgumentExprList => x.matchedArguments.getOrElse(Map.empty).get(expr) match {
+          case Some(parameter) => names += parameter.name
+          case _ =>
+        }
+      }
     }
   }
 

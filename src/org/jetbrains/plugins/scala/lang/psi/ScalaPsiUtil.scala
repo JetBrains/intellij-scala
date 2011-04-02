@@ -395,13 +395,21 @@ object ScalaPsiUtil {
 
 
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                 typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty,
-                                 shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          typeParams: Seq[TypeParameter],
+                                          subst: ScSubstitutor = ScSubstitutor.empty,
+                                          shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams, subst, shouldUndefineParameters)
+    (tp, problems)
+  }
+
+  def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                             typeParams: Seq[TypeParameter],
+                                             subst: ScSubstitutor = ScSubstitutor.empty,
+                                             shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val paramsWithUndefTypes = params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
-    (if (c.problems.isEmpty) {
+    val tpe = if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst
       val prevInfoSubst = polymorphicTypeSubstitutorMissedEmptyParams(typeParams) followed subst
       ScTypePolymorphicType(retType, typeParams.map(tp => {
@@ -417,7 +425,8 @@ object ScalaPsiUtil {
       }))
     } else {
       ScTypePolymorphicType(retType, typeParams)
-    }, c.problems)
+    }
+    (tpe, c.problems, c.matchedArgs)
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {

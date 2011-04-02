@@ -18,6 +18,7 @@ import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
 import api.base.{ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
 import lexer.ScalaTokenTypes
+import nonvalue.Parameter
 
 /**
 * @author Alexander Podkhalyuzin
@@ -119,6 +120,15 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         call.getInvokedExpr
       }
       case _ => null
+    }
+  }
+
+  def matchedArguments: Option[Map[ScExpression, Parameter]] = {
+    getContext match {
+      case call: ScMethodCall => {
+        Some(call.matchedArguments)
+      }
+      case _ => None
     }
   }
 

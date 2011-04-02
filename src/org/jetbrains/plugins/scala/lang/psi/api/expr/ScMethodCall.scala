@@ -8,6 +8,7 @@ import statements.params.ScArguments
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import types.result.TypeResult
 import types.{ScType, ApplicabilityProblem}
+import types.nonvalue.Parameter
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -49,7 +50,10 @@ trait ScMethodCall extends ScExpression {
     }
   }
 
+
   def applicationProblems: Seq[ApplicabilityProblem]
+
+  def matchedArguments: Map[ScExpression, Parameter]
 
   /**
    * This method useful in case if you want to update some polymorphic type

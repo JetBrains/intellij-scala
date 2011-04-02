@@ -31,7 +31,6 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Constructor"
 
-
   def expectedType: Option[ScType] = {
     getContext match {
       case parents: ScClassParents => {
