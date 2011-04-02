@@ -1,3 +1,3 @@
 val a: Any = 4
-a.toS/*caret*/
+a.toString/*caret*/
 //toString

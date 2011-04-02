@@ -1,5 +1,5 @@
 class SmartValueInitializerCompletion {
-  val s: String = r/*caret*/
+  val s: String = readLine/*caret*/
 }
 /*
 readLine

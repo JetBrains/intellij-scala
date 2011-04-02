@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiElement
 import types.ScType
 import lexer.ScalaTokenTypes
+import types.nonvalue.Parameter
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -58,6 +59,12 @@ trait ScArgumentExprList extends ScArguments {
    * Generic call for this argument list if exist
    */
   def callGeneric: Option[ScGenericCall]
+
+  /**
+   * Mapping from argument expressions to corresponding parameters, as found during
+   * applicatiblity checking.
+   */
+  def matchedArguments: Option[Map[ScExpression, Parameter]]
 
   /**
    * Return possible applications without using resolve of reference to this call (to avoid SOE)
