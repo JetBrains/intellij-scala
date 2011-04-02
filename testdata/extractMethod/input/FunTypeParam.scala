@@ -9,7 +9,7 @@ class FunTypeParam {
 }
 /*
 class FunTypeParam {
-  def testMethodName[T](x: T, y: T): Unit = {
+  def testMethodName[T](x: T, y: T) {
     x
     y
   }

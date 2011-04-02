@@ -28,12 +28,12 @@ import java.lang.String
 import collection.mutable.ArrayBuffer
 import psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement, ScTypedDefinition}
-import psi.types.{ScFunctionType, ScSubstitutor, Nothing, ScType}
 import psi.api.expr._
 import psi.api.statements.{ScVariable, ScValue, ScFunction}
 import psi.api.statements.params.{ScParameter, ScTypeParam}
 import scala.util.Sorting
 import psi.types.nonvalue.Parameter
+import psi.types._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,7 +42,7 @@ import psi.types.nonvalue.Parameter
 
 object ScalaExtractMethodUtils {
   def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
-    var builder: StringBuilder = new StringBuilder
+    val builder: StringBuilder = new StringBuilder
     builder.append(settings.visibility)
     builder.append("def ").append(settings.methodName)
     val tp: ArrayBuffer[ScTypeParam] = new ArrayBuffer
@@ -71,9 +71,13 @@ object ScalaExtractMethodUtils {
       builder.delete(builder.length - 2, builder.length)
       builder.append(")")
     }
-    builder.append(": ")
-    builder.append(settings.calcReturnType)
-    builder.append(" = {\n")
+    if (settings.calcReturnTypeIsUnit) {
+        builder.append("{\n")
+    } else {
+        builder.append(": ")
+        builder.append(settings.calcReturnTypeText)
+        builder.append(" = {\n")
+    }
     for (param <- settings.parameters) {
       if (!param.passAsParameter) {
         builder.append(if (param.needMirror) "var " else "val ").append(param.oldName).append(": ").
@@ -85,7 +89,11 @@ object ScalaExtractMethodUtils {
       }
     }
     val offset = builder.length
-    for (element <- settings.elements) {
+    val elementsToAdd: Iterator[PsiElement] = settings.elements.toSeq match {
+      case Seq(x: ScBlockExpr) => x.children.toSeq.drop(1).dropRight(1).toIterator // drop '{' and '}'
+      case x => x.toIterator
+    }
+    for (element <- elementsToAdd) {
       builder.append(element.getText)
     }
     if (!settings.lastReturn) {
@@ -280,31 +288,44 @@ object ScalaExtractMethodUtils {
     new ScalaVariableData(definition, isMutable, isInside, tp, param)
   }
 
+  /**
+   * @return returnTypePresentableText
+   */
   def calcReturnType(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean,
-                     lastMeaningful: Option[ScType]): String = {
+                     lastMeaningful: Option[ScType]): String = calcReturnTypeExt(returnType, returns, lastReturn, lastMeaningful)._2
+
+  /**
+   * @return (isUnit, returnTypePresentableText)
+   */
+  def calcReturnTypeExt(returnType: Option[ScType], returns: Array[ExtractMethodReturn], lastReturn: Boolean,
+                     lastMeaningful: Option[ScType]): (Boolean, String) = {
+    def prepareResult(t: ScType) = {
+      val isUnit = t == Unit
+      (isUnit, ScType.presentableText(t))
+    }
     if (lastReturn) {
-      return ScType.presentableText(returnType.get)
+      return prepareResult(returnType.get)
     }
     if (returns.length == 0 && returnType == None && lastMeaningful != None) {
-      return ScType.presentableText(lastMeaningful.get)
+      return prepareResult(lastMeaningful.get)
     }
     returnType match {
       case Some(psi.types.Unit) => {
-        if (returns.length == 0) "Boolean"
-        else if (returns.length == 1) "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
-        else "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
+        if (returns.length == 0) (false, "Boolean")
+        else if (returns.length == 1) (false, "(Boolean, Option[" + ScType.presentableText(returns.apply(0).returnType) + "])")
+        else (false, "(Boolean, Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])")
       }
       case Some(tp) => {
-        if (returns.length == 0) "Option[" + ScType.presentableText(tp) + "]"
-        else if (returns.length == 1) "(Option[" + ScType.presentableText(tp) +
-                "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])"
-        else "(Option[" + ScType.presentableText(tp) +"]," +
-                " Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])"
+        if (returns.length == 0) (false, "Option[" + ScType.presentableText(tp) + "]")
+        else if (returns.length == 1) (false, "(Option[" + ScType.presentableText(tp) +
+                "], Option[" + ScType.presentableText(returns.apply(0).returnType) + "])")
+        else (false, "(Option[" + ScType.presentableText(tp) +"]," +
+                " Option[" + returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")") + "])")
       }
       case None => {
-        if (returns.length == 1) ScType.presentableText(returns.apply(0).returnType)
-        else if (returns.length == 0) "Unit"
-        else returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")")
+        if (returns.length == 1) prepareResult(returns.apply(0).returnType)
+        else if (returns.length == 0) (true, "Unit")
+        else (false, returns.map(r => ScType.presentableText(r.returnType)).mkString("(", ", ", ")"))
       }
     }
   }

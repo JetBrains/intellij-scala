@@ -20,5 +20,5 @@ class ScalaExtractMethodSettings(
         val returnType: Option[ScType],
         val lastReturn: Boolean,
         val lastMeaningful: Option[ScType]) {
-  def calcReturnType: String = ScalaExtractMethodUtils.calcReturnType(returnType, returns, lastReturn, lastMeaningful)
+  lazy val (calcReturnTypeIsUnit, calcReturnTypeText) = ScalaExtractMethodUtils.calcReturnTypeExt(returnType, returns, lastReturn, lastMeaningful)
 }

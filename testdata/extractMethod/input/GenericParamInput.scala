@@ -10,7 +10,7 @@ abstract class GenericParamInput[T] {
 /*
 abstract class GenericParamInput[T] {
   val x: T
-  def testMethodName(y: T): Unit = {
+  def testMethodName(y: T) {
     y
   }
 

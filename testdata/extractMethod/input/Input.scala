@@ -15,7 +15,7 @@ class Input {
 }
 /*
 class Input {
-  def testMethodName(x: Int, y: Int, z: String): Unit = {
+  def testMethodName(x: Int, y: Int, z: String) {
     if (z == "") {
       val g = y + 1
       print(g)
