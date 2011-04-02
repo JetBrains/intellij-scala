@@ -19,6 +19,7 @@ import conversion.JavaToScala
 import com.intellij.psi.util.PsiTreeUtil
 import psi.api.expr._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -71,6 +72,7 @@ class ScalaIntroduceParameterMethodUsagesProcessor extends IntroduceParameterMet
     val needSpace = ScalaNamesUtil.isIdentifier(paramName + ":")
     val paramText = paramName + (if (needSpace) " : " else ": ") + ScType.canonicalText(paramType) + defaultTail
     val param = ScalaPsiElementFactory.createParameterFromText(paramText, fun.getManager)
+    ScalaPsiUtil.adjustTypes(param)
     fun.addParameter(param)
 
     false
