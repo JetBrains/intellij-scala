@@ -34,23 +34,15 @@ case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: 
 }
 
 
-case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isImplicit: Boolean) extends NonValueType {
-  var project: Project = DecompilerUtil.obtainProject
-  var scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-
-  def this(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean, project: Project,
-        scope: GlobalSearchScope) {
-    this(returnType, params, isImplicit)
-    this.project = project
-    this.scope = scope
-  }
+case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
+                       (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
 
   def inferValueType: ValueType = {
     return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
   }
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
-    params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit, project, scope)
+    params.map(p => Parameter(p.name, p.paramType.removeAbstracts, p.isDefault, p.isRepeated)), isImplicit)(project, scope)
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
