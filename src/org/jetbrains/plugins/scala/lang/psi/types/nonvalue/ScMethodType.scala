@@ -46,7 +46,7 @@ case class ScMethodType private (returnType: ScType, params: Seq[Parameter], isI
   }
 
   def inferValueType: ValueType = {
-    return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType), project, scope)
+    return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
   }
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,

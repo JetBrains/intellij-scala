@@ -281,7 +281,7 @@ object ScalaExtractMethodUtils {
     val retType = definition.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
-        new ScFunctionType(retType, Seq.empty, definition.getProject, definition.getResolveScope)
+        new ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
     val param = new FakePsiParameter(definition.getManager, ScalaFileType.SCALA_LANGUAGE, Parameter("", tp, false, false), definition.getName)
