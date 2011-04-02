@@ -63,7 +63,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
                       new ScAbstractType(ScalaPsiManager.typeVariable(tp.ptp), tp.lowerType, tp.upperType))
               }
-              params.map(p => Parameter(p.name, s.subst(p.paramType), p.isDefault, p.isRepeated))
+              params.map(p => p.copy(paramType = s.subst(p.paramType)))
             }
             case _ => Seq.empty
           }

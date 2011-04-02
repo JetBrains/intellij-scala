@@ -103,14 +103,14 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         case fun: ScFunction =>
           fun.paramClauses.clauses.map(_.parameters.map(p => new Parameter(p.name,
             subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
-            p.isRepeatedParameter)))
+            p.isRepeatedParameter, p.isCallByNameParameter)))
         case f: ScPrimaryConstructor =>
           f.parameterList.clauses.map(_.parameters.map(p => new Parameter(p.name,
             subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
-            p.isRepeatedParameter)))
+            p.isRepeatedParameter, p.isCallByNameParameter)))
         case m: PsiMethod =>
           Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
-            ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true), false, p.isVarArgs)))
+            ScType.create(p.getType, getProject, getResolveScope, paramTopLevel = true), false, p.isVarArgs, false)))
       }
 
       findConsturctor match {
@@ -124,7 +124,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           c.expectedType match {
             case Some(expected) => {
               def updateRes(expected: ScType) {
-                typeParameters = ScalaPsiUtil.localTypeInference(res, Seq(Parameter("", expected, false, false)),
+                typeParameters = ScalaPsiUtil.localTypeInference(res, Seq(Parameter("", expected, false, false, false)),
                     Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParameters).subst(res.inferValueType))),
                   typeParameters, shouldUndefineParameters = false).typeParameters //here should work in different way:
               }

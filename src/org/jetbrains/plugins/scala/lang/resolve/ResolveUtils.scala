@@ -96,7 +96,7 @@ object ResolveUtils {
       if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
       }
-      Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs)
+      Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false)
     }).toSeq, false)(m.getProject, scope)
   }
 

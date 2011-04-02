@@ -10,8 +10,10 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import lang.formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.util.TextRange
 import lang.psi.api.expr._
-import lang.psi.api.base.{ScPrimaryConstructor, ScConstructor, ScLiteral}
+import lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.types.nonvalue.Parameter
+import lang.psi.ScalaPsiUtil
 
 /**
  * Pavel Fatin
@@ -30,9 +32,9 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
 
     if(!settings.INCLUDE_BLOCK_EXPRESSIONS && exp.isInstanceOf[ScBlockExpr]) return
 
-    val parameter = parameterOf(exp).orElse(conversionParameterOf(exp))
+    val parameter = ScalaPsiUtil.parameterOf(exp).orElse(conversionParameterOf(exp))
 
-    parameter.filter(_.isCallByNameParameter).foreach { p =>
+    parameter.filter(_.isByName).foreach { p =>
       val attributes = new TextAttributes()
       attributes.setForegroundColor(Foreground)
 
@@ -45,42 +47,11 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
     }
   }
 
-  private def parameterOf(exp: ScExpression): Option[ScParameter] = {
-    exp match {
-      case assignment: ScAssignStmt =>
-        assignment.getLExpression match {
-          case ref: ScReferenceExpression =>
-            ref.resolve().asOptionOf[ScParameter]
-          case _ => None
-        }
-      case _ =>
-        exp.getParent match {
-          case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
-            ie.operation match {
-              case Resolved(f: ScFunction, _) => f.parameters.headOption
-              case _ => None
-            }
-          case args: ScArgumentExprList =>
-            args.getParent match {
-              case constructor: ScConstructor =>
-                constructor.reference
-                        .flatMap(_.resolve().asOptionOf[ScPrimaryConstructor])
-                        .flatMap(_.parameters.lift(args.exprs.indexOf(exp)))
-              case _ =>
-                args.callReference match {
-                  case Some(Resolved(f: ScFunction, _)) => f.parameters.lift(args.exprs.indexOf(exp))
-                  case _ => None
-                }
-            }
-          case _ => None
-        }
-    }
-  }
-
-  private def conversionParameterOf(exp: ScExpression): Option[ScParameter] = {
+  private def conversionParameterOf(exp: ScExpression): Option[Parameter] = {
     exp.getImplicitConversions._2
             .flatMap(_.asOptionOf[ScFunction])
             .flatMap(_.parameters.headOption)
+            .map(p => new Parameter(p))
   }
 
   private def nonLiteralRangesIn(exp: ScExpression): Seq[TextRange] = {

@@ -251,7 +251,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       val t = valsIterator.next._1
       t match {
         case t: ScTypedDefinition => {
-          implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false))
+          implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))
           val context = ScalaPsiUtil.nameContext(t)
           buffer += new FakePsiMethod(t, context match {
             case o: PsiModifierListOwner => o.hasModifierProperty _

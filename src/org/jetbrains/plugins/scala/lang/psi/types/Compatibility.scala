@@ -251,11 +251,11 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrElse(Nothing))
-    Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter)
+    Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    Parameter(p.getName, t, false, p.isVarArgs)
+    Parameter(p.getName, t, false, p.isVarArgs, false)
   }
 
   // TODO refactor a lot of duplication out of this method 
@@ -268,8 +268,7 @@ object Compatibility {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
-        checkConformanceExt(false, synthetic.parameters.map(p => Parameter(p.name, substitutor.subst(p.paramType),
-          p.isDefault, p.isRepeated)), exprs, checkWithImplicits, isShapesResolve)
+        checkConformanceExt(false, synthetic.parameters.map(p => p.copy(paramType = substitutor.subst(p.paramType))), exprs, checkWithImplicits, isShapesResolve)
       }
       case fun: ScFunction => {
         
@@ -342,14 +341,14 @@ object Compatibility {
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any)
-            Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter) 
+            Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
+        }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
         return res
       }
       case method: PsiMethod => {
@@ -378,7 +377,7 @@ object Compatibility {
             case _ => tp
           }
           else tp
-        }, false, param.isVarArgs)}, exprs, checkWithImplicits, isShapesResolve)
+        }, false, param.isVarArgs, false)}, exprs, checkWithImplicits, isShapesResolve)
       }
       /*case cc: ScClass if cc.isCase => {
         val parameters: Seq[ScParameter] = {

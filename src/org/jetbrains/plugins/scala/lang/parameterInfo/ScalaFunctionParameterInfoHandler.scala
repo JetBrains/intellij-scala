@@ -237,7 +237,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (seq.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.map(t =>
-                Tuple(new Parameter(t._1, t._2, t._3 != null, false), t._1 + ": " + ScType.presentableText(t._2) + (
+                Tuple(new Parameter(t._1, t._2, t._3 != null, false, false), t._1 + ": " + ScType.presentableText(t._2) + (
                   if (t._3 != null) " = " + t._3.getText
                   else ""
                   )))
