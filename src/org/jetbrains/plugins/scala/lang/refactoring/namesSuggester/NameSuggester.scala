@@ -161,6 +161,7 @@ object NameSuggester {
           case Some(parameter) => names += parameter.name
           case _ =>
         }
+        case _ =>
       }
     }
   }
