@@ -7,7 +7,7 @@ class CallByNameInput {
 }
 /*
 class CallByNameInput {
-  def testMethodName(x: => Int): Unit = {
+  def testMethodName(x: => Int) {
     x + 44
   }
 

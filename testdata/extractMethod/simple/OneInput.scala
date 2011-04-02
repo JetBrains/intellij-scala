@@ -8,7 +8,7 @@ class OneInput {
 }
 /*
 class OneInput {
-  def testMethodName(i: Int): Unit = {
+  def testMethodName(i: Int) {
     i * i
   }
 

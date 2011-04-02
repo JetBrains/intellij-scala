@@ -8,7 +8,7 @@ class LazyInput {
 }
 /*
 class LazyInput {
-  def testMethodName(x: => Int): Unit = {
+  def testMethodName(x: => Int) {
     x + 77
   }
 
