@@ -62,9 +62,9 @@ object Compatibility {
   }
   
   def checkConformance(checkNames: Boolean,
-                                 parameters: Seq[Parameter],
-                                 exprs: Seq[Expression],
-                                 checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                       parameters: Seq[Parameter],
+                       exprs: Seq[Expression],
+                       checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, false)
     (r.problems.isEmpty, r.undefSubst)
   }  
