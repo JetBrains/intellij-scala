@@ -12,20 +12,10 @@ import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
 /**
 * @author ilyas
 */
-case class ScTupleType private (components: Seq[ScType]) extends ValueType {
-  private var project: Project = null
-  private var scope: GlobalSearchScope = GlobalSearchScope.allScope(getProject)
-  def getProject: Project = {
-    if (project != null) project else DecompilerUtil.obtainProject
-  }
+case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalSearchScope) extends ValueType {
+  def getProject: Project = project
 
   def getScope = scope
-
-  def this(components: Seq[ScType], project: Project, scope: GlobalSearchScope) = {
-    this(components)
-    this.project = project
-    this.scope = scope
-  }
 
   def resolveTupleTrait: Option[ScParameterizedType] = resolveTupleTrait(getProject)
 
@@ -66,7 +56,7 @@ case class ScTupleType private (components: Seq[ScType]) extends ValueType {
     }
   }
 
-  override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))
+  override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))(project, scope)
 
   private def tupleTraitName = "scala.Tuple" + components.length
 }
