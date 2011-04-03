@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.ScalaPsiUtil
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -64,6 +65,7 @@ object Update extends Strategy {
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
     val annotation = ScalaPsiElementFactory.createTypeElementFromText(t.presentableText, context.getManager)
+    ScalaPsiUtil.adjustTypes(annotation)
     context.addAfter(annotation, anchor)
 
     val colon = ScalaPsiElementFactory.createColon(context.getManager)

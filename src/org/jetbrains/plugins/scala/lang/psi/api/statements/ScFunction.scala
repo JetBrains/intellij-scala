@@ -33,11 +33,15 @@ import base.ScMethodLike
 trait ScFun extends ScTypeParametersOwner {
   def retType: ScType
 
-  def parameters: Seq[Parameter]
+  def paramClauses: Seq[Seq[Parameter]]
 
   def typeParameters: Seq[ScTypeParam]
 
-  def methodType: ScMethodType = new ScMethodType(retType, parameters, false)(getProject, getResolveScope)
+  def methodType: ScType = {
+    paramClauses.foldRight[ScType](retType) {
+      (params: Seq[Parameter], tp: ScType) => new ScMethodType(tp, params, false)(getProject, getResolveScope)
+    }
+  }
 
   def polymorphicType: ScType = {
     if (typeParameters.length == 0) return methodType
