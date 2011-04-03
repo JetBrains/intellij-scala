@@ -22,6 +22,7 @@ import com.intellij.ide.util.MemberChooser
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
 import settings.ScalaApplicationSettings
+import lang.psi.types.result.{Failure, Success, TypingContext}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -109,27 +110,35 @@ object ScalaOIUtil {
                isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
     ScalaUtils.runWriteAction(new Runnable {
       def run {
+        def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
+          case Success(tpe, _) => subst.addUpdateThisType(tpe)
+          case Failure(_, _) => subst
+        }
+
         for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
           val offset = editor.getCaretModel.getOffset
           val anchor = getAnchor(offset, clazz)
           member match {
             case member: ScMethodMember => {
               val method: PsiMethod = member.getElement
-              val sign = member.sign
-
+              val sign = member.sign.updateSubst(addUpdateThisType)
               val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement, needsInferType)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
             case member: ScAliasMember => {
               val alias = member.getElement
-              val substitutor = member.substitutor
+              val substitutor = addUpdateThisType(member.substitutor)
               val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, !isImplement)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
             }
             case _: ScValueMember | _: ScVariableMember => {
               val isVal = member match {case _: ScValueMember => true case _: ScVariableMember => false}
               val value = member match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-              val substitutor = member match {case x: ScValueMember => x.substitutor case x: ScVariableMember => x.substitutor}
+              val origSubstitutor = member match {
+                case x: ScValueMember => x.substitutor
+                case x: ScVariableMember => x.substitutor
+              }
+              val substitutor = addUpdateThisType(origSubstitutor)
               val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
                 !isImplement, isVal, needsInferType)
               adjustTypesAndSetCaret(clazz.addMember(m, anchor), editor)
@@ -303,20 +312,29 @@ object ScalaOIUtil {
     }
     val obj = getObjectByName
     if (obj == null) return null
+
+    def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
+      case Success(tpe, _) => subst.addUpdateThisType(tpe)
+      case Failure(_, _) => subst
+    }
+
     obj match {
       case sign: PhysicalSignature => {
         val method: PsiMethod = sign.method
-        return ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, !isImplement, true)
+        val sign1 = sign.updateSubst(addUpdateThisType)
+        return ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, true)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
         val element: PsiElement = ScalaPsiUtil.nameContext(name)
         element match {
           case alias: ScTypeAlias => {
-            return ScalaPsiElementFactory.createOverrideImplementType(alias, subst, alias.getManager, !isImplement)
+            val subst1 = addUpdateThisType(subst)
+            return ScalaPsiElementFactory.createOverrideImplementType(alias, subst1, alias.getManager, !isImplement)
           }
           case _: ScValue | _: ScVariable => {
             val typed: ScTypedDefinition = name match {case x: ScTypedDefinition => x case _ => return null}
-            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst, typed.getManager, !isImplement, 
+            val subst1 = addUpdateThisType(subst)
+            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst1, typed.getManager, !isImplement,
               element match {case _: ScValue => true case _ => false}, true)
           }
           case _ => return null
