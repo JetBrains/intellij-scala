@@ -16,7 +16,6 @@ import api.base.{ScStableCodeReferenceElement, ScPathElement}
 import lang.resolve.ScalaResolveResult
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.ScClass
 import caches.CachesUtil
 
 
@@ -24,6 +23,7 @@ import caches.CachesUtil
 import com.intellij.psi._
 import collection.immutable.{::, Map, HashMap}
 import result.{Success, TypingContext}
+import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -104,25 +104,6 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     }
   }
 
-  def getTupleType: Option[ScTupleType] = {
-    ScType.extractClass(designator) match {
-      case Some(clazz) if Option(clazz.getQualifiedName).exists(_.startsWith("scala.Tuple")) && typeArgs.length > 0 => {
-        Some(new ScTupleType(typeArgs)(clazz.getProject, clazz.getResolveScope))
-      }
-      case _ => None
-    }
-  }
-
-  def getFunctionType: Option[ScFunctionType] = {
-    ScType.extractClass(designator) match {
-      case Some(clazz) if clazz.getQualifiedName != null &&
-              clazz.getQualifiedName.startsWith("scala.Function") && typeArgs.length > 0 => {
-        Some(new ScFunctionType(typeArgs.apply(typeArgs.length - 1), typeArgs.slice(0, typeArgs.length - 1))(clazz.getProject, clazz.getResolveScope))
-      }
-      case _ => None
-    }
-  }
-
   override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
@@ -162,6 +143,57 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         return (true, undefinedSubst)
       }
       case _ => return (false, undefinedSubst)
+    }
+  }
+
+  def getTupleType: Option[ScTupleType] = {
+    getStandardType("scala.Tuple") match {
+      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
+        Some(new ScTupleType(typeArgs)(clazz.getProject, clazz.getResolveScope))
+      case None => None
+    }
+  }
+
+  def getFunctionType: Option[ScFunctionType] = {
+    getStandardType("scala.Function") match {
+      case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
+        val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
+        Some(new ScFunctionType(ret, params)(clazz.getProject, clazz.getResolveScope))
+      case None => None
+    }
+  }
+
+  /**
+   * @return Some((designator, paramType, returnType)), or None
+   */
+  def getPartialFunctionType: Option[(ScType, ScType, ScType)] = {
+    getStandardType("scala.PartialFunction") match {
+      case Some((_, Seq(param, ret))) => Some((designator, param, ret))
+      case None => None
+    }
+  }
+
+  /**
+   * @param  prefix of the qualified name of the type
+   * @return (typeDef, typeArgs)
+   */
+  private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
+    def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.getQualifiedName != null && clazz.getQualifiedName.startsWith(qualNamePrefix)
+
+    ScType.extractClassType(designator) match {
+      case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
+        val result = clazz.getType(TypingContext.empty)
+        result match {
+          case Success(t, _) =>
+            val substituted = (sub followed substitutor).subst(t)
+            substituted match {
+              case pt: ScParameterizedType =>
+                Some((clazz, pt.typeArgs))
+              case _ => None
+            }
+          case _ => None
+        }
+      case _ => None
     }
   }
 }

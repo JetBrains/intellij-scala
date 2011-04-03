@@ -9,8 +9,8 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{Success, TypeResult, Failure, TypingContext}
 import resolve.ScalaResolveResult
-import types.{ScSubstitutor, ScParameterizedType, ScFunctionType, ScType}
 import com.intellij.psi.{PsiElement, PsiMethod, PsiClass}
+import types._
 
 /**
 * @author Alexander Podkhalyuzin, ilyas
@@ -54,9 +54,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             var result: Option[ScType] = null //strange logic to handle problems with detecting type
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes if result != None) {
-              tp match {
-                case ScFunctionType(_, params) if params.length >= unders.length => {
-                  if (result != null) {
+
+              def processFunctionType(tp: ScFunctionType) = {
+                import tp.params
+                if (result != null) {
                     if (params.length == unders.length && !forEqualsParamLength) {
                       result = Some(params(i).removeAbstracts)
                       forEqualsParamLength = true
@@ -67,26 +68,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                     result = Some(params(i).removeAbstracts)
                     forEqualsParamLength = true
                   }
-                }
-                case ScParameterizedType(t, args) => {
-                  ScType.extractDesignated(t) match { //todo: this is hack, scala.Function1 ScProjectionType?
-                    case Some((c: PsiClass, _)) if c.getQualifiedName.startsWith("scala.Function") &&
-                            args.length >= unders.length + 1 => {
-                      if (result != null) {
-                        if (args.length == unders.length + 1 && !forEqualsParamLength) {
-                          result = Some(args(i).removeAbstracts)
-                          forEqualsParamLength = true
-                        } else if (args.length == unders.length + 1) result = None
-                      }
-                      else if (args.length > unders.length + 1) result = Some(args(i).removeAbstracts)
-                      else {
-                        result = Some(args(i).removeAbstracts)
-                        forEqualsParamLength = true
-                      }
-                    }
-                    case _ =>
-                  }
-                }
+              }
+
+              ScType.extractFunctionType(tp) match {
+                case Some(ft @ ScFunctionType(_, params)) if params.length >= unders.length => processFunctionType(ft)
                 case _ =>
               }
             }
