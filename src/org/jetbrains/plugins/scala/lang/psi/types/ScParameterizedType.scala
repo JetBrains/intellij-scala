@@ -150,7 +150,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     getStandardType("scala.Tuple") match {
       case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
         Some(new ScTupleType(typeArgs)(clazz.getProject, clazz.getResolveScope))
-      case None => None
+      case _ => None
     }
   }
 
@@ -159,7 +159,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case Some((clazz, typeArgs)) if typeArgs.length > 0 =>
         val (params, Seq(ret)) = typeArgs.splitAt(typeArgs.length - 1)
         Some(new ScFunctionType(ret, params)(clazz.getProject, clazz.getResolveScope))
-      case None => None
+      case _ => None
     }
   }
 
