@@ -158,6 +158,21 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testSCL2052A() throws Exception {
+    String name = "bug/SCL2052A.scala";
+    runTest(name);
+  }
+
+  public void testSCL2052B() throws Exception {
+    String name = "bug/SCL2052B.scala";
+    runTest(name);
+  }
+
+  public void testSCL2052C() throws Exception {
+    String name = "bug/SCL2052C.scala";
+    runTest(name);
+  }
+
   public void testUnitReturn() throws Exception {
     String name = "simpleTests/unitoverride.scala";
     runTest(name);
