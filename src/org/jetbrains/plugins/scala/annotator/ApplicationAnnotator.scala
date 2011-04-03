@@ -124,7 +124,7 @@ trait ApplicationAnnotator {
       val params: Array[PsiParameter] = m.getParameterList.getParameters
       if (params.isEmpty) "" else formatJavaParams(params)
     case syn: ScSyntheticFunction =>
-      if (syn.parameters.isEmpty) "" else formatSyntheticParams(syn.parameters)
+      if (syn.paramClauses.isEmpty) "" else syn.paramClauses.map(formatSyntheticParams).mkString
   }
 
   private def formatParamClauses(paramClauses: ScParameters) = {

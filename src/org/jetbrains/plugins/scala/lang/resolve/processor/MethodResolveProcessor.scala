@@ -174,7 +174,7 @@ object MethodResolveProcessor {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
                     fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
-            case fun: ScFun if fun.parameters.length == 0 || isUnderscore => ConformanceExtResult(Seq.empty)
+            case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore => ConformanceExtResult(Seq.empty)
             case c: ScPrimaryConstructor if constructorCanBeCalledNoArgList(c) => // TODO proper handling of contructor applicability
               ConformanceExtResult(Seq.empty)
             case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||

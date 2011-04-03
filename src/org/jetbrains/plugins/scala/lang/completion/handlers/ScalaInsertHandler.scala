@@ -44,14 +44,17 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             (clauses(0).parameters.length, fun.getName, false)
           }
           case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
-          case ScalaLookupObject(fun: ScFun, _) => (fun.parameters.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
+          case ScalaLookupObject(fun: ScFun, _) =>
+            fun.paramClauses match {
+              case Seq() => return
+              case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)
+            }
         }
 
         val endOffset = startOffset + lookupStringLength
         val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
         val element = file.findElementAt(startOffset)
         if (count == 0 && !isAccessor) {
-          methodName
           document.insertString(endOffset, "()")
           editor.getCaretModel.moveToOffset(endOffset + 2)
         } else if (count > 0) {

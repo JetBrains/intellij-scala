@@ -268,7 +268,9 @@ object Compatibility {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction => {
-        checkConformanceExt(false, synthetic.parameters.map(p => p.copy(paramType = substitutor.subst(p.paramType))), exprs, checkWithImplicits, isShapesResolve)
+        if (synthetic.paramClauses.isEmpty) return ConformanceExtResult(Seq(new DoesNotTakeParameters))
+
+        checkConformanceExt(false, synthetic.paramClauses.head.map(p => p.copy(paramType = substitutor.subst(p.paramType))), exprs, checkWithImplicits, isShapesResolve)
       }
       case fun: ScFunction => {
         

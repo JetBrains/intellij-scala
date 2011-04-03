@@ -434,7 +434,8 @@ object ResolveUtils {
           }
           case fun: ScFun => {
             presentation.setTypeText(presentationString(fun.retType, substitutor))
-            presentation.setTailText(tailText + fun.parameters.map(presentationString(_, substitutor)).mkString("(", ", ", ")"))
+            val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
+            presentation.setTailText(tailText + paramClausesText)
           }
           case bind: ScBindingPattern => {
             presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))

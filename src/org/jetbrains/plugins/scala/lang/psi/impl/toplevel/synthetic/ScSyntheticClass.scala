@@ -147,12 +147,12 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 }
 
 class ScSyntheticFunction(manager: PsiManager, val name: String,
-                          val retType: ScType, val parameters: Seq[Parameter],
+                          val retType: ScType, val paramClauses: Seq[Seq[Parameter]],
                           typeParameterNames : Seq[String])
 extends SyntheticNamedElement(manager, name) with ScFun {
   
-  def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[ScType]) =
-    this(manager, name, retType, paramTypes.map(Parameter("", _, false, false, false)), Seq.empty)
+  def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[Seq[ScType]]) =
+    this(manager, name, retType, paramTypes.map(_.map(Parameter("", _, false, false, false))), Seq.empty)
 
   val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
   override def typeParameters = typeParams
@@ -200,15 +200,15 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     val any = registerClass(Any, "Any")
     val manager = any.manager
-    any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq.singleton(Any)))
-    any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq.singleton(Any)))
-    any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq.singleton(Any)))
-    any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq.empty))
+    any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq(Seq(Any))))
+    any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq(Seq(Any))))
+    any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq(Seq(Any))))
+    any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq(Seq())))
     any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
     any.addMethod(scope => {
       val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", scope)
       val stringType = if (stringClass != null) new ScDesignatorType(stringClass) else Any
-      new ScSyntheticFunction(manager, "toString", stringType, Seq.empty)
+      new ScSyntheticFunction(manager, "toString", stringType, Seq(Seq()))
     }, "toString")
     any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)))
     any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
@@ -216,10 +216,10 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     })
 
     val anyRef = registerClass(AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq.singleton(AnyRef)))
-    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq.singleton(AnyRef)))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(AnyRef))))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq((AnyRef)))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
-      override val parameters: Seq[Parameter] = Seq(Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false, false))
+      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter("", ScalaPsiManager.typeVariable(typeParams(0)), false, false, false)))
       override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
     })
 
@@ -231,7 +231,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     val boolc = registerClass(Boolean, "Boolean")
     for (op <- bool_bin_ops)
-      boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(Boolean)))
+      boolc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq(Seq(Boolean))))
     boolc.addMethod(new ScSyntheticFunction(manager, "unary_!", Boolean, Seq.empty))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
@@ -244,9 +244,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     for (nc <- numeric) {
       for (nc1 <- numeric; op <- numeric_comp_ops)
-        nc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq.singleton(nc1.t)))
+        nc.addMethod(new ScSyntheticFunction(manager, op, Boolean, Seq(Seq(nc1.t))))
       for (nc1 <- numeric; op <- numeric_arith_ops)
-        nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq.singleton(nc1.t)))
+        nc.addMethod(new ScSyntheticFunction(manager, op, op_type(nc, nc1), Seq(Seq(nc1.t))))
       for (nc1 <- numeric)
         nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
@@ -255,7 +255,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     for (ic <- integer) {
       for (ic1 <- integer; op <- bitwise_bin_ops)
-        ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq.singleton(ic1.t)))
+        ic.addMethod(new ScSyntheticFunction(manager, op, op_type(ic, ic1), Seq(Seq(ic1.t))))
       ic.addMethod(new ScSyntheticFunction(manager, "unary_~", ic.t, Seq.empty))
 
       val ret = ic.t match {
@@ -263,8 +263,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
         case _ => Int
       }
       for (op <- bitwise_shift_ops) {
-        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Int)))
-        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq.singleton(Long)))
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq(Seq(Int))))
+        ic.addMethod(new ScSyntheticFunction(manager, op, ret, Seq(Seq(Long))))
       }
     }
     scriptSyntheticValues = new HashSet[ScSyntheticValue]
@@ -279,7 +279,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     catch {
       case _: ProcessCanceledException =>
     }
-    stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Any))
+    stringPlusMethod = new ScSyntheticFunction(manager, "+", _, Seq(Seq(Any)))
 
     //register synthetic objects
     syntheticObjects = new HashSet[ScObject]
