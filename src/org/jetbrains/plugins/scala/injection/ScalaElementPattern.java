@@ -65,7 +65,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
           final PsiElement element = psiExpressionList.getParent();
           if (element instanceof ScMethodCall) {
-            final ScalaPsiElement expression = ((ScMethodCall) element).getInvokedExpr();
+            final ScalaPsiElement expression = ((ScMethodCall) element).getEffectiveInvokedExpr();
             if (expression instanceof ScReferenceElement) {
               final ScReferenceElement ref = (ScReferenceElement) expression;
               for (ResolveResult result : ref.multiResolve(false))

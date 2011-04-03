@@ -77,7 +77,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         }
       }
       case x: ScMethodCall => {
-        x.getInvokedExpr match {
+        x.getEffectiveInvokedExpr match {
           case ref: ScReferenceElement => return select(ref, editorText, cursorOffset, editor)
           case _ =>
         }
