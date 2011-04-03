@@ -9,6 +9,7 @@ import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
 import annotation.tailrec
 import util.ParserUtils
+import com.intellij.psi.tree.IElementType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -43,16 +44,31 @@ object Block {
 
   private def parseImpl(builder: ScalaPsiBuilder): Int = {
     var i: Int = 0;
-    while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-      val t = builder.getTokenType
-      if (t != ScalaTokenTypes.tSEMICOLON) {
-        i = i + 1;
+
+    var tts: List[IElementType] = Nil;
+    var continue = true
+
+    while (continue) {
+      if (ResultExpr.parse(builder)) {
+        continue = false
+        i = i + 1
+        tts ::= builder.getTokenType
+      } else {
+        if (BlockStat.parse(builder)) {
+          i = i + 1
+          tts ::= builder.getTokenType
+        } else {
+          continue = false
+        }
       }
     }
+    if (tts.drop(1).headOption == Some(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
+
     i
   }
 
   def parse(builder: ScalaPsiBuilder, hasBrace: Boolean): Boolean = parse(builder, hasBrace, false)
+
   def parse(builder: ScalaPsiBuilder, hasBrace: Boolean, needNode: Boolean): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
@@ -72,10 +88,12 @@ object Block {
     }
     else {
       val bm = builder.mark()
-      if (parseImpl(builder) > 1) {
+      val count = parseImpl(builder)
+      if (count > 1) {
         bm.done(ScalaElementTypes.BLOCK)
       } else {
         if (!needNode) bm.drop else bm.done(ScalaElementTypes.BLOCK)
+//        bm.done(ScalaElementTypes.BLOCK)
       }
     }
     return true
