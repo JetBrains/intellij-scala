@@ -85,12 +85,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     returnTypeElement match {
       case Some(_) => returnType.toOption
       case None => {
-        superMethod match {
-          case Some(fun: ScFunction) => fun.returnType.toOption
-          case Some(fun: ScSyntheticFunction) => Some(fun.retType)
-          case Some(fun: PsiMethod) => Some(ScType.create(fun.getReturnType, getProject, getResolveScope))
+        val superReturnType = superMethodAndSubstitutor match {
+          case Some((fun: ScFunction, subst)) => fun.returnType.toOption.map(subst.subst)
+          case Some((fun: ScSyntheticFunction, subst)) => Some(subst.subst(fun.retType))
+          case Some((fun: PsiMethod, subst)) => Some(subst.subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
           case _ => None
         }
+        superReturnType
       }
     }
   }
@@ -202,6 +203,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def superMethods: Seq[PsiMethod]
 
   def superMethod: Option[PsiMethod]
+
+  def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
 
   def superSignatures: Seq[FullSignature]
 
