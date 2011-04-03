@@ -165,27 +165,27 @@ object ScalaPsiUtil {
                   getManager)) //we can't to not add something => add Nothing expression
             }
             else Seq.empty)
-    val typeArgs: Seq[ScTypeElement] = getInvokedExpr match {
+    val typeArgs: Seq[ScTypeElement] = getEffectiveInvokedExpr match {
       case gen: ScGenericCall => gen.arguments
       case _ => Seq.empty
     }
     import Compatibility.Expression._
-    val processor = new MethodResolveProcessor(getInvokedExpr, methodName, args :: Nil, typeArgs,
+    val processor = new MethodResolveProcessor(getEffectiveInvokedExpr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape, enableTupling = true)
-    processor.processType(tp.inferValueType, getInvokedExpr, ResolveState.initial)
+    processor.processType(tp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
     var candidates = processor.candidatesS
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
-      for (t <- getInvokedExpr.getImplicitTypes) {
+      for (t <- getEffectiveInvokedExpr.getImplicitTypes) {
         ProgressManager.checkCanceled
-        val importsUsed = getInvokedExpr.getImportsForImplicit(t)
+        val importsUsed = getEffectiveInvokedExpr.getImportsForImplicit(t)
         var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-        getInvokedExpr.getClazzForType(t) match {
+        getEffectiveInvokedExpr.getClazzForType(t) match {
           case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
           case _ =>
         }
-        processor.processType(t, getInvokedExpr, state)
+        processor.processType(t, getEffectiveInvokedExpr, state)
       }
       candidates = processor.candidatesS
     }

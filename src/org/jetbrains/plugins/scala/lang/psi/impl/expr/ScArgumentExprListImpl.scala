@@ -117,7 +117,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   def callExpression: ScExpression = {
     getContext match {
       case call: ScMethodCall => {
-        call.getInvokedExpr
+        call.getEffectiveInvokedExpr
       }
       case _ => null
     }

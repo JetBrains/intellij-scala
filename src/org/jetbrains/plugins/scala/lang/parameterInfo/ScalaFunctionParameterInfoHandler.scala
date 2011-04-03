@@ -430,7 +430,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           return
                         }
                         case _ => {
-                          for (typez <- call.getInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
+                          for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
                           {collectForType(typez)}
                         }
                       }
@@ -462,7 +462,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     }
                   }
                   case None => {
-                    for (typez <- call.getInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
+                    for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
                       collectForType(typez)
                     }
                   }

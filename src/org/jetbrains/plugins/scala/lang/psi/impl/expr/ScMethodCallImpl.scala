@@ -74,7 +74,7 @@ class ScMethodCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScM
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    var nonValueType: TypeResult[ScType] = getInvokedExpr.getNonValueType(TypingContext.empty)
+    var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
     nonValueType = updateAccordingToExpectedType(nonValueType)
 
     def tuplizyCase(fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]),

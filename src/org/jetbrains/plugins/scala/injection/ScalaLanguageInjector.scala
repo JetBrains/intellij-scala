@@ -137,7 +137,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
       if(index == -1) None else {
         args.getParent match {
           case call: ScMethodCall => {
-            call.getInvokedExpr.asOptionOf[ScReferenceExpression].flatMap { ref =>
+            call.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression].flatMap { ref =>
               ref.resolve.toOption match {
                 case Some(f: ScFunction) => {
                   val parameters = f.parameters

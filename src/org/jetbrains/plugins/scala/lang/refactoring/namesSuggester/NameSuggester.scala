@@ -153,7 +153,7 @@ object NameSuggester {
         }
       }
       case x: ScMethodCall => {
-        generateNamesByExpr(x.getInvokedExpr, names, validator)
+        generateNamesByExpr(x.getEffectiveInvokedExpr, names, validator)
       }
       case _ => expr.getContext match {
         case x: ScAssignStmt => x.assignName.foreach(names +=)

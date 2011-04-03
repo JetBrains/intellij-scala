@@ -17,7 +17,7 @@ import types.nonvalue.Parameter
 
 trait ScMethodCall extends ScExpression {
   def deepestInvokedExpr: ScExpression = {
-    getInvokedExpr match {
+    getEffectiveInvokedExpr match {
       case call: ScMethodCall => {
         call.deepestInvokedExpr
       }
@@ -26,6 +26,14 @@ trait ScMethodCall extends ScExpression {
   }
 
   def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
+
+  /** Like getInvokedExpr, but it unwraps ScParenthesisedExpr. See SCL-2763 */
+  def getEffectiveInvokedExpr: ScExpression = {
+    findChildByClassScala(classOf[ScExpression]) match {
+      case x: ScParenthesisedExpr => x.expr.getOrElse(x)
+      case x => x
+    }
+  }
 
   def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 

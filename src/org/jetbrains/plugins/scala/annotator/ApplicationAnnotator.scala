@@ -73,7 +73,7 @@ trait ApplicationAnnotator {
 
   def annotateMethodCall(call: ScMethodCall, holder: AnnotationHolder) {
     //do we need to check it:
-    call.getInvokedExpr match {
+    call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
         ref.bind match {
           case Some(r) if r.problems.length == 0 => //then it's possibly unhandled case
