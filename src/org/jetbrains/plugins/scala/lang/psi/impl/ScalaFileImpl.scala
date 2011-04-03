@@ -8,6 +8,7 @@ import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
 import com.intellij.openapi.util.Key
 import com.intellij.util.ArrayFactory
+import expr.ScReferenceExpressionImpl
 import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
 import com.intellij.extapi.psi.PsiFileBase
@@ -283,7 +284,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val scope = place.getResolveScope
 
     place match {
-      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" => {
+      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier == None => {
+        val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
+        if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
+        state.put(ResolverEnv.nameKey, null)
+      }
+      case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier == None => {
         val top = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
