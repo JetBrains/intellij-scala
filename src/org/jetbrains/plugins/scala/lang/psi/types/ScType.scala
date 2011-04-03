@@ -5,12 +5,14 @@ package types
 
 import decompiler.DecompilerUtil
 import com.intellij.psi._
-import nonvalue.{ScMethodType, NonValueType}
-import result.TypingContext
 import com.intellij.openapi.project.Project
 import api.statements._
 import api.toplevel.ScTypedDefinition
+import nonvalue.{ScMethodType, NonValueType}
 import api.toplevel.typedef.{ScClass, ScObject}
+import nonvalue.{ScMethodType, NonValueType}
+import api.toplevel.typedef.{ScTypeDefinition, ScObject}
+import result.{Success, TypeResult, TypingContext}
 
 
 trait ScType {
@@ -121,6 +123,69 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case _ => false
   }
 
+  def projectionOption(tp: ScType): Option[ScType] = tp match {
+    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+      case c: PsiClass => Some(p)
+      case t: ScTypeAliasDefinition =>
+        projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+      case _ => None
+    }
+    case ScDesignatorType(t: ScTypeAliasDefinition) =>
+      projectionOption(t.aliasedType(TypingContext.empty).getOrElse(return None))
+    case _ => None
+  }
+
+  /**
+   * Expands type aliases, including those in a type projection. Type Alias Declarations are replaced by their upper
+   * bound.
+   *
+   * @see http://youtrack.jetbrains.net/issue/SCL-2872
+   */
+  // TODO This is all a bit ad-hoc. What can we learn from scalac?
+  // TODO perhaps we need to choose the lower bound if we are in a contravariant position.
+  def expandAliases(tp: ScType): TypeResult[ScType] = tp match {
+    case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+        t.aliasedType(TypingContext.empty).flatMap(t => expandAliases(proj.actualSubst.subst(t)))
+      case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty  =>
+        t.upperBound.flatMap(upper => expandAliases(proj.actualSubst.subst(upper)))
+      case _ => Success(tp, None)
+    }
+    case ScDesignatorType(t: ScType) => expandAliases(t)
+    case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
+      t.upperBound.flatMap(expandAliases)
+    case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
+      t.aliasedType(TypingContext.empty)
+    case pt: ScParameterizedType =>
+      val expandedDesignator = expandAliases(pt.designator)
+      val expandedTypeArgsResult: TypeResult[Seq[ScType]] = TypeResult.sequence(pt.typeArgs.map(expandAliases))
+      TypeResult.ap2(expandedDesignator, expandedTypeArgsResult) {
+        ScParameterizedType(_, _)
+      }
+    case tp => Success(tp, None)
+  }
+
+  def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrElse(Any) match {
+    case tt: ScTupleType => Some(tt)
+    case pt: ScParameterizedType => pt.getTupleType
+    case _ => None
+  }
+
+  def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrElse(Any) match {
+    case ft: ScFunctionType => Some(ft)
+    case pt: ScParameterizedType =>
+      pt.getFunctionType.flatMap(extractFunctionType)
+    case _ => None
+  }
+
+  /**
+   * @return Some((designator, paramType, returnType)), or None
+   */
+  def extractPartialFunctionType(tp: ScType): Option[(ScType, ScType, ScType)] = expandAliases(tp).getOrElse(Any) match {
+    case pt@ScParameterizedType(des, typeArgs) => pt.getPartialFunctionType
+    case _ => None
+  }
+  
   /**
    * Unwraps the method type corresponding to the parameter secion at index `n`.
    *
@@ -151,4 +216,3 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     }
   }
 }
-

@@ -18,18 +18,7 @@ object Bounds {
   private class Options(val tp: ScType) {
     val extract: Option[(PsiClass, ScSubstitutor)] = ScType.extractClassType(tp)
     def isEmpty = extract == None
-    private def getProjectionOption(tp: ScType): Option[ScType] = tp match {
-      case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
-        case c: PsiClass => Some(p)
-        case t: ScTypeAliasDefinition =>
-          getProjectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
-        case _ => None
-      }
-      case ScDesignatorType(t: ScTypeAliasDefinition) =>
-        getProjectionOption(t.aliasedType(TypingContext.empty).getOrElse(return None))
-      case _ => None
-    }
-    val projectionOption: Option[ScType] = getProjectionOption(tp)
+    val projectionOption: Option[ScType] = ScType.projectionOption(tp)
     def getClazz: PsiClass = extract.get._1
     def getSubst: ScSubstitutor = extract.get._2
   }

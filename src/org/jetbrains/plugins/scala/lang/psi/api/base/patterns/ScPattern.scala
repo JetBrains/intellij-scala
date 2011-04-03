@@ -245,21 +245,19 @@ trait ScPattern extends ScalaPsiElement {
           }
           case _ =>
         }
-        tuple.expectedType match {
-          case Some(ScTupleType(comps)) => {
-            for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
-              if (p == this) return Some(t)
+
+        tuple.expectedType.flatMap {et0 =>
+          ScType.extractTupleType(et0) match {
+            case Some(ScTupleType(comps)) => {
+              for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
+                if (p == this) return Some(t)
+              }
+              None
             }
-            None
+            case None => None
           }
-          case Some(par@ScParameterizedType(des, typeArgs)) if par.getTupleType != None => {
-            for ((t, p) <- par.getTupleType.get.components.iterator.zip(patternList.patterns.iterator)) {
-              if (p == this) return Some(t)
-            }
-            None
-          }
-          case _ => None
         }
+
       }
       case _ => None//todo: XmlPattern
     }
@@ -272,22 +270,23 @@ trait ScPattern extends ScalaPsiElement {
         val thr = JavaPsiFacade.getInstance(getProject).findClass("java.lang.Throwable", getResolveScope)
         if (thr != null) Some(ScType.designator(thr)) else None
       }
-      case b : ScBlockExpr => b.expectedType match { //l1.zip(l2) {case (a,b) =>}
-        case Some(ScFunctionType(ret, params)) => {
-          if (params.length == 0) Some(Unit)
-          else if (params.length == 1) Some(params(0).removeAbstracts)
-          else Some(new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope))
+      case b : ScBlockExpr => {
+        b.expectedType match {
+          case Some(et) =>
+            ScType.extractFunctionType(et) match {
+              case Some(ScFunctionType(_, Seq())) => Some(Unit)
+              case Some(ScFunctionType(_, Seq(p0))) => Some(p0.removeAbstracts)
+              case Some(ScFunctionType(_, params)) =>
+                val tt = new ScTupleType(params.map(_.removeAbstracts))(getProject, getResolveScope)
+                Some(tt)
+              case None =>
+                ScType.extractPartialFunctionType(et) match {
+                  case Some((des, param, _)) => Some(param.removeAbstracts)
+                  case None => None
+                }
+            }
+          case None => None
         }
-        case Some(ScParameterizedType(des, args)) if (ScType.extractClass(des) match {
-          case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => true
-          case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => true
-          case _ => false
-        }) => {
-          if (args.length == 1) Some(Unit)
-          else if (args.length == 2) Some(args(0).removeAbstracts)
-          else Some(new ScTupleType(args.slice(0, args.length - 1).map(_.removeAbstracts))(getProject, getResolveScope))
-        }
-        case _ => None
       }
     }
     case named: ScNamingPattern => named.expectedType

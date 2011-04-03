@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.result
 
 import com.intellij.psi.PsiElement
 import scala.None
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * @author ilyas
@@ -21,6 +22,31 @@ sealed abstract class TypeResult[+T] {
 
   def apply(fail: Failure): TypeResult[T]
   def isCyclic: Boolean
+}
+
+object TypeResult {
+  def fromOption(o: Option[ScType]): TypeResult[ScType] = o match {
+    case Some(t) => Success(t, None)
+    case None => new Failure("", None)
+  }
+
+  def ap2[A, B, Z](tr1: TypeResult[A], tr2: TypeResult[B])(f: (A, B) => Z): TypeResult[Z] = for {
+    t1 <- tr1
+    t2 <- tr2
+  } yield f(t1, t2)
+
+  def ap3[A, B, C, Z](tr1: TypeResult[A], tr2: TypeResult[B], tr3: TypeResult[C])(f: (A, B, C) => Z): TypeResult[Z] = for {
+    t1 <- tr1
+    t2 <- tr2
+    t3 <- tr3
+  } yield f(t1, t2, t3)
+
+  def sequence[A](trs: Seq[TypeResult[A]]): TypeResult[Seq[A]] = {
+    val seed: TypeResult[scala.List[A]] = Success(List[A](), None)
+    trs.foldLeft(seed) {
+      (result, tr) => result.flatMap(as => tr.map(a => a :: as))
+    }.map(_.reverse)
+  }
 }
 
 case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T] { self =>

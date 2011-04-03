@@ -31,26 +31,17 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case Some(expr) => expr.getType(TypingContext.empty).getOrElse(types.Nothing)
         case _ => types.Nothing
       }))
-      expectedType match {
-        case Some(f@ScFunctionType(retType, params)) => {
-          val funType = new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope)
-          return Success(funType, Some(this))
-        }
-        case Some(tp@ScParameterizedType(des, typeArgs)) => {
-          ScType.extractClass(tp) match {
-            case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => {
-              val tParams = typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts)
-              val funType = new ScFunctionType(clausesType, tParams)(clazz.getProject, clazz.getResolveScope)
-              return Success(funType, Some(this))
-            }
-            case Some(clazz) if clazz.getQualifiedName == "scala.PartialFunction" => {
-              return Success(ScParameterizedType(des, typeArgs.slice(0, typeArgs.length - 1).map(_.removeAbstracts) ++
-                Seq(clausesType)), Some(this))
-            }
-            case _ => return Failure("Cannot infer type without expected type", Some(this))
+
+      val et = expectedType.getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+
+      return ScType.extractFunctionType(et) match {
+        case Some(f @ ScFunctionType(retType, params)) =>
+            Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope), Some(this))
+        case None =>
+          expectedType.flatMap(ScType.extractPartialFunctionType) match {
+            case Some((des, param, ret)) => Success(ScParameterizedType(des, Seq(param.removeAbstracts).map(_.removeAbstracts) ++ Seq(ret)), Some(this))
+            case None => Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
           }
-        }
-        case _ => return Failure("Cannot infer type without expected type", Some(this))
       }
     }
     val inner = lastExpr match {

@@ -57,15 +57,9 @@ private[expr] object ExpectedTypes {
         case _ => {
           val res = new ArrayBuffer[ScType]
           for (tp <- expr.expectedTypes) {
-            tp match {
-              case ScFunctionType(rt: ScType, _) => res += rt
-              case ScParameterizedType(des, args) => {
-                ScType.extractClass(des) match {
-                  case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => res += args(args.length - 1)
-                  case _ =>
-                }
-              }
-              case _ =>
+            ScType.extractFunctionType(tp) match {
+              case Some(ScFunctionType(rt: ScType, _)) => res += rt
+              case None =>
             }
           }
           res.toArray
@@ -92,14 +86,8 @@ private[expr] object ExpectedTypes {
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => finalize(m)
         case b: ScBlockExpr if b.isAnonymousFunction => {
-          finalize(b).flatMap(_ match {
-            case ScFunctionType(retType, _) => Array[ScType](retType)
-            case ScParameterizedType(des, args) => {
-              ScType.extractClass(des) match {
-                case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Array[ScType](args(args.length - 1))
-                case _ => Array[ScType]()
-              }
-            }
+          finalize(b).flatMap(tp => ScType.extractFunctionType(tp) match {
+            case Some(ScFunctionType(retType, _)) => Array[ScType](retType)
             case _ => Array[ScType]()
           })
         }
@@ -108,17 +96,10 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => finalize(f).flatMap(_ match {
-        case ScFunctionType(retType, _) => Array[ScType](retType)
-        case ScParameterizedType(des, args) => {
-          ScType.extractClass(des) match {
-            case Some(clazz) if clazz.getQualifiedName.startsWith("scala.Function") => Array[ScType](args(args.length - 1))
-            case _ => Array[ScType]()
-          }
-        }
+      case f: ScFunctionExpr => finalize(f).flatMap(tp => ScType.extractFunctionType(tp) match {
+        case Some(ScFunctionType(retType, _)) => Array[ScType](retType)
         case _ => Array[ScType]()
       })
-
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
         t.expectedTypes
       }
