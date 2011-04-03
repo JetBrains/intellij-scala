@@ -52,7 +52,6 @@ import org.jetbrains.plugins.scala.extensions._
 /**
  * User: Alexander Podkhalyuzin
  */
-
 object ScalaPsiUtil {
   def fileContext(psi: PsiElement): PsiFile = {
     if (psi == null) return null
@@ -195,21 +194,18 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApply(tp: ScType, call: ScMethodCall, isShape: Boolean): Option[ScType] = {
     import call._
 
-    val candidates = processTypeForUpdateOrApplyCandidates(call, tp, isShape, false)
-    //now we will check canidate
-    if (candidates.length != 1) None
-    else {
-      candidates(0) match {
-        case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) => {
-          fun match {
-            case fun: ScFun => Some(s.subst(fun.polymorphicType))
-            case fun: ScFunction => Some(s.subst(fun.polymorphicType))
-            case meth: PsiMethod => Some(ResolveUtils.javaPolymorphicType(meth, s, getResolveScope))
-          }
+    def checkCandidates(withImplicits: Boolean): Option[ScType] = {
+      val candidates = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits)
+      PartialFunction.condOpt(candidates) {
+        case Array(ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) => fun match {
+          case fun: ScFun => s.subst(fun.polymorphicType)
+          case fun: ScFunction => s.subst(fun.polymorphicType)
+          case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
         }
-        case _ => None
       }
     }
+
+    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true))
   }
 
   def isAnonymousExpression(expr: ScExpression): (Int, ScExpression) = {
