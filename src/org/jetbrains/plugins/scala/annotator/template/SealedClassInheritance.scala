@@ -13,6 +13,10 @@ object SealedClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def kind = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+    definition.containingScalaFile match {
+      case Some(a) if !a.isCompiled =>
+      case _ => return
+    }
     val newInstance = definition.isInstanceOf[ScNewTemplateDefinition]
     val hasBody = definition.extendsBlock.templateBody.isDefined
 
