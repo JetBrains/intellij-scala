@@ -25,7 +25,9 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
   //Is this object generated as case class companion module
   private var isSyntheticCaseClassCompanion: Boolean = false
   def isSyntheticObject: Boolean = isSyntheticCaseClassCompanion
-  def setSyntheticObject: Unit = isSyntheticCaseClassCompanion = true
+  def setSyntheticObject() {
+    isSyntheticCaseClassCompanion = true
+  }
   def objectSyntheticMembers: Seq[PsiMethod]
 
   def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)

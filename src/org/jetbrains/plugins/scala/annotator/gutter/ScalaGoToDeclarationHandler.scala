@@ -70,23 +70,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
             case _ => return null
           }
         case param: ScParameter =>
-          val fun = PsiTreeUtil.getParentOfType(param, classOf[ScFunction], true)
-          if (fun != null && fun.name == "copy" && fun.isSyntheticCopy) {
-            val clazz = fun.getContainingClass
-            clazz match {
-              case td: ScClass if td.isCase =>
-                td.constructor match {
-                  case Some(constr) => constr.parameters.find(p => p.name == param.name) match {
-                    case Some(param) => return param
-                    case _ => return null
-                  }
-                  case _ => return null
-                }
-              case _ => return null
-            }
-          } else {
-            return null
-          }
+          return ScalaPsiUtil.parameterForSyntheticParameter(param).orNull
         case _ => return null
       }
     }

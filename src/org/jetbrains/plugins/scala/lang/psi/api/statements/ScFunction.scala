@@ -57,9 +57,12 @@ trait ScFun extends ScTypeParametersOwner {
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
         with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike {
-  private var synthCopy = false
-  def isSyntheticCopy: Boolean = synthCopy
-  def setSyntheticCopy: Unit = synthCopy = true
+  private var synth = false
+  def setSynthetic() {
+    synth = true
+  }
+  def isSyntheticCopy: Boolean = synth && name() == "copy"
+  def isSyntheticApply: Boolean = synth && name() == "apply"
 
   def hasUnitResultType = getType(TypingContext.empty) match {
     case Success(UnitType, _) => true

@@ -534,7 +534,7 @@ object TypeDefinitionMembers {
           if (v1 && checkName(n.info.getName) &&
             !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
           //this is for Java: to find methods, which is vals in Scala
-          if (v2 && checkNameGetSetIs(n.info.getName)) {
+          if (v2 &&  checkNameGetSetIs(n.info.getName)) {
             n.info match {
               case t: ScTypedDefinition => {
                 implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))

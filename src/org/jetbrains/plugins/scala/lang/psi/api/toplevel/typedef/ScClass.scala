@@ -6,12 +6,12 @@ package toplevel
 package typedef
 
 import base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import impl.ScalaPsiElementFactory
 import types.ScType
 import statements.params.{ScTypeParam, ScParameters}
 import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
+import statements.{ScFunctionDefinition, ScParameterOwner}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -44,7 +44,13 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
         val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
         val objOption = obj.toOption
-        objOption.foreach(_.setSyntheticObject)
+        Option(objOption).foreach { (obj: ScObject) =>
+          obj.setSyntheticObject()
+          obj.members().foreach {
+            case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
+            case _ =>
+          }
+        }
         res = objOption
         modCount = count
         companionModuleRes = res
