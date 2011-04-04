@@ -44,7 +44,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
         val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
         val objOption = obj.toOption
-        Option(objOption).foreach { (obj: ScObject) =>
+        objOption.foreach { (obj: ScObject) =>
           obj.setSyntheticObject()
           obj.members().foreach {
             case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
