@@ -317,7 +317,7 @@ object Compatibility {
           else constructor.parameterList.clauses.apply(0).parameters
 
         val clashedAssignments = clashedAssignmentsIn(exprs)
-        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- clashedAssignments;
+        val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
                              if !parameters.exists(_.name == name)) yield assignment
 
         if(!unresolved.isEmpty || !clashedAssignments.isEmpty) {
