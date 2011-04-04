@@ -1045,4 +1045,30 @@ object ScalaPsiUtil {
         }
     }
   }
+
+  /**
+   * If `param` is a synthetic parameter with a corresponding real parameter, return Some(realParameter), otherwise None
+   */
+  def parameterForSyntheticParameter(param: ScParameter): Option[ScParameter] = {
+    val fun = PsiTreeUtil.getParentOfType(param, classOf[ScFunction], true)
+
+    def paramFromConstructor(td: ScClass) = td.constructor match {
+      case Some(constr) => constr.parameters.find(p => p.name == param.name) // TODO multiple parameter sections.
+      case _ => None
+    }
+
+    if (fun == null) {
+      None
+    } else if (fun.isSyntheticCopy) {
+      fun.getContainingClass match {
+        case td: ScClass if td.isCase => paramFromConstructor(td)
+        case _ => None
+      }
+    } else if (fun.isSyntheticApply) {
+      getCompanionModule(fun.getContainingClass) match {
+        case Some(td: ScClass) if td.isCase => paramFromConstructor(td)
+        case _ => None
+      }
+    } else None
+  }
 }

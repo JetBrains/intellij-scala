@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.findUsages.parameters
+package org.jetbrains.plugins.scala
+package findUsages
+package parameters
 
 import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -10,6 +12,7 @@ import collection.mutable.{HashSet, ArrayBuffer}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
+import lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -34,8 +37,14 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                   refElement.getParent match {
                     case assign: ScAssignStmt if assign.getLExpression == refElement &&
                             assign.getParent.isInstanceOf[ScArgumentExprList] => {
-                      if (refElement.resolve == parameter) {
-                        if (!consumer.process(ref)) return false
+                      Option(refElement.resolve) match {
+                        case Some(`parameter`) => if (!consumer.process(ref)) return false
+                        case Some(x: ScParameter) =>
+                          ScalaPsiUtil.parameterForSyntheticParameter(x) match {
+                            case Some(realParam) => if (!consumer.process(ref)) return false
+                            case None =>
+                          }
+                        case None =>
                       }
                     }
                     case _ =>

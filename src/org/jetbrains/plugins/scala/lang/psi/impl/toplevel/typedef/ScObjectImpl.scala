@@ -88,6 +88,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         Seq(texts._1, texts._2).foreach(s => {
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
+            method.setSynthetic()
             res += method
           }
           catch {
