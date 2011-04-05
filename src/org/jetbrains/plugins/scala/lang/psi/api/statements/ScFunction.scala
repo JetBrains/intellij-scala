@@ -64,10 +64,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isSyntheticCopy: Boolean = synth && name() == "copy"
   def isSyntheticApply: Boolean = synth && name() == "apply"
 
-  def hasUnitResultType = getType(TypingContext.empty) match {
-    case Success(UnitType, _) => true
-    case Success(ScFunctionType(UnitType, _), _) => true
-    case _ => false
+  def hasUnitResultType = {
+    def hasUnitRT(t: ScType): Boolean = t match {
+      case UnitType => true
+      case ScMethodType(result, _, _) => hasUnitRT(result)
+      case _ => false
+    }
+    hasUnitRT(methodType)
   }
 
   def isParameterless = paramClauses.clauses.isEmpty
