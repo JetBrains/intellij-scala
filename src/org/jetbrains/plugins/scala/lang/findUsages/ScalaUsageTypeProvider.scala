@@ -12,6 +12,8 @@ import psi.api.toplevel.typedef.ScTemplateDefinition
 import psi.api.statements.{ScVariable, ScValue, ScPatternDefinition, ScFunction}
 import psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import psi.api.statements.params.ScParameter
+import com.intellij.usageView.UsageViewBundle
+import psi.api.base.patterns.{ScTypedPattern, ScConstructorPattern}
 
 final class ScalaUsageTypeProvider extends UsageTypeProvider {
   def getUsageType(element: PsiElement): UsageType = {
@@ -64,9 +66,26 @@ final class ScalaUsageTypeProvider extends UsageTypeProvider {
         return UsageType.CLASS_METHOD_PARAMETER_DECLARATION
       }
 
+      for (consPattern <- parentOfType[ScConstructorPattern];
+           tp <- Option(consPattern.ref)
+           if isAncestor(tp, element, false)) {
+        return ScalaUsageTypeProvider.ClassConstructorPattern
+      }
+
+      for (typedPattern <- parentOfType[ScTypedPattern];
+           tp <- typedPattern.typePattern
+           if isAncestor(tp.typeElement, element, false)) {
+        return ScalaUsageTypeProvider.ClassTypedPattern
+      }
+
       // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
     }
 
     return null
   }
+}
+
+object ScalaUsageTypeProvider {
+  val ClassConstructorPattern: UsageType = new UsageType("Constructor Pattern")
+  val ClassTypedPattern: UsageType = new UsageType("Typed Pattern")
 }
