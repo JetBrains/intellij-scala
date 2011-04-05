@@ -89,15 +89,13 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                   mkString(if (c.isImplicit) "(implicit " else "(", ", ", ")")).mkString("")
       case None => ""
     }
-    val hasSeq = constructor match {
+    val unapplyMethodNameSuffix = constructor match {
       case Some(x: ScPrimaryConstructor) =>
-        val clauses = x.parameterList.clauses
-        if (clauses.length == 0) ""
-        else {
-          val params = clauses(0).parameters
-          if (params.length == 0) ""
-          else if (params.last.isRepeatedParameter) "scala.Seq" else ""
-        }
+        (for {
+          c1 <- x.parameterList.clauses.headOption
+          plast <- c1.parameters.lastOption
+          if plast.isRepeatedParameter
+        } yield "Seq").getOrElse("")
       case None => ""
     }
     val paramStringRes = constructor match {
@@ -125,7 +123,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
     val applyText = "def apply" + typeParamString + paramString + ": " + name + typeParamStringRes +
                 " = throw new Error()"
-    val unapplyText = "def unapply" + hasSeq + typeParamString + "(x$0: " + name + typeParamStringRes + "): " +
+    val unapplyText = "def unapply" + unapplyMethodNameSuffix + typeParamString + "(x$0: " + name + typeParamStringRes + "): " +
                 paramStringRes + " = throw new Error()"
     (applyText, unapplyText)
   }

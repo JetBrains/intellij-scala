@@ -1,3 +1,5 @@
+import dbc.statement.JoinType.Outer
+
 class Outer {
   class Inner {}
 
