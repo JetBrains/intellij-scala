@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.refactoring.move
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import java.util.Collection
+import com.intellij.usageView.UsageInfo
 
 /**
  * Pavel.Fatin, 12.05.2010
@@ -66,4 +68,6 @@ class ScalaMoveClassHandler extends MoveClassHandler {
   def finishMoveClass(aClass: PsiClass) {}
 
   def prepareMove(aClass: PsiClass) {}
+
+  def preprocessUsages(p1: Collection[UsageInfo]) {}
 }

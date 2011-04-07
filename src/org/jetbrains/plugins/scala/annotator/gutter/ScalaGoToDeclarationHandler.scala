@@ -76,4 +76,6 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     }
     null
   }
+
+  def getGotoDeclarationTargets(p1: PsiElement): Array[PsiElement] = Array.empty
 }
