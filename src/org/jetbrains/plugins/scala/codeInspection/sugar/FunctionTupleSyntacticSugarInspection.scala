@@ -49,7 +49,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                 holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
                   Array[LocalQuickFix](new FunctionTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
               case Some(ScDesignatorType(QualifiedName(TupleN(n))))
-                if (te.typeArgList.typeArgs.length == n.toInt) =>
+                if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
                 holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
                   Array[LocalQuickFix](new TupleTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
               case _ =>
