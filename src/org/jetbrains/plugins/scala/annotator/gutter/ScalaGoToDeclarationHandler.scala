@@ -5,21 +5,26 @@ package gutter
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr.ScSelfInvocation
-import com.intellij.codeInsight.TargetElementUtilBase
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.PsiElement
 import lang.psi.api.statements.ScFunction
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.statements.params.ScParameter
-import com.intellij.psi.util.PsiTreeUtil
+
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.11.2008
  */
-
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
+  // TODO we can return multiple targets with IDEA 10.5. Should we return both case class and companion object for A(x)?
+  def getGotoDeclarationTargets(sourceElement: PsiElement): Array[PsiElement] = {
+    getGotoDeclarationTarget(sourceElement) match {
+      case null => null
+      case x => Array(x)
+    }
+  } 
+
   def getGotoDeclarationTarget(sourceElement: PsiElement): PsiElement = {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
@@ -76,6 +81,4 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     }
     null
   }
-
-  def getGotoDeclarationTargets(p1: PsiElement): Array[PsiElement] = Array.empty
 }
