@@ -28,7 +28,7 @@ object InfixType {
     var count = 0
     markerList = infixTypeMarker :: markerList
     if (!CompoundType.parse(builder)) {
-      infixTypeMarker.rollbackTo
+      infixTypeMarker.rollbackTo()
       return false
     }
     var assoc: Int = 0  //this mark associativity: left - 1, right - -1
@@ -58,7 +58,7 @@ object InfixType {
         }
       }
       val idMarker = builder.mark
-      builder.advanceLexer //Ate id
+      builder.advanceLexer() //Ate id
       idMarker.done(ScalaElementTypes.REFERENCE)
       if (assoc == -1) {
         val newMarker = builder.mark
@@ -79,11 +79,11 @@ object InfixType {
     //final ops closing
     if (count>0) {
       if (assoc == 1) {
-        infixTypeMarker.drop
+        infixTypeMarker.drop()
       }
       else {
-        for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementTypes.INFIX_TYPE)
         markerList.head.drop
+        for (x: PsiBuilder.Marker <- markerList.tail) x.done(ScalaElementTypes.INFIX_TYPE)
       }
     }
     else {

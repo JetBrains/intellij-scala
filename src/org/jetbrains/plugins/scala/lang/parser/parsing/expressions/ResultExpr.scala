@@ -44,7 +44,7 @@ object ResultExpr {
         Bindings parse builder
         return parseFunctionEnd
       }
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER=> {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
         val pmarker = builder.mark
         builder.advanceLexer //Ate id
         if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
@@ -57,10 +57,10 @@ object ResultExpr {
           case ScalaTokenTypes.tFUNTYPE => {
             val psm = pmarker.precede // 'parameter clause'
             val pssm = psm.precede // 'parameter list'
+            pmarker.done(ScalaElementTypes.PARAM)
             psm.done(ScalaElementTypes.PARAM_CLAUSE)
             pssm.done(ScalaElementTypes.PARAM_CLAUSES)
-            pmarker.done(ScalaElementTypes.PARAM)
-            
+
             return parseFunctionEnd
           }
           case _ => {
