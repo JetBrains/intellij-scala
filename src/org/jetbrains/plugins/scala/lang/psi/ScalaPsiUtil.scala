@@ -296,11 +296,18 @@ object ScalaPsiUtil {
   }
 
   def getTypesStream(elems: Seq[PsiParameter]): Stream[ScType] = {
+    // TODO Why use such a strange way to construct a stream? Is this here for performance reasons?
+    //      Consider elems.toStream.map { case x: ScType => ...; case y => }
     if (elems.isEmpty) return Stream.empty
     new Stream[ScType] {
       override def head: ScType = elems.head match {
         case scp : ScParameter => scp.getType(TypingContext.empty).getOrElse(Nothing)
-        case p => ScType.create(p.getType, p.getProject, paramTopLevel = true)
+        case p =>
+          val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
+            case Some(cls) if cls.getQualifiedName == "java.lang.Object" => true // See SCL-3036
+            case _ => false
+          }
+          ScType.create(p.getType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
 
       override def isEmpty: Boolean = false
