@@ -507,7 +507,7 @@ object getDummyBlocks {
       case _: ScInfixExpr if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixPattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
       case _: ScInfixTypeElement if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
-      case _: ScCompositePattern if mySettings.ALIGN_MULTILINE_BINARY_OPERATION => true
+      case _: ScCompositePattern if scalaSettings.ALIGN_COMPOSITE_PATTERN => true
 
       case _: ScMethodCall | _: ScReferenceExpression if mySettings.ALIGN_MULTILINE_CHAINED_METHODS => true
       case _ => false
