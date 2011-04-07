@@ -130,6 +130,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
+      showCustomOption("ALIGN_COMPOSITE_PATTERN", "Align multiline pattern alternatives",
+        CodeStyleSettingsCustomizable.WRAPPING_BINARY_OPERATION)
       showCustomOption("PLACE_SELF_TYPE_ON_NEW_LINE", "Place self type on new line", CLASS_DEFINITION)
 
       showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
@@ -188,8 +190,9 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
             "    for (i <- 1 to 5) yield i + 1\n" +
             "    Some(3) match {\n" +
             "      case Some(a) if a != 2 => a\n" +
-            "      case Some(a) => \n" +
-            "        a + 1\n" +
+            "      case Some(1) |\n" +
+            "         Some(2) => \n" +
+            "        \n" +
             "      case _ =>\n" +
             "    }\n" +
             "    try a + 2\n" +
