@@ -14,8 +14,12 @@ import api.toplevel.typedef.ScObject
 import api.statements._
 
 trait ScTypePsiTypeBridge {
+  /**
+   * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
+   *                             See SCL-3036 and SCL-2375
+   */
   def create(psiType: PsiType, project: Project, scope: GlobalSearchScope = null, deep: Int = 0,
-             paramTopLevel: Boolean = false): ScType = {
+             paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true): ScType = {
     if (deep > 3) // Cranked up from 2 to 3 to solve SCL-2976. But why is this really needed?
       return Any;
 
@@ -25,8 +29,8 @@ trait ScTypePsiTypeBridge {
         result.getElement match {
           case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
           case clazz if clazz != null && clazz.getQualifiedName == "java.lang.Object" => {
-            if (!paramTopLevel) AnyRef
-            else Any
+            if (paramTopLevel && treatJavaObjectAsAny) Any
+            else AnyRef
           }
           case c if c != null => {
             val clazz = c match {
