@@ -7,13 +7,10 @@ import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.codeInspection.AbstractFix
 
-class InsertMissingEquals(functionDecl: ScFunctionDeclaration) extends LocalQuickFix {
-  def getFamilyName = getName
-
-  def getName = "Insert missing '='"
-
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
+class InsertMissingEquals(functionDecl: ScFunctionDeclaration) extends AbstractFix("Insert missing '='", functionDecl) {
+  def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
     functionDecl.typeElement match {
       case Some(cte: ScCompoundTypeElement) =>
         val typeElem = cte.components.last
