@@ -17,14 +17,6 @@ import lang.psi.api.statements.params.ScParameter
  * Date: 22.11.2008
  */
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
-  // TODO we can return multiple targets with IDEA 10.5. Should we return both case class and companion object for A(x)?
-  def getGotoDeclarationTargets(sourceElement: PsiElement): Array[PsiElement] = {
-    getGotoDeclarationTarget(sourceElement) match {
-      case null => null
-      case x => Array(x)
-    }
-  } 
-
   def getGotoDeclarationTarget(sourceElement: PsiElement): PsiElement = {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
@@ -81,4 +73,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     }
     null
   }
+
+  // TODO we can return multiple targets with IDEA 10.5. Should we return both case class and companion object for A(x)?
+  def getGotoDeclarationTargets(sourceElement: PsiElement) = null
 }
