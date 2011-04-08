@@ -52,6 +52,25 @@ trait AssignmentAnnotator {
 
     val ref: Option[PsiElement] = l.asOptionOf[ScReferenceElement].flatMap(_.resolve.toOption)
     val reassignment = ref.find(isReadonly).isDefined
+
+    for {
+      lref <- l.asOptionOf[ScReferenceElement].toList
+      result <- lref.multiResolve(false)
+      sresult <- result.asOptionOf[ScalaResolveResult].toList
+      if sresult.isSetterFunction
+    } {
+      val problems = sresult.problems
+      problems.foreach {
+        case TypeMismatch(expression, expectedType) =>
+          for (t <- expression.getType(TypingContext.empty)) {
+            //TODO show parameter name
+            val annotation = holder.createErrorAnnotation(expression,
+              "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+            annotation.registerFix(ReportHighlightingErrorQuickFix)
+          }
+      }
+      return
+    }
     
     if(reassignment) {
       val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")

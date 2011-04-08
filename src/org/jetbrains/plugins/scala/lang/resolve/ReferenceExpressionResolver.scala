@@ -9,7 +9,8 @@ import processor.MethodResolveProcessor
 import psi.types.Compatibility.Expression
 import psi.types.Compatibility.Expression._
 import com.intellij.psi.{ResolveResult, PsiElement}
-import psi.types.{ScParameterizedType, ScFunctionType, ScType}
+import psi.api.statements.ScFunction
+import psi.types.{Equivalence, ScParameterizedType, ScFunctionType, ScType}
 
 class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shapesOnly: Boolean) 
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
@@ -91,17 +92,62 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
         }
       }
     }
-    val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-      getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore,
-      shapesOnly, enableTupling = true)
 
-    val result = reference.doResolve(ref, processor)
+    ref.getContext match {
+      case assign: ScAssignStmt if assign.getLExpression == ref =>
+        // SLS 6.1.5 "The interpretation of an assignment to a simple variable x = e depends on the definition of x."
 
-    if (result.isEmpty && ref.isAssignmentOperator) {
-      reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
-        Nil, isShapeResolve = shapesOnly, enableTupling = true))
-    } else {
-      result
+        // If x denotes a mutable variable, then the assignment changes the current value of x to be the result of evaluating the expression e
+        val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
+          getTypeArgs(ref), StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
+        val result = reference.doResolve(ref, processor)
+
+        
+        if (result.nonEmpty) result
+        else searchForSetter(ref, assign, info.isUnderscore)
+      case _ =>
+        val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
+          getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore,
+          shapesOnly, enableTupling = true)
+
+        val result = reference.doResolve(ref, processor)
+        if (result.isEmpty && ref.isAssignmentOperator) {
+          reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
+            Nil, isShapeResolve = shapesOnly, enableTupling = true))
+        } else {
+          result
+        }
+    }
+  }
+
+  // See SCL-2868
+  // "If x is a parameterless function defined in some template, and the same template contains a setter function x_= as member,
+  // then the assignment x = e is interpreted as the invocation x_=(e ) of that setter function.
+  // Analogously, an assignment f.x = e to a parameterless function x is interpreted as the invocation f.x_=(e).
+  def searchForSetter(ref: ResolvableReferenceExpression, assign: ScAssignStmt, isUnderscore: Boolean) = {
+    val getterResults = reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName, Nil, Nil, kinds = StdKinds.methodsOnly))
+
+    val args = List(assign.getRExpression.toList.map(Expression(_)))
+    val setterName = reference.refName + "_="
+    val setterResults = reference.doResolve(ref, new MethodResolveProcessor(ref, setterName, args, Nil,
+      kinds = StdKinds.methodsOnly, isUnderscore = isUnderscore, isShapeResolve = shapesOnly, enableTupling = true))
+
+    val r1 = setterResults.map(x => x.asInstanceOf[ScalaResolveResult].copy(isSetterFunction = true): ResolveResult)
+
+    // Don't resolve to the setter unless there is also a getter defined in the same template.
+    r1.filter {
+      r =>
+        val sr = r.asInstanceOf[ScalaResolveResult]
+        sr.element match {
+          case x: ScFunction =>
+            getterResults.exists {gr =>
+              (gr.asInstanceOf[ScalaResolveResult].fromType, sr.fromType) match {
+                case (Some(a), Some(b)) => Equivalence.equiv(a, b)
+                case _ => false
+              }
+            }
+          case _ => false
+        }
     }
   }
 }

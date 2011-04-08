@@ -22,5 +22,7 @@ object StdKinds {
 
   val valuesRef = ValueSet(VAL, VAR)
 
+  val varsRef = ValueSet(VAR)
+
   val packageRef = ValueSet(PACKAGE)
 }
