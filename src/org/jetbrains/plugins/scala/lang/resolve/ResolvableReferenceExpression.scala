@@ -27,7 +27,7 @@ import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
   private object ShapesResolver extends ReferenceExpressionResolver(this, true)
-  
+
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
   }
@@ -108,9 +108,13 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
     }
     val context = ref.getContext
-    (if (context.isInstanceOf[ScAssignStmt] && context.asInstanceOf[ScAssignStmt].getLExpression == ref) Some(context)
-    else if (processor.isInstanceOf[CompletionProcessor]) Some(ref)
-    else None) match {
+    val contextElement = (context, processor) match {
+      case (x: ScAssignStmt, _ ) if x.getLExpression == ref => Some(context)
+      case (_, _: CompletionProcessor) => Some(ref)
+      case _ => None
+    }
+
+    contextElement match {
       case Some(assign) => processAssignment(assign, ref, processor)
       case _ =>
     }
@@ -321,7 +325,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case d: ScDesignatorType if d.isStatic => return
       case _ =>
     }
-    
+
     if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable)) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
