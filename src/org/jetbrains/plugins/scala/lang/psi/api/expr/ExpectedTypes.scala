@@ -256,7 +256,9 @@ private[expr] object ExpectedTypes {
         }
         res.toArray
       }
-      case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock] || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock] => b.lastExpr match {
+      case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
+              || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
+              || b.getContext.isInstanceOf[ScCaseClause] => b.lastExpr match {
         case Some(e) if e == expr => finalize(b)
         case _ => Array.empty
       }
