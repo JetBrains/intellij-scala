@@ -11,6 +11,8 @@ class CompletionBasicTest extends CompletionTestBase {
 
   def testOpChar = doTest
 
+  def testSetter = doTest
+
   def testToString = doTest
 
   def testTuple = doTest
