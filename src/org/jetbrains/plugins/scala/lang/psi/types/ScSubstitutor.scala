@@ -300,7 +300,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
             if (!lower.conforms(upper)) break = true
           }
         }
-        case None if seq.length > 1 => tvMap += Tuple(name, Bounds.glb(seq))
+        case None if seq.length > 1 => tvMap += Tuple(name, Bounds.glb(seq, false))
         case None if seq.length == 0 => tvMap += Tuple(name, Nothing)
         case None => tvMap += Tuple(name, seq(0))
       }

@@ -5,14 +5,12 @@ package types
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import api.statements.params.ScTypeParam
-import api.toplevel.typedef.{ScClass, ScTrait, ScTemplateDefinition, ScTypeDefinition}
-import com.intellij.openapi.project.DumbService
-import com.intellij.psi.{GenericsUtil, PsiClass}
+import api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.psi.PsiClass
 import collection.mutable.{ArrayBuffer, Set, HashSet}
 import api.statements.ScTypeAliasDefinition
 import result.TypingContext
 import com.intellij.psi.util.InheritanceUtil
-import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 
 object Bounds {
   private class Options(val tp: ScType) {
@@ -23,32 +21,34 @@ object Bounds {
     def getSubst: ScSubstitutor = extract.get._2
   }
 
-  def glb(t1: ScType, t2: ScType) = {
-    if (t1.conforms(t2)) t1
-    else if (t2.conforms(t1)) t2
+  def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false) = {
+    if (t1.conforms(t2, checkWeak)) t1
+    else if (t2.conforms(t1, checkWeak)) t2
     else new ScCompoundType(Seq(t1, t2), Seq.empty, Seq.empty, ScSubstitutor.empty)
   }
 
-  def glb(typez: Seq[ScType]): ScType = {
+  def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
     if (typez.length == 1) typez(0)
     var res = typez(0)
     for (i <- 1 until typez.length) {
-      res = glb(res, typez(i))
+      res = glb(res, typez(i), checkWeak)
     }
     return res
   }
 
-  def lub(t1: ScType, t2: ScType): ScType = lub(t1, t2, 0)
+  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, 0, checkWeak)
 
-  private def lub(t1: ScType, t2: ScType, depth : Int): ScType = {
-    if (t1.conforms(t2)) t2
-    else if (t2.conforms(t1)) t1
+  def weakLub(t1: ScType, t2: ScType): ScType = lub(t1, t2, checkWeak = true)
+
+  private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean): ScType = {
+    if (t1.conforms(t2, checkWeak)) t2
+    else if (t2.conforms(t1, checkWeak)) t1
     else (t1, t2) match {
       case (fun@ScFunctionType(rt1, p1), ScFunctionType(rt2, p2)) if p1.length == p2.length =>
         new ScFunctionType(lub(rt1, rt2),
-          collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2)}).toSeq: _*))(fun.getProject, fun.getScope)
+          collection.immutable.Seq(p1.toSeq.zip(p2.toSeq).map({case (t1, t2) => glb(t1, t2, checkWeak)}).toSeq: _*))(fun.getProject, fun.getScope)
       case (t1@ScTupleType(c1), ScTupleType(c2)) if c1.length == c2.length =>
-        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2)}).toSeq: _*))(t1.getProject, t1.getScope)
+        new ScTupleType(collection.immutable.Seq(c1.toSeq.zip(c2.toSeq).map({case (t1, t2) => lub(t1, t2, checkWeak)}).toSeq: _*))(t1.getProject, t1.getScope)
 
       case (ScSkolemizedType(_, Nil, _, upper), _) => lub(upper, t2)
       case (_, ScSkolemizedType(_, Nil, _, upper)) => lub(t1, upper)
@@ -92,7 +92,7 @@ object Bounds {
           val supers: Array[(Options, Int, Int)] =
             getLeastUpperClasses(aOptions.toArray, bOptions.toArray)
           for (sup <- supers) {
-            val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth)
+            val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
             if (tp != Any) buf += tp
           }
           buf.toArray match {
@@ -120,7 +120,7 @@ object Bounds {
     }
   }
 
-  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int): ScType = {
+  private def getTypeForAppending(clazz1: Options, clazz2: Options, baseClass: Options, depth: Int, checkWeak: Boolean): ScType = {
     val baseClassDesignator = {
       baseClass.projectionOption match {
         case Some(proj) => ScProjectionType(proj, baseClass.getClazz, ScSubstitutor.empty)
@@ -140,39 +140,12 @@ object Bounds {
           val substed1 = tp1.typeArgs.apply(i)
           val substed2 = tp2.typeArgs.apply(i)
           resTypeArgs += (baseClass.getClazz.getTypeParameters.apply(i) match {
-            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
-            case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
+            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1, checkWeak) else Any
+            case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ => calcForTypeParamWithoutVariance(substed1, substed2)
           })
         }
         return ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
-      }
-      case _ => Any
-    }
-  }
-
-  @deprecated
-  private def getTypeForAppending(clazz1: PsiClass, subst1: ScSubstitutor,
-                                  clazz2: PsiClass, subst2: ScSubstitutor,
-                                  baseClass: PsiClass, depth: Int): ScType = {
-    if (baseClass.getTypeParameters.length == 0) return ScType.designator(baseClass)
-    (superSubstitutor(baseClass, clazz1, subst1), superSubstitutor(baseClass, clazz2, subst2)) match {
-      case (Some(superSubst1), Some(superSubst2)) => {
-        val tp = ScParameterizedType(ScType.designator(baseClass), baseClass.
-                getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getProject).typeVariable(tp)))
-        val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
-        val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
-        val resTypeArgs = new ArrayBuffer[ScType]
-        for (i <- 0 until baseClass.getTypeParameters.length) {
-          val substed1 = tp1.typeArgs.apply(i)
-          val substed2 = tp2.typeArgs.apply(i)
-          resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
-            case scp: ScTypeParam if scp.isCovariant => if (depth < 2) lub(substed1, substed2, depth + 1) else Any
-            case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2)
-            case _ => calcForTypeParamWithoutVariance(substed1, substed2) //todo: _ >: substed1 with substed2
-          })
-        }
-        return ScParameterizedType(ScType.designator(baseClass), resTypeArgs.toSeq)
       }
       case _ => Any
     }
@@ -267,52 +240,6 @@ object Bounds {
               case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).toArray
               case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
             }, if (baseIndex == -1) i else baseIndex)
-          }
-          j += 1
-        }
-        i += 1
-      }
-    }
-    checkClasses(aClasses)
-    return res.toArray
-  }
-
-  @deprecated
-  def getLeastUpperClasses(aClasses: Array[PsiClass], bClasses: Array[PsiClass]): Array[(PsiClass, Int, Int)] = {
-    val res = new ArrayBuffer[(PsiClass, Int, Int)]
-    def addClass(aClass: PsiClass, x: Int, y: Int) {
-      var i = 0
-      var break = false
-      while (!break && i < res.length) {
-        val clazz = res(i)._1
-        if (InheritanceUtil.isInheritorOrSelf(clazz, aClass, true)) {
-          break = true
-        } else if (aClass.isInheritor(clazz, true)) {
-          res(i) = (aClass, x, y)
-          break = true
-        }
-        i = i + 1
-      }
-      if (!break) {
-        res += Tuple(aClass, x, y)
-      }
-    }
-    def checkClasses(aClasses: Array[PsiClass], baseIndex: Int = -1) {
-      if (aClasses.length == 0) return
-      val aIter = aClasses.iterator
-      var i = 0
-      while (aIter.hasNext) {
-        val aClass = aIter.next
-        val bIter = bClasses.iterator
-        var break = false
-        var j = 0
-        while (!break && bIter.hasNext) {
-          val bClass = bIter.next
-          if (InheritanceUtil.isInheritorOrSelf(bClass, aClass, true)) {
-            addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
-            break = true
-          } else {
-            checkClasses(aClass.getSupers, if (baseIndex == -1) i else baseIndex)
           }
           j += 1
         }

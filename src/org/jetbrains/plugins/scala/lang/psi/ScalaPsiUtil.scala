@@ -409,6 +409,7 @@ object ScalaPsiUtil {
                                              typeParams: Seq[TypeParameter],
                                              subst: ScSubstitutor = ScSubstitutor.empty,
                                              shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
+    val checkWeak = false // TODO change to true to solve SCL-3052. But should this be done in all cases? Check scalac.
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType)))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
@@ -419,10 +420,10 @@ object ScalaPsiUtil {
         var lower = tp.lowerType
         var upper = tp.upperType
         for ((name, addLower) <- un.lowerMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) {
-          lower = Bounds.lub(lower, prevInfoSubst.subst(addLower))
+          lower = Bounds.lub(lower, prevInfoSubst.subst(addLower), checkWeak = checkWeak)
         }
         for ((name, addUpperSeq) <- un.upperMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)); addUpper <- addUpperSeq) {
-          upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper))
+          upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper), checkWeak = checkWeak)
         }
         TypeParameter(tp.name, lower, upper, tp.ptp)
       }))

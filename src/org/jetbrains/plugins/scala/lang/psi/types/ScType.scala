@@ -22,7 +22,7 @@ trait ScType {
    * Checks, whether the following assignment is correct:
    * val x: t = (y: this)
    */
-  final def conforms(t: ScType): Boolean = Conformance.conforms(t, this)
+  final def conforms(t: ScType, checkWeak: Boolean = false): Boolean = Conformance.conforms(t, this, checkWeak)
 
   final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, true)
 
