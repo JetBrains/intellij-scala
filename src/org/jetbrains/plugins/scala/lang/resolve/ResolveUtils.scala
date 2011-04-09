@@ -375,7 +375,7 @@ object ResolveUtils {
 
   def getLookupElement(resolveResult: ScalaResolveResult,
                        qualifierType: ScType = Nothing,
-                       isClassName: Boolean = false): (LookupElement, PsiElement, ScSubstitutor) = {
+                       isClassName: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -384,106 +384,119 @@ object ResolveUtils {
       case _ => None
     }
 
-    val name: String = isRenamed.getOrElse(element.getName)
-    var lookupBuilder: LookupElementBuilder =
-      LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter), name) //don't add elements to lookup
-    lookupBuilder = lookupBuilder.setInsertHandler(
-      if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
-    )
-    lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
-      def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
-        var isBold = false
-        var isDeprecated = false
-        ScType.extractClass(qualifierType) match {
-          case Some(clazz) =>  {
-            element match {
-              case m: PsiMember  => {
-                if (m.getContainingClass == clazz) isBold = true
+    def getLookupElementInternal(isAssignment: Boolean, name: String): (LookupElement, PsiNamedElement, ScSubstitutor) = {
+      var lookupBuilder: LookupElementBuilder =
+        LookupElementBuilder.create(ScalaLookupObject(element, isAssignment), name) //don't add elements to lookup
+      lookupBuilder = lookupBuilder.setInsertHandler(
+        if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
+      )
+      lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
+        def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
+          var isBold = false
+          var isDeprecated = false
+          ScType.extractClass(qualifierType) match {
+            case Some(clazz) => {
+              element match {
+                case m: PsiMember => {
+                  if (m.getContainingClass == clazz) isBold = true
+                }
+                case _ =>
               }
-              case _ =>
             }
+            case _ =>
           }
-          case _ =>
-        }
-        val isUnderlined = resolveResult.implicitFunction != None
-        element match {
-          case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
-          case _ =>
-        }
-        val tailText: String = element match {
-          case t: ScFun => {
-            if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).mkString("[", ", ", "]")
-            else ""
+          val isUnderlined = resolveResult.implicitFunction != None
+          element match {
+            case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
+            case _ =>
           }
-          case t: ScTypeParametersOwner => {
-            t.typeParametersClause match {
-              case Some(tp) => presentationString(tp, substitutor)
-              case None => ""
+          val tailText: String = element match {
+            case t: ScFun => {
+              if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).mkString("[", ", ", "]")
+              else ""
             }
-          }
-          case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 => {
-            p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-          }
-          case _ => ""
-        }
-        element match {
-          //scala
-          case fun: ScFunction => {
-            presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
-            presentation.setTailText(tailText + presentationString(fun.paramClauses, substitutor))
-          }
-          case fun: ScFun => {
-            presentation.setTypeText(presentationString(fun.retType, substitutor))
-            val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
-            presentation.setTailText(tailText + paramClausesText)
-          }
-          case bind: ScBindingPattern => {
-            presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
-          }
-          case f: ScFieldId => {
-            presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrElse(Any), substitutor))
-          }
-          case param: ScParameter => {
-            val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor)
-            if (resolveResult.isNamedParameter) {
-              presentation.setTailText(" = " + str)
-            } else {
-              presentation.setTypeText(str)
+            case t: ScTypeParametersOwner => {
+              t.typeParametersClause match {
+                case Some(tp) => presentationString(tp, substitutor)
+                case None => ""
+              }
             }
-          }
-          case clazz: PsiClass => {
-            val location: String = clazz.getPresentation.getLocationString
-            presentation.setTailText(tailText + " " + location, true)
-          }
-          case alias: ScTypeAliasDefinition => {
-            presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
-          }
-          case method: PsiMethod => {
-            val str: String = presentationString(method.getReturnType, substitutor)
-            if (resolveResult.isNamedParameter) {
-              presentation.setTailText(" = " + str)
-            } else {
-              presentation.setTypeText(str)
-              presentation.setTailText(tailText + presentationString(method.getParameterList, substitutor))
+            case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 => {
+              p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
             }
+            case _ => ""
           }
-          case f: PsiField => {
-            presentation.setTypeText(presentationString(f.getType, substitutor))
+          element match {
+            //scala
+            case fun: ScFunction => {
+              presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
+              val tailText1 = if (isAssignment) {
+                " = " + presentationString(fun.paramClauses, substitutor)
+              } else {
+                tailText + presentationString(fun.paramClauses, substitutor)
+              }
+              presentation.setTailText(tailText1)
+            }
+            case fun: ScFun => {
+              presentation.setTypeText(presentationString(fun.retType, substitutor))
+              val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
+              presentation.setTailText(tailText + paramClausesText)
+            }
+            case bind: ScBindingPattern => {
+              presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
+            }
+            case f: ScFieldId => {
+              presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrElse(Any), substitutor))
+            }
+            case param: ScParameter => {
+              val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor)
+              if (resolveResult.isNamedParameter) {
+                presentation.setTailText(" = " + str)
+              } else {
+                presentation.setTypeText(str)
+              }
+            }
+            case clazz: PsiClass => {
+              val location: String = clazz.getPresentation.getLocationString
+              presentation.setTailText(tailText + " " + location, true)
+            }
+            case alias: ScTypeAliasDefinition => {
+              presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
+            }
+            case method: PsiMethod => {
+              val str: String = presentationString(method.getReturnType, substitutor)
+              if (resolveResult.isNamedParameter) {
+                presentation.setTailText(" = " + str)
+              } else {
+                presentation.setTypeText(str)
+                presentation.setTailText(tailText + presentationString(method.getParameterList, substitutor))
+              }
+            }
+            case f: PsiField => {
+              presentation.setTypeText(presentationString(f.getType, substitutor))
+            }
+            case _ =>
           }
-          case _ =>
+          presentation.setIcon(element.getIcon(0))
+          presentation.setItemText(name + (if (isRenamed == None) "" else " <= " + element.getName))
+          presentation.setStrikeout(isDeprecated)
+          presentation.setItemTextBold(isBold)
+          if (ScalaPsiUtil.getSettings(element.getProject).SHOW_IMPLICIT_CONVERSIONS)
+            presentation.setItemTextUnderlined(isUnderlined)
         }
-        presentation.setIcon(element.getIcon(0))
-        presentation.setItemText(name + (if (isRenamed == None) "" else " <= " + element.getName))
-        presentation.setStrikeout(isDeprecated)
-        presentation.setItemTextBold(isBold)
-        if (ScalaPsiUtil.getSettings(element.getProject).SHOW_IMPLICIT_CONVERSIONS)
-          presentation.setItemTextUnderlined(isUnderlined)
-      }
-    })
-    val returnLookupElement =
-      if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)  
-      else lookupBuilder
-    (returnLookupElement, element, substitutor)
+      })
+      val returnLookupElement =
+        if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
+        else lookupBuilder
+      (returnLookupElement, element, substitutor)
+    }
+
+    val name: String = isRenamed.getOrElse(element.getName)
+    val Setter = """(.*)_=""".r
+    name match {
+      case Setter(prefix) => Seq(getLookupElementInternal(true, prefix), getLookupElementInternal(false, name))
+      case _ => Seq(getLookupElementInternal(false, name))
+    }
   }
 
   case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean)

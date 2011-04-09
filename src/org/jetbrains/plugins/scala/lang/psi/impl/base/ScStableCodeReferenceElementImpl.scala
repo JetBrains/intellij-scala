@@ -35,12 +35,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getVariants: Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).map(r => {
-    r match {
-      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
-      case _ => r.getElement
-    }
-  })
+  def getVariants: Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).flatMap {
+    case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
+    case r => Seq(r.getElement)
+  }
 
   def getConstructor = {
     getContext match {

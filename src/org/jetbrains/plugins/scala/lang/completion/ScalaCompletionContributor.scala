@@ -5,7 +5,6 @@ package completion
 import com.intellij.codeInsight.completion._
 import psi.api.ScalaFile
 import com.intellij.util.ProcessingContext
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.patterns.{PlatformPatterns}
 import lexer.ScalaTokenTypes
 import scala.util.Random
@@ -22,6 +21,7 @@ import com.intellij.psi._
 import lang.resolve.{ScalaResolveResult, ResolveUtils}
 import psi.impl.expr.ScReferenceExpressionImpl
 import psi.impl.base.types.ScTypeProjectionImpl
+import com.intellij.codeInsight.lookup.LookupElement
 ;
 
 /**
@@ -70,8 +70,10 @@ class ScalaCompletionContributor extends CompletionContributor {
               case _ =>
             }
           }
-          def postProcessMethod(result: ScalaResolveResult): Unit = {
-            applyVariant(ResolveUtils.getLookupElement(result))
+          def postProcessMethod(result: ScalaResolveResult) {
+            for (variant <- ResolveUtils.getLookupElement(result)) {
+              applyVariant(variant)
+            }
           }
           ref match {
             case refImpl: ScStableCodeReferenceElementImpl =>

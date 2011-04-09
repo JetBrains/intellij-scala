@@ -37,7 +37,9 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
                 case _: ScObject if !isInImport && onlyClasses => return
                 case _ =>
               }
-              result.addElement(ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass), isClassName = true)._1)
+              for {
+                (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass), isClassName = true)
+              } result.addElement(el)
             }
             //todo: filter according to position
             ScalaPsiUtil.getCompanionModule(psiClass) match {

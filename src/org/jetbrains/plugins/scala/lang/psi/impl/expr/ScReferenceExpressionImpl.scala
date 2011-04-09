@@ -96,12 +96,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => false
         }
       } else true
-    }).map(r => {
-      r match {
-        case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
-        case _ => r.getElement
-      }
-    })
+    }).flatMap {
+      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
+      case r => Seq(r.getElement)
+    }
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
