@@ -94,7 +94,8 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
     }
 
     ref.getContext match {
-      case assign: ScAssignStmt if assign.getLExpression == ref =>
+      case assign: ScAssignStmt if assign.getLExpression == ref
+              && !ref.getContext.getContext.isInstanceOf[ScArgumentExprList] =>
         // SLS 6.1.5 "The interpretation of an assignment to a simple variable x = e depends on the definition of x."
 
         // If x denotes a mutable variable, then the assignment changes the current value of x to be the result of evaluating the expression e
