@@ -35,7 +35,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
         case None => lifted
         case Some(cb) => {
           val branchTypes = cb.getBranches.map(_.getType(ctx))
-          collectFailures(branchTypes, Any)(_.foldLeft(result)((t, b) => Bounds.lub(t, b)))
+          collectFailures(branchTypes, Any)(_.foldLeft(result)((t, b) => Bounds.weakLub(t, b)))
         }
       }
     }

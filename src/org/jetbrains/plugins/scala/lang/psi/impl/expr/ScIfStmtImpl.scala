@@ -58,9 +58,9 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
     (thenBranch, elseBranch) match {
       case (Some(t), Some(e)) => for (tt <- t.getType(TypingContext.empty);
                                       et <- e.getType(TypingContext.empty)) yield {
-        Bounds.lub(tt, et)
+        Bounds.weakLub(tt, et)
       }
-      case (Some(t), None) => t.getType(TypingContext.empty).map(tt => Bounds.lub(tt, types.Unit))
+      case (Some(t), None) => t.getType(TypingContext.empty).map(tt => Bounds.weakLub(tt, types.Unit))
       case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
     }
   }
