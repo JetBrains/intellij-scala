@@ -19,11 +19,12 @@ import java.util.{List => JList, ArrayList => JArrayList}
 import psi.api.statements.params.ScParameter
 import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTypedDefinition
-import psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions._
 import scala.collection.JavaConversions._
 import psi.api.toplevel.imports.ScImportStmt
+import psi.api.base.ScStableCodeReferenceElement
+import psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
 class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def handlesElement(element: PsiElement) =
@@ -36,12 +37,26 @@ class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
     def usagesForClass(c: PsiClass): JList[UsageInfo] = {
       val infos = new JArrayList[UsageInfo]()
       findClassUsages(c, allElementsToDelete, infos)
-      infos.map {
+      infos.flatMap {
         case x: SafeDeleteReferenceJavaDeleteUsageInfo =>
+          // See SCL-3028
           import x._
-          val isInImport = PsiTreeUtil.getParentOfType(getElement, classOf[ScImportStmt]) != null
-          new SafeDeleteReferenceJavaDeleteUsageInfo(getElement, getReferencedElement, isInImport) // SCL-3028
-        case x => x
+
+          val shouldDelete = getElement match {
+            case ref: ScStableCodeReferenceElement =>
+              val results = ref.multiResolve(false)
+              def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
+              val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)
+              nonSyntheticTargets.toSet subsetOf allElementsToDelete.toSet
+            case _ => true
+          }
+          
+          if (shouldDelete) {
+            val isInImport = PsiTreeUtil.getParentOfType(getElement, classOf[ScImportStmt]) != null
+            if (isInImport) Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(getElement, getReferencedElement, true)) // delete without review
+            else Seq(x) // delete with review
+          } else Seq()  // don't delete
+        case x => Seq(x) // delete with review
       }
     }
 
