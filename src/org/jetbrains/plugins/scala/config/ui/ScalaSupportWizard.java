@@ -167,9 +167,10 @@ public class ScalaSupportWizard {
     }
     
     String version = distribution.version();
-    
-    if(!version.startsWith("2.8")) {
-      labelState.setText("(version " + version + ", 2.8+ required)");
+
+    boolean versionOkay = version.startsWith("2.8") || version.startsWith("2.9");
+    if(!versionOkay) {
+      labelState.setText("(version " + version + ", 2.8.x or 2.9.x required)");
       labelState.setIcon(Icons.WARNING);
       return;
     }
