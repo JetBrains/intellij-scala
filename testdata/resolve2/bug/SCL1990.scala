@@ -1,5 +1,3 @@
-import dbc.statement.JoinType.Outer
-
 class Outer {
   class Inner {}
 
@@ -16,3 +14,4 @@ class Outer {
     o1./* line: 6 */bar(new o2.Inner)
   }
 }
+()
