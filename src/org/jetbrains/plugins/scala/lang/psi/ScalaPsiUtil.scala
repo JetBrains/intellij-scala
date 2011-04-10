@@ -409,7 +409,10 @@ object ScalaPsiUtil {
                                              typeParams: Seq[TypeParameter],
                                              subst: ScSubstitutor = ScSubstitutor.empty,
                                              shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
-    val checkWeak = false // TODO change to true to solve SCL-3052. But should this be done in all cases? Check scalac.
+    // See SCL-3052. TODO: SCL-3058
+    // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
+    val checkWeak = true
+
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType)))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
