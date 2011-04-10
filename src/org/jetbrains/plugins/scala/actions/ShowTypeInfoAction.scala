@@ -30,13 +30,18 @@ import com.intellij.ui.{HintHint, LightweightHint}
  */
 
 class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
+
+  override def update(e: AnActionEvent) {
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
+  }
+
   def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     val editor = PlatformDataKeys.EDITOR.getData(context)
-    
+
     if(editor == null) return
-    
     val file = PsiUtilBase.getPsiFileInEditor(editor, PlatformDataKeys.PROJECT.getData(context))
+    if (file.getLanguage != ScalaFileType.SCALA_LANGUAGE) return
 
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {

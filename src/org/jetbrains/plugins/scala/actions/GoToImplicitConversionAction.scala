@@ -23,30 +23,11 @@ import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiElement, Psi
  */
 
 class GoToImplicitConversionAction extends AnAction("Go to implicit conversion action") {
-  override def update(e: AnActionEvent): Unit = {
-    val presentation = e.getPresentation
-    def enable {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
-    def disable {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
-    try {
-      val dataContext = e.getDataContext
-      val file = dataContext.getData(DataConstants.PSI_FILE)
-      file match {
-        case _: ScalaFile => enable
-        case _ => disable
-      }
-    }
-    catch {
-      case e: Exception => disable
-    }
+  override def update(e: AnActionEvent) {
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  def actionPerformed(e: AnActionEvent) {
     val context = e.getDataContext
     val project = PlatformDataKeys.PROJECT.getData(context)
     val editor = PlatformDataKeys.EDITOR.getData(context)
@@ -79,7 +60,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         builder.setTitle("Choose implicit conversion method:").
                 setMovable(false).setResizable(false).setRequestFocus(true).
                 setItemChoosenCallback(new Runnable {
-          def run: Unit = {
+          def run {
             val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
             method match {
               case n: NavigatablePsiElement => n.navigate(true)
