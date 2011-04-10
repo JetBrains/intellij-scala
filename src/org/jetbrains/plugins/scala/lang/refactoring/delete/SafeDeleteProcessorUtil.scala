@@ -22,13 +22,19 @@ import com.intellij.util.IncorrectOperationException
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.Nullable
-import java.util._
-import java.util.HashMap
-import java.util.HashSet
 import collection.JavaConversions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridengMemberSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import java.util._
+import psi.api.base.ScStableCodeReferenceElement
+import psi.api.toplevel.typedef.ScObject
+import com.intellij.usageView.UsageInfo._
+import usageInfo.SafeDeleteUsageInfo._
+import collection.JavaConversions._
+import java.util.{List => JList, ArrayList => JArrayList}
+
+import extensions._
 
 /**
  * This is a port of the static, private mtehods in JavaSafeDeleteProcessor.
@@ -66,7 +72,23 @@ object SafeDeleteProcessorUtil {
             }
           }
           LOG.assertTrue(element.getTextRange != null)
-          usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, parent.isInstanceOf[PsiImportStatement]))
+
+          val shouldDelete = element match {
+            case ref: ScStableCodeReferenceElement =>
+              val results = ref.multiResolve(false)
+              def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
+              val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)
+              nonSyntheticTargets.toSet subsetOf allElementsToDelete.toSet
+            case _ => true
+          }
+
+          val usagesToAdd = if (shouldDelete) {
+            val isInImport = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null
+            if (isInImport) Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, true)) // delete without review
+            else Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, false)) // delete with review
+          } else Seq() // don't delete
+
+          usages.addAll(usagesToAdd)
         }
         return true
       }

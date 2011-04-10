@@ -34,39 +34,13 @@ class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def findUsages(element: PsiElement, allElementsToDelete: Array[PsiElement], usages: JList[UsageInfo]): NonCodeUsageSearchInfo = {
     var insideDeletedCondition: Condition[PsiElement] = getUsageInsideDeletedFilter(allElementsToDelete)
 
-    def usagesForClass(c: PsiClass): JList[UsageInfo] = {
-      val infos = new JArrayList[UsageInfo]()
-      findClassUsages(c, allElementsToDelete, infos)
-      infos.flatMap {
-        case x: SafeDeleteReferenceJavaDeleteUsageInfo =>
-          // See SCL-3028
-          import x._
-
-          val shouldDelete = getElement match {
-            case ref: ScStableCodeReferenceElement =>
-              val results = ref.multiResolve(false)
-              def isSyntheticObject(e: PsiElement) = e.asOptionOf[ScObject].exists(_.isSyntheticObject)
-              val nonSyntheticTargets = results.map(_.getElement).filterNot(isSyntheticObject)
-              nonSyntheticTargets.toSet subsetOf allElementsToDelete.toSet
-            case _ => true
-          }
-          
-          if (shouldDelete) {
-            val isInImport = PsiTreeUtil.getParentOfType(getElement, classOf[ScImportStmt]) != null
-            if (isInImport) Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(getElement, getReferencedElement, true)) // delete without review
-            else Seq(x) // delete with review
-          } else Seq()  // don't delete
-        case x => Seq(x) // delete with review
-      }
-    }
-
     insideDeletedCondition = element match {
       case c: PsiTypeParameter =>
-        usages.addAll(usagesForClass(c))
+        findClassUsages(c, allElementsToDelete, usages)
         findTypeParameterExternalUsages(c, usages)
         insideDeletedCondition
       case c: ScTypeDefinition =>
-        usages.addAll(usagesForClass(c))
+        findClassUsages(c, allElementsToDelete, usages)
         insideDeletedCondition
       case m: ScFunction => // TODO Scala specific override/implements, extend to vals, members, type aliases etc.
         findMethodUsages(m, allElementsToDelete, usages)
