@@ -13,6 +13,7 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
+import a.j.te
 
 /**
  * @author: Alexander Podkhalyuzin
@@ -386,7 +387,16 @@ object JavaToScala {
         }
       }
       case p: PsiParameter => {
-        res.append(convertPsiToText(p.getModifierList)).append(escapeKeyword(p.getName)).append(" : ").append(convertPsiToText(p.getTypeElement))
+        val typeText = if (p.isVarArgs) {
+          p.getTypeElement.getType match {
+            case at: PsiArrayType =>
+              val compType = at.getComponentType
+              val scCompType = ScType.create(compType, p.getProject)
+              ScType.presentableText(scCompType) + "*"
+            case _ => convertPsiToText(p.getTypeElement) // should not happen
+          }
+        } else convertPsiToText(p.getTypeElement)
+        res.append(convertPsiToText(p.getModifierList)).append(escapeKeyword(p.getName)).append(" : ").append(typeText)
       }
       /*case a: PsiAnonymousClass => {
         a.get

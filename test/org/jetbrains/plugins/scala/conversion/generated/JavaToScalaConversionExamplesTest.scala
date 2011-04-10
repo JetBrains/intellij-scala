@@ -8,4 +8,6 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testAnnotated = doTest
 
   def testHelloWorld = doTest
+
+  def testVarArgs = doTest
 }
