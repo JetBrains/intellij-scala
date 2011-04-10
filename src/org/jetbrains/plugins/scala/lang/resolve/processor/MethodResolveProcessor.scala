@@ -234,14 +234,19 @@ object MethodResolveProcessor {
     import proc._
 
     def expand(r: ScalaResolveResult): Set[ScalaResolveResult] = {
+      def applyMethodsFor(tp: ScType) = {
+        val processor = new CollectMethodsProcessor(ref, "apply")
+        processor.processType(tp, ref.asInstanceOf[ScalaPsiElement])
+        processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
+      }
       r.element match {
         case f: ScFunction if f.hasParameterClause => HashSet(r)
-        case b: ScTypedDefinition if argumentClauses.length > 0 => {
-          val tp = r.substitutor subst b.getType(TypingContext.empty).getOrElse(return HashSet.empty)
-          val processor = new CollectMethodsProcessor(ref, "apply")
-          processor.processType(tp, ref.asInstanceOf[ScalaPsiElement])
-          processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
-        }
+        case b: ScTypedDefinition if argumentClauses.length > 0 =>
+          val tp = r.substitutor.subst(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
+          applyMethodsFor(tp)
+        case b: PsiField => // See SCL-3055
+          val tp = r.substitutor.subst(ScType.create(b.getType, b.getProject))
+          applyMethodsFor(tp)
         case _ => HashSet(r)
       }
     }
