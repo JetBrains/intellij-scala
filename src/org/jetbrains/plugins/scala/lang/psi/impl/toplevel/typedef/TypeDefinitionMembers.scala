@@ -496,7 +496,10 @@ object TypeDefinitionMembers {
     val isNotScalaProcessor = !isScalaProcessor
     def checkName(s: String): Boolean = {
       if (name == null || name == "") true
-      else NameTransformer.decode(s) == decodedName
+      else {
+        val s1 = if (s(0) == '`') s.drop(1).dropRight(1) else s
+        NameTransformer.decode(s1) == decodedName
+      }
     }
     def checkNameGetSetIs(s: String): Boolean = {
       if (name == null || name == "") true
