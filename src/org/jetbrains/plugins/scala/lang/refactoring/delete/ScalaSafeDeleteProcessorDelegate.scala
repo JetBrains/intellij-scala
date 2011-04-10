@@ -15,13 +15,15 @@ import org.jetbrains.annotations.Nullable
 import com.intellij.openapi.util.Condition
 import SafeDeleteProcessorUtil._
 import collection.JavaConversions._
-import java.util.{List => JList}
+import java.util.{List => JList, ArrayList => JArrayList}
 import psi.api.statements.params.ScParameter
 import psi.api.statements.ScFunction
 import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions._
+import scala.collection.JavaConversions._
+import psi.api.toplevel.imports.ScImportStmt
 
 class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def handlesElement(element: PsiElement) =
@@ -30,13 +32,26 @@ class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   @Nullable
   override def findUsages(element: PsiElement, allElementsToDelete: Array[PsiElement], usages: JList[UsageInfo]): NonCodeUsageSearchInfo = {
     var insideDeletedCondition: Condition[PsiElement] = getUsageInsideDeletedFilter(allElementsToDelete)
+
+    def usagesForClass(c: PsiClass): JList[UsageInfo] = {
+      val infos = new JArrayList[UsageInfo]()
+      findClassUsages(c, allElementsToDelete, infos)
+      infos.map {
+        case x: SafeDeleteReferenceJavaDeleteUsageInfo =>
+          import x._
+          val isInImport = PsiTreeUtil.getParentOfType(getElement, classOf[ScImportStmt]) != null
+          new SafeDeleteReferenceJavaDeleteUsageInfo(getElement, getReferencedElement, isInImport) // SCL-3028
+        case x => x
+      }
+    }
+
     insideDeletedCondition = element match {
       case c: PsiTypeParameter =>
-        findClassUsages(c, allElementsToDelete, usages)
+        usages.addAll(usagesForClass(c))
         findTypeParameterExternalUsages(c, usages)
         insideDeletedCondition
       case c: ScTypeDefinition =>
-        findClassUsages(c, allElementsToDelete, usages)
+        usages.addAll(usagesForClass(c))
         insideDeletedCondition
       case m: ScFunction => // TODO Scala specific override/implements, extend to vals, members, type aliases etc.
         findMethodUsages(m, allElementsToDelete, usages)

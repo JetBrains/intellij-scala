@@ -108,4 +108,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), false, Some(refName)))
+
+  override def delete() {
+    getContext match {
+      case sel: ScImportSelector => sel.deleteSelector()
+      case expr: ScImportExpr => expr.deleteExpr()
+      case _ => super.delete()
+    }
+  }
 }
