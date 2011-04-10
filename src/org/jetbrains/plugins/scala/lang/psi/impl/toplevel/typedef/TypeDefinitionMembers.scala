@@ -32,6 +32,7 @@ import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
 import psi.util.CommonClassesSearcher
 import reflect.NameTransformer
+import extensions._
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -491,7 +492,8 @@ object TypeDefinitionMembers {
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
     val decodedName = if (name != null) NameTransformer.decode(name) else ""
-    val isNotScalaProcessor = !processor.isInstanceOf[BaseProcessor]
+    val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
+    val isNotScalaProcessor = !isScalaProcessor
     def checkName(s: String): Boolean = {
       if (name == null || name == "") true
       else NameTransformer.decode(s) == decodedName
@@ -499,23 +501,23 @@ object TypeDefinitionMembers {
     def checkNameGetSetIs(s: String): Boolean = {
       if (name == null || name == "") true
       else {
-        val capitalizeName = decodedName.capitalize
         val decoded = NameTransformer.decode(s)
-        decoded == "is" + capitalizeName ||
-          decoded == "get" + capitalizeName ||
-          decoded == "set" + capitalizeName
+        val beanPropertyNames = Seq("is", "get", "set").map(_ + decoded.capitalize)
+        beanPropertyNames.contains(decodedName)
       }
     }
-    if (shouldProcessVals(processor) || (!processor.isInstanceOf[BaseProcessor] && shouldProcessMethods(processor))) {
-      val v1 = shouldProcessVals(processor)
-      val v2 = isNotScalaProcessor && shouldProcessMethods(processor)
+
+    val processValsForScala = isScalaProcessor && shouldProcessVals(processor)
+    val processValsForJava = isNotScalaProcessor && shouldProcessMethods(processor)
+
+    if (processValsForScala || processValsForJava) {
       val iterator = vals.iterator
       while (iterator.hasNext) {
         val (_, n) = iterator.next
         ProgressManager.checkCanceled
         n.info match {
-          case p: ScClassParameter if v1 && !p.isVar && !p.isVal &&
-            (checkName(p.getName) || checkNameGetSetIs(p.getName)) => {
+          case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
+            (checkName(p.getName) || checkNameGetSetIs(p.getName)) && !isNotScalaProcessor => {
             val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
             if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
               //this is member only for class scope
@@ -531,73 +533,32 @@ object TypeDefinitionMembers {
           case _ => if (!tail) return false
         }
         def tail: Boolean = {
-          if (v1 && checkName(n.info.getName) &&
+          if (processValsForScala && checkName(n.info.getName) &&
             !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          //this is for Java: to find methods, which is vals in Scala
-          if (v2 &&  checkNameGetSetIs(n.info.getName)) {
+
+          //this is for Java: to find methods, which are vals in Scala
+          if (processValsForJava) {
             n.info match {
               case t: ScTypedDefinition => {
-                implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))
                 val context = ScalaPsiUtil.nameContext(t)
-                if (!processor.execute(new FakePsiMethod(t, context match {
-                  case o: PsiModifierListOwner => o.hasModifierProperty _
-                  case _ => (s: String) => false
-                }), state)) return false
                 context match {
-                  case annotated: ScAnnotationsHolder => {
-                    annotated.hasAnnotation("scala.reflect.BeanProperty") match {
-                      case Some(_) => {
-                        context match {
-                          case value: ScValue => {
-                            if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
-                          }
-                          case variable: ScVariable => {
-                            if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
-                            if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                              Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
-                          }
-                          case param: ScClassParameter if param.isVal => {
-                            if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
-                          }
-                          case param: ScClassParameter if param.isVar => {
-                            if (!processor.execute(new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
-                            if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                              Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _), state)) return false
-                          }
-                          case _ =>
-                        }
-                      }
-                      case None =>
-                    }
-                    annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
-                      case Some(_) => {
-                        context match {
-                          case value: ScValue => {
-                            if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state)) return false
-                          }
-                          case variable: ScVariable => {
-                            if (!processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state)) return false
-                            if (!processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                              Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _), state)) return false
-                          }
-                          case param: ScClassParameter => {
-                            if ((param.isVal || param.isVar) && !processor.execute(new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                              Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _), state)) return false
-                            if (param.isVal && !processor.execute(new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                              Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _), state)) return false
-                          }
-                          case _ =>
-                        }
-                      }
-                      case None =>
-                    }
-                  }
+                  case annotated: ScAnnotationsHolder =>
+                    // Expose the get/set/is methods generated by scala.reflect.(Boolean)BeanProperty
+                    if (!BeanProperty.processBeanPropertyDeclarations(annotated, context, processor, t, state))
+                      return false
+                  case _ =>
+                }
+                // Expose the accessor method for vals and vars to Java.
+                context match {
+                  case classParam: ScClassParameter if classParam.isEffectiveVal =>
+                    if (!processor.execute(new FakePsiMethod(classParam, t.getName, Array.empty, classParam.getType(TypingContext.empty).getOrElse(Any), classParam.hasModifierProperty _), state))
+                      return false
+                  case value: ScValue =>
+                    if (!processor.execute(new FakePsiMethod(value, t.getName, Array.empty, value.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state))
+                      return false
+                  case variable: ScVariable =>
+                    if (!processor.execute(new FakePsiMethod(variable, t.getName, Array.empty, variable.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state))
+                      return false
                   case _ =>
                 }
               }

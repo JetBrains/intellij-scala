@@ -251,69 +251,17 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       val t = valsIterator.next._1
       t match {
         case t: ScTypedDefinition => {
-          implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))
           val context = ScalaPsiUtil.nameContext(t)
           buffer += new FakePsiMethod(t, context match {
             case o: PsiModifierListOwner => o.hasModifierProperty _
             case _ => (s: String) => false
           })
 
-          //todo: this is duplicate
           context match {
             case annotated: ScAnnotationsHolder => {
-              val annotations = annotated.annotations
-              annotated.hasAnnotation("scala.reflect.BeanProperty") match {
-                case Some(_) => {
-                  context match {
-                    case value: ScValue => {
-                      buffer += new FakePsiMethod(t, "get" + t.getName.capitalize,
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _)
-                    }
-                    case variable: ScVariable => {
-                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _)
-                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _)
-                    }
-                    case param: ScClassParameter if param.isVal => {
-                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
-                    }
-                    case param: ScClassParameter if param.isVar => {
-                      buffer += new FakePsiMethod(t, "get" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
-                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _)
-                    }
-                    case _ =>
-                  }
-                }
-                case _ =>
-              }
-
-              annotated.hasAnnotation("scala.reflect.BooleanBeanProperty") match {
-                case Some(_) => {
-                  context match {
-                    case value: ScValue => {
-                      buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _)
-                    }
-                    case variable: ScVariable => {
-                      buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _)
-                      buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, variable.hasModifierProperty _)
-                    }
-                    case param: ScClassParameter => {
-                      if (param.isVal || param.isVar) buffer += new FakePsiMethod(t, "is" + StringUtil.capitalize(t.getName),
-                        Array.empty, t.getType(TypingContext.empty).getOrElse(Any), param.hasModifierProperty _)
-                      if (param.isVal) buffer += new FakePsiMethod(t, "set" + StringUtil.capitalize(t.getName),
-                        Array[ScType](t.getType(TypingContext.empty).getOrElse(Any)), Unit, param.hasModifierProperty _)
-                    }
-                    case _ =>
-                  }
-                }
-                case None =>
+              BeanProperty.processBeanPropertyDeclarationsInternal(annotated, context, t) { element =>
+                buffer += element
+                true
               }
             }
             case _ =>

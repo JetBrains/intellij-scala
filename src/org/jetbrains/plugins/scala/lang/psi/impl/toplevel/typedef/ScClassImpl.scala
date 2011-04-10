@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import com.intellij.psi._
 import api.ScalaElementVisitor
+import lang.resolve.processor.BaseProcessor
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -83,7 +84,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
 
     for (p <- parameters) {
       ProgressManager.checkCanceled
-      if (!processor.execute(p, state)) return false
+      if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
+        if (!processor.execute(p, state)) return false
+      }
     }
 
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
