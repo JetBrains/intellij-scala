@@ -16,8 +16,8 @@ import toplevel.typedef.{ScClass, ScMember}
 */
 
 trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMember {
-  def isVal() : Boolean
-  def isVar() : Boolean
+  def isVal : Boolean
+  def isVar : Boolean
 
   /** Is the parmameter is explicitly marked as a val or a var; or a case class parameter that is automatically a val. */
   def isEffectiveVal = isVal || isVar || isCaseClassVal

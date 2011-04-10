@@ -32,7 +32,7 @@ class CaseClassParamInspection extends LocalInspectionTool {
             for{
               paramClause <- c.allClauses.take(1)
               classParam@(__ : ScClassParameter) <- paramClause.parameters
-              if classParam.isVal() && classParam.isCaseClassVal
+              if classParam.isVal && classParam.isCaseClassVal
             } {
               holder.registerProblem(holder.getManager.createProblemDescriptor(classParam,
                 ScalaBundle.message("val.on.case.class.param.redundant"),
