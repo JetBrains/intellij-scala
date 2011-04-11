@@ -285,7 +285,8 @@ object TypeDefinitionMembers {
             }
           case _val: ScValue if isAccessible(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst),
+                dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
             }
           case constr: ScPrimaryConstructor => {
             val isCase: Boolean = template match {
@@ -301,14 +302,16 @@ object TypeDefinitionMembers {
               } else if (isAccessible(place, param)) {
                 lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
-                if (!param.isStable) addSignature(new Signature(param.name + "_", Stream.apply(t), 1, subst), Unit, param)
+                if (!param.isStable) addSignature(new Signature(param.name + "_", Stream.apply(t), 1, subst),
+                  Unit, param)
               }
             }
           }
           case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case o: ScObject if (isAccessible(place, o)) =>
-            addSignature(new Signature(o.name, Stream.empty, 0, subst), subst.subst(o.getType(TypingContext.empty).getOrElse(Any)), o)
+            addSignature(new Signature(o.name, Stream.empty, 0, subst),
+              subst.subst(o.getType(TypingContext.empty).getOrElse(Any)), o)
           case _ =>
         }
       }
