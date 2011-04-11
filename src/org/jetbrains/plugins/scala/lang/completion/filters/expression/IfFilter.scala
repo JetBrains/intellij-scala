@@ -27,9 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 class IfFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     if (leaf != null) {
-      var parent = leaf.getParent()
+      var parent = leaf.getParent
       while (parent != null) {
         if (parent.getNode.getElementType == ScalaElementTypes.CASE_CLAUSE ||
                 parent.getNode.getElementType == ScalaElementTypes.FOR_STMT) return true
@@ -44,7 +44,7 @@ class IfFilter extends ElementFilter {
   }
 
   @NonNls
-  override def toString(): String = {
+  override def toString: String = {
     return "'if' keyword filter"
   }
 }
