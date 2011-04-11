@@ -64,12 +64,13 @@ object Update extends Strategy {
   }
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
-    val annotation = ScalaPsiElementFactory.createTypeElementFromText(t.presentableText, context.getManager)
-    ScalaPsiUtil.adjustTypes(annotation)
-    context.addAfter(annotation, anchor)
+    val annotation = ScalaPsiElementFactory.createTypeElementFromText(t.canonicalText, context.getManager)
+    val added = context.addAfter(annotation, anchor)
 
     val colon = ScalaPsiElementFactory.createColon(context.getManager)
     context.addAfter(colon, anchor)
+    
+    ScalaPsiUtil.adjustTypes(added)
   }
 
   def removeTypeAnnotation(e: PsiElement) {
