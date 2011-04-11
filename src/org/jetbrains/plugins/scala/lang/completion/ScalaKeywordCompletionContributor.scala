@@ -42,7 +42,7 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
   registerStandardCompletion(new TraitFilter, "trait")
   registerStandardCompletion(new DefinitionsFilter, "val", "var")
   registerStandardCompletion(new ValueDefinitionFilter, "val")
-  registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw")
+  registerStandardCompletion(new StatementFilter, "for", "while", "do", "try", "return", "throw", "if")
   registerStandardCompletion(new CatchFilter, "catch")
   registerStandardCompletion(new FinallyFilter, "finally")
   registerStandardCompletion(new ElseFilter, "else")
@@ -54,4 +54,5 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
   registerStandardCompletion(new ForSomeFilter, "forSome")
   registerStandardCompletion(new MatchFilter, "match")
   registerStandardCompletion(new TypeFilter, "type")
+  registerStandardCompletion(new IfFilter, "if")
 }
