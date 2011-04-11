@@ -46,7 +46,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
 
     if (getStub == null) {
       body match {
-        case Some(x) if x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
+        case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
           for (p <- parameters) {
             ProgressManager.checkCanceled
             if (!processor.execute(p, state)) return false
@@ -55,7 +55,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       }
     }
     else {
-      if (lastParent.getContext != lastParent.getParent) {
+      if (lastParent != null && lastParent.getContext != lastParent.getParent) {
         for (p <- parameters) {
           ProgressManager.checkCanceled
           if (!processor.execute(p, state)) return false
