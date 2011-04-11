@@ -12,7 +12,8 @@ class ScalaCharFilter extends CharFilter {
       //   "(va:" => "(var"
       //   "(va<SPACE>" => "(var "
       case x: ScParameterClause if Set(' ', ':').contains(c) => CharFilter.Result.HIDE_LOOKUP
-      case _: ScEnumerators | _: ScEnumerator | _: ScForStatement if Set(' ').contains(c) => CharFilter.Result.HIDE_LOOKUP
+      case _: ScEnumerators | _: ScEnumerator | _: ScForStatement if Set(' ').contains(c) =>
+        CharFilter.Result.HIDE_LOOKUP
       case _ => null
     }
   }
