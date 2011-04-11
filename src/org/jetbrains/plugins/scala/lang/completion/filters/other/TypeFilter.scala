@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 class TypeFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     if (leaf != null) {
-      var parent = leaf.getParent()
+      val parent = leaf.getParent.getParent
       parent match {
         case _: ScStableCodeReferenceElement => return true
         case _ => return false
