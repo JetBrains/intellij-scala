@@ -302,7 +302,7 @@ object ResolveUtils {
           val clazz = member.getContainingClass
           var placeTd: ScTemplateDefinition = getPlaceTd(place)
           while (placeTd != null) {
-            isInheritorOrSelfOrSame(placeTd, clazz)
+            if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
             val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && companion.isInheritor (clazz, true)) return true
             placeTd = getPlaceTd(placeTd)
