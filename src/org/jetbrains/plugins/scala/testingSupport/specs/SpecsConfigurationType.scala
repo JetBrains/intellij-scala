@@ -56,13 +56,17 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
-    val suiteClazz = facade.findClass("org.specs.Specification", GlobalSearchScope.allScope(element.getProject))
-    if (suiteClazz == null) return null
-    if (!parent.isInheritor(suiteClazz, true)) return null
+    val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
+    val suiteClazz2: PsiClass = null//todo: facade.findClass("org.specs2.specification.SpecificationStructure", element.getResolveScope)
+    if (suiteClazz == null && suiteClazz2 == null) return null
+    val suite1 = suiteClazz != null && parent.isInheritor(suiteClazz, true)
+    val suite2 = !suite1 && suiteClazz2 != null && parent.isInheritor(suiteClazz2, true)
+    if (!suite1 && !suite2) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
     val testClassPath = parent.getQualifiedName
     runConfiguration.setTestClassPath(testClassPath)
+    runConfiguration.setSpecs2(suite2)
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
@@ -93,9 +97,12 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])
     if (parent == null) return false
     val facade = JavaPsiFacade.getInstance(element.getProject)
-    val suiteClazz = facade.findClass("org.specs.Specification", GlobalSearchScope.allScope(element.getProject))
-    if (suiteClazz == null) return false
-    if (!parent.isInheritor(suiteClazz, true)) return false
+    val suiteClazz: PsiClass = facade.findClass("org.specs.Specification", element.getResolveScope)
+    val suiteClazz2: PsiClass = null //todo: facade.findClass("org.specs2.specification.SpecificationStructure", element.getResolveScope)
+    if (suiteClazz == null && suiteClazz2 == null) return false
+    val suite1 = suiteClazz != null && parent.isInheritor(suiteClazz, true)
+    val suite2 = !suite1 && suiteClazz2 != null && parent.isInheritor(suiteClazz2, true)
+    if (!suite1 && !suite2) return false
     configuration match {
       case configuration: SpecsRunConfiguration => return parent.getQualifiedName == configuration.getTestClassPath
       case _ => return false
