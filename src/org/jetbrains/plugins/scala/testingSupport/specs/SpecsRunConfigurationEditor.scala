@@ -16,11 +16,15 @@ class SpecsRunConfigurationEditor(project: Project, configuration: SpecsRunConfi
 extends SettingsEditor[SpecsRunConfiguration] {
   val form = new SpecsRunConfigurationForm(project, configuration)
 
-  def resetEditorFrom(s: SpecsRunConfiguration): Unit = form(s)
+  def resetEditorFrom(s: SpecsRunConfiguration) {
+    form(s)
+  }
 
-  def disposeEditor: Unit = {}
+  def disposeEditor() {}
 
-  def applyEditorTo(s: SpecsRunConfiguration): Unit = s(form)
+  def applyEditorTo(s: SpecsRunConfiguration) {
+    s(form)
+  }
 
   def createEditor: JComponent = form.getPanel
 }

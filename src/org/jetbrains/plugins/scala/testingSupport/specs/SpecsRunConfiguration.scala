@@ -8,39 +8,24 @@ package specs
 import _root_.java.io.File
 import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.execution._
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
-import com.intellij.execution.testframework.sm.runner.ui.SMTestRunnerResultsForm
-import com.intellij.execution.testframework.TestConsoleProperties
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
 import compiler.rt.ScalacRunner
 import jdom.Element
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.execution.configurations._
-import _root_.java.util.Arrays
-import com.intellij.facet.FacetManager
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
-
 import com.intellij.openapi.projectRoots.JavaSdkType
-import lang.psi.api.ScalaFile
-import com.intellij.execution.filters.TextConsoleBuilderFactory
-
-
-import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import scalaTest.ScalaTestRunConfigurationForm
-import script.ScalaScriptRunConfiguration
 import reflect.BeanProperty
 import lang.psi.impl.ScPackageImpl
 import config.ScalaFacet
@@ -59,11 +44,14 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
   val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner"
-  val SUITE_PATH = "org.specs.Specification"
-   private var testClassPath = ""
+  val MAIN_CLASS_SPECS_2 = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
+  def SUITE_PATH: String = if (!specs2) "org.specs.Specification" else "org.specs2.specification.SpecificationStructure"
+
+  private var testClassPath = ""
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
+  private var specs2 = false
   @BeanProperty
   var workingDirectory = {
     val base = getProject.getBaseDir
@@ -79,12 +67,14 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   def getJavaOptions = javaOptions
   def getSystemFilter = sysFilter
   def getExampleFilter = exampleFilter
-  def setTestClassPath(s: String): Unit = testClassPath = s
-  def setTestPackagePath(s: String): Unit = testPackagePath = s
-  def setTestArgs(s: String): Unit = testArgs = s
-  def setJavaOptions(s: String): Unit = javaOptions = s
-  def setSystemFilter(s: String): Unit = sysFilter = s
-  def setExampleFilter(s: String): Unit = exampleFilter = s
+  def isSpecs2 = specs2
+  def setTestClassPath(s: String) {testClassPath = s}
+  def setTestPackagePath(s: String) {testPackagePath = s}
+  def setTestArgs(s: String) {testArgs = s}
+  def setJavaOptions(s: String) {javaOptions = s}
+  def setSystemFilter(s: String) {sysFilter = s}
+  def setExampleFilter(s: String) {exampleFilter = s}
+  def setSpecs2(b: Boolean) {specs2 = b}
 
   private var generatedName: String = ""
   override def getGeneratedName = generatedName
@@ -124,7 +114,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def classNotFoundError {
+    def throwClassNotFoundError() {
       throw new ExecutionException("Test class not found.")
     }
     var classOrObjects: Array[PsiClass] = Array()
@@ -138,9 +128,9 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
-      case e => classNotFoundError
+      case e => throwClassNotFoundError()
     }
-    if (classOrObjects.isEmpty && pack == null) classNotFoundError
+    if (classOrObjects.isEmpty && pack == null) throwClassNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException("Specs not specified.")
     val classes = new ArrayBuffer[PsiClass]
@@ -179,16 +169,16 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       case e: Exception => //nothing to do
     }
 
-    val rootManager = ModuleRootManager.getInstance(module);
-    val sdk = rootManager.getSdk();
+    val rootManager = ModuleRootManager.getInstance(module)
+    val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module);
+      throw CantRunException.noJdkForModule(module)
     }
     val sdkType = sdk.getSdkType
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
-        val params = new JavaParameters();
+        val params = new JavaParameters()
 
         params.setJdk(sdk)
 
@@ -206,7 +196,11 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(if (scalaVersion == "27") MAIN_CLASS else MAIN_CLASS_28)
+        params.setMainClass(
+          if (scalaVersion == "27") MAIN_CLASS
+          else if (!specs2) MAIN_CLASS_28
+          else MAIN_CLASS_SPECS_2
+        )
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
@@ -217,7 +211,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: JDOMExternalizable]): ExecutionResult = {
-        val processHandler = startProcess
+        val processHandler = startProcess()
         val config = SpecsRunConfiguration.this
         val consoleProperties = new SMTRunnerConsoleProperties(config, "Scala", executor);
 
@@ -226,7 +220,8 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
           processHandler, consoleProperties, getRunnerSettings.asInstanceOf[RunnerSettings[_ <: JDOMExternalizable]],
           getConfigurationSettings)
 
-        new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
+        new DefaultExecutionResult(testRunnerConsole, processHandler,
+          createActions(testRunnerConsole, processHandler): _*)
       }
     }
     return state;
@@ -243,7 +238,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new SpecsRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
@@ -253,9 +248,10 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
     JDOMExternalizer.write(element, "sysFilter", sysFilter)
     JDOMExternalizer.write(element, "exampleFilter", exampleFilter)
+    JDOMExternalizer.write(element, "specs2", specs2)
   }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
@@ -270,6 +266,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     if (pp != null) sysFilter = pp
     pp = JDOMExternalizer.readString(element, "exampleFilter")
     if (pp != null) exampleFilter = pp
+    specs2 = JDOMExternalizer.readBoolean(element, "specs2")
   }
 
   private def getClassPath(module: Module): String = {
@@ -288,6 +285,6 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       }
       res.append(path).append(File.pathSeparator)
     }
-    return res.toString
+    return res.toString()
   }
 }
