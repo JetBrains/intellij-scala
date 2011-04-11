@@ -27,7 +27,7 @@ abstract class CompletionTestBase extends ScalaPsiTestCase {
 
   override def rootPath: String = super.rootPath + "completion/"
 
-  protected def doTest = {
+  protected def doTest {
     import _root_.junit.framework.Assert._
 
     val testName = getTestName(false)

@@ -13,7 +13,6 @@ import java.lang.String
 import com.intellij.openapi.util.TextRange
 import collection.mutable.{ListBuffer, ArrayBuffer, LinkedHashSet}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
-import a.j.te
 
 /**
  * @author: Alexander Podkhalyuzin
