@@ -9,6 +9,7 @@ class Bug2Test extends ResolveTestBase {
     super.getTestDataPath + "bug2/"
   }
 
+  def testSCL1717 = doTest
   def testSCL2087 = doTest
   def testSCL2268 = doTest
   def testSCL2293 = doTest

@@ -24,7 +24,6 @@ import icons.Icons
 import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
 import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
-import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import result.{Success, TypingContext}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.openapi.application.{ApplicationManager, Application}
@@ -35,6 +34,7 @@ import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import psi.fake.FakePsiMethod
 import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
+import psi.api.base.types.{ScCompoundTypeElement, ScTypeElement, ScSelfTypeElement}
 
 /**
  * @author ven
@@ -127,7 +127,7 @@ object ResolveUtils {
     }
 
     if (member.hasModifierProperty("public")) return true
-    
+
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
         case None => true
@@ -264,25 +264,7 @@ object ResolveUtils {
                                 getOrElse(null: PsiElement), place, false))) return true
                 var placeTd: ScTemplateDefinition = getPlaceTd(place)
                 while (placeTd != null) {
-                  if (placeTd.isInheritor(td, true)) return true
-                  placeTd.selfTypeElement match {
-                    case Some(te: ScSelfTypeElement) => te.typeElement match {
-                      case Some(te: ScTypeElement) => {
-                        te.getType(TypingContext.empty) match {
-                          case Success(tp: ScType, _) => ScType.extractClass(tp) match {
-                            case Some(clazz) => {
-                              if (clazz == td) return true
-                              if (clazz.isInheritor(td, true)) return true
-                            }
-                            case _ =>
-                          }
-                          case _ =>
-                        }
-                      }
-                      case _ =>
-                    }
-                    case _ =>
-                  }
+                  if (isInheritorOrSelfOrSame(placeTd, td)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
                   if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
@@ -320,27 +302,8 @@ object ResolveUtils {
           val clazz = member.getContainingClass
           var placeTd: ScTemplateDefinition = getPlaceTd(place)
           while (placeTd != null) {
-            if (placeTd.isInheritor(clazz, true)) return true
-            placeTd.selfTypeElement match {
-              case Some(te: ScSelfTypeElement) => te.typeElement match {
-                case Some(te: ScTypeElement) => {
-                  te.getType(TypingContext.empty) match {
-                    case Success(tp: ScType, _) => ScType.extractClass(tp) match {
-                      case Some(cl) => {
-                        if (cl == clazz) return true
-                        if (cl.isInheritor(clazz, true)) return true
-                      }
-                      case _ =>
-                    }
-                    case _ =>
-                  }
-                }
-                case _ =>
-              }
-              case _ =>
-            }
-            val companion: ScTemplateDefinition = ScalaPsiUtil.
-                    getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+            isInheritorOrSelfOrSame(placeTd, clazz)
+            val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
             if (companion != null && companion.isInheritor (clazz, true)) return true
             placeTd = getPlaceTd(placeTd)
           }
@@ -508,5 +471,37 @@ object ResolveUtils {
     }
     if (pack == null) return ""
     pack.fullPackageName
+  }
+
+  private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
+    if (placeTd.isInheritor(td, true)) return true
+    placeTd.selfTypeElement match {
+      case Some(te: ScSelfTypeElement) => te.typeElement match {
+        case Some(te: ScTypeElement) => {
+          def isInheritorOrSame(tp: ScType): Boolean = {
+            ScType.extractClass(tp) match {
+              case Some(clazz) => {
+                if (clazz == td) return true
+                if (clazz.isInheritor(td, true)) return true
+              }
+              case _ =>
+            }
+            false
+          }
+          te.getType(TypingContext.empty) match {
+            case Success(ctp: ScCompoundType, _) =>
+              for (tp <- ctp.components) {
+                if (isInheritorOrSame(tp)) return true
+              }
+            case Success(tp: ScType, _) =>
+              if (isInheritorOrSame(tp)) return true
+            case _ =>
+          }
+        }
+        case _ =>
+      }
+      case _ =>
+    }
+    false
   }
 }
