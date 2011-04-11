@@ -1,0 +1,14 @@
+ package x 
+ import a._ 
+ class f 
+ class g( ) extends k { 
+   def foo( ) = return /*caret*/true
+ } 
+/*
+false
+new
+null
+super
+this
+true
+*/

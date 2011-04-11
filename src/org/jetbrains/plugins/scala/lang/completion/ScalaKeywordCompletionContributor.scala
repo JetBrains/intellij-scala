@@ -49,7 +49,6 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
   registerStandardCompletion(new ExtendsFilter, "extends")
   registerStandardCompletion(new YieldFilter, "yield")
   registerStandardCompletion(new WithFilter, "with")
-  registerStandardCompletion(new RequiresFilter, "requires")
   registerStandardCompletion(new DefTypeFilter, "def", "type")
   registerStandardCompletion(new ForSomeFilter, "forSome")
   registerStandardCompletion(new MatchFilter, "match")

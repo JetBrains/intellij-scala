@@ -1,0 +1,9 @@
+class a {
+  def foo = {
+    case /*caret*/
+  }
+}
+/*
+class
+object
+*/
