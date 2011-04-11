@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.extensions.implementation
 
-import com.intellij.psi.{PsiFile, PsiReference, PsiElement}
 import iterator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
-
+import com.intellij.psi.{PsiFile, PsiReference, PsiElement}
 /**
  * Pavel Fatin
  */

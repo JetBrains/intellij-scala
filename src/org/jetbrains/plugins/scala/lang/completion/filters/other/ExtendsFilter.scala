@@ -3,17 +3,10 @@ package lang
 package completion
 package filters.other
 
-import com.intellij.lang.ASTNode
-import psi.api.ScalaFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.filters.ElementFilter;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.lang.psi._
+import psi.api.ScalaFile
+import com.intellij.psi.filters.ElementFilter
+import org.jetbrains.annotations.NonNls
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -26,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 class ExtendsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     val file = leaf.getContainingFile.asInstanceOf[ScalaFile]
     if (leaf != null && file.isScriptFile()) {
       leaf = leaf.getParent
     }
     if (leaf != null) {
-      var prev = leaf.getPrevSibling
-      if (prev == null && file.isScriptFile()) prev = leaf.getParent.getPrevSibling
+      var prev = getPrevSiblingNotWhitespace(leaf)
+      if (prev == null && file.isScriptFile()) prev = getPrevSiblingNotWhitespace(leaf.getParent)
       prev match {
         case _: PsiErrorElement =>
         case _ => return false
@@ -63,7 +56,14 @@ class ExtendsFilter extends ElementFilter {
   }
 
   @NonNls
-  override def toString(): String = {
+  override def toString: String = {
     return "'extends' keyword filter"
+  }
+
+  private def getPrevSiblingNotWhitespace(element: PsiElement): PsiElement = {
+    var prev = element.getPrevSibling
+    while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+            prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
+    prev
   }
 }
