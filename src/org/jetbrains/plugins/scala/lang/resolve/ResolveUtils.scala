@@ -338,7 +338,7 @@ object ResolveUtils {
 
   def getLookupElement(resolveResult: ScalaResolveResult,
                        qualifierType: ScType = Nothing,
-                       isClassName: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
+                       isClassName: Boolean = false, isInImport: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
     import PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
@@ -349,7 +349,7 @@ object ResolveUtils {
 
     def getLookupElementInternal(isAssignment: Boolean, name: String): (LookupElement, PsiNamedElement, ScSubstitutor) = {
       var lookupBuilder: LookupElementBuilder =
-        LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter), name) //don't add elements to lookup
+        LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter, isInImport), name) //don't add elements to lookup
       lookupBuilder = lookupBuilder.setInsertHandler(
         if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
       )
@@ -462,7 +462,7 @@ object ResolveUtils {
     }
   }
 
-  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean)
+  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean)
 
   def getPlacePackage(place: PsiElement): String = {
     val pack: ScPackaging = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging]) match {

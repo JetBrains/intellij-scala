@@ -22,6 +22,7 @@ import lang.resolve.{ScalaResolveResult, ResolveUtils}
 import psi.impl.expr.ScReferenceExpressionImpl
 import psi.impl.base.types.ScTypeProjectionImpl
 import com.intellij.codeInsight.lookup.LookupElement
+import psi.api.toplevel.imports.ScImportStmt
 ;
 
 /**
@@ -31,10 +32,11 @@ import com.intellij.codeInsight.lookup.LookupElement
 
 class ScalaCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
-          def applyVariant(variant: Object): Unit = {
+          val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
+          def applyVariant(variant: Object) {
             variant match {
               case (el: LookupElement, elem: PsiElement, _) => {
                 elem match {
@@ -71,7 +73,7 @@ class ScalaCompletionContributor extends CompletionContributor {
             }
           }
           def postProcessMethod(result: ScalaResolveResult) {
-            for (variant <- ResolveUtils.getLookupElement(result)) {
+            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport)) {
               applyVariant(variant)
             }
           }
@@ -92,7 +94,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                 applyVariant(variant)
               }
           }
-          result.stopHere
+          result.stopHere()
         }
         case _ =>
       }

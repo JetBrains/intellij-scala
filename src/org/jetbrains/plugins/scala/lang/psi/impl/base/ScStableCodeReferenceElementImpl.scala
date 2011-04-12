@@ -35,9 +35,12 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getVariants: Array[Object] = doResolve(this, new CompletionProcessor(getKinds(true))).flatMap {
-    case res: ScalaResolveResult => ResolveUtils.getLookupElement(res)
-    case r => Seq(r.getElement)
+  def getVariants: Array[Object] = {
+    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    doResolve(this, new CompletionProcessor(getKinds(true))).flatMap {
+      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, isInImport = isInImport)
+      case r => Seq(r.getElement)
+    }
   }
 
   def getConstructor = {
