@@ -1,5 +1,5 @@
 class a {}
-abstract /*caret*/
+abs/*caret*/
 /*
 abstract
 */
