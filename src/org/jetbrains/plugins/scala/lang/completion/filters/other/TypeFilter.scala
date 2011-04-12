@@ -18,7 +18,7 @@ class TypeFilter extends ElementFilter {
     if (context.isInstanceOf[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     if (leaf != null) {
-      val parent = leaf.getParent.getParent
+      val parent = leaf.getParent
       parent match {
         case _: ScStableCodeReferenceElement => return true
         case _ => return false

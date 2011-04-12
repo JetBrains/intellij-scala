@@ -19,18 +19,32 @@ import handlers.ScalaKeywordInsertHandler
  */
 
 class ScalaKeywordCompletionContributor extends CompletionContributor {
-  private def registerStandardCompletion(filter: ElementFilter, keywords: String*): Unit = {
+  private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
     extend(CompletionType.BASIC, PlatformPatterns.psiElement.
             and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter))),
       new CompletionProvider[CompletionParameters] {
-        def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+        def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
             val builder: LookupElementBuilder = LookupElementBuilder.create(keyword)
-            result.addElement(builder.setBold.setInsertHandler(new ScalaKeywordInsertHandler(keyword)))
+            result.addElement(builder.setBold().setInsertHandler(new ScalaKeywordInsertHandler(keyword)))
           }
         }
       })
   }
+
+  private def registerTypeAfterDotCompletion(filter: ElementFilter, keywords: String*) {
+    extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+            and(new FilterPattern(new AndFilter(new LeftNeighbour(new TextFilter(".")), filter))),
+      new CompletionProvider[CompletionParameters] {
+        def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+          for (keyword <- keywords) {
+            val builder: LookupElementBuilder = LookupElementBuilder.create(keyword)
+            result.addElement(builder.setBold().setInsertHandler(new ScalaKeywordInsertHandler(keyword)))
+          }
+        }
+      })
+  }
+
   registerStandardCompletion(new PackageFilter, "package")
   registerStandardCompletion(new ExpressionFilter, "true", "false", "null", "new", "super", "this")
   registerStandardCompletion(new ModifiersFilter, "private", "protected", "override",
@@ -52,6 +66,6 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
   registerStandardCompletion(new DefTypeFilter, "def", "type")
   registerStandardCompletion(new ForSomeFilter, "forSome")
   registerStandardCompletion(new MatchFilter, "match")
-  registerStandardCompletion(new TypeFilter, "type")
+  registerTypeAfterDotCompletion(new TypeFilter, "type")
   registerStandardCompletion(new IfFilter, "if")
 }
