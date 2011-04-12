@@ -68,6 +68,7 @@ trait AssignmentAnnotator {
               "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
           }
+        case _ =>
       }
       return
     }
