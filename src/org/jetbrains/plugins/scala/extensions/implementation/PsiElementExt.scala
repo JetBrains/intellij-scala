@@ -4,7 +4,9 @@ import iterator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiFile, PsiReference, PsiElement}
+import com.intellij.psi.{PsiWhiteSpace, PsiFile, PsiReference, PsiElement}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+
 /**
  * Pavel Fatin
  */
@@ -48,6 +50,20 @@ trait PsiElementExt {
     new ParentsIterator(repr).takeWhile(!_.isInstanceOf[PsiFile])
 
   def contexts: Iterator[PsiElement] = new ContextsIterator(repr)
+
+  def getPrevSiblingNotWhitespace: PsiElement = {
+    var prev: PsiElement = repr.getPrevSibling
+    while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+            prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
+    prev
+  }
+
+  def getNextSiblingNotWhitespace: PsiElement = {
+    var next: PsiElement = repr.getNextSibling
+    while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+            next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
+    next
+  }
 
   def prevSibling: Option[PsiElement] = {
     val sibling = repr.getPrevSibling
