@@ -71,7 +71,7 @@ trait AssignmentAnnotator {
       }
       return
     }
-    
+
     if(reassignment) {
       val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")
       ref.get match {

@@ -7,6 +7,8 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
 import psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import psi.ScalaPsiUtil
+import psi.api.toplevel.imports.ScImportStmt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -16,7 +18,9 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 class TypeFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
+    val imp = ScalaPsiUtil.getParentOfType(leaf, classOf[ScImportStmt])
+    if (imp != null) return false
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
