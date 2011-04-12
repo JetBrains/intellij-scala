@@ -28,13 +28,13 @@ import org.jetbrains.plugins.scala.lang.parser._
 class CaseFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    var leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
     if (leaf != null) {
-      val parent = leaf.getParent();
+      val parent = leaf.getParent
       parent match {
         case _: ScalaFile => {
-          if (leaf.getNextSibling != null && leaf.getNextSibling().getNextSibling().isInstanceOf[ScPackaging] &&
+          if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.isInstanceOf[ScPackaging] &&
                   leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
             return false
         }
@@ -45,6 +45,7 @@ class CaseFilter extends ElementFilter {
           if (parent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
           else return false
         }
+        case _: ScMatchStmt => return true
         case _: ScalaFile | _: ScPackaging => {
           var node = leaf.getPrevSibling
           if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
