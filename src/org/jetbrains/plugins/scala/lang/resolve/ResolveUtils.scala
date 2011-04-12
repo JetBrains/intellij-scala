@@ -349,12 +349,12 @@ object ResolveUtils {
 
     def getLookupElementInternal(isAssignment: Boolean, name: String): (LookupElement, PsiNamedElement, ScSubstitutor) = {
       var lookupBuilder: LookupElementBuilder =
-        LookupElementBuilder.create(ScalaLookupObject(element, isAssignment), name) //don't add elements to lookup
+        LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter), name) //don't add elements to lookup
       lookupBuilder = lookupBuilder.setInsertHandler(
         if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
       )
       lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
-        def renderElement(ignore: LookupElement, presentation: LookupElementPresentation): Unit = {
+        def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
           var isBold = false
           var isDeprecated = false
           ScType.extractClass(qualifierType) match {
