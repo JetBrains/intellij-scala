@@ -37,6 +37,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import api.base.ScReferenceElement
 import api.{ScalaElementVisitor, ScalaFile}
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
+import api.toplevel.imports.ScImportStmt
 
 
 /**
@@ -84,6 +85,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(true, false)
 
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
+    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     val tp: ScType = qualifier match {
       case Some(qual) => qual.getType(TypingContext.empty).getOrElse(psi.types.Nothing)
       case None => psi.types.Nothing
@@ -97,7 +99,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       } else true
     }).flatMap {
-      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
+      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp, isInImport = isInImport)
       case r => Seq(r.getElement)
     }
   }
