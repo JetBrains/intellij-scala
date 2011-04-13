@@ -6,6 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import controlFlow.ControlFlowInspections
+import createFromUsage.CreateParameterlessMethodQuickFix
 import highlighter.AnnotatorHighlighter
 import importsTracker._
 import lang.psi.api.expr._
@@ -194,6 +195,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation, fixes: _*)
         annotation.registerFix(ReportHighlightingErrorQuickFix)
+//        annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
       }
     }
 
@@ -262,6 +264,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             val annotation = holder.createErrorAnnotation(refElement.nameId, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
+            //TODO create apply() method
+//            annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
             return
           }
         case _ =>
@@ -270,6 +274,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
+      refElement match {
+        case exp: ScReferenceExpression =>
+          annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+        case _ =>
+      }
     }
   }
 
@@ -338,6 +347,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
+//      annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
     }
   }
 
