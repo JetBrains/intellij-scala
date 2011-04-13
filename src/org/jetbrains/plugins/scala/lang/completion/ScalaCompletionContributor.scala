@@ -5,7 +5,7 @@ package completion
 import com.intellij.codeInsight.completion._
 import psi.api.ScalaFile
 import com.intellij.util.ProcessingContext
-import com.intellij.patterns.{PlatformPatterns}
+import com.intellij.patterns.PlatformPatterns
 import lexer.ScalaTokenTypes
 import scala.util.Random
 import psi.api.statements.ScFun
@@ -14,7 +14,7 @@ import psi.ScalaPsiUtil
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import refactoring.util.ScalaNamesUtil
-import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import psi.api.base.ScReferenceElement
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve.processor.CompletionProcessor
 import com.intellij.psi._
@@ -109,9 +109,9 @@ class ScalaCompletionContributor extends CompletionContributor {
     messages apply (new Random).nextInt(messages.size)
   }
 
-  override def beforeCompletion(context: CompletionInitializationContext) = {
+  override def beforeCompletion(context: CompletionInitializationContext) {
     val rulezzz = CompletionInitializationContext.DUMMY_IDENTIFIER
-    val offset = context.getStartOffset() - 1
+    val offset = context.getStartOffset - 1
     val file = context.getFile
     val element = file.findElementAt(offset);
     val ref = file.findReferenceAt(offset)
@@ -121,8 +121,12 @@ class ScalaCompletionContributor extends CompletionContributor {
         case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
       }
       if (isOpChar(text(text.length - 1))) {
-       context.setFileCopyPatcher(new DummyIdentifierPatcher("+++++++++++++++++++++++"))
-     }
+        context.setDummyIdentifier("+++++++++++++++++++++++")
+      } else {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+      }
+    } else {
+      context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
     }
     super.beforeCompletion(context)
   }
