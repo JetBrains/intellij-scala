@@ -3,16 +3,15 @@ package lang
 package psi
 package types
 
-import com.intellij.psi.{ResolveState, PsiElement, PsiNamedElement}
+import com.intellij.psi.{ResolveState, PsiNamedElement}
 import impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
-import api.statements.{ScValue, ScTypeAliasDefinition, ScTypeAlias}
-import api.base.patterns.ScBindingPattern
+import api.statements.{ScTypeAliasDefinition, ScTypeAlias}
 import result.{TypingContext, Success}
 import api.toplevel.ScTypedDefinition
-import resolve.processor.{BaseProcessor, ResolveProcessor}
-import resolve.{StdKinds, ResolveTargets}
+import resolve.processor.ResolveProcessor
+import resolve.ResolveTargets
 
 /**
  * @author ilyas

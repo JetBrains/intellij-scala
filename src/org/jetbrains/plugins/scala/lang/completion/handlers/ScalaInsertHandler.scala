@@ -29,22 +29,27 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
     item.getObject match {
-      case ScalaLookupObject(named: PsiNamedElement, isNamed) if isNamed => {
+      case ScalaLookupObject(named: PsiNamedElement, isNamed, _) if isNamed => {
         val endOffset = startOffset + lookupStringLength
         context.setAddCompletionChar(false)
         document.insertString(endOffset, " = ")
         editor.getCaretModel.moveToOffset(endOffset + 3)
       }
-      case ScalaLookupObject(_: PsiMethod, _) | ScalaLookupObject(_: ScFun, _) => {
+      case ScalaLookupObject(_: PsiMethod, _, _) | ScalaLookupObject(_: ScFun, _, _) => {
+        item.getObject match {
+          case ScalaLookupObject(_, _, true) => return
+          case _ =>
+        }
         val (count, methodName, isAccessor) = item.getObject match {
-          case ScalaLookupObject(fun: ScFunction, _) => {
+          case ScalaLookupObject(fun: ScFunction, _, _) => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) return
             if (clauses.apply(0).isImplicit) return
             (clauses(0).parameters.length, fun.getName, false)
           }
-          case ScalaLookupObject(method: PsiMethod, _) => (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
-          case ScalaLookupObject(fun: ScFun, _) =>
+          case ScalaLookupObject(method: PsiMethod, _, _) =>
+            (method.getParameterList.getParametersCount, method.getName, method.isAccessor)
+          case ScalaLookupObject(fun: ScFun, _, _) =>
             fun.paramClauses match {
               case Seq() => return
               case clause :: clauses => (clause.length, fun.asInstanceOf[ScSyntheticFunction].name, false)

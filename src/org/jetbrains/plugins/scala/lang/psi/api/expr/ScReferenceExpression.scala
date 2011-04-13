@@ -26,7 +26,9 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
    * Another usecase is when our type inference failed to decide to which method
    * we should resolve. If all methods has same result type, then we will give valid completion and resolve.
    */
-  def multiType: Array[ScType]
+  def multiType: Array[TypeResult[ScType]]
+
+  def shapeMultiType: Array[TypeResult[ScType]]
 
   def shapeResolve: Array[ResolveResult]
 

@@ -5,7 +5,7 @@ package completion
 import com.intellij.codeInsight.completion._
 import psi.api.ScalaFile
 import com.intellij.util.ProcessingContext
-import com.intellij.patterns.{PlatformPatterns}
+import com.intellij.patterns.PlatformPatterns
 import lexer.ScalaTokenTypes
 import scala.util.Random
 import psi.api.statements.ScFun
@@ -14,7 +14,7 @@ import psi.ScalaPsiUtil
 import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import refactoring.util.ScalaNamesUtil
-import psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import psi.api.base.ScReferenceElement
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve.processor.CompletionProcessor
 import com.intellij.psi._
@@ -22,6 +22,7 @@ import lang.resolve.{ScalaResolveResult, ResolveUtils}
 import psi.impl.expr.ScReferenceExpressionImpl
 import psi.impl.base.types.ScTypeProjectionImpl
 import com.intellij.codeInsight.lookup.LookupElement
+import psi.api.toplevel.imports.ScImportStmt
 ;
 
 /**
@@ -31,10 +32,11 @@ import com.intellij.codeInsight.lookup.LookupElement
 
 class ScalaCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
-          def applyVariant(variant: Object): Unit = {
+          val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
+          def applyVariant(variant: Object) {
             variant match {
               case (el: LookupElement, elem: PsiElement, _) => {
                 elem match {
@@ -71,7 +73,7 @@ class ScalaCompletionContributor extends CompletionContributor {
             }
           }
           def postProcessMethod(result: ScalaResolveResult) {
-            for (variant <- ResolveUtils.getLookupElement(result)) {
+            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport)) {
               applyVariant(variant)
             }
           }
@@ -92,7 +94,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                 applyVariant(variant)
               }
           }
-          result.stopHere
+          result.stopHere()
         }
         case _ =>
       }
@@ -107,9 +109,9 @@ class ScalaCompletionContributor extends CompletionContributor {
     messages apply (new Random).nextInt(messages.size)
   }
 
-  override def beforeCompletion(context: CompletionInitializationContext) = {
+  override def beforeCompletion(context: CompletionInitializationContext) {
     val rulezzz = CompletionInitializationContext.DUMMY_IDENTIFIER
-    val offset = context.getStartOffset() - 1
+    val offset = context.getStartOffset - 1
     val file = context.getFile
     val element = file.findElementAt(offset);
     val ref = file.findReferenceAt(offset)
@@ -119,8 +121,12 @@ class ScalaCompletionContributor extends CompletionContributor {
         case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
       }
       if (isOpChar(text(text.length - 1))) {
-       context.setFileCopyPatcher(new DummyIdentifierPatcher("+++++++++++++++++++++++"))
-     }
+        context.setDummyIdentifier("+++++++++++++++++++++++")
+      } else {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+      }
+    } else {
+      context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
     }
     super.beforeCompletion(context)
   }

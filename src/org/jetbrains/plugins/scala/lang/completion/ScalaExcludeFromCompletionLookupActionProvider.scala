@@ -16,11 +16,11 @@ import com.intellij.codeInsight.lookup.LookupElementAction.Result
  */
 
 class ScalaExcludeFromCompletionLookupActionProvider extends LookupActionProvider {
-  def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]): Unit = {
+  def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]) {
     val o: Object = element.getObject
     var clazz: PsiClass = null
     o match {
-      case ScalaLookupObject(cl: PsiClass, _) => clazz = cl
+      case ScalaLookupObject(cl: PsiClass, _, _) => clazz = cl
       case _ => //do nothing, this way handled in ExludeFromCompletionLookupActionProvider
     }
     if (clazz != null && clazz.isValid) {

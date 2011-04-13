@@ -25,7 +25,7 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
     val useFullyQualiedName = (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null)
     if (ref == null) return
     item.getObject match {
-      case ScalaLookupObject(cl: PsiClass, _) =>
+      case ScalaLookupObject(cl: PsiClass, _, _) =>
         while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
                 (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {
                   case Some(r) => r != ref

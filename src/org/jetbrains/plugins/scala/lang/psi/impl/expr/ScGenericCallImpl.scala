@@ -13,11 +13,11 @@ import types._
 import com.intellij.psi._
 import nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import result.{Failure, Success, TypeResult, TypingContext}
 import api.statements.{ScFun, ScFunction}
 import api.base.types.ScTypeElement
 import lang.resolve.{ResolveUtils, ScalaResolveResult}
 import lang.resolve.processor._
+import result._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -67,9 +67,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-
-  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    val typeResult = referencedExpr.getNonValueType(ctx)
+  private def converReferencedType(typeResult: TypeResult[ScType]): TypeResult[ScType] = {
     var refType = typeResult.getOrElse(return typeResult)
     if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, false)
     refType match {
@@ -81,11 +79,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  def shapeType: TypeResult[ScType] = {
-    val typeResult = referencedExpr match {
-      case ref: ScReferenceExpression => ref.shapeType
-      case expr => expr.getNonValueType(TypingContext.empty)
-    }
+
+  private def shapeType(typeResult: TypeResult[ScType]): TypeResult[ScType] = {
     var refType = typeResult.getOrElse(return typeResult)
     if (!refType.isInstanceOf[ScTypePolymorphicType]) refType = processType(refType, true)
     refType match {
@@ -95,5 +90,34 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
       case _ => Success(refType, Some(this))
     }
+  }
+
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    val typeResult = referencedExpr.getNonValueType(ctx)
+    converReferencedType(typeResult)
+  }
+
+  def shapeType: TypeResult[ScType] = {
+    val typeResult: TypeResult[ScType] = referencedExpr match {
+      case ref: ScReferenceExpression => ref.shapeType
+      case expr => expr.getNonValueType(TypingContext.empty)
+    }
+    shapeType(typeResult)
+  }
+
+  def shapeMultiType: Array[TypeResult[ScType]] = {
+    val typeResult: Array[TypeResult[ScType]] = referencedExpr match {
+      case ref: ScReferenceExpression => ref.shapeMultiType
+      case expr => Array(expr.getNonValueType(TypingContext.empty))
+    }
+    typeResult.map(shapeType(_))
+  }
+
+  def multiType: Array[TypeResult[ScType]] = {
+    val typeResult: Array[TypeResult[ScType]] = referencedExpr match {
+      case ref: ScReferenceExpression => ref.multiType
+      case expr => Array(expr.getNonValueType(TypingContext.empty))
+    }
+    typeResult.map(converReferencedType(_))
   }
 }

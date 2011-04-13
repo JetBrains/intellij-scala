@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPatte
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, matchingContext: ProcessingContext, result: CompletionResultSet): Unit = {
+    def addCompletions(parameters: CompletionParameters, matchingContext: ProcessingContext,
+                       result: CompletionResultSet) {
       val insertedElement: PsiElement = parameters.getPosition
       if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return
       val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
@@ -29,8 +30,8 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       })
       AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, parameters.getInvocationCount <= 1,
         new Consumer[PsiClass] {
-          def consume(psiClass: PsiClass): Unit = {
-            def addClass(psiClass: PsiClass): Unit = {
+          def consume(psiClass: PsiClass) {
+            def addClass(psiClass: PsiClass) {
               if (lookingForAnnotations && !psiClass.isAnnotationType) return
               psiClass match {
                 case _: ScClass | _: ScTrait if !isInImport && !onlyClasses => return
@@ -38,7 +39,8 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
                 case _ =>
               }
               for {
-                (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass), isClassName = true)
+                (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
+                  isClassName = true, isInImport = isInImport)
               } result.addElement(el)
             }
             //todo: filter according to position
@@ -49,7 +51,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
             addClass(psiClass)
           }
         })
-      result.stopHere
+      result.stopHere()
     }
   })
 }

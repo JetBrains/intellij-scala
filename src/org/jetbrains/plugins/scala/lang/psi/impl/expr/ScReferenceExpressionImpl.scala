@@ -37,6 +37,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import api.base.ScReferenceElement
 import api.{ScalaElementVisitor, ScalaFile}
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
+import api.toplevel.imports.ScImportStmt
 
 
 /**
@@ -84,6 +85,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(true, false)
 
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
+    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     val tp: ScType = qualifier match {
       case Some(qual) => qual.getType(TypingContext.empty).getOrElse(psi.types.Nothing)
       case None => psi.types.Nothing
@@ -97,7 +99,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       } else true
     }).flatMap {
-      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp)
+      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp, isInImport = isInImport)
       case r => Seq(r.getElement)
     }
   }
@@ -114,15 +116,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def multiType: Array[ScType] = {
-    val buffer = new ArrayBuffer[ScType]
-    for (res <- multiResolve(false); if res.isInstanceOf[ScalaResolveResult]; resolve = res.asInstanceOf[ScalaResolveResult]) {
-      convertBindToType(Some(resolve)) match {
-        case Success(tp: ScType, elem) => buffer += tp
-        case _ =>
-      }
-    }
-    return buffer.toArray
+  def multiType: Array[TypeResult[ScType]] = {
+    multiResolve(false).filter(_.isInstanceOf[ScalaResolveResult]).
+      map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -134,6 +130,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Array(bind: ScalaResolveResult) if bind.isApplicable => Some(bind)
       case _ => None
     })
+  }
+
+  def shapeMultiType: Array[TypeResult[ScType]] = {
+    shapeResolve.filter(_.isInstanceOf[ScalaResolveResult]).
+      map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {

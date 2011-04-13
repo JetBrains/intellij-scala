@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.components
 
 import org.intellij.lang.annotations.Language
 import javax.swing.event.HyperlinkEvent
-import com.intellij.notification.{NotificationListener, NotificationType, Notification, Notifications}
 import org.jetbrains.plugins.scala.DesktopUtils
 import com.intellij.openapi.wm.{StatusBarWidget, WindowManager, StatusBar}
 import com.intellij.openapi.wm.StatusBarWidget.PlatformType
@@ -18,6 +17,7 @@ import com.intellij.openapi.actionSystem.{DataContext, PlatformDataKeys}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.util._
 import com.intellij.openapi.components._
+import com.intellij.notification._
 
 @State(name = "HighlightingAdvisor", storages = Array(
   new Storage(id = "default", file = "$PROJECT_FILE$"),
@@ -106,6 +106,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   private def notify(title: String, message: String, notificationType: NotificationType) {
     val notification = new Notification("scala", title, message, notificationType, HyperlinkListener)
+    Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
     Notifications.Bus.notify(notification, project)
   }
 

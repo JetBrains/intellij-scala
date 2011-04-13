@@ -75,6 +75,16 @@ object ScalaPsiElementFactory {
     fun.parameters(0)
   }
 
+  def parseFile(text: String, manager: PsiManager): ScalaFile = {
+    val factory = PsiFileFactory.getInstance(manager.getProject)
+    val name = DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension
+    factory.createFileFromText(name, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+  }
+
+  def parse(text: String, manager: PsiManager): Seq[PsiElement] = {
+    parseFile(text, manager).children.toList
+  }
+
   def createMethodFromText(text: String, manager: PsiManager): ScFunction = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
@@ -261,6 +271,10 @@ object ScalaPsiElementFactory {
     val forStmt: ScForStatement = dummyFile.getFirstChild.asInstanceOf[ScForStatement]
     forStmt.enumerators.getOrElse(null).enumerators.apply(0)
   }
+
+  def createNewLine(manager: PsiManager): PsiElement = createNewLineNode(manager, "\n").getPsi
+
+  def createNewLine(manager: PsiManager, text: String): PsiElement = createNewLineNode(manager, text).getPsi
 
   def createNewLineNode(manager: PsiManager): ASTNode = createNewLineNode(manager, "\n")
   def createNewLineNode(manager: PsiManager, text: String): ASTNode = {
