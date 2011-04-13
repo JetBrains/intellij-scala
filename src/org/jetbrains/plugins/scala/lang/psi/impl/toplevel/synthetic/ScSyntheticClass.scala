@@ -176,14 +176,14 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
-  def projectOpened {}
-  def projectClosed {}
+  def projectOpened() {}
+  def projectClosed() {}
   def getComponentName = "SyntheticClasses"
-  def disposeComponent {}
+  def disposeComponent() {}
 
   def initComponent() {
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run = {
+      def run() {
         registerClasses
         classesInitialized = true
       }

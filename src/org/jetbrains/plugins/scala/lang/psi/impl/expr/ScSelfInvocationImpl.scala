@@ -19,6 +19,7 @@ import types.result.{Success, Failure, TypeResult}
 import types.nonvalue.{ScTypePolymorphicType, TypeParameter}
 import types.{Any, Nothing, ScType}
 import api.base.{ScMethodLike, ScPrimaryConstructor}
+import collection.Seq
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,29 +32,32 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   def bind: Option[PsiElement] = bindInternal(false)
 
-  def bindInternal(shapeResolve: Boolean): Option[PsiElement] = {
+  private def bindInternal(shapeResolve: Boolean): Option[PsiElement] = {
+    val seq = bindMultiInternal(shapeResolve)
+    if (seq.length == 1) Some(seq(0))
+    else None
+  }
+
+  private def bindMultiInternal(shapeResolve: Boolean): Seq[PsiElement] = {
     val psiClass = PsiTreeUtil.getParentOfType(this, classOf[PsiClass])
-    if (psiClass == null) return None
-    if (!psiClass.isInstanceOf[ScClass]) return None
+    if (psiClass == null) return Seq.empty
+    if (!psiClass.isInstanceOf[ScClass]) return Seq.empty
     val clazz = psiClass.asInstanceOf[ScClass]
     val method = PsiTreeUtil.getParentOfType(this, classOf[ScFunction])
-    if (method == null) return None
+    if (method == null) return Seq.empty
     val constructors: Array[PsiMethod] = clazz.getConstructors.filter(_ != method)
-    if (args == None) return None
+    if (args == None) return Seq.empty
     val arguments = args.get
     val proc = new MethodResolveProcessor(this, "this", List(arguments.exprs.map(new Expression(_))), Seq.empty,
       StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve, enableTupling = true)
     for (constr <- constructors) {
       proc.execute(constr, ResolveState.initial)
     }
-    val candidates = proc.candidates
-    if (candidates.length == 1) {
-      return Some(candidates(0).element)
-    } else return None
+    proc.candidates.toSeq.map(_.element)
   }
 
-  def shapeType(i: Int): TypeResult[ScType] = {
-    val (res: ScType, clazz: ScTemplateDefinition) = bindInternal(true) match {
+  private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult[ScType] = {
+    val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
         val methodType = ScType.nested(c.methodType, i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
         (methodType, c.getContainingClass)
@@ -62,10 +66,19 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     clazz match {
       case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
         val params: Seq[TypeParameter] = tp.typeParameters.map(tp =>
-                    new TypeParameter(tp.name,
-                      tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+          new TypeParameter(tp.name(),
+            tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
         return Success(ScTypePolymorphicType(res, params), Some(this))
       case _ => return Success(res, Some(this))
     }
+  }
+
+  def shapeType(i: Int): TypeResult[ScType] = {
+    val option = bindInternal(true)
+    return workWithBindInternal(option, i)
+  }
+
+  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
+    bindMultiInternal(true).map(pe => workWithBindInternal(Some(pe), i))
   }
 }

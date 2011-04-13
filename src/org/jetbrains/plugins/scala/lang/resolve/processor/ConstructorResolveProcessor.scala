@@ -16,7 +16,7 @@ import lang.psi.types.ScType
 
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
-                                  shapeResolve: Boolean)
+                                  shapeResolve: Boolean, allConstructors: Boolean)
         extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds,
           isShapeResolve = shapeResolve, enableTupling = true) {
   private val qualifiedNames: collection.mutable.HashSet[String] = new collection.mutable.HashSet[String]
@@ -73,11 +73,15 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val superCandidates = super.candidatesS
-    if (superCandidates.size <= 1) superCandidates
-    else {
-      superCandidates.map(constr => new ScalaResolveResult(constr.getActualElement, constr.substitutor,
-        constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType))
+    if (!allConstructors) {
+      val superCandidates = super.candidatesS
+      if (superCandidates.size <= 1) superCandidates
+      else {
+        superCandidates.map(constr => new ScalaResolveResult(constr.getActualElement, constr.substitutor,
+          constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType))
+      }
+    } else {
+      super.candidatesS
     }
   }
 }

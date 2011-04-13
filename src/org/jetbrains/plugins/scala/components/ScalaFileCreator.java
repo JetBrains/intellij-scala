@@ -26,7 +26,6 @@ import com.intellij.openapi.actionSystem.ex.DataConstantsEx;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
-import com.intellij.ide.fileTemplates.impl.FileTemplateImpl;
 import com.intellij.ide.projectView.impl.ProjectViewImpl;
 import com.intellij.ide.projectView.ProjectView;
 import com.intellij.ide.DataManager;
@@ -57,7 +56,7 @@ public class ScalaFileCreator implements ApplicationComponent {
     if (FileTemplateManager.getInstance().getTemplate(SCALA_FILE_TEMPLATE) == null) {
       FileTemplate scalaTemplate = FileTemplateManager.getInstance().addTemplate(SCALA_FILE_TEMPLATE,
           ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension());
-      ((FileTemplateImpl) scalaTemplate).setInternal(true);
+      //(scalaTemplate).setInternal(true);
       scalaTemplate.setText(templateText);
     }
   }
@@ -80,16 +79,6 @@ public class ScalaFileCreator implements ApplicationComponent {
   private void removeComponent() {
     FileTemplate scalaTemplate = FileTemplateManager.getInstance().getTemplate(SCALA_FILE_TEMPLATE);
     if (scalaTemplate != null)
-      FileTemplateManager.getInstance().removeTemplate(scalaTemplate, false);
+      FileTemplateManager.getInstance().removeTemplate(scalaTemplate);
   }
-
-/*
-  private String getPackage() {
-    IdeView view = (IdeView)DataManager.getInstance().getDataContext().getData(DataConstantsEx.IDE_VIEW);
-    String name = view.getOrChooseDirectory().getName();
-    return name == null ? "bugaga" : name;
-  }
-*/
-
-
 }
