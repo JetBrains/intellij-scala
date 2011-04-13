@@ -3,7 +3,6 @@ package lang
 package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang._
 import processor.BaseProcessor
 import psi.api.base._
 import psi.api.expr._
@@ -14,7 +13,6 @@ import psi.api.ScalaFile
 import psi.api.toplevel.packaging.ScPackaging
 import psi.ScalaPsiUtil
 import psi.types._
-import resolve._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import com.intellij.psi.impl._
@@ -23,14 +21,15 @@ import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
-  private object Resolver extends StableCodeReferenceElementResolver(this, false)
-  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true)
+  private object Resolver extends StableCodeReferenceElementResolver(this, false, false)
+  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false)
+  private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true)
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
   }
 
-  def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement): Unit = {
+  def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
       case ScalaResolveResult(td: ScTypeDefinition, substitutor) => {
         td match {
@@ -82,7 +81,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case _ =>
     }
 
-    _qualifier match {
+    _qualifier() match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
           place match {
@@ -102,7 +101,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         treeWalkUp(ref, null)
       }
       case Some(q: ScStableCodeReferenceElement) => {
-        val results = q.bind match {
+        val results = q.bind() match {
           case Some(res) => processQualifierResolveResult(res, processor, ref)
           case _ =>
         }
@@ -146,7 +145,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private var shapeResolveResultsModCount: Long = 0
 
   def shapeResolve: Array[ResolveResult] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     var tp = shapeResolveResults
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && shapeResolveResultsModCount == curModCount) {
@@ -160,5 +159,27 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   private def shapeResolveInner: Array[ResolveResult] = {
     ShapesResolver.resolve(this, false)
+  }
+
+  @volatile
+  private var shapeResolveResultsConstr: Array[ResolveResult] = null
+  @volatile
+  private var shapeResolveResultsConstrModCount: Long = 0
+
+  def shapeResolveConstr: Array[ResolveResult] = {
+    ProgressManager.checkCanceled()
+    var tp = shapeResolveResultsConstr
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && shapeResolveResultsConstrModCount == curModCount) {
+      return tp
+    }
+    tp = shapeResolveConstrInner
+    shapeResolveResultsConstr = tp
+    shapeResolveResultsConstrModCount = curModCount
+    return tp
+  }
+
+  private def shapeResolveConstrInner: Array[ResolveResult] = {
+    ShapesResolverAllConstructors.resolve(this, false)
   }
 }

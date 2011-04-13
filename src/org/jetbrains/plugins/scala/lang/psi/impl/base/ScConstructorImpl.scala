@@ -141,7 +141,8 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       s.reference match {
         case Some(ref) => {
           val buffer = new ArrayBuffer[TypeResult[ScType]]
-          ref.shapeResolve.foreach(r => r match {
+          val shapeResolve = ref.shapeResolveConstr
+          shapeResolve.foreach(r => r match {
             case r@ScalaResolveResult(constr: PsiMethod, subst) => {
               buffer += workWithResolveResult(constr, r, subst, s, ref)
             }

@@ -23,4 +23,6 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
   def getConstructor: Option[ScConstructor]
 
   def shapeResolve: Array[ResolveResult]
+
+  def shapeResolveConstr: Array[ResolveResult]
 }
