@@ -143,13 +143,13 @@ private[expr] object ExpectedTypes {
         val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == expr)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
-          val tp = callExpression match {
+          val tps = callExpression match {
             case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) ref.shapeType
-              else ref.getNonValueType(TypingContext.empty)
-            case _ => callExpression.getNonValueType(TypingContext.empty)
+              if (!withResolvedFunction) ref.shapeMultiType
+              else ref.multiType
+            case _ => Array(callExpression.getNonValueType(TypingContext.empty))
           }
-          processArgsExpected(res, expr, i, tp, exprs)
+          tps.foreach(processArgsExpected(res, expr, i, _, exprs))
         }
         res.toArray
       }
@@ -174,8 +174,8 @@ private[expr] object ExpectedTypes {
           case _ => expr
         }
         val op = infix.operation
-        val tp = if (!withResolvedFunction) op.shapeType else op.getNonValueType(TypingContext.empty)
-        processArgsExpected(res, zExpr, 0, tp, Seq(zExpr))
+        val tps = if (!withResolvedFunction) op.shapeMultiType else op.multiType
+        tps.foreach(processArgsExpected(res, zExpr, 0, _, Seq(zExpr)))
         res.toArray
       }
       //SLS[4.1]
@@ -225,31 +225,31 @@ private[expr] object ExpectedTypes {
         val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
-          var tp: TypeResult[ScType] = callExpression match {
+          var tps: Array[TypeResult[ScType]] = callExpression match {
             case ref: ScReferenceExpression =>
-              if (!withResolvedFunction) ref.shapeType
-              else ref.getNonValueType(TypingContext.empty)
+              if (!withResolvedFunction) ref.shapeMultiType
+              else ref.multiType
             case gen: ScGenericCall =>
-              if (!withResolvedFunction) gen.shapeType
-              else gen.getNonValueType(TypingContext.empty)
-            case _ => callExpression.getNonValueType(TypingContext.empty)
+              if (!withResolvedFunction) gen.shapeMultiType
+              else gen.multiType
+            case _ => Array(callExpression.getNonValueType(TypingContext.empty))
           }
           args.getParent match {
             case call: ScMethodCall =>
-              tp = call.updateAccordingToExpectedType(tp)
+              tps = tps.map(call.updateAccordingToExpectedType(_))
             case _ => //todo: infix calls? or to change according compiler, like syntax suger, see: ScForStmt
           }
-          processArgsExpected(res, expr, i, tp, exprs)
+          tps.foreach(processArgsExpected(res, expr, i, _, exprs))
         } else {
           //it's constructor
           args.getParent match {
             case constr: ScConstructor => {
               val j = constr.arguments.indexOf(args)
-              processArgsExpected(res, expr, i, constr.shapeType(j), exprs)
+              constr.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
             }
             case s: ScSelfInvocation => {
               val j = s.arguments.indexOf(args)
-              processArgsExpected(res, expr, i, s.shapeType(j), exprs)
+              s.shapeMultiType(j).foreach(processArgsExpected(res, expr, i, _, exprs))
             }
             case _ =>
           }
