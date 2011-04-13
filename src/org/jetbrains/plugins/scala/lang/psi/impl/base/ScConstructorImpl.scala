@@ -21,6 +21,8 @@ import psi.types._
 import nonvalue.{ScTypePolymorphicType, TypeParameter}
 import result.{Success, Failure, TypeResult, TypingContext}
 import resolve.{ResolveUtils, ScalaResolveResult}
+import collection.mutable.ArrayBuffer
+import collection.Seq
 
 /**
 * @author Alexander Podkhalyuzin
@@ -85,54 +87,69 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def shapeType(i: Int): TypeResult[ScType] = {
     def FAILURE = Failure("Can't resolve type", Some(this))
-    def processSimple(s: ScSimpleTypeElement): TypeResult[ScType] = {
+    val seq = shapeMultiType(i)
+    if (seq.length == 1) seq(0)
+    else FAILURE
+  }
+
+  def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {
+    def FAILURE = Failure("Can't resolve type", Some(this))
+    def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
+                              subst: ScSubstitutor, s: ScSimpleTypeElement,
+                              ref: ScStableCodeReferenceElement): TypeResult[ScType] = {
+      val clazz = constr.getContainingClass
+      val tp = r.getActualElement match {
+        case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return FAILURE))
+        case _ =>
+          parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, true).
+            getOrElse(return FAILURE), clazz, subst)
+      }
+      val res = constr match {
+        case fun: ScMethodLike =>
+          val methodType = ScType.nested(fun.methodType(Some(tp)), i).getOrElse(return FAILURE)
+          subst.subst(methodType)
+        case method: PsiMethod =>
+          if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
+          ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
+      }
+      val typeParameters: Seq[TypeParameter] = r.getActualElement match {
+        case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
+          tp.typeParameters.map(tp =>
+            new TypeParameter(tp.name,
+              tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+        }
+        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
+          ptp.getTypeParameters.toSeq.map(ptp =>
+            new TypeParameter(ptp.getName,
+              Nothing, Any, ptp)) //todo: add lower and upper bound
+        }
+        case _ => return Success(res, Some(this))
+      }
+      s.getParent match {
+        case p: ScParameterizedTypeElement => {
+          val zipped = p.typeArgList.typeArgs.zip(typeParameters)
+          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map {
+            case (arg, tp) =>
+              ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))
+          }), Map.empty, None)
+          return Success(appSubst.subst(res), Some(this))
+        }
+        case _ => return Success(ScTypePolymorphicType(res, typeParameters), Some(this))
+      }
+    }
+    def processSimple(s: ScSimpleTypeElement): Seq[TypeResult[ScType]] = {
       s.reference match {
         case Some(ref) => {
-          ref.shapeResolve match {
-            case Array(r@ScalaResolveResult(constr: PsiMethod, subst)) => {
-              val clazz = constr.getContainingClass
-              val tp = r.getActualElement match {
-                case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return FAILURE))
-                case _ => parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, true).getOrElse(return FAILURE), clazz, subst)
-              }
-              val res = constr match {
-                case fun: ScMethodLike =>
-                  val methodType = ScType.nested(fun.methodType(Some(tp)), i).getOrElse(return FAILURE)
-                  subst.subst(methodType)
-                case method: PsiMethod =>
-                  if (i > 0) return Failure("Java constructors only have one parameter section", Some(this))
-                  ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
-              }
-              val typeParameters: Seq[TypeParameter] = r.getActualElement match {
-                case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
-                  tp.typeParameters.map(tp =>
-                    new TypeParameter(tp.name,
-                      tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
-                }
-                case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
-                  ptp.getTypeParameters.toSeq.map(ptp =>
-                    new TypeParameter(ptp.getName,
-                      Nothing, Any, ptp)) //todo: add lower and upper bound
-                }
-                case _ => return Success(res, Some(this))
-              }
-              s.getParent match {
-                case p: ScParameterizedTypeElement => {
-                  val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-                  val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map {
-                    case (arg, tp) =>
-                      ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))
-                  }), Map.empty, None)
-                  return Success(appSubst.subst(res), Some(this))
-                }
-                case _ => return Success(ScTypePolymorphicType(res, typeParameters), Some(this))
-              }
-
+          val buffer = new ArrayBuffer[TypeResult[ScType]]
+          ref.shapeResolve.foreach(r => r match {
+            case r@ScalaResolveResult(constr: PsiMethod, subst) => {
+              buffer += workWithResolveResult(constr, r, subst, s, ref)
             }
-            case _ => Failure("Can't resolve", Some(this))
-          }
+            case _ =>
+          })
+          buffer.toSeq
         }
-        case _ => Failure("Hasn't reference", Some(this))
+        case _ => Seq(Failure("Hasn't reference", Some(this)))
       }
     }
 
@@ -141,10 +158,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case p: ScParameterizedTypeElement => {
         p.typeElement match {
           case s: ScSimpleTypeElement => processSimple(s)
-          case _ => FAILURE
+          case _ => Seq.empty
         }
       }
-      case _ => FAILURE
+      case _ => Seq.empty
     }
   }
 

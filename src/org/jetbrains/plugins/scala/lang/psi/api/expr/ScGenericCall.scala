@@ -26,4 +26,8 @@ trait ScGenericCall extends ScExpression {
   }
 
   def shapeType: TypeResult[ScType]
+
+  def shapeMultiType: Array[TypeResult[ScType]]
+
+  def multiType: Array[TypeResult[ScType]]
 }

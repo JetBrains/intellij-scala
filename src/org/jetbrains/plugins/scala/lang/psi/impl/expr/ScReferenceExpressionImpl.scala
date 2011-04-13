@@ -116,15 +116,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     }
   }
 
-  def multiType: Array[ScType] = {
-    val buffer = new ArrayBuffer[ScType]
-    for (res <- multiResolve(false); if res.isInstanceOf[ScalaResolveResult]; resolve = res.asInstanceOf[ScalaResolveResult]) {
-      convertBindToType(Some(resolve)) match {
-        case Success(tp: ScType, elem) => buffer += tp
-        case _ =>
-      }
-    }
-    return buffer.toArray
+  def multiType: Array[TypeResult[ScType]] = {
+    multiResolve(false).filter(_.isInstanceOf[ScalaResolveResult]).
+      map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -136,6 +130,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Array(bind: ScalaResolveResult) if bind.isApplicable => Some(bind)
       case _ => None
     })
+  }
+
+  def shapeMultiType: Array[TypeResult[ScType]] = {
+    shapeResolve.filter(_.isInstanceOf[ScalaResolveResult]).
+      map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
