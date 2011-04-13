@@ -7,5 +7,7 @@ class CompletionSmartInfixTest extends CompletionTestBase {
 
   def testSmartLeftExprInfixLeftAssoc = doTest
 
+  def testSmartRightExprInfix = doTest
+
   def testSmartRightExprNotValTypeInfix = doTest
 }

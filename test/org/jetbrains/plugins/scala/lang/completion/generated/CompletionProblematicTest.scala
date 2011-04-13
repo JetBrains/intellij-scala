@@ -6,6 +6,4 @@ class CompletionProblematicTest extends CompletionTestBase {
   override def rootPath: String = super.rootPath + "problematic/"
 
   def testAnyToString = doTest
-
-  def testSmartRightExprInfix = doTest
 }
