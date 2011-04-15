@@ -53,3 +53,9 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def isUnderCaseClass: Boolean
 
 }
+
+object ScExtendsBlock {
+  object templateBody {
+    def unapply(block: ScExtendsBlock): Option[ScTemplateBody] = block.templateBody
+  }
+}

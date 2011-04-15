@@ -6,7 +6,7 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.util.PsiTreeUtil
 import controlFlow.ControlFlowInspections
-import createFromUsage.CreateParameterlessMethodQuickFix
+import createFromUsage._
 import highlighter.AnnotatorHighlighter
 import importsTracker._
 import lang.psi.api.expr._
@@ -277,6 +277,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       refElement match {
         case exp: ScReferenceExpression =>
           annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+          annotation.registerFix(new CreateValueQuickFix(exp))
+          annotation.registerFix(new CreateVariableQuickFix(exp))
         case _ =>
       }
     }
@@ -347,7 +349,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
-//      annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
+      refElement match {
+        case exp: ScReferenceExpression =>
+          annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
+          annotation.registerFix(new CreateValueQuickFix(exp))
+          annotation.registerFix(new CreateVariableQuickFix(exp))
+        case _ =>
+      }
     }
   }
 

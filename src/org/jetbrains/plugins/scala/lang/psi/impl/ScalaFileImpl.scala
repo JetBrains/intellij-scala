@@ -330,11 +330,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val implObjIter = ImplicitlyImported.implicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
-      val clazz = implObjIter.next
-      ProgressManager.checkCanceled
-      //val clazz = JavaPsiFacade.getInstance(getProject).findClass(implObj, getResolveScope)
-      val isScalaClass = typeDefinitions.length == 1 && typeDefinitions.apply(0).getQualifiedName == "scala"
-      if (clazz != null && !(isScalaClass && clazz.getQualifiedName == "scala.Predef") &&
+      val clazz = implObjIter.next()
+      ProgressManager.checkCanceled()
+      def isScalaPredefinedClass = typeDefinitions().length == 1 &&
+        Set("scala", "scala.Predef").contains(typeDefinitions().apply(0).getQualifiedName)
+      if (clazz != null && !isScalaPredefinedClass &&
         !clazz.processDeclarations(processor, state, null, place)) return false
     }
 
@@ -343,22 +343,22 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val classes = SyntheticClasses.get(getProject)
     val synthIterator = classes.getAll.iterator
     while (synthIterator.hasNext) {
-      val synth = synthIterator.next
-      ProgressManager.checkCanceled
+      val synth = synthIterator.next()
+      ProgressManager.checkCanceled()
       if (!processor.execute(synth, state)) return false
     }
 
     val synthObjectsIterator = classes.syntheticObjects.iterator
     while (synthObjectsIterator.hasNext) {
-      val synth = synthObjectsIterator.next
-      ProgressManager.checkCanceled
+      val synth = synthObjectsIterator.next()
+      ProgressManager.checkCanceled()
       if (!processor.execute(synth, state)) return false
     }
 
     if (isScriptFile) {
       val syntheticValueIterator = SyntheticClasses.get(getProject).getScriptSyntheticValues.iterator
       while (syntheticValueIterator.hasNext) {
-        val syntheticValue = syntheticValueIterator.next
+        val syntheticValue = syntheticValueIterator.next()
         ProgressManager.checkCanceled()
         if (!processor.execute(syntheticValue, state)) return false
       }
@@ -366,9 +366,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     val implPIterator = ImplicitlyImported.packages.iterator
     while (implPIterator.hasNext) {
-      val implP = implPIterator.next
+      val implP = implPIterator.next()
       ProgressManager.checkCanceled()
-      val pack = JavaPsiFacade.getInstance(getProject()).findPackage(implP)
+      val pack = JavaPsiFacade.getInstance(getProject).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }
 

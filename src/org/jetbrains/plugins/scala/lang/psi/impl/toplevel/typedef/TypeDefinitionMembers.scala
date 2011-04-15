@@ -357,7 +357,9 @@ object TypeDefinitionMembers {
     }
   }
 
-  def getMethods(clazz: PsiClass): MMap = get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+  def getMethods(clazz: PsiClass): MMap = {
+    get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+  }
 
   def getTypes(clazz: PsiClass) = {
     clazz synchronized {
