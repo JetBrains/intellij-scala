@@ -282,3 +282,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     isInheritorInner(baseClass, this, deep)
   }
 }
+
+object ScTemplateDefinition {
+  object extendsBlock {
+    def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
+  }
+}

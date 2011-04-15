@@ -34,3 +34,9 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def shapeType: TypeResult[ScType]
 }
+
+object ScReferenceExpression {
+  object qualifier {
+    def unapply(exp: ScReferenceExpression): Option[ScExpression] = exp.qualifier
+  }
+}

@@ -81,8 +81,12 @@ object ScalaPsiElementFactory {
     factory.createFileFromText(name, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
   }
 
-  def parse(text: String, manager: PsiManager): Seq[PsiElement] = {
+  def parseElements(text: String, manager: PsiManager): Seq[PsiElement] = {
     parseFile(text, manager).children.toList
+  }
+
+  def parseElement(text: String, manager: PsiManager): PsiElement = {
+    parseFile(text, manager).getFirstChild
   }
 
   def createMethodFromText(text: String, manager: PsiManager): ScFunction = {
