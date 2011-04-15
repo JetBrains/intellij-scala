@@ -496,7 +496,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             else if (rightPsi.isInstanceOf[ScFunction]) settings.BLANK_LINES_AROUND_METHOD
             else if (p.isInstanceOf[ScTrait]) settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE
             else settings.BLANK_LINES_AROUND_FIELD
-            return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
+            if (rightPsi.isInstanceOf[PsiComment] && !fileText.
+              substring(leftPsi.getTextRange.getEndOffset, rightPsi.getTextRange.getEndOffset).contains("\n"))
+              return COMMON_SPACING
+            else
+              return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
           }
           case _ =>
         }
