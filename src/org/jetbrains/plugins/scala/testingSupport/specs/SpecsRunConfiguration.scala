@@ -202,10 +202,13 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
           else MAIN_CLASS_SPECS_2
         )
 
-        params.getProgramParametersList.add("-s")
+        if (!specs2)
+          params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
-        params.getProgramParametersList.add("-sus:" + getSystemFilter)
-        params.getProgramParametersList.add("-ex:" + getExampleFilter)
+        if (!specs2) {
+          params.getProgramParametersList.add("-sus:" + getSystemFilter)
+          params.getProgramParametersList.add("-ex:" + getExampleFilter)
+        }
         return params
       }
 
