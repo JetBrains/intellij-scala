@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import _root_.com.intellij.extapi.psi.{StubBasedPsiElementBase, ASTWrapperPsiElement}
 import api.ScalaElementVisitor
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.lang.ASTNode
 import stubs.elements.wrappers.DummyASTNode
-import com.intellij.psi.impl.source.tree.{SharedImplUtil, CompositeElement}
 import com.intellij.psi.{PsiElementVisitor, PsiElement, StubBasedPsiElement}
 import com.intellij.psi.tree.{TokenSet, IElementType}
+import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil, CompositeElement}
+import com.intellij.psi.impl.CheckUtil
+import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase, ASTWrapperPsiElement}
 
 /**
 @author ven
@@ -80,7 +81,14 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     newElement
   }
 
-
+  override def delete() {
+    getParent match {
+      case x: LazyParseablePsiElement =>
+        CheckUtil.checkWritable(this)
+        x.deleteChildInternal(getNode)
+      case _ => super.delete()
+    }
+  }
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement]
@@ -146,4 +154,13 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
+  override def delete() {
+    getParent() match {
+      case x: LazyParseablePsiElement =>
+        CheckUtil.checkWritable(this)
+        x.deleteChildInternal(getNode)
+      case _ => super.delete()
+    }
+  }
 }
