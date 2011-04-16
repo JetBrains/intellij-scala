@@ -207,8 +207,13 @@ object JavaToScala {
         }
       }
       case b: PsiBinaryExpression => {
+        val operation = b.getOperationSign.getText match {
+          case "==" if !b.getLOperand.getType.isInstanceOf[PsiPrimitiveType] => "eq"
+          case "!=" if !b.getLOperand.getType.isInstanceOf[PsiPrimitiveType] => "ne"
+          case x => x
+        }
         res.append(convertPsiToText(b.getLOperand)).append(" ").
-                append(b.getOperationSign.getText).append(" ").append(convertPsiToText(b.getROperand))
+                append(operation).append(" ").append(convertPsiToText(b.getROperand))
       }
       case c: PsiClassObjectAccessExpression => {
         res.append("classOf[").append(convertPsiToText(c.getOperand)).append("]")
