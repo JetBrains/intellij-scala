@@ -7,6 +7,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testAssert = doTest
 
+  def testEqualOperator = doTest
+
   def testIfElseChain = doTest
 
   def testIfStatement = doTest
