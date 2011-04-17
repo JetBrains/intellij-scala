@@ -144,36 +144,13 @@ object ScalaRefactoringUtil {
     return Some((element, exprType))
   }
 
-  def getEnclosingContainer(file: PsiFile, startOffset: Int, endOffset: Int): PsiElement = {
-    val common = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset))
-    getEnclosingContainer(common)
-  }
-
-  //todo: rewrite tests and make it private
-  def getEnclosingContainer(element: PsiElement): PsiElement = {
-    def get(parent: PsiElement): PsiElement = {
-      parent match {
-        case null =>
-        case x: ScBlock if x != element =>
-        //todo: case _: ScEnumerators =>
-        case _: ScExpression => parent.getParent match {
-          case _: ScForStatement | _: ScCaseClause |
-               _: ScFinallyBlock | _: ScFunctionDefinition =>
-          case x => return get(x)
-        }
-        case _ => return get(parent.getParent)
-      }
-      return parent
-    }
-    return get(element)
-  }
-
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
     val virtualFile = file.getVirtualFile()
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
     return !operationStatus.hasReadonlyFiles()
   }
+
   def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[TextRange] = {
     val occurrences: ArrayBuffer[TextRange] = new ArrayBuffer[TextRange]()
     if (enclosingContainer == expr) occurrences += enclosingContainer.asInstanceOf[ScExpression].getTextRange
