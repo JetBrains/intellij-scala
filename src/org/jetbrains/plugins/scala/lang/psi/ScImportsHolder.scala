@@ -24,6 +24,7 @@ import scope._
 import com.intellij.openapi.progress.ProgressManager
 import lang.resolve.processor.{CompletionProcessor, ResolveProcessor}
 import lang.resolve.{ScalaResolveResult, StdKinds}
+import com.intellij.psi.util.PsiTreeUtil
 
 trait ScImportsHolder extends ScalaPsiElement {
 
@@ -168,9 +169,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       place match {
         case null =>
         case p => {
-          if (!p.processDeclarations(completionProcessor,
-            ResolveState.initial,
-            lastParent, place)) return
+          if (!p.processDeclarations(completionProcessor, ResolveState.initial, lastParent, place)) return
           treeWalkUp(place.getContext, place)
         }
       }
@@ -291,7 +290,9 @@ trait ScImportsHolder extends ScalaPsiElement {
                 this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
                 completionProcessor.candidatesS.size > 0
               }
-              if (importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)) {
+              val nextImportContainsRef = PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
+              val cond2 = importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)
+              if (nextImportContainsRef || cond2) {
                 added = true
                 addImportBefore(importSt, im)
               }
