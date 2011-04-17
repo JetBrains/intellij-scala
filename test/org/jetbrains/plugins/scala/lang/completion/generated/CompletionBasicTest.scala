@@ -11,6 +11,10 @@ class CompletionBasicTest extends CompletionTestBase {
 
   def testOpChar = doTest
 
+  def testPackageA = doTest
+  
+  def testPackageB = doTest
+
   def testSetter = doTest
 
   def testToString = doTest
