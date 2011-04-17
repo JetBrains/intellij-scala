@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTraitParents}
+
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
 
@@ -112,6 +115,7 @@ object FunctionTupleSyntacticSugarInspection {
         val needParens = te.getContext match {
           case ft: ScFunctionalTypeElement => true
           case ft: ScInfixTypeElement => true
+          case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
           case _ => false
         }
         parenthesisedIf(needParens) {
