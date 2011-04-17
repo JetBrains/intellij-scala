@@ -2,17 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package sugar
 
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
-import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor, ScalaFile}
-
+import com.intellij.psi.{PsiElementVisitor, PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScInfixTypeElement, ScFunctionalTypeElement, ScParameterizedTypeElement}
 class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
 
@@ -42,16 +38,24 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
       override def visitElement(elem: ScalaPsiElement) {
         elem match {
           case te: ScParameterizedTypeElement =>
-            val result: TypeResult[ScType] = te.typeElement.getType(TypingContext.empty)
-            result.toOption match {
-              case Some(ScDesignatorType(QualifiedName(FunctionN(n))))
-                if (te.typeArgList.typeArgs.length == (n.toInt + 1)) =>
-                holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
-                  Array[LocalQuickFix](new FunctionTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
-              case Some(ScDesignatorType(QualifiedName(TupleN(n))))
-                if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
-                holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
-                  Array[LocalQuickFix](new TupleTypeSyntacticSugarQuickFix(te)), ProblemHighlightType.INFO))
+            te.typeElement match {
+              case s: ScSimpleTypeElement =>
+                s.reference match {
+                  case Some(ref) =>
+                    if (ref.refName.startsWith("Tuple") || ref.refName.startsWith("Function") && ref.isValid) {
+                      val referredElement = ref.bind().map(_.getElement)
+                      referredElement match {
+                        case Some(QualifiedName(FunctionN(n))) if (te.typeArgList.typeArgs.length == (n.toInt + 1)) =>
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                            new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
+                        case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
+                          holder.registerProblem(holder.getManager.createProblemDescriptor(te, "syntactic sugar could be used",
+                            new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
+                        case _ =>
+                      }
+                    }
+                  case _ =>
+                }
               case _ =>
             }
           case _ =>
