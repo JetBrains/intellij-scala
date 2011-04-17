@@ -168,7 +168,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
    */
   def getPartialFunctionType: Option[(ScType, ScType, ScType)] = {
     getStandardType("scala.PartialFunction") match {
-      case Some((_, Seq(param, ret))) => Some((designator, param, ret))
+      case Some((typeDef, Seq(param, ret))) => Some((ScDesignatorType(typeDef), param, ret))
       case None => None
     }
   }
