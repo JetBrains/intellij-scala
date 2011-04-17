@@ -8,10 +8,10 @@ package typedef
 import base.ScPrimaryConstructor
 import impl.ScalaPsiElementFactory
 import types.ScType
-import statements.params.{ScTypeParam, ScParameters}
 import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
 import statements.{ScFunctionDefinition, ScParameterOwner}
+import statements.params.{ScParameterClause, ScTypeParam, ScParameters}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -40,6 +40,17 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         val count = getManager.getModificationTracker.getJavaStructureModificationCount
         if (res != null && count == modCount) return res
         val texts = getSyntheticMethodsText
+
+        // TODO SCL-3081
+//        val extendsText = {
+//          val clause: Option[ScParameterClause] = clauses.flatMap(_.clauses.take(1).headOption)
+//          (clause, typeParameters) match {
+//            case (Some(clause), Seq()) =>
+//               " extends Function" + clause.paramTypes.length + "[" + clause.paramTypes.map(_.canonicalText).mkString(", ") + ", " + getQualifiedName + "]"
+//            case _ => ""
+//          }
+//
+//        }
         val objText = "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
         val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
         val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
