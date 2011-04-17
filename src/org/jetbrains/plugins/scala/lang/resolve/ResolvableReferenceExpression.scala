@@ -323,6 +323,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     aType match {
       case d: ScDesignatorType if d.isStatic => return
+      case ScDesignatorType(p: PsiPackage) => return
       case _ =>
     }
 

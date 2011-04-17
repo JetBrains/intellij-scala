@@ -43,10 +43,6 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       }
     }
 
-    lazy val implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY) match {
-      case null => None
-      case x => Some(x)
-    }
     lazy val implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION) match {
       case null => None
       case x => Some(x)

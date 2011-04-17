@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  * @author Alexander Podkhalyuzin
  */
 
-class KeywordCompletionTestBase extends ScalaPsiTestCase {
+abstract class KeywordCompletionTestBase extends ScalaPsiTestCase {
   private val caretMarker = "/*caret*/"
 
   override def rootPath: String = super.rootPath + "keywordCompletion/"
