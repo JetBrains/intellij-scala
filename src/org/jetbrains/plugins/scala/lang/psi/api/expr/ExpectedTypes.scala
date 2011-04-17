@@ -88,7 +88,10 @@ private[expr] object ExpectedTypes {
         case b: ScBlockExpr if b.isAnonymousFunction => {
           finalize(b).flatMap(tp => ScType.extractFunctionType(tp) match {
             case Some(ScFunctionType(retType, _)) => Array[ScType](retType)
-            case _ => Array[ScType]()
+            case _ => ScType.extractPartialFunctionType(tp) match {
+              case Some((des, param, ret)) => Array[ScType](ret)
+              case None => Array[ScType]()
+            }
           })
         }
         case cb: ScCatchBlock =>
