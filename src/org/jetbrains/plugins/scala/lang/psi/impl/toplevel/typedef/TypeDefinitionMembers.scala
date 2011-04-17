@@ -33,6 +33,10 @@ import lang.resolve.ResolveUtils
 import psi.util.CommonClassesSearcher
 import reflect.NameTransformer
 import extensions._
+import java.util.concurrent.locks.{ReentrantLock, Lock}
+import collection.mutable.{Stack, WeakHashMap, HashMap}
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
+import caches.CachesUtil.MyProvider
 
 object TypeDefinitionMembers {
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
@@ -350,36 +354,93 @@ object TypeDefinitionMembers {
   val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
+  import Locker.locking
 
   def getVals(clazz: PsiClass): VMap = {
-    clazz synchronized {
+    locking(clazz) {
       get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
     }
   }
 
   def getMethods(clazz: PsiClass): MMap = {
-    get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+    locking(clazz) {
+      get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+    }
   }
 
   def getTypes(clazz: PsiClass) = {
-    clazz synchronized {
+    locking(clazz) {
       get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
     }
   }
 
+  // TODO why no locking?
   def getSignatures(c: PsiClass): SMap = get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
 
   def getSuperVals(c: PsiClass) = {
-    c synchronized {
+    locking(c) {
       get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
     }
   }
 
+  // TODO why no locking?
   def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
 
   def getSuperTypes(c: PsiClass) = {
-    c synchronized {
+   locking(c) {
       get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
+    }
+  }
+
+  // Configurable locking strategy, to help diagnose "SCL-3071 Ocassional deadlock in idea after upgrade to last plugin"
+  private object Locker {
+    def locking[T](cls: PsiClass)(f: => T) = if (shouldUseTryLock) tryLock(cls, f) else cls.synchronized(f)
+
+    /**Lock with a Reentrant lock, using an acquire timeout. If acquisition fails, throw an exception containing
+     *  the Map(threadID -> className) of all locks.
+     */
+    def tryLock[T](cls: PsiClass, f: => T): T = {
+      val threadId = Thread.currentThread().getId
+      val lock = lockFor(cls)
+      if (lock.tryLock(tryLockTimeout, TimeUnit.SECONDS)) {
+        if (!lockDetails.contains(threadId)) lockDetails.put(threadId, new Stack[String])
+        val stack = lockDetails.get(threadId)
+        stack.push(cls.getQualifiedName)
+        try {
+          f
+        } finally {
+          lock.unlock()
+          stack.pop()
+        }
+      } else {
+        import scala.collection.JavaConversions._
+        val locks = lockDetails.toSeq.map {
+          case (threadId, lockStack) => "Thread %s holds: %s".format(threadId.toString, lockStack.mkString("[", ",", "]"))
+        }.mkString("\n")
+        val msg = "Internal Error: Could not acquire lock for %s within timeout on thread %s. Probable deadlock. \n%s".format(
+          cls.getQualifiedName, threadId.toString, locks)
+        throw new RuntimeException(msg)
+      }
+
+    }
+
+    def prop(name: String) = Option(System.getProperty(name))
+
+    def parseInt(i: String): Option[Int] = try {
+      Some(i.toInt)
+    } catch {
+      case _ => None
+    }
+
+    val shouldUseTryLock: Boolean = prop("idea.scala.usetrylock").map(_ == "true").getOrElse(false)
+    val tryLockTimeout: Int = prop("idea.scala.trylock.timeout").flatMap(parseInt).getOrElse(60)
+
+    val locks: WeakHashMap[PsiClass, Lock] = new WeakHashMap[PsiClass, Lock]()
+    /** Map from thread ID to the stack of FQCN that are locked */
+    val lockDetails: ConcurrentHashMap[java.lang.Long, Stack[String]] = new ConcurrentHashMap()
+
+    def lockFor(cls: PsiClass): Lock = locks synchronized {
+      locks.getOrElse(cls, new ReentrantLock())
     }
   }
 
