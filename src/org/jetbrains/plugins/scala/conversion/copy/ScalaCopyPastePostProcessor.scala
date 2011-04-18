@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData] {
   def collectTransferableData(file: PsiFile, editor: Editor,
                               startOffsets: Array[Int], endOffsets: Array[Int]): DependencyData = {
+    if (DumbService.getInstance(file.getProject).isDumb) return null
+
     if(!file.isInstanceOf[ScalaFile]) return null
 
     val elements = 

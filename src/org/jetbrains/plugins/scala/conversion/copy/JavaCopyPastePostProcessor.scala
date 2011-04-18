@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.conversion
 package copy
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.{RangeMarker, Editor}
 import dependency.{DependencyData, Dependency}
 import java.awt.datatransfer.{DataFlavor, Transferable}
@@ -16,6 +15,7 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPasteReferenceProcessor, TextBlockTransferableData, CopyPastePostProcessor}
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
+import com.intellij.openapi.project.{DumbService, Project}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,6 +33,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     val settings = CodeStyleSettingsManager.getSettings(file.getProject)
             .getCustomSettings(classOf[ScalaCodeStyleSettings])
 
+    if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!settings.ENABLE_JAVA_TO_SCALA_CONVERSION || !file.isInstanceOf[PsiJavaFile]) return null
 
     val buffer = new ArrayBuffer[PsiElement]
