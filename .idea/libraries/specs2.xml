@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="specs2">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/ScalaCommunity/scala-plugin/SDK/lib/specs2_2.8.1-1.2-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/lib/specs2_2.8.1-1.2-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.specs2;
 
 import org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsNotifier;
 import org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner;
-import org.specs.Specification;
 import org.specs2.runner.NotifierRunner;
 import scala.Option;
 import scala.reflect.Manifest;
