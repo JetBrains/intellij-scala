@@ -9,6 +9,7 @@ import scala.reflect.Manifest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Array;
 import java.util.ArrayList;
 
 /**
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 public class JavaSpecs2Runner {
   public static void main(String[] args) {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
-    runner.main(args);
+    for (String arg : args) {
+      runner.main(new String[]{arg});
+    }
   }
 }
