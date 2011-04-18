@@ -34,8 +34,8 @@ public class JavaSpecs2Notifier implements Notifier {
   public void text(String text, String location) {
   }
 
-  public void exampleStarted(String text, String location) {
-    System.out.println("\n##teamcity[testStarted name='" + escapeString(text) +
+  public void exampleStarted(String name, String location) {
+    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) +
             "' captureStandardOutput='true']");
   }
 
@@ -43,14 +43,14 @@ public class JavaSpecs2Notifier implements Notifier {
     System.out.println("\n##teamcity[testFinished name='" + escapeString(text) + "' duration='"+ duration +"']");
   }
 
-  public void exampleFailure(String message, Throwable f, long duration) {
+  public void exampleFailure(String name, String message, String location, Throwable f, long duration) {
     boolean error = true;
     String detail;
     if (f instanceof AssertionError) error = false;
     StringWriter writer = new StringWriter();
     f.printStackTrace(new PrintWriter(writer));
     detail = writer.getBuffer().toString();
-    String res = "\n##teamcity[testFailed name='" + escapeString(message) + "' message='" + escapeString(message) +
+    String res = "\n##teamcity[testFailed name='" + escapeString(name) + "' message='" + escapeString(message) +
         "' details='" + escapeString(detail) + "'";
     if (error) res += "error = '" + error + "'";
     res += "timestamp='" + escapeString(message) + "']";
@@ -58,14 +58,14 @@ public class JavaSpecs2Notifier implements Notifier {
     exampleSuccess(message, 0);
   }
 
-  public void exampleError(String message, Throwable f, long duration) {
-    exampleFailure(message, f,  duration);
+  public void exampleError(String name, String message, String location, Throwable f, long duration) {
+    exampleFailure(name, message, location, f,  duration);
   }
 
-  public void exampleSkipped(String message, long duration) {
+  public void exampleSkipped(String name, String message, long duration) {
     System.out.println("\n##teamcity[testIgnored name='" + escapeString(message) + "' message='" + escapeString(message) + "']");
   }
 
-  public void examplePending(String message, long duration) {
+  public void examplePending(String name, String message, long duration) {
   }
 }

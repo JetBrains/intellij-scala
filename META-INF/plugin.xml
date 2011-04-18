@@ -140,8 +140,10 @@
     <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaScriptConsoleConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationType"/>
+    <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.compiler.server.ScalaCompilationServerConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationProducer"/>
+    <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationProducer"/>
     <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
 

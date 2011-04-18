@@ -44,14 +44,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val EMACS = "-Denv.emacs=\"%EMACS%\""
   val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
   val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner"
-  val MAIN_CLASS_SPECS_2 = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
-  def SUITE_PATH: String = if (!specs2) "org.specs.Specification" else "org.specs2.specification.SpecificationStructure"
+  def SUITE_PATH: String = "org.specs.Specification"
 
   private var testClassPath = ""
   private var testPackagePath = ""
   private var testArgs = ""
   private var javaOptions = ""
-  private var specs2 = false
   @BeanProperty
   var workingDirectory = {
     val base = getProject.getBaseDir
@@ -67,14 +65,12 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   def getJavaOptions = javaOptions
   def getSystemFilter = sysFilter
   def getExampleFilter = exampleFilter
-  def isSpecs2 = specs2
   def setTestClassPath(s: String) {testClassPath = s}
   def setTestPackagePath(s: String) {testPackagePath = s}
   def setTestArgs(s: String) {testArgs = s}
   def setJavaOptions(s: String) {javaOptions = s}
   def setSystemFilter(s: String) {sysFilter = s}
   def setExampleFilter(s: String) {exampleFilter = s}
-  def setSpecs2(b: Boolean) {specs2 = b}
 
   private var generatedName: String = ""
   override def getGeneratedName = generatedName
@@ -198,17 +194,13 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
 
         params.setMainClass(
           if (scalaVersion == "27") MAIN_CLASS
-          else if (!specs2) MAIN_CLASS_28
-          else MAIN_CLASS_SPECS_2
+          else MAIN_CLASS_28
         )
 
-        if (!specs2)
-          params.getProgramParametersList.add("-s")
+        params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
-        if (!specs2) {
-          params.getProgramParametersList.add("-sus:" + getSystemFilter)
-          params.getProgramParametersList.add("-ex:" + getExampleFilter)
-        }
+        params.getProgramParametersList.add("-sus:" + getSystemFilter)
+        params.getProgramParametersList.add("-ex:" + getExampleFilter)
         return params
       }
 
@@ -251,7 +243,6 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
     JDOMExternalizer.write(element, "sysFilter", sysFilter)
     JDOMExternalizer.write(element, "exampleFilter", exampleFilter)
-    JDOMExternalizer.write(element, "specs2", specs2)
   }
 
   override def readExternal(element: Element) {
@@ -268,8 +259,6 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     pp = JDOMExternalizer.readString(element, "sysFilter")
     if (pp != null) sysFilter = pp
     pp = JDOMExternalizer.readString(element, "exampleFilter")
-    if (pp != null) exampleFilter = pp
-    specs2 = JDOMExternalizer.readBoolean(element, "specs2")
   }
 
   private def getClassPath(module: Module): String = {
