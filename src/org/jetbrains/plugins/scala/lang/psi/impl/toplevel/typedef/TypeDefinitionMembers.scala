@@ -37,9 +37,12 @@ import java.util.concurrent.locks.{ReentrantLock, Lock}
 import collection.mutable.{Stack, WeakHashMap, HashMap}
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import caches.CachesUtil.MyProvider
+import com.intellij.openapi.diagnostic.Logger
 
 object TypeDefinitionMembers {
-  def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
+  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
+
+    def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
     if (place == None) return true
     ResolveUtils.isAccessible(member, place.get)
   }
@@ -432,7 +435,15 @@ object TypeDefinitionMembers {
       case _ => None
     }
 
-    val shouldUseTryLock: Boolean = prop("idea.scala.usetrylock").map(_ == "true").getOrElse(false)
+    val shouldUseTryLock: Boolean = {
+      val b = prop("idea.scala.usetrylock").map(_ == "true").getOrElse(false)
+      if (b) {
+        LOG.info("Using diagnostic mode locking (see SCL-3071)")
+      } else {
+        LOG.info("Using normal mode locking for (see SCL-3071)")
+      }
+      b
+    }
     val tryLockTimeout: Int = prop("idea.scala.trylock.timeout").flatMap(parseInt).getOrElse(60)
 
     val locks: WeakHashMap[PsiClass, Lock] = new WeakHashMap[PsiClass, Lock]()
