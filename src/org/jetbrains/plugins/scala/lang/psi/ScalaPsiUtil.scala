@@ -663,9 +663,7 @@ object ScalaPsiUtil {
             x.replace(ScalaPsiElementFactory.createReferenceFromText(m.getName, m.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(m)
           }
-          case _ => {
-            adjustTypes(child)
-          }
+          case _ => adjustTypes(child)
         }
         case _ => adjustTypes(child)
       }

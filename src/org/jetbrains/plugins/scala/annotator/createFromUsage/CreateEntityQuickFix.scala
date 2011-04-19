@@ -17,6 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 /**
  * Pavel Fatin
@@ -53,7 +56,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
         val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
         val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
 
-        val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
+        val entity = holder.addBefore(parseElement(text, ref.getManager), anchor)
+        ScalaPsiUtil.adjustTypes(entity)
 
         if (ref.qualifier.isEmpty)
           holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
@@ -94,22 +98,14 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   private def parametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
     case call: ScMethodCall =>
-      val types = call.argumentExpressions.map(_.getType(TypingContext.empty).map(_.presentableText).getOrElse("Any"))
+      val types = call.argumentExpressions.map(_.getType(TypingContext.empty).getOrElse(Any))
       val uniqueNames = types.map(toParameterName).foldLeft(List[String]()) { (r, h) =>
         (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
       }
-      (uniqueNames.reverse, types).zipped.map("%s: %s".format(_, _)).mkString("(", ", ", ")")
+      (uniqueNames.reverse, types).zipped.map((name, tpe) => "%s: %s".format(name, tpe.canonicalText)).mkString("(", ", ", ")")
   }
 
-  private def toParameterName(aType: String) = aType match {
-    case "Char" => "c"
-    case "Int" => "i"
-    case "String" => "s"
-    case "Byte" => "b"
-    case "Long" => "l"
-    case "Boolean" => "b"
-    case s => s.take(1).toLowerCase + s.drop(1)
-  }
+  private def toParameterName(aType: ScType) = NameSuggester.suggestNamesByType(aType).headOption.getOrElse("value")
 
   private def anchorForQualified(ref: ScReferenceExpression): Option[PsiElement] = {
     ref.qualifier collect {
