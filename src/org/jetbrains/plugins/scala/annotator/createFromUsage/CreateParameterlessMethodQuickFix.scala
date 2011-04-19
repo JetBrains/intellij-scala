@@ -7,10 +7,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
  */
 
 class CreateParameterlessMethodQuickFix(ref: ScReferenceExpression)
-        extends CreatePropertyQuickFix(ref, "parameterless method", "def")
+        extends CreateEntityQuickFix(ref, "parameterless method", "def")
 
 class CreateVariableQuickFix(ref: ScReferenceExpression)
-        extends CreatePropertyQuickFix(ref, "variable", "var")
+        extends CreateEntityQuickFix(ref, "variable", "var")
 
 class CreateValueQuickFix(ref: ScReferenceExpression)
-        extends CreatePropertyQuickFix(ref, "value", "val")
+        extends CreateEntityQuickFix(ref, "value", "val")
+
+class CreateMethodQuickFix(ref: ScReferenceExpression)
+        extends CreateEntityQuickFix(ref, "method", "def")
