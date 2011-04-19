@@ -47,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, FullSignature}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -195,7 +196,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
         registerAddImportFix(refElement, annotation, fixes: _*)
         annotation.registerFix(ReportHighlightingErrorQuickFix)
-//        annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
+        registerCreateFromUsageFixesFor(refElement, annotation)
       }
     }
 
@@ -265,7 +266,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
             //TODO create apply() method
-//            annotation.registerFix(new CreateParameterlessMethodQuickFix(refElement))
             return
           }
         case _ =>
@@ -274,7 +274,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
-      refElement match {
+      registerCreateFromUsageFixesFor(refElement, annotation)
+    }
+  }
+
+  private def registerCreateFromUsageFixesFor(ref: ScReferenceElement, annotation: Annotation) {
+      ref match {
+        case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
+          annotation.registerFix(new CreateMethodQuickFix(exp))
         case exp: ScReferenceExpression =>
           annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
           annotation.registerFix(new CreateValueQuickFix(exp))
@@ -282,7 +289,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ =>
       }
     }
-  }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
                               fun: PsiNamedElement, holder: AnnotationHolder): Unit = {
@@ -349,13 +355,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
-      refElement match {
-        case exp: ScReferenceExpression =>
-          annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
-          annotation.registerFix(new CreateValueQuickFix(exp))
-          annotation.registerFix(new CreateVariableQuickFix(exp))
-        case _ =>
-      }
+      registerCreateFromUsageFixesFor(refElement, annotation)
     }
   }
 
