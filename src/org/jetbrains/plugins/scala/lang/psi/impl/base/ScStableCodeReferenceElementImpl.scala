@@ -65,9 +65,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   override def toString: String = "CodeReferenceElement"
 
-  def getKinds(incomplete: Boolean): Set[ResolveTargets.Value] = {
+  def getKinds(incomplete: Boolean, completion: Boolean): Set[ResolveTargets.Value] = {
     import StdKinds._
     getContext match {
+      case _ if completion => stableImportSelector
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet != None
               //import Class._ is not allowed

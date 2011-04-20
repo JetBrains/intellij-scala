@@ -122,7 +122,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   def qualifier: Option[ScalaPsiElement]
 
   //provides the set of possible namespace alternatives based on syntactic position
-  def getKinds(incomplete: Boolean): Set[ResolveTargets.Value]
+  def getKinds(incomplete: Boolean, completion: Boolean = false): Set[ResolveTargets.Value]
 
   def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = getVariants()
 

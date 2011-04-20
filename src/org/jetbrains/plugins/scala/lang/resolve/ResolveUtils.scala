@@ -42,8 +42,8 @@ import psi.api.base.types.{ScCompoundTypeElement, ScTypeElement, ScSelfTypeEleme
 object ResolveUtils {
   def kindMatches(element: PsiElement, kinds: Set[ResolveTargets.Value]): Boolean = kinds == null ||
           (element match {
-            case _: PsiPackage => kinds contains PACKAGE
-            case _: ScPackaging => kinds contains PACKAGE
+            case _: PsiPackage | _: ScPackaging => kinds contains PACKAGE
+            case obj: ScObject if obj.isPackageObject => kinds contains PACKAGE
             case obj: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
