@@ -28,8 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
                                       entity: String, keyword: String) extends IntentionAction {
   // TODO add private modifiers for unqualified entities ?
-  // TODO create {} body if needed
   // TODO use Java CFU when needed
+  // TODO disable for compiled files
 
   def getText = "Create %s '%s'".format(entity, ref.nameId.getText)
 
@@ -53,21 +53,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
       val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
       val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
 
-      val entity = if (ref.qualifier.isDefined) {
-        val anchor = anchorForQualified(ref).get
-        val holder = anchor.getParent
-        val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
-        val it = holder.addAfter(parseElement(text, ref.getManager), anchor)
-        if (hasMembers) holder.addAfter(createNewLine(ref.getManager), it)
-        it
-      } else {
-        val anchor = anchorForUnqualified(ref).get
-        val holder = anchor.getParent
-        val it = holder.addBefore(parseElement(text, ref.getManager), anchor)
-        holder.addBefore(createNewLine(ref.getManager, "\n\n"), it)
-        holder.addAfter(createNewLine(ref.getManager, "\n\n"), it)
-        it
-      }
+      val entity = if (ref.qualifier.isDefined)
+        createEntityForQualified(ref, text) else createEntityForUnqualified(ref, text)
 
       ScalaPsiUtil.adjustTypes(entity)
 
@@ -99,6 +86,37 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     }
   }
 
+  def createEntityForQualified(ref: ScReferenceExpression, text: String): PsiElement = {
+    val block = ref.qualifier.collect {
+      case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+    } get
+
+    if (block.templateBody.isEmpty)
+      block.add(createTemplateBody(block.getManager))
+
+    val anchor = block.templateBody.get.getFirstChild
+    val holder = anchor.getParent
+    val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
+
+    val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
+
+    if (hasMembers) holder.addAfter(createNewLine(ref.getManager), entity)
+
+    entity
+  }
+
+  def createEntityForUnqualified(ref: ScReferenceExpression, text: String): PsiElement = {
+    val anchor = anchorForUnqualified(ref).get
+    val holder = anchor.getParent
+
+    val entity = holder.addBefore(parseElement(text, ref.getManager), anchor)
+
+    holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
+    holder.addAfter(createNewLine(ref.getManager, "\n\n"), entity)
+
+    entity
+  }
+
   private def typeFor(ref: ScReferenceExpression): Option[String]  = ref.getParent match {
     case call: ScMethodCall => call.expectedType.map(_.presentableText)
     case _ => ref.expectedType.map(_.presentableText)
@@ -114,15 +132,6 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   }
 
   private def toParameterName(aType: ScType) = NameSuggester.suggestNamesByType(aType).headOption.getOrElse("value")
-
-  private def anchorForQualified(ref: ScReferenceExpression): Option[PsiElement] = {
-    ref.qualifier collect {
-      case ScExpression.Type(
-             ScType.ExtractClass(
-               ScTemplateDefinition.ExtendsBlock(
-                 ScExtendsBlock.TemplateBody(body)))) => body.getFirstChild
-    }
-  }
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
     val parents = ref.parents.toList

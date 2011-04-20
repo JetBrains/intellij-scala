@@ -308,6 +308,13 @@ object ScalaPsiElementFactory {
     return body
   }
 
+  def createTemplateBody(manager: PsiManager): ScTemplateBody = {
+    val text = "class a {\n}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    dummyFile.typeDefinitions().head.extendsBlock.templateBody.get
+  }
+
   def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
                                    needsInferType: Boolean): ScFunction = {
     val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride, needsInferType) + "\n}"
