@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * Pavel Fatin
@@ -35,7 +35,10 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   def getFamilyName = getText
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
-    !ref.isQualified || blockForQualified(ref).filter(!_.isInCompiledFile).isDefined
+    ref match {
+      case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) => false
+      case _ => !ref.isQualified || blockForQualified(ref).filter(!_.isInCompiledFile).isDefined
+    }
   }
 
   def startInWriteAction: Boolean = true
