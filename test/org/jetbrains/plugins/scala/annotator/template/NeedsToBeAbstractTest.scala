@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.annotator.Error
 /**
  * Pavel Fatin
  */
-
 class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
   def testFine {
     assertNothing(messages("class C"))
