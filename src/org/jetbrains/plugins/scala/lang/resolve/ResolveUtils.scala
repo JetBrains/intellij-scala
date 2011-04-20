@@ -163,7 +163,7 @@ object ResolveUtils {
                   case obj: ScObject => obj.getQualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
-                return placePackageName.startsWith(packageName)
+                return packageContains(packageName, placePackageName)
               }
               bind match {
                 case td: ScTemplateDefinition => {
@@ -207,7 +207,7 @@ object ResolveUtils {
                     case file: ScalaFile => file.getPackageName
                     case pack: ScPackaging => pack.getPackageName
                   }
-                  return placePackageName.startsWith(packageName)
+                  return packageContains(packageName, placePackageName)
                 }
               }
             }
@@ -231,7 +231,7 @@ object ResolveUtils {
                   case obj: ScObject => obj.getQualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
-                if (placePackageName.startsWith(packageName)) return Some(true)
+                if (packageContains(packageName, placePackageName)) return Some(true)
                 None
               }
               bind match {
@@ -291,7 +291,7 @@ object ResolveUtils {
                   case file: ScalaFile => file.getPackageName
                   case pack: ScPackaging => pack.fullPackageName
                 }
-                return placePackageName.startsWith(packageName)
+                return packageContains(packageName, placePackageName)
               }
             }
           } else true
@@ -322,7 +322,7 @@ object ResolveUtils {
             case file: ScalaFile => file.getPackageName
             case pack: ScPackaging => pack.fullPackageName
           }
-          return placePackageName.startsWith(packageName)
+          return packageContains(packageName, placePackageName)
         }
       }
     }
@@ -506,4 +506,9 @@ object ResolveUtils {
     }
     false
   }
+
+  def packageContains(packageName: String, potentialChild: String): Boolean = {
+    potentialChild == packageName || potentialChild.startsWith(packageName + ".")
+  }
+
 }
