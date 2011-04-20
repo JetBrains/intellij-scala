@@ -22,25 +22,6 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 trait AssignmentAnnotator {
-  private def isReadonly(e: PsiElement): Boolean = {
-    if(e.isInstanceOf[ScClassParameter]) {
-      return e.asInstanceOf[ScClassParameter].isVal
-    }
-      
-    if(e.isInstanceOf[ScParameter]) {
-      return true
-    }
-
-    val parent = e.getParent
-    
-    if(parent.isInstanceOf[ScGenerator] || 
-            parent.isInstanceOf[ScEnumerator] || 
-            parent.isInstanceOf[ScCaseClause]) {
-      return true
-    }
-      
-    e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
-  }
 
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
     if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return // named argument
@@ -51,7 +32,7 @@ trait AssignmentAnnotator {
     if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
 
     val ref: Option[PsiElement] = l.asOptionOf[ScReferenceElement].flatMap(_.resolve.toOption)
-    val reassignment = ref.find(isReadonly).isDefined
+    val reassignment = ref.find(ScalaPsiUtil.isReadonly).isDefined
 
     for {
       lref <- l.asOptionOf[ScReferenceElement].toList

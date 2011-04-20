@@ -6,11 +6,12 @@ import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import com.intellij.psi.search.searches.ReferencesSearch
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScInfixExpr}
 import com.intellij.psi.{PsiElementVisitor, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.search.SearchScope
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScAssignStmt, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 class VarCouldBeValInspection extends LocalInspectionTool {
   def getGroupDisplayName: String = InspectionsUtil.SCALA
@@ -57,11 +58,28 @@ class VarCouldBeValInspection extends LocalInspectionTool {
     }
   }
 
+  // This is a conservative approximation, we should really resolve the operation
+  // to differentiate self assignment from calling a method whose name happends to be an assignment operator.
   private def isAssignment(ref: PsiReference): Boolean = ref.getElement.getContext match {
     case assign: ScAssignStmt if assign.getLExpression == ref.getElement => true
-    // This is a conservative approximation, we should really resolve the operation
-    // to differentiate self assignment from calling a method whose name happends to be an assignment operator.
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
+    case ref1 @ ScReferenceExpression.qualifier(`ref`) => ParserUtils.isAssignmentOperator(ref1.refName)
     case _ => false
   }
 }
+
+// TODO Test
+//  def method {
+//    val a = 1
+//    a.+=(2) // re-assignment to val
+//    a += 2  // re-assignment to val
+//
+//    var b = 1
+//    b.+=(2)
+//
+//    var c = 1
+//    c += 2
+//
+//    var d = 1 // var could be val
+//    d + 1
+//  }

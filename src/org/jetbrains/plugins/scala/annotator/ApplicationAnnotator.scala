@@ -1,71 +1,101 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
 import quickfix.ReportHighlightingErrorQuickFix
 import result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import com.intellij.psi.{PsiParameter, PsiNamedElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScParameter}
+import com.intellij.psi.{PsiElement, PsiParameter, PsiNamedElement, PsiMethod}
+import extensions._
+import lang.psi.api.statements.{ScValue, ScFunction}
+import codeInspection.varCouldBeValInspection.ValToVarQuickFix
+import lang.psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScMethodCall}
 
 /**
  * Pavel.Fatin, 31.05.2010
  */
-
 trait ApplicationAnnotator {
   def annotateReference(reference: ScReferenceElement, holder: AnnotationHolder) {
-    for (result <- reference.multiResolve(false);
-         r = result.asInstanceOf[ScalaResolveResult];
-         if !r.isApplicable) {
-      
-      r.element match {
-        case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
-          reference.getContext match {
-            case call: ScMethodCall => {
-              val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
+    for {result <- reference.multiResolve(false)
+         r = result.asInstanceOf[ScalaResolveResult]} {
+      if (r.isAssignment) {
+        annotateAssignmentReference(reference, holder)
+      }
+      if (!r.isApplicable) {
+        r.element match {
+          case f@(_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) => {
+            reference.getContext match {
+              case call: ScMethodCall => {
+                val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
 
-              if(!missed.isEmpty) holder.createErrorAnnotation(call.args, "Unspecified value parameters: " + missed.mkString(", "))
+                if (!missed.isEmpty) holder.createErrorAnnotation(call.args, "Unspecified value parameters: " + missed.mkString(", "))
 
-              r.problems.foreach {
-                case DoesNotTakeParameters() =>
-                  holder.createErrorAnnotation(call.args, f.getName + " does not take parameters")
-                case ExcessArgument(argument) =>
-                  holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
-                case TypeMismatch(expression, expectedType) =>
-                  for(t <- expression.getType(TypingContext.empty)) {
-                    //TODO show parameter name
-                    val annotation = holder.createErrorAnnotation(expression,
-                      "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
-                    annotation.registerFix(ReportHighlightingErrorQuickFix)
-                  }
-                case MissedValueParameter(_) => // simultaneously handled above
-                case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-                case MalformedDefinition() =>
-                  holder.createErrorAnnotation(call.getInvokedExpr, f.getName() + " has malformed definition")
-                case ExpansionForNonRepeatedParameter(expression) =>
-                  holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
-                case PositionalAfterNamedArgument(argument) =>
-                  holder.createErrorAnnotation(argument, "Positional after named argument")
-                case ParameterSpecifiedMultipleTimes(assignment) =>
-                  holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
-                case _ => holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f))
+                r.problems.foreach {
+                  case DoesNotTakeParameters() =>
+                    holder.createErrorAnnotation(call.args, f.getName + " does not take parameters")
+                  case ExcessArgument(argument) =>
+                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                  case TypeMismatch(expression, expectedType) =>
+                    for (t <- expression.getType(TypingContext.empty)) {
+                      //TODO show parameter name
+                      val annotation = holder.createErrorAnnotation(expression,
+                        "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+                      annotation.registerFix(ReportHighlightingErrorQuickFix)
+                    }
+                  case MissedValueParameter(_) => // simultaneously handled above
+                  case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
+                  case MalformedDefinition() =>
+                    holder.createErrorAnnotation(call.getInvokedExpr, f.getName() + " has malformed definition")
+                  case ExpansionForNonRepeatedParameter(expression) =>
+                    holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+                  case PositionalAfterNamedArgument(argument) =>
+                    holder.createErrorAnnotation(argument, "Positional after named argument")
+                  case ParameterSpecifiedMultipleTimes(assignment) =>
+                    holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
+                  case _ => holder.createErrorAnnotation(call.args, "Not applicable to " + signatureOf(f))
+                }
               }
-            }
-            case _ => {
-              r.problems.foreach {
-                case MissedParametersClause(clause) =>
-                  holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
-                case _ =>
+              case _ => {
+                r.problems.foreach {
+                  case MissedParametersClause(clause) =>
+                    holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
+                  case _ =>
+                }
               }
             }
           }
+          case _ =>
         }
+      }
+    }
+  }
+
+  /**
+   * Annotates: val a = 1; a += 1;
+   */
+  private def annotateAssignmentReference(reference: ScReferenceElement, holder: AnnotationHolder) {
+    val qualifier = reference.getContext match {
+      case x: ScMethodCall => x.getEffectiveInvokedExpr match {
+        case x: ScReferenceExpression => x.qualifier
+        case _ => None
+      }
+      case x: ScInfixExpr => Some(x.lOp)
+      case _ => None
+    }
+    val refElementOpt = qualifier.flatMap(_.asOptionOf[ScReferenceElement])
+    val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
+    val reassignment = ref.find(ScalaPsiUtil.isReadonly).isDefined
+    if (reassignment) {
+      val annotation = holder.createErrorAnnotation(reference, "Reassignment to val")
+      ref.get match {
+        case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
+          annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))
         case _ =>
       }
     }
