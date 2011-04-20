@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import api.ScalaElementVisitor
+import api.{ScalaFile, ScalaElementVisitor}
 import com.intellij.psi.tree.{TokenSet, IElementType}
 import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
@@ -12,6 +12,12 @@ trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransforme
   protected override def repr = this
   protected var context: PsiElement = null
   protected var child: PsiElement = null
+
+  def isInCompiledFile = getContainingFile match {
+    case file: ScalaFile => file.isCompiled
+    case _ => false
+  }
+
   def setContext(element: PsiElement, child: PsiElement) {
     context = element
     this.child = child
