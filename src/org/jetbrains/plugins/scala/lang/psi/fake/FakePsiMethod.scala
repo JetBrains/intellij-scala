@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.fake
 
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import java.util.List
 import com.intellij.psi._
 import impl.light.{LightModifierList, LightElement}
 import impl.source.HierarchicalMethodSignatureImpl
@@ -10,7 +9,6 @@ import javadoc.PsiDocComment
 import search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.project.Project
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.lang.Language
 import util.{MethodSignatureBase, PsiTreeUtil, MethodSignatureBackedByPsiMethod, MethodSignature}
@@ -19,6 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import nonvalue.Parameter
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import com.intellij.openapi.util.Pair
+import java.util.{Collection, List}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import com.intellij.util.IncorrectOperationException
+import com.intellij.psi.PsiReferenceList.Role
 
 /**
  * User: Alexander Podkhalyuzin
@@ -208,3 +212,17 @@ class FakePsiReferenceList(manager: PsiManager, language: Language, role: PsiRef
 
   override def copy: PsiElement = new FakePsiReferenceList(manager, language, role)
 }
+
+class FakePsiTypeParameterList(manager: PsiManager, language: Language, params: Array[ScTypeParam], owner: PsiTypeParameterListOwner)
+        extends LightElement(manager, language) with PsiTypeParameterList {
+  override def getText: String = params.map(_.getText).mkString("(", ", ", ")")
+
+  override def toString: String = "FakePsiTypeParameterList"
+
+  override def copy: PsiElement = new FakePsiTypeParameterList(manager, language, params, owner)
+
+  def getTypeParameterIndex(typeParameter: PsiTypeParameter): Int = getTypeParameters.indexOf(typeParameter)
+
+  val getTypeParameters: Array[PsiTypeParameter] = params.map(a => a)
+}
+

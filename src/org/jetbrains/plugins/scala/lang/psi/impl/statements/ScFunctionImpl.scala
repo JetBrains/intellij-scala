@@ -27,6 +27,7 @@ import api.statements.params._
 import result.{TypeResult, Success, TypingContext}
 import com.intellij.openapi.project.DumbServiceImpl
 import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
+import fake.{FakePsiTypeParameterList}
 
 /**
  * @author ilyas
@@ -141,8 +142,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getThrowsList = findChildByClass(classOf[ScAnnotations])
 
-  def getTypeParameterList = null
-
+  def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
+  
   def hasTypeParameters = typeParameters.length > 0
 
   def getParameterList: ScParameters = paramClauses

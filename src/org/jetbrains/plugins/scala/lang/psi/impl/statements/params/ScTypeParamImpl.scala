@@ -19,6 +19,8 @@ import api.statements.params._
 import base.ScTypeBoundsOwnerImpl
 import toplevel.synthetic.JavaIdentifier
 import icons.Icons
+import types.ScType
+import types.result.{Failure, Success}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -115,5 +117,18 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
 
   override def getIcon(flags: Int) = {
     Icons.TYPE_ALIAS
+  }
+
+  override def getSuperTypes: Array[PsiClassType] = {
+    // For Java
+    upperBound match {
+      case Success(t, _) =>
+        val psiType = ScType.toPsi(t, getProject, getResolveScope)
+        psiType match {
+          case x: PsiClassType => Array(x)
+          case _ => Array() // TODO
+        }
+      case Failure(_, _) => Array()
+    }
   }
 }
