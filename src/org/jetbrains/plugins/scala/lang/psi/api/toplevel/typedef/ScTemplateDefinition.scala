@@ -284,7 +284,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 }
 
 object ScTemplateDefinition {
-  object extendsBlock {
+  object ExtendsBlock {
     def unapply(definition: ScTemplateDefinition): Some[ScExtendsBlock] = Some(definition.extendsBlock)
   }
 }

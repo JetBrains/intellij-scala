@@ -12,14 +12,14 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.codeInsight.template.{TemplateManager, TemplateBuilderImpl}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Any}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 
 /**
  * Pavel Fatin
@@ -29,8 +29,9 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
                                       entity: String, keyword: String) extends IntentionAction {
   // TODO add private modifiers for unqualified entities ?
   // TODO create {} body if needed
+  // TODO use Java CFU when needed
 
-  def getText = "Create %s '%s'".format(entity, ref.getText)
+  def getText = "Create %s '%s'".format(entity, ref.nameId.getText)
 
   def getFamilyName = getText
 
@@ -46,48 +47,55 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
 
     val entityType = typeFor(ref)
-
     val parameters = parametersFor(ref)
 
     inWriteAction {
-      val place = if (ref.qualifier.isDefined) anchorForQualified(ref) else anchorForUnqualified(ref)
+      val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
+      val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
 
-      for (anchor <- place; holder <- anchor.parent) {
-        val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
-        val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
-
-        val entity = holder.addBefore(parseElement(text, ref.getManager), anchor)
-        ScalaPsiUtil.adjustTypes(entity)
-
-        if (ref.qualifier.isEmpty)
-          holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
-
-        val builder = new TemplateBuilderImpl(entity)
-
-        for (aType <- entityType;
-             typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
-          builder.replaceElement(typeElement, aType)
-        }
-
-        entity.depthFirst.filterByType(classOf[ScParameter]).foreach { parameter =>
-          val id = parameter.getNameIdentifier
-          builder.replaceElement(id, id.getText)
-
-          parameter.paramType.foreach { it =>
-            builder.replaceElement(it, it.getText)
-          }
-        }
-
-        CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(entity)
-
-        val template = builder.buildTemplate()
-
-        val targetFile = entity.getContainingFile
-        val newEditor = positionCursor(project, targetFile, entity.getLastChild)
-        val range = entity.getTextRange
-        newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-        TemplateManager.getInstance(project).startTemplate(newEditor, template)
+      val entity = if (ref.qualifier.isDefined) {
+        val anchor = anchorForQualified(ref).get
+        val holder = anchor.getParent
+        val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
+        val it = holder.addAfter(parseElement(text, ref.getManager), anchor)
+        if (hasMembers) holder.addAfter(createNewLine(ref.getManager), it)
+        it
+      } else {
+        val anchor = anchorForUnqualified(ref).get
+        val holder = anchor.getParent
+        val it = holder.addBefore(parseElement(text, ref.getManager), anchor)
+        holder.addBefore(createNewLine(ref.getManager, "\n\n"), it)
+        holder.addAfter(createNewLine(ref.getManager, "\n\n"), it)
+        it
       }
+
+      ScalaPsiUtil.adjustTypes(entity)
+
+      val builder = new TemplateBuilderImpl(entity)
+
+      for (aType <- entityType;
+           typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
+        builder.replaceElement(typeElement, aType)
+      }
+
+      entity.depthFirst.filterByType(classOf[ScParameter]).foreach { parameter =>
+        val id = parameter.getNameIdentifier
+        builder.replaceElement(id, id.getText)
+
+        parameter.paramType.foreach { it =>
+          builder.replaceElement(it, it.getText)
+        }
+      }
+
+      CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(entity)
+
+      val template = builder.buildTemplate()
+
+      val targetFile = entity.getContainingFile
+      val newEditor = positionCursor(project, targetFile, entity.getLastChild)
+      val range = entity.getTextRange
+      newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
+      TemplateManager.getInstance(project).startTemplate(newEditor, template)
     }
   }
 
@@ -109,9 +117,10 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   private def anchorForQualified(ref: ScReferenceExpression): Option[PsiElement] = {
     ref.qualifier collect {
-      case PsiReferenceEx.resolve(
-             ScTemplateDefinition.extendsBlock(
-               ScExtendsBlock.templateBody(body))) => body.getFirstChild
+      case ScExpression.Type(
+             ScType.ExtractClass(
+               ScTemplateDefinition.ExtendsBlock(
+                 ScExtendsBlock.TemplateBody(body)))) => body.getFirstChild
     }
   }
 
