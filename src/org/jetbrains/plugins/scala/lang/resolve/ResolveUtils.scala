@@ -12,7 +12,6 @@ import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import psi.types._
 import _root_.scala.collection.Set
 import nonvalue._
-import psi.api.statements.params.{ScParameter, ScTypeParam}
 import com.intellij.psi._
 import psi.api.base.patterns.ScBindingPattern
 import psi.api.toplevel.packaging.ScPackaging
@@ -21,6 +20,7 @@ import psi.api.statements._
 import com.intellij.codeInsight.lookup._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import icons.Icons
+import params.{ScClassParameter, ScParameter, ScTypeParam}
 import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
 import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
 import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
@@ -67,7 +67,9 @@ object ResolveUtils {
               if (patt.getParent /*list of ids*/ .getParent.isInstanceOf[ScVariable])
                 kinds contains VAR else kinds contains VAL
             }
-            case _: ScParameter => kinds contains VAL
+            case classParam: ScClassParameter =>
+              if (classParam.isVar) kinds.contains(VAR) else kinds.contains(VAL)
+            case param: ScParameter => kinds contains VAL
             case _: ScSelfTypeElement => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
