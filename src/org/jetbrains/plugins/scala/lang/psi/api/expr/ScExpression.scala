@@ -591,4 +591,8 @@ object ScExpression {
   case class ExpressionTypeResult(tr: TypeResult[ScType],
                                   importsUsed: scala.collection.Set[ImportUsed],
                                   implicitFunction: Option[PsiNamedElement])
+
+  object Type {
+    def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption
+  }
 }

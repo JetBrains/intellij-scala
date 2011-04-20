@@ -55,7 +55,7 @@ trait ScExtendsBlock extends ScalaPsiElement {
 }
 
 object ScExtendsBlock {
-  object templateBody {
+  object TemplateBody {
     def unapply(block: ScExtendsBlock): Option[ScTemplateBody] = block.templateBody
   }
 }

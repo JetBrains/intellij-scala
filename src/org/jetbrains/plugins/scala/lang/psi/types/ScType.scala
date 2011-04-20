@@ -215,4 +215,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case _ => new ScDesignatorType(element)
     }
   }
+
+  object ExtractClass {
+    def unapply(aType: ScType) = ScType.extractClass(aType)
+  }
 }
