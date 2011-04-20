@@ -106,7 +106,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(true), true, Some(refName)))
 
-  def getKinds(incomplete: Boolean) = StdKinds.refExprQualRef // See SCL-3092
+  def getKinds(incomplete: Boolean, completion: Boolean = false) = {
+    getContext match {
+      case _ if completion => StdKinds.refExprQualRef // SC-3092
+      case _: ScReferenceExpression => StdKinds.refExprQualRef
+      case postf: ScPostfixExpr if this == postf.operation => StdKinds.refExprQualRef
+      case pref: ScPrefixExpr if this == pref.operation => StdKinds.refExprQualRef
+      case inf: ScInfixExpr if this == inf.operation => StdKinds.refExprQualRef
+      case _ => StdKinds.refExprLastRef
+    }
+  } // See SCL-3092
 
   def multiType: Array[TypeResult[ScType]] = {
     multiResolve(false).filter(_.isInstanceOf[ScalaResolveResult]).
