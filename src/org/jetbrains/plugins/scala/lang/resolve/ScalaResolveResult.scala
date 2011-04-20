@@ -29,7 +29,8 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val isNamedParameter: Boolean = false,
                          val fromType: Option[ScType] = None,
                          val tuplingUsed: Boolean = false,
-                         val isSetterFunction: Boolean = false) extends ResolveResult {
+                         val isSetterFunction: Boolean = false,
+                         val isAssignment: Boolean = false) extends ResolveResult {
 
   def getElement = element
 
@@ -63,10 +64,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
   def copy(subst: ScSubstitutor = substitutor, problems: Seq[ApplicabilityProblem] = problems,
            defaultParameterUsed: Boolean = defaultParameterUsed,
            innerResolveResult: Option[ScalaResolveResult] = innerResolveResult,
-           tuplingUsed: Boolean = tuplingUsed, isSetterFunction: Boolean = isSetterFunction): ScalaResolveResult =
+           tuplingUsed: Boolean = tuplingUsed,
+           isSetterFunction: Boolean = isSetterFunction,
+           isAssignment: Boolean = isAssignment): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
-      isNamedParameter, fromType, tuplingUsed, isSetterFunction)
+      isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

@@ -1080,4 +1080,25 @@ object ScalaPsiUtil {
       }
     } else None
   }
+
+  def isReadonly(e: PsiElement): Boolean = {
+    if(e.isInstanceOf[ScClassParameter]) {
+      return e.asInstanceOf[ScClassParameter].isVal
+    }
+
+    if(e.isInstanceOf[ScParameter]) {
+      return true
+    }
+
+    val parent = e.getParent
+
+    if(parent.isInstanceOf[ScGenerator] ||
+            parent.isInstanceOf[ScEnumerator] ||
+            parent.isInstanceOf[ScCaseClause]) {
+      return true
+    }
+
+    e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
+  }
+
 }

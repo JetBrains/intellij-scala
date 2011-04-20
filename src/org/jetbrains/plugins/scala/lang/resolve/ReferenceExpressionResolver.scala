@@ -113,8 +113,9 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
 
         val result = reference.doResolve(ref, processor)
         if (result.isEmpty && ref.isAssignmentOperator) {
-          reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
+          val result1: Array[ResolveResult] = reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
             Nil, isShapeResolve = shapesOnly, enableTupling = true))
+          result1.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
         } else {
           result
         }
