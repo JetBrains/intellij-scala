@@ -159,6 +159,8 @@ trait ScTypePsiTypeBridge {
         }
         case _ => javaObj
       }
+      case tpt: ScTypeParameterType =>
+        EmptySubstitutor.getInstance().substitute(tpt.param)
       case _ => javaObj
     }
   }
