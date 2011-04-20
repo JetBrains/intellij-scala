@@ -93,7 +93,13 @@ private[annotator] object ModifierChecker {
                   }
                 }
                 case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] => {
-                  if (e.getContainingClass.hasModifierProperty("final")) {
+                  val redundant = (e.getContainingClass, e) match {
+                    case (obj: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
+                            valMember.pList.allPatternsSimple => false // SCL-899
+                    case (cls, _) if cls.hasModifierProperty("final") => true
+                    case _ => false
+                  }
+                  if (redundant) {
                     if (checkDublicates(modifierPsi, "final")) {
                       proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.final.parents"), modifierPsi, holder,
                         new RemoveModifierQuickFix(owner, "final"))
