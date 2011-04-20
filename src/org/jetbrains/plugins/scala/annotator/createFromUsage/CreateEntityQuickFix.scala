@@ -29,13 +29,14 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
                                       entity: String, keyword: String) extends IntentionAction {
   // TODO add private modifiers for unqualified entities ?
   // TODO use Java CFU when needed
-  // TODO disable for compiled files
 
   def getText = "Create %s '%s'".format(entity, ref.nameId.getText)
 
   def getFamilyName = getText
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = true
+  def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+    !ref.isQualified || blockForQualified(ref).filter(!_.isInCompiledFile).isDefined
+  }
 
   def startInWriteAction: Boolean = true
 
@@ -87,9 +88,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   }
 
   def createEntityForQualified(ref: ScReferenceExpression, text: String): PsiElement = {
-    val block = ref.qualifier.collect {
-      case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
-    } get
+    val block = blockForQualified(ref).get
 
     if (block.templateBody.isEmpty)
       block.add(createTemplateBody(block.getManager))
@@ -117,6 +116,12 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     entity
   }
 
+  private def blockForQualified(ref: ScReferenceExpression): Option[ScExtendsBlock] = {
+    ref.qualifier.collect {
+      case ScExpression.Type(ScType.ExtractClass(ScTemplateDefinition.ExtendsBlock(block))) => block
+    }
+  }
+
   private def typeFor(ref: ScReferenceExpression): Option[String]  = ref.getParent match {
     case call: ScMethodCall => call.expectedType.map(_.presentableText)
     case _ => ref.expectedType.map(_.presentableText)
@@ -125,13 +130,12 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
   private def parametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
     case call: ScMethodCall =>
       val types = call.argumentExpressions.map(_.getType(TypingContext.empty).getOrElse(Any))
-      val uniqueNames = types.map(toParameterName).foldLeft(List[String]()) { (r, h) =>
+      val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
+      val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
         (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
       }
       (uniqueNames.reverse, types).zipped.map((name, tpe) => "%s: %s".format(name, tpe.canonicalText)).mkString("(", ", ", ")")
   }
-
-  private def toParameterName(aType: ScType) = NameSuggester.suggestNamesByType(aType).headOption.getOrElse("value")
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
     val parents = ref.parents.toList
@@ -146,7 +150,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
     place.map(_._2)
   }
 
-  private  def positionCursor(project: Project, targetFile: PsiFile, element: PsiElement): Editor = {
+  private def positionCursor(project: Project, targetFile: PsiFile, element: PsiElement): Editor = {
     val range = element.getTextRange
     val textOffset = range.getStartOffset
     val descriptor = new OpenFileDescriptor(project, targetFile.getVirtualFile, textOffset)
