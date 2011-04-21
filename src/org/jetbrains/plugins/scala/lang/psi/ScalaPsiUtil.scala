@@ -1102,4 +1102,17 @@ object ScalaPsiUtil {
     e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
+  def isByNameArgument(expr: ScExpression): Boolean = {
+    expr.getContext match {
+      case x: ScArgumentExprList => x.getContext match {
+        case mc: ScMethodCall =>
+          mc.matchedParameters.get(expr) match {
+            case Some(param) if param.isByName => true
+            case _ => false
+          }
+        case _ => false
+      }
+      case _ => false
+    }
+  }
 }
