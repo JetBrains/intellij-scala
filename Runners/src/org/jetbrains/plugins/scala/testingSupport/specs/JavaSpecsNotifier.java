@@ -26,7 +26,7 @@ public class JavaSpecsNotifier implements Notifier {
   public void exampleStarting(String s) {
     map.put(s, System.currentTimeMillis());
     System.out.println("\n##teamcity[testStarted name='" + escapeString(s) +
-            "' captureStandardOutput='true']");
+            "' captureStandardOutput='true'" + "locationHint='scala://" + escapeString(s) +" ]");
   }
 
   public void exampleSucceeded(String s) {

@@ -6,6 +6,8 @@ import org.specs2.reporter.NotifierReporter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -13,12 +15,12 @@ import java.util.HashMap;
 public class JavaSpecs2Notifier implements Notifier {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
-  private String escapeString(String s) {
+  private static String escapeString(String s) {
     return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]");
   }
 
   public void specStart(String title, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "' locationHint='scala://" + escapeString(title) + "']");
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "' "+ parseLocation(location).toHint() + "]");
   }
 
   public void specEnd(String title, String location) {
@@ -35,8 +37,36 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void exampleStarted(String name, String location) {
-    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) +
-            "' captureStandardOutput='true']");
+    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) + "' " + parseLocation(location).toHint() +
+            " captureStandardOutput='true']");
+  }
+
+  static class Location {
+    String className;
+    String fileNameAndLine;
+
+    String toHint() {
+      String s = "locationHint='scala://" + escapeString(className);
+      if (fileNameAndLine != null && !fileNameAndLine.isEmpty()) {
+        s += "?filelocation=" + escapeString(fileNameAndLine);
+      }
+      s += "'";
+      return s;
+    }
+  }
+
+  private static final Pattern LOCATION_PATTERN = Pattern.compile("(\\S+)( \\((.+)\\))?");
+
+  private Location parseLocation(String location) {
+    Location location1 = new Location();
+    Matcher matcher = LOCATION_PATTERN.matcher(location);
+    if (matcher.matches()) {
+      location1.className = matcher.group(1);
+      if (matcher.groupCount() == 3) {
+        location1.fileNameAndLine = matcher.group(3);
+      }
+    }
+    return location1;
   }
 
   public void exampleSuccess(String text, long duration) {
