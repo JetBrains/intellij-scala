@@ -32,11 +32,11 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.caches.ScalaCachesManager;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement;
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr;
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr;
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
@@ -92,6 +92,11 @@ public class ScalaPositionManager implements PositionManager {
         break;
       if (element instanceof ScExtendsBlock && ((ScExtendsBlock) element).isAnonymousClass()) break;
       if (element instanceof ScCaseClauses && element.getParent() instanceof ScBlockExpr) break;
+      if (element instanceof ScExpression) {
+        if (ScalaPsiUtil.isByNameArgument((ScExpression) element)) {
+          break;
+        }
+      }
       element = element.getParent();
     }
 
@@ -125,7 +130,8 @@ public class ScalaPositionManager implements PositionManager {
     } else if (sourceImage instanceof ScFunctionExpr ||
         sourceImage instanceof ScForStatement ||
         sourceImage instanceof ScExtendsBlock ||
-        sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr) {
+        sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr ||
+        sourceImage instanceof ScExpression /*by name argument*/) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
         final String fqn = typeDefinition.getQualifiedNameForDebugger();
