@@ -10,8 +10,8 @@ import impl.ScalaPsiElementFactory
 import types.ScType
 import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
-import statements.{ScFunctionDefinition, ScParameterOwner}
 import statements.params.{ScParameterClause, ScTypeParam, ScParameters}
+import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,6 +20,10 @@ import statements.params.{ScParameterClause, ScTypeParam, ScParameters}
 
 trait ScClass extends ScTypeDefinition with ScParameterOwner {
   def constructor: Option[ScPrimaryConstructor]
+
+  def secondaryConstructors: Seq[ScFunction] = {
+    functions.filter(_.isConstructor)
+  }
 
   def clauses: Option[ScParameters] = constructor match {
     case Some(x: ScPrimaryConstructor) => Some(x.parameterList)
