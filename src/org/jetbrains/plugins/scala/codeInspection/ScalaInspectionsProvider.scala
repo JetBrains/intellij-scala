@@ -8,6 +8,7 @@ import defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection
 import deprecation.ScalaDeprecationInspection
 import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
+import literal.FloatLiteralEndingWithDecimalPoint
 import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.PackageNameInspection
 import postfix.PostfixMethodCall
@@ -58,6 +59,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[ApparentRefinementOfResultType]
 
     res += classOf[PostfixMethodCall]
+    res += classOf[FloatLiteralEndingWithDecimalPoint]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
