@@ -25,7 +25,7 @@ import collection.Seq
 class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr with ScCallExprImpl {
   override def toString: String = "InfixExpression"
 
-  def argumentExpressions: Seq[ScExpression] = {
+  override def argumentExpressions: Seq[ScExpression] = {
     if (isLeftAssoc) Seq.singleton(lOp) else rOp match {
       case tuple: ScTuple => tuple.exprs
       case rOp => Seq.singleton(rOp)

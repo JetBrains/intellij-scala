@@ -282,6 +282,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       ref match {
         case Both(exp: ScReferenceExpression, Parent(_: ScMethodCall)) =>
           annotation.registerFix(new CreateMethodQuickFix(exp))
+        case Both(exp: ScReferenceExpression, Parent(infix: ScInfixExpr)) if infix.operation == exp =>
+          annotation.registerFix(new CreateMethodQuickFix(exp))
         case exp: ScReferenceExpression =>
           annotation.registerFix(new CreateParameterlessMethodQuickFix(exp))
           annotation.registerFix(new CreateValueQuickFix(exp))
