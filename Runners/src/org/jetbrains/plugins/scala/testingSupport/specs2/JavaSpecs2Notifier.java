@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
+import org.specs2.execute.Details;
 import org.specs2.reporter.Notifier;
 
 import java.io.PrintWriter;
@@ -41,14 +43,32 @@ public class JavaSpecs2Notifier implements Notifier {
     System.out.println("\n##teamcity[testFinished name='" + TestRunnerUtil.escapeString(text) + "' duration='"+ duration +"']");
   }
 
+  // Old API before 23/4/2011. TODO remove
   public void exampleFailure(String name, String message, String location, Throwable f, long duration) {
-    exampleFailureOrError(name, message, f, false);
+    exampleFailure(name, message, location, f, null, duration);
   }
 
-  private void exampleFailureOrError(String name, String message, Throwable f, boolean error) {
+  // New API after 23/4/2011
+  public void exampleFailure(String name, String message, String location, Throwable f, @Nullable Details details, long duration) {
+    String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, details);
+    exampleFailureOrError(name, message, f, false, actualExpectedAttrs);
+  }
+
+  public void exampleError(String name, String message, String location, Throwable f, long duration) {
+    String actualExpectedAttrs = "";
+    exampleFailureOrError(name, message, f, true, actualExpectedAttrs);
+  }
+
+  public void exampleSkipped(String name, String message, long duration) {
+    System.out.println("\n##teamcity[testIgnored name='" + TestRunnerUtil.escapeString(message) + "' message='" + TestRunnerUtil.escapeString(message) + "']");
+  }
+
+  public void examplePending(String name, String message, long duration) {
+  }
+
+  private void exampleFailureOrError(String name, String message, Throwable f, boolean error, String actualExpectedAttrs) {
     String detail;
     if (f instanceof AssertionError) error = false;
-    String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, f);
     StringWriter writer = new StringWriter();
     f.printStackTrace(new PrintWriter(writer));
     detail = writer.getBuffer().toString();
@@ -59,16 +79,5 @@ public class JavaSpecs2Notifier implements Notifier {
     res += " timestamp='" + TestRunnerUtil.escapeString(message) +  "']";
     System.out.println(res);
     exampleSuccess(name, 0);
-  }
-
-  public void exampleError(String name, String message, String location, Throwable f, long duration) {
-    exampleFailureOrError(name, message, f, true);
-  }
-
-  public void exampleSkipped(String name, String message, long duration) {
-    System.out.println("\n##teamcity[testIgnored name='" + TestRunnerUtil.escapeString(message) + "' message='" + TestRunnerUtil.escapeString(message) + "']");
-  }
-
-  public void examplePending(String name, String message, long duration) {
   }
 }
