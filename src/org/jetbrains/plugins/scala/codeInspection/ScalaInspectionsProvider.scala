@@ -10,6 +10,7 @@ import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
 import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.PackageNameInspection
+import postfix.PostfixMethodCall
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
@@ -55,6 +56,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[JavaMutatorMethodAccessedAsParameterless]
 
     res += classOf[ApparentRefinementOfResultType]
+
+    res += classOf[PostfixMethodCall]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
