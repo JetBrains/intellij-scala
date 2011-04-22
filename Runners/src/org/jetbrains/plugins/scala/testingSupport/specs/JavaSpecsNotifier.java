@@ -1,10 +1,16 @@
 package org.jetbrains.plugins.scala.testingSupport.specs;
 
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs.runner.Notifier;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.actualExpectedAttrs;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,12 +48,16 @@ public class JavaSpecsNotifier implements Notifier {
     boolean error = true;
     String detail;
     if (t instanceof AssertionError) error = false;
+
+    String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsFromRegex(t.getMessage());
+
     StringWriter writer = new StringWriter();
     t.printStackTrace(new PrintWriter(writer));
     detail = writer.getBuffer().toString();
     String res = "\n##teamcity[testFailed name='" + escapeString(s) + "' message='" + escapeString(s) +
-        "' details='" + escapeString(detail) + "'";
+        "' details='" + escapeString(detail) + "' ";
     if (error) res += "error = '" + error + "'";
+    res += actualExpectedAttrs;
     res += "timestamp='" + escapeString(s) + "']";
     System.out.println(res);
     exampleSucceeded(s);
@@ -81,7 +91,4 @@ public class JavaSpecsNotifier implements Notifier {
   public void systemSkipped(String name) {
   }
 
-  private String escapeString(String s) {
-    return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]");
-  }
 }
