@@ -15,7 +15,7 @@ import types.nonvalue.Parameter
 * Date: 06.03.2008
 */
 
-trait ScMethodCall extends ScExpression {
+trait ScMethodCall extends ScExpression with MethodInvocation {
   def deepestInvokedExpr: ScExpression = {
     getEffectiveInvokedExpr match {
       case call: ScMethodCall => {

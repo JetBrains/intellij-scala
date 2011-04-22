@@ -11,7 +11,7 @@ import parser.util.ParserUtils
 * @author Alexander Podkhalyuzin
 */
 
-trait ScInfixExpr extends ScExpression {
+trait ScInfixExpr extends ScExpression with MethodInvocation {
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
 
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
@@ -35,4 +35,8 @@ trait ScInfixExpr extends ScExpression {
    * Return possible applications without using resolve of reference to this call (to avoid SOE)
    */
   def possibleApplications: Array[Array[(String, ScType)]]
+
+  def getInvokedExpr: ScExpression = operation
+
+  def argumentExpressions: Seq[ScExpression] = Seq(getArgExpr)
 }
