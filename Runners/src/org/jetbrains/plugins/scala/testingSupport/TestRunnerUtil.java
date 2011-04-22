@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
+import org.jetbrains.annotations.Nullable;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 import org.specs2.execute.FailureException;
@@ -21,16 +22,13 @@ public class TestRunnerUtil {
     return actualExpectedAttrs;
   }
 
-  public static String actualExpectedAttrsSpecs2(String message, Throwable f) {
+  public static String actualExpectedAttrsSpecs2(String message, @Nullable Details details) {
     String actualExpectedAttrs = "";
-    if (f instanceof FailureException) {
-      Details details = ((FailureException) f).f().details();
-      if (details instanceof FailureDetails) {
-        FailureDetails details1 = (FailureDetails) details;
-        String actual = details1.actual();
-        String expected = details1.expected();
-        actualExpectedAttrs = actualExpectedAttrs(actual, expected);
-      }
+    if (details != null && details instanceof FailureDetails) {
+      FailureDetails failureDetails = (FailureDetails) details;
+      String actual = failureDetails.actual();
+      String expected = failureDetails.expected();
+      actualExpectedAttrs = actualExpectedAttrs(actual, expected);
     } else {
       // fall back
       actualExpectedAttrs = actualExpectedAttrsFromRegex(message);
