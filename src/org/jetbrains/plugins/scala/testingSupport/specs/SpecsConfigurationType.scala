@@ -13,6 +13,7 @@ import configurations.{JavaRunConfigurationModule, RunConfiguration, Configurati
 import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.ScalaPsiUtil
+import lang.psi.api.base.ScLiteral
 
 /**
  * User: Alexander Podkhalyuzin
@@ -54,6 +55,7 @@ class SpecsConfigurationType extends LocatableConfigurationType {
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+    val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (parent == null) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
@@ -63,6 +65,22 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
     val testClassPath = parent.getQualifiedName
     runConfiguration.setTestClassPath(testClassPath)
+
+    // If the selected element is a non-empty string literal, we assume that this
+    // is the name of an example to be filtered.
+    Option(parentLiteral) match {
+      case Some(x) if x.isString =>
+        x.getValue match {
+          case exampleName: String if exampleName.nonEmpty =>
+            val options = runConfiguration.getJavaOptions
+            val name = testClassPath + "::" + exampleName
+            runConfiguration.setGeneratedName(name)
+            runConfiguration.setName(name)
+            runConfiguration.setExampleFilter(exampleName)
+          case _ =>
+        }
+      case _ =>
+    }
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {

@@ -12,18 +12,12 @@ import icons.Icons
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import lang.psi.ScalaPsiUtil
 import specs.SpecsRunConfiguration
+import lang.psi.api.base.ScLiteral
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 03.05.2009
  */
-
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.02.2009
- */
-
 class Specs2ConfigurationType extends LocatableConfigurationType {
   val confFactory = new Specs2RunConfigurationFactory(this)
 
@@ -53,6 +47,7 @@ class Specs2ConfigurationType extends LocatableConfigurationType {
       return settings
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+    val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (parent == null) return null
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz: PsiClass = facade.findClass("org.specs2.specification.SpecificationStructure", element.getResolveScope)
@@ -62,6 +57,23 @@ class Specs2ConfigurationType extends LocatableConfigurationType {
     val runConfiguration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
     val testClassPath = parent.getQualifiedName
     runConfiguration.setTestClassPath(testClassPath)
+
+    // If the selected element is a non-empty string literal, we assume that this
+    // is the name of an example to be filtered.
+    Option(parentLiteral) match {
+      case Some(x) if x.isString =>
+        x.getValue match {
+          case exampleName: String if exampleName.nonEmpty =>
+            val options = runConfiguration.getJavaOptions
+            val exampleFilterProperty = "-Dspecs2.ex=\"" + exampleName + "\""
+            runConfiguration.setJavaOptions(Seq(options,  exampleFilterProperty).mkString(" "))
+            val name = testClassPath + "::" + exampleName
+            runConfiguration.setGeneratedName(name)
+            runConfiguration.setName(name)
+          case _ =>
+        }
+      case _ =>
+    }
     try {
       val module = ScalaPsiUtil.getModule(element)
       if (module != null) {
