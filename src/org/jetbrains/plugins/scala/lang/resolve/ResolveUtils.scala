@@ -464,7 +464,13 @@ object ResolveUtils {
     }
   }
 
-  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean)
+  case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean) {
+    private var typeParameters: Seq[ScType] = Seq.empty
+    def setTypeParameters(a: Seq[ScType]) {
+      typeParameters = a
+    }
+    def getTypeParameters: Seq[ScType] = typeParameters
+  }
 
   def getPlacePackage(place: PsiElement): String = {
     val pack: ScPackaging = ScalaPsiUtil.getParentOfType(place, classOf[ScPackaging]) match {
