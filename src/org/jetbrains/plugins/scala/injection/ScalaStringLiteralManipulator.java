@@ -36,12 +36,16 @@ public class ScalaStringLiteralManipulator extends AbstractElementManipulator<Sc
   }
 
   public TextRange getRangeInElement(final ScLiteral element) {
-    final String text = element.getText();
-    return getLiteralRange(text);
+    if (element.isString()) {
+      return getLiteralRange(element.getText());
+    } else {
+      return TextRange.from(0, element.getTextLength());  // Text range starting at 0 disables Injection
+    }
   }
 
   public static TextRange getLiteralRange(String text) {
-    if (text.length() >= 6 && text.startsWith("\"\"\"") && text.endsWith("\"\"\"")) {
+    String tripleQuote = "\"\"\"";
+    if (text.length() >= 6 && text.startsWith(tripleQuote) && text.endsWith(tripleQuote)) {
       return new TextRange(3, text.length() - 3);
     }
     return new TextRange(1, Math.max(1, text.length() - 1));
