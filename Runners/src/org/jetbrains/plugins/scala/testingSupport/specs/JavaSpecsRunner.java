@@ -127,16 +127,11 @@ public class JavaSpecsRunner {
 
   private static void runTest(final String sysFilter, final String exFilter, Option<Specification> option) {
     try {
+      // The previous approach of passing these filters with a NotifierRunner#{susFilterPattern, exampleFilterPattern} was not working.
+      System.setProperty("sus", sysFilter);
+      System.setProperty("example", exFilter);
       Specification s = option.get();
-      NotifierRunner runner = new NotifierRunner(s, new JavaSpecsNotifier()) {
-         public String susFilterPattern() {
-           return sysFilter;
-         }
-
-         public String exampleFilterPattern() {
-           return exFilter;
-         }
-      };
+      NotifierRunner runner = new NotifierRunner(s, new JavaSpecsNotifier());
       runner.reportSpecs();
     } catch (Exception e) {
       e.printStackTrace();
