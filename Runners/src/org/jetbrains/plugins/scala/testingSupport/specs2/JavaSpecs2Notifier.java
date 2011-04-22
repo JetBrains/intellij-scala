@@ -22,9 +22,11 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void contextStart(String text, String location) {
+      System.out.println("##teamcity[testSuiteStarted name='" + TestRunnerUtil.escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void contextEnd(String text, String location) {
+    System.out.println("##teamcity[testSuiteFinished name='" + TestRunnerUtil.escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void text(String text, String location) {
@@ -40,7 +42,10 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void exampleFailure(String name, String message, String location, Throwable f, long duration) {
-    boolean error = true;
+    exampleFailureOrError(name, message, f, false);
+  }
+
+  private void exampleFailureOrError(String name, String message, Throwable f, boolean error) {
     String detail;
     if (f instanceof AssertionError) error = false;
     String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, f);
@@ -53,11 +58,11 @@ public class JavaSpecs2Notifier implements Notifier {
     res += actualExpectedAttrs;
     res += " timestamp='" + TestRunnerUtil.escapeString(message) +  "']";
     System.out.println(res);
-    exampleSuccess(message, 0);
+    exampleSuccess(name, 0);
   }
 
   public void exampleError(String name, String message, String location, Throwable f, long duration) {
-    exampleFailure(name, message, location, f,  duration);
+    exampleFailureOrError(name, message, f, true);
   }
 
   public void exampleSkipped(String name, String message, long duration) {
