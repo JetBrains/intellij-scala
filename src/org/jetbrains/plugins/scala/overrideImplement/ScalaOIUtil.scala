@@ -81,20 +81,14 @@ object ScalaOIUtil {
     val candidates = if (isImplement) getMembersToImplement(clazz) else getMembersToOverride(clazz)
     if (candidates.isEmpty) return
     val classMembers = toMembers(candidates)
-    val chooser = new {
-      private val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
-        ScalaBundle.message("specify.return.type.explicitly"))
-    }
-       with MemberChooser[ClassMember](classMembers, false, true, project) {
-      if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
-        dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
-      override def customizeOptionsPanel: java.util.List[JComponent] = {
-        val list = new SmartList[JComponent]
-        list.add(dontInferReturnTypeCheckBox)
-        return list
-      }
+    val dontInferReturnTypeCheckBox: JCheckBox = new NonFocusableCheckBox(
+      ScalaBundle.message("specify.return.type.explicitly"))
+    if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
+      dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
+    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, Array(dontInferReturnTypeCheckBox)) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
+    val chooser = new ScalaMemberChooser
     chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
                      else ScalaBundle.message("select.method.override"))
     chooser.show
