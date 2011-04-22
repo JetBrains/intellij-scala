@@ -466,6 +466,8 @@ object ResolveUtils {
 
   case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean) {
     private var typeParameters: Seq[ScType] = Seq.empty
+    var typeParametersProblem: Boolean = false
+
     def setTypeParameters(a: Seq[ScType]) {
       typeParameters = a
     }
