@@ -277,12 +277,21 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               ClassInheritorsSearch.search(clazz, false).forEach(new Processor[PsiClass] {
                 def process(clazz: PsiClass): Boolean = {
                   if (clazz.getName == null || clazz.getName == "") return true
+                  val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
+                    new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+                  )
                   val predefinedType =
-                    if (clazz.getTypeParameters.length == 1)
-                      ScParameterizedType(ScDesignatorType(clazz),
-                        clazz.getTypeParameters.map(ptp =>
-                          new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-                        ))
+                    if (clazz.getTypeParameters.length == 1) {
+                      ScParameterizedType(ScDesignatorType(clazz), undefines)
+                    }
+                    else
+                      ScDesignatorType(clazz)
+                  val noUndefType =
+                    if (clazz.getTypeParameters.length == 1) {
+                      ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
+                    new ScTypeParameterType(ptp, ScSubstitutor.empty)
+                  ))
+                    }
                     else
                       ScDesignatorType(clazz)
 
@@ -297,9 +306,17 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                   val undef = Conformance.undefinedSubst(typez, predefinedType)
                   undef.getSubstitutor match {
                     case Some(subst) =>
-                      val lookupElement = convertType(subst.subst(tpt), newExpr)
-                      if (lookupElement != null)
+                      val lookupElement = convertType(subst.subst(noUndefType), newExpr)
+                      if (lookupElement != null) {
+                        for (undefine <- undefines) {
+                          subst.subst(undefine) match {
+                            case ScUndefinedType(_) =>
+                              lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+                            case _ =>
+                          }
+                        }
                         result.addElement(lookupElement)
+                      }
                     case _ =>
                   }
                   true
