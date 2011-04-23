@@ -17,6 +17,7 @@ import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.impl.ApplicationImpl
 import typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
+import unusedInspections.ScalaUnusedSymbolInspection
 import varCouldBeValInspection.VarCouldBeValInspection
 
 /**
@@ -36,6 +37,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     //todo parser doesn't give info now to work this inspection
     //res += classOf[SuspiciousNewLineInMethodCall]
     res += classOf[VarCouldBeValInspection]
+    res += classOf[ScalaUnusedSymbolInspection]
     res += classOf[FunctionTupleSyntacticSugarInspection]
     res += classOf[ScalaDefaultFileTemplateUsageInspection]
     res += classOf[AppliedTypeLambdaCanBeSimplifiedInspection]

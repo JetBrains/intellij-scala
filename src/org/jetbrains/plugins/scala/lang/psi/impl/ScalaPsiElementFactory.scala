@@ -266,7 +266,7 @@ object ScalaPsiElementFactory {
     else classDef.members()(0).asInstanceOf[ScVariable]
   }
 
-  def createValFromVarDeclaration(varDef: ScVariableDefinition, manager: PsiManager): ScValue = {
+  def createValFromVarDefinition(varDef: ScVariableDefinition, manager: PsiManager): ScValue = {
     val varKeyword = varDef.varKeyword
     val startOffset = varKeyword.getStartOffsetInParent
     val varText = varDef.getText
