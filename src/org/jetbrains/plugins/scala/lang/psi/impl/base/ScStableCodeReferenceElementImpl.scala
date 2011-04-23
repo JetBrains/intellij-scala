@@ -92,7 +92,8 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     if (isReferenceTo(element)) return this
     else element match {
       case c: PsiClass => {
-        if (!ResolveUtils.kindMatches(element, getKinds(false)))
+        val suitableKinds = getKinds(false)
+        if (!ResolveUtils.kindMatches(element, suitableKinds))
           throw new IncorrectOperationException("class does not match expected kind, problem place: " +
                   getContext.getContext.getContext.getText)
         if (nameId.getText != c.getName) {

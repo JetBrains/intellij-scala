@@ -35,7 +35,7 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import api.base.patterns.{ScWildcardPattern, ScReferencePattern}
+import api.base.patterns.{ScCaseClauses, ScCaseClause, ScWildcardPattern, ScReferencePattern}
 
 object ScalaPsiElementFactory {
 
@@ -73,6 +73,23 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val fun = dummyFile.getFirstChild.asInstanceOf[ScFunction]
     fun.parameters(0)
+  }
+
+  def createCaseClauseFromText(clauseText: String, manager: PsiManager): ScCaseClause= {
+    val text = "x match { " + clauseText + "}"
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val matchStmt = dummyFile.getFirstChild.asInstanceOf[ScMatchStmt]
+    matchStmt.caseClauses.head
+  }
+
+  def createMatch(scrutinee: String, caseClauses: Seq[String], manager: PsiManager): ScMatchStmt = {
+    val text = "%s match { %s }".format(scrutinee, caseClauses.mkString("\n"))
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    dummyFile.getFirstChild.asInstanceOf[ScMatchStmt]
   }
 
   def parseFile(text: String, manager: PsiManager): ScalaFile = {
