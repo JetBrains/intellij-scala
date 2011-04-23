@@ -35,7 +35,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import quickfix.{ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
 import template._
 import types.ScTypeElement
-import scala.collection.Set
 import scala.Some
 import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -48,6 +47,7 @@ import components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, FullSignature}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
+import collection.{Seq, Set}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -131,15 +131,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         //checkOverrideMethods(x, holder)
       }
       case x: ScTemplateDefinition => {
-        AbstractInstantiation.annotate(x, holder, typeAware)
-        FinalClassInheritance.annotate(x, holder, typeAware)
-        IllegalInheritance.annotate(x, holder, typeAware)
-        ObjectCreationImpossible.annotate(x, holder, typeAware)
-        MultipleInheritance.annotate(x, holder, typeAware)
-        NeedsToBeAbstract.annotate(x, holder, typeAware)
-        NeedsToBeTrait.annotate(x, holder, typeAware)
-        SealedClassInheritance.annotate(x, holder, typeAware)
-        UndefinedMember.annotate(x, holder, typeAware)
+        val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
+          MultipleInheritance, NeedsToBeAbstract, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+        tdParts.foreach(_.annotate(x, holder, typeAware))
+        x match {
+          case cls: ScClass =>
+            val clsParts = Seq(CaseClassWithoutParamList)
+            clsParts.foreach(_.annotate(cls, holder, typeAware))
+          case _ =>
+        }
       }
       case ref: ScReferenceElement => {
         if(typeAware) annotateReference(ref, holder)
