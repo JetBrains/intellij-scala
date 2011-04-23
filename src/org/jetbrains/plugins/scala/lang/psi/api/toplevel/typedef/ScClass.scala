@@ -30,6 +30,15 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     case None => None
   }
 
+  def addEmptyParens() {
+    clauses match {
+      case Some(c) =>
+        val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+        c.addClause(clause)
+      case _ =>
+    }
+  }
+
   @volatile
   private var companionModuleRes: Option[ScObject] = null
   @volatile
