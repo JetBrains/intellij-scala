@@ -32,6 +32,7 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory;
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory;
 import org.jetbrains.plugins.scala.debugger.ScalaJVMNameMapper;
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager;
 import org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner;
@@ -75,6 +76,9 @@ public class ScalaLoader implements ApplicationComponent {
 
         ScalaUnusedImportsPassFactory unusedImportPassFactory = project.getComponent(ScalaUnusedImportsPassFactory.class);
         registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
+
+        ScalaUnusedSymbolPassFactory unusedSymbolPassFactory = project.getComponent(ScalaUnusedSymbolPassFactory.class);
+        registrar.registerTextEditorHighlightingPass(unusedSymbolPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
 
 
         CompilerManager compilerManager = CompilerManager.getInstance(project);

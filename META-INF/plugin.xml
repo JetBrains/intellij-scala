@@ -191,7 +191,7 @@
     </intentionAction>
 
     <intentionAction>
-      <className>org.jetbrains.plugins.scala.codeInsight.intention.matchcreate.CreateCaseClausesIntention</className>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.CreateCaseClausesIntention</className>
     </intentionAction>
 
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
@@ -224,6 +224,10 @@
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory
+      </implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory
       </implementation-class>
     </component>
     <component>

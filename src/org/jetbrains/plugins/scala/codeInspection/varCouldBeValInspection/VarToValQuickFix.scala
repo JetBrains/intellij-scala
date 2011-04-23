@@ -17,7 +17,7 @@ import lang.psi.api.statements.{ScValue, ScPatternDefinition, ScVariableDefiniti
 class VarToValQuickFix(varDef: ScVariableDefinition) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     val parent = varDef.getContext
-    varDef.replace(ScalaPsiElementFactory.createValFromVarDeclaration(varDef, varDef.getManager))
+    varDef.replace(ScalaPsiElementFactory.createValFromVarDefinition(varDef, varDef.getManager))
   }
 
   def getName: String = "Convert 'var' to 'val'"
