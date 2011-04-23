@@ -41,6 +41,20 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
    */
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
+  /**
+   * All classes must have one non-implicit parameter list. If this is not declared in in the code,
+   * it is assumed by the compiler.
+   */
+  def effectiveParameters: Seq[Seq[ScClassParameter]] = {
+    parameterList.clauses match {
+      case Seq() => Seq(Seq())
+      case Seq(clause) if clause.isImplicit => Seq(Seq(), clause.parameters.asInstanceOf[Seq[ScClassParameter]])
+      case clauses => clauses.map(_.parameters.asInstanceOf[Seq[ScClassParameter]])
+    }
+  }
+
+  def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameters.head
+
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses

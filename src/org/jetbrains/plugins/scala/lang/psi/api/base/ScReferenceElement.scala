@@ -86,16 +86,30 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           case method: PsiMethod if method.isConstructor => {
             if (td == method.getContainingClass) return true
           }
-          case method: ScFunction if method.getName == "apply" || method.getName == "unapply" ||
-            method.getName == "unapplySeq" => {
+          case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.getName) => {
             var break = false
             val methods = td.allMethods
             for (n <- methods if !break) {
               if (n.method.getName == method.getName) {
-                if (method.getContainingClass == n.method.getContainingClass)
+                val methodContainingClass: ScTemplateDefinition = method.getContainingClass
+                val nodeMethodContainingClass: PsiClass = n.method.getContainingClass
+                val classesEquiv: Boolean = {
+                  val equal = methodContainingClass == nodeMethodContainingClass
+                  lazy val syntheticEquiv = td match {
+                    // TODO investigate why we need this.
+                    //      Trigger the CreateCaseClauses intention on `(null: Either[Int, String) match {}`, and without
+                    //      this we get unneeded imports: `import scala.{Left, Right}`
+                    //      Seems We end up with multiple instances of the synthetic companion object for a single case class
+                    case obj: ScObject if obj.isSyntheticObject && obj.getQualifiedName == nodeMethodContainingClass.getQualifiedName => true
+                    case _ => false
+                  }
+                  equal || syntheticEquiv
+                }
+                if (classesEquiv)
                   break = true
               }
             }
+            
             if (!break && method.getText.contains("throw new Error()") && td.isInstanceOf[ScClass] &&
               td.asInstanceOf[ScClass].isCase) {
               ScalaPsiUtil.getCompanionModule(td) match {

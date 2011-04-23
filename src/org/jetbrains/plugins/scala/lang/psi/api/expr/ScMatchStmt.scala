@@ -12,7 +12,7 @@ import impl.ScalaPsiElementFactory
  */
 
 trait ScMatchStmt extends ScExpression {
-  def expr = findChild(classOf[ScExpression])
+  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def getBranches: Seq[ScExpression] = getCaseClauses match {
     case null => Seq.empty

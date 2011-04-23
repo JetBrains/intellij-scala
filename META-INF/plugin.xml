@@ -190,6 +190,10 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeArgs</className>
     </intentionAction>
 
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.matchcreate.CreateCaseClausesIntention</className>
+    </intentionAction>
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 
