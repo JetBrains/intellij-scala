@@ -21,6 +21,7 @@ import api.{ScalaElementVisitor, ScalaFile}
 import lang.resolve.processor.BaseProcessor
 import api.statements.{ScPatternDefinition, ScDeclaredElementsHolder}
 import api.base.ScPatternList
+import extensions._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -78,9 +79,14 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
       case pList: ScPatternList if pList.patterns == Seq(this) =>
         val context: PsiElement = pList.getContext
         context.getContext.deleteChildRange(context, context)
+      case pList: ScPatternList if pList.allPatternsSimple && pList.patterns.startsWith(Seq(this)) =>
+        val context: PsiElement = pList.getContext
+        val end = this.nextSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getNextSiblingNotWhitespace.getPrevSibling
+        pList.deleteChildRange(this, end)
       case pList: ScPatternList if pList.allPatternsSimple =>
-        // TODO delete extra ','
-        super.delete()
+        val context: PsiElement = pList.getContext
+        val start = this.prevSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getPrevSiblingNotWhitespace.getNextSibling
+        pList.deleteChildRange(start, this)
       case x =>
         // val (a, b) = t
         // val (_, b) = t
