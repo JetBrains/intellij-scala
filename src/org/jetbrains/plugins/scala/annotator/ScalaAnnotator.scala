@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import quickfix.{ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
+import quickfix.{ChangeTypeFix, ReportHighlightingErrorQuickFix, ImplementMethodsQuickFix}
 import template._
 import types.ScTypeElement
 import scala.Some
@@ -489,9 +489,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case tr: ScTryStmt =>
       case _ => {
         if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
-        val tp = expr.expectedType match {
-          case Some(tp: ScType) if tp equiv Unit => //do nothing
-          case Some(tp: ScType) => {
+        val tp = expr.expectedTypeEx match {
+          case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
+          case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
             val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
@@ -516,6 +516,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   ScType.presentableText(exprType.getOrElse(Nothing)), ScType.presentableText(expectedType.get))
                 val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                 annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                typeElement match {
+                  case Some(te) => annotation.registerFix(new ChangeTypeFix(te, exprType.getOrElse(Nothing)))
+                  case None =>
+                }
               }
             } else ImportTracker.getInstance(expr.getProject).
                     registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
