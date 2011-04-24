@@ -125,7 +125,9 @@ public class FileHeaderChecker {
         runnable.run();
       }
     };
-    final LocalQuickFix editFileTemplateFix = DefaultFileTemplateUsageInspection.createEditFileTemplateFix(template, runnable);
+    final LocalQuickFix editFileTemplateFix =
+        DefaultFileTemplateUsageInspection.createEditFileTemplateFix(template, replaceTemplateFix);
+
     if (template.isDefault()) {
       return new LocalQuickFix[]{editFileTemplateFix};
     }
