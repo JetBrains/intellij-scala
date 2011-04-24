@@ -89,7 +89,11 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       case x: PsiMethod => ScFunction.isSpecial(x.getName)
       case _ => false
     }
-    if (!isSpecialDef) {
+    val isImplicit = declElementHolder match {
+      case x: ScMember => x.hasModifierProperty("implicit")
+      case _ => false
+    }
+    if (!isSpecialDef && !isImplicit) {
       checkUnusedAndVarCouldBeVal(declElementHolder, state)
     }
   }
