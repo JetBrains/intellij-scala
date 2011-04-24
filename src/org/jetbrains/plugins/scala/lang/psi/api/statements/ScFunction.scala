@@ -23,6 +23,8 @@ import expr.ScBlock
 import psi.impl.ScalaPsiElementFactory
 import lexer.ScalaTokenTypes
 import base.ScMethodLike
+import collection.immutable.Set
+import java.lang.String
 
 /**
  * @author Alexander Podkhalyuzin
@@ -281,4 +283,27 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     return this
   }
+}
+
+object ScFunction {
+  object Name {
+    val Apply = "apply"
+    val Update = "update"
+
+    val Unapply = "unapply"
+    val UnapplySeq = "unapplySeq"
+
+    val Foreach = "foreach"
+    val Map = "map"
+    val FlatMap = "flatMap"
+    val Filter = "filter"
+    val WithFilter = "withFilter"
+
+    val Unapplies: Set[String] = Set(Unapply, UnapplySeq)
+    val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
+    val Special: Set[String] = Set(Apply, Update) ++ Unapplies ++ ForComprehensions
+  }
+
+  /** Is this function sometimes invoked without it's name appearing at the call site? */
+  def isSpecial(name: String): Boolean = Name.Special(name)
 }

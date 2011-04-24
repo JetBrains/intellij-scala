@@ -17,7 +17,6 @@ import com.intellij.codeInsight.CodeInsightUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScAssignStmt}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScDeclaredElementsHolder}
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import varCouldBeValInspection.VarCouldBeValInspection
@@ -26,10 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import com.intellij.psi.{PsiDocumentManager, PsiReference, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScDeclaredElementsHolder}
+import com.intellij.psi._
 
-// TODO merge with UnusedImportPass
+// TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
+  val findUsageProvider: FindUsagesProvider = LanguageFindUsages.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE)
+
   case class UnusedConfig(checkLocalUnused: Boolean, checkLocalAssign: Boolean)
   case class UnusedPassState(annotationHolder: AnnotationHolderImpl, annotations: Buffer[Annotation], config: UnusedConfig)
 
@@ -58,7 +61,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
     UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength, highlightInfos, getId)
   }
 
-  def readConfig(sFile: ScalaFile): ScalaUnusedSymbolPass.this.type#UnusedConfig = {
+  def readConfig(sFile: ScalaFile): UnusedConfig = {
     val profile: InspectionProfile = InspectionProjectProfileManager.getInstance(myProject).getInspectionProfile
     def isEnabled(shortName: String) = profile.isToolEnabled(HighlightDisplayKey.find(shortName), sFile)
     UnusedConfig(checkLocalUnused = isEnabled(ScalaUnusedSymbolInspection.ShortName),
@@ -67,21 +70,38 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
 
   private def processDeclaredElementHolder(x: ScDeclaredElementsHolder, state: UnusedPassState) {
     x.getContext match {
-      case _: ScTemplateBody | _: ScPackageLike |
-           _: ScalaFile | _: ScEarlyDefinitions => // ignore. currently ignore template members, we just handle locals.
+      case _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions => // ignore, too expensive to check for references.
+      case _: ScTemplateBody =>
+        x match {
+          case mem: ScMember if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
+            processLocalDeclaredElementHolder(x, state)
+          case _ => // ignore.
+        }
       case _ if state.config.checkLocalAssign || state.config.checkLocalUnused =>
-        processLocalDeclaredElement(x, state)
+        processLocalDeclaredElementHolder(x, state)
       case _ =>
     }
   }
 
+  /** Processes a ScDeclaredElementsHolder that is not accessible outside of the defining class/companion, ie locals or private or private[this] */
+  private def processLocalDeclaredElementHolder(declElementHolder: ScDeclaredElementsHolder, state: UnusedPassState) {
+    val isSpecialDef = declElementHolder match {
+      case x: PsiMethod => ScFunction.isSpecial(x.getName)
+      case _ => false
+    }
+    if (!isSpecialDef) {
+      checkUnusedAndVarCouldBeVal(declElementHolder, state)
+    }
+  }
+
   /** Highlight unused local symbols, and vals that could be vars */
-  private def processLocalDeclaredElement(declElementHolder: ScDeclaredElementsHolder, state: UnusedPassState) {
-    val decElemIterator = declElementHolder.declaredElements.iterator
+  private def checkUnusedAndVarCouldBeVal(declElementHolder: ScDeclaredElementsHolder, state: UnusedPassState) {
     val isVar = declElementHolder.isInstanceOf[ScVariableDefinition]
+
     var hasAssign = !state.config.checkLocalAssign || !isVar
     var hasAtLeastOneUnusedHighlight = false
     var hasAtLeastOneAssign = false
+    val decElemIterator = declElementHolder.declaredElements.iterator
     while (decElemIterator.hasNext) {
       val elem = decElemIterator.next()
       elem match {
@@ -97,8 +117,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
           if (!hasUsages) {
             if (state.config.checkLocalUnused) {
               hasAtLeastOneUnusedHighlight = true
-              val provider: FindUsagesProvider = LanguageFindUsages.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE)
-              val elementTypeDesc = provider.getType(declElementHolder)
+              val elementTypeDesc = findUsageProvider.getType(declElementHolder)
               val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId(), "%s '%s' is never used".format(elementTypeDesc, decElem.name()))
               annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
               annotation.registerFix(new DeleteElementFix(elem))
@@ -127,7 +146,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
   }
 
   // This is a conservative approximation, we should really resolve the operation
-  // to differentiate self assignment from calling a method whose name happends to be an assignment operator.
+  // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
   private def isPossiblyAssignment(ref: PsiReference): Boolean = ref.getElement.getContext match {
     case assign: ScAssignStmt if assign.getLExpression == ref.getElement => true
     case infix: ScInfixExpr if infix.isAssignmentOperator => true
