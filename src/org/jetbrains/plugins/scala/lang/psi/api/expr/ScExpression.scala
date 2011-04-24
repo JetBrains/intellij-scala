@@ -25,6 +25,7 @@ import types.Conformance.AliasType
 import statements.{ScTypeAliasDefinition, ScFunction}
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import java.lang.Integer
+import base.types.ScTypeElement
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -172,7 +173,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   @volatile
   private var exprAfterImplicitType: ExpressionTypeResult = null
   @volatile
-  private var expectedTypesCache: Array[ScType] = null
+  private var expectedTypesCache: Array[(ScType, Option[ScTypeElement])] = null
 
   @volatile
   private var exprTypeModCount: Long = 0
@@ -505,9 +506,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
 
-  def expectedType: Option[ScType] = ExpectedTypes.expectedExprType(this)
+  def expectedType: Option[ScType] = expectedTypeEx.map(_._1)
 
-  def expectedTypes: Array[ScType] = {
+  def expectedTypeEx: Option[(ScType, Option[ScTypeElement])] = ExpectedTypes.expectedExprType(this)
+
+  def expectedTypes: Array[ScType] = expectedTypesEx.map(_._1)
+  
+  def expectedTypesEx: Array[(ScType, Option[ScTypeElement])] = {
     var tp = expectedTypesCache
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && expectedTypesModCount == curModCount) {
@@ -519,7 +524,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     return tp
   }
 
-  private[expr] def setExpectedTypes(tps: Array[ScType]) {
+  private[expr] def setExpectedTypes(tps: Array[(ScType, Option[ScTypeElement])]) {
     expectedTypesCache = tps
     expectedTypesModCount = getManager.getModificationTracker.getModificationCount
   }

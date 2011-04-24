@@ -33,7 +33,9 @@ private[expr] object ExpectedTypes {
    * Do not use this method inside of resolve or type inference.
    * Using this leads to SOE.
    */
-  def smartExpectedType(expr: ScExpression): Option[ScType] = {
+  def smartExpectedType(expr: ScExpression): Option[ScType] = smartExpectedTypeEx(expr).map(_._1)
+
+  def smartExpectedTypeEx(expr: ScExpression): Option[(ScType, Option[ScTypeElement])] = {
     val types = expectedExprTypes(expr, true)
     types.length match {
       case 1 => Some(types(0))
@@ -41,23 +43,28 @@ private[expr] object ExpectedTypes {
     }
   }
   
-  def expectedExprType(expr: ScExpression): Option[ScType] = {
-    val types = expr.expectedTypes
+  def expectedExprType(expr: ScExpression): Option[(ScType, Option[ScTypeElement])] = {
+    val types = expr.expectedTypesEx
     types.length match {
       case 1 => Some(types(0))
       case _ => None
     }
   }
 
-  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false): Array[ScType] = {
+  implicit def typeToPair(tpe: ScType): (ScType, Option[ScTypeElement]) = (tpe, None) // TODO jzaugg remove
+
+  /**
+   * @return (expectedType, expectedTypeElement)
+   */
+  def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false): Array[(ScType, Option[ScTypeElement])] = {
     //this method needs to replace expected type to return type if it's placholder function expression
-    def finalize(expr: ScExpression): Array[ScType] = {
+    def finalize(expr: ScExpression): Array[(ScType, Option[ScTypeElement])] = {
       ScUnderScoreSectionUtil.underscores(expr).length match {
-        case 0 => expr.expectedTypes
+        case 0 => expr.expectedTypesEx
         case _ => {
-          val res = new ArrayBuffer[ScType]
+          val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
           for (tp <- expr.expectedTypes) {
-            ScType.extractFunctionType(tp) match {
+            ScType.extractFunctionType(tp._1) match {
               case Some(ScFunctionType(rt: ScType, _)) => res += rt
               case None =>
             }
@@ -67,30 +74,30 @@ private[expr] object ExpectedTypes {
       }
     }
     expr.getContext match {
-      case p: ScParenthesisedExpr => p.expectedTypes
+      case p: ScParenthesisedExpr => p.expectedTypesEx
       //see SLS[6.11]
       case b: ScBlockExpr => b.lastExpr match {
         case Some(e) if e == expr => finalize(b)
         case _ => Array.empty
       }
       //see SLS[6.16]
-      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Array(types.Boolean)
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr => Array((types.Boolean, None))
       case cond: ScIfStmt if cond.elseBranch != None => finalize(cond)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => finalize(tb.getContext.asInstanceOf[ScTryStmt])
         case _ => Array.empty
       }
-      case fb: ScFinallyBlock => Array(types.Unit)
+      case fb: ScFinallyBlock => Array((types.Unit, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => finalize(m)
         case b: ScBlockExpr if b.isAnonymousFunction => {
-          finalize(b).flatMap(tp => ScType.extractFunctionType(tp) match {
-            case Some(ScFunctionType(retType, _)) => Array[ScType](retType)
-            case _ => ScType.extractPartialFunctionType(tp) match {
-              case Some((des, param, ret)) => Array[ScType](ret)
-              case None => Array[ScType]()
+          finalize(b).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+            case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+            case _ => ScType.extractPartialFunctionType(tp._1) match {
+              case Some((des, param, ret)) => Array[(ScType, Option[ScTypeElement])]((ret, None))
+              case None => Array[(ScType, Option[ScTypeElement])]()
             }
           })
         }
@@ -99,17 +106,17 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => finalize(f).flatMap(tp => ScType.extractFunctionType(tp) match {
-        case Some(ScFunctionType(retType, _)) => Array[ScType](retType)
-        case _ => Array[ScType]()
+      case f: ScFunctionExpr => finalize(f).flatMap(tp => ScType.extractFunctionType(tp._1) match {
+        case Some(ScFunctionType(retType, _)) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case _ => Array[(ScType, Option[ScTypeElement])]()
       })
       case t: ScTypedStmt if t.getLastChild.isInstanceOf[ScSequenceArg] => {
-        t.expectedTypes
+        t.expectedTypesEx
       }
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
-          case Some(te) => Array(te.getType(TypingContext.empty).getOrElse(Any))
+          case Some(te) => Array((te.getType(TypingContext.empty).getOrElse(Any), Some(te)))
           case _ => Array.empty
         }
       }
@@ -120,12 +127,12 @@ private[expr] object ExpectedTypes {
             ref.bind match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
-                  case v: ScValue => Array(named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any))
-                  case v: ScVariable => Array(named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any))
+                  case v: ScValue => Array((named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any), v.typeElement))
+                  case v: ScVariable => Array((named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any), v.typeElement))
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters
-                    Array(subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))
+                    Array((subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.typeElement))
                   }
                   case _ => Array.empty
                 }
@@ -154,7 +161,7 @@ private[expr] object ExpectedTypes {
           }
           tps.foreach(processArgsExpected(res, expr, i, _, exprs))
         }
-        res.toArray
+        res.map(typeToPair).toArray
       }
       case tuple: ScTuple => {
         val buffer = new ArrayBuffer[ScType]
@@ -167,7 +174,7 @@ private[expr] object ExpectedTypes {
             case _ =>
           }
         }
-        buffer.toArray
+        buffer.map(typeToPair).toArray
       }
       case infix: ScInfixExpr if (infix.isLeftAssoc && infix.lOp == expr) ||
               (!infix.isLeftAssoc && infix.rOp == expr) => {
@@ -179,18 +186,18 @@ private[expr] object ExpectedTypes {
         val op = infix.operation
         val tps = if (!withResolvedFunction) op.shapeMultiType else op.multiType
         tps.foreach(processArgsExpected(res, zExpr, 0, _, Seq(zExpr)))
-        res.toArray
+        res.map(typeToPair).toArray
       }
       //SLS[4.1]
       case v: ScPatternDefinition if v.expr == expr.getSameElementInContext => {
         v.typeElement match {
-          case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
+          case Some(te) => Array((v.getType(TypingContext.empty).getOrElse(Any), Some(te)))
           case _ => Array.empty
         }
       }
       case v: ScVariableDefinition if v.expr == expr.getSameElementInContext => {
         v.typeElement match {
-          case Some(_) => Array(v.getType(TypingContext.empty).getOrElse(Any))
+          case Some(te) => Array((v.getType(TypingContext.empty).getOrElse(Any), Some(te)))
           case _ => Array.empty
         }
       }
@@ -199,12 +206,15 @@ private[expr] object ExpectedTypes {
         case None => false
         case Some(b) => b == expr.getSameElementInContext
       }) => {
-        v.getInheritedReturnType.toArray
+        v.returnTypeElement match {
+          case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
+          case _ => v.getInheritedReturnType.map(typeToPair).toArray
+        }
       }
       //default parameters
       case param: ScParameter => {
         param.typeElement match {
-          case Some(_) => Array(param.getType(TypingContext.empty).getOrElse(Any))
+          case Some(_) => Array((param.getType(TypingContext.empty).getOrElse(Any), param.typeElement))
           case _ => Array.empty
         }
       }
@@ -214,7 +224,7 @@ private[expr] object ExpectedTypes {
         fun.returnTypeElement match {
           case Some(rte: ScTypeElement) => {
             fun.returnType match {
-              case Success(rt: ScType, _) => return Array(rt)
+              case Success(rt: ScType, _) => return Array((rt, Some(rte)))
               case _ => Array.empty
             }
           }
@@ -257,7 +267,7 @@ private[expr] object ExpectedTypes {
             case _ =>
           }
         }
-        res.toArray
+        res.map(typeToPair).toArray
       }
       case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
