@@ -16,20 +16,23 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.lang.StdLanguages;
-import com.intellij.openapi.editor.XmlHighlighterColors;
+import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.ex.util.LayerDescriptor;
 import com.intellij.openapi.editor.ex.util.LayeredLexerEditorHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.SCALA_XML_CONTENT;
-
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.util.ArrayUtil;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+
 
 /**
  * @author ilyas
@@ -42,7 +45,7 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
     //Register XML highlighter
     final SyntaxHighlighter xmlHighlighter = SyntaxHighlighterFactory.getSyntaxHighlighter(StdLanguages.XML, project, virtualFile);
 
-    final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", XmlHighlighterColors.HTML_TAG);
+    final LayerDescriptor xmlLayer = new LayerDescriptor(xmlHighlighter, "\n", HighlighterColors.TEXT);
     registerLayer(SCALA_XML_CONTENT, xmlLayer);
 
     final SyntaxHighlighter scaladocHighlighter = new ScalaDocSyntaxHighlighter();
@@ -55,4 +58,16 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
     return new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment);
   }
 
+  // workaround for an apparent bug in IntelliJ platform which applies
+  // the background attribute (e.g. Scaladoc Commnent) *after* the foreground attribute (e.g. Scaladoc Tag)
+  //
+  // See http://youtrack.jetbrains.net/issue/SCL-3122
+  //
+  // Either LayeredLexerEditorHighlighter#convertAttributes or LayeredLexerEditorHighlighter#Mapper#getAttributes
+  // should be fixed instead.
+  @Override
+  protected TextAttributes convertAttributes(TextAttributesKey[] keys) {
+    TextAttributesKey[] reversed = ArrayUtil.reverseArray(keys);
+    return super.convertAttributes(reversed);
+  }
 }
