@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.base.ScLiteral
-import lang.psi.api.expr.{ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
+import lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
 
 class PostfixMethodCall extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
   @Language("HTML")
@@ -25,6 +25,7 @@ It is <a href="http://twitter.com/#!/odersky/status/49882758968905728">recommend
   private def safe(pexpr: ScPostfixExpr): Boolean = {
     pexpr.getContext match {
       case _: ScParenthesisedExpr => true
+      case _: ScArgumentExprList => true
       case _ =>
         val followedBySemicolon = Option(pexpr.getNextSibling).map(_.getNode.getElementType) == Some(ScalaTokenTypes.tSEMICOLON)
         followedBySemicolon
