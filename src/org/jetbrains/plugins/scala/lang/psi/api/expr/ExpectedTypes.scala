@@ -89,6 +89,11 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       case fb: ScFinallyBlock => Array((types.Unit, None))
+      case te: ScThrowStmt =>
+        // Not in the SLS, but in the implementation.
+        val throwableClass = JavaPsiFacade.getInstance(te.getProject).findClass("java.lang.Throwable", te.getResolveScope)
+        val throwableType = if (throwableClass != null) new ScDesignatorType(throwableClass) else Any
+        Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => finalize(m)
