@@ -5,11 +5,11 @@ package postfix
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import lang.lexer.ScalaTokenTypes
-import lang.psi.api.expr.{ScParenthesisedExpr, ScPostfixExpr}
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 import lang.psi.api.base.ScLiteral
+import lang.psi.api.expr.{ScInfixExpr, ScParenthesisedExpr, ScPostfixExpr}
 
 class PostfixMethodCall extends AbstractInspection("UseOfPostfixMethodCall", "Use of postfix method call"){
   @Language("HTML")
@@ -26,7 +26,7 @@ It is <a href="http://twitter.com/#!/odersky/status/49882758968905728">recommend
     pexpr.getContext match {
       case _: ScParenthesisedExpr => true
       case _ =>
-        val followedBySemicolon = pexpr.getNextSibling.getNode.getElementType == ScalaTokenTypes.tSEMICOLON
+        val followedBySemicolon = Option(pexpr.getNextSibling).map(_.getNode.getElementType) == Some(ScalaTokenTypes.tSEMICOLON)
         followedBySemicolon
     }
   }
@@ -37,6 +37,7 @@ class AddDotFix(pexpr: ScPostfixExpr) extends AbstractFix("Add dot to method cal
     val operand = pexpr.operand
     val needParens = operand match {
       case lit: ScLiteral if lit.getText.endsWith(".") => true
+      case _: ScInfixExpr => true
       case _ => false // TODO others?
     }
     val operandText = if (needParens) "(" + operand.getText + ")" else operand.getText
