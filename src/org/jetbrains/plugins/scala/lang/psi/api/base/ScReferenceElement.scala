@@ -6,20 +6,15 @@ package base
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import _root_.scala.collection.Set
-import impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi._
-import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.openapi.util.TextRange
-import statements.{ScFunction}
-import com.intellij.openapi.progress.ProgressManager
 import refactoring.util.ScalaNamesUtil
-import java.lang.String
-import com.intellij.codeInsight.PsiEquivalenceUtil
-import toplevel.ScNamedElement
-import toplevel.templates.ScTemplateBody
-import toplevel.packaging.ScPackaging
-import toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import statements.{ScTypeAliasDefinition, ScFunction}
+import toplevel.typedef._
+import psi.types._
+import psi.impl.ScalaPsiElementFactory
+import statements.params.ScTypeParam
 
 /**
  * @author Alexander Podkhalyuzin
@@ -109,7 +104,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
                   break = true
               }
             }
-            
+
             if (!break && method.getText.contains("throw new Error()") && td.isInstanceOf[ScClass] &&
               td.asInstanceOf[ScClass].isCase) {
               ScalaPsiUtil.getCompanionModule(td) match {
@@ -130,7 +125,55 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       }
       case _ =>
     }
-    return false
+    return isIndirectReferenceTo(res, element)
+  }
+
+  /**
+   * Is `resolved` (the resolved target of this reference) itself a reference to `element`, by way of a type alias defined in a object, such as:
+   *
+   * object Predef { type Throwable = java.lang.Throwable }
+   *
+   * @see http://youtrack.jetbrains.net/issue/SCL-3132
+   */
+  private def isIndirectReferenceTo(resolved: PsiElement, element: PsiElement): Boolean = {
+    def isDefinedInObject(memb: ScMember) = memb.getContainingClass.isInstanceOf[ScObject]
+    (resolved, element) match {
+      case (_, obj: ScObject) =>
+        // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
+        false
+      case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) if isDefinedInObject(typeAlias) =>
+        if (cls.getTypeParameters.length != typeAlias.typeParameters.length) {
+          false
+        } else if (cls.hasTypeParameters) {
+          val typeParamsAreAppliedInOrderToCorrectClass = typeAlias.aliasedType.getOrElse(Any) match {
+            case pte: ScParameterizedType =>
+              val refersToClass = Equivalence.equiv(pte.designator, ScType.designator(cls))
+              val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeAlias.typeParameters) {
+                case (tpt: ScTypeParameterType, tp) if tpt.param == tp => true
+                case _ => false
+              }
+              refersToClass && typeParamsAppliedInOrder
+            case _ => false
+          }
+          val varianceAndBoundsMatch = cls match {
+            case sc: ScClass =>
+              (typeAlias.typeParameters corresponds sc.typeParameters) {
+                case (tp1, tp2) => tp1.variance == tp2.variance && tp1.upperBound == tp2.upperBound && tp1.lowerBound == tp2.lowerBound &&
+                        tp1.contextBound.isEmpty && tp2.contextBound.isEmpty && tp1.viewBound.isEmpty && tp2.viewBound.isEmpty
+              }
+            case _ => // Java class
+              (typeAlias.typeParameters corresponds cls.getTypeParameters) {
+                case (tp1, tp2) => tp1.variance == ScTypeParam.Invariant && tp1.upperTypeElement.isEmpty && tp2.getExtendsListTypes.isEmpty &&
+                        tp1.lowerTypeElement.isEmpty && tp1.contextBound.isEmpty && tp1.viewBound.isEmpty
+              }
+          }
+          typeParamsAreAppliedInOrderToCorrectClass && varianceAndBoundsMatch
+        } else {
+          val clsType = ScType.designator(cls)
+          typeAlias.typeParameters.isEmpty && Equivalence.equiv(typeAlias.aliasedType.getOrElse(return false), clsType)
+        }
+      case _ => false
+    }
   }
 
   def qualifier: Option[ScalaPsiElement]

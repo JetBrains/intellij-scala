@@ -199,7 +199,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 }
 
 object ScParameterizedType {
-  def create(c: PsiClass, s : ScSubstitutor) =
+  def create(c: PsiClass, s : ScSubstitutor): ScParameterizedType =
     new ScParameterizedType(ScType.designator(c), collection.immutable.Seq(c.getTypeParameters.map({
       tp => s subst(ScalaPsiManager.typeVariable(tp))
     }).toSeq : _*))
