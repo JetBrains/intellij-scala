@@ -4,11 +4,8 @@ package psi
 package api
 package base
 
-import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.Access
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import a.f.sc
 
 /** 
 * @author Alexander Podkhalyuzin
