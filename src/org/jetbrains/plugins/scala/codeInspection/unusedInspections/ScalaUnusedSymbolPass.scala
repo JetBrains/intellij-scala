@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.editor.Editor
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.codeInsight.daemon.impl.{HighlightInfoType, UpdateHighlightersUtil, HighlightInfo, AnnotationHolderImpl}
 import collection.mutable.Buffer
 import com.intellij.lang.annotation.{Annotation, AnnotationSession}
 import com.intellij.codeInsight.intention.IntentionAction
@@ -18,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScI
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import varCouldBeValInspection.VarCouldBeValInspection
 import com.intellij.lang.findUsages.{LanguageFindUsages, FindUsagesProvider}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -28,20 +26,33 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition, ScDeclaredElementsHolder}
 import com.intellij.psi._
+import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, HighlightDisplayKey}
+import com.intellij.codeInsight.daemon.impl._
 
 // TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
   val findUsageProvider: FindUsagesProvider = LanguageFindUsages.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE)
+  val highlightInfos = Buffer[HighlightInfo]()
 
   case class UnusedConfig(checkLocalUnused: Boolean, checkLocalAssign: Boolean)
   case class UnusedPassState(annotationHolder: AnnotationHolderImpl, annotations: Buffer[Annotation], config: UnusedConfig)
 
   def doCollectInformation(progress: ProgressIndicator) {
+    file match {
+      case sFile: ScalaFile =>
+        val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(myProject)
+        val fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
+        processScalaFile(sFile)
+      case _ =>
+    }
   }
 
   def doApplyInformationToEditor() {
     file match {
-      case sFile: ScalaFile => processScalaFile(sFile)
+      case sFile: ScalaFile =>
+        import scala.collection.JavaConversions._
+        UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength, highlightInfos, getId)
+        highlightInfos.clear()
       case _ =>
     }
   }
@@ -56,9 +67,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       case _ =>
     }
 
-    val highlightInfos = annotations.map(HighlightInfo.fromAnnotation)
-    import scala.collection.JavaConversions._
-    UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength, highlightInfos, getId)
+    highlightInfos ++= annotations.map(HighlightInfo.fromAnnotation)
   }
 
   def readConfig(sFile: ScalaFile): UnusedConfig = {

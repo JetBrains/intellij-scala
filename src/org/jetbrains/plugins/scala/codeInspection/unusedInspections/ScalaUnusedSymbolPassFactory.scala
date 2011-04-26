@@ -4,9 +4,8 @@ package unusedInspections
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
-import java.lang.String
 import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPassRegistrar, TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
-
+import com.intellij.codeInsight.daemon.impl.FileStatusMap
 
 class ScalaUnusedSymbolPassFactory(highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
         extends TextEditorHighlightingPassFactory {
@@ -16,8 +15,10 @@ class ScalaUnusedSymbolPassFactory(highlightingPassRegistrar: TextEditorHighligh
 
   def projectOpened() {}
 
-  def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass =
-    new ScalaUnusedSymbolPass(file, editor)
+  def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
+    val textRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL) // Copied from PostHighlightingPassFactory
+    if (textRange == null) null else new ScalaUnusedSymbolPass(file, editor)
+  }
 
   def initComponent() {}
 
