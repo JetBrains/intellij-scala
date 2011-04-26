@@ -226,12 +226,10 @@
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory
       </implementation-class>
     </component>
-<!-- TODO zgg do the search on doCollectInformation rather than doApplyInformationToEditor to avoid editor lockups.
     <component>
       <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory
       </implementation-class>
     </component>
--->
     <component>
       <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
     </component>
