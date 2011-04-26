@@ -80,27 +80,23 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
 
   private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
-    def addType(t: ScType): Unit = t match {
-      case ScCompoundType(comps, _, _, _) => comps.foreach{addType _}
-      case _ => buffer += t
+    def addType(t: ScType) {
+      t match {
+        case ScCompoundType(comps, _, _, _) => comps.foreach {addType _}
+        case _ => buffer += t
+      }
     }
     templateParents match {
-      case None => getParentByStub match {
-        case obj: ScObject => buffer += AnyRef
-        case _ => {
-          val so = scalaObject()
-          if (so != null) buffer += so
-          if (isUnderCaseClass) {
-            val prod = scalaProduct()
-            if (prod != null) buffer += prod
-          }
-        }
-      }
       case Some(parents: ScTemplateParents) => {
         val parentSupers: Seq[ScType] = parents.superTypes
-        val noInferValueType = getParent.isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
+        val noInferValueType = getParent().isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
         parentSupers foreach {t => addType(if (noInferValueType) t else t.inferValueType)}
       }
+      case _ =>
+    }
+    if (isUnderCaseClass) {
+      val prod = scalaProduct()
+      if (prod != null) buffer += prod
     }
     buffer.toList
   }
@@ -116,7 +112,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def isAnonymousClass: Boolean = {
-    getParent match {
+    getParent() match {
       case _: ScNewTemplateDefinition =>
       case _ => return false
     }
