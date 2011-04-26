@@ -274,7 +274,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         for (typez <- types) {
           ScType.extractClassType(typez, Some(newExpr.getProject)) match {
             case Some((clazz, subst)) =>
-              ClassInheritorsSearch.search(clazz, false).forEach(new Processor[PsiClass] {
+              ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
                 def process(clazz: PsiClass): Boolean = {
                   if (clazz.getName == null || clazz.getName == "") return true
                   val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
