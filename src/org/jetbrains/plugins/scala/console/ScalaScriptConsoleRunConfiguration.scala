@@ -58,18 +58,28 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
   val MAIN_CLASS = "org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner"
   private var javaOptions = ""
   private var consoleArgs = ""
+  private var workingDirectory = {
+    val base = getProject.getBaseDir
+    if (base != null) base.getPath
+    else ""
+  }
 
   def getJavaOptions = javaOptions
 
-  def setJavaOptions(s: String): Unit = javaOptions = s
+  def setJavaOptions(s: String) {javaOptions = s}
 
   def getConsoleArgs: String = consoleArgs
 
-  def setConsoleArgs(s: String): Unit = consoleArgs = s
+  def setConsoleArgs(s: String) {consoleArgs = s}
+
+  def getWorkingDirectory = workingDirectory
+
+  def setWorkingDirecoty(s: String) {workingDirectory = s}
 
   def apply(params: ScalaScriptConsoleRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
     setConsoleArgs(params.getConsoleArgs)
+    setWorkingDirecoty(params.getWorkingDirectory)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -102,6 +112,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[_root_.org.jetbrains.plugins.scala.compiler.rt.ConsoleRunner])
         params.getClassPath.add(rtJarPath)
+        params.setWorkingDirectory(workingDirectory)
         params.setMainClass(MAIN_CLASS)
         if (JdkUtil.useDynamicClasspath(getProject)) {
           try {
@@ -250,6 +261,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     writeModule(element)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "consoleArgs", getConsoleArgs)
+    JDOMExternalizer.write(element, "workingDirectory", getWorkingDirectory)
   }
 
   override def readExternal(element: Element): Unit = {
@@ -257,6 +269,9 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     readModule(element)
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     consoleArgs = JDOMExternalizer.readString(element, "consoleArgs")
+    val str = JDOMExternalizer.readString(element, "workingDirectory")
+    if (str != null)
+      workingDirectory = str
   }
 
   private def getClassPath(project: Project, facet: ScalaFacet): String = {

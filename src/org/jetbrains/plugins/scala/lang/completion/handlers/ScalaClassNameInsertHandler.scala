@@ -6,8 +6,8 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.{PsiDocumentManager, PsiClass}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScReferenceElement}
+import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.toplevel.imports.ScImportStmt
 
@@ -16,7 +16,7 @@ import lang.psi.api.toplevel.imports.ScImportStmt
  */
 
 class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
-  def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+  def handleInsert(context: InsertionContext, item: LookupElement) {
     val editor = context.getEditor
     val document = editor.getDocument
     val startOffset = context.getStartOffset
