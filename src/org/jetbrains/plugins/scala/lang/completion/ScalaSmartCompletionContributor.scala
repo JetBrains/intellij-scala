@@ -263,7 +263,10 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val element = parameters.getPosition
         val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
-        val types = newExpr.expectedTypes
+        val types: Array[ScType] = newExpr.expectedTypes.map(tp => tp match {
+          case ScAbstractType(_, lower, upper) => upper
+          case _ => tp
+        })
         for (typez <- types) {
           val element: LookupElement = convertType(typez, newExpr)
           if (element != null) {
