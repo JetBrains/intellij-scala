@@ -4,7 +4,7 @@ import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import quickfix.AddCallParentheses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * Pavel Fatin
@@ -27,6 +27,7 @@ its receiver object.
   def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
             !e.getParent.isInstanceOf[ScInfixExpr] &&
+            !e.getParent.isInstanceOf[ScPrefixExpr] &&
             !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
       case (f: ScFunction) if f.isEmptyParen =>
         holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
