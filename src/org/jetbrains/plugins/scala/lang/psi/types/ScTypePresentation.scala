@@ -100,6 +100,8 @@ trait ScTypePresentation {
             buffer.append(nameWithPointFun(obj)).append(refName)
             appendPointType
           }
+          case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] =>
+            inner(p); buffer.append(".").append(refName)
           case ScDesignatorType(clazz: PsiClass) if clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
                   e.isInstanceOf[PsiModifierListOwner] &&
                   e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") => {
