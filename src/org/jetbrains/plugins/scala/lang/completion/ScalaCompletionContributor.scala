@@ -18,12 +18,16 @@ import psi.api.base.ScReferenceElement
 import psi.impl.base.ScStableCodeReferenceElementImpl
 import lang.resolve.processor.CompletionProcessor
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import lang.resolve.{ScalaResolveResult, ResolveUtils}
 import psi.impl.expr.ScReferenceExpressionImpl
 import psi.impl.base.types.ScTypeProjectionImpl
 import com.intellij.codeInsight.lookup.LookupElement
 import psi.api.toplevel.imports.ScImportStmt
-;
+import psi.api.expr.ScNewTemplateDefinition
+import psi.types.ScAbstractType._
+import psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,6 +37,15 @@ import psi.api.toplevel.imports.ScImportStmt
 class ScalaCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      val expectedTypesAfterNew: Array[ScType] =
+      if (afterNewPattern.accepts(parameters.getPosition, context)) {
+        val element = parameters.getPosition
+        val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
+        newExpr.expectedTypes.map(tp => tp match {
+          case ScAbstractType(_, lower, upper) => upper
+          case _ => tp
+        })
+      } else Array.empty
       val prefix = result.getPrefixMatcher.getPrefix
       //if prefix is capitalized, class name completion is enabled
       val prefixCapitlized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
@@ -52,7 +65,11 @@ class ScalaCompletionContributor extends CompletionContributor {
                     }).booleanValue
 
                     if (!isExcluded && !prefixCapitlized) {
-                      result.addElement(el)
+                      if (afterNewPattern.accepts(parameters.getPosition, context)) {
+                        result.addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
+                      } else {
+                        result.addElement(el)
+                      }
                     }
                   }
                   case memb: PsiMember => {

@@ -12,21 +12,19 @@ import api.base.types.ScSimpleTypeElement
 import api.base.{ScConstructor, ScStableCodeReferenceElement}
 import api.statements._
 import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
-import api.toplevel.typedef.{ScClass, ScTypeDefinition, ScTrait, ScObject}
-import api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import api.toplevel.typedef.{ScTrait, ScObject}
+import api.toplevel.ScTypedDefinition
 import params.ScParameter
 import types._
 import result.TypingContext
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.patterns.{ElementPatternCondition, ElementPattern, StandardPatterns, PlatformPatterns}
+import com.intellij.patterns.{ElementPattern, StandardPatterns, PlatformPatterns}
 import com.intellij.patterns.PsiElementPattern.Capture
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import com.intellij.psi._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInsight.lookup._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import search.searches.ClassInheritorsSearch
 import com.intellij.util.{Processor, ProcessingContext}
 
@@ -36,6 +34,7 @@ import com.intellij.util.{Processor, ProcessingContext}
  */
 
 class ScalaSmartCompletionContributor extends CompletionContributor {
+  import ScalaSmartCompletionContributor._
   override def beforeCompletion(context: CompletionInitializationContext) {
 
   }
@@ -52,32 +51,21 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               result.addElement(el)
             }
           }
-          elem match {
-            case fun: ScSyntheticFunction => checkType(fun.retType)
-            case fun: ScFunction => checkType(fun.returnType.getOrElse(Any))
-            case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
-            case typed: ScTypedDefinition => for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
-            case _ =>
-          }
+          if (!el.isInstanceOf[ScalaLookupObject] || !el.asInstanceOf[ScalaLookupObject].isNamedParameter)
+            elem match {
+              case fun: ScSyntheticFunction => checkType(fun.retType)
+              case fun: ScFunction => checkType(fun.returnType.getOrElse(Any))
+              case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
+              case typed: ScTypedDefinition => for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
+              case _ =>
+            }
         }
         case _ =>
       }
     }
   }
 
-  private def superParentPattern(clazz: java.lang.Class[_ <: PsiElement]): ElementPattern[PsiElement] = {
-    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScReferenceExpression]).
-          withSuperParent(2, clazz)
-  }
 
-  private def superParentsPattern(classes: Class[_ <: PsiElement]*): ElementPattern[PsiElement] = {
-    var pattern: Capture[PsiElement] =
-      PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classes(0))
-    for (i <- 1 until classes.length) {
-      pattern = pattern.withSuperParent(i + 1, classes(i))
-    }
-    pattern
-  }
 
   /*
     ref = expr
@@ -257,9 +245,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     }
   })
 
-  extend(CompletionType.SMART, superParentsPattern(classOf[ScStableCodeReferenceElement], classOf[ScSimpleTypeElement],
-    classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition]),
-    new CompletionProvider[CompletionParameters] {
+  extend(CompletionType.SMART, afterNewPattern, new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val element = parameters.getPosition
         val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
@@ -333,6 +319,12 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       private def convertType(tp: ScType, newExpr: ScNewTemplateDefinition): LookupElement = {
         ScType.extractClassType(tp, Some(newExpr.getProject)) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
+            //filter base types (it's important for scala 2.9)
+            clazz.getQualifiedName match {
+              case "scala.Boolean" | "scala.Int" | "scala.Long" | "scala.Byte" | "scala.Short" | "scala.AnyVal" |
+                "scala.Char" | "scala.Unit" | "scala.Float" | "scala.Double" | "scala.Any" => return null
+              case _ =>
+            }
             //todo: filter inner classes smarter (how? don't forget depth inner classes)
             if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
               clazz.hasModifierProperty("static"))) return null
@@ -341,52 +333,120 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           case _ => return null
         }
       }
+    })
+}
 
-      private def getLookupElementFromClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor): LookupElement = {
-        import PresentationUtil.presentationString
-        val name: String = psiClass.getName
-        val lookupObject: ScalaLookupObject = ScalaLookupObject(psiClass, false, false)
-        tp match {
-          case ScParameterizedType(_, tps) =>
-            lookupObject.setTypeParameters(tps)
-          case _ => ""
-        }
-        var lookupBuilder: LookupElementBuilder =
-          LookupElementBuilder.create(lookupObject, name) //don't add elements to lookup
-        lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
-          def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
-            var isDeprecated = false
-            psiClass match {
-              case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
-              case _ =>
-            }
-            var tailText: String = ""
-            val itemText: String = psiClass.getName + (tp match {
-              case ScParameterizedType(_, tps) =>
-                tps.map(tp => ScType.presentableText(subst.subst(tp))).mkString("[", ", ", "]")
-              case _ => ""
-            })
-            psiClass match {
-              case clazz: PsiClass => {
-                if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
-                  psiClass.hasModifierProperty("abstract")) {
-                  tailText += " {...}"
-                }
-                val location: String = clazz.getPresentation.getLocationString
-                presentation.setTailText(tailText + " " + location, true)
+object ScalaSmartCompletionContributor {
+  def superParentPattern(clazz: java.lang.Class[_ <: PsiElement]): ElementPattern[PsiElement] = {
+    PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classOf[ScReferenceExpression]).
+          withSuperParent(2, clazz)
+  }
+
+  def superParentsPattern(classes: Class[_ <: PsiElement]*): ElementPattern[PsiElement] = {
+    var pattern: Capture[PsiElement] =
+      PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).withParent(classes(0))
+    for (i <- 1 until classes.length) {
+      pattern = pattern.withSuperParent(i + 1, classes(i))
+    }
+    pattern
+  }
+  val afterNewPattern = superParentsPattern(classOf[ScStableCodeReferenceElement], classOf[ScSimpleTypeElement],
+    classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
+
+  def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass): LookupElement = {
+    val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
+      new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+    )
+    val predefinedType =
+      if (clazz.getTypeParameters.length == 1) {
+        ScParameterizedType(ScDesignatorType(clazz), undefines)
+      }
+      else
+        ScDesignatorType(clazz)
+    val noUndefType =
+      if (clazz.getTypeParameters.length == 1) {
+        ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
+          new ScTypeParameterType(ptp, ScSubstitutor.empty)
+        ))
+      }
+      else
+        ScDesignatorType(clazz)
+
+    val tpt =
+      if (clazz.getTypeParameters.length == 1)
+        ScParameterizedType(ScDesignatorType(clazz),
+          clazz.getTypeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty))
+        )
+      else
+        ScDesignatorType(clazz)
+    val iterator = expectedTypes.iterator
+    while (iterator.hasNext) {
+      val typez = iterator.next()
+      if (predefinedType.conforms(typez)) {
+        val undef = Conformance.undefinedSubst(typez, predefinedType)
+        undef.getSubstitutor match {
+          case Some(subst) =>
+            val lookupElement = getLookupElementFromClass(subst.subst(noUndefType), clazz, ScSubstitutor.empty)
+            for (undefine <- undefines) {
+              subst.subst(undefine) match {
+                case ScUndefinedType(_) =>
+                  lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+                case _ =>
               }
-              case _ =>
             }
-            presentation.setIcon(psiClass.getIcon(0))
-            presentation.setStrikeout(isDeprecated)
-            presentation.setItemText(itemText)
-          }
+            return lookupElement
+          case _ =>
+        }
+      }
+    }
+    val lookupElement = getLookupElementFromClass(noUndefType, clazz, ScSubstitutor.empty)
+    lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+    return lookupElement
+  }
+
+  def getLookupElementFromClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor): LookupElement = {
+    val name: String = psiClass.getName
+    val lookupObject: ScalaLookupObject = ScalaLookupObject(psiClass, false, false)
+    tp match {
+      case ScParameterizedType(_, tps) =>
+        lookupObject.setTypeParameters(tps)
+      case _ =>
+    }
+    var lookupBuilder: LookupElementBuilder =
+      LookupElementBuilder.create(lookupObject, name) //don't add elements to lookup
+    lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
+      def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
+        var isDeprecated = false
+        psiClass match {
+          case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
+          case _ =>
+        }
+        var tailText: String = ""
+        val itemText: String = psiClass.getName + (tp match {
+          case ScParameterizedType(_, tps) =>
+            tps.map(tp => ScType.presentableText(subst.subst(tp))).mkString("[", ", ", "]")
+          case _ => ""
         })
-        var lookupElement: LookupElement = lookupBuilder
-        if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
-          psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
-          lookupElement = AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
-        LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
+        psiClass match {
+          case clazz: PsiClass => {
+            if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
+              psiClass.hasModifierProperty("abstract")) {
+              tailText += " {...}"
+            }
+            val location: String = clazz.getPresentation.getLocationString
+            presentation.setTailText(tailText + " " + location, true)
+          }
+          case _ =>
+        }
+        presentation.setIcon(psiClass.getIcon(0))
+        presentation.setStrikeout(isDeprecated)
+        presentation.setItemText(itemText)
       }
     })
+    var lookupElement: LookupElement = lookupBuilder
+    if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
+      psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
+      lookupElement = AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
+    LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
+  }
 }
