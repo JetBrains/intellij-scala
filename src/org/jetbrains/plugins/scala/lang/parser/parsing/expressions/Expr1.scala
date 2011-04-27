@@ -143,41 +143,35 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH => {
             builder.advanceLexer //Ate catch
-            builder.getTokenType match {
+            val openToken = builder.getTokenType
+            openToken match {
               case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS => {
-                val openToken = builder.getTokenType
-                builder.advanceLexer //Ate }
-                val marker = builder.mark
+                builder.advanceLexer //Ate {
+                if (openToken == ScalaTokenTypes.tLBRACE) {
+                  builder.enableNewlines
+                }
                 val isRef = Path parse (builder, ScalaElementTypes.REFERENCE_EXPRESSION)
                 (openToken, isRef) match {
                   case (ScalaTokenTypes.tLPARENTHESIS, true) =>
-                    marker.drop
                     builder.getTokenType match {
                       case ScalaTokenTypes.tRPARENTHESIS =>
                         builder.advanceLexer
                       case _ =>
                         builder error ErrMsg("rparenthesis.expected")
                     }
-
                   case (ScalaTokenTypes.tLBRACE, true) =>
-                    marker.drop
-                    builder.getTokenType match {
-                      case ScalaTokenTypes.tRBRACE =>
-                        builder.advanceLexer
-                      case _ =>
-                        builder error ErrMsg("rbrace.expected")
-                    }
+                    ParserUtils.parseLoopUntilRBrace(builder, () => {})
+                    builder.restoreNewlinesState
+
                   case (ScalaTokenTypes.tLPARENTHESIS, false) =>
-                    marker.drop
                     builder error ErrMsg("wrong.qual.identifier")
                   case (ScalaTokenTypes.tLBRACE, false) =>
-                    marker.rollbackTo
-                    builder.enableNewlines
                     def foo() {
                       if (!CaseClauses.parse(builder)) {
                         builder error ErrMsg("case.clauses.or.qualified.reference.expected")
                       }
                     }
+
                     ParserUtils.parseLoopUntilRBrace(builder, foo _)
                     builder.restoreNewlinesState
                 }
