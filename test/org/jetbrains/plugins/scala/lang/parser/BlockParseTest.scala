@@ -1,0 +1,150 @@
+package org.jetbrains.plugins.scala.lang.parser
+
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi.{PsiFileFactory, PsiElement}
+import com.intellij.psi.impl.source.DummyHolderFactory
+import parsing.builder.ScalaPsiBuilderImpl
+import com.intellij.lang.PsiBuilderFactory
+import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.ScalaFileType
+import parsing.expressions.BlockExpr
+import parsing.statements.Dcl
+import com.intellij.psi.impl.source.tree.{TreeElement, FileElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueDeclaration, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import junit.framework.Assert
+
+/**
+ * @author Alexander Podkhalyuzin
+ */
+
+class BlockParseTest extends SimpleTestCase {
+  def parseBlock(s: String): PsiElement = {
+    val fileFactory = PsiFileFactory.getInstance(fixture.getProject)
+    val context = parseText("")
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilderImpl = new ScalaPsiBuilderImpl(
+      PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder, new ScalaLexer,
+        ScalaFileType.SCALA_LANGUAGE, s)
+    )
+    BlockExpr.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    node.getPsi
+  }
+
+  def doTest(s: String) {
+    val elem = parseBlock(s)
+    Assert.assertEquals(s, elem.getText)
+  }
+
+  def testBlock() {
+    doTest(
+"""{
+  val a = new df
+  val agaga =  agadg+"/"+aa
+  val agd = try {
+    ag.agd.adgasdg(asgadg, false, ag)
+  } catch {
+    d:
+  }
+  val adg = asdgasdg(adgasdg.asdg(asdg))
+  asdg.asdg.adsg(asdgasdg,-1)
+  asdg
+}"""
+    )
+  }
+
+  def testBlock2() {
+    doTest(
+"""{
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+    if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
+    IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
+    val entityType = ref.getParent match {
+      case call: ScMethodCall => call.expectedType.map(_.presentableText)
+      case _ => ref.expectedType.map(_.presentableText)
+    }
+    val parameters:
+    inWriteAction {
+      val place = if (ref.qualifier.isDefined) anchorForQualified(ref) else anchorForUnqualified(ref)
+      for (anchor <- place; holder <- anchor.parent) {
+        val placeholder = if (entityType.isDefined) "%s %s%s: Int" else "%s %s%s"
+        val text = placeholder.format(keyword, ref.nameId.getText, parameters.mkString)
+        val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
+        if (ref.qualifier.isEmpty)
+          holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
+        val builder = new TemplateBuilderImpl(entity)
+        for (aType <- entityType;
+             typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
+          builder.replaceElement(typeElement, aType)
+        }
+        entity.depthFirst.filterByType(classOf[ScParameter]).foreach { parameter =>
+          val id = parameter.getNameIdentifier
+          builder.replaceElement(id, id.getText)
+          parameter.paramType.foreach { it =>
+            builder.replaceElement(it, it.getText)
+          }
+        }
+        CodeInsightUtilBase.forcePsiPostprocessAndRestoreElement(entity)
+        val template = builder.buildTemplate()
+        val targetFile = entity.getContainingFile
+        val newEditor = positionCursor(project, targetFile, entity.getLastChild)
+        val range = entity.getTextRange
+        newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
+        TemplateManager.getInstance(project).startTemplate(newEditor, template)
+      }
+    }
+}"""
+    )
+
+
+  }
+
+  def testBlock3() {
+      doTest(
+"""{
+      var asdga = adf
+      val adf = """"" + """"
+        gads P { fasdf A, B; }
+      """"" + """"
+      val a = adga(adfad, 'A)
+      val b = adga(fadsfa, 'B)
+
+      case class ->(asdfad: Symbol, adfasd: Any)
+      implicit def adsfasdf(adfad: ->):
+      adsgadsf {
+        actor { adsgasdfa(a,b) }
+        actor {
+          adfada.adsfad { sadsfasdf =>
+            sdasfasd ! 'B -> ('label, 42, "foo")
+          }
+        }
+        bdfasdf.asdfas { sasdfasdf =>
+          sasdfasdfa.receive('A,'B) {
+            case ('A, ('label, i, str)) => asdfasdf = true
+            case 'B -> (i:Int) =>
+          }
+        }
+      }
+
+      assert(adsfadsf, "")
+    }"""
+      )
+    }
+
+    def testBlock4() {
+      doTest(
+"""{
+    val asdfadf = fadfad.:
+    fadfa {
+      dafsdfa {
+        case 'take => asdfasd(asdfadf)
+      }
+    }
+  }"""
+      )
+    }
+}

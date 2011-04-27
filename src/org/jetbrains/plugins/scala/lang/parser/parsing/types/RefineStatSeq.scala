@@ -24,7 +24,7 @@ object RefineStatSeq {
         case _ => {
           if (!RefineStat.parse(builder)) {
             builder error ScalaBundle.message("wrong.top.statment.declaration")
-            builder.advanceLexer
+            return
           }
           else {
             builder.getTokenType match {
