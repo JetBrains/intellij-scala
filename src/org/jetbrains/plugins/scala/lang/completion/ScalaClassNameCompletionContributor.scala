@@ -17,9 +17,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPatte
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
-  def completeClassName(parameters: CompletionParameters, result: CompletionResultSet): Boolean = {
+  import ScalaSmartCompletionContributor._
+  def completeClassName(parameters: CompletionParameters, context: ProcessingContext,
+                        result: CompletionResultSet): Boolean = {
+    val expectedTypesAfterNew: Array[ScType] =
+      if (afterNewPattern.accepts(parameters.getPosition, context)) {
+        val element = parameters.getPosition
+        val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
+        newExpr.expectedTypes.map(tp => tp match {
+          case ScAbstractType(_, lower, upper) => upper
+          case _ => tp
+        })
+      } else Array.empty
     val insertedElement: PsiElement = parameters.getPosition
     if (!insertedElement.getContainingFile.isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(insertedElement)
@@ -48,7 +62,13 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
             for {
               (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
                 isClassName = true, isInImport = isInImport)
-            } result.addElement(el)
+            } {
+              if (afterNewPattern.accepts(parameters.getPosition, context)) {
+                result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass))
+              } else {
+                result.addElement(el)
+              }
+            }
           }
           //todo: filter according to position
           ScalaPsiUtil.getCompanionModule(psiClass) match {
@@ -62,9 +82,9 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
   }
 
   extend(CompletionType.CLASS_NAME, psiElement, new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, matchingContext: ProcessingContext,
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet) {
-      if (completeClassName(parameters, result)) return
+      if (completeClassName(parameters, context, result)) return
       result.stopHere()
     }
   })
@@ -73,7 +93,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val prefix = result.getPrefixMatcher.getPrefix
       if (prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)) {
-        completeClassName(parameters, result)
+        completeClassName(parameters, context, result)
       }
     }
   })
