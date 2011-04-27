@@ -33,6 +33,9 @@ import psi.api.toplevel.imports.ScImportStmt
 class ScalaCompletionContributor extends CompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      val prefix = result.getPrefixMatcher.getPrefix
+      //if prefix is capitalized, class name completion is enabled
+      val prefixCapitlized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
@@ -48,7 +51,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                       }
                     }).booleanValue
 
-                    if (!isExcluded) {
+                    if (!isExcluded && !prefixCapitlized) {
                       result.addElement(el)
                     }
                   }
