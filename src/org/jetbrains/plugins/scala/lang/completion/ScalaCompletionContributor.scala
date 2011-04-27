@@ -25,9 +25,9 @@ import psi.impl.base.types.ScTypeProjectionImpl
 import com.intellij.codeInsight.lookup.LookupElement
 import psi.api.toplevel.imports.ScImportStmt
 import psi.api.expr.ScNewTemplateDefinition
-import psi.types.ScAbstractType._
 import psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,9 +46,8 @@ class ScalaCompletionContributor extends CompletionContributor {
           case _ => tp
         })
       } else Array.empty
-      val prefix = result.getPrefixMatcher.getPrefix
       //if prefix is capitalized, class name completion is enabled
-      val prefixCapitlized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
+      val classNameCompletion = shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)
       parameters.getPosition.getParent match {
         case ref: ScReferenceElement => {
           val isInImport = ScalaPsiUtil.getParentOfType(ref, classOf[ScImportStmt]) != null
@@ -64,7 +63,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                       }
                     }).booleanValue
 
-                    if (!isExcluded && !prefixCapitlized) {
+                    if (!isExcluded && !classNameCompletion) {
                       if (afterNewPattern.accepts(parameters.getPosition, context)) {
                         result.addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz))
                       } else {

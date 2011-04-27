@@ -3,6 +3,7 @@ package lang
 package completion
 
 import psi._
+import api.base.ScReferenceElement
 import psi.api.base.patterns.ScCaseClause
 import psi.api.expr.ScBlock
 import psi.api.ScalaFile
@@ -21,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
+import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
 
-/** 
+/**
 * User: Alexander Podkhalyuzin
 * Date: 21.05.2008.
 */
@@ -168,5 +170,18 @@ object ScalaCompletionUtil {
       if (checkErrors(child)) return true
     }
     return false
+  }
+
+  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {
+    val element = parameters.getPosition
+    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      element.getParent match {
+        case ref: ScReferenceElement if ref.qualifier != None => return false
+        case _ =>
+      }
+    }
+    val prefix = prefixMatcher.getPrefix
+    val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
+    capitalized || parameters.relaxMatching()
   }
 }
