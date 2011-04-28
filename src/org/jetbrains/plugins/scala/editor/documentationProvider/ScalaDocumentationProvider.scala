@@ -27,6 +27,7 @@ import com.intellij.openapi.project.IndexNotReadyException
 import lang.psi.{PresentationUtil, ScalaPsiUtil}
 import org.apache.commons.lang.StringEscapeUtils
 import lang.resolve.ResolveUtils.ScalaLookupObject
+import lang.psi.api.base.patterns.ScBindingPattern
 
 /**
  * User: Alexander Podkhalyuzin
@@ -56,6 +57,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
               || ScalaPsiUtil.nameContext(value).isInstanceOf[ScVariable] => generateValueInfo(value)
       case alias: ScTypeAlias => generateTypeAliasInfo(alias)
       case parameter: ScParameter => generateParameterInfo(parameter)
+      case b: ScBindingPattern => generateBindingPatternInfo(b)
       case _ => null
     }
   }
@@ -164,6 +166,13 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         buffer.append(parseDocComment(typez))
         return "<html><body>" + buffer.toString + "</body></html>"
       }
+      case pattern: ScBindingPattern =>
+        val buffer: StringBuilder = new StringBuilder("")
+        buffer.append("<PRE>")
+        buffer.append("Pattern: ")
+        buffer.append("<b>" + escapeHtml(pattern.name) + "</b>")
+        buffer.append(parseType(pattern, ScType.urlText(_)))
+        return "<html><body>" + buffer.toString + "</body></html>"
       case _ =>
     }
     null
@@ -378,8 +387,8 @@ object ScalaDocumentationProvider {
   private def getDocedElement(originalElement: PsiElement): PsiElement = {
     originalElement match {
       case null => null
-      case _:ScTypeDefinition | _: ScTypeAlias | _: ScValue
-              | _: ScVariable | _: ScFunction | _: ScParameter => originalElement
+      case _: ScTypeDefinition | _: ScTypeAlias | _: ScValue
+              | _: ScVariable | _: ScFunction | _: ScParameter | _: ScBindingPattern => originalElement
       case _ => getDocedElement(originalElement.getParent)
     }
   }
@@ -501,6 +510,16 @@ object ScalaDocumentationProvider {
         }
       }
     }
+    buffer.toString
+  }
+
+  def generateBindingPatternInfo(binding: ScBindingPattern): String = {
+    val buffer = new StringBuilder
+    buffer.append("Pattern: ")
+    buffer.append(binding.name)
+    val typez = binding.getType(TypingContext.empty).getOrElse(Any)
+    if (typez != null) buffer.append(": " + ScType.presentableText(typez))
+
     buffer.toString
   }
 
