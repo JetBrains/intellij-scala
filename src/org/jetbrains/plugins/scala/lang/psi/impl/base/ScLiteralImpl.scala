@@ -156,6 +156,11 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     case _ => false
   }
 
+  def isMultiLineString = getFirstChild.getNode.getElementType match {
+    case ScalaTokenTypes.tMULTILINE_STRING => true
+    case _ => false
+  }
+
   @NotNull override def getReferences: Array[PsiReference] = {
     return PsiReferenceService.getService.getContributedReferences(this)
   }

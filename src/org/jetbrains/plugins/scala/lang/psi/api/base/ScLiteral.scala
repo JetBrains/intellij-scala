@@ -14,4 +14,5 @@ import com.intellij.psi.{PsiLiteral, PsiLanguageInjectionHost}
 
 trait ScLiteral extends ScExpression with PsiLiteral with PsiLanguageInjectionHost {
   def isString: Boolean
+  def isMultiLineString: Boolean
 }
