@@ -49,6 +49,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
+    if (!ref.isValid) return
 
     if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
 
