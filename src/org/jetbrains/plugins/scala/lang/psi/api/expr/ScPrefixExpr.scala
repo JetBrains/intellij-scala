@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import java.lang.UnsupportedOperationException
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,5 +15,7 @@ trait ScPrefixExpr extends ScExpression {
   def operand = findChildrenByClassScala(classOf[ScExpression]).apply(1)
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
     case re : ScReferenceExpression => re
+    case _ =>
+      throw new UnsupportedOperationException("Prefix Expr Operation is not reference expression: " + this.getText)
   }
 }
