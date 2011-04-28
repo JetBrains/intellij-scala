@@ -368,7 +368,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     while (implPIterator.hasNext) {
       val implP = implPIterator.next()
       ProgressManager.checkCanceled()
-      val pack = JavaPsiFacade.getInstance(getProject).findPackage(implP)
+      val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
       if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
     }
 

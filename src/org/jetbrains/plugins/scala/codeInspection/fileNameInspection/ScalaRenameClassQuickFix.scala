@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.refactoring.{RefactoringFactory, RefactoringActionHandlerFactory}
 import java.lang.String
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.application.ApplicationManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -16,7 +17,11 @@ import lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 class ScalaRenameClassQuickFix(clazz: ScTypeDefinition, name: String) extends LocalQuickFix {
   def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    RefactoringFactory.getInstance(project).createRename(clazz, name).run
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      def run() {
+        RefactoringFactory.getInstance(project).createRename(clazz, name).run
+      }
+    })
   }
 
   def getName: String = "Rename Type Definition " + clazz.getName + " to " + name
