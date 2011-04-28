@@ -28,45 +28,45 @@ import org.jetbrains.annotations.NonNls;
 public class DefaultHighlighter {
   // Comments
   @NonNls
-  static final String LINE_COMMENT_ID = "Line comment";
+  static final String LINE_COMMENT_ID = "Scala Line comment";
   @NonNls
-  static final String BLOCK_COMMENT_ID = "Block comment";
+  static final String BLOCK_COMMENT_ID = "Scala Block comment";
   @NonNls
-  static final String KEYWORD_ID = "Keyword";
+  static final String KEYWORD_ID = "Scala Keyword";
   @NonNls
   static final String NUMBER_ID = "Scala Number";
   @NonNls
   static final String STRING_ID = "Scala String";
   @NonNls
-  static final String VALID_STRING_ESCAPE_ID = "Valid escape in string";
+  static final String VALID_STRING_ESCAPE_ID = "Scala Valid escape in string";
   @NonNls
-  static final String INVALID_STRING_ESCAPE_ID = "Invalid escape in string";
+  static final String INVALID_STRING_ESCAPE_ID = "Scala Invalid escape in string";
   @NonNls
-  static final String BRACKETS_ID = "Brackets";
+  static final String BRACKETS_ID = "Scala Brackets";
   @NonNls
   static final String BRACES_ID = "Scala Braces";
   @NonNls
-  static final String COLON_ID = "Colon";
+  static final String COLON_ID = "Scala Colon";
   @NonNls
   static final String PARENTHESES_ID = "Scala Parentheses";
   @NonNls
-  static final String ASSIGN_ID = "Assign";
+  static final String ASSIGN_ID = "Scala Assign";
   @NonNls
-  static final String SEMICOLON_ID = "Semicolon";
+  static final String SEMICOLON_ID = "Scala Semicolon";
   @NonNls
-  static final String DOT_ID = "Dot";
+  static final String DOT_ID = "Scala Dot";
   @NonNls
-  static final String COMMA_ID = "Comma";
+  static final String COMMA_ID = "Scala Comma";
   @NonNls
-  static final String TYPEPARAM_ID = "Type parameter";
+  static final String TYPEPARAM_ID = "Scala Type parameter";
   @NonNls
-  static final String PREDEF_ID = "Predefined types";
+  static final String PREDEF_ID = "Scala Predefined types";
   @NonNls
-  static final String OBJECT_ID = "Object";
+  static final String OBJECT_ID = "Scala Object";
   @NonNls
-  static final String CLASS_ID = "Class";
+  static final String CLASS_ID = "Scala Class";
   @NonNls
-  static final String BAD_CHARACTER_ID = "Bad character";
+  static final String BAD_CHARACTER_ID = "Scala Bad character";
   @NonNls
   static final String DOC_COMMENT_ID = "ScalaDoc comment";
   @NonNls
@@ -74,39 +74,39 @@ public class DefaultHighlighter {
   @NonNls
   static final String SCALA_DOC_MARKUP_ID = "ScalaDoc comment markup";
   @NonNls
-  static final String ABSTRACT_CLASS_ID = "Abstract class";
+  static final String ABSTRACT_CLASS_ID = "Scala Abstract class";
   @NonNls
-  static final String TRAIT_ID = "Trait";
+  static final String TRAIT_ID = "Scala Trait";
   @NonNls
-  static final String LOCAL_VALUES_ID = "Local value";
+  static final String LOCAL_VALUES_ID = "Scala Local value";
   @NonNls
-  static final String LOCAL_VARIABLES_ID = "Local variable";
+  static final String LOCAL_VARIABLES_ID = "Scala Local variable";
   @NonNls
-  static final String LOCAL_LAZY_ID = "Local lazy val/var";
+  static final String LOCAL_LAZY_ID = "Scala Local lazy val/var";
   @NonNls
-  static final String VALUES_ID = "Template val";
+  static final String VALUES_ID = "Scala Template val";
   @NonNls
-  static final String VARIABLES_ID = "Template var";
+  static final String VARIABLES_ID = "Scala Template var";
   @NonNls
-  static final String LAZY_ID = "Template lazy val/var";
+  static final String LAZY_ID = "Scala Template lazy val/var";
   @NonNls
-  static final String PARAMETER_ID = "Parameter";
+  static final String PARAMETER_ID = "Scala Parameter";
   @NonNls
-  static final String METHOD_CALL_ID = "Class method call";
+  static final String METHOD_CALL_ID = "Scala Class method call";
   @NonNls
-  static final String OBJECT_METHOD_CALL_ID = "Object method call";
+  static final String OBJECT_METHOD_CALL_ID = "Scala Object method call";
   @NonNls
-  static final String LOCAL_METHOD_CALL_ID = "Local method call";
+  static final String LOCAL_METHOD_CALL_ID = "Scala Local method call";
   @NonNls
-  static final String METHOD_DECLARATION_ID = "Method declaration";
+  static final String METHOD_DECLARATION_ID = "Scala Method declaration";
   @NonNls
-  static final String ANNOTATION_ID = "Annotation name";
+  static final String ANNOTATION_ID = "Scala Annotation name";
   @NonNls
-  static final String ANNOTATION_ATTRIBUTE_ID = "Annotation attribute name";
+  static final String ANNOTATION_ATTRIBUTE_ID = "Scala Annotation attribute name";
   @NonNls
-  static final String PATTERN_ID = "Pattern value";
+  static final String PATTERN_ID = "Scala Pattern value";
   @NonNls
-  static final String TYPE_ALIAS_ID = "Type Alias";
+  static final String TYPE_ALIAS_ID = "Scala Type Alias";
 
   public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, SyntaxHighlighterColors.LINE_COMMENT);
   public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, SyntaxHighlighterColors.JAVA_BLOCK_COMMENT);
