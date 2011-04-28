@@ -70,6 +70,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_BRACE_METHOD_CALL = true;
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
 
+  public boolean USE_SCALADOC2_FORMATTING = true;
+
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
 

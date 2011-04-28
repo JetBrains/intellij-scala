@@ -144,6 +144,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_TYPE_COLON", "Space before colon, after declarations' name",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("USE_SCALADOC2_FORMATTING", "Use formatting for ScalaDoc2 options",
+        CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }

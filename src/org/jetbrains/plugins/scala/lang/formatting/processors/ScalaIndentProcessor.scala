@@ -29,7 +29,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val node = parent.getNode
     if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
-                child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) return Indent.getSpaceIndent(1)
+                child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) {
+      if (scalaSettings.USE_SCALADOC2_FORMATTING) return Indent.getSpaceIndent(2)
+      else return Indent.getSpaceIndent(1)
+    }
     if ((node.getElementType == ScalaTokenTypes.kIF || node.getElementType == ScalaTokenTypes.kELSE) &&
          parent.myLastNode != null) {
       child.getPsi match {
