@@ -23,7 +23,7 @@ abstract class LibraryData(protected val delegate: Library, name: String,
   private def jars: Seq[File] = files.filter(_.getName.startsWith(prefix))
   
   def problem: Option[String] = {
-    if(jar.isEmpty) 
+    if(jar.isEmpty)
       return Some("no %s*.jar found".format(prefix))
 
     if(jars.size > 1) 

@@ -65,8 +65,6 @@ public class ScalaLoader implements ApplicationComponent {
   }
 
   public static void loadScala() {
-    /*CompletionUtil.registerCompletionData(ScalaFileType.SCALA_FILE_TYPE,
-            ScalaToolsFactory.getInstance().createScalaCompletionData());*/
     ChangeUtil.registerCopyHandler(new ScalaChangeUtilSupport());
 
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
@@ -77,18 +75,8 @@ public class ScalaLoader implements ApplicationComponent {
         ScalaUnusedImportsPassFactory unusedImportPassFactory = project.getComponent(ScalaUnusedImportsPassFactory.class);
         registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
 
-        ScalaUnusedSymbolPassFactory unusedSymbolPassFactory = project.getComponent(ScalaUnusedSymbolPassFactory.class);
-        registrar.registerTextEditorHighlightingPass(unusedSymbolPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
-
-
         CompilerManager compilerManager = CompilerManager.getInstance(project);
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
-
-//      Use after Scala 2.7.2
-//        HashSet<FileType> inputSet = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
-//        HashSet<FileType> outputSet = new HashSet<FileType>(Arrays.asList(StdFileTypes.JAVA, StdFileTypes.CLASS));
-//        compilerManager.addTranslatingCompiler(new ScalaCompiler(project), inputSet, outputSet);
-//        compilerManager.addCompiler(new ScalaCompiler(project));
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
         DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
