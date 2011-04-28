@@ -18,15 +18,16 @@ import api.statements.{ScVariableDefinition, ScAnnotationsHolder, ScPatternDefin
 import api.base.{ScReferenceElement, ScLiteral}
 import api.expr.{ScArgumentExprList, ScMethodCall, ScAssignStmt, ScAnnotation}
 import api.base.patterns.ScReferencePattern
-import com.intellij.psi.{PsiAnnotationOwner, PsiElement, PsiLanguageInjectionHost, JavaPsiFacade}
 import api.statements.params.ScParameter
+import com.intellij.psi._
+import org.jetbrains.annotations.NotNull
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
 
-class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral{
+class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral with ContributedReferenceHost {
   override def toString: String = "Literal"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -153,5 +154,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   def isString = getFirstChild.getNode.getElementType match {
     case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tSTRING => true
     case _ => false
+  }
+
+  @NotNull override def getReferences: Array[PsiReference] = {
+    return PsiReferenceService.getService.getContributedReferences(this)
   }
 }
