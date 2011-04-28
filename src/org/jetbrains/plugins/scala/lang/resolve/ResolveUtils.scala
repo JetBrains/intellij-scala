@@ -60,8 +60,11 @@ object ResolveUtils {
               }
             }
             case patt: ScBindingPattern => {
-              if (patt.getParent /*list of ids*/ .getParent.isInstanceOf[ScVariable])
-                kinds contains VAR else kinds contains VAL
+              val parent = ScalaPsiUtil.getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
+              parent match {
+                case x: ScVariable => kinds contains VAR
+                case _ => kinds contains VAL
+              }
             }
             case patt: ScFieldId => {
               if (patt.getParent /*list of ids*/ .getParent.isInstanceOf[ScVariable])
