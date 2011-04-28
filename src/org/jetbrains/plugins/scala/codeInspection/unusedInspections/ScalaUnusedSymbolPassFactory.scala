@@ -6,17 +6,19 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPassRegistrar, TextEditorHighlightingPass, TextEditorHighlightingPassFactory}
 import com.intellij.codeInsight.daemon.impl.FileStatusMap
+import com.intellij.openapi.project.Project
 
-class ScalaUnusedSymbolPassFactory(highlightingPassRegistrar: TextEditorHighlightingPassRegistrar)
+class ScalaUnusedSymbolPassFactory(project: Project)
         extends TextEditorHighlightingPassFactory {
-  highlightingPassRegistrar.registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL), null, false, -1)
+  TextEditorHighlightingPassRegistrar.getInstance(project).
+    registerTextEditorHighlightingPass(this, Array[Int](Pass.LOCAL_INSPECTIONS), null, false, -1)
 
   def projectClosed() {}
 
   def projectOpened() {}
 
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    val textRange = FileStatusMap.getDirtyTextRange(editor, Pass.UPDATE_ALL) // Copied from PostHighlightingPassFactory
+    val textRange = FileStatusMap.getDirtyTextRange(editor, Pass.LOCAL_INSPECTIONS) // Copied from PostHighlightingPassFactory
     if (textRange == null) null else new ScalaUnusedSymbolPass(file, editor)
   }
 
