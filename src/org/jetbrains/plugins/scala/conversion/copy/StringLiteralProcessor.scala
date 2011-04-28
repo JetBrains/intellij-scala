@@ -36,7 +36,7 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
               && rawText != null && rawText.rawText != null) {
           rawText.rawText
       } else if (elementType == ScalaTokenTypes.tSTRING) {
-        LineTokenizer.tokenize(text.toCharArray, false, true).mkString("\\n")
+        LineTokenizer.tokenize(text.toCharArray, false, true).map(line => StringUtil.escapeStringCharacters(line)).mkString("\\n")
       } else {
         text
       }
