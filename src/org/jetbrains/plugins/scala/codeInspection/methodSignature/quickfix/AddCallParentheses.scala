@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.codeInspection.AbstractFix
 
 class AddCallParentheses(e: ScReferenceExpression) extends AbstractFix("Add call parentheses", e) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    if (!e.isValid) return
     val text = "%s()".format(e.getText)
     val call = ScalaPsiElementFactory.createExpressionFromText(text, e.getManager)
     e.replace(call)
