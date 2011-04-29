@@ -182,6 +182,6 @@ object ScalaCompletionUtil {
     }
     val prefix = prefixMatcher.getPrefix
     val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
-    capitalized || parameters.isRelaxedMatching()
+    capitalized || parameters.isRelaxedMatching
   }
 }
