@@ -32,7 +32,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
 
     if(!settings.INCLUDE_BLOCK_EXPRESSIONS && exp.isInstanceOf[ScBlockExpr]) return
 
-    val parameter = ScalaPsiUtil.parameterOf(exp).orElse(conversionParameterOf(exp))
+    val parameter = ScalaPsiUtil.parameterOf(exp)//.orElse(conversionParameterOf(exp))
 
     parameter.filter(_.isByName).foreach { p =>
       val attributes = new TextAttributes()
