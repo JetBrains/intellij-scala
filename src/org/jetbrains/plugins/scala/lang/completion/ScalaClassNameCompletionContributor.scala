@@ -9,18 +9,17 @@ import com.intellij.psi.PsiClass
 import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScClass}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ResolveUtils}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaSmartCompletionContributor._
@@ -90,7 +89,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
     }
   })
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER), new CompletionProvider[CompletionParameters] {
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
         completeClassName(parameters, context, result)
