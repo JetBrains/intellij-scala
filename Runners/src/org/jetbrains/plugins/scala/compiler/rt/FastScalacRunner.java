@@ -57,7 +57,12 @@ public class FastScalacRunner {
 
     try {
       Class<?> scalacMain = Class.forName(FSC_QUALIFIED_NAME);
-      Method method = scalacMain.getMethod("main0", String[].class);
+      Method method;
+      try {
+        method = scalacMain.getMethod("main0", String[].class); // Scala 2.8
+      } catch (NoSuchMethodException e){
+        method = scalacMain.getMethod("process", String[].class); // Scala 2.9
+      }
       method.invoke(null, ((Object) scalacArgs.toArray(new String[scalacArgs.size()])));
     }
     catch (Throwable e) {
