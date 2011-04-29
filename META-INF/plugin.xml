@@ -199,6 +199,14 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.literal.StringToMultilineStringIntention</className>
     </intentionAction>
 
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.ArgumentToBlockExpressionIntention</className>
+    </intentionAction>
+
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.argument.BlockExpressionToArgumentIntention</className>
+    </intentionAction>
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 
