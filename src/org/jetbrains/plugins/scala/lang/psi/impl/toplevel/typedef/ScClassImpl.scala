@@ -6,7 +6,6 @@ package toplevel
 package typedef
 
 import api.base.{ScPrimaryConstructor, ScModifierList}
-import api.statements.params.ScTypeParamClause
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.util.ArrayFactory
 import psi.stubs.elements.wrappers.DummyASTNode
@@ -35,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
+import api.statements.params.{ScClassParameter, ScTypeParamClause}
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -65,7 +65,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   def parameters = constructor match {
-    case Some(c) => c.parameters
+    case Some(c) => c.parameters ++ c.syntheticParamClause.map(_.parameters.asInstanceOf[Seq[ScClassParameter]]).getOrElse(Seq())
     case None => Seq.empty
   }
 

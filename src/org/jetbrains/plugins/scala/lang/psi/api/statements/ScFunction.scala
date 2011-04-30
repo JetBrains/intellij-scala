@@ -210,6 +210,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
 
+  def syntheticParamClause: Option[ScParameterClause] = ScalaPsiUtil.syntheticParamClause(this, paramClauses, classParam = false)
+
   def declaredElements = Seq(this)
 
   def superMethods: Seq[PsiMethod]

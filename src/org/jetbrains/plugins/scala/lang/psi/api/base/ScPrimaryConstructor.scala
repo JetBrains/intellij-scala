@@ -55,6 +55,8 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
 
   def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameters.head
 
+  def syntheticParamClause: Option[ScParameterClause] = ScalaPsiUtil.syntheticParamClause(getParent.asInstanceOf[ScTypeDefinition], parameterList, classParam = true)
+
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
     val clauses = parameters.clauses

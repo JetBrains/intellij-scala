@@ -5,9 +5,9 @@ package psi
 import api.base._
 import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
 import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
-import api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
+import api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
 import api.{ScPackageLike, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
@@ -1115,4 +1115,34 @@ object ScalaPsiUtil {
       case _ => false
     }
   }
+
+  /** Creates a synthetic parameter clause based on view and context bounds */
+  def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
+    var i = 0
+    def nextName(): String = {
+      i += 1
+      "evidence$" + i
+    }
+    def synthParams(typeParam: ScTypeParam): Seq[String] = {
+      val views = typeParam.viewTypeElement.toSeq.map {
+        vte => "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name(), vte.getText)
+      }
+      val bounds = typeParam.contextBoundTypeElement.map {
+        cbte => "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name())
+      }
+      views ++ bounds
+    }
+    val params = paramOwner.typeParameters.flatMap(synthParams)
+    val clauseText = params.mkString(",")
+    if (params.isEmpty) None
+    else {
+      val fullClauseText: String = "(implicit " + clauseText + ")"
+      val paramClause: ScParameterClause = {
+        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+      }
+      Some(paramClause)
+    }
+  }
+
 }
