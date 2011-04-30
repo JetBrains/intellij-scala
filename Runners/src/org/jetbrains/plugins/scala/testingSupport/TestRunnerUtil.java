@@ -18,7 +18,9 @@ public class TestRunnerUtil {
 
   public static String actualExpectedAttrs(String actual, String expected) {
     String actualExpectedAttrs;
-    actualExpectedAttrs = " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
+//    actualExpectedAttrs = " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
+    // Workaround for http://youtrack.jetbrains.net/issue/IDEA-69058
+    actualExpectedAttrs = " expected='" + escapeString(actual) + "' actual='" + escapeString(expected) + "' ";
     return actualExpectedAttrs;
   }
 
