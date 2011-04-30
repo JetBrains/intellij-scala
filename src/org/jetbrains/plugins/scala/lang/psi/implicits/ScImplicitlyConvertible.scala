@@ -162,6 +162,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               case _ => (Nothing, Nothing)
             }
           }
+          case obj: ScObject => {
+            Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).get)).
+                    getSubstitutor match {
+              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case _ => (Nothing, Nothing)
+            }
+          }
         }
         val newSubst = r.element match {
           case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
@@ -227,7 +234,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
 
   import ResolveTargets._
-  private class CollectImplicitsProcessor extends BaseProcessor(Set(METHOD, VAL, VAR)) {
+  private class CollectImplicitsProcessor extends BaseProcessor(Set(METHOD, VAL, VAR, OBJECT)) {
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       val subst: ScSubstitutor = getSubst(state)
@@ -270,6 +277,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
             if (!tp.conforms(funType)) return true
             candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
+          }
+          case obj: ScObject => {
+            val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
+            if (!tp.conforms(funType)) return true
+            candidatesSet += new ScalaResolveResult(obj, subst, getImports(state))
           }
           case _ =>
         }
