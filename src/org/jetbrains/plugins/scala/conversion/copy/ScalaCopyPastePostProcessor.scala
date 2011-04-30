@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.openapi.editor.{RangeMarker, Editor}
 import dependency._
+import dependency.MemberDependency._
+import dependency.PackageDependency._
+import dependency.PrimaryConstructorDependency._
+import dependency.TypeDependency._
 import java.lang.Boolean
 import java.awt.datatransfer.Transferable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -52,20 +56,18 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
   }
 
   private def dependencyFor(element: PsiElement, startOffset: Int, target: PsiElement) = {
-    Some(target) collect {
-      case e: PsiClass =>
-        TypeDependency(element, startOffset, e.getQualifiedName)
-      case e: PsiPackage =>
-        PackageDependency(element, startOffset, e.getQualifiedName)
-      case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
-        PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)
-      case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
-        MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)
-      case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
-        TypeDependency(element, startOffset, aClass.getQualifiedName)
-      case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
-        MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)
-    }
+    Some(target) collect pf( // workaround for scalac pattern matcher bug. See SCL-3150
+      {case e: PsiClass => TypeDependency(element, startOffset, e.getQualifiedName)},
+      {case e: PsiPackage => PackageDependency(element, startOffset, e.getQualifiedName)},
+      {case Both(_: ScPrimaryConstructor, Parent(parent: PsiClass)) =>
+        PrimaryConstructorDependency(element, startOffset, parent.getQualifiedName)},
+      {case Both(member: ScMember, ContainingClass(obj: ScObject)) =>
+        MemberDependency(element, startOffset, obj.getQualifiedName, member.getName)},
+      {case Both(method: PsiMethod, ContainingClass(aClass: PsiClass)) if method.isConstructor =>
+        TypeDependency(element, startOffset, aClass.getQualifiedName)},
+      {case Both(member: PsiMember, ContainingClass(aClass: PsiClass)) =>
+        MemberDependency(element, startOffset, aClass.getQualifiedName, member.getName)}
+    )
   }
 
   def extractTransferableData(content: Transferable) = {
@@ -108,7 +110,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
             holder.addImportForClass(aClass, ref)
           case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
             val name = if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE) "_" else memberName
-            holder.addImportForPath("%s.%s".format(className, name), ref)
+              holder.addImportForPath("%s.%s".format(className, name), ref)
           case _ =>
         }
       }
