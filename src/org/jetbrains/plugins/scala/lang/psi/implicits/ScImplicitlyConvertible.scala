@@ -156,6 +156,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             }
           }
           case param: ScParameter => {
+            // View Bounds and Context Bounds are processed as parameters.
             Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
                     getSubstitutor match {
               case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
@@ -219,14 +220,6 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     for ((pass, resolveResult, tp, rt) <- sigsFound if pass) {
       result += Tuple(rt, resolveResult.element, resolveResult.importsUsed)
-    }
-
-    typez match {
-      case stpt@ScTypeParameterType(_, _, _, _, ptp: ScTypeParam) =>
-        ptp.viewBound.foreach(tp => {
-          result += Tuple(tp, ptp, Set.empty)
-        })
-      case _ =>
     }
 
     result.toSeq

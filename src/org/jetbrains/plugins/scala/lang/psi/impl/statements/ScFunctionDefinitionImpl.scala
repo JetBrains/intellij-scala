@@ -19,6 +19,7 @@ import collection.mutable.ArrayBuffer
 import psi.controlFlow.Instruction
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import api.statements.params.ScParameter
 
 /**
  * @author Alexander Podkhalyuzin
@@ -44,10 +45,11 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     //process function's type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
+    val parameterIncludingSynthetic: Seq[ScParameter] = parameters ++ syntheticParamClause.map(_.parameters).getOrElse(Seq())
     if (getStub == null) {
       body match {
         case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
-          for (p <- parameters) {
+          for (p <- parameterIncludingSynthetic) {
             ProgressManager.checkCanceled
             if (!processor.execute(p, state)) return false
           }
@@ -56,7 +58,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     }
     else {
       if (lastParent != null && lastParent.getContext != lastParent.getParent) {
-        for (p <- parameters) {
+        for (p <- parameterIncludingSynthetic) {
           ProgressManager.checkCanceled
           if (!processor.execute(p, state)) return false
         }
