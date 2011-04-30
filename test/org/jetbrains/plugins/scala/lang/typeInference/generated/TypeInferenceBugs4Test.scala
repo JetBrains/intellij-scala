@@ -53,5 +53,7 @@ class TypeInferenceBugs4Test extends TypeInferenceTestBase {
   
   def testSCL3082 = doTest
 
+  def testSCL3158 = doTest
+
   def testViewBounds = doTest
 }
