@@ -6,7 +6,6 @@ package impl
 
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import com.intellij.openapi.util.Key
 import com.intellij.util.ArrayFactory
 import expr.ScReferenceExpressionImpl
 import lexer.ScalaTokenTypes
@@ -37,7 +36,8 @@ import finder.ScalaSourceFilterScope
 import com.intellij.openapi.project.Project
 import reflect.NameTransformer
 import org.jetbrains.plugins.scala.extensions._
-
+import config.ScalaFacet
+import com.intellij.openapi.util.{TextRange, Key}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
@@ -200,12 +200,21 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
    */
   @Deprecated
   def setPackageName(name: String) {
-    if (packageName == null || packageName == name) return
+    if (packageName == null) return
 
     val document: Document = PsiDocumentManager.getInstance(getProject).getDocument(this)
+    val module = ScalaPsiUtil.getModule(this)
+    val basePackage = ScalaFacet.findIn(module).flatMap(_.basePackage)
+    val packageText = basePackage match {
+      case Some(pack) if name.startsWith(pack + ".") =>
+        val remaining = name.stripPrefix(pack + ".").split("\\.")
+        (pack +: remaining).map("package " + _).mkString("\n") + "\n\n"
+      case _ => "package " + name + "\n\n"
+    }
+
     try {
       stripPackagings(document)
-      document.insertString(0, "package " + name + "\n\n")
+      document.insertString(0, packageText)
     } finally {
       PsiDocumentManager.getInstance(getProject).commitDocument(document)
     }
@@ -411,6 +420,22 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     val res = new HashSet[String]
     typeDefinitions.foreach(td => res.add(td.getName))
     res
+  }
+
+  def getPackagingRange: TextRange = {
+    def getRange: TextRange = {
+      new TextRange(0, getText.indexOf('\n') match {
+        case x if x < 0 => getText.length
+        case y => y
+      })
+    }
+    getPackagings.toList match {
+      case Nil => getRange
+      case h :: t => h.reference match {
+        case Some(ref) => ref.getTextRange
+        case _ => getRange
+      }
+    }
   }
 }
 

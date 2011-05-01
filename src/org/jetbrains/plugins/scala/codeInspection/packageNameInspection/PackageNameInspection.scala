@@ -42,7 +42,7 @@ class PackageNameInspection extends LocalInspectionTool {
         if (pack == null) return null
 
         val packName = file.packageName
-        val range: TextRange = getPackagingRange(file)
+        val range: TextRange = file.getPackagingRange
 
         def problemDescriptor(buffer: Seq[LocalQuickFix]): ProblemDescriptor =
           manager.createProblemDescriptor(file, range,
@@ -70,22 +70,6 @@ class PackageNameInspection extends LocalInspectionTool {
         } else null
       }
       case _ => null
-    }
-  }
-
-  private def getPackagingRange(file: ScalaFile): TextRange = {
-    def getRange: TextRange = {
-      new TextRange(0, file.getText.indexOf('\n') match {
-        case x if x < 0 => file.getText.length
-        case y => y
-      })
-    }
-    file.getPackagings.toList match {
-      case Nil => getRange
-      case h :: t => h.reference match {
-        case Some(ref) => ref.getTextRange
-        case _ => getRange
-      }
     }
   }
 }
