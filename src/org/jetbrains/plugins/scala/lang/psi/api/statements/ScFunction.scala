@@ -142,8 +142,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Returns pure `function' type as it was defined as a field with functional value
    */
   def methodType(result: Option[ScType]): ScType = {
-    val parameters: ScParameters = paramClauses
-    val clauses = parameters.clauses
+    val clauses = effectiveParamClauses
     val resultType = result match {
       case None => returnType.getOrElse(Any)
       case Some(x) => x
@@ -210,7 +209,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
 
-  def syntheticParamClause: Option[ScParameterClause] = ScalaPsiUtil.syntheticParamClause(this, paramClauses, classParam = false)
+  def effectiveParamClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
+
+  // TODO Cache (?)
+  private def syntheticParamClause: Option[ScParameterClause] = {
+    val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
+    if (isConstructor) {
+      val parmamOwner = getContainingClass.asInstanceOf[ScTypeParametersOwner]
+      if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(parmamOwner, paramClauses, classParam = false)
+    } else {
+      if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(this, paramClauses, classParam = false)
+    }
+  }
 
   def declaredElements = Seq(this)
 
@@ -231,9 +241,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         return None
       }
       case i if i < 0 => return None
-      case i if i >= allClauses.length => return None
+      case i if i >= effectiveParamClauses.length => return None
       case i => {
-        val clause: ScParameterClause = allClauses.apply(i)
+        val clause: ScParameterClause = effectiveParamClauses.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
         return None
       }

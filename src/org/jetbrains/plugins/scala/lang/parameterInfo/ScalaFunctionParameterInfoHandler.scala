@@ -25,7 +25,6 @@ import nonvalue.Parameter
 import psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import psi.api.expr._
-import psi.api.statements.params.{ScParameter, ScParameterClause}
 import psi.api.statements.ScFunction
 import psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
@@ -33,6 +32,7 @@ import psi.ScalaPsiUtil
 import result.TypingContext
 import psi.fake.FakePsiMethod
 import collection.Seq
+import psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -248,7 +248,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val subst = sign.substitutor
             sign.method match {
               case method: ScFunction => {
-                val clauses = method.paramClauses.clauses
+                val clauses = method.effectiveParamClauses
                 if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
@@ -329,7 +329,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             }
           }
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
-            val clauses = constructor.parameterList.clauses
+            val clauses = constructor.effectiveParameters
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
@@ -425,7 +425,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       //todo: missed case with last implicit call
                       ref.bind match {
                         case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
-                                paramClauses.clauses.length >= count => {
+                                effectiveParamClauses.length >= count => {
                           res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                           return
                         }
@@ -480,7 +480,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   clazz match {
                     case clazz: ScClass => {
                       clazz.constructor match {
-                        case Some(constr: ScPrimaryConstructor) if i < constr.parameterList.clauses.length => {
+                        case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameters.length => {
                           typeElement match {
                             case gen: ScParameterizedTypeElement => {
                               val tp = clazz.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))

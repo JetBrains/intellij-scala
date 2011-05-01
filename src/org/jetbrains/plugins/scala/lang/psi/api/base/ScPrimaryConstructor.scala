@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.PsiMethod
 import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
+import impl.ScalaPsiElementFactory
+import toplevel.ScTypeParametersOwner
 
 /**
 * @author Alexander Podkhalyuzin
@@ -29,12 +31,12 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
    *  @return has access modifier
    */
   def hasModifier: Boolean
+
   def getClassNameText: String
 
   def parameterList: ScParameters
 
-  //hack: no ClassParamList present at the moment
-  def parameters : Seq[ScClassParameter] = parameterList.params.asInstanceOf[Seq[ScClassParameter]]
+  def parameters : Seq[ScClassParameter] = parameterList.clauses.flatMap(_.unsafeClassParameters)
 
   /**
    * return only parameters, which are additionally members.
@@ -42,20 +44,28 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
   /**
-   * All classes must have one non-implicit parameter list. If this is not declared in in the code,
-   * it is assumed by the compiler.
-   */
-  def effectiveParameters: Seq[Seq[ScClassParameter]] = {
-    parameterList.clauses match {
-      case Seq() => Seq(Seq())
-      case Seq(clause) if clause.isImplicit => Seq(Seq(), clause.parameters.asInstanceOf[Seq[ScClassParameter]])
-      case clauses => clauses.map(_.parameters.asInstanceOf[Seq[ScClassParameter]])
+    * All classes must have one non-implicit parameter list. If this is not declared in in the code,
+    * it is assumed by the compiler.
+    *
+    * In addition, view and context bounds generate an additional implicit parameter section.
+    */
+  def effectiveParameters: Seq[ScParameterClause] = {
+    // TODO Cache
+    def emptyParameterList: ScParameterClause = ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
+    val clausesWithInitialEmpty = parameterList.clauses match {
+      case Seq() => Seq(emptyParameterList)
+      case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
+      case clauses => clauses
     }
+    clausesWithInitialEmpty ++ syntheticParamClause
   }
 
-  def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameters.head
+  def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameters.head.unsafeClassParameters
 
-  def syntheticParamClause: Option[ScParameterClause] = ScalaPsiUtil.syntheticParamClause(getParent.asInstanceOf[ScTypeDefinition], parameterList, classParam = true)
+  private def syntheticParamClause: Option[ScParameterClause] = {
+    val hasImplicit = parameterList.clauses.exists(_.isImplicit)
+    if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(getContainingClass.asInstanceOf[ScTypeParametersOwner], parameterList, classParam = true)
+  }
 
   def methodType(result: Option[ScType]): ScType = {
     val parameters: ScParameters = parameterList
@@ -94,9 +104,9 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
         return None
       }
       case i if i < 0 => return None
-      case i if i >= parameterList.clauses.length => return None
+      case i if i >= effectiveParameters.length => return None
       case i => {
-        val clause: ScParameterClause = parameterList.clauses.apply(i)
+        val clause: ScParameterClause = effectiveParameters.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
         return None
       }
