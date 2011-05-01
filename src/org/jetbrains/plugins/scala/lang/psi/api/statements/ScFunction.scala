@@ -110,7 +110,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
   def hasParameterClause: Boolean = {
-    if (paramClauses.clauses.length != 0) return true
+    if (effectiveParameterClauses.length != 0) return true
     superMethod match {
       case Some(fun: ScFunction) => return fun.hasParameterClause
       case Some(psi: PsiMethod) => return true
