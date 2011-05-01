@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 */
 
 trait ScAccessModifier extends ScalaPsiElement {
-  def scope() : PsiNamedElement /* either ScTypeDefinition or PsiPackage */
+  def scope : PsiNamedElement /* either ScTypeDefinition or PsiPackage */
 
   type AccessType = Access.Value
 
-  def access() : AccessType
+  def access : AccessType
 
   def idText: Option[String]
 

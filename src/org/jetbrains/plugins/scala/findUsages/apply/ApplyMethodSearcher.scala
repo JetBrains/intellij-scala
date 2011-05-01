@@ -17,7 +17,7 @@ class ApplyMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.S
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
     element match {
-      case fun: ScFunctionDefinition if fun.name() == "apply" =>
+      case fun: ScFunctionDefinition if fun.name == "apply" =>
         val processor = new Processor[PsiReference] {
           def process(ref: PsiReference): Boolean = {
             (ref, ref.getElement.getContext) match {

@@ -131,7 +131,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
             if (state.config.checkLocalUnused) {
               hasAtLeastOneUnusedHighlight = true
               val elementTypeDesc = findUsageProvider.getType(declElementHolder)
-              val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId(), "%s '%s' is never used".format(elementTypeDesc, decElem.name()))
+              val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId, "%s '%s' is never used".format(elementTypeDesc, decElem.name))
               annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
               annotation.registerFix(new DeleteElementFix(elem))
               state.annotations += annotation
@@ -144,7 +144,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
     if (isVar && !hasAtLeastOneAssign && !hasAtLeastOneUnusedHighlight) {
       val (messgae, nameOpt) = declElementHolder.declaredElements match {
         case Seq(n: ScNamedElement) =>
-          ("var '%s' could be a val".format(n.name()), Some(n.name()))
+          ("var '%s' could be a val".format(n.name), Some(n.name))
         case _ =>
           ("var could be a val", None)
       }
@@ -175,7 +175,7 @@ class DeleteElementFix(element: PsiElement) extends IntentionAction {
       case n: ScNamedElement =>
         val elementToClassify = ScalaPsiUtil.nameContext(n)
         val elementTypeDesc = provider.getType(elementToClassify)
-        "Remove %s '%s'".format(elementTypeDesc, n.name())
+        "Remove %s '%s'".format(elementTypeDesc, n.name)
       case x =>
         val elementTypeDesc = provider.getType(x)
         "Remove %s".format(elementTypeDesc)

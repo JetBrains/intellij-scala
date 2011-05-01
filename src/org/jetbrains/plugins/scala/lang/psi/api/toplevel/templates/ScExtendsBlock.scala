@@ -46,9 +46,9 @@ trait ScExtendsBlock extends ScalaPsiElement {
 
   def directSupersNames: Seq[String]
 
-  def selfTypeElement() : Option[ScSelfTypeElement]
+  def selfTypeElement : Option[ScSelfTypeElement]
 
-  def selfType() : Option[ScType]
+  def selfType : Option[ScType]
   
   def isUnderCaseClass: Boolean
 

@@ -95,18 +95,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       case _ =>
     }
     if (isUnderCaseClass) {
-      val prod = scalaProduct()
+      val prod = scalaProduct
       if (prod != null) buffer += prod
     }
     buffer.toList
   }
 
-  private def scalaObject(): ScType = {
-    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.ScalaObject")
-    if (so.length > 0) ScType.designator(so(0)) else null
-  }
-
-  private def scalaProduct(): ScType = {
+  private def scalaProduct: ScType = {
     val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Product")
     if (so.length > 0) ScType.designator(so(0)) else null
   }
@@ -122,7 +117,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
   }
 
-  def supers() = {
+  def supers = {
     val buf = new ArrayBuffer[PsiClass]
     for (t <- superTypes) {
       ScType.extractClass(t) match {
@@ -173,7 +168,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
   }
 
-  def members() = {
+  def members = {
     val bodyMembers: Seq[ScMember] = templateBody match {
       case None => Seq.empty
       case Some(body: ScTemplateBody) => body.members
@@ -191,14 +186,14 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case Some(body) => body.typeDefinitions
   }
 
-  def nameId() = null
+  def nameId = null
 
-  def aliases() = templateBody match {
+  def aliases = templateBody match {
     case None => Seq.empty
     case Some(body) => body.aliases
   }
 
-  def functions() = templateBody match {
+  def functions = templateBody match {
     case None => Seq.empty
     case Some(body) => body.functions
   }
@@ -226,7 +221,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case _ => false
   }
 
-  override def getParent(): PsiElement = {
+  override def getParent: PsiElement = {
     val p = super.getParent
     p match {
       case _: ScTypeDefinition => return p

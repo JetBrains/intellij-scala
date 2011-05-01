@@ -39,7 +39,7 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
   def this(node: ASTNode) = {this(); setNode(node)}
   def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
     case n => n
   }
@@ -53,11 +53,11 @@ class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] w
   
   override def toString: String = "ScTypeAliasDefinition"
 
-  override def getPresentation(): ItemPresentation = {
+  override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText(): String = name
-      def getTextAttributesKey(): TextAttributesKey = null
-      def getLocationString(): String = "(" + ScTypeAliasDefinitionImpl.this.getContainingClass.getQualifiedName + ")"
+      def getPresentableText = name
+      def getTextAttributesKey: TextAttributesKey = null
+      def getLocationString: String = "(" + ScTypeAliasDefinitionImpl.this.getContainingClass.getQualifiedName + ")"
       override def getIcon(open: Boolean) = ScTypeAliasDefinitionImpl.this.getIcon(0)
     }
   }

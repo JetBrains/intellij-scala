@@ -80,7 +80,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
-  def members(): Seq[ScMember] = extendsBlock.members
+  def members: Seq[ScMember] = extendsBlock.members
   def syntheticMembers: Seq[PsiMethod] = Seq.empty
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
@@ -95,8 +95,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def selfType = extendsBlock.selfType
 
-  def superTypes(): List[ScType] = extendsBlock.superTypes
-  def supers(): Seq[PsiClass] = extendsBlock.supers
+  def superTypes: List[ScType] = extendsBlock.superTypes
+  def supers: Seq[PsiClass] = extendsBlock.supers
 
   def allTypeAliases = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
   def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
@@ -204,7 +204,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       }
       case None => {
         extendsBlock.getNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
-        return members.apply(0)
+        return members(0)
       }
     }
     return member

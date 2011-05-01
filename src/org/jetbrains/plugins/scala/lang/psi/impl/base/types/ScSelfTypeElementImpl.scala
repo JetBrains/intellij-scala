@@ -25,7 +25,7 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
 
   override def toString: String = "SelfType"
 
-  def nameId() = findChildByType(TokenSets.SELF_TYPE_ID)
+  def nameId = findChildByType(TokenSets.SELF_TYPE_ID)
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])

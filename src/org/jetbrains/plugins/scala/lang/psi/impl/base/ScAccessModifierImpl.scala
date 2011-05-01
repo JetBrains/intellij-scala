@@ -42,7 +42,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
     }
   }
 
-  def scope() = getReference match {
+  def scope = getReference match {
     case null => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     case ref => ref.resolve match {case named : PsiNamedElement => named}
   }
@@ -85,7 +85,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
         case p : PsiPackage => p.getQualifiedName
         case _ => null
       }
-      def isSoft() = false
+      def isSoft = false
 
       def handleElementRename(newElementName: String) = doRename(newElementName)
       def bindToElement(e : PsiElement) = e match {
@@ -128,7 +128,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
         find(getParent)
       }
 
-      def getVariants(): Array[Object] = {
+      def getVariants: Array[Object] = {
         val buff = new ArrayBuffer[Object]
         def processPackages(qname : String) = {
           var pack: PsiPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(qname))
@@ -151,7 +151,7 @@ class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] w
   }
 
 
-  def access() = {
+  def access = {
     assert(isPrivate || isProtected)
     if (isPrivate) if (isThis) Access.THIS_PRIVATE else Access.PRIVATE
     else if (isThis) Access.THIS_PROTECTED else Access.PROTECTED 

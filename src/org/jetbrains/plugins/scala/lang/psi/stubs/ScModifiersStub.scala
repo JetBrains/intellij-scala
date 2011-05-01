@@ -12,5 +12,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScModifiersStub extends StubElement[ScModifierList] {
-  def getModifiers(): Array[String]
+  def getModifiers: Array[String]
 }

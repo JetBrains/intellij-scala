@@ -41,7 +41,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
   override def accept(v: PsiElementVisitor) = throw new IncorrectOperationException("should not call")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file
 
-  def nameId(): PsiElement = null
+  def nameId: PsiElement = null
   override def getNameIdentifier: PsiIdentifier = null
   protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[ScalaPsiElement]().asInstanceOf[Array[T]]
   protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
@@ -63,10 +63,10 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   override def toString = "Synthetic type parameter"
 
-  def isCovariant() = false
-  def isContravariant() = false
-  def lowerBound() = Success(Nothing, Some(this))
-  def upperBound() = Success(Any, Some(this))
+  def isCovariant = false
+  def isContravariant = false
+  def lowerBound = Success(Nothing, Some(this))
+  def upperBound = Success(Any, Some(this))
 
   def getIndex = -1
   def getOwner = null
@@ -184,7 +184,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def initComponent() {
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
       def run() {
-        registerClasses
+        registerClasses()
         classesInitialized = true
       }
     })
@@ -193,10 +193,10 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
 
-  def registerClasses: Unit = {
+  def registerClasses() {
     all = new HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
-      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, "")
+      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, "")
 
     val any = registerClass(Any, "Any")
     val manager = any.manager
@@ -287,7 +287,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
               createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
         ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
-      val obj = dummyFile.typeDefinitions.apply(0).asInstanceOf[ScObject]
+      val obj = dummyFile.typeDefinitions(0).asInstanceOf[ScObject]
       syntheticObjects += obj
     }
 
@@ -437,7 +437,7 @@ object Unit
   def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)
     val clazz = new ScSyntheticClass(manager, name, t) {
-      override def getQualifiedName() = "scala." + name
+      override def getQualifiedName = "scala." + name
     }
 
     all += ((name, clazz)); clazz

@@ -41,8 +41,8 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     getTextRange.getStartOffset
   }
 
-  def getIndex() : Int = 0
-  def getOwner() : PsiTypeParameterListOwner = getContext.getContext match {
+  def getIndex: Int = 0
+  def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
     case c : PsiTypeParameterListOwner => c
     case _ => null
   }

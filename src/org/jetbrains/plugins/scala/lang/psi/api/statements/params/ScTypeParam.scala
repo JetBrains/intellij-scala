@@ -16,11 +16,11 @@ import com.intellij.psi._
 trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter {
   import ScTypeParam._
 
-  def isCovariant(): Boolean
+  def isCovariant: Boolean
 
-  def isContravariant(): Boolean
+  def isContravariant: Boolean
 
-  def variance: Int = if (isCovariant()) Covariant else if (isContravariant()) Contravariant else Invariant
+  def variance: Int = if (isCovariant) Covariant else if (isContravariant) Contravariant else Invariant
 
   def owner: ScTypeParametersOwner
 

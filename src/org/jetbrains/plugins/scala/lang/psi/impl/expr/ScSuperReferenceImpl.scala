@@ -59,7 +59,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case c : PsiClass => c.getQualifiedName
         case _ => null
       }
-      def isSoft() = false
+      def isSoft: Boolean = false
 
       def handleElementRename(newElementName: String) = doRename(newElementName)
       def bindToElement(e : PsiElement) = e match {
@@ -83,7 +83,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case _ => null
       }
 
-      def getVariants(): Array[Object] = superTypes match {
+      def getVariants: Array[Object] = superTypes match {
         case None => Array[Object]()
         case Some(supers) => {
           val buff = new ArrayBuffer[Object]

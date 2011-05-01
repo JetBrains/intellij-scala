@@ -1125,10 +1125,10 @@ object ScalaPsiUtil {
     }
     def synthParams(typeParam: ScTypeParam): Seq[String] = {
       val views = typeParam.viewTypeElement.toSeq.map {
-        vte => "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name(), vte.getText)
+        vte => "%s: _root_.scala.Function1[%s, %s]".format(nextName(), typeParam.name, vte.getText)
       }
       val bounds = typeParam.contextBoundTypeElement.map {
-        cbte => "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name())
+        cbte => "%s: %s[%s]".format(nextName(), cbte.getText, typeParam.name)
       }
       views ++ bounds
     }

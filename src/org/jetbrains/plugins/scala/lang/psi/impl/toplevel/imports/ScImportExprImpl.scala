@@ -86,7 +86,7 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
     case _ => throw new IncorrectOperationException
   }
 
-  def deleteExpr(): Unit = {
+  def deleteExpr() {
     val parent = getParent.asInstanceOf[ScImportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
