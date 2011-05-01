@@ -10,7 +10,7 @@ import fileNameInspection.FileNameInspection
 import inference.SupsiciousInferredTypeInspection
 import literal.FloatLiteralEndingWithDecimalPoint
 import org.jetbrains.plugins.scala.codeInspection.methodSignature._
-import packageNameInspection.{NestedPackageInspection, PackageNameInspection}
+import packageNameInspection.{ChainedPackageInspection, PackageNameInspection}
 import postfix.PostfixMethodCall
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
@@ -62,7 +62,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
 
     res += classOf[PostfixMethodCall]
     res += classOf[FloatLiteralEndingWithDecimalPoint]
-    res += classOf[NestedPackageInspection]
+    res += classOf[ChainedPackageInspection]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
