@@ -248,7 +248,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val subst = sign.substitutor
             sign.method match {
               case method: ScFunction => {
-                val clauses = method.effectiveParamClauses
+                val clauses = method.effectiveParameterClauses
                 if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
                   val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
@@ -329,7 +329,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             }
           }
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) => {
-            val clauses = constructor.effectiveParameters
+            val clauses = constructor.effectiveParameterClauses
             if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val clause: ScParameterClause = clauses(i)
@@ -425,7 +425,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       //todo: missed case with last implicit call
                       ref.bind match {
                         case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
-                                effectiveParamClauses.length >= count => {
+                                effectiveParameterClauses.length >= count => {
                           res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
                           return
                         }
@@ -480,7 +480,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   clazz match {
                     case clazz: ScClass => {
                       clazz.constructor match {
-                        case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameters.length => {
+                        case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length => {
                           typeElement match {
                             case gen: ScParameterizedTypeElement => {
                               val tp = clazz.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))

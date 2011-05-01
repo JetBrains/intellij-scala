@@ -43,14 +43,25 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
    */
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
+  def effectiveParameterClauses: Seq[ScParameterClause] = {
+    var tp = effectiveParamClauses_
+    var curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && curModCount == effectiveParamClausesModCount) {
+      return tp
+    }
+    tp = effectiveParametersInner
+    effectiveParamClauses_ = tp
+    effectiveParamClausesModCount = curModCount
+    return tp
+  }
+
   /**
     * All classes must have one non-implicit parameter list. If this is not declared in in the code,
     * it is assumed by the compiler.
     *
     * In addition, view and context bounds generate an additional implicit parameter section.
     */
-  def effectiveParameters: Seq[ScParameterClause] = {
-    // TODO Cache
+  private def effectiveParametersInner: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause = ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
     val clausesWithInitialEmpty = parameterList.clauses match {
       case Seq() => Seq(emptyParameterList)
@@ -60,7 +71,12 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
     clausesWithInitialEmpty ++ syntheticParamClause
   }
 
-  def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameters.head.unsafeClassParameters
+  @volatile
+  private var effectiveParamClauses_ : Seq[ScParameterClause] = null
+  @volatile
+  private var effectiveParamClausesModCount: Long = 0
+
+  def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameterClauses.head.unsafeClassParameters
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = parameterList.clauses.exists(_.isImplicit)
@@ -104,9 +120,9 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
         return None
       }
       case i if i < 0 => return None
-      case i if i >= effectiveParameters.length => return None
+      case i if i >= effectiveParameterClauses.length => return None
       case i => {
-        val clause: ScParameterClause = effectiveParameters.apply(i)
+        val clause: ScParameterClause = effectiveParameterClauses.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
         return None
       }

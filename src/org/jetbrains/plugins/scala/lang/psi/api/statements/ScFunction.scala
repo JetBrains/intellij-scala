@@ -142,7 +142,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Returns pure `function' type as it was defined as a field with functional value
    */
   def methodType(result: Option[ScType]): ScType = {
-    val clauses = effectiveParamClauses
+    val clauses = effectiveParameterClauses
     val resultType = result match {
       case None => returnType.getOrElse(Any)
       case Some(x) => x
@@ -209,9 +209,23 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
 
-  def effectiveParamClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
+  def effectiveParameterClauses: Seq[ScParameterClause] = {
+    var tp = effectiveParamClauses_
+    var curModCount = getManager.getModificationTracker.getModificationCount
+    if (tp != null && curModCount == effectiveParamClausesModCount) {
+      return tp
+    }
+    tp = paramClauses.clauses ++ syntheticParamClause
+    effectiveParamClauses_ = tp
+    effectiveParamClausesModCount = curModCount
+    return tp
+  }
 
-  // TODO Cache (?)
+  @volatile
+  private var effectiveParamClauses_ : Seq[ScParameterClause] = null
+  @volatile
+  private var effectiveParamClausesModCount: Long = 0
+
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
     if (isConstructor) {
@@ -241,9 +255,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         return None
       }
       case i if i < 0 => return None
-      case i if i >= effectiveParamClauses.length => return None
+      case i if i >= effectiveParameterClauses.length => return None
       case i => {
-        val clause: ScParameterClause = effectiveParamClauses.apply(i)
+        val clause: ScParameterClause = effectiveParameterClauses.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
         return None
       }
