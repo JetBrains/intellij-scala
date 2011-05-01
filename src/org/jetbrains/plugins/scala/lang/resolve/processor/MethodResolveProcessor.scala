@@ -5,7 +5,7 @@ package processor
 
 import psi.api.statements._
 import com.intellij.psi._
-import params.ScTypeParam
+import params.{ScParameterClause, ScTypeParam}
 import psi.types._
 
 import psi.api.base.types.ScTypeElement
@@ -165,10 +165,11 @@ object MethodResolveProcessor {
         }
         case _ => {
           def constructorCanBeCalledNoArgList(c: ScPrimaryConstructor): Boolean = {
-            val implicitParamClause = c.parameterList.clauses.headOption.map(_.isImplicit).getOrElse(false)
-            val onlyParamList = c.parameterList.clauses match { case Seq(p) => Some(p); case _ => None}
-            val onlyDefaultOrVarargs = onlyParamList.exists(_.parameters.forall(p => p.isDefaultParam || p.isVarArgs))
-            implicitParamClause || onlyDefaultOrVarargs
+            def onlyDefaultOrVarargs(paramClause: ScParameterClause) = paramClause.parameters.forall(p => p.isDefaultParam || p.isVarArgs)
+            c.effectiveParameters match {
+              case Seq(x) if x.isImplicit || onlyDefaultOrVarargs(x) => true
+              case _ => false
+            }
           }
           fun match {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
@@ -184,8 +185,6 @@ object MethodResolveProcessor {
         }
       }
     }
-
-
 
     element match {
       //objects

@@ -37,7 +37,7 @@ import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import api.base.patterns.{ScCaseClauses, ScCaseClause, ScWildcardPattern, ScReferencePattern}
 import parser.parsing.params.ImplicitParamClause
-import parser.parsing.top.params.ImplicitClassParamClause
+import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
 
 object ScalaPsiElementFactory {
 
@@ -93,6 +93,23 @@ object ScalaPsiElementFactory {
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
     ImplicitClassParamClause.parse(builder)
+
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScParameterClause]) {
+      val fun = psi.asInstanceOf[ScParameterClause]
+      fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
+      return fun
+    } else return null
+  }
+
+  def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
+
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, "()"))
+    ClassParamClause.parse(builder)
 
     val node = builder.getTreeBuilt
     holder.rawAddChildren(node.asInstanceOf[TreeElement])

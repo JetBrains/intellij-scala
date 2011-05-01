@@ -13,5 +13,13 @@ class FunctionParameterInfoConstructorsTest extends FunctionParameterInfoTestBas
 
   def testScalaConstructor = doTest
 
+  def testScalaConstructorA = doTest
+
+  def testScalaConstructorB = doTest
+  
+  def testScalaConstructorC = doTest
+
+  def testScalaConstructorD = doTest
+
   def testThisScalaConstructor = doTest
 }

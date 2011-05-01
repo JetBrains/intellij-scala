@@ -23,5 +23,7 @@ class FunctionParameterInfoSimpleTest extends FunctionParameterInfoTestBase {
 
   def testSimple = doTest
 
+  def testSyntheticParameter = doTest
+
   def testTypeRefinement = doTest
 }
