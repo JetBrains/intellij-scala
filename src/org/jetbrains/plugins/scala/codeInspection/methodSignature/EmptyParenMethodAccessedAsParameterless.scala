@@ -3,19 +3,21 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import quickfix.{AddGenericCallParentheses, AddCallParentheses}
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 
 class EmptyParenMethodAccessedAsParameterless extends AbstractMethodSignatureInspection(
   "EmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 
   @Language("HTML")
   val description =
-"""The convention is that method includes parentheses if it has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+    """The convention is that method includes parentheses if it has <a href="http://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
 
 While it's possible to leave out empty parentheses in method calls (to adapt
 the <a href="http://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a> to Java), it's recommended to still write the empty
@@ -25,13 +27,24 @@ its receiver object.
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
-            !e.getParent.isInstanceOf[ScInfixExpr] &&
-            !e.getParent.isInstanceOf[ScPrefixExpr] &&
-            !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
-      case (f: ScFunction) if f.isEmptyParen =>
-        holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
-      case _ =>
-    }
+    case e: ScReferenceExpression =>
+      e.getParent match {
+        case gc: ScGenericCall =>
+          ScalaPsiUtil.findCall(gc) match {
+            case None =>
+              e.resolve match {
+                case (f: ScFunction) if f.isEmptyParen =>
+                  holder.registerProblem(e.nameId, getDisplayName, new AddGenericCallParentheses(gc))
+                case _ =>
+              }
+            case Some(_) =>
+          }
+        case _: ScMethodCall | _: ScInfixExpr | _: ScPrefixExpr | _: ScUnderscoreSection => // okay
+        case _ => e.resolve match {
+          case (f: ScFunction) if f.isEmptyParen =>
+            holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
+          case _ =>
+        }
+      }
   }
 }
