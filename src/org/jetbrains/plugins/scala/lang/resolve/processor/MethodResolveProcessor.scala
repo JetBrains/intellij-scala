@@ -166,7 +166,7 @@ object MethodResolveProcessor {
         case _ => {
           def constructorCanBeCalledNoArgList(c: ScPrimaryConstructor): Boolean = {
             def onlyDefaultOrVarargs(paramClause: ScParameterClause) = paramClause.parameters.forall(p => p.isDefaultParam || p.isVarArgs)
-            c.effectiveParameters match {
+            c.effectiveParameterClauses match {
               case Seq(x) if x.isImplicit || onlyDefaultOrVarargs(x) => true
               case _ => false
             }

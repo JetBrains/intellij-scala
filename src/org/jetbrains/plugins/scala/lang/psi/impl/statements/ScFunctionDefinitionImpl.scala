@@ -45,7 +45,7 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     //process function's type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
-    val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParamClauses.flatMap(_.parameters)
+    val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
     if (getStub == null) {
       body match {
         case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>

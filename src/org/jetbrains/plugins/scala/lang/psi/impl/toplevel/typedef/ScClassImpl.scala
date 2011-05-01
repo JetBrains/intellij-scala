@@ -65,7 +65,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   def parameters = constructor match {
-    case Some(c) => c.effectiveParameters.flatMap(_.unsafeClassParameters)
+    case Some(c) => c.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
     case None => Seq.empty
   }
 

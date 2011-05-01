@@ -277,7 +277,7 @@ object Compatibility {
         if(!fun.hasParameterClause && !argClauses.isEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
                   
-        val parameters: Seq[ScParameter] = fun.effectiveParamClauses.headOption.toList.flatMap(_.parameters)
+        val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.parameters)
         
         val clashedAssignments = clashedAssignmentsIn(exprs)
         val unresolved = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs;
