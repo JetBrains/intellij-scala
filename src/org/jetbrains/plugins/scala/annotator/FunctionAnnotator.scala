@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, Any => AnyT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 import lang.psi.api.base.ScReferenceElement
 import quickfix.ReportHighlightingErrorQuickFix
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -29,6 +30,8 @@ trait FunctionAnnotator {
         case _ =>
       }
     }
+
+    checkImplicitParametersAndBounds(function, function.clauses, holder)
 
     for (functionType <- function.returnType;
          usage <- function.getReturnUsages;
@@ -74,6 +77,7 @@ trait FunctionAnnotator {
       }
     }
   }
+
 
   private def typeOf(element: PsiElement): TypeResult[ScType] = element match {
     case r: ScReturnStmt => r.expr match {
