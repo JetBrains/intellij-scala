@@ -138,7 +138,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case cls: ScClass =>
             val clsParts = Seq(CaseClassWithoutParamList, HasImplicitParamAndBound)
             clsParts.foreach(_.annotate(cls, holder, typeAware))
-          case _ =>
+          case trt: ScTrait =>
+            val traitParts = Seq(TraitHasImplicitBound)
+            traitParts.foreach(_.annotate(trt, holder, typeAware))
+          case _ => 
         }
       }
       case ref: ScReferenceElement => {
