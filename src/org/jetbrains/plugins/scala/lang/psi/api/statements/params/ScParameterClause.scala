@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import types._
 import nonvalue.Parameter
 import types.result.TypingContext
+import lexer.ScalaTokenTypes
+import com.intellij.psi.PsiElement
 
 /**
   * @author Alexander Podkhalyuzin
@@ -24,6 +26,8 @@ trait ScParameterClause extends ScalaPsiElement {
   def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrElse(Any))
 
   def isImplicit: Boolean
+
+  def implicitToken: Option[PsiElement] = Option(findFirstChildByType(ScalaTokenTypes.kIMPLICIT))
 
   def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
 
