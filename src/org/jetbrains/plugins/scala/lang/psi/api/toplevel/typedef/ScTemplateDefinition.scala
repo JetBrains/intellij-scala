@@ -243,6 +243,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
       if (!visited.contains(drv)) {
         visited.add(drv)
+
+        // This doesn't appear in the superTypes at the moment, so special case required.
+        if (baseClass.getQualifiedName == "java.lang.Object") return true
+
         drv match {
           case drg: ScTemplateDefinition =>
             val supers = drg.superTypes
