@@ -35,7 +35,7 @@ import fake.{FakePsiTypeParameterList}
 
 abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with ScMember
         with ScFunction with ScTypeParametersOwner {
-  def nameId(): PsiElement = {
+  def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
       case null => getNode.findChildByType(ScalaTokenTypes.kTHIS)
       case n => n

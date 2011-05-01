@@ -14,7 +14,7 @@ import types.ScTypeElement
 */
 
 trait ScClassParents extends ScTemplateParents {
-  def constructor() = findChild(classOf[ScConstructor])
+  def constructor = findChild(classOf[ScConstructor])
 
   override def typeElements: Seq[ScTypeElement] = (constructor match {
     case Some(x) => Array[ScTypeElement](x.typeElement)

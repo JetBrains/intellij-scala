@@ -70,7 +70,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         val objOption = obj.toOption
         objOption.foreach { (obj: ScObject) =>
           obj.setSyntheticObject()
-          obj.members().foreach {
+          obj.members.foreach {
             case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
             case _ =>
           }

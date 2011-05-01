@@ -39,7 +39,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def getCanonicalText: String = null
 
-  def isSoft(): Boolean = false
+  def isSoft: Boolean = false
 
   def handleElementRename(newElementName: String): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(newElementName)) return this

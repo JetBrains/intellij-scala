@@ -173,8 +173,8 @@ object ScalaPsiElementFactory {
 
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.typeDefinitions()(0)
-    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    val classDef = dummyFile.typeDefinitions(0)
+    val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
     p.expr match {
       case x: ScParenthesisedExpr => x.expr match {
         case Some(y) => y
@@ -206,7 +206,7 @@ object ScalaPsiElementFactory {
     val text = name + " class a"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return dummyFile.typeDefinitions.apply(0).getModifierList.getFirstChild.getNode
+    return dummyFile.typeDefinitions(0).getModifierList.getFirstChild.getNode
   }
 
   def createImportExprFromText(name: String, manager: PsiManager): ScImportExpr = {
@@ -294,7 +294,7 @@ object ScalaPsiElementFactory {
 
   def createStableReferenceElement(name: String, manager: PsiManager) = {
     val file = createScalaFile("class A extends B with " + name, manager)
-    val classDef = file.typeDefinitions()(0)
+    val classDef = file.typeDefinitions(0)
     val extendsBlock = classDef.extendsBlock
     val parents = extendsBlock.templateParents
     (parents: @unchecked) match {
@@ -316,9 +316,9 @@ object ScalaPsiElementFactory {
               name + (if (typez != null && typeToString(typez) != "") ": "  +
             typeToString(typez) else "") + " = " + exprText + "}"
     val dummyFile = createScalaFile(text, manager)
-    val classDef = dummyFile.typeDefinitions()(0)
-    if (!isVariable) classDef.members()(0).asInstanceOf[ScValue]
-    else classDef.members()(0).asInstanceOf[ScVariable]
+    val classDef = dummyFile.typeDefinitions(0)
+    if (!isVariable) classDef.members(0).asInstanceOf[ScValue]
+    else classDef.members(0).asInstanceOf[ScVariable]
   }
 
   def createValFromVarDefinition(varDef: ScVariableDefinition, manager: PsiManager): ScValue = {
@@ -327,8 +327,8 @@ object ScalaPsiElementFactory {
     val varText = varDef.getText
     val text = "class a {" + varText.substring(0, startOffset) + "val" + varText.substring(startOffset + 3) + " }"
     val dummyFile = createScalaFile(text, manager)
-    val classDef = dummyFile.typeDefinitions()(0)
-    classDef.members()(0).asInstanceOf[ScValue]
+    val classDef = dummyFile.typeDefinitions(0)
+    classDef.members(0).asInstanceOf[ScValue]
   }
 
   def createVarFromValDeclaration(valDef: ScValue, manager: PsiManager): ScVariable = {
@@ -337,8 +337,8 @@ object ScalaPsiElementFactory {
     val valText = valDef.getText
     val text = "class a {" + valText.substring(0, startOffset) + "var" + valText.substring(startOffset + 3) + " }"
     val dummyFile = createScalaFile(text, manager)
-    val classDef = dummyFile.typeDefinitions()(0)
-    classDef.members()(0).asInstanceOf[ScVariable]
+    val classDef = dummyFile.typeDefinitions(0)
+    classDef.members(0).asInstanceOf[ScVariable]
   }
 
   def createEnumerator(name: String, expr: ScExpression, manager: PsiManager): ScEnumerator = {
@@ -363,8 +363,8 @@ object ScalaPsiElementFactory {
     val text = "class a {\nval b = {\n" + expr.getText + "\n}\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.typeDefinitions()(0)
-    val p = classDef.members()(0).asInstanceOf[ScPatternDefinition]
+    val classDef = dummyFile.typeDefinitions(0)
+    val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
     p.expr
   }
 
@@ -372,7 +372,7 @@ object ScalaPsiElementFactory {
     val text = "class a {\n" + element.getText + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef: ScTypeDefinition = dummyFile.typeDefinitions()(0)
+    val classDef: ScTypeDefinition = dummyFile.typeDefinitions(0)
     val body = classDef.extendsBlock.templateBody match {
       case Some(x) => x
       case None => return null
@@ -384,7 +384,7 @@ object ScalaPsiElementFactory {
     val text = "class a {\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    dummyFile.typeDefinitions().head.extendsBlock.templateBody.get
+    dummyFile.typeDefinitions.head.extendsBlock.templateBody.get
   }
 
   def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,
@@ -392,7 +392,7 @@ object ScalaPsiElementFactory {
     val text = "class a {\n  " + getOverrideImplementSign(sign, "null", isOverride, needsInferType) + "\n}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.typeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions(0)
     val function = classDef.functions(0)
     return function
   }
@@ -402,7 +402,7 @@ object ScalaPsiElementFactory {
     val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", isOverride) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.typeDefinitions()(0)
+    val classDef = dummyFile.typeDefinitions(0)
     val al = classDef.aliases(0)
     return al
   }
@@ -412,8 +412,8 @@ object ScalaPsiElementFactory {
     val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", isOverride, isVal, needsInferType) + "}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    val classDef = dummyFile.typeDefinitions()(0)
-    classDef.members()(0) match {case member : ScMember => member}
+    val classDef = dummyFile.typeDefinitions(0)
+    classDef.members(0) match {case member : ScMember => member}
   }
 
   def createSemicolon(manager: PsiManager): PsiElement = {

@@ -16,7 +16,7 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
   def annotate(element: ScClass, holder: AnnotationHolder, typeAware: Boolean) {
     if (element.isCase && !element.clauses.exists(_.clauses.nonEmpty)) {
-      val nameId = element.nameId()
+      val nameId = element.nameId
       val annotation = holder.createWarningAnnotation(nameId, "case classes without a parameter list have been deprecated")
       annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
       val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))

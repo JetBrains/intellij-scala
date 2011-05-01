@@ -168,7 +168,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
   private def paramTextFor(sign: PhysicalSignature, o: Int, paramTypeText: String): String = {
     if (sign.method.getName == "unapply") {
       sign.method match {
-        case fun: ScFunction if fun.parameters.headOption.exists(_.name() == "x$0") =>
+        case fun: ScFunction if fun.parameters.headOption.exists(_.name == "x$0") =>
           val companionClass: Option[ScClass] = fun.containingClass match {
             case Some(x: ScObject) => ScalaPsiUtil.getCompanionModule(x) match {
               case Some(x: ScClass) => Some(x)
@@ -183,7 +183,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 if (param.isRepeatedParameter) {
                   paramTypeText // Not handled yet.
                 } else {
-                  param.name() + ": " + paramTypeText // SCL-3006
+                  param.name + ": " + paramTypeText // SCL-3006
                 }
               case None => paramTypeText
             }

@@ -43,7 +43,7 @@ class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] w
     (getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null})
   }
 
-  def deleteSelector(): Unit = {
+  def deleteSelector() {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
     if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
       expr.deleteExpr()

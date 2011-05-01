@@ -40,7 +40,7 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
 
   override def toString: String = "TypeParameterClause"
 
-  def typeParameters(): Seq[ScTypeParam] = {
+  def typeParameters: Seq[ScTypeParam] = {
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM, ScalaPsiUtil.arrayFactory[ScTypeParam]).toSeq

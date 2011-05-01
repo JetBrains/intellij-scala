@@ -119,7 +119,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     this
   }
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -158,13 +158,13 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     packageName + name
   }
 
-  override def getPresentation(): ItemPresentation = {
+  override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText(): String = name
+      def getPresentableText: String = name
 
-      def getTextAttributesKey(): TextAttributesKey = null
+      def getTextAttributesKey: TextAttributesKey = null
 
-      def getLocationString(): String = getPath match {
+      def getLocationString: String = getPath match {
         case "" => "<default>"
         case p => '(' + p + ')'
       }
@@ -182,7 +182,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
   override def checkDelete() {
   }
 
-  override def delete() = {
+  override def delete() {
     var toDelete: PsiElement = this
     var parent: PsiElement = getParent
     while (parent.isInstanceOf[ScToplevelElement] && parent.asInstanceOf[ScToplevelElement].typeDefinitions.length == 1) {

@@ -341,8 +341,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
-      def isScalaPredefinedClass = typeDefinitions().length == 1 &&
-        Set("scala", "scala.Predef").contains(typeDefinitions().apply(0).getQualifiedName)
+      def isScalaPredefinedClass = typeDefinitions.length == 1 &&
+        Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).getQualifiedName)
       if (clazz != null && !isScalaPredefinedClass &&
         !clazz.processDeclarations(processor, state, null, place)) return false
     }

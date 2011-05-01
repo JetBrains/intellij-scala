@@ -17,7 +17,7 @@ class UnapplyMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
     element match {
-      case fun: ScFunctionDefinition if Set("unapply", "unapplySeq").contains(fun.name()) =>
+      case fun: ScFunctionDefinition if Set("unapply", "unapplySeq").contains(fun.name) =>
         val processor = new Processor[PsiReference] {
           def process(ref: PsiReference): Boolean = {
             (ref, ref.getElement.getContext) match {

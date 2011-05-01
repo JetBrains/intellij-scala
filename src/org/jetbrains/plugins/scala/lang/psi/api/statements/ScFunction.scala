@@ -63,8 +63,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def setSynthetic() {
     synth = true
   }
-  def isSyntheticCopy: Boolean = synth && name() == "copy"
-  def isSyntheticApply: Boolean = synth && name() == "apply"
+  def isSyntheticCopy: Boolean = synth && name == "copy"
+  def isSyntheticApply: Boolean = synth && name == "apply"
 
   def hasUnitResultType = {
     def hasUnitRT(t: ScType): Boolean = t match {

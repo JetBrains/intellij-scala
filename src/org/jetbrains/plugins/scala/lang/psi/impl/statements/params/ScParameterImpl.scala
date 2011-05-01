@@ -99,7 +99,9 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
 
   def computeConstantValue = null
 
-  def normalizeDeclaration() = false
+  def normalizeDeclaration() {
+    false
+  }
 
   def hasInitializer = false
 

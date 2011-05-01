@@ -134,7 +134,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
     }
   }
 
-  override def getParent(): PsiElement = {
+  override def getParent: PsiElement = {
     val stub = getStub
     if (stub != null) {
       return stub.getParentStub.getPsi
@@ -156,7 +156,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
   override def delete() {
-    getParent() match {
+    getParent match {
       case x: LazyParseablePsiElement =>
         CheckUtil.checkWritable(this)
         x.deleteChildInternal(getNode)

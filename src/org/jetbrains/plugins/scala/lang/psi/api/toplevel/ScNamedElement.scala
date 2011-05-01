@@ -18,7 +18,7 @@ import typedef._
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
 
-  def name() : String = {
+  def name : String = {
     this match {
       case st: StubBasedPsiElement[_] =>  st.getStub match {
         case namedStub: NamedStub[_] => namedStub.getName
@@ -33,7 +33,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getName = name
 
-  def nameId() : PsiElement
+  def nameId : PsiElement
 
   override def getNameIdentifier: PsiIdentifier = if (nameId != null) new JavaIdentifier(nameId) else null
 

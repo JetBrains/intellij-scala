@@ -69,7 +69,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     case None => Seq.empty
   }
 
-  override def members() = constructor match {
+  override def members = constructor match {
     case Some(c) => super.members ++ Seq.singleton(c)
     case _ => super.members
   }

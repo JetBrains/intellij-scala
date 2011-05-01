@@ -57,9 +57,9 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       super[ScNewTemplateDefinition].processDeclarations(processor, state, lastParent, place)
     case _ => true
   }
-  def nameId(): PsiElement = null
+  def nameId: PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")
-  override def name(): String = "<anonymous>"
+  override def name: String = "<anonymous>"
 
   override def getSupers: Array[PsiClass] = {
     val direct = extendsBlock.supers.toArray

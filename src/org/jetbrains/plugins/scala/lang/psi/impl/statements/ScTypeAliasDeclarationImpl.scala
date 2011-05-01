@@ -35,7 +35,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId() = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
     case n => n
   }
@@ -81,11 +81,11 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
 
-  override def getPresentation(): ItemPresentation = {
+  override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText(): String = name
-      def getTextAttributesKey(): TextAttributesKey = null
-      def getLocationString(): String = "(" + ScTypeAliasDeclarationImpl.this.getContainingClass.getQualifiedName + ")"
+      def getPresentableText: String = name
+      def getTextAttributesKey: TextAttributesKey = null
+      def getLocationString: String = "(" + ScTypeAliasDeclarationImpl.this.getContainingClass.getQualifiedName + ")"
       override def getIcon(open: Boolean) = ScTypeAliasDeclarationImpl.this.getIcon(0)
     }
   }
