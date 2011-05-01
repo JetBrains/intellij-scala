@@ -49,6 +49,9 @@ class ConfigurationData() {
   @BeanProperty
   var pluginPaths = Array[String]()
 
+  @BeanProperty
+  var basePackage: String = ""
+
   def javaParameters: Array[String] = parse(vmOptions) ++ Array("-Xmx%dm".format(maximumHeapSize))
   
   def compilerParameters: Array[String] = {
@@ -107,7 +110,7 @@ class ConfigurationData() {
     Warnings, DeprecationWarnings, UncheckedWarnings, OptimiseBytecode, ExplainTypeErrors, Continuations) 
   
   private def data = Array(compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions, 
-    debuggingInfoLevel, compilerOptions) ++ Properties.map(_.value) ++ pluginPaths
+    debuggingInfoLevel, compilerOptions, basePackage) ++ Properties.map(_.value) ++ pluginPaths
   
   override def equals(obj: Any): Boolean = data.sameElements(obj.asInstanceOf[ConfigurationData].data)
 }

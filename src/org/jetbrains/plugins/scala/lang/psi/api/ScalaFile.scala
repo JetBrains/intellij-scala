@@ -8,6 +8,7 @@ import toplevel.packaging.ScPackaging
 import toplevel.ScToplevelElement
 import org.jetbrains.annotations.Nullable
 import com.intellij.psi.{PsiClassOwnerEx, PsiClassOwner, PsiImportHolder, PsiClass}
+import com.intellij.openapi.util.TextRange
 
 /**
  * @author ilyas
@@ -28,6 +29,8 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
 
   @Nullable
   def packageName: String
+
+  def getPackagingRange: TextRange
 
   def isCompiled: Boolean
 

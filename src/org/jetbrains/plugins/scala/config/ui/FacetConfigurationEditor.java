@@ -44,6 +44,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JCheckBox myEnableContinuations;
   private RawCommandLineEditor myVmOptions;
   private JTextField myMaximumHeapSize;
+  private JTextField basePackageField;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -180,6 +181,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
 
   private void update(ConfigurationData data) {
+    data.setBasePackage(basePackageField.getText());
     data.setCompilerLibraryName(getCompilerLibraryName());
     data.setCompilerLibraryLevel(getCompilerLibraryLevel());
 
@@ -207,6 +209,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   }
 
   public void reset() {
+    basePackageField.setText(myData.getBasePackage());
     updateLibrariesList();
     setCompilerLibraryById(new LibraryId(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel()));
     myMaximumHeapSize.setText(Integer.toString(myData.getMaximumHeapSize()));
