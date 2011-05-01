@@ -255,7 +255,7 @@
             </constraints>
             <properties>
               <labelFor value="eecd"/>
-              <text value="Base Package for unnested packages"/>
+              <text value="Base for chained package clauses"/>
             </properties>
           </component>
           <component id="982d6" class="javax.swing.JTextField" binding="basePackageField">
