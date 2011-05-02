@@ -16,7 +16,7 @@ object ScalaFacet{
   
   def isPresentIn(module: Module) =  findIn(module).isDefined
   
-  def findIn(module: Module): Option[ScalaFacet] = Option(FacetManager.getInstance(module).getFacetByType(Id))
+  def findIn(module: Module): Option[ScalaFacet] = Option(FacetManager.getInstance(module)).map(_.getFacetByType(Id))
   
   def findIn(modules: Array[Module]): Array[ScalaFacet] = modules.flatMap(findIn(_).toList)
   
