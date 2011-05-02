@@ -203,8 +203,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (packageName == null) return
 
     val document: Document = PsiDocumentManager.getInstance(getProject).getDocument(this)
-    val module = ScalaPsiUtil.getModule(this)
-    val basePackage = ScalaFacet.findIn(module).flatMap(_.basePackage)
+    val basePackage: Option[String] = for {
+      m <- Option(ScalaPsiUtil.getModule(this))
+      facet <- ScalaFacet.findIn(m)
+      p <- facet.basePackage
+    } yield p
+
     val packageText = basePackage match {
       case Some(pack) if name.startsWith(pack + ".") =>
         val remaining = name.stripPrefix(pack + ".").split("\\.")

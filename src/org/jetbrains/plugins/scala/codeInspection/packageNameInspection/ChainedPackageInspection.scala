@@ -29,8 +29,11 @@ class ChainedPackageInspection extends LocalInspectionTool {
   override def getID: String = "ScalaChainedPackageClause"
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
-    val module = ScalaPsiUtil.getModule(file)
-    val basePackage = ScalaFacet.findIn(module).flatMap(_.basePackage)
+    val basePackage: Option[String] = for {
+      m <- Option(ScalaPsiUtil.getModule(file))
+      facet <- ScalaFacet.findIn(m)
+      p <- facet.basePackage
+    } yield p
     (file, basePackage) match {
       case (sf: ScalaFile, Some(base)) if !sf.isScriptFile() =>
         sf.packagings.toList match {
