@@ -10,13 +10,14 @@ import java.io.File
  * Pavel.Fatin, 26.07.2010
  */
 
-object ScalaFacet{
+object ScalaFacet {
   val Id = new FacetTypeId[ScalaFacet]("scala")
   val Type = new ScalaFacetType
   
   def isPresentIn(module: Module) =  findIn(module).isDefined
   
-  def findIn(module: Module): Option[ScalaFacet] = Option(FacetManager.getInstance(module)).map(_.getFacetByType(Id))
+  def findIn(module: Module): Option[ScalaFacet] =
+    Option(FacetManager.getInstance(module)).flatMap(manager => Option(manager.getFacetByType(Id)))
   
   def findIn(modules: Array[Module]): Array[ScalaFacet] = modules.flatMap(findIn(_).toList)
   
@@ -24,13 +25,13 @@ object ScalaFacet{
 
   def isPresentIn(project: Project): Boolean = !findModulesIn(project).isEmpty
   
-  def createIn(module: Module)(action: ScalaFacet => Unit) = {
-    var facetManager = FacetManager.getInstance(module)
-    var model = facetManager.createModifiableModel
-    var facet = facetManager.createFacet(ScalaFacet.Type, "Scala", null)
+  def createIn(module: Module)(action: ScalaFacet => Unit) {
+    val facetManager = FacetManager.getInstance(module)
+    val model = facetManager.createModifiableModel
+    val facet = facetManager.createFacet(ScalaFacet.Type, "Scala", null)
     action(facet)
     model.addFacet(facet)
-    model.commit
+    model.commit()
   }
 } 
 
@@ -52,7 +53,7 @@ class ScalaFacet(module: Module, name: String,
   def javaParameters_=(parameters: Array[String]) {
     getConfiguration.getState.updateJavaParameters(parameters)
   }
-  
+
   def compilerParameters: Array[String] = {
     val plugins = getConfiguration.getState.pluginPaths.map { path =>
       "-Xplugin:" + new CompilerPlugin(path, module).file.getPath
@@ -66,7 +67,7 @@ class ScalaFacet(module: Module, name: String,
   
   def pluginPaths: Array[String] = getConfiguration.getState.pluginPaths 
   
-  def pluginPaths_=(paths: Array[String]) = {
+  def pluginPaths_=(paths: Array[String]) {
     getConfiguration.getState.pluginPaths = paths
   } 
   
@@ -83,9 +84,6 @@ class ScalaFacet(module: Module, name: String,
 
   def basePackage: Option[String] = {
     val data = getConfiguration.getState
-    data.basePackage match {
-      case null | "" => None
-      case x => Some(x)
-    }
+    Option(data.basePackage).filter(!_.isEmpty)
   }
-} 
+}
