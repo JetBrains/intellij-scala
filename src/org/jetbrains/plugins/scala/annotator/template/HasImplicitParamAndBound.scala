@@ -13,6 +13,7 @@ object HasImplicitParamAndBound extends AnnotatorPart[ScClass] {
   def annotate(definition: ScClass, holder: AnnotationHolder, typeAware: Boolean) {
     definition.constructor match {
       case Some(const) => checkImplicitParametersAndBounds(definition, Some(const.parameterList), holder)
+      case None =>
     }
   }
 }
