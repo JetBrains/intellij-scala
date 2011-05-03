@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package testingSupport
-package scalaTest.locationProvider
+package org.jetbrains.plugins.scala.testingSupport.locationProvider
 
 import com.intellij.execution.{Location, PsiLocation}
 import com.intellij.openapi.project.Project
@@ -12,10 +10,11 @@ import com.intellij.openapi.editor.Document
 import com.intellij.psi._
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 24.02.2009
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 24.02.2009
+  *
+  * For Specs and Scalatest
+  */
 class ScalaTestLocationProvider extends TestLocationProvider {
   private val SpecsHintPattern = """(\S+)\?filelocation=(.+):(.+)""".r
 
@@ -49,7 +48,7 @@ class ScalaTestLocationProvider extends TestLocationProvider {
     res
   }
 
-  private def createLocationFor(project: Project, psiFile: PsiFile , lineNum: Int): Location[_ <: PsiElement] = {
+  private def createLocationFor(project: Project, psiFile: PsiFile, lineNum: Int): Location[_ <: PsiElement] = {
     assert(lineNum > 0)
     val doc: Document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
     if (doc == null) {
