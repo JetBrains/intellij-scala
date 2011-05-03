@@ -6,7 +6,6 @@ package impl
 import api.base.{ScIdList, ScPatternList, ScStableCodeReferenceElement}
 import api.ScalaFile
 import api.toplevel.packaging.ScPackaging
-import api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.{PsiBuilderFactory, PsiBuilder, ASTNode}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import api.statements._
@@ -38,6 +37,7 @@ import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import api.base.patterns.{ScCaseClauses, ScCaseClause, ScWildcardPattern, ScReferencePattern}
 import parser.parsing.params.ImplicitParamClause
 import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
+import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
 
 object ScalaPsiElementFactory {
 
@@ -385,6 +385,16 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     dummyFile.typeDefinitions.head.extendsBlock.templateBody.get
+  }
+
+  def createClassTemplateParents(superName: String, manager: PsiManager): (PsiElement, ScTemplateParents) = {
+    val text = "class a extends %s {\n}".format(superName)
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val extendsBlock = dummyFile.typeDefinitions.head.extendsBlock
+    val extendToken = extendsBlock.findFirstChildByType(ScalaTokenTypes.kEXTENDS)
+    val templateParents = extendsBlock.templateParents.get
+    (extendToken, templateParents)
   }
 
   def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, isOverride: Boolean,

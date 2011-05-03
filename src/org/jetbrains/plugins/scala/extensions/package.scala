@@ -4,6 +4,10 @@ import com.intellij.openapi.util.Computable
 import com.intellij.openapi.application.ApplicationManager
 import extensions.implementation._
 import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import com.intellij.codeInsight.CodeInsightBundle
 
 /**
   * Pavel Fatin
@@ -35,6 +39,20 @@ package object extensions {
   def inReadAction[T](body: => T): T = {
     ApplicationManager.getApplication.runReadAction(new Computable[T] {
       def compute: T = body
+    })
+  }
+
+  def postponeFormattingWithin[T](project: Project)(body: => T): T = {
+    PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable[T]{
+      def compute(): T = body
+    })
+  }
+
+  def invokeLater[T](body: => T) {
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      def run() {
+        body
+      }
     })
   }
 
