@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -313,7 +314,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       }
       case _ => {
-        def updateFirst {
+        def updateFirst() {
           val first = getFirstChild
           if (first != null) {
             addBefore(importSt, first)
@@ -323,24 +324,32 @@ trait ScImportsHolder extends ScalaPsiElement {
 
         getNode.findChildByType(ScalaTokenTypes.tLBRACE) match {
           case null if this.isInstanceOf[ScalaFile] => {
-            updateFirst
+            updateFirst()
           }
           case null => {
             val reference = getNode.findChildByType(ScalaElementTypes.REFERENCE)
             if (reference != null) {
-              val next = reference.getPsi.getNextSibling
+              reference.getPsi.getNextSibling
                 addImportAfter(importSt, reference.getPsi)
             } else {
-              updateFirst
+              updateFirst()
             }
           }
           case node => {
-            addImportAfter(importSt, node.getPsi)
+            this match {
+              case tb: ScTemplateBody => tb.selfTypeElement match {
+                case Some(te) => addImportAfter(importSt, te)
+                case _ =>
+                  addImportAfter(importSt, node.getPsi)
+              }
+              case _ =>
+                addImportAfter(importSt, node.getPsi)
+            }
           }
         }
       }
     }
-    HintManager.getInstance.hideAllHints
+    HintManager.getInstance.hideAllHints()
   }
 
 
@@ -358,7 +367,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
   }
 
-  def deleteImportStmt(stmt: ScImportStmt): Unit = {
+  def deleteImportStmt(stmt: ScImportStmt) {
     val remove = getNode.removeChild _
     val node = stmt.getNode
     val next = node.getTreeNext
