@@ -15,7 +15,7 @@ import com.intellij.psi.{PsiWhiteSpace, PsiElement}
 class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Argument Conversion"
 
-  override def getText = "Convert to argument in parenthesis"
+  override def getText = "Convert to argument in parentheses"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
     element match {
