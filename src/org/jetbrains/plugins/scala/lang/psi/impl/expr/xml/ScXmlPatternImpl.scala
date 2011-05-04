@@ -5,20 +5,14 @@ package impl
 package expr
 package xml
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import com.intellij.psi.tree.TokenSet
 import com.intellij.lang.ASTNode
-import com.intellij.psi.tree.IElementType
 import api.ScalaElementVisitor
-;
 import com.intellij.psi._
-import org.jetbrains.annotations._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import collection.mutable.ArrayBuffer
+import api.base.ScPatternList
+import api.base.patterns.{ScPatterns, ScPattern}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -31,6 +25,16 @@ class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
     }
+  }
+
+  override def subpatterns: Seq[ScPattern] = {
+    val pattBuff: ArrayBuffer[ScPattern] = new ArrayBuffer[ScPattern]
+    pattBuff ++= super.subpatterns
+    val args = findChildrenByClassScala(classOf[ScPatterns])
+    for (arg <- args) {
+      pattBuff ++= arg.patterns
+    }
+    pattBuff.toSeq
   }
 
   override def toString: String = "XmlPattern"
