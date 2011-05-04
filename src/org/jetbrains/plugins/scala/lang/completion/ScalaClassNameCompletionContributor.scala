@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaSmartCompletionContributor._
@@ -89,7 +90,8 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
     }
   })
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
+    withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
         completeClassName(parameters, context, result)
