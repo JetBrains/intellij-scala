@@ -140,7 +140,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
         def run() {
           if (!ref.isValid || !CodeInsightUtilBase.prepareFileForWrite(ref.getContainingFile)) return;
           ScalaUtils.runWriteAction(new Runnable {
-            def run: Unit = {
+            def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               ScalaImportClassFix.getImportHolder(ref, project).addImportForClass(clazz, ref)
             }

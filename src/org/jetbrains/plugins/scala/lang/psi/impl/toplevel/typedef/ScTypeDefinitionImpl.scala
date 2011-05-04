@@ -42,6 +42,7 @@ import api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
 import api.statements.params.ScClassParameter
 import com.intellij.openapi.util.text.StringUtil
 import api.expr.ScBlock
+import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
@@ -151,6 +152,9 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
       case _: ScBlock => k("")
+      case parent: ScTemplateBody => _packageName(parent, sep, k)
+      case parent: ScExtendsBlock => _packageName(parent, sep, k)
+      case parent: ScTemplateParents => _packageName(parent, sep, k)
       case parent => _packageName(parent, sep, identity _)
     }
 
