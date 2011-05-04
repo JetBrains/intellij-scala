@@ -13,9 +13,12 @@ import expr._
 import result.{Success, Failure, TypeResult, TypingContext}
 import statements.{ScFunction, ScValue, ScVariable}
 import psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import processor.ExpandedExtractorResolveProcessor
 import statements.params.ScParameter
+import psi.util.CommonClassesSearcher
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -259,7 +262,20 @@ trait ScPattern extends ScalaPsiElement {
         }
 
       }
-      case _ => None//todo: XmlPattern
+      case _: ScXmlPattern => {
+        val nodeClasses: Seq[PsiClass] =
+          CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.xml.Node")
+        if (nodeClasses.isEmpty) return None
+        this match {
+          case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
+            val seqClasses: Seq[PsiClass] =
+              CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.collection.Seq")
+            if (seqClasses.isEmpty) return None
+            return Some(ScParameterizedType(ScDesignatorType(seqClasses(0)), Seq(ScDesignatorType(nodeClasses(0)))))
+          case _ => return Some(ScDesignatorType(nodeClasses(0)))
+        }
+      }
+      case _ => None
     }
     case clause: ScCaseClause => clause.getContext/*clauses*/.getContext match {
       case matchStat : ScMatchStmt => matchStat.expr match {
