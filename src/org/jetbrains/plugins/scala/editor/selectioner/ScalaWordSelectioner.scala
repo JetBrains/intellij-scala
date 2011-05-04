@@ -11,6 +11,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.codeInsight.editorActions.{ExtendWordSelectionHandler, ExtendWordSelectionHandlerBase}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import lang.psi.api.base.types.ScTypeArgs
 
 /**
  * User: Alexander Podkhalyuzin
@@ -21,13 +22,15 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): java.util.List[TextRange] = {
     val result = super.select(e, editorText, cursorOffset, editor)
     e match {
-    //case for selecting parameters without parenthesises
+      //case for selecting parameters without parenthesises
       case _: ScParameterClause | _: ScArguments => {
         val range = e.getTextRange
         if (range.getEndOffset - range.getStartOffset != 0) {
           val start = range.getStartOffset + 1
           //just look for last parenthesis
-          val end = if (e.getNode.getLastChildNode.getElementType == ScalaTokenTypes.tRPARENTHESIS) range.getEndOffset - 1 else range.getEndOffset
+          val end = if (Set(ScalaTokenTypes.tRPARENTHESIS, ScalaTokenTypes.tRSQBRACKET).contains(
+            e.getNode.getLastChildNode.getElementType
+          )) range.getEndOffset - 1 else range.getEndOffset
           result.add(new TextRange(start, end))
         }
       }
@@ -49,7 +52,7 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         val offset = if (!x.getParent.isInstanceOf[ScMethodCall]) x.getTextRange.getEndOffset
                      else x.getParent.getTextRange.getEndOffset
         //clear result if method call
-        if (x.getParent.isInstanceOf[ScMethodCall]) result.clear
+        if (x.getParent.isInstanceOf[ScMethodCall]) result.clear()
         x.qualifier match {
           case Some(qual) => {
             //get ranges for previos qualifier
