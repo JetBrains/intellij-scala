@@ -4,7 +4,6 @@ package parser
 package parsing
 package xml
 
-import com.intellij.lang.PsiBuilder
 import builder.ScalaPsiBuilder
 
 /**
@@ -13,5 +12,5 @@ import builder.ScalaPsiBuilder
 */
 
 object Reference {
-  def parse(builder: ScalaPsiBuilder): Boolean = false
+  def parse(builder: ScalaPsiBuilder): Boolean = false //todo: ?
 }
