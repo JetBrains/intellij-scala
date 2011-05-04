@@ -88,38 +88,80 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   def setModifierProperty(name: String, value: Boolean) {
     checkSetModifierProperty(name, value)
     if (hasModifierProperty(name) == value) return
+    def addAfter(node: ASTNode) {
+      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+      if (getFirstChild != null)
+        getNode.addChild(space)
+      getNode.addChild(node)
+    }
+    def addBefore(node: ASTNode) {
+      val first = getFirstChild
+      if (first == null) {
+        addAfter(node)
+        return
+      }
+      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+      getNode.addChild(node, first.getNode)
+      getNode.addChild(space, first.getNode)
+    }
     name match {
-      case "override" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("override", getManager))
+      case "override" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("override", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kOVERRIDE).getNode)
-      case "private" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("private", getManager))
+      case "private" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("private", getManager)
+        addBefore(node)
+      }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isPrivate) {
           getNode.removeChild(child.getNode)
           return
         }
       }
-      case "protected" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("protected", getManager))
+      case "protected" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("protected", getManager)
+        addBefore(node)
+      }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isProtected) {
           getNode.removeChild(child.getNode)
           return
         }
       }
-      case "final" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("final", getManager))
+      case "final" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("final", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kFINAL).getNode)
-      case "implicit" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("implicit", getManager))
+      case "implicit" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("implicit", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kIMPLICIT).getNode)
-      case "abstract" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("abstract", getManager))
+      case "abstract" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("abstract", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kABSTRACT).getNode)
-      case "sealed" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("sealed", getManager))
+      case "sealed" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("sealed", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kSEALED).getNode)
-      case "lazy" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("lazy", getManager))
+      case "lazy" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("lazy", getManager)
+        addBefore(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kLAZY).getNode)
-      case "case" => if (value) getNode.addChild(ScalaPsiElementFactory.createModifierFromText("case", getManager))
+      case "case" => if (value) {
+        val node = ScalaPsiElementFactory.createModifierFromText("case", getManager)
+        addAfter(node)
+      }
         else getNode.removeChild(findChildByType(ScalaTokenTypes.kCASE).getNode)
       case _ => return
     }
-    if (value) getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager, " "))
   }
 
   def checkSetModifierProperty(name: String, value: Boolean) {
