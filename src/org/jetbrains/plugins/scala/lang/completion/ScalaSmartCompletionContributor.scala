@@ -400,7 +400,8 @@ object ScalaSmartCompletionContributor {
       }
     }
     val lookupElement = getLookupElementFromClass(noUndefType, clazz, ScSubstitutor.empty)
-    lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+    if (undefines.length > 0)
+      lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
     return lookupElement
   }
 
