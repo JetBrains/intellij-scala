@@ -118,17 +118,23 @@
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.apply.UnapplyMethodSearcher"/>
     <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.vals.JavaValsUsagesSearcher"/>
     <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory"/>
+
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaPatternParameterInfoHandler"/>
     <codeInsight.parameterInfo language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaTypeParameterInfoHandler"/>
+
     <defaultLiveTemplatesProvider implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaDefaultLiveTemplatesProvider"/>
     <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaLiveTemplateContextType"/>
     <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
     <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
+
     <testSrcLocator implementation="org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider"/>
     <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
-    <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestFramework"/>
     <testGenerator implementation="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
+    <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestFramework"/>
+    <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsTestFramework"/>
+    <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalatestTestFramework"/>
+
     <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
     <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder" order="first"/>
     <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
@@ -143,6 +149,7 @@
     <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"/>
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
     <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
+    <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaScriptConsoleConfigurationType"/>
@@ -153,7 +160,6 @@
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationProducer"/>
-    <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
 
     <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes"/>
     <!--Stub indeces -->
