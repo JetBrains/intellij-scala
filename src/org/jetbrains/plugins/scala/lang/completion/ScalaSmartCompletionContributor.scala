@@ -300,7 +300,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                         for (undefine <- undefines) {
                           subst.subst(undefine) match {
                             case ScUndefinedType(_) =>
-                              lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+                              lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
+                                new java.lang.Boolean(true))
                             case _ =>
                           }
                         }
@@ -390,7 +391,8 @@ object ScalaSmartCompletionContributor {
             for (undefine <- undefines) {
               subst.subst(undefine) match {
                 case ScUndefinedType(_) =>
-                  lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+                  lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
+                    new java.lang.Boolean(true))
                 case _ =>
               }
             }
@@ -400,21 +402,17 @@ object ScalaSmartCompletionContributor {
       }
     }
     val lookupElement = getLookupElementFromClass(noUndefType, clazz, ScSubstitutor.empty)
-    if (undefines.length > 0)
-      lookupElement.getObject.asInstanceOf[ScalaLookupObject].typeParametersProblem = true
+    if (undefines.length > 0) {
+      lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
+        new java.lang.Boolean(true))
+    }
     return lookupElement
   }
 
   def getLookupElementFromClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor): LookupElement = {
     val name: String = psiClass.getName
-    val lookupObject: ScalaLookupObject = ScalaLookupObject(psiClass, false, false)
-    tp match {
-      case ScParameterizedType(_, tps) =>
-        lookupObject.setTypeParameters(tps)
-      case _ =>
-    }
     var lookupBuilder: LookupElementBuilder =
-      LookupElementBuilder.create(lookupObject, name) //don't add elements to lookup
+      LookupElementBuilder.create(psiClass, name)
     lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
       def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
         var isDeprecated = false
@@ -448,6 +446,12 @@ object ScalaSmartCompletionContributor {
     if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
       psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
       lookupElement = AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
-    LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
+    lookupElement = LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
+    tp match {
+      case ScParameterizedType(_, tps) =>
+        lookupElement.putUserData(ResolveUtils.typeParametersKey, tps)
+      case _ =>
+    }
+    lookupElement
   }
 }

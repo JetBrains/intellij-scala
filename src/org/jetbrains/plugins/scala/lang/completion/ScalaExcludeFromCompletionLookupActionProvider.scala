@@ -20,7 +20,7 @@ class ScalaExcludeFromCompletionLookupActionProvider extends LookupActionProvide
     val o: Object = element.getObject
     var clazz: PsiClass = null
     o match {
-      case ScalaLookupObject(cl: PsiClass, _, _) => clazz = cl
+      case cl: PsiClass => clazz = cl
       case _ => //do nothing, this way handled in ExludeFromCompletionLookupActionProvider
     }
     if (clazz != null && clazz.isValid) {

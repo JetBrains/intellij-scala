@@ -13,6 +13,7 @@ import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, Loo
 import resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiMethod}
 import extensions._
+import resolve.ResolveUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,7 +29,11 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
     }
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
-    item.getObject match {
+
+    val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
+    if (patchedObject == null) return
+
+    patchedObject match {
       case ScalaLookupObject(named: PsiNamedElement, isNamed, _) if isNamed => {
         val endOffset = startOffset + lookupStringLength
         context.setAddCompletionChar(false)
@@ -36,11 +41,11 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
         editor.getCaretModel.moveToOffset(endOffset + 3)
       }
       case ScalaLookupObject(_: PsiMethod, _, _) | ScalaLookupObject(_: ScFun, _, _) => {
-        item.getObject match {
+        patchedObject match {
           case ScalaLookupObject(_, _, true) => return
           case _ =>
         }
-        val (count, methodName, isAccessor) = item.getObject match {
+        val (count, methodName, isAccessor) = patchedObject match {
           case ScalaLookupObject(fun: ScFunction, _, _) => {
             val clauses = fun.paramClauses.clauses
             if (clauses.length == 0) return

@@ -10,6 +10,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import lang.psi.api.toplevel.imports.ScImportStmt
+import lang.completion.ScalaCompletionUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -24,7 +25,10 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
     var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
     val useFullyQualiedName = (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null)
     if (ref == null) return
-    item.getObject match {
+    val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
+    if (patchedObject == null) return
+
+    patchedObject match {
       case ScalaLookupObject(cl: PsiClass, _, _) =>
         while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
                 (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {
