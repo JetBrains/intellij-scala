@@ -379,8 +379,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     for (VirtualFile file : filesToCompile) {
       printer.println(file.getPath());
     }
-    for (VirtualFile sourceDependency : sourceDependencies) {
-      addJavaSourceFiles(printer, sourceDependency, filesToCompile);
+    if (settings.SCALAC_BEFORE) {
+      // No need to pass .java files to scalac unless we are running it before javac.
+      // This avoids needlessly hitting bugs in the scalac java parser/typer, e.g. SCL-3146
+      for (VirtualFile sourceDependency : sourceDependencies) {
+        addJavaSourceFiles(printer, sourceDependency, filesToCompile);
+      }
     }
     printer.close();
     if (LOG.isDebugEnabled()) {
