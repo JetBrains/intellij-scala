@@ -37,6 +37,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         extends LineMarkerProvider with ScalaSeparatorProvider {
 
   def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
+    if (!element.isValid) return null
     val gator = getGatorInfo(element)
     if(daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
       if(gator == null) {
