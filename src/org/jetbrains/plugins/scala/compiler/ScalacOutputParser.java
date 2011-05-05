@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -56,6 +57,7 @@ class ScalacOutputParser extends OutputParser {
 
   @NonNls
   private static Set<String> PHASES = new HashSet<String>();
+
   static {
     PHASES.addAll(Arrays.asList(
         "parser", "namer", "typer", "superaccessors", "pickler", "refchecks", "liftcode",
@@ -73,6 +75,7 @@ class ScalacOutputParser extends OutputParser {
   private MESSAGE_TYPE myMsgType = PLAIN;
   private ArrayList<String> myWrittenList = new ArrayList<String>();
   private final Object WRITTEN_LIST_LOCK = new Object();
+  private static final Pattern SCALA_29_PATTERN = Pattern.compile("'.*' to (.+)");
 
   static enum MESSAGE_TYPE {
     ERROR, WARNING, PLAIN
@@ -200,8 +203,13 @@ class ScalacOutputParser extends OutputParser {
   private void checkOutput(Callback callback, String info, final String ourWroteBeanInfoMarker) {
     callback.setProgressText(info);
     String outputPath = info.substring(ourWroteBeanInfoMarker.length());
-    final String path = outputPath.replace(File.separatorChar, '/');
+    String path = outputPath.replace(File.separatorChar, '/');
 //          callback.fileGenerated(path);
+    // See http://youtrack.jetbrains.net/issue/SCL-3175
+    Matcher matcher = SCALA_29_PATTERN.matcher(path);
+    if (matcher.matches()) {
+      path = matcher.group(1);
+    }
     synchronized (WRITTEN_LIST_LOCK) {
       myWrittenList.add(path);
     }
