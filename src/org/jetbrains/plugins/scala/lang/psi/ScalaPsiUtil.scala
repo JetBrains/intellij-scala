@@ -1112,6 +1112,18 @@ object ScalaPsiUtil {
           }
         case _ => false
       }
+      //todo: maybe it's better to check for concrete parameter if parameters count more than one
+      case inf: ScInfixExpr if expr == inf.getArgExpr =>
+        val op = inf.operation
+        op.bind() match {
+          case Some(ScalaResolveResult(fun: ScFunction, _)) =>
+            fun.clauses.map(clause => {
+              val clauses = clause.clauses
+              if (clauses.length == 0) false
+              else !clauses(0).parameters.forall(p => !p.isCallByNameParameter)
+            }).getOrElse(false)
+          case _ => false
+        }
       case _ => false
     }
   }
