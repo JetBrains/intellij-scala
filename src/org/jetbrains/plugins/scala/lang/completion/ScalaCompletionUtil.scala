@@ -23,6 +23,9 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
+import com.intellij.codeInsight.lookup.LookupElement
+import lang.resolve.ResolveUtils.ScalaLookupObject
+import lang.resolve.ResolveUtils
 
 /**
 * User: Alexander Podkhalyuzin
@@ -82,9 +85,10 @@ object ScalaCompletionUtil {
 
   def awful(parent: PsiElement, leaf: PsiElement): Boolean = {
     (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-            leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) && (parent.getPrevSibling == null ||
-            parent.getPrevSibling.getPrevSibling == null ||
-            (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT || !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
+      leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
+      (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
+        (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
+          !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
   }
 
   val DUMMY_IDENTIFIER = "IntellijIdeaRulezzz"
@@ -93,13 +97,17 @@ object ScalaCompletionUtil {
     val classText: String = clazz.getText
     val text = removeDummy(classText + " " + additionText)
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
   }
 
   def checkElseWith(text: String, manager: PsiManager): Boolean = {
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
   }
 
@@ -107,7 +115,9 @@ object ScalaCompletionUtil {
     val typeText = typez.getText
     val text = removeDummy("class a { x:" + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
     return value
   }
@@ -116,7 +126,9 @@ object ScalaCompletionUtil {
     val typeText = typez.getText
     val text = removeDummy("class a { val x:" + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
     return value
   }
@@ -125,7 +137,9 @@ object ScalaCompletionUtil {
     val typeText = typez.getText
     val text = removeDummy("class a { " + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
   }
 
@@ -145,7 +159,9 @@ object ScalaCompletionUtil {
     val newsText = news.getText
     var text = removeDummy("class a { " + newsText + " " + additionText + "}")
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
   }
 
@@ -155,7 +171,9 @@ object ScalaCompletionUtil {
     if (text.indexOf(DUMMY_IDENTIFIER) == -1) return false
     text = replaceDummy(text, " "+ additionText+ " ")
     val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     return !checkErrors(dummyFile)
   }
 
@@ -166,7 +184,7 @@ object ScalaCompletionUtil {
     }
     val iterator = elem.getChildren.iterator
     while (iterator.hasNext) {
-      val child = iterator.next
+      val child = iterator.next()
       if (checkErrors(child)) return true
     }
     return false
@@ -183,5 +201,25 @@ object ScalaCompletionUtil {
     val prefix = prefixMatcher.getPrefix
     val capitalized = prefix.length() > 0 && prefix.substring(0, 1).capitalize == prefix.substring(0, 1)
     capitalized || parameters.isRelaxedMatching
+  }
+
+  def getScalaLookupObject(item: LookupElement): ScalaLookupObject = {
+    val psi = item.getObject
+    if (psi == null || !psi.isInstanceOf[PsiNamedElement]) return null
+    val isInImport = item.getUserData(ResolveUtils.isInImportKey)
+    val isNamedParameter = item.getUserData(ResolveUtils.isNamedParameter)
+
+    val obj = ScalaLookupObject(psi.asInstanceOf[PsiNamedElement],
+      if (isNamedParameter == null) false
+      else isNamedParameter.booleanValue(),
+      if (isInImport == null) false
+      else isInImport.booleanValue())
+    val typeParametersProblem = item.getUserData(ResolveUtils.typeParametersProblemKey)
+    if (typeParametersProblem == java.lang.Boolean.TRUE)
+      obj.typeParametersProblem = true
+    val typeParameters = item.getUserData(ResolveUtils.typeParametersKey)
+    if (typeParameters != null)
+      obj.setTypeParameters(typeParameters)
+    obj
   }
 }

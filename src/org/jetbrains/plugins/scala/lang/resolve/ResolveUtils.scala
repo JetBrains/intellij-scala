@@ -35,6 +35,7 @@ import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import psi.fake.FakePsiMethod
 import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
 import psi.api.base.types.{ScCompoundTypeElement, ScTypeElement, ScSelfTypeElement}
+import com.intellij.openapi.util.Key
 
 /**
  * @author ven
@@ -354,7 +355,7 @@ object ResolveUtils {
 
     def getLookupElementInternal(isAssignment: Boolean, name: String): (LookupElement, PsiNamedElement, ScSubstitutor) = {
       var lookupBuilder: LookupElementBuilder =
-        LookupElementBuilder.create(ScalaLookupObject(element, resolveResult.isNamedParameter, isInImport), name) //don't add elements to lookup
+        LookupElementBuilder.create(element, name) //don't add elements to lookup
       lookupBuilder = lookupBuilder.setInsertHandler(
         if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
       )
@@ -453,9 +454,12 @@ object ResolveUtils {
             presentation.setItemTextUnderlined(isUnderlined)
         }
       })
-      val returnLookupElement =
+      val returnLookupElement: LookupElement =
         if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
         else lookupBuilder
+      returnLookupElement.putUserData(isInImportKey, new java.lang.Boolean(isInImport))
+      returnLookupElement.putUserData(isNamedParameter, new java.lang.Boolean(resolveResult.isNamedParameter))
+
       (returnLookupElement, element, substitutor)
     }
 
@@ -466,6 +470,11 @@ object ResolveUtils {
       case _ => Seq(getLookupElementInternal(false, name))
     }
   }
+
+  val isNamedParameter: Key[java.lang.Boolean] = Key.create("is.named.parameter.key")
+  val isInImportKey: Key[java.lang.Boolean] = Key.create("is.in.import.key")
+  val typeParametersProblemKey: Key[java.lang.Boolean] = Key.create("type.parameters.problem.key")
+  val typeParametersKey: Key[Seq[ScType]] = Key.create("type.parameters.key")
 
   case class ScalaLookupObject(elem: PsiNamedElement, isNamedParameter: Boolean, isInImport: Boolean) {
     private var typeParameters: Seq[ScType] = Seq.empty

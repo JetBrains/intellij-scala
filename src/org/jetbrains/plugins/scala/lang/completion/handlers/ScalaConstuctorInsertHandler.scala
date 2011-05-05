@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,7 +32,11 @@ class ScalaConstuctorInsertHandler extends InsertHandler[LookupElement] {
     val startOffset = context.getStartOffset
     val lookupStringLength = item.getLookupString.length
     var endOffset = startOffset + lookupStringLength
-    item.getObject match {
+
+    val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
+    if (patchedObject == null) return
+
+    patchedObject match {
       case obj@ScalaLookupObject(clazz: PsiClass, _, _) => {
         var hasNonEmptyParams = false
         clazz match {
