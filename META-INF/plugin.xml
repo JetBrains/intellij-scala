@@ -67,6 +67,8 @@
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionWeigher"
              id="scalaCompletionWeigher" order="after negativeStats, before stats"/>
+    <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
+             id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
     <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
     <codeInsight.overrideMethod language="Scala" implementationClass="org.jetbrains.plugins.scala.overrideImplement.ScalaOverrideMethodsHandler"/>
     <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
