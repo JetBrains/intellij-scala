@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull
 import collection.JavaConversions
 import com.intellij.psi._
 import impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
+import com.intellij.openapi.diagnostic.Logger
 
 class ScalaReferenceContributor extends PsiReferenceContributor {
 
@@ -25,6 +26,8 @@ class ScalaReferenceContributor extends PsiReferenceContributor {
 
 // Copy of the corresponding class from IDEA, changed to use ScLiteral rather than PsiLiteralExpr
 class FilePathReferenceProvider extends PsiReferenceProvider {
+  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.references.FilePathReferenceProvider")
+
   @NotNull def getRoots(thisModule: Module, includingClasses: Boolean): java.util.Collection[PsiFileSystemItem] = {
     if (thisModule == null) return Collections.emptyList[PsiFileSystemItem]
     val modules: java.util.List[Module] = new ArrayList[Module]
@@ -50,7 +53,12 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         if (directory != null) {
           val aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(directory)
           if (aPackage != null && aPackage.getName != null) {
-//            result.add(PackagePrefixFileSystemItem.create(directory)) // TODO
+            try {
+              val createMethod = Class.forName("com.intellij.psi.impl.source.resolve.reference.impl.providers.PackagePrefixFileSystemItem").getMethod("create", classOf[PsiDirectory])
+              createMethod.invoke(directory)
+            } catch {
+              case t  => LOG.warn(t)
+            }
           }
           else {
             result.add(directory)
