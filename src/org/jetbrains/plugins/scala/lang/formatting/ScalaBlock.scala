@@ -81,7 +81,7 @@ extends Object with ScalaTokenTypes with Block {
         this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
-          return new ChildAttributes(Indent.getNoneIndent(), null)
+          return new ChildAttributes(Indent.getNoneIndent, null)
         else return new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
           Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
@@ -90,8 +90,11 @@ extends Object with ScalaTokenTypes with Block {
       case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
-      case _: ScDocComment => new ChildAttributes(Indent.getSpaceIndent(1), null)
-      case _ => new ChildAttributes(Indent.getNoneIndent(), null)
+      case _: ScDocComment if scalaSettings.USE_SCALADOC2_FORMATTING =>
+        new ChildAttributes(Indent.getSpaceIndent(2), null)
+      case _: ScDocComment =>
+        new ChildAttributes(Indent.getSpaceIndent(1), null)
+      case _ => new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
 
@@ -112,17 +115,17 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def isLeaf(node: ASTNode): Boolean = {
-    if (myLastNode == null) return node.getFirstChildNode() == null
+    if (myLastNode == null) return node.getFirstChildNode == null
     else return false
   }
 
   def isIncomplete(node: ASTNode): Boolean = {
     if (node.getPsi.isInstanceOf[PsiErrorElement])
       return true;
-    var lastChild = node.getLastChildNode();
+    var lastChild = node.getLastChildNode
     while (lastChild != null &&
       (lastChild.getPsi.isInstanceOf[PsiWhiteSpace] || lastChild.getPsi.isInstanceOf[PsiComment])) {
-      lastChild = lastChild.getTreePrev();
+      lastChild = lastChild.getTreePrev
     }
     if (lastChild == null) {
       return false;
