@@ -80,7 +80,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   def getJavaOptions = javaOptions
   def getScalaTestVersion: Boolean = scalaTestVersion
   def getWorkingDirectory: String = workingDirectory
-  def setTestClassPath(s: String): Unit = testClassPath = s
+  def setTestClassPath(s: String) {testClassPath = s}
   def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
@@ -119,7 +119,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
-    def classNotFoundError {
+    def classNotFoundError() {
       throw new ExecutionException("Test class not found.")
     }
     var clazz: PsiClass = null
@@ -133,9 +133,9 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       suiteClass = getClazz(SUITE_PATH)
     }
     catch {
-      case e => classNotFoundError
+      case e => classNotFoundError()
     }
-    if (clazz == null && pack == null) classNotFoundError
+    if (clazz == null && pack == null) classNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException("ScalaTest not specified.")
     val classes = new ArrayBuffer[PsiClass]
@@ -173,7 +173,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     } catch {
       case e: Exception => //nothing to do
     }
-    val scalaTestVersion: String = "10"
+    val scalaTestVersion: String = if (scalaVersion == "27") "10" else "15"
 
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
@@ -209,7 +209,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
 
-        params.getProgramParametersList.add(if (scalaTestVersion == "10") "-r" else "-rYZTFGUPBISAR")
+        params.getProgramParametersList.add("-r")
         params.getProgramParametersList.add(reporterClass(scalaTestVersion, scalaVersion))
         params.getProgramParametersList.addParametersString(testArgs)
         return params
@@ -243,7 +243,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaTestRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "path", getTestClassPath)
@@ -254,7 +254,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
     testClassPath = JDOMExternalizer.readString(element, "path")
