@@ -162,7 +162,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                   clazz.getMethods.toSeq.flatMap(f => f match {case f: PsiAnnotationMethod => Seq(f) case _ => Seq.empty})
                 val exprs = args.exprs
                 var i = 0
-                def tail: Unit = if (!methods.isEmpty) methods.remove(0)
+                def tail() {
+                  if (!methods.isEmpty) methods.remove(0)
+                }
                 while (exprs(i) != assign) {
                   exprs(i) match {
                     case assignStmt: ScAssignStmt => {
@@ -170,12 +172,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                         case ref: ScReferenceExpression => {
                           val ind = methods.indexWhere(_.getName == ref.refName)
                           if (ind != -1) methods.remove(ind)
-                          else tail
+                          else tail()
                         }
-                        case _ => tail
+                        case _ => tail()
                       }
                     }
-                    case _ => tail
+                    case _ => tail()
                   }
                   i = i + 1
                 }

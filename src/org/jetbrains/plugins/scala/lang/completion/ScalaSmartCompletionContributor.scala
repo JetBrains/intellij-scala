@@ -51,7 +51,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               result.addElement(el)
             }
           }
-          if (!el.isInstanceOf[ScalaLookupObject] || !el.asInstanceOf[ScalaLookupObject].isNamedParameter)
+          val userData = el.getUserData(ResolveUtils.isNamedParameter)
+          if (userData == null || !userData.booleanValue())
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
               case fun: ScFunction => checkType(fun.returnType.getOrElse(Any))
