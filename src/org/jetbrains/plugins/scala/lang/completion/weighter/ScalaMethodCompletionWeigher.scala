@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaCompletionWeigher extends CompletionWeigher {
+class ScalaMethodCompletionWeigher extends CompletionWeigher {
   case class MethodNameComparable(name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
     def compareTo(o: MethodNameComparable): Int = {
       val i = name.compareTo(o.name)

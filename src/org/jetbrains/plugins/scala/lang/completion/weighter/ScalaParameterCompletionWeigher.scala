@@ -25,7 +25,8 @@ class ScalaParameterCompletionWeigher extends CompletionWeigher {
       case param: ScParameter =>
         val isNamed = ScalaCompletionUtil.getScalaLookupObject(element).isNamedParameter
         ParameterNameComparable(isNamed)
-      case _ => null
+      case _ =>
+        ParameterNameComparable(false)
     }
   }
 }
