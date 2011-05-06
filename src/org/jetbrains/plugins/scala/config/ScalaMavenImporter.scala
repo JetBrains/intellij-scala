@@ -20,21 +20,23 @@ import org.jetbrains.plugins.scala.extensions._
 class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfiguration, ScalaFacetType](
   "org.scala-tools", "maven-scala-plugin", ScalaFacet.Type, "Scala") {
 
-  private val LibraryName = "Maven: org.scala-lang:scala-compiler-bundle:%s".format(_)
+  private val LibraryName = "Maven: org.scala-lang:scala-compiler-bundle:%s".format(_: String)
 
   private implicit def toRichMavenProject(project: MavenProject) = new {
     def localPathTo(id: MavenId) = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
             id.getArtifactId / id.getVersion / "%s-%s.jar".format(id.getArtifactId, id.getVersion)
   }
   
-  override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit =
+  override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]) {
     collectSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala", result)
+  }
 
-  override def collectTestFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit =
+  override def collectTestFolders(mavenProject: MavenProject, result: java.util.List[String]) {
     collectSourceOrTestFolders(mavenProject, "add-source", "testSourceDir", "src/test/scala", result)
+  }
 
   private def collectSourceOrTestFolders(mavenProject: MavenProject, goal: String, goalPath: String,
-                                         defaultDir: String, result: java.util.List[String]): Unit = {
+                                         defaultDir: String, result: java.util.List[String]) {
     val goalConfigValue = findGoalConfigValue(mavenProject, goal, goalPath)
     result.add(if (goalConfigValue == null) defaultDir else goalConfigValue)
   }
@@ -46,7 +48,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
   def reimportFacet(modelsProvider: MavenModifiableModelsProvider, module: Module, rootModel: MavenRootModelAdapter,
                     facet: ScalaFacet, mavenTree: MavenProjectsTree, mavenProject: MavenProject, 
                     changes: MavenProjectChanges, mavenProjectToModuleName: Map[MavenProject, String], 
-                    postTasks: List[MavenProjectsProcessorTask]) = {
+                    postTasks: List[MavenProjectsProcessorTask]) {
     validConfigurationIn(mavenProject).foreach { configuration =>
       val name = LibraryName(configuration.compilerVersion.mkString)
 
@@ -97,7 +99,7 @@ class ScalaMavenImporter extends FacetImporter[ScalaFacet, ScalaFacetConfigurati
   private def validConfigurationIn(project: MavenProject) =
     Some(new ScalaConfiguration(project)).filter(_.valid)
   
-  def setupFacet(f: ScalaFacet, mavenProject: MavenProject): Unit = {}
+  def setupFacet(f: ScalaFacet, mavenProject: MavenProject) {}
 }
 
 private class ScalaConfiguration(project: MavenProject) {
