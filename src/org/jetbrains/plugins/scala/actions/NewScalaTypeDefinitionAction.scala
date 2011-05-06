@@ -8,7 +8,6 @@ import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInP
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.util.ScalaUtils
 import org.jetbrains.annotations.NonNls
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.actionSystem._
@@ -30,7 +29,7 @@ import org.jetbrains.plugins.scala.config.ScalaFacet
 class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeDefinition](
   ScalaBundle.message("newclass.menu.action.text"), ScalaBundle.message("newclass.menu.action.description"), Icons.CLASS, true) with DumbAware {
   protected def buildDialog(project: Project, directory: PsiDirectory,
-                            builder: CreateFileFromTemplateDialog.Builder): Unit = {
+                            builder: CreateFileFromTemplateDialog.Builder) {
     builder.addKind("Class", Icons.CLASS, "Scala Class");
     builder.addKind("Object", Icons.OBJECT, "Scala Object");
     builder.addKind("Trait", Icons.TRAIT, "Scala Trait");
@@ -87,7 +86,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private val SCALA_EXTENSIOIN = ".scala";
 
-  override def doCheckCreate(dir: PsiDirectory, className: String, templateName: String): Unit = {
+  override def doCheckCreate(dir: PsiDirectory, className: String, templateName: String) {
     if (!ScalaNamesUtil.isIdentifier(className)) {
       throw new IncorrectOperationException(PsiBundle.message("0.is.not.an.identifier", className))
     }
