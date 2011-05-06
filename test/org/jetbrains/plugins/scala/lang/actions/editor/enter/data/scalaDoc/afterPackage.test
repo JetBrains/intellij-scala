@@ -1,8 +1,10 @@
 package a
 /**<caret>
+class A
 -----
 package a
 
 /**
- * <caret>
- */
+  * <caret>
+  */
+class A
