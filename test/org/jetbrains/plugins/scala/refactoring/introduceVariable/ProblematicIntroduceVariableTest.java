@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NonNls;
 /**
  * @author Alexander Podkhalyuzin
  */
-public class ProblematicIntroduceVariableTest extends AbstractIntroduceVariableTest {
+public class ProblematicIntroduceVariableTest extends AbstractIntroduceVariableTestBase {
 
   @NonNls
   private static final String DATA_PATH = "test/org/jetbrains/plugins/scala/refactoring/introduceVariable/problematicData/";
