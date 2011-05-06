@@ -5,6 +5,8 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -14,13 +16,15 @@ class ScalaCompletionWeigher extends CompletionWeigher {
   case class MethodNameComparable(name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
     def compareTo(o: MethodNameComparable): Int = {
       val i = name.compareTo(o.name)
-      if (i < 0) return -1
-      else if (i > 0) return 1
-      else if (hasParameters == o.hasParameters) return 0
+      if (i != 0) return 0
+      if (hasParameters == o.hasParameters) return 0
       else if (hasParameters && !o.hasParameters) return 1
       else return -1
     }
   }
+
+
+
   def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     val obj = element.getObject
     obj match {
@@ -28,6 +32,9 @@ class ScalaCompletionWeigher extends CompletionWeigher {
         MethodNameComparable(psi.getName, psi.parameters.length > 0)
       case psi: PsiMethod =>
         MethodNameComparable(psi.getName, psi.getParameterList.getParametersCount > 0)
+      case param: ScParameter =>
+        val isNamed = ScalaCompletionUtil.getScalaLookupObject(element).isNamedParameter
+        ParameterNameComparable(isNamed)
       case _ => null
     }
   }
