@@ -1,12 +1,12 @@
 class a {
   /**
-   * <caret>
-   */
+    *<caret>
+    */
 }
 -----
 class a {
   /**
-   * 
-   * <caret>
-   */
+    *
+    * <caret>
+    */
 }

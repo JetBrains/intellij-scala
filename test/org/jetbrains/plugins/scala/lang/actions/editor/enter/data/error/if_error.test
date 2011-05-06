@@ -1,8 +1,8 @@
 class C {
-  if <caret>
+  if (true)<caret>
 }
 -----
 class C {
-  if 
+  if (true)
     <caret>
 }
