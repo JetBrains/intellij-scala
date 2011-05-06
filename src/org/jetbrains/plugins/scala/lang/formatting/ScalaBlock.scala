@@ -4,7 +4,6 @@ package formatting
 
 import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
-import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings};
 import com.intellij.openapi.util.TextRange;
@@ -23,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
 import java.util.List
 import scaladoc.psi.api.ScDocComment
+import com.intellij.formatting._
 ;
 
 
@@ -94,6 +94,8 @@ extends Object with ScalaTokenTypes with Block {
         new ChildAttributes(Indent.getSpaceIndent(2), null)
       case _: ScDocComment =>
         new ChildAttributes(Indent.getSpaceIndent(1), null)
+      case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
+        new ChildAttributes(Indent.getNormalIndent, null)
       case _ => new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
