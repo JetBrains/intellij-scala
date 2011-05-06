@@ -33,7 +33,7 @@ import java.io.IOException;
  */
 
 
-abstract public class AbstractIntroduceVariableTest extends ActionTestBase {
+abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
 
 
@@ -47,7 +47,7 @@ abstract public class AbstractIntroduceVariableTest extends ActionTestBase {
 
   protected boolean replaceAllOccurences = false;
 
-  public AbstractIntroduceVariableTest(String DATA_PATH) {
+  public AbstractIntroduceVariableTestBase(String DATA_PATH) {
     super(System.getProperty("path") != null ?
             System.getProperty("path") :
             DATA_PATH
