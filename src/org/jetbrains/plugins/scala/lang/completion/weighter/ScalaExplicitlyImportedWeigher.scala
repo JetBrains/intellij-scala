@@ -84,6 +84,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
                 case None =>
               }
             }
+          case _ =>
         }
       case _ =>
     }
