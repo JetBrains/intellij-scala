@@ -5,7 +5,6 @@ package api
 package expr
 
 import impl.ScalaPsiElementFactory
-import types.nonvalue.{ScMethodType, Parameter, ScTypePolymorphicType}
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
 import types.Compatibility.Expression
@@ -114,10 +113,10 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     return tp
   }
 
-  private val EXPR_LOCK = new Object()
+  //private val EXPR_LOCK = new Object()
 
   def getTypeWithoutImplicits(ctx: TypingContext): TypeResult[ScType] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty) return valueType(ctx)
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
@@ -131,7 +130,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
   def getTypeWithoutImplicitsWihoutUnderscore(ctx: TypingContext): TypeResult[ScType] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty) return valueType(ctx, true)
     var tp = exprTypeWithoutUnderscore
     val curModCount = getManager.getModificationTracker.getModificationCount
@@ -205,7 +204,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     val ip = implicitParameters
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (ip != null && exprTypeModCount == curModCount) {
@@ -225,19 +224,19 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     //let's update implicitParameters field
     res match {
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
-        val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+        /*val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
           (subst: ScSubstitutor, tp: TypeParameter) =>
             subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
               new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
-        }
+        }*/
         val polymorphicSubst = t.polymorphicTypeSubstitutor
-        val existentialSubst = t.existentialTypeSubstitutor
+        //val existentialSubst = t.existentialTypeSubstitutor
         val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
         val exprs = new ArrayBuffer[Expression]
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
-          val param = iterator.next
+          val param = iterator.next()
           val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
           val collector = new ImplicitParametersCollector(this, paramType)
           val results = collector.collect
@@ -272,7 +271,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
         while (iterator.hasNext) {
-          val param = iterator.next
+          val param = iterator.next()
           val paramType = param.paramType //we should do all of this with information known before
           val collector = new ImplicitParametersCollector(this, paramType)
           val results = collector.collect
@@ -451,7 +450,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
   def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
     var tp = nonValueType
     val curModCount = getManager.getModificationTracker.getModificationCount
@@ -465,7 +464,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
-    Failure(ScalaBundle.message("no.type.inferred", getText()), Some(this))
+    Failure(ScalaBundle.message("no.type.inferred", getText), Some(this))
 
   /**
    * Returns all types in respect of implicit conversions (defined and default)
