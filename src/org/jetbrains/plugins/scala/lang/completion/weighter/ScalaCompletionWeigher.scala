@@ -32,9 +32,6 @@ class ScalaCompletionWeigher extends CompletionWeigher {
         MethodNameComparable(psi.getName, psi.parameters.length > 0)
       case psi: PsiMethod =>
         MethodNameComparable(psi.getName, psi.getParameterList.getParametersCount > 0)
-      case param: ScParameter =>
-        val isNamed = ScalaCompletionUtil.getScalaLookupObject(element).isNamedParameter
-        ParameterNameComparable(isNamed)
       case _ => null
     }
   }
