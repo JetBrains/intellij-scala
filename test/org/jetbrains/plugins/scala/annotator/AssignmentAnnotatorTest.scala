@@ -152,10 +152,13 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
   }
   
   def testSetter {
-    assertMatches(messages("val a = A; def a_=(x: A) {}; a = A")) {
+    assertMatches(messages("def a = A; def a_=(x: A) {}; a = A")) {
       case Nil =>
     }
-    assertMatches(messages("val a = A; def a_=(x: A) {}; a = B")) {
+    assertMatches(messages("val a = A; def a_=(x: A) {}; a = A")) {
+      case Error("a = A", ReassignmentToVal()) :: Nil =>
+    }
+    assertMatches(messages("def a = A; def a_=(x: A) {}; a = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
   }
