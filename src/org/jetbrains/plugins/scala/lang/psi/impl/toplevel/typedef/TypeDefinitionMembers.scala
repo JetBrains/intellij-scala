@@ -397,7 +397,10 @@ object TypeDefinitionMembers {
 
   // Configurable locking strategy, to help diagnose "SCL-3071 Ocassional deadlock in idea after upgrade to last plugin"
   private object Locker {
-    def locking[T](cls: PsiClass)(f: => T) = if (shouldUseTryLock) tryLock(cls, f) else cls.synchronized(f)
+    def locking[T](cls: PsiClass)(f: => T) = if (shouldUseTryLock)
+      tryLock(cls, f)
+    else
+      cls.synchronized(f)
 
     /**Lock with a Reentrant lock, using an acquire timeout. If acquisition fails, throw an exception containing
      *  the Map(threadID -> className) of all locks.
