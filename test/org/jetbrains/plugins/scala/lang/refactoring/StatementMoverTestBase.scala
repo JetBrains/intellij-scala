@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
  * Pavel Fatin
  */
 
-class StatementMoverTestBase extends SimpleTestCase {
+abstract class StatementMoverTestBase extends SimpleTestCase {
   protected implicit def toMovable(code: String) = new Movable(code)
 
   private def move(code: String, direction: Direction): Option[String] = {
