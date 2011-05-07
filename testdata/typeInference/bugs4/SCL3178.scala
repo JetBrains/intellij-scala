@@ -11,4 +11,4 @@ abstract class X extends Base {
   }
 }
 ()
-//noexpected
+//expected: <none>
