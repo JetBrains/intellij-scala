@@ -21,7 +21,7 @@ object test {
 
   {
     import Imp.a_=
-    def a: Any = 0
-    /*resolved: false */a = A
+    val a: Any = 0
+    /*resolved: true */a = A
   }
 }
