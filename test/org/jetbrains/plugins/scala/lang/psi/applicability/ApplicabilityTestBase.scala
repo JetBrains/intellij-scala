@@ -78,17 +78,27 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
     assertProblems("", definition, application)(pattern)
   }
-  
+
   def assertProblems(auxiliary: String, definition: String, application: String)
                     (pattern: PartialFunction[List[ApplicabilityProblem], Unit]) {
+    assertProblemsFunction(auxiliary, definition, application)(pattern)
+    assertProblemsConstructor(auxiliary, definition, application)(pattern)
+  }
+
+  def assertProblemsFunction(auxiliary: String, definition: String, application: String)
+                            (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]) {
     val typified = typify(definition, application)
-    
+
     assertProblemsAre(auxiliary, formatFunction(definition, application))(pattern)
     assertProblemsAre(auxiliary, formatFunction(typified._1, typified._2))((pattern))
+  }
 
+  def assertProblemsConstructor(auxiliary: String, definition: String, application: String)
+                               (pattern: PartialFunction[scala.List[ApplicabilityProblem], Unit]) {
+    val typified = typify(definition, application)
     assertProblemsAre(auxiliary, formatConstructor(definition, application))(pattern)
     // TODO Uncomment and solve problems with primary constructors substitutors
-//    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))((pattern))
+    //    assertProblemsAre(auxiliary, formatConstructor(typified._1, typified._2))((pattern))
   }
 
   private def assertProblemsAre(preface: String, code: String)
