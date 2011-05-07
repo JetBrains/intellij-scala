@@ -50,9 +50,10 @@ class DefaultTest extends ApplicabilityTestBase {
   }
 
   def testMissedParametersClause {
-    assertProblems("(p: A = null)", "") {
+    assertProblemsFunction("", "(p: A = null)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
+    // TODO Constructor
   }
   
   def testMissedParameter {
