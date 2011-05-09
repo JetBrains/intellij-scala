@@ -281,19 +281,15 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         case _ =>
       }
       true
-
     }
-
-
   }
 
   private def isConformsMethod(f: ScFunction): Boolean = {
-    lazy val qual = f.getContainingClass.getQualifiedName
-    f.name == "conforms" && qual != null && qual == "scala.Predef"
+    f.name == "conforms" && Option(f.getContainingClass).flatMap(cls => Option(cls.getQualifiedName)).exists(_ == "scala.Predef")
   }
 
   /**
-   Pick all type parameters by method maps them to the appropriate type arguments, if they are
+   * Pick all type parameters by method maps them to the appropriate type arguments.
    */
   def inferMethodTypesArgs(fun: ScFunction, classSubst: ScSubstitutor) = {
     fun.typeParameters.foldLeft(ScSubstitutor.empty) {

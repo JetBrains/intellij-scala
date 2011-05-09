@@ -15,14 +15,30 @@ import templates.{ScExtendsBlock, ScTemplateBody}
 import com.intellij.psi.impl.source.PsiFileImpl
 import collection.mutable.ArrayBuffer
 import base.ScPrimaryConstructor
+import extensions._
+import statements.params.ScClassParameter
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 04.05.2008
- */
-
+  * @author Alexander Podkhalyuzin
+  * Date: 04.05.2008
+  */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
+  /**
+    * getContainingClassStrict(bar) == null in
+    *
+    * `object a { def foo { def bar = 0 }}`
+    */
   def getContainingClass: ScTemplateDefinition = {
+    val context = getContext
+    (getContainingClassLoose, this) match {
+      case (null, _) => null
+      case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
+      case (found, _) if context == found.extendsBlock || Some(context) == found.extendsBlock.templateBody || Some(context) == found.extendsBlock.earlyDefinitions => found
+      case (found, _) => null // See SCL-3178
+    }
+  }
+
+  def getContainingClassLoose: ScTemplateDefinition = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
       case st: ScalaStubBasedElementImpl[_] => st.getStub
