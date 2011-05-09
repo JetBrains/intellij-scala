@@ -327,7 +327,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                 "scala.Char" | "scala.Unit" | "scala.Float" | "scala.Double" | "scala.Any" => return null
               case _ =>
             }
-            //todo: filter inner classes smarter (how? don't forget depth inner classes)
+            //todo: filter inner classes smarter (how? don't forget deep inner classes)
             if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
               clazz.hasModifierProperty("static"))) return null
             if (!ResolveUtils.isAccessible(clazz, newExpr)) return null

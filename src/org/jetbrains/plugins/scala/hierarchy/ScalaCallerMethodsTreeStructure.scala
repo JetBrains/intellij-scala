@@ -12,6 +12,8 @@ import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import collection.mutable.{HashMap, HashSet}
 import util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -26,7 +28,11 @@ final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod,
     }
     val method: PsiMethod = enclosingElement.asInstanceOf[PsiMethod]
     val baseMethod: PsiMethod = (getBaseDescriptor.asInstanceOf[CallHierarchyNodeDescriptor]).getTargetElement.asInstanceOf[PsiMethod]
-    val searchScope: SearchScope = getSearchScope(scopeType, baseMethod.getContainingClass)
+    val containing = baseMethod match {
+      case mem: ScMember => mem.getContainingClassLoose
+      case x => x.getContainingClass
+    }
+    val searchScope: SearchScope = getSearchScope(scopeType, containing)
     val originalClass: PsiClass = method.getContainingClass
     assert(originalClass != null)
     val originalType: PsiClassType = JavaPsiFacade.getElementFactory(myProject).createType(originalClass)

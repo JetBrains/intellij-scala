@@ -238,9 +238,11 @@ object ScalaImportClassFix {
        parent(t) match {
           case _: ScalaFile => true
           case _: ScPackaging => true
-          case _: ScTemplateBody if t.getContainingClass.isInstanceOf[ScObject] => {
-            val obj = t.getContainingClass.asInstanceOf[ScObject]
-            ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
+          case _: ScTemplateBody => {
+            Option(t.getContainingClass) match {
+              case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
+              case _ => false
+            }
           }
           case _ => false
         }

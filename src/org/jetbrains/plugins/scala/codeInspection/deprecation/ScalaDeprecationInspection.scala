@@ -29,7 +29,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
             case f: PsiMethod if f.isConstructor =>
             case _ => if (!doc.isDeprecated) return
           }
-          if (!doc.isDeprecated && !doc.getContainingClass.isDeprecated) return
+          if (!doc.isDeprecated && !Option(doc.getContainingClass).exists(_.isDeprecated)) return
         }
         case _ => return
       }

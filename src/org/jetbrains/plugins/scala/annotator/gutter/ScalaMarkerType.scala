@@ -218,6 +218,10 @@ object ScalaMarkerType {
 
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
     def getElementText(element: PsiElement): String = {
+      def defaultPresentation: String = {
+        element.getText().substring(0, Math.min(element.getText().length, 20))
+      }
+
       element match {
         case method: PsiMethod if method.getContainingClass != null => {
           val presentation = method.getContainingClass.getPresentation
@@ -232,15 +236,19 @@ object ScalaMarkerType {
           presentation.getPresentableText + " " + presentation.getLocationString
         }
         case x: PsiNamedElement if ScalaPsiUtil.nameContext(x).isInstanceOf[ScMember] => {
-          val presentation = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].getContainingClass.getPresentation
-          presentation.getPresentableText + " " + presentation.getLocationString
+          val containing = ScalaPsiUtil.nameContext(x).asInstanceOf[ScMember].getContainingClass
+          if (containing == null) defaultPresentation
+          else  {
+            val presentation = containing.getPresentation
+            presentation.getPresentableText + " " + presentation.getLocationString
+          }
         }
         case x: ScClassParameter => {
           val presentation = x.getPresentation
           presentation.getPresentableText + " " + presentation.getLocationString
         }
         case x: PsiNamedElement => x.getName
-        case _ => element.getText().substring(0, Math.min(element.getText().length, 20))
+        case _ => defaultPresentation
       }
     }
 
