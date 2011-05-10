@@ -4,35 +4,25 @@ package conversion
 
 import base.ScalaPsiTestCase
 import collection.mutable.ArrayBuffer
-import lang.lexer.ScalaTokenTypes
-import lang.psi.types.ScType
-import lang.psi.api.expr.ScExpression
-import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
-import lang.psi.api.ScalaFile
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi._
 import codeStyle.CodeStyleManager
 
 /**
- * Created by IntelliJ IDEA.
- * User: Alexander Podkhalyuzin
- * Date: 23.07.2009
- * Time: 19:18:12
- * To change this template use File | Settings | File Templates.
+ * @author Alexander Podkhalyuzin
  */
-
 abstract class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
 
   override def rootPath: String = super.rootPath + "conversion/"
 
-  protected def doTest = {
+  protected def doTest {
     import _root_.junit.framework.Assert._
 
     val filePath = rootPath + getTestName(false) + ".java"
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val javaFile: PsiJavaFile = PsiManager.getInstance(myProject).findFile(file).asInstanceOf[PsiJavaFile]
     val fileText = javaFile.getText

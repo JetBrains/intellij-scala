@@ -207,9 +207,17 @@ object JavaToScala {
         }
       }
       case b: PsiBinaryExpression => {
+        def isOk: Boolean = {
+          if (b.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
+          b.getROperand match {
+            case l: PsiLiteralExpression if l.getText == "null" => return false
+            case _ =>
+          }
+          return true
+        }
         val operation = b.getOperationSign.getText match {
-          case "==" if !b.getLOperand.getType.isInstanceOf[PsiPrimitiveType] => "eq"
-          case "!=" if !b.getLOperand.getType.isInstanceOf[PsiPrimitiveType] => "ne"
+          case "==" if isOk => "eq"
+          case "!=" if isOk => "ne"
           case x => x
         }
         res.append(convertPsiToText(b.getLOperand)).append(" ").
@@ -226,6 +234,14 @@ object JavaToScala {
         res.append(convertPsiToText(i.getOperand)).append(".isInstanceOf[").
                 append(convertPsiToText(i.getCheckType)).append("]")
       }
+      case m: PsiMethodCallExpression if m.getMethodExpression.getReferenceName == "equals" &&
+        m.getTypeArguments.length == 0 && m.getArgumentList.getExpressions.length == 1 =>
+        val parentIsExpr = m.getParent.isInstanceOf[PsiExpression]
+        if (parentIsExpr) res.append("(")
+        res.append(Option(m.getMethodExpression.getQualifierExpression).
+          map(convertPsiToText(_)).getOrElse("this")).append(" == ").
+          append(convertPsiToText(m.getArgumentList.getExpressions.apply(0)))
+        if (parentIsExpr) res.append(")")
       case m: PsiMethodCallExpression => {
         res.append(convertPsiToText(m.getMethodExpression)).append(convertPsiToText(m.getArgumentList))
       }
