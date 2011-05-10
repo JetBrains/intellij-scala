@@ -173,7 +173,13 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
 
         params.setMainClass(MAIN_CLASS_SPECS_2)
 
-        for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
+        val programParams = params.getProgramParametersList
+        for (cl <- classes) {
+          programParams.add(cl.getQualifiedName)
+        }
+        programParams.add("--")
+        programParams.addParametersString(getTestArgs)
+
         return params
       }
 
