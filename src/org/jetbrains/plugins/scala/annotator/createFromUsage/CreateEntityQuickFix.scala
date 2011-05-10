@@ -35,7 +35,8 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression,
 
   def getFamilyName = getText
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!ref.isValid) return false
     ref match {
       case Both(Parent(_: ScAssignStmt), Parent(Parent(_: ScArgumentExprList))) => false
       case it if !it.isQualified => true
