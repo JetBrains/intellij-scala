@@ -111,7 +111,6 @@
     <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
     <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
     <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
-    <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaExcludeFromCompletionLookupActionProvider"/>
     <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
     <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
 
