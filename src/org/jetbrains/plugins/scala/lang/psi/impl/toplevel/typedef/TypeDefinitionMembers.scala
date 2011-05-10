@@ -360,37 +360,45 @@ object TypeDefinitionMembers {
   import Locker.locking
 
   def getVals(clazz: PsiClass): VMap = {
-    locking(clazz) {
+    ScalaPsiUtil.synchronized {
       get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
     }
   }
 
   def getMethods(clazz: PsiClass): MMap = {
-    locking(clazz) {
+    ScalaPsiUtil.synchronized {
       get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
     }
   }
 
   def getTypes(clazz: PsiClass) = {
-    locking(clazz) {
+    ScalaPsiUtil.synchronized {
       get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
     }
   }
 
   // TODO why no locking?
-  def getSignatures(c: PsiClass): SMap = get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
+  def getSignatures(c: PsiClass): SMap = {
+    ScalaPsiUtil.synchronized {
+      get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
+    }
+  }
 
   def getSuperVals(c: PsiClass) = {
-    locking(c) {
+    ScalaPsiUtil.synchronized {
       get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
     }
   }
 
   // TODO why no locking?
-  def getSuperMethods(c: PsiClass) = get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
+  def getSuperMethods(c: PsiClass) = {
+    ScalaPsiUtil.synchronized {
+      get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
+    }
+  }
 
   def getSuperTypes(c: PsiClass) = {
-   locking(c) {
+   ScalaPsiUtil.synchronized {
       get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
     }
   }
@@ -547,7 +555,7 @@ object TypeDefinitionMembers {
                                place: PsiElement): Boolean = {
     privateProcessDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
       td.isInstanceOf[ScObject])
-   }
+  }
 
   def processDeclarations(comp: ScCompoundType,
                           processor: PsiScopeProcessor,
