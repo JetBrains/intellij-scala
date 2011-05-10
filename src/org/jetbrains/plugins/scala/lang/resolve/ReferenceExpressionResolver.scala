@@ -115,9 +115,16 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
 
         // If x denotes a mutable variable, then the assignment changes the current value of x to be the result of evaluating the expression e
         val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-          getTypeArgs(ref), StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
+          getTypeArgs(ref), /*todo refExprLastRef? */StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
         val result = reference.doResolve(ref, processor)
 
+        /*
+        todo: this is wrong algorithm
+        resolve should work in one pass (not three)
+        after that if resolve found something we should check if it has appropriate setter
+        and change resolve result to this setter
+        @see SCL-3191
+         */
         if (result.nonEmpty) result
         else {
           val setterResult = searchForSetter(ref, assign, info.isUnderscore)
