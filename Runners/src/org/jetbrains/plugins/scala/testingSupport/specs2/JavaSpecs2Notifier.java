@@ -60,7 +60,7 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void exampleSkipped(String name, String message, long duration) {
-    System.out.println("\n##teamcity[testIgnored name='" + TestRunnerUtil.escapeString(message) + "' message='" + TestRunnerUtil.escapeString(message) + "']");
+    System.out.println("\n##teamcity[testIgnored name='" + TestRunnerUtil.escapeString(name) + "' message='" + TestRunnerUtil.escapeString(message) + "']");
   }
 
   public void examplePending(String name, String message, long duration) {
