@@ -8,15 +8,10 @@ package impl
 package toplevel
 package typedef
 
-import _root_.scala.collection.mutable.LinkedHashSet
-import api.statements.ScTypeAliasDefinition
-import api.toplevel.ScNamedElement
-import collection.mutable.{HashMap, ArrayBuffer, HashSet, Set, ListBuffer}
+import collection.mutable.{LinkedHashSet, HashMap, HashSet, Set, ListBuffer}
 import psi.types._
-import result.TypingContext
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
-import com.intellij.psi.util.PsiModificationTracker
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi.{PsiElement, PsiClass}
 
