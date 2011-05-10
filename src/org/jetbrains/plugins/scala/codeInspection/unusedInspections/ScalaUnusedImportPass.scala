@@ -25,7 +25,8 @@ import com.intellij.lang.annotation.{AnnotationSession, Annotation}
  * Date: 15.06.2009
  */
 
-class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
+class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
+  extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
   def doCollectInformation(progress: ProgressIndicator) {
   }
 
@@ -67,7 +68,8 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor) extends TextEditorHig
       for (annotation <- annotations) {
         list.add(HighlightInfo.fromAnnotation(annotation))
       }
-      UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength, list, getId)
+      UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0,
+        file.getTextLength, list, getColorsScheme, getId)
     }
   }
 }

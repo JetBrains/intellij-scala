@@ -72,9 +72,6 @@ public class ScalaLoader implements ApplicationComponent {
 
         TextEditorHighlightingPassRegistrar registrar = TextEditorHighlightingPassRegistrar.getInstance(project);
 
-        ScalaUnusedImportsPassFactory unusedImportPassFactory = project.getComponent(ScalaUnusedImportsPassFactory.class);
-        registrar.registerTextEditorHighlightingPass(unusedImportPassFactory, new int[]{Pass.LOCAL_INSPECTIONS}, null, true, -1);
-
         CompilerManager compilerManager = CompilerManager.getInstance(project);
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
