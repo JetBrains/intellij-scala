@@ -10,15 +10,36 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Alexander Podkhalyuzin
  */
 public class JavaSpecs2Runner {
+
+  private static final String DELIMITER = "--";
+
   public static void main(String[] args) {
     NotifierRunner runner = new NotifierRunner(new JavaSpecs2Notifier());
+    List<String> classNames = new ArrayList<String>();
+    List<String> specsTestArgs = new ArrayList<String>();
+    boolean reachedDelim = false;
     for (String arg : args) {
-      runner.main(new String[]{arg});
+      if (arg.equals(DELIMITER)) {
+        reachedDelim = true;
+        specsTestArgs.add(arg);
+      } else if (reachedDelim) {
+        specsTestArgs.add(arg);
+      } else {
+        classNames.add(arg);
+      }
+    }
+    for (String className : classNames) {
+      List<String> runnerArgs = new ArrayList<String>();
+      runnerArgs.add(className);
+      runnerArgs.addAll(specsTestArgs);
+      String[] runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
+      runner.main(runnerArgsArray);
     }
   }
 }
