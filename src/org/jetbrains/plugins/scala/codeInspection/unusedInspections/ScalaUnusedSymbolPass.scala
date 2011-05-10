@@ -51,7 +51,8 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
     file match {
       case sFile: ScalaFile =>
         import scala.collection.JavaConversions._
-        UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength, highlightInfos, getId)
+        UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength,
+          highlightInfos, getColorsScheme, getId)
         highlightInfos.clear()
       case _ =>
     }
