@@ -216,6 +216,7 @@ class VarToValFix(varDef: ScVariableDefinition, name: Option[String]) extends In
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
+    if (!varDef.isValid) return
     if (!CodeInsightUtilBase.prepareFileForWrite(file)) return
     val parent = varDef.getContext
     varDef.replace(ScalaPsiElementFactory.createValFromVarDefinition(varDef, varDef.getManager))
