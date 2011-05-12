@@ -43,6 +43,7 @@ import api.statements.params.ScClassParameter
 import com.intellij.openapi.util.text.StringUtil
 import api.expr.ScBlock
 import api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
+import reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
@@ -141,13 +142,28 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   def getTruncedQualifiedName: String = qualifiedName(".", true)
 
-  def getQualifiedNameForDebugger: String = qualifiedName("$")
+  def getQualifiedNameForDebugger: String = qualifiedName("$", encodeName = true)
 
-  private def qualifiedName(classSeparator: String, trunced: Boolean = false): String = {
+  private def transformName(encodeName: Boolean, name: String): String = {
+    if (!encodeName) name
+    else {
+      val deticked =
+        if (name.startsWith("`") && name.endsWith("`") && name.length() > 1)
+          name.substring(1, name.length() - 1)
+        else name
+      NameTransformer.encode(deticked)
+    }
+  }
+
+  private def qualifiedName(classSeparator: String, trunced: Boolean = false,
+                            encodeName: Boolean = false): String = {
     // Returns prefix with convenient separator sep
     def _packageName(e: PsiElement, sep: String, k: (String) => String): String = e.getContext match {
       case _: ScClass | _: ScTrait if trunced => k("")
-      case t: ScTypeDefinition => _packageName(t, sep, (s) => k(s + t.name + sep))
+      case t: ScTypeDefinition => _packageName(t, sep, (s) => {
+        val name = t.name
+        k(s + transformName(encodeName, name) + sep)
+      })
       case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
       case f: ScalaFile => val pn = f.getPackageName; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
@@ -159,7 +175,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     }
 
     val packageName = _packageName(this, classSeparator, identity _)
-    packageName + name
+    packageName + transformName(encodeName, name)
   }
 
   override def getPresentation: ItemPresentation = {
