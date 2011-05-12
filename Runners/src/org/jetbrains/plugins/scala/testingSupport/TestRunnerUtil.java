@@ -41,6 +41,9 @@ public class TestRunnerUtil {
   // hack until Specs passes a meaningful throwble.
   // https://github.com/etorreborre/specs2/issues/9
   public static String actualExpectedAttrsFromRegex(String message) {
+    if (message == null) {
+      return "";
+    }
     Matcher matcher = COMPARISON_PATTERN.matcher(message);
     if (matcher.matches()) {
       String actual = matcher.group(1);
