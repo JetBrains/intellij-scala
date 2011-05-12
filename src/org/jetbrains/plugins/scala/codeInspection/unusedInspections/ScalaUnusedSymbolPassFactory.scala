@@ -11,15 +11,14 @@ import com.intellij.openapi.project.Project
 class ScalaUnusedSymbolPassFactory(project: Project)
         extends TextEditorHighlightingPassFactory {
   TextEditorHighlightingPassRegistrar.getInstance(project).
-    registerTextEditorHighlightingPass(this, Array[Int](Pass.LOCAL_INSPECTIONS), null, false, -1)
+    registerTextEditorHighlightingPass(this, Array[Int](Pass.UPDATE_ALL), null, false, -1)
 
   def projectClosed() {}
 
   def projectOpened() {}
 
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    val textRange = FileStatusMap.getDirtyTextRange(editor, Pass.LOCAL_INSPECTIONS) // Copied from PostHighlightingPassFactory
-    if (textRange == null) null else new ScalaUnusedSymbolPass(file, editor)
+    new ScalaUnusedSymbolPass(file, editor)
   }
 
   def initComponent() {}
