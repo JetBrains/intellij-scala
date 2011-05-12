@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import varCouldBeValInspection.VarCouldBeValInspection
 import com.intellij.lang.findUsages.{LanguageFindUsages, FindUsagesProvider}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
@@ -28,6 +27,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import com.intellij.psi._
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, HighlightDisplayKey}
 import com.intellij.codeInsight.daemon.impl._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import annotator.importsTracker.ScalaRefCountHolder
+import collection.mutable.ArrayBuffer._
 
 // TODO merge with UnusedImportPass (?)
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
@@ -37,19 +39,12 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
   case class UnusedConfig(checkLocalUnused: Boolean, checkLocalAssign: Boolean)
   case class UnusedPassState(annotationHolder: AnnotationHolderImpl, annotations: Buffer[Annotation], config: UnusedConfig)
 
-  def doCollectInformation(progress: ProgressIndicator) {
-    file match {
-      case sFile: ScalaFile =>
-        val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(myProject)
-        val fileStatusMap: FileStatusMap = (daemonCodeAnalyzer.asInstanceOf[DaemonCodeAnalyzerImpl]).getFileStatusMap
-        processScalaFile(sFile)
-      case _ =>
-    }
-  }
+  def doCollectInformation(progress: ProgressIndicator) {}
 
   def doApplyInformationToEditor() {
     file match {
       case sFile: ScalaFile =>
+        processScalaFile(sFile)
         import scala.collection.JavaConversions._
         UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, editor.getDocument, 0, file.getTextLength,
           highlightInfos, getColorsScheme, getId)
@@ -62,6 +57,8 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
     val annotationHolder = new AnnotationHolderImpl(new AnnotationSession(file))
     val annotations = Buffer[Annotation]()
     val state = UnusedPassState(annotationHolder, annotations, readConfig(sFile))
+    val config = state.config
+    if (!config.checkLocalAssign && !config.checkLocalUnused) return
 
     sFile.depthFirst.foreach {
       case x: ScDeclaredElementsHolder => processDeclaredElementHolder(x, state)
@@ -120,25 +117,28 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       val elem = decElemIterator.next()
       elem match {
         case decElem: ScNamedElement =>
-          val usageIterator = ReferencesSearch.search(decElem, decElem.getUseScope).iterator
-          val hasUsages = usageIterator.hasNext
-
-          while (usageIterator.hasNext && !hasAssign) {
-            val usage = usageIterator.next
-            if (isPossiblyAssignment(usage)) hasAssign = true
-          }
-
-          if (!hasUsages) {
-            if (state.config.checkLocalUnused) {
-              hasAtLeastOneUnusedHighlight = true
-              val elementTypeDesc = findUsageProvider.getType(declElementHolder)
-              val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId, "%s '%s' is never used".format(elementTypeDesc, decElem.name))
-              annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
-              annotation.registerFix(new DeleteElementFix(elem))
-              state.annotations += annotation
+          val holder = ScalaRefCountHolder.getInstance(file)
+          var used = false
+          val runnable = new Runnable {
+            def run() {
+              if (holder.isValueWriteUsed(decElem)) {
+                if (hasAssign) hasAtLeastOneAssign = true
+                used = true
+              }
+              if (holder.isValueReadUsed(decElem)) {
+                used = true
+              }
             }
           }
-          if (hasAssign) hasAtLeastOneAssign = true
+          holder.retrieveUnusedReferencesInfo(runnable)
+          if (!used && state.config.checkLocalUnused) {
+            hasAtLeastOneUnusedHighlight = true
+            val elementTypeDesc = findUsageProvider.getType(declElementHolder)
+            val annotation = state.annotationHolder.createWarningAnnotation(decElem.nameId, "%s '%s' is never used".format(elementTypeDesc, decElem.name))
+            annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
+            annotation.registerFix(new DeleteElementFix(elem))
+            state.annotations += annotation
+          }
         case _ =>
       }
     }
@@ -157,15 +157,6 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
 
   private def createUnusedSymbolInfo(element: PsiElement, message: String, highlightInfoType: HighlightInfoType): HighlightInfo = {
     return HighlightInfo.createHighlightInfo(highlightInfoType, element, message)
-  }
-
-  // This is a conservative approximation, we should really resolve the operation
-  // to differentiate self assignment from calling a method whose name happens to be an assignment operator.
-  private def isPossiblyAssignment(ref: PsiReference): Boolean = ref.getElement.getContext match {
-    case assign: ScAssignStmt if assign.getLExpression == ref.getElement => true
-    case infix: ScInfixExpr if infix.isAssignmentOperator => true
-    case ref1 @ ScReferenceExpression.qualifier(`ref`) => ParserUtils.isAssignmentOperator(ref1.refName)
-    case _ => false
   }
 }
 

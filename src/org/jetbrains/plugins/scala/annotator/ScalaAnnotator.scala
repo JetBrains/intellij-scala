@@ -17,7 +17,6 @@ import lang.psi.api.toplevel.typedef._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import com.intellij.lang.annotation._
 
-import lang.psi.api.toplevel.imports.usages.ImportUsed
 import lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -48,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, Fu
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import collection.{Seq, Set}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -178,19 +178,33 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     HighlightingAdvisor.getInstance(element.getProject).enabled
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) = {}
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {}
+
+  private def registerUsedElement(element: PsiElement, resolveResult: ScalaResolveResult,
+                                   checkWrite: Boolean) {
+    val named = resolveResult.getElement
+    val file = element.getContainingFile
+    if (named.getContainingFile == file) {
+      val value: ValueUsed = element match {
+        case ref: ScReferenceExpression if checkWrite &&
+          ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
+        case _ => ReadValueUsed(named)
+      }
+      val holder = ScalaRefCountHolder.getInstance(file)
+      holder.registerValueUsed(value)
+    }
+  }
 
   private def checkNotQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
 
     def getFix: Seq[IntentionAction] = {
-      val facade = JavaPsiFacade.getInstance(refElement.getProject)
       val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
       return Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)
-    def processError(countError: Boolean, fixes: => Seq[IntentionAction]) = {
+    def processError(countError: Boolean, fixes: => Seq[IntentionAction]) {
       //todo remove when resolve of unqualified expression will be fully implemented
       if (refElement.getManager.isInProject(refElement) && resolve.length == 0 &&
               (fixes.length > 0 || countError)) {
@@ -221,10 +235,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     else {
       AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     }
-    for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
-         scalaResult = result.asInstanceOf[ScalaResolveResult]) {
+    for {
+      result <- resolve if result.isInstanceOf[ScalaResolveResult]
+      scalaResult = result.asInstanceOf[ScalaResolveResult]
+    } {
       registerUsedImports(refElement, scalaResult)
+      registerUsedElement(refElement, scalaResult, true)
     }
+
     checkAccessForReference(resolve, refElement, holder)
     checkForwardReference(resolve, refElement, holder)
 
@@ -296,21 +314,16 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReferenceElement,
-                              fun: PsiNamedElement, holder: AnnotationHolder): Unit = {
+                              fun: PsiNamedElement, holder: AnnotationHolder) {
     import org.jetbrains.plugins.scala.lang.psi.types.Any
 
     val typeTo = resolveResult.implicitType match {case Some(tp) => tp case _ => Any}
-    val range = refElement.nameId.getTextRange
     highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
   }
 
   private def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
-                                    elementToHighlight: PsiElement, holder: AnnotationHolder): Unit = {
-    import org.jetbrains.plugins.scala.lang.psi.types.Any
-
+                                    elementToHighlight: PsiElement, holder: AnnotationHolder) {
     val range = elementToHighlight.getTextRange
-    val exprText = expr.getText
-    val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
     val annotation: Annotation = holder.createInfoAnnotation(range, null)
     val attributes = new TextAttributes(null, null, Color.LIGHT_GRAY, EffectType.LINE_UNDERSCORE, Font.PLAIN)
     annotation.setEnforcedTextAttributes(attributes)
@@ -337,6 +350,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     for (result <- resolve if result.isInstanceOf[ScalaResolveResult];
          scalaResult = result.asInstanceOf[ScalaResolveResult]) {
       registerUsedImports(refElement, scalaResult)
+      registerUsedElement(refElement, scalaResult, true)
     }
     checkAccessForReference(resolve, refElement, holder)
     if (refElement.isInstanceOf[ScExpression] &&
@@ -468,7 +482,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def showImplicitUsageAnnotation(exprText: String, typeFrom: ScType, typeTo: ScType, fun: ScFunctionDefinition,
                                           range: TextRange, holder: AnnotationHolder, effectType: EffectType,
-                                          color: Color): Unit = {
+                                          color: Color) {
     val tooltip = ScalaBundle.message("implicit.usage.tooltip", fun.getName,
       ScType.presentableText(typeFrom),
       ScType.presentableText(typeTo))
@@ -540,6 +554,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           if (resolveResult != null) {
             ImportTracker.getInstance(expr.getProject).registerUsedImports(
               expr.getContainingFile.asInstanceOf[ScalaFile], resolveResult.importsUsed)
+            registerUsedElement(expr, resolveResult, false)
           }
         }
       }
@@ -566,7 +581,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
             case _ =>
           }
-          val ExpressionTypeResult(exprType, importUsed, implicitFunction) = ret.expr match {
+          val ExpressionTypeResult(_, importUsed, _) = ret.expr match {
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
             case None => ExpressionTypeResult(Success(Unit, None), Set.empty, None)
           }

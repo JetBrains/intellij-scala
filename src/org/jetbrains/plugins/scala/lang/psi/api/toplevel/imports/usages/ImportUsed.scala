@@ -20,7 +20,6 @@ abstract sealed case class ImportUsed(val e: PsiElement) {
   override def toString: String = e.getText
 }
 
-// todo Bug!!! resolve to key doesn't work if swap class & object
 object ImportUsed {
   val key: Key[_root_.scala.collection.Set[ImportUsed]] = Key.create("scala.used.imports.key")
 }

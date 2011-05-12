@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.importsTracker
 
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import java.util.concurrent.atomic.AtomicReference
-import com.intellij.util.containers.ConcurrentHashSet
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import com.intellij.openapi.util.{TextRange, Key, UserDataHolderEx}
 import com.intellij.psi._
+import java.lang.Integer
+import com.intellij.util.containers.ConcurrentHashSet
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,28 +19,56 @@ class ScalaRefCountHolder private (file: PsiFile) {
   private final val myState: AtomicReference[Integer] = new AtomicReference[Integer](State.VIRGIN)
   private object State {val VIRGIN = 0; val WRITE = 1; val READY = 2; val READ = 3;}
   private val myImportUsed = new ConcurrentHashSet[ImportUsed]
+  private val myValueUsed = new ConcurrentHashSet[ValueUsed]()
 
-  private def clear: Unit = {
-    assertIsAnalyzing
-    myImportUsed.clear
+  private def clear() {
+    assertIsAnalyzing()
+    myImportUsed.clear()
+    myValueUsed.clear()
   }
 
-  def registerImportUsed(used: ImportUsed): Unit = {
+  def registerImportUsed(used: ImportUsed) {
     myImportUsed.add(used)
   }
 
+  def registerValueUsed(used: ValueUsed) {
+    myValueUsed.add(used)
+  }
+
   def isRedundant(used: ImportUsed): Boolean = {
-    assertIsRetrieving
+    assertIsRetrieving()
     return !myImportUsed.contains(used)
   }
 
-  private def removeInvalidRefs: Unit = {
-    assertIsAnalyzing
+  def isValueWriteUsed(e: PsiNamedElement): Boolean = {
+    assertIsRetrieving()
+    return myValueUsed.contains(WriteValueUsed(e))
+  }
+
+  def isValueReadUsed(e: PsiNamedElement): Boolean = {
+    assertIsRetrieving()
+    return myValueUsed.contains(ReadValueUsed(e))
+  }
+
+  def isValueUsed(e: PsiNamedElement): Boolean = {
+    assertIsRetrieving()
+    return isValueReadUsed(e) || isValueWriteUsed(e)
+  }
+
+  private def removeInvalidRefs() {
+    assertIsAnalyzing()
     val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
     while (iterator.hasNext) {
       val ref: ImportUsed = iterator.next
       if (!ref.e.isValid) {
-        iterator.remove
+        iterator.remove()
+      }
+    }
+    val valuesIterator: java.util.Iterator[ValueUsed] = myValueUsed.iterator()
+    while (valuesIterator.hasNext) {
+      val ref: ValueUsed = valuesIterator.next
+      if (!ref.e.isValid) {
+        iterator.remove()
       }
     }
   }
@@ -51,13 +79,13 @@ class ScalaRefCountHolder private (file: PsiFile) {
     try {
       if (dirtyScope != null) {
         if (dirtyScope.equals(file.getTextRange)) {
-          clear
+          clear()
         }
         else {
-          removeInvalidRefs
+          removeInvalidRefs()
         }
       }
-      analyze.run
+      analyze.run()
     }
     finally {
       val set: Boolean = myState.compareAndSet(State.WRITE, State.READY)
@@ -72,7 +100,7 @@ class ScalaRefCountHolder private (file: PsiFile) {
       return false
     }
     try {
-      analyze.run
+      analyze.run()
     }
     finally {
       val set: Boolean = myState.compareAndSet(State.READ, State.READY)
@@ -82,12 +110,12 @@ class ScalaRefCountHolder private (file: PsiFile) {
   }
 
 
-  private def assertIsAnalyzing: Unit = {
+  private def assertIsAnalyzing() {
     assert(myState.get == State.WRITE, myState.get)
   }
 
 
-  private def assertIsRetrieving: Unit = {
+  private def assertIsRetrieving() {
     assert(myState.get == State.READ, myState.get)
   }
 }
