@@ -16,7 +16,7 @@ import java.lang.String
  *
  * @author ilyas
  */
-abstract sealed case class ImportUsed(val e: PsiElement) {
+abstract sealed case class ImportUsed(e: PsiElement) {
   override def toString: String = e.getText
 }
 
