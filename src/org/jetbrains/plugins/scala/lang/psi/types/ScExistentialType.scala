@@ -71,8 +71,8 @@ object ScExistentialTypeReducer {
   }
 }
 
-case class ScExistentialType(val quantified : ScType,
-                             val wildcards : List[ScExistentialArgument]) extends ValueType {
+case class ScExistentialType(quantified : ScType,
+                             wildcards : List[ScExistentialArgument]) extends ValueType {
 
   @volatile
   private var _boundNames: List[String] = null
