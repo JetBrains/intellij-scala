@@ -116,8 +116,8 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         params.setMainClass(MAIN_CLASS)
         if (JdkUtil.useDynamicClasspath(getProject)) {
           try {
-            var fileWithParams: File = File.createTempFile("scalaconsole", ".tmp")
-            var printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
+            val fileWithParams: File = File.createTempFile("scalaconsole", ".tmp")
+            val printer: PrintStream = new PrintStream(new FileOutputStream(fileWithParams))
             printer.println("-classpath")
             printer.println(getClassPath(project, facet))
             val parms: Array[String] = ParametersList.parse(consoleArgs)
@@ -145,16 +145,9 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       val filters = new ArrayBuffer[Filter]
       override def getConsole: ConsoleView = {
         val consoleView = new ConsoleViewImpl(project, false, ScalaFileType.SCALA_FILE_TYPE)
-        consoleView.importHistory(ScalaApplicationSettings.getInstance().CONSOLE_HISTORY);
         val builder = new StringBuilder()
         consoleView.addConsoleUserInputListener(new ConsoleInputListener {
-          def textEntered(userText: String): Unit = {
-            val hist = ScalaApplicationSettings.getInstance().CONSOLE_HISTORY;
-            if (userText != "") {
-              hist.remove(userText)
-              hist.add(userText)
-              if (hist.size > consoleView.getHistorySize) hist.remove(0)
-            }
+          def textEntered(userText: String) {
             if (builder.toString != "") builder.append("\n")
             builder.append(userText)
           }
@@ -164,14 +157,14 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
           private val shortcutSet = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK))
           setShortcutSet(shortcutSet)
           registerCustomShortcutSet(shortcutSet, consoleView.getComponent)
-          def actionPerformed(e: AnActionEvent): Unit = {
+          def actionPerformed(e: AnActionEvent) {
             val lastFilePath = PropertiesComponent.getInstance(project).getValue("last_opened_file_path")
             val fileChooser = new JFileChooser(lastFilePath)
             val fileView = new FileView() {
               override def getIcon(f: File): Icon = {
-                if (f.isDirectory()) return super.getIcon(f)
+                if (f.isDirectory) return super.getIcon(f)
                 val fileType = FileTypeManager.getInstance.getFileTypeByFileName(f.getName)
-                return fileType.getIcon();
+                return fileType.getIcon
               }
             };
             fileChooser.setFileView(fileView)
