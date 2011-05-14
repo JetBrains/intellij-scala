@@ -90,7 +90,7 @@ object TypeDefinitionMembers {
       for (member <- template.members) {
         member match {
           case method: ScFunction if isAccessible(place, method) &&
-                  !method.isConstructor => {
+                  !method.isConstructor && !method.isBridge => {
             val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
@@ -314,7 +314,7 @@ object TypeDefinitionMembers {
               }
             }
           }
-          case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
+          case f: ScFunction if isAccessible(place, f) && !f.isConstructor && !f.isBridge =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case o: ScObject if (isAccessible(place, o)) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst),
@@ -357,7 +357,6 @@ object TypeDefinitionMembers {
   val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
-  import Locker.locking
 
   def getVals(clazz: PsiClass): VMap = {
     ScalaPsiUtil.synchronized {
@@ -400,69 +399,6 @@ object TypeDefinitionMembers {
   def getSuperTypes(c: PsiClass) = {
    ScalaPsiUtil.synchronized {
       get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
-    }
-  }
-
-  // Configurable locking strategy, to help diagnose "SCL-3071 Ocassional deadlock in idea after upgrade to last plugin"
-  private object Locker {
-    def locking[T](cls: PsiClass)(f: => T) = if (shouldUseTryLock)
-      tryLock(cls, f)
-    else
-      cls.synchronized(f)
-
-    /**Lock with a Reentrant lock, using an acquire timeout. If acquisition fails, throw an exception containing
-     *  the Map(threadID -> className) of all locks.
-     */
-    def tryLock[T](cls: PsiClass, f: => T): T = {
-      val threadId = Thread.currentThread().getId
-      val lock = lockFor(cls)
-      if (lock.tryLock(tryLockTimeout, TimeUnit.SECONDS)) {
-        if (!lockDetails.contains(threadId)) lockDetails.put(threadId, new Stack[String])
-        val stack = lockDetails.get(threadId)
-        stack.push(cls.getQualifiedName)
-        try {
-          f
-        } finally {
-          lock.unlock()
-          stack.pop()
-        }
-      } else {
-        import scala.collection.JavaConversions._
-        val locks = lockDetails.toSeq.map {
-          case (threadId, lockStack) => "Thread %s holds: %s".format(threadId.toString, lockStack.mkString("[", ",", "]"))
-        }.mkString("\n")
-        val msg = "Internal Error: Could not acquire lock for %s within timeout on thread %s. Probable deadlock. \n%s".format(
-          cls.getQualifiedName, threadId.toString, locks)
-        throw new RuntimeException(msg)
-      }
-
-    }
-
-    def prop(name: String) = Option(System.getProperty(name))
-
-    def parseInt(i: String): Option[Int] = try {
-      Some(i.toInt)
-    } catch {
-      case _ => None
-    }
-
-    val shouldUseTryLock: Boolean = {
-      val b = prop("idea.scala.usetrylock").map(_ == "true").getOrElse(false)
-      if (b) {
-        LOG.info("Using diagnostic mode locking (see SCL-3071)")
-      } else {
-        LOG.info("Using normal mode locking for (see SCL-3071)")
-      }
-      b
-    }
-    val tryLockTimeout: Int = prop("idea.scala.trylock.timeout").flatMap(parseInt).getOrElse(60)
-
-    val locks: WeakHashMap[PsiClass, Lock] = new WeakHashMap[PsiClass, Lock]()
-    /** Map from thread ID to the stack of FQCN that are locked */
-    val lockDetails: ConcurrentHashMap[java.lang.Long, Stack[String]] = new ConcurrentHashMap()
-
-    def lockFor(cls: PsiClass): Lock = locks synchronized {
-      locks.getOrElse(cls, new ReentrantLock())
     }
   }
 
