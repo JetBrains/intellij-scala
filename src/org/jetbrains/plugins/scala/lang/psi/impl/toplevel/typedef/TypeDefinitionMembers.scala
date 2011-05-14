@@ -42,7 +42,7 @@ import com.intellij.openapi.diagnostic.Logger
 object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
 
-    def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
+  def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
     if (place == None) return true
     ResolveUtils.isAccessible(member, place.get)
   }
@@ -90,7 +90,7 @@ object TypeDefinitionMembers {
       for (member <- template.members) {
         member match {
           case method: ScFunction if isAccessible(place, method) &&
-                  !method.isConstructor && !method.isBridge => {
+                  !method.isConstructor => {
             val sig = new PhysicalSignature(method, subst)
             map += ((sig, new Node(sig, subst)))
           }
@@ -314,7 +314,7 @@ object TypeDefinitionMembers {
               }
             }
           }
-          case f: ScFunction if isAccessible(place, f) && !f.isConstructor && !f.isBridge =>
+          case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
           case o: ScObject if (isAccessible(place, o)) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst),

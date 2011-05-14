@@ -132,7 +132,13 @@ object ResolveUtils {
       case _ =>
     }
 
+    member match {
+      case f: ScFunction if f.isBridge => return false
+      case _ =>
+    }
+
     if (member.hasModifierProperty("public")) return true
+
 
     member match {
       case scMember: ScMember => scMember.getModifierList.accessModifier match {
