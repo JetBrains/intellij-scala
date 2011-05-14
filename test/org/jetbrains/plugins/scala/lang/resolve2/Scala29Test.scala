@@ -11,4 +11,6 @@ class Scala29Test extends ResolveTestBase {
   override def scalaSdkVersion() = TestUtils.ScalaSdkVersion._2_9
 
   def testSCL2913 = doTest
+
+  def testSCL3212 = doTest
 }
