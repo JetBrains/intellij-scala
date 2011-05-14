@@ -122,7 +122,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
           val runnable = new Runnable {
             def run() {
               if (holder.isValueWriteUsed(decElem)) {
-                if (hasAssign) hasAtLeastOneAssign = true
+                hasAssign = true
                 used = true
               }
               if (holder.isValueReadUsed(decElem)) {
@@ -139,6 +139,7 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
             annotation.registerFix(new DeleteElementFix(elem))
             state.annotations += annotation
           }
+          if (hasAssign) hasAtLeastOneAssign = true
         case _ =>
       }
     }

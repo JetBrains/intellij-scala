@@ -27,7 +27,6 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public Boolean INTRODUCE_LOCAL_CREATE_VARIABLE = null;
   public Boolean SPECIFY_RETURN_TYPE_EXPLICITLY = null;
   public Boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = null;
-  public ArrayList<String> CONSOLE_HISTORY = new ArrayList<String>(20);
 
   public ScalaApplicationSettings getState() {
     return this;
