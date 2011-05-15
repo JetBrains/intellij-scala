@@ -376,7 +376,6 @@ object TypeDefinitionMembers {
     }
   }
 
-  // TODO why no locking?
   def getSignatures(c: PsiClass): SMap = {
     ScalaPsiUtil.synchronized {
       get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
@@ -389,7 +388,6 @@ object TypeDefinitionMembers {
     }
   }
 
-  // TODO why no locking?
   def getSuperMethods(c: PsiClass) = {
     ScalaPsiUtil.synchronized {
       get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
