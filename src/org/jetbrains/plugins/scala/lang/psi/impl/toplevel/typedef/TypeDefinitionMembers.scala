@@ -302,7 +302,7 @@ object TypeDefinitionMembers {
             }
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
-              if (!param.isVal && !param.isVar && place != None && place.get == template.extendsBlock && !isCase) {
+              if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {
                 //this is class parameter without val or var, it's like private val
                 lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
@@ -544,7 +544,7 @@ object TypeDefinitionMembers {
           case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
             (checkName(p.getName) || checkNameGetSetIs(p.getName)) && !isNotScalaProcessor => {
             val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
-            if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
+            if (clazz != null && clazz.isInstanceOf[ScClass] && !p.isEffectiveVal) {
               //this is member only for class scope
               if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.getName)) {
                 //we can accept this member
