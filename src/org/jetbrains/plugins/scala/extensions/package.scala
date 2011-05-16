@@ -6,8 +6,6 @@ import extensions.implementation._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
-import com.intellij.codeInsight.CodeInsightBundle
 
 /**
   * Pavel Fatin
@@ -61,12 +59,13 @@ package object extensions {
     def isDefinedAt(x: A): Boolean = cases.exists(_.isDefinedAt(x))
 
     def apply(v1: A): B = {
-      for {
-        caze <- cases
-        if caze.isDefinedAt(v1)
-      } return caze(v1)
+      val it = cases.iterator
+      while (it.hasNext) {
+        val caze = it.next()
+        if (caze.isDefinedAt(v1))
+          return caze(v1)
+      }
       throw new MatchError(v1.toString)
     }
-
   }
 }
