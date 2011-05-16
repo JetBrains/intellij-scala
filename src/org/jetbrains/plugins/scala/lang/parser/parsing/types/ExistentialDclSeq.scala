@@ -30,7 +30,7 @@ object ExistentialDclSeq {
         }
       }
       case _ => {
-        builder error ScalaBundle.message("wrong.existential.declaration")
+        //builder error ScalaBundle.message("wrong.existential.declaration")
         return
       }
     }

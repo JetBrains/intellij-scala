@@ -16,7 +16,7 @@ import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase, 
 @author ven
  */
 abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(node) with ScalaPsiElement {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)

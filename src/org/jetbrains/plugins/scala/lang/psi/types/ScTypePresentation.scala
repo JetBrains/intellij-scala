@@ -107,7 +107,7 @@ trait ScTypePresentation {
                   e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static") => {
             buffer.append(nameWithPointFun(clazz)).append(refName)
           }
-          case ct: ScCompoundType =>
+          case _: ScCompoundType | _: ScExistentialType =>
             buffer.append("(")
             inner(p)
             buffer.append(")")
@@ -225,9 +225,24 @@ trait ScTypePresentation {
         }
       }
       case ScExistentialType(q, wilds) => {
+        buffer.append("(")
         inner(q)
-        buffer.append(" forSome{");
-        appendSeq(wilds, "; ");
+        buffer.append(")")
+        buffer.append(" forSome {");
+        val iter = wilds.iterator
+        while (iter.hasNext) {
+          val next = iter.next()
+          buffer.append("type ").append(next.name)
+          if (next.lowerBound != Nothing) {
+            buffer.append(" >: ")
+            inner(next.lowerBound)
+          }
+          if (next.upperBound != Any) {
+            buffer.append(" <: ")
+            inner(next.upperBound)
+          }
+          if (iter.hasNext) buffer.append("; ")
+        }
         buffer.append("}")
       }
       case _ => null //todo
