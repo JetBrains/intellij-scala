@@ -13,32 +13,42 @@ import com.intellij.psi.PsiElement
  */
 case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
                           typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor) extends ValueType {
+  private[types] def this(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
+           typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor, signatureMap: HashMap[Signature, ScType],
+            typesMap: HashMap[String, (ScType, ScType)], problems: List[Failure]) {
+    this(components, decls, typeDecls, subst)
+    isInitialized = true
+    signatureMapVal ++= signatureMap
+    typesVal ++= typesMap
+    problemsVal ++= problems
+  }
+
   type Bounds = Pair[ScType, ScType]
 
   //compound types are checked by checking the set of signatures in their refinements
-  val signatureMapVal = new HashMap[Signature, ScType] {
-    override def elemHashCode(s : Signature) = s.name.hashCode* 31 + s.paramLength
+  val signatureMapVal: HashMap[Signature, ScType] = new HashMap[Signature, ScType] {
+    override def elemHashCode(s : Signature) = s.name.hashCode * 31 + s.paramLength
   }
   private val typesVal = new HashMap[String, Bounds]
   private val problemsVal: ListBuffer[Failure] = new ListBuffer
 
   def problems: ListBuffer[Failure] = {
-    init
+    init()
     problemsVal
   }
 
   def types = {
-    init
+    init()
     typesVal
   }
 
   def signatureMap = {
-    init
+    init()
     signatureMapVal
   }
 
   private var isInitialized = false
-  private def init {
+  private def init() {
     synchronized {
       if (isInitialized) return
       isInitialized = true

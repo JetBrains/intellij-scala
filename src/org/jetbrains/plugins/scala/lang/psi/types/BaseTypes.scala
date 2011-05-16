@@ -53,7 +53,7 @@ object BaseTypes {
           case _ => Seq.empty
         }
       }
-      case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialTypeReducer.reduce(bt, wilds)}
+      case ScExistentialType(q, wilds) => get(q, notAll).map{bt => ScExistentialType(bt, wilds).simplify()}
       case ScCompoundType(comps, _, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp) ++ Seq(comp)))
       case proj@ScProjectionType(p, elem, s) => elem match {
         case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>

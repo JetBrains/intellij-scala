@@ -13,6 +13,8 @@ import util.TestUtils
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.roots.libraries.Library.ModifiableModel
+import com.intellij.openapi.util.Disposer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -31,33 +33,46 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
 
   override protected def setUp: Unit = {
     super.setUp
-    val rootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
+    val rootModel: ModifiableRootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
 
-    val testDataRoot = LocalFileSystem.getInstance.findFileByPath(rootPath)
-    assert(testDataRoot != null)
+    try {
+      val testDataRoot = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
+      assert(testDataRoot != null)
 
-    val contentEntry = rootModel.addContentEntry(testDataRoot)
-    rootModel.setSdk(JavaSdk.getInstance.createJdk("java sdk", JDK_HOME, false))
-    contentEntry.addSourceFolder(testDataRoot, false)
+      val contentEntry = rootModel.addContentEntry(testDataRoot)
+      rootModel.setSdk(JavaSdk.getInstance.createJdk("java sdk", JDK_HOME, false))
+      contentEntry.addSourceFolder(testDataRoot, false)
 
-    // Add Scala Library
-    val libraryTable = rootModel.getModuleLibraryTable
-    val scalaLib = libraryTable.createLibrary("scala_lib")
-    val libModel = scalaLib.getModifiableModel
-    val libRoot = new File(TestUtils.getMockScalaLib)
-    assert(libRoot.exists)
+      // Add Scala Library
+      val libraryTable = rootModel.getModuleLibraryTable
+      val scalaLib = libraryTable.createLibrary("scala_lib")
+      val libModel: ModifiableModel = scalaLib.getModifiableModel
+      try {
+        val libRoot = new File(TestUtils.getMockScalaLib)
+        assert(libRoot.exists)
 
-    val srcRoot = new File(TestUtils.getMockScalaSrc)
-    assert(srcRoot.exists)
+        val srcRoot = new File(TestUtils.getMockScalaSrc)
+        assert(srcRoot.exists)
 
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES)
-    libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
+        libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES)
+        libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
 
-    ApplicationManager.getApplication.runWriteAction(new Runnable {
-      def run {
-        libModel.commit
-        rootModel.commit
+        ApplicationManager.getApplication.runWriteAction(new Runnable {
+          def run() {
+            libModel.commit()
+            rootModel.commit()
+          }
+        })
       }
-    })
+      finally {
+        if (!Disposer.isDisposed(libModel)) {
+          Disposer.dispose(libModel)
+        }
+      }
+    } finally {
+      if (!rootModel.isDisposed) {
+        rootModel.dispose()
+      }
+    }
   }
 }

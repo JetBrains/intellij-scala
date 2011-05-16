@@ -1,15 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import nonvalue.{ScTypePolymorphicType, ScMethodType}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import com.intellij.openapi.progress.ProgressManager
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-import result.Success
-import annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,7 +16,7 @@ object Equivalence {
     equivInner(l, r, new ScUndefinedSubstitutor)._2
 
   def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     (l, r) match {
       case (_, _: ScUndefinedType) => r.equivInner(l, subst, falseUndef)
       case (_, AnyRef) => r.equivInner(l, subst, falseUndef)

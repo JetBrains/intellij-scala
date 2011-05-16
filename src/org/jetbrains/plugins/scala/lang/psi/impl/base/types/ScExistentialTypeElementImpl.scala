@@ -9,13 +9,12 @@ import api.toplevel.ScNamedElement
 import psi.ScalaPsiElementImpl
 import api.base.types._
 import api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
-import lang.psi.types._
-
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{ResolveState, PsiElement}
 
 import _root_.scala.collection.mutable.ListBuffer
 import collection.Set
+import psi.types._
 import result.{TypeResult, Success, Failure, TypingContext}
 
 /**
@@ -61,7 +60,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     }
     q flatMap { t =>
       val failures = for (f@Failure(_, _) <- problems) yield f
-      failures.foldLeft(Success(ScExistentialTypeReducer.reduce(t, wildcards), Some(this)))(_.apply(_))
+      failures.foldLeft(Success(ScExistentialType(t, wildcards), Some(this)))(_.apply(_))
     }
   }
 
