@@ -42,7 +42,7 @@ import com.intellij.openapi.diagnostic.Logger
 object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
 
-    def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
+  def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
     if (place == None) return true
     ResolveUtils.isAccessible(member, place.get)
   }
@@ -302,7 +302,7 @@ object TypeDefinitionMembers {
             }
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
-              if (!param.isVal && !param.isVar && place != None && place.get == template.extendsBlock && !isCase) {
+              if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {
                 //this is class parameter without val or var, it's like private val
                 lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
@@ -357,7 +357,6 @@ object TypeDefinitionMembers {
   val methodsKey: Key[CachedValue[(MMap, MMap)]] = Key.create("methods key")
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
-  import Locker.locking
 
   def getVals(clazz: PsiClass): VMap = {
     ScalaPsiUtil.synchronized {
@@ -377,7 +376,6 @@ object TypeDefinitionMembers {
     }
   }
 
-  // TODO why no locking?
   def getSignatures(c: PsiClass): SMap = {
     ScalaPsiUtil.synchronized {
       get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
@@ -390,7 +388,6 @@ object TypeDefinitionMembers {
     }
   }
 
-  // TODO why no locking?
   def getSuperMethods(c: PsiClass) = {
     ScalaPsiUtil.synchronized {
       get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
@@ -400,69 +397,6 @@ object TypeDefinitionMembers {
   def getSuperTypes(c: PsiClass) = {
    ScalaPsiUtil.synchronized {
       get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
-    }
-  }
-
-  // Configurable locking strategy, to help diagnose "SCL-3071 Ocassional deadlock in idea after upgrade to last plugin"
-  private object Locker {
-    def locking[T](cls: PsiClass)(f: => T) = if (shouldUseTryLock)
-      tryLock(cls, f)
-    else
-      cls.synchronized(f)
-
-    /**Lock with a Reentrant lock, using an acquire timeout. If acquisition fails, throw an exception containing
-     *  the Map(threadID -> className) of all locks.
-     */
-    def tryLock[T](cls: PsiClass, f: => T): T = {
-      val threadId = Thread.currentThread().getId
-      val lock = lockFor(cls)
-      if (lock.tryLock(tryLockTimeout, TimeUnit.SECONDS)) {
-        if (!lockDetails.contains(threadId)) lockDetails.put(threadId, new Stack[String])
-        val stack = lockDetails.get(threadId)
-        stack.push(cls.getQualifiedName)
-        try {
-          f
-        } finally {
-          lock.unlock()
-          stack.pop()
-        }
-      } else {
-        import scala.collection.JavaConversions._
-        val locks = lockDetails.toSeq.map {
-          case (threadId, lockStack) => "Thread %s holds: %s".format(threadId.toString, lockStack.mkString("[", ",", "]"))
-        }.mkString("\n")
-        val msg = "Internal Error: Could not acquire lock for %s within timeout on thread %s. Probable deadlock. \n%s".format(
-          cls.getQualifiedName, threadId.toString, locks)
-        throw new RuntimeException(msg)
-      }
-
-    }
-
-    def prop(name: String) = Option(System.getProperty(name))
-
-    def parseInt(i: String): Option[Int] = try {
-      Some(i.toInt)
-    } catch {
-      case _ => None
-    }
-
-    val shouldUseTryLock: Boolean = {
-      val b = prop("idea.scala.usetrylock").map(_ == "true").getOrElse(false)
-      if (b) {
-        LOG.info("Using diagnostic mode locking (see SCL-3071)")
-      } else {
-        LOG.info("Using normal mode locking for (see SCL-3071)")
-      }
-      b
-    }
-    val tryLockTimeout: Int = prop("idea.scala.trylock.timeout").flatMap(parseInt).getOrElse(60)
-
-    val locks: WeakHashMap[PsiClass, Lock] = new WeakHashMap[PsiClass, Lock]()
-    /** Map from thread ID to the stack of FQCN that are locked */
-    val lockDetails: ConcurrentHashMap[java.lang.Long, Stack[String]] = new ConcurrentHashMap()
-
-    def lockFor(cls: PsiClass): Lock = locks synchronized {
-      locks.getOrElse(cls, new ReentrantLock())
     }
   }
 
@@ -610,7 +544,7 @@ object TypeDefinitionMembers {
           case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
             (checkName(p.getName) || checkNameGetSetIs(p.getName)) && !isNotScalaProcessor => {
             val clazz = PsiTreeUtil.getContextOfType(p, true, classOf[ScTemplateDefinition])
-            if (clazz != null && clazz.isInstanceOf[ScClass] && !clazz.asInstanceOf[ScClass].isCase) {
+            if (clazz != null && clazz.isInstanceOf[ScClass] && !p.isEffectiveVal) {
               //this is member only for class scope
               if (PsiTreeUtil.isContextAncestor(clazz, place, false) && checkName(p.getName)) {
                 //we can accept this member
