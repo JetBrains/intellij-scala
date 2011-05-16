@@ -25,9 +25,12 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
   /** Is the parameter automatically a val, due to it's position in a case class parameter list */
   def isCaseClassVal = getContainingClass match {
     case c: ScClass if c.isCase =>
-      val inPrimaryParamClause = c.allClauses.take(1).exists(pc => !pc.isImplicit && pc.parameters.contains(this))
+      val isInPrimaryConstructorFirstParamSection = c.constructor match {
+        case Some(const) => const.effectiveFirstParameterSection.contains(this)
+        case None => false
+      }
       val hasExplicitModifier = Option(getModifierList).exists(_.hasExplicitModifiers)
-      inPrimaryParamClause && !hasExplicitModifier
+      isInPrimaryConstructorFirstParamSection && !hasExplicitModifier
     case _ => false
   }
 }
