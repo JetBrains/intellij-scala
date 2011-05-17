@@ -235,6 +235,10 @@
       <className>org.jetbrains.plugins.scala.codeInsight.intention.matcher.ConvertToTypedPatternIntention</className>
     </intentionAction>
 
+    <intentionAction>
+      <className>org.jetbrains.plugins.scala.codeInsight.intention.comprehension.DesugarForIntention</className>
+    </intentionAction>
+
     <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
                              implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
 
