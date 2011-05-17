@@ -53,8 +53,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     enumerators.processDeclarations(processor, state, null, place)
   }
 
-
-  private def getDesugarisedExprText: Option[String] = {
+  def getDesugarisedExprText(forDisplay: Boolean): Option[String] = {
     val exprText: StringBuilder = new StringBuilder
     val (enums, gens, guards) = enumerators match {
       case None => return None
@@ -86,9 +85,15 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           exprText.append("for {")
           gen.pattern.desugarizedPatternIndex = exprText.length
           exprText.append(gen.pattern.getText).
-                  append(" <- ((").append(gen.rvalue.getText).append(").filter { case "). // TODO withFilter, since 2.8
-                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ").
-                  append(guard.expr.map(_.getText).getOrElse("true")).append(";true").append("})")
+                  append(" <- ((").append(gen.rvalue.getText).append(").withFilter { case ").
+                  append(gen.pattern.bindings.map(b => b.name).mkString("(", ", ", ")")).append(" => ")
+                  if (forDisplay) {
+                    exprText.append(guard.expr.map(_.getText).getOrElse("true"))
+                  } else {
+                    exprText.append(guard.expr.map(_.getText).getOrElse("true")).append(";true")
+                  }
+          exprText.append("})")
+
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
                   !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
@@ -111,7 +116,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }
         case gen2: ScGenerator => {
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").
-                  append(if (isYield) "flatMap " else "foreach ").append("{case ")
+                  append(if (isYield) "flatMap " else "foreach ").append("{ case ")
           gen.pattern.desugarizedPatternIndex = exprText.length
           exprText.append(gen.pattern.getText).append(" => ").append("for {")
           while (next != null) {
@@ -135,11 +140,18 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           if (enum.rvalue == null) return None
           exprText.append("for {(").append(enum.pattern.getText).append(", ")
           gen.pattern.desugarizedPatternIndex = exprText.length
-          exprText.append(gen.pattern.getText).
-                  append(") <- (for (freshNameForIntelliJIDEA1@(").append(gen.pattern.getText).append(") <- ").
-                  append(gen.rvalue.getText).append(") yield {val freshNameForIntelliJIDEA2@(").
+          exprText.append(gen.pattern.getText)
+
+          val (freshName1, freshName2) = if (forDisplay) {
+            ("x$1", "x$2")
+          } else {
+            ("freshNameForIntelliJIDEA1", "freshNameForIntelliJIDEA2")
+          }
+
+          exprText.append(") <- (for (").append(freshName1).append("@(").append(gen.pattern.getText).append(") <- ").
+                  append(gen.rvalue.getText).append(") yield {val ").append(freshName2).append("@(").
                   append(enum.pattern.getText).append(") = ").append(enum.rvalue.getText).
-                  append("; (freshNameForIntelliJIDEA2, freshNameForIntelliJIDEA1)})")
+                  append("; (").append(freshName2).append(", ").append(freshName1).append(")})")
           next = next.getNextSibling
           while (next != null && !next.isInstanceOf[ScGuard] && !next.isInstanceOf[ScEnumerator] &&
                   !next.isInstanceOf[ScGenerator]) next = next.getNextSibling
@@ -178,7 +190,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       if (res != null && desugarizedExprModCount == currModCount) {
         return res
       }
-      res = getDesugarisedExprText match {
+      res = getDesugarisedExprText(forDisplay = false) match {
         case Some(text) =>
           if (text == "") None
           else {
