@@ -70,7 +70,7 @@ case object Null extends StdType("Null", Some(AnyRef))
 
 case object AnyRef extends StdType("AnyRef", Some(Any))
 
-case object Nothing extends StdType("Nothing", None)
+case object Nothing extends StdType("Nothing", Some(Any))
 
 case object Singleton extends StdType("Singleton", Some(AnyRef))
 
