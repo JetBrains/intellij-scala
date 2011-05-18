@@ -100,6 +100,7 @@ abstract class MixinNodes {
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
       case ScDesignatorType(template: ScTypeDefinition) => {
+        if (template.getQualifiedName == "scala.Predef") isPredef = true
         place = Some(template.extendsBlock)
         processScala(template, ScSubstitutor.empty, map, place)
         val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
@@ -134,7 +135,7 @@ abstract class MixinNodes {
           Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
       }
       case ScDesignatorType(syn: ScSyntheticClass) => {
-        processSyntheticScala(syn, ScSubstitutor.empty, map)
+        processSyntheticScala(syn, ScSubstitutor.empty, map, place)
         (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
           ScSubstitutor.empty, ScSubstitutor.empty)
       }
@@ -166,8 +167,8 @@ abstract class MixinNodes {
               case template : ScTemplateDefinition => {
                 processScala(template, newSubst, newMap, place)
               }
-              case syn: ScSyntheticClass => {
-                processSyntheticScala(syn, newSubst, newMap)
+              case syn: ScSyntheticClass => { //todo: is it really unnessesary?
+                processSyntheticScala(syn, newSubst, newMap, place)
               }
               case _ => {
                 processJava(superClass, newSubst, newMap, place)
@@ -207,7 +208,8 @@ abstract class MixinNodes {
 
   def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
-  def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map)
+  @deprecated
+  def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
 }
 
@@ -240,7 +242,7 @@ object MixinNodes {
     def add(tp: ScType) {
       ScType.extractClass(tp) match {
         case Some(clazz) if clazz.getQualifiedName != null && !set.contains(clazz.getQualifiedName) => {
-          tp +: buffer
+          tp +=: buffer
           set += clazz.getQualifiedName
         }
         case Some(clazz) if clazz.getTypeParameters.length != 0 => {
@@ -261,13 +263,13 @@ object MixinNodes {
 
     val iterator = comps.reverseIterator
     while (iterator.hasNext) {
-      val tp = iterator.next
+      val tp = iterator.next()
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
           val lin = linearization(clazz, collection.immutable.HashSet.empty)
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
-            val tp = newIterator.next
+            val tp = newIterator.next()
             add(subst.subst(tp))
           }
         }
@@ -299,14 +301,14 @@ object MixinNodes {
       }
     }
     def add(tp: ScType) {
-      ScType.extractClass(tp) match {
+      ScType.extractClass(tp, Some(clazz.getProject)) match {
         case Some(clazz) if clazz.getQualifiedName != null && !set.contains(classString(clazz)) => {
-          tp +: buffer
+          tp +=: buffer
           set += classString(clazz)
         }
         case Some(clazz) if clazz.getTypeParameters.length != 0 => {
           val i = buffer.findIndexOf(newTp => {
-            ScType.extractClass(newTp) match {
+            ScType.extractClass(newTp, Some(clazz.getProject)) match {
               case Some(newClazz) if newClazz == clazz => true
               case _ => false
             }
@@ -322,13 +324,13 @@ object MixinNodes {
 
     val iterator = supers.iterator
     while (iterator.hasNext) {
-      val tp = iterator.next
+      val tp = iterator.next()
       ScType.extractClassType(tp) match {
         case Some((clazz, subst)) => {
           val lin = linearization(clazz, visited)
           val newIterator = lin.reverseIterator
           while (newIterator.hasNext) {
-            val tp = newIterator.next
+            val tp = newIterator.next()
             add(subst.subst(tp))
           }
         }

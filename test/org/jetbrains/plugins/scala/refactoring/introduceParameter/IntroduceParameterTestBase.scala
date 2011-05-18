@@ -32,7 +32,7 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
   private val nameMarker = "//name = "
   private val defaultMarker = "//default = "
 
-  protected def doTest = {
+  protected def doTest {
     import _root_.junit.framework.Assert._
     val filePath = rootPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -86,15 +86,13 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
     //start to inline
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run {
+        def run() {
           editor.getSelectionModel.setSelection(startOffset, endOffset)
           def invokes() {
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
-            PsiDocumentManager.getInstance(project).commitAllDocuments
+            PsiDocumentManager.getInstance(project).commitAllDocuments()
             val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.
               getExpression(project, editor, scalaFile, startOffset, endOffset).get
-            val typeText = ScType.presentableText(typez)
-
             val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
             val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
 
@@ -102,7 +100,7 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
               function.body.getOrElse(function))
             val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
               replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, typez, expr)
-            processor.run
+            processor.run()
           }
           ScalaRefactoringUtil.invokeRefactoring(project, editor, scalaFile, null, "Introduce Variable", invokes _)
         }
@@ -114,7 +112,7 @@ abstract class IntroduceParameterTestBase extends ScalaPsiTestCase {
     }
     finally {
       ScalaUtils.runWriteAction(new Runnable {
-        def run {
+        def run() {
           val undoManager = UndoManager.getInstance(project)
           val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
           if (undoManager.isUndoAvailable(fileEditor)) {

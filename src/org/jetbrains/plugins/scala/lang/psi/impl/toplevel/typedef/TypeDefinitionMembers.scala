@@ -62,28 +62,20 @@ object TypeDefinitionMembers {
 
     def isAbstract(s: PhysicalSignature) = TypeDefinitionMembers.this.isAbstract(s)
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if (isAccessible(place, method) &&
-              !method.isConstructor && !method.hasModifierProperty("static"))) {
+        !method.isConstructor && !method.hasModifierProperty("static"))) {
         val sig = new PhysicalSignature(method, subst)
         map += ((sig, new Node(sig, subst)))
       }
+    }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {
-      clazz.getName match {
-        case "Any" => {
-          val project = clazz.getProject
-          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
-            "java.lang.Object")
-          if (obj.length > 0) {
-            for (m <- obj(0).getMethods if !m.isConstructor && !m.hasModifierProperty("static")) {
-              val sig = new PhysicalSignature(m, subst)
-              map += ((sig, new Node(sig, subst)))
-            }
-          }
-        }
-        case _ =>
-      }
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+      /*for (method <- clazz.syntheticMethods(place.map(_.getResolveScope).
+        getOrElse(GlobalSearchScope.allScope(clazz.getProject)))) {
+        val sig = new PhysicalSignature(method, subst)
+        map += (sig, new Node(sig, subst))
+      }*/
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
@@ -135,7 +127,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) =
       for (field <- clazz.getFields if (isAccessible(place, field) &&
@@ -212,7 +204,7 @@ object TypeDefinitionMembers {
         map += ((inner, new Node(inner, subst)))
       }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {}
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) = {
       for (member <- template.members) {
@@ -256,24 +248,14 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map) {
-      clazz.getName match {
-        case "Any" => {
-          val project = clazz.getProject
-          val obj = CommonClassesSearcher.getCachedClass(clazz.getManager, GlobalSearchScope.allScope(project),
-            "java.lang.Object")
-          if (obj.length > 0) {
-            for (m <- obj(0).getMethods if !m.isConstructor) {
-              val phys = new PhysicalSignature(m, subst)
-              val psiRet = m.getReturnType
-              val retType = if (psiRet == null) Unit else ScType.create(psiRet, m.getProject)
-              val sig = new FullSignature(phys, new Suspension(subst.subst(retType)), m, Some(obj(0)))
-              map += ((sig, new Node(sig, subst)))
-            }
-          }
-        }
-        case _ =>
-      }
+    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+      /*for (method <- clazz.syntheticMethods(place.map(_.getResolveScope).
+        getOrElse(GlobalSearchScope.allScope(clazz.getProject)))) {
+        val sig = new PhysicalSignature(method, subst)
+        val ret = method.retType
+        val fullSig = new FullSignature(sig, new Suspension[ScType](subst.subst(ret)), method, Some(clazz))
+        map += (fullSig, new Node(fullSig, subst))
+      }*/
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) = {
@@ -487,8 +469,12 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    privateProcessDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
-      td.isInstanceOf[ScObject])
+    if (!privateProcessDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
+      td.isInstanceOf[ScObject])) return false
+
+    if (!(AnyRef.asClass(td.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            Any.asClass(td.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
+    return true
   }
 
   def processDeclarations(comp: ScCompoundType,
@@ -538,8 +524,8 @@ object TypeDefinitionMembers {
     if (processValsForScala || processValsForJava) {
       val iterator = vals.iterator
       while (iterator.hasNext) {
-        val (_, n) = iterator.next
-        ProgressManager.checkCanceled
+        val (_, n) = iterator.next()
+        ProgressManager.checkCanceled()
         n.info match {
           case p: ScClassParameter if processValsForScala && !p.isVar && !p.isVal &&
             (checkName(p.getName) || checkNameGetSetIs(p.getName)) && !isNotScalaProcessor => {
@@ -598,8 +584,8 @@ object TypeDefinitionMembers {
     if (shouldProcessMethods(processor)) {
       def runIterator(iterator: Iterator[(MethodNodes.T, MethodNodes.Node)]): Option[Boolean] = {
         while (iterator.hasNext) {
-          val (_, n) = iterator.next
-          ProgressManager.checkCanceled
+          val (_, n) = iterator.next()
+          ProgressManager.checkCanceled()
           val method = n.info.method
           if (checkName(method.getName)) {
             val substitutor = n.substitutor followed subst
@@ -625,9 +611,9 @@ object TypeDefinitionMembers {
     if (shouldProcessTypes(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
-        val (_, n) = iterator.next
+        val (_, n) = iterator.next()
         if (checkName(n.info.getName)) {
-          ProgressManager.checkCanceled
+          ProgressManager.checkCanceled()
           if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       }
@@ -636,9 +622,9 @@ object TypeDefinitionMembers {
     if (shouldProcessJavaInnerClasses(processor)) {
       val iterator = types.iterator
       while (iterator.hasNext) {
-        val (_, n) = iterator.next
+        val (_, n) = iterator.next()
         if (checkName(n.info.getName)) {
-          ProgressManager.checkCanceled
+          ProgressManager.checkCanceled()
           if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       }

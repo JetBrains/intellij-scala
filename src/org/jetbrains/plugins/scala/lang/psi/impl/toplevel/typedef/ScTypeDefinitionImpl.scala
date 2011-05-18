@@ -262,8 +262,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     val methodsIterator = TypeDefinitionMembers.getMethods(this).iterator
     while (methodsIterator.hasNext) {
       val method = methodsIterator.next._1.method
-      buffer += method
-    }
+          buffer += method
+      }
 
     buffer ++= syntheticMembers
     val valsIterator = TypeDefinitionMembers.getVals(this).iterator

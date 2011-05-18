@@ -8,19 +8,17 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import toplevel.PsiClassFake
-import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import api.expr._
 import api.toplevel.templates.ScTemplateBody
 import api.statements.{ScTypeAlias, ScDeclaredElementsHolder}
 import collection.mutable.ArrayBuffer
-import types.result.{Failure, Success, TypingContext}
-import com.intellij.openapi.project.DumbService
-import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScTrait, ScTypeDefinition}
+import types.result.{Success, TypingContext}
+import api.toplevel.typedef.ScTemplateDefinition
 import psi.stubs.ScTemplateDefinitionStub
 import icons.Icons
-import types.{Any, ScSubstitutor, ScType, ScCompoundType}
+import types._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,7 +39,10 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
       case None => (Seq.empty, Seq.empty)
     }
 
-    val superTypes = extendsBlock.superTypes
+    val superTypes = extendsBlock.superTypes.filter(_ match {
+      case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName != "scala.ScalaObject"
+      case _ => true
+    })
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
       new Success(ScCompoundType(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else superTypes.headOption match {
@@ -62,7 +63,10 @@ class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[S
   override def name: String = "<anonymous>"
 
   override def getSupers: Array[PsiClass] = {
-    val direct = extendsBlock.supers.toArray
+    val direct = extendsBlock.supers.filter(_ match {
+      case clazz: PsiClass => clazz.getQualifiedName != "scala.ScalaObject"
+      case _ => true
+    }).toArray
     val res = new ArrayBuffer[PsiClass]
     res ++= direct
     for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers

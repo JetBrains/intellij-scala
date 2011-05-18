@@ -15,4 +15,5 @@ class BasicTest extends ResolveTestBase {
   def testMultipleDeclaration = doTest
   def testName = doTest
   def testToPattern = doTest
+  def testGetClass = doTest
 }

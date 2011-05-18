@@ -5,17 +5,17 @@ package api
 package expr
 
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiElement, ResolveState}
 import statements.{ScDeclaredElementsHolder, ScTypeAlias}
 import toplevel.templates.ScTemplateBody
 import toplevel.typedef.{ScObject, ScTypeDefinition, ScTemplateDefinition, ScMember}
-import types._
 import base.patterns.{ScCaseClauses, ScCaseClause}
-import result.{Failure, Success, TypingContext, TypeResult}
+import types.result.{Failure, Success, TypingContext, TypeResult}
 import collection.mutable.HashMap
 import toplevel.ScTypedDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
+import types._
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 
 /**
  * @author ilyas
@@ -93,7 +93,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     Success(inner, Some(this))
   }
 
-  private def leastClassType(t : ScTemplateDefinition) = {
+  private def leastClassType(t : ScTemplateDefinition): ScType = {
     val (holders, aliases): (Seq[ScDeclaredElementsHolder], Seq[ScTypeAlias]) = t.extendsBlock.templateBody match {
       case Some(b: ScTemplateBody) => {
         // jzaugg: Without these type annotations, a class cast exception occured above. I'm not entirely sure why.

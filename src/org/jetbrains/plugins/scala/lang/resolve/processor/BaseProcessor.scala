@@ -11,12 +11,9 @@ import _root_.scala.collection.Set
 import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
 import org.jetbrains.plugins.scala.lang.psi.api._
-import base.ScStableCodeReferenceElement
 import base.types.ScTypeProjection
-import expr.ScReferenceExpression
 import statements.ScTypeAlias
 import psi.types._
-import psi.ScalaPsiElement
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
 import result.{Success, TypingContext}
 import toplevel.imports.usages.ImportUsed
@@ -24,8 +21,9 @@ import ResolveTargets._
 import _root_.scala.collection.mutable.HashSet
 import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
-import toplevel.typedef.{ScClass, ScTemplateDefinition}
+import toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.extensions._
+import psi.util.CommonClassesSearcher
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -68,7 +66,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) = {}
+  def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {}
 
   protected def kindMatches(element: PsiElement): Boolean = ResolveUtils.kindMatches(element, kinds)
 
@@ -84,7 +82,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def processType(t: ScType, place: PsiElement, state: ResolveState,
                   noBounds: Boolean, updateWithProjectionSubst: Boolean): Boolean = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
 
     t match {
       case ScDesignatorType(clazz: PsiClass) if clazz.getQualifiedName == "java.lang.String" => {
@@ -164,26 +162,32 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         processElement(proj.actualElement, s, place, state)
       }
 
-      case StdType(name, tSuper) => (SyntheticClasses.get(place.getProject).byName(name): @unchecked) match {
-        case Some(c) => {
-          if (!c.processDeclarations(this, state, null, place) ||
-                  !(tSuper match {
-                    case Some(ts) => processType(ts, place)
-                    case _ => true
-                  })) return false
+      case StdType(name, tSuper) =>
+        SyntheticClasses.get(place.getProject).byName(name) match {
+          case Some(c) => {
+            if (!c.processDeclarations(this, state, null, place) ||
+                    !(tSuper match {
+                      case Some(ts) => processType(ts, place)
+                      case _ => true
+                    })) return false
+          }
+          case None => //nothing to do
+        }
 
-          if (name == "Any") {
-            for (m <- c.syntheticMethods(place.getResolveScope)) {
-              m.name match {
-                case "toString" | "hashCode" | "equals" => this.execute(m, state)
-                case _ => //do nothing
-              }
+        val scope = place.getResolveScope
+        val classes = CommonClassesSearcher.getCachedClass(place.getManager, scope, "java.lang.Object")
+        if (classes.length == 1) {
+          val obj = classes(0)
+          val namesSet = Set("hashCode", "toString", "equals")
+          val methods = obj.getMethods.iterator
+          while (methods.hasNext) {
+            val method = methods.next()
+            if (name == "AnyRef" || namesSet.contains(method.getName)) {
+              if (!execute(method, state)) return false
             }
           }
-          true
         }
-        case None => true//nothing to do
-      }
+        true
 
       case ft@ScFunctionType(rt, params) => {
         ft.resolveFunctionTrait(place.getProject).map(processType((_: ScType), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))).getOrElse(true)
