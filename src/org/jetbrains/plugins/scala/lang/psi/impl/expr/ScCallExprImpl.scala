@@ -8,7 +8,7 @@ import api.toplevel.ScTypedDefinition
 import types._
 import nonvalue.{ScTypePolymorphicType, ScMethodType}
 import api.expr._
-import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement}
+import com.intellij.psi.PsiMethod
 import api.statements.{ScFunction, ScFun}
 import resolve.ResolveUtils
 import result.{Failure, TypeResult, Success, TypingContext}
@@ -23,11 +23,12 @@ trait ScCallExprImpl extends ScExpression {
   def argumentExpressions: Seq[ScExpression]
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    val bind = operation.bind
-    val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
+    val bind = operation.bind()
+    //val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     bind match {
       case Some(r) => {
         val s = r.substitutor
+        if (operation.refName == r.element.getName + "=") return Success(Unit, Some(this))
         var tp = r.element match {
           case fun: ScFunction => s.subst(fun.polymorphicType)
           case fun: ScFun => s.subst(fun.polymorphicType)

@@ -7,6 +7,8 @@ class TypeInferenceStatementsTest extends TypeInferenceTestBase {
 
   def testAssignStatement = doTest
 
+  def testAssignWithFunction = doTest
+
   def testForStatementWithGuard = doTest
 
   def testForStatementWithGuard2 = doTest

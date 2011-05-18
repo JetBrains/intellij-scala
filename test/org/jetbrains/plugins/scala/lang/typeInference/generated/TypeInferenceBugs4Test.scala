@@ -50,7 +50,7 @@ class TypeInferenceBugs4Test extends TypeInferenceTestBase {
   def testSCL3054 = doTest
 
   def testSCL3057 = doTest
-  
+
   def testSCL3082 = doTest
 
   def testSCL3158 = doTest
@@ -60,7 +60,7 @@ class TypeInferenceBugs4Test extends TypeInferenceTestBase {
   def testSCL3159B = doTest
 
   def testSCL3159C = doTest
-  
+
   def testSCL3159D = doTest
 
   def testSCL3159E = doTest
