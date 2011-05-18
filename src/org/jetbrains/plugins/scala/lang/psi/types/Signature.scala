@@ -4,15 +4,11 @@ package psi
 package types
 
 import api.statements.ScFunction
-import com.intellij.openapi.util.Key
-import collection.immutable.{Map, HashMap}
-import com.intellij.openapi.project.Project
-import api.statements.params.ScParameter
 import psi.impl.ScalaPsiManager
-import result.TypingContext
 import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
-import util.{MethodSignatureUtil}
+import util.MethodSignatureUtil
+import psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
@@ -43,15 +39,16 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     }
   }
 
-  protected def paramTypesEquiv(other: Signature): Boolean = {
+  def paramTypesEquiv(other: Signature): Boolean = {
     if (paramLength != other.paramLength) return false
+    if (hasRepeatedParam != other.hasRepeatedParam) return false
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     val typesIterator = substitutedTypes.iterator
     val otherTypesIterator = other.substitutedTypes.iterator
     while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-      val t1 = typesIterator.next
-      val t2 = otherTypesIterator.next
+      val t1 = typesIterator.next()
+      val t2 = otherTypesIterator.next()
       if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
     }
     return true
@@ -62,7 +59,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     val iterator1 = tps1.iterator
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
-      val (tp1, tp2) = (iterator1.next, iterator2.next)
+      val (tp1, tp2) = (iterator1.next(), iterator2.next())
       res = res bindT ((tp2.getName, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
     }
     res
@@ -76,18 +73,20 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
   override def hashCode: Int = {
     name.hashCode * 31
   }
+
+  def hasRepeatedParam: Boolean = false
 }
 
 import com.intellij.psi.PsiMethod
-class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubstitutor)
+class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
         extends Signature(method.getName, method match {
           case fun: ScFunction => ScalaPsiUtil.getTypesStream(fun.parameters)
           case _ => ScalaPsiUtil.getTypesStream(method.getParameterList.getParameters.toSeq)
-        },
-          method.getParameterList.getParameters.length,
+        }, method.getParameterList.getParameters.length,
           method.getTypeParameters,
           substitutor) {
-  def hasRepeatedParam: Boolean = {
+
+  override def hasRepeatedParam: Boolean = {
     method.getParameterList.getParameters.lastOption match {
       case Some(p: PsiParameter) => p.isVarArgs
       case _ => false
@@ -98,27 +97,18 @@ class PhysicalSignature(val method : PsiMethod, override val substitutor: ScSubs
 
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
 
-  override def paramTypesEquiv (other: Signature): Boolean = {
-    other match {
-      case phys1: PhysicalSignature => {
-        if (phys1.paramLength != paramLength) return false
-        if ((phys1.hasRepeatedParam && !hasRepeatedParam) ||
-                (!phys1.hasRepeatedParam && hasRepeatedParam)) return false
-        val unified1 = unify(substitutor, typeParams, typeParams)
-        val unified2 = unify(other.substitutor, typeParams, other.typeParams)
-        val otherTypesIterator = other.substitutedTypes.iterator
-        val typesIterator = substitutedTypes.iterator
-        while (typesIterator.hasNext && otherTypesIterator.hasNext) {
-          val t1 = typesIterator.next
-          val t2 = otherTypesIterator.next
-          if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
-        }
-        return true
-      }
-      case _ if !hasRepeatedParam => super.paramTypesEquiv(other)
-      case _ => false
-    }
-  }
+  def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
+}
+
+
+class SyntheticSignature(val method: ScSyntheticFunction, override val substitutor: ScSubstitutor)
+        extends Signature(method.name, method.paramClauses.flatten.map(_.paramType).toStream,
+          method.paramClauses.flatten.length,
+          method.typeParameters.toArray,
+          substitutor) {
+  def updateThisType(thisType: ScType): SyntheticSignature = updateSubst(_.addUpdateThisType(thisType))
+
+  def updateSubst(f: ScSubstitutor => ScSubstitutor): SyntheticSignature = new SyntheticSignature(method, f(substitutor))
 
   def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }

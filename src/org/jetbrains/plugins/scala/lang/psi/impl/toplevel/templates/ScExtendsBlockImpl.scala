@@ -23,6 +23,7 @@ import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import collection.Seq
 import util.CommonClassesSearcher
 import api.base.types._
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -78,6 +79,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     return tp
   }
 
+  def isScalaObject: Boolean = {
+    val clazz = PsiTreeUtil.getParentOfType(this, classOf[PsiClass], true)
+    clazz.getQualifiedName == "scala.ScalaObject"
+  }
+
   private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
@@ -98,11 +104,20 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
       val prod = scalaProduct
       if (prod != null) buffer += prod
     }
+    if (!isScalaObject) {
+      val obj = scalaObject
+      if (obj != null) buffer += obj
+    }
     buffer.toList
   }
 
   private def scalaProduct: ScType = {
     val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Product")
+    if (so.length > 0) ScType.designator(so(0)) else null
+  }
+
+  private def scalaObject: ScType = {
+    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.ScalaObject")
     if (so.length > 0) ScType.designator(so(0)) else null
   }
 

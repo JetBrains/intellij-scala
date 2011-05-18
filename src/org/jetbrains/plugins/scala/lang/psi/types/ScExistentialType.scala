@@ -118,6 +118,10 @@ case class ScExistentialType(quantified : ScType,
               })
             case _ =>
           }
+        case ScTypeVariable(name) =>
+          wildcards.foreach(arg => if (arg.name == name && !rejected.contains(arg.name)) {
+            usedWildcards += arg
+          })
         case ex: ScExistentialArgument => if (!rejected.contains(ex.name)) usedWildcards += ex //is it important?
         case ex: ScExistentialType =>
           val newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
@@ -250,6 +254,21 @@ case class ScExistentialType(quantified : ScType,
             } else tp
           case _ => tp
         }
+        case ScTypeVariable(name) =>
+          if (!rejected.contains(name)) {
+            wildcards.find(_.name == name) match {
+              case Some(arg) => variance match {
+                case 1 =>
+                  updated = true
+                  arg.upperBound
+                case -1 =>
+                  updated = true
+                  arg.lowerBound
+                case 0 => tp
+              }
+              case _ => tp
+            }
+          } else tp
         case ScTypeParameterType(name, args, lower, upper, param) =>
           //should return TypeParameterType (for undefined type)
           ScTypeParameterType(name, args.map(arg =>
@@ -273,7 +292,6 @@ case class ScExistentialType(quantified : ScType,
             updateRecursive(arg, rejected, -variance).asInstanceOf[ScTypeParameterType]),
             updateRecursive(lower, rejected, -variance),
             updateRecursive(upper, rejected, variance))
-        case ScTypeVariable(name) => tp
         case ScUndefinedType(tpt) => ScUndefinedType(
           updateRecursive(tpt, rejected, variance).asInstanceOf[ScTypeParameterType]
         )

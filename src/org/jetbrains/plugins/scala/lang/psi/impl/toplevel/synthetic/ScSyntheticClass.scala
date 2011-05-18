@@ -31,6 +31,7 @@ import result.Success
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import api.ScalaFile
+import collection.Seq
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
@@ -114,10 +115,6 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
       case p : ResolveProcessor => {
         val nameSet = state.get(ResolverEnv.nameKey)
         val name = if (nameSet == null) p.name else nameSet
-        name match {
-          case "toString" | "hashCode" | "equals" => return true
-          case _ =>
-        }
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {
             if (!processor.execute(method, state)) return false
@@ -127,7 +124,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
       }
       case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
-        for (p <- methods; if p._1 != "toString" && p._1 != "hashCode" && p._1 != "equals"; method <- p._2) {
+        for (p <- methods; method <- p._2) {
           if (!processor.execute(method, state)) return false
         }
       case _ => //do not execute synthetic methods to not Scala processors.
@@ -154,7 +151,8 @@ extends SyntheticNamedElement(manager, name) with ScFun {
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[Seq[ScType]]) =
     this(manager, name, retType, paramTypes.map(_.map(Parameter("", _, false, false, false))), Seq.empty)
 
-  val typeParams = typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
+  val typeParams: Seq[ScSyntheticTypeParameter] =
+    typeParameterNames.map {name => new ScSyntheticTypeParameter(manager, name, this)}
   override def typeParameters = typeParams
 
   override def getIcon(flags: Int) = icons.Icons.FUNCTION
@@ -200,16 +198,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     val any = registerClass(Any, "Any")
     val manager = any.manager
-    any.addMethod(new ScSyntheticFunction(manager, "equals", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction(manager, "==", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction(manager, "!=", Boolean, Seq(Seq(Any))))
-    any.addMethod(new ScSyntheticFunction(manager, "hashCode", Int, Seq(Seq())))
     any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
-    any.addMethod(scope => {
-      val stringClass = JavaPsiFacade.getInstance(project).findClass("java.lang.String", scope)
-      val stringType = if (stringClass != null) new ScDesignatorType(stringClass) else Any
-      new ScSyntheticFunction(manager, "toString", stringType, Seq(Seq()))
-    }, "toString")
     any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)))
     any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq.singleton(ScalaUtils.typeParameter)) {
       override val retType = ScalaPsiManager.typeVariable(typeParams(0))
