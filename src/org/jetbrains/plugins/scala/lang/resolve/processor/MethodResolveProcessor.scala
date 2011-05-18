@@ -82,7 +82,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val input: Set[ScalaResolveResult] = candidatesSet ++ levelSet
+    val input: Set[ScalaResolveResult] = super.candidatesS
     if (!isShapeResolve && enableTupling && argumentClauses.length > 0 && argumentClauses.apply(0).length > 1) {
       isShapeResolve = true
       val cand1 = MethodResolveProcessor.candidates(this, input)

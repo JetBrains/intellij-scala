@@ -57,7 +57,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    val candidates: HashSet[ScalaResolveResult] = candidatesSet ++ levelSet
+    val candidates: Set[ScalaResolveResult] = super.candidatesS
     expected match {
       case Some(tp) =>
         def isApplicable(r: ScalaResolveResult): Boolean = {
