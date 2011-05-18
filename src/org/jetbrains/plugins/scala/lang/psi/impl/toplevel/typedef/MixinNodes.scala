@@ -13,7 +13,7 @@ import psi.types._
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
-import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
 
 abstract class MixinNodes {
   type T
@@ -288,7 +288,13 @@ object MixinNodes {
     val supers: Seq[ScType] = {
       clazz match {
         case td: ScTemplateDefinition => td.superTypes
-        case clazz: PsiClass => clazz.getSuperTypes.map(tp => ScType.create(tp, clazz.getProject)).toSeq
+        case clazz: PsiClass => clazz.getSuperTypes.map(tp => tp match {
+          case ctp: PsiClassType =>
+            val cl = ctp.resolve()
+            if (cl != null && cl.getQualifiedName == "java.lang.Object") ScDesignatorType(cl)
+            else ScType.create(tp, clazz.getProject)
+          case _ => ScType.create(tp, clazz.getProject)
+        }).toSeq
       }
     }
     val buffer = new ListBuffer[ScType]
