@@ -8,8 +8,7 @@ package imports
 import com.intellij.openapi.util.Key
 import com.intellij.lang.ASTNode
 
-import com.intellij.util.ArrayFactory
-import lang.resolve.{ScalaResolveResult}
+import lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import com.intellij.psi._
 import _root_.scala.collection.mutable.HashSet
@@ -47,8 +46,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                                   place: PsiElement): Boolean = {
     val importsIterator = importExprs.iterator
     while (importsIterator.hasNext) {
-      val importExpr = importsIterator.next
-      ProgressManager.checkCanceled
+      val importExpr = importsIterator.next()
+      ProgressManager.checkCanceled()
       if (importExpr == lastParent) return true
       def workWithImportExpr: Boolean = {
         val ref = importExpr.reference match {
@@ -60,19 +59,19 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
           case None if importExpr.singleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
         }
-        val refType = exprQual.bind match {
+        val refType = exprQual.bind() match {
           case Some(ScalaResolveResult(p: PsiPackage, _)) => Failure("no failure", Some(this))
           case _ => ScSimpleTypeElementImpl.calculateReferenceType(exprQual, false)
         }
         val resolve: Array[ResolveResult] = ref.multiResolve(false)
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
-          val (elem, importsUsed, s) = resolveIterator.next match {
+          val (elem, importsUsed, s) = resolveIterator.next() match {
             case s: ScalaResolveResult => (s.getElement, s.importsUsed, s.substitutor)
             case r: ResolveResult => (r.getElement, Set[ImportUsed](), ScSubstitutor.empty)
           }
           val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)
-          ProgressManager.checkCanceled
+          ProgressManager.checkCanceled()
           importExpr.selectorSet match {
             case None =>
               // Update the set of used imports
@@ -98,7 +97,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               val shadowed: HashSet[(ScImportSelector, PsiElement)] = HashSet.empty
               set.selectors foreach {
                 selector =>
-                ProgressManager.checkCanceled
+                ProgressManager.checkCanceled()
                 selector.reference.multiResolve(false) foreach {
                   result =>
                   //Resolve the name imported by selector
@@ -121,12 +120,13 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
               if (set.hasWildcard) {
                 processor match {
                   case bp: BaseProcessor => {
-                    ProgressManager.checkCanceled
+                    ProgressManager.checkCanceled()
                     val p1 = new BaseProcessor(bp.kinds) {
                       override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
 
-                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) =
+                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object) {
                         processor.handleEvent(event, associated)
+                      }
 
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
                         // Register shadowing import selector

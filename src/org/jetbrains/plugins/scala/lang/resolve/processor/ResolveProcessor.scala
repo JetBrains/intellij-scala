@@ -10,17 +10,16 @@ import com.intellij.openapi.util.Key
 import collection.Set
 import psi.api.base.patterns.ScBindingPattern
 import psi.ScalaPsiUtil
-import psi.api.toplevel.typedef.ScObject
 import psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed, ImportUsed}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import psi.impl.ScPackageImpl
-import collection.mutable.HashSet
-import caches.CachesUtil
 import psi.api.statements.params.ScTypeParam
 import psi.api.expr.{ScSuperReference, ScThisReference}
 import psi.api.statements.ScTypeAlias
 import psi.api.toplevel.templates.ScTemplateBody
 import reflect.NameTransformer
+import collection.mutable.HashSet
+import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -47,7 +46,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
    * This method useful for resetting precednce if we dropped
    * all found candidates to seek implicit conversion candidates.
    */
-  def resetPrecedence {
+  def resetPrecedence() {
     precedence = 0
   }
 
@@ -70,7 +69,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case _ => null
       }
     }
-    def addResults {
+    def addResults() {
       if (qualifiedName != null) levelQualifiedNamesSet += qualifiedName
       levelSet ++= results
     }
@@ -82,7 +81,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
               qualifiedNamesSet.contains(qualifiedName))) {
         return false
       }
-      addResults
+      addResults()
     } else {
       if (qualifiedName != null && (levelQualifiedNamesSet.contains(qualifiedName) ||
               qualifiedNamesSet.contains(qualifiedName))) {
@@ -90,10 +89,10 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       } else {
         precedence = currentPrecedence
         val newSet = levelSet.filterNot(p => getPrecendence(p) < precedence)
-        levelSet.clear
+        levelSet.clear()
         levelSet ++= newSet
-        levelQualifiedNamesSet.clear
-        addResults
+        levelQualifiedNamesSet.clear()
+        addResults()
       }
     }
     true
@@ -173,8 +172,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     def update: Boolean = {
       candidatesSet ++= levelSet
       qualifiedNamesSet ++= levelQualifiedNamesSet
-      levelSet.clear
-      levelQualifiedNamesSet.clear
+      levelSet.clear()
+      levelQualifiedNamesSet.clear()
       false
     }
     if (levelSet.isEmpty) true
@@ -236,7 +235,36 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    candidatesSet ++ levelSet
+    val res = candidatesSet ++ levelSet
+    /*
+    This code works in following way:
+    if we found to Types (from types namespace), which import is the same,
+    then type from package object have bigger priority.
+    The same for Values (terms namespace).
+    Actually such behaviour is undefined (spec 9.3), but this code is closer to compiler behaviour.
+     */
+    if (res.size > 1) {
+      val problems = res.filter(r => ScalaPsiUtil.nameContext(r.getActualElement) match {
+        case memb: ScMember =>
+          memb.getContext.isInstanceOf[ScTemplateBody] && memb.getContainingClass.isInstanceOf[ScObject] &&
+            memb.getContainingClass.asInstanceOf[ScObject].isPackageObject
+        case _ => false
+      }).map(r => {
+        val elem = r.getActualElement
+        val context = ScalaPsiUtil.nameContext(elem)
+        val pref = context.asInstanceOf[ScMember].getContainingClass.getQualifiedName
+        elem match {
+          case _: ScClass | _: ScTrait | _: ScTypeAlias => "Type:" + pref + "." + elem.getName
+          case _ => "Value:" + pref + "." + elem.getName
+        }
+      })
+
+      res.filter(r => r.getActualElement match {
+        case o: ScObject => !problems.contains("Value:" + o.getQualifiedName)
+        case c: PsiClass => !problems.contains("Type:" + c.getQualifiedName)
+        case _ => true
+      })
+    } else res
   }
 
   object ScalaNameHint extends NameHint {
