@@ -10,4 +10,8 @@ class A {
   x./* */getClass
   val z: Any = 1
   z./* resolved: false */getClass
+
+  import actors.threadpool.TimeUnit
+
+  TimeUnit.HOURS./* */getClass
 }
