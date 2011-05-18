@@ -286,7 +286,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             val annotation = holder.createErrorAnnotation(refElement.nameId, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
             annotation.registerFix(ReportHighlightingErrorQuickFix)
-            //TODO create apply() method
+            annotation.registerFix(new CreateApplyQuickFix(refWithoutArgs, mc))
             return
           }
         case _ =>
