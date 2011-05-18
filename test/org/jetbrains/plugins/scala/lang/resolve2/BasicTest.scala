@@ -16,4 +16,5 @@ class BasicTest extends ResolveTestBase {
   def testName = doTest
   def testToPattern = doTest
   def testGetClass = doTest
+  def testNothing = doTest
 }
