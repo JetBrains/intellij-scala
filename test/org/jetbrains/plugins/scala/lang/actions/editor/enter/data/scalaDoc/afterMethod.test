@@ -8,7 +8,7 @@ class a {
   def foo(): Int = 3
 
   /**
-    * <caret>
-    */
+   * <caret>
+   */
   def fa = "fa"
 }
