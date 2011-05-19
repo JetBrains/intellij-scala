@@ -4,6 +4,6 @@ class a {
 -----
 class a {
   /**
-    * <caret>
-    */
+   * <caret>
+   */
 }
