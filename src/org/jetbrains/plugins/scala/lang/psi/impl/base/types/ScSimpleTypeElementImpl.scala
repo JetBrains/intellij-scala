@@ -20,11 +20,9 @@ import api.toplevel.ScTypeParametersOwner
 import params.ScTypeParam
 import psi.types.Compatibility.Expression
 import collection.immutable.HashMap
-import util.PsiTreeUtil
 import api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
-import api.toplevel.typedef.ScTemplateDefinition
 import api.base.{ScPathElement, ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
-import lang.resolve.{ResolveUtils, ScalaResolveResult}
+import lang.resolve.ScalaResolveResult
 
 /**
  * @author Alexander Podkhalyuzin
@@ -156,7 +154,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     reference match {
-      case Some(ref) => ref.bind match {
+      case Some(ref) => ref.bind() match {
         case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) => {
           Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
         }
@@ -176,21 +174,21 @@ object ScSimpleTypeElementImpl {
       case thisRef: ScThisReference => {
         thisRef.refTemplate match {
           case Some(template) => {
-            return Success(ScThisType(template), Some(path))
+            Success(ScThisType(template), Some(path))
           }
-          case _ => return Failure("Cannot find template for this reference", Some(thisRef))
+          case _ => Failure("Cannot find template for this reference", Some(thisRef))
         }
       }
       case superRef: ScSuperReference => {
         val template = superRef.drvTemplate.getOrElse(
             return Failure("Cannot find enclosing container", Some(superRef))
           )
-        return Success(ScThisType(template), Some(path))
+        Success(ScThisType(template), Some(path))
       }
     }
   }
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
-    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind else {
+    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind() else {
       ref.shapeResolve match {
         case Array(r: ScalaResolveResult) => Some(r)
         case _ => None
@@ -203,15 +201,15 @@ object ScSimpleTypeElementImpl {
     }
     ref.qualifier match {
       case Some(qual) => {
-        qual.resolve match {
+        qual.resolve() match {
           case pack: PsiPackage => {
-            return Success(ScType.designator(resolvedElement), Some(ref))
+            Success(ScType.designator(resolvedElement), Some(ref))
           }
           case _ => {
             calculateReferenceType(qual, shapesOnly) match {
-              case failure: Failure => return failure
+              case failure: Failure => failure
               case Success(tp, _) => {
-                return Success(ScProjectionType(tp, resolvedElement, subst), Some(ref))
+                Success(ScProjectionType(tp, resolvedElement, subst), Some(ref))
               }
             }
           }
@@ -222,20 +220,21 @@ object ScSimpleTypeElementImpl {
           case Some(thisRef: ScThisReference) => {
             thisRef.refTemplate match {
               case Some(template) => {
-                return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
+                Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
               }
-              case _ => return Failure("Cannot find template for this reference", Some(thisRef))
+              case _ => Failure("Cannot find template for this reference", Some(thisRef))
             }
           }
           case Some(superRef: ScSuperReference) => {
-            val template = superRef.drvTemplate.getOrElse(
-                return Failure("Cannot find enclosing container", Some(superRef))
-              )
-            return Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
+            val template = superRef.drvTemplate match {
+              case Some(x) => x
+              case None => return Failure("Cannot find enclosing container", Some(superRef))
+            }
+            Success(ScProjectionType(ScThisType(template), resolvedElement, subst), Some(ref))
           }
           case None => {
             if (fromType == None) return Success(ScType.designator(resolvedElement), Some(ref))
-            return Success(ScProjectionType(fromType.get, resolvedElement, subst), Some(ref))
+            Success(ScProjectionType(fromType.get, resolvedElement, subst), Some(ref))
           }
         }
       }

@@ -42,7 +42,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   public String myEnteredName;
 
   private Project project;
-  private ScType myType;
+  private ScType[] myTypes;
   private int occurrencesCount;
   private ScalaVariableValidator validator;
   private String[] possibleNames;
@@ -54,13 +54,13 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
 
   public ScalaIntroduceVariableDialog(Project project,
-                                      ScType myType,
+                                      ScType[] myType,
                                       int occurrencesCount,
                                       ScalaVariableValidator validator,
                                       String[] possibleNames) {
     super(project, true);
     this.project = project;
-    this.myType = myType;
+    this.myTypes = myType;
     this.occurrencesCount = occurrencesCount;
     this.validator = validator;
     this.possibleNames = possibleNames;
@@ -120,8 +120,12 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     myNameLabel.setLabelFor(myNameComboBox);
     myTypeLabel.setLabelFor(myTypeComboBox);
 
+    boolean nullText = false;
+    for (ScType myType : myTypes) {
+      if (ScTypeUtil.presentableText(myType) == null) nullText = true;
+    }
     // Type specification
-    if (myType == null || ScTypeUtil.presentableText(myType) == null) {
+    if (myTypes == null || nullText) {
       myCbTypeSpec.setSelected(false);
       myCbTypeSpec.setEnabled(false);
       myTypeComboBox.setEnabled(false);
@@ -133,7 +137,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         myCbTypeSpec.setSelected(true);
         myTypeComboBox.setEnabled(true);
       }
-      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myType);
+      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
       for (String typeName : myTypeMap.keySet()) {
         myTypeComboBox.addItem(typeName);
       }

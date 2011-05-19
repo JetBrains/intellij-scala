@@ -15,11 +15,9 @@ import psi.types.ScType
 import psi.api.expr._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.wm.WindowManager
 import namesSuggester.NameSuggester
 import psi.api.statements.ScFunctionDefinition
 import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
-import org.jetbrains.plugins.scala.util.ScalaUtils
 import collection.mutable.ArrayBuffer
 import com.intellij.psi._
 import com.intellij.refactoring.util.CommonRefactoringUtil
@@ -30,11 +28,10 @@ import com.intellij.refactoring.{RefactoringBundle, HelpID, RefactoringActionHan
  * User: Alexander Podkhalyuzin
  * Date: 11.06.2009
  */
-
 class ScalaIntroduceParameterHandler extends RefactoringActionHandler with ConflictsReporter {
   val REFACTORING_NAME = ScalaBundle.message("introduce.parameter.title")
 
-  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
+  def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def invokes() {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
@@ -44,7 +41,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
-      PsiDocumentManager.getInstance(project).commitAllDocuments
+      PsiDocumentManager.getInstance(project).commitAllDocuments()
       if (!file.isInstanceOf[ScalaFile])
         showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor)
 
@@ -91,19 +88,19 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
       val possibleNames = NameSuggester.suggestNames(expr, validator)
       val dialog = new ScalaIntroduceParameterDialog(project, editor, typez, occurrences,
         validator, possibleNames, methodToSearchFor, startOffset, endOffset, function, expr)
-      dialog.show
+      dialog.show()
     }
     catch {
       case _: IntroduceException => return
     }
   }
 
-  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {/*do nothing*/}
+  def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {/*do nothing*/}
 
   def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
     val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
-    conflictsDialog.show
-    return conflictsDialog.isOK
+    conflictsDialog.show()
+    conflictsDialog.isOK
   }
 
   /**
@@ -140,7 +137,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         return methodsNotImplementingLibraryInterfaces
       }
     }
-    return enclosingMethods
+    enclosingMethods
   }
 
   private def getTextForElement(method: ScFunctionDefinition): String = {
@@ -152,7 +149,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         else res.append(" (").append(qual).append(")")
       case _ => res.append(" (<local>)")
     }
-    res.toString
+    res.toString()
   }
 
   def chooseEnclosingMethod(project: Project, editor: Editor,
@@ -171,7 +168,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   }
 
   private def isLibraryInterfaceMethod(method: PsiMethod): Boolean = {
-    return (method.hasModifierProperty(PsiModifier.ABSTRACT) || method.isInstanceOf[ScFunctionDefinition]) &&
+    (method.hasModifierProperty(PsiModifier.ABSTRACT) || method.isInstanceOf[ScFunctionDefinition]) &&
       !method.getManager.isInProject(method)
   }
 }

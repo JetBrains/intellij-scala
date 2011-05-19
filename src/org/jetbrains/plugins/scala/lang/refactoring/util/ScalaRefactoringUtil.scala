@@ -77,8 +77,8 @@ object ScalaRefactoringUtil {
     if (hasNlToken) e = ScalaPsiElementFactory.createExpressionFromText(text.substring(0, i + 1), e.getManager)
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.size > 0 =>
-        return ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
-      case _ => return e
+        ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
+      case _ => e
     }
   }
 
@@ -93,7 +93,7 @@ object ScalaRefactoringUtil {
           if (ScalaRefactoringUtil.ensureFileWritable(project, file)) {
             var res: Option[(ScExpression, ScType)] = None
             ScalaUtils.runWriteAction(new Runnable {
-              def run: Unit = {
+              def run() {
                 val document = editor.getDocument
                 document.insertString(endOffset, ")")
                 document.insertString(startOffset, "(")
@@ -130,7 +130,7 @@ object ScalaRefactoringUtil {
     val cachedType = element.getType(TypingContext.empty).getOrElse(Any)
 
     object ReferenceToFunction {
-      def unapply(refExpr: ScReferenceExpression) = refExpr.bind match {
+      def unapply(refExpr: ScReferenceExpression) = refExpr.bind() match {
         case Some(srr: ScalaResolveResult) if srr.element.isInstanceOf[ScFunction] => Some(srr.element.asInstanceOf[ScFunction])
         case _ => None
       }
@@ -141,14 +141,14 @@ object ScalaRefactoringUtil {
       case (ReferenceToFunction(func), ScFunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
       case _ => cachedType
     }
-    return Some((element, exprType))
+    Some((element, exprType))
   }
 
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
-    val virtualFile = file.getVirtualFile()
+    val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
-    return !operationStatus.hasReadonlyFiles()
+    !operationStatus.hasReadonlyFiles
   }
 
   def getOccurrences(expr: ScExpression, enclosingContainer: PsiElement): Array[TextRange] = {
@@ -170,7 +170,7 @@ object ScalaRefactoringUtil {
           occurrences ++= getOccurrences(expr, child)
         }
       }
-    return occurrences.toArray
+    occurrences.toArray
   }
 
   def unparExpr(expr: ScExpression): ScExpression = {
@@ -193,13 +193,19 @@ object ScalaRefactoringUtil {
       if (text(i) == '\n') hasNlToken = true
       i = i - 1
     }
-    return hasNlToken
+    hasNlToken
   }
 
   def getCompatibleTypeNames(myType: ScType): HashMap[String, ScType] = {
     val map = new HashMap[String, ScType]
     map.put(ScType.presentableText(myType), myType)
-    return map
+    map
+  }
+
+  def getCompatibleTypeNames(myTypes: Array[ScType]): HashMap[String, ScType] = {
+    val map = new HashMap[String, ScType]
+    myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
+    map
   }
 
   private val comparator = new Comparator[PsiElement]() {
@@ -212,11 +218,11 @@ object ScalaRefactoringUtil {
           return name1.compareTo(name2)
         }
       }
-      return 1
+      1
     }
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor): Unit = {
+  def highlightOccurrences(project: Project, occurrences: Array[TextRange], editor: Editor) {
     val highlighters = new java.util.ArrayList[RangeHighlighter]
     var highlightManager: HighlightManager = null
     if (editor != null) {
@@ -228,12 +234,12 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor): Unit = {
+  def highlightOccurrences(project: Project, occurrences: Array[PsiElement], editor: Editor) {
     highlightOccurrences(project, occurrences.map({el: PsiElement => el.getTextRange}), editor)
   }
 
   def showChooser[T <: PsiElement](editor: Editor, elements: Array[T], pass: PsiElement => Unit, title: String,
-                                   elementName: T => String, highlightParent: Boolean = false): Unit = {
+                                   elementName: T => String, highlightParent: Boolean = false) {
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
     val model: DefaultListModel = new DefaultListModel
     for (element <- elements) {
@@ -248,12 +254,12 @@ object ScalaRefactoringUtil {
         if (element.isValid) {
           setText(elementName(element))
         }
-        return rendererComponent
+        rendererComponent
       }
     })
     list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent): Unit = {
-        highlighter.dropHighlight
+      def valueChanged(e: ListSelectionEvent) {
+        highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
         val element: T = model.get(index).asInstanceOf[T]
@@ -263,12 +269,12 @@ object ScalaRefactoringUtil {
       }
     })
     JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run: Unit = {
+      def run() {
         pass(list.getSelectedValue.asInstanceOf[T])
       }
     }).addListener(new JBPopupAdapter {
-      override def onClosed(event: LightweightWindowEvent): Unit = {
-        highlighter.dropHighlight
+      override def onClosed(event: LightweightWindowEvent) {
+        highlighter.dropHighlight()
       }
     }).createPopup.showInBestPositionFor(editor)
   }
@@ -409,7 +415,7 @@ object ScalaRefactoringUtil {
       case x: ScXmlExpr => builder.append(x.getText)
       case _ => builder.append(expr.getText)
     }
-    builder.toString
+    builder.toString()
   }
 
   private[refactoring] def getLineText(editor: Editor): String = {
@@ -420,7 +426,7 @@ object ScalaRefactoringUtil {
     val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(caret.line + 1, 0))
     val start = editor.logicalPositionToOffset(lineStart)
     val end = editor.logicalPositionToOffset(nextLineStart)
-    return editor.getDocument.getText.substring(start, end)
+    editor.getDocument.getText.substring(start, end)
   }
 
   def invokeRefactoring(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
@@ -452,7 +458,7 @@ object ScalaRefactoringUtil {
         invokesNext()
       }
       if (expressions.length == 0)
-        editor.getSelectionModel.selectLineAtCaret
+        editor.getSelectionModel.selectLineAtCaret()
       else if (expressions.length == 1) {
         chooseExpression(expressions(0))
         return
