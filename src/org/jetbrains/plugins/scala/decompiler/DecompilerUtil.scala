@@ -20,7 +20,6 @@ import CharsetToolkit.UTF8
 /**
  * @author ilyas
  */
-
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 

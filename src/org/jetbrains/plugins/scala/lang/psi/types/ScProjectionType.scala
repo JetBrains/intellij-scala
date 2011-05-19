@@ -30,7 +30,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
     if (res != null) return res
     res = actualInner
     actualInnerTuple = res
-    return res
+    res
   }
 
   def actualElement: PsiNamedElement = actual._1
@@ -58,6 +58,18 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
         val name = d.getName
         import ResolveTargets._
         val proc = new ResolveProcessor(ValueSet(VAL, OBJECT), d, name)
+        proc.processType(projected, d, ResolveState.initial, true)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          (candidates(0).element.asInstanceOf[PsiNamedElement], candidates(0).substitutor)
+        } else {
+          (element, emptySubst followed subst)
+        }
+      }
+      case d: ScTypeDefinition => {
+        val name = d.getName
+        import ResolveTargets._
+        val proc = new ResolveProcessor(ValueSet(CLASS), d, name) //ScObject in ScTypedDefinition case.
         proc.processType(projected, d, ResolveState.initial, true)
         val candidates = proc.candidates
         if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
@@ -121,7 +133,7 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
             t.getType(TypingContext.empty) match {
               case Success(singl, _) if ScType.isSingletonType(singl) =>
                 val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(projected)))
-                return Equivalence.equivInner(r, newSubst.subst(singl), uSubst, falseUndef)
+                Equivalence.equivInner(r, newSubst.subst(singl), uSubst, falseUndef)
               case _ => (false, uSubst)
             }
           case _ => (false, uSubst)
@@ -151,24 +163,24 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
-        return (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), uSubst)
+        (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), uSubst)
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
-        return (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), uSubst)
+        (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), uSubst)
       case (ScThisType(clazz), ScDesignatorType(obj: ScObject)) =>
-        return (false, uSubst)
+        (false, uSubst)
       case (ScThisType(clazz), ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.getType(TypingContext.empty) match {
           case Success(tp, _) if ScType.isSingletonType(tp) =>
-            return Equivalence.equivInner(this, tp, uSubst, falseUndef)
+            Equivalence.equivInner(this, tp, uSubst, falseUndef)
           case _ =>
-            return (false, uSubst)
+            (false, uSubst)
         }
       case (ScThisType(clazz), ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
       case (ScThisType(clazz), p@ScProjectionType(tp, elem: ScTypedDefinition, subst)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
           case Success(singl, _) if ScType.isSingletonType(singl) =>
             val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
-            return Equivalence.equivInner(this, newSubst.subst(singl), uSubst, falseUndef)
+            Equivalence.equivInner(this, newSubst.subst(singl), uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case _ => (false, uSubst)
