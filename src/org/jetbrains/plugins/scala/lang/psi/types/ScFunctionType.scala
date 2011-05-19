@@ -33,6 +33,8 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
     }
   }
 
+  def arity: Int = params.length
+
   override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
 
   private def functionTraitName = "scala.Function" + params.length

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -23,4 +24,8 @@ trait Strategy {
   def addToPattern(pattern: ScBindingPattern)
 
   def removeFromPattern(pattern: ScTypedPattern)
+
+  def addToParameter(param: ScParameter)
+
+  def removeFromParameter(param: ScParameter)
 }
