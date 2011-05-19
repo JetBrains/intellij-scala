@@ -36,19 +36,23 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
    * @param expectedOption to which type we tring to convert
+   * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
+   *                        this parameter is useful for refactorings (introduce variable)
    */
   def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false, 
-                                     expectedOption: Option[ScType] = None): ExpressionTypeResult = {
+                                     expectedOption: Option[ScType] = None,
+                                     ignoreBaseTypes: Boolean = false): ExpressionTypeResult = {
     def inner: ExpressionTypeResult = {
       if (isShape) return ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
       val expected: ScType = expectedOption match {
         case Some(a) => a
         case _ => expectedType match {
           case Some(a) => a
-          case _ => return ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty), Set.empty, None)
+          case _ =>
+            return ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes), Set.empty, None)
         }
       }
-      val tr = getTypeWithoutImplicits(TypingContext.empty)
+      val tr = getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes)
 
       def tryTp(tr: TypeResult[ScType], expected: ScType, fromUnder: Boolean): ScExpression.ExpressionTypeResult = {
         val defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
@@ -65,21 +69,21 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         //it will conform to expected type
         val mp = implicitMap(Some(expected), fromUnder)
         val f: Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = mp.filter(_._1.conforms(expected))
-        if (f.length == 1) return ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
-        else if (f.length == 0) return defaultResult
+        if (f.length == 1) ExpressionTypeResult(Success(f(0)._1, Some(this)), f(0)._3, Some(f(0)._2))
+        else if (f.length == 0) defaultResult
         else {
           val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
             case Some(res) => res
             case None => return defaultResult
           }
-          return ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
+          ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
         }
       }
       getText.indexOf("_") match {
-        case -1 => return tryTp(tr, expected, false)
+        case -1 => tryTp(tr, expected, false)
         case _ => {
           val unders = ScUnderScoreSectionUtil.underscores(this)
-          if (unders.length == 0)return tryTp(tr, expected, false)
+          if (unders.length == 0) tryTp(tr, expected, false)
           else {
             //here we should update implicits twice for result expression and for all expression
             val newTr = tr.map(tp => {
@@ -87,19 +91,21 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                 case f@ScFunctionType(ret, args) =>
                   ScalaPsiUtil.extractReturnType(expected) match {
                     case Some(expRet) =>
-                      new ScFunctionType(tryTp(Success(ret, Some(this)), expRet, true).tr.getOrElse(ret), args)(f.getProject, f.getScope)
+                      new ScFunctionType(tryTp(Success(ret, Some(this)), expRet, true).tr.getOrElse(ret),
+                        args)(f.getProject, f.getScope)
                     case _ => tp
                   }
                 case _ => tp
               }
             })
-            return tryTp(newTr, expected, false)
+            tryTp(newTr, expected, false)
           }
         }
       }
 
     }
-    if (!checkImplicits || isShape || expectedOption != None) return inner //no cache with strange parameters
+    if (!checkImplicits || isShape || expectedOption != None || ignoreBaseTypes)
+      return inner //no cache with strange parameters
 
     //caching
     var tp = exprAfterImplicitType
@@ -110,14 +116,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     tp = inner
     exprAfterImplicitType = tp
     exprTypeAfterImplicitModCount = curModCount
-    return tp
+    tp
   }
 
-  //private val EXPR_LOCK = new Object()
-
-  def getTypeWithoutImplicits(ctx: TypingContext): TypeResult[ScType] = {
+  def getTypeWithoutImplicits(ctx: TypingContext, 
+                              ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    if (ctx != TypingContext.empty) return valueType(ctx)
+    if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, ignoreBaseTypes = ignoreBaseTypes)
     var tp = exprType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && exprTypeModCount == curModCount) {
@@ -126,12 +131,13 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     tp = valueType(ctx)
     exprType = tp
     exprTypeModCount = curModCount
-    return tp
+    tp
   }
 
-  def getTypeWithoutImplicitsWihoutUnderscore(ctx: TypingContext): TypeResult[ScType] = {
+  def getTypeWithoutImplicitsWithoutUnderscore(ctx: TypingContext, 
+                                               ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    if (ctx != TypingContext.empty) return valueType(ctx, true)
+    if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, true, ignoreBaseTypes)
     var tp = exprTypeWithoutUnderscore
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && exprTypeModCountWithoutUnderscore == curModCount) {
@@ -140,10 +146,12 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     tp = valueType(ctx, true)
     exprTypeWithoutUnderscore = tp
     exprTypeModCountWithoutUnderscore = curModCount
-    return tp
+    tp
   }
 
   def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
+
+  def getTypeIgnoreBaseType(ctx: TypingContext) = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
   def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
@@ -188,15 +196,19 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   @volatile
   private var nonValueTypeModCount: Long = 0
 
-  private def typeWithUnderscore(ctx: TypingContext): TypeResult[ScType] = {
+  private def typeWithUnderscore(ctx: TypingContext, ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     getText.indexOf("_") match {
       case -1 => innerType(ctx) //optimization
       case _ => {
         val unders = ScUnderScoreSectionUtil.underscores(this)
         if (unders.length == 0) innerType(ctx)
         else {
-          val params = unders.map(u => Parameter("", u.getTypeWithoutImplicits(ctx).getOrElse(Any), false, false, false))
-          val methType = new ScMethodType(getTypeWithoutImplicitsWihoutUnderscore(ctx).getOrElse(Any), params, false)(getProject, getResolveScope)
+          val params = unders.map {u => 
+            Parameter("", u.getTypeWithoutImplicits(ctx, ignoreBaseTypes).getOrElse(Any), false, false, false)
+          }
+          val methType = 
+            new ScMethodType(getTypeWithoutImplicitsWithoutUnderscore(ctx, ignoreBaseTypes).getOrElse(Any), 
+              params, false)(getProject, getResolveScope)
           new Success(methType, Some(this))
         }
       }
@@ -211,10 +223,11 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       return ip
     }
     getType(TypingContext.empty) //to update implicitParameters field
-    return implicitParameters
+    implicitParameters
   }
 
-  private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false): TypeResult[ScType] = {
+  private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false, 
+                        ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res = inner match {
       case Success(res, _) => res
@@ -379,6 +392,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     }
 
     val valType = res.inferValueType
+
+    if (ignoreBaseTypes) return Success(valType, Some(this))
+
     expectedType match {
       case Some(expected) => {
         //value discarding
@@ -449,9 +465,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     Success(valType, Some(this))
   }
 
-  def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
+  def getNonValueType(ctx: TypingContext, ignoreBaseType: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    if (ctx != TypingContext.empty) return typeWithUnderscore(ctx)
+    if (ctx != TypingContext.empty || ignoreBaseType) return typeWithUnderscore(ctx, ignoreBaseType)
     var tp = nonValueType
     val curModCount = getManager.getModificationTracker.getModificationCount
     if (tp != null && nonValueTypeModCount == curModCount) {
@@ -460,7 +476,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     tp = typeWithUnderscore(ctx)
     nonValueType = tp
     nonValueTypeModCount = curModCount
-    return tp
+    tp
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
@@ -501,7 +517,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode
     parentNode.replaceChild(this.getNode, newNode)
-    return newNode.getPsi.asInstanceOf[ScExpression]
+    newNode.getPsi.asInstanceOf[ScExpression]
   }
 
 
@@ -520,7 +536,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     tp = ExpectedTypes.expectedExprTypes(this)
     expectedTypesCache = tp
     expectedTypesModCount = curModCount
-    return tp
+    tp
   }
 
   private[expr] def setExpectedTypes(tps: Array[(ScType, Option[ScTypeElement])]) {

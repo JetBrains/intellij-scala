@@ -2,20 +2,12 @@ package org.jetbrains.plugins.scala.actions
 
 import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import com.intellij.openapi.actionSystem.{DataConstants, PlatformDataKeys, AnActionEvent, AnAction}
+import com.intellij.openapi.actionSystem.{PlatformDataKeys, AnActionEvent, AnAction}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import com.intellij.openapi.ui.popup.{LightweightWindowEvent, JBPopupAdapter, JBPopupFactory}
-import java.util.ArrayList
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import java.awt.Component
-import org.jetbrains.plugins.scala.lang.psi.PresentationUtil
-import javax.swing.{DefaultListModel, DefaultListCellRenderer, JList}
-import com.intellij.ide.util.MethodCellRenderer
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import javax.swing.{DefaultListModel, JList}
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement, PsiElement, PsiFile}
+import com.intellij.psi.{NavigatablePsiElement, PsiNamedElement}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,7 +25,6 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     val editor = PlatformDataKeys.EDITOR.getData(context)
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
-    val scalaFile = file.asInstanceOf[ScalaFile]
     if (!editor.getSelectionModel.hasSelection) return
     val selectionStart = editor.getSelectionModel.getSelectionStart
     val selectionEnd = editor.getSelectionModel.getSelectionEnd
@@ -60,7 +51,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         builder.setTitle("Choose implicit conversion method:").
                 setMovable(false).setResizable(false).setRequestFocus(true).
                 setItemChoosenCallback(new Runnable {
-          def run {
+          def run() {
             val method = list.getSelectedValue.asInstanceOf[PsiNamedElement]
             method match {
               case n: NavigatablePsiElement => n.navigate(true)

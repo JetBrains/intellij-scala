@@ -33,6 +33,8 @@ import refactoring.util.ScalaRefactoringUtil.IntroduceException
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.extensions._
+import collection.mutable.HashSet
+import psi.types.result.TypingContext
 
 /**
 * User: Alexander Podkhalyuzin
@@ -56,7 +58,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
-      PsiDocumentManager.getInstance(project).commitAllDocuments
+      PsiDocumentManager.getInstance(project).commitAllDocuments()
       if (!file.isInstanceOf[ScalaFile])
         showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor)
 
@@ -65,6 +67,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
 
       val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor))
+      val types = new HashSet[ScType]
+
+      if (typez != psi.types.Unit) types += typez
+      expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+      expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+      if (typez == psi.types.Unit) types += typez
 
       expr.getParent match {
         case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
@@ -100,7 +108,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       val commonParentOne = PsiTreeUtil.findCommonParent(file.findElementAt(startOffset), file.findElementAt(endOffset - 1))
       val containerOne = Option(commonParentOne).flatMap(_.scopes.toStream.headOption).orNull
       val validator = new ScalaVariableValidator(this, project, expr, occurrences, container, containerOne)
-      val dialog = getDialog(project, editor, expr, typez, occurrences, false, validator)
+      val dialog = getDialog(project, editor, expr, types.toArray, occurrences, false, validator)
       if (!dialog.isOK) return
 
       val varName: String = dialog.getEnteredName
@@ -122,7 +130,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expression_.getText + " _", expression_.getManager)
       expression_ match {
         case ref: ScReferenceExpression => {
-          ref.resolve match {
+          ref.resolve() match {
             case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
                     fun.paramClauses.clauses.head.isImplicit => copyExpr
             case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
@@ -144,8 +152,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
       (for (occurence <- occurrences) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
     val commonParent: PsiElement = PsiTreeUtil.findCommonParent(elemSeq: _*)
-    val container: PsiElement = ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
-      classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
+    val container: PsiElement =
+      ScalaPsiUtil.getParentOfType(commonParent, occurrences.length == 1, classOf[ScalaFile], classOf[ScBlock],
+        classOf[ScTemplateBody], classOf[ScCaseClause], classOf[ScFunctionDefinition], classOf[ScFunctionExpr])
     var needBraces = false
     var elseBranch = false
     var parExpr: ScExpression = PsiTreeUtil.getParentOfType(commonParent, classOf[ScExpression], false)
@@ -161,7 +170,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
         case _: ScFunction => needBraces = true
         case memb: ScMember if memb.getParent.isInstanceOf[ScTemplateBody] => needBraces = true
         case memb: ScMember if memb.getParent.isInstanceOf[ScEarlyDefinitions] => needBraces = true
-        case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr || ifSt.elseBranch.getOrElse(null) == parExpr => {
+        case ifSt: ScIfStmt if ifSt.thenBranch.getOrElse(null) == parExpr ||
+          ifSt.elseBranch.getOrElse(null) == parExpr => {
           if (ifSt.elseBranch.getOrElse(null) == parExpr) elseBranch = true
           needBraces = true
         }
@@ -211,7 +221,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
       val documentManager = PsiDocumentManager.getInstance(editor.getProject)
       documentManager.commitDocument(document)
       val leaf = file.findElementAt(offset)
-      if (!(deleteOccurrence && replaceAllOccurrences) && leaf.getParent != null && leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
+      if (!(deleteOccurrence && replaceAllOccurrences) && leaf.getParent != null &&
+        leaf.getParent.getParent.isInstanceOf[ScParenthesisedExpr]) {
         val textRange = leaf.getParent.getParent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, varName)
         documentManager.commitDocument(document)
@@ -243,8 +254,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
               case _ => sibling = sibling.getPrevSibling
             }
           }
-          var createStmt: PsiElement = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression),
-            file.getManager)
+          var createStmt: PsiElement =
+            ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression),
+              file.getManager)
           var elem = file.findElementAt(occurrences(0).getStartOffset + (if (needBraces) 1 else 0) + parentheses)
           while (elem != null && elem.getParent != parent) elem = elem.getParent
           if (elem != null) {
@@ -336,35 +348,37 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Confli
     }
 
     ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME);
-    editor.getSelectionModel.removeSelection
+    editor.getSelectionModel.removeSelection()
   }
 
   def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) {
     //nothing to do
   }
 
-  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: ScType, occurrences: Array[TextRange],
-                          declareVariable: Boolean, validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
+  protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: Array[ScType],
+                          occurrences: Array[TextRange], declareVariable: Boolean,
+                          validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
     if (occurrences.length > 1)
       ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
-    dialog.show
-    if (!dialog.isOK()) {
+    dialog.show()
+    if (!dialog.isOK) {
       if (occurrences.length > 1) {
-        WindowManager.getInstance.getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+        WindowManager.getInstance.getStatusBar(project).
+          setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
       }
     }
 
-    return dialog
+    dialog
   }
 
   def reportConflicts(conflicts: Array[String], project: Project): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts: _*)
-    conflictsDialog.show
-    return conflictsDialog.isOK
+    val conflictsDialog = new ConflictsDialog(project, conflicts: _*) //todo: add psi element to conflict
+    conflictsDialog.show()
+    conflictsDialog.isOK
   }
 
   /**

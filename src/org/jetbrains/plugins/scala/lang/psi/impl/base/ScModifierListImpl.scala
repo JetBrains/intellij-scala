@@ -97,7 +97,9 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     def addBefore(node: ASTNode) {
       val first = getFirstChild
       if (first == null) {
-        addAfter(node)
+        val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+        getNode.addChild(node)
+        getNode.addChild(space)
         return
       }
       val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")

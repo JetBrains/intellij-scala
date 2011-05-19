@@ -8,7 +8,7 @@ import lang.psi.types._
  */
 
 class RepeatedTest extends ApplicabilityTestBase {
-  def testMalformedDefinition {
+  def testMalformedDefinition() {
     assertProblems("(a: A*, b: B)", "(A, B)") {
       case MalformedDefinition() :: Nil =>
     }
@@ -26,19 +26,19 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testMalformedDefinitionClauses {
+  def testMalformedDefinitionClauses() {
     assertProblems("(a: A)(b: B*, c: C)", "(A)(B, C)") {
       case MalformedDefinition() :: Nil =>
     }
   }
   
-  def testValidDefinition {
+  def testValidDefinition() {
     assertProblems("(a: A*)(b: B)", "(A)(B)") {
       case Nil =>
     }
   }
   
-  def testFineSingle {
+  def testFineSingle() {
     assertProblems("(a: A*)", "()") {
       case Nil =>
     }
@@ -50,7 +50,7 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testFineSecond {
+  def testFineSecond() {
     assertProblems("(a: A, b: B*)", "(A)") {
       case Nil =>
     }
@@ -62,7 +62,7 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testFineSecondSameType {
+  def testFineSecondSameType() {
     assertProblems("(a: A, b: A*)", "(A)") {
       case Nil =>
     }
@@ -74,7 +74,7 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testFineThird {
+  def testFineThird() {
     assertProblems("(a: A, b: B, c: C*)", "(A, B)") {
       case Nil =>
     }
@@ -92,13 +92,13 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }*/
   
-  def testMissedArguments {
+  def testMissedArguments() {
     assertProblems("(a: A*)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
   }
   
-  def testTypeMismatch {
+  def testTypeMismatch() {
     assertProblems("(a: A*)", "(B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }
@@ -120,7 +120,7 @@ class RepeatedTest extends ApplicabilityTestBase {
 //    }
   }
 
-  def testExpansionToRepeated {
+  def testExpansionToRepeated() {
     assertProblems("(a: A*)", "(Seq(A): _*)") {
       case Nil =>
     }
@@ -129,7 +129,7 @@ class RepeatedTest extends ApplicabilityTestBase {
     }                               
   }
   
-  def testExpansionToSingular {
+  def testExpansionToSingular() {
     assertProblems("(a: A)", "(Seq(A): _*)") {
       case ExpansionForNonRepeatedParameter(Expression("Seq(A): _*")) :: Nil =>
     }
@@ -145,43 +145,43 @@ class RepeatedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testExpansionToSeq {
+  def testExpansionToSeq() {
     assertProblems("(a: Seq[A])", "(Seq(A): _*)") {
       case TypeMismatch(Expression("Seq(A): _*"), Type("Seq[Seq[A]]")) :: Nil =>
     }
   }
   
-  def testSeqToRepeated {
+  def testSeqToRepeated() {
     assertProblems("(a: A*)", "(Seq(A))") {
       case TypeMismatch(Expression("Seq(A)"), Type("A")) :: Nil =>
     }
   }
   
-  def testSeqToSingular {
+  def testSeqToSingular() {
     assertProblems("(a: A)", "(Seq(A))") {
       case TypeMismatch(Expression("Seq(A)"), Type("A")) :: Nil =>
     }
   }
   
-  def testSeqToSeq {
+  def testSeqToSeq() {
     assertProblems("(a: Seq[A])", "(Seq(A))") {
       case Nil =>
     }
   }
   
-  def testSinglularToSeq {
+  def testSinglularToSeq() {
     assertProblems("(a: Seq[A])", "(A)") {
       case TypeMismatch(Expression("A"), Type("Seq[A]")) :: Nil =>
     }
   }
   
-  def testExpansionOfSingular {
+  def testExpansionOfSingular() {
     assertProblems("(a: A*)", "(A: _*)") {
       case TypeMismatch(Expression("A: _*"), Type("Seq[A]")) :: Nil =>
     }
   }
   
-  def testExpansionTypeMismatch {
+  def testExpansionTypeMismatch() {
     assertProblems("(a: A*)", "(Seq(B): _*)") {
       case TypeMismatch(Expression("Seq(B): _*"), Type("Seq[A]")) :: Nil =>
     }
