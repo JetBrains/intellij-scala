@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import lang.psi.ScalaPsiUtil
+import lang.psi.api.statements.params.ScParameter
+import lang.psi.api.expr.ScFunctionExpr
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -22,9 +24,7 @@ object Update extends Strategy {
   }
 
   def removeFromFunction(function: ScFunctionDefinition) {
-    function.returnTypeElement.foreach {
-      removeTypeAnnotation(_)
-    }
+    function.returnTypeElement.foreach(removeTypeAnnotation)
   }
 
   def addToValue(value: ScPatternDefinition) {
@@ -34,9 +34,7 @@ object Update extends Strategy {
   }
 
   def removeFromValue(value: ScPatternDefinition) {
-    value.typeElement.foreach {
-      removeTypeAnnotation(_)
-    }
+    value.typeElement.foreach(removeTypeAnnotation)
   }
 
   def addToVariable(variable: ScVariableDefinition) {
@@ -46,9 +44,7 @@ object Update extends Strategy {
   }
 
   def removeFromVariable(variable: ScVariableDefinition) {
-    variable.typeElement.foreach {
-      removeTypeAnnotation(_)
-    }
+    variable.typeElement.foreach(removeTypeAnnotation)
   }
 
   def addToPattern(pattern: ScBindingPattern) {
@@ -58,9 +54,28 @@ object Update extends Strategy {
   }
 
   def removeFromPattern(pattern: ScTypedPattern) {
-    pattern.typePattern.foreach {
-      removeTypeAnnotation(_)
+    pattern.typePattern.foreach(removeTypeAnnotation)
+  }
+
+  def addToParameter(param: ScParameter) {
+    param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
+      case Some(func) =>
+        val index = func.parameters.indexOf(param)
+        func.expectedType.flatMap(ScType.extractFunctionType) match {
+          case Some(funcType) =>
+            if (index >= 0 && index < funcType.arity) {
+              val paramExpectedType = funcType.params(index)
+              addTypeAnnotation(paramExpectedType, param.getParent, param)
+            }
+          case None =>
+        }
+      case _ =>
     }
+  }
+
+  def removeFromParameter(param: ScParameter) {
+    val newParam = ScalaPsiElementFactory.createParameterFromText(param.getName, param.getManager)
+    param.replace(newParam)
   }
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
@@ -69,7 +84,7 @@ object Update extends Strategy {
 
     val colon = ScalaPsiElementFactory.createColon(context.getManager)
     context.addAfter(colon, anchor)
-    
+
     ScalaPsiUtil.adjustTypes(added)
   }
 

@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import com.intellij.psi.{PsiFile, PsiElement}
 import lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.extensions._
+import params.ScParameter
+import lang.psi.api.expr.ScFunctionExpr
+import lang.psi.types.ScType
 
 /**
  * Pavel.Fatin, 22.04.2010
@@ -72,6 +75,29 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
         strategy.addToVariable(variable)
 
       return true
+    }
+
+    for {
+      param <- element.parentsInFile.findByType(classOf[ScParameter])
+    } {
+      param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
+        case Some(func) =>
+          if (param.typeElement.isDefined)
+            strategy.removeFromParameter(param)
+          else {
+            val index = func.parameters.indexOf(param)
+            func.expectedType.flatMap(ScType.extractFunctionType) match {
+              case Some(funcType) =>
+                if (index >= 0 && index < funcType.arity) {
+                  val paramExpectedType = funcType.params(index)
+                  strategy.addToParameter(param)
+                  return true
+                }
+              case None =>
+            }
+          }
+        case _ =>
+      }
     }
 
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
