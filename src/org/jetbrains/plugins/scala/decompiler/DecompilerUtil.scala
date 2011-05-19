@@ -24,7 +24,7 @@ import CharsetToolkit.UTF8
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 130
+  val DECOMPILER_VERSION = 131
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
@@ -40,18 +40,27 @@ object DecompilerUtil {
     def inner: Boolean = {
       if (file.getFileType != StdFileTypes.CLASS) return false
       if (!file.isInstanceOf[VirtualFileWithId]) return false
+      //todo: needs update on file change (getTimeStamp?)
       val read = isScalaCompiledAttribute.readAttribute(file)
-      if (read != null) try {read.readBoolean} finally {read.close} else {
+      if (read != null) try {read.readBoolean} finally {read.close()} else {
         val byteCode = ByteCode(bytes)
+        val isPackageObject = file.getName == "package.class"
         val isScala = try {
           val classFile = ClassFileParser.parse(byteCode)
-          classFile.attribute("ScalaSig") match {case Some(_) => true; case None => false}
+          val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).
+            getOrElse(null) match {
+            // No entries in ScalaSig attribute implies that the signature is stored in the annotation
+            case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
+            case scalaSig => scalaSig
+          }
+          if (scalaSig == null) false
+          else true
         } catch {
           case e => false
         }
         val write = isScalaCompiledAttribute.writeAttribute(file)
         write.writeBoolean(isScala)
-        write.close
+        write.close()
         isScala
       }
     }
@@ -67,7 +76,7 @@ object DecompilerUtil {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       manager.asInstanceOf[ProjectManagerEx].getCurrentTestProject
     } else {
-      val projects = manager.getOpenProjects();
+      val projects = manager.getOpenProjects
       if (projects.length == 0) manager.getDefaultProject
       else projects.find(p => !p.isDisposed).getOrElse(manager.getDefaultProject)
     }
@@ -78,6 +87,21 @@ object DecompilerUtil {
   val SCALA_SIG_ANNOTATION = "Lscala/reflect/ScalaSignature;"
   val BYTES_VALUE = "bytes"
 
+  private def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
+    import classFile._
+    classFile.annotation(SCALA_SIG_ANNOTATION) match {
+      case None => null
+      case Some(Annotation(_, elements)) =>
+        val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
+        val bytes = ((bytesElem.elementValue match {
+          case ConstValueIndex(index) => constantWrapped(index)
+        }).asInstanceOf[StringBytesPair].bytes)
+        val length = ByteCodecs.decode(bytes)
+        val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
+        scalaSig
+    }
+  }
+
   /**
    * @return (Suspension(sourceText), sourceFileName)
    */
@@ -85,20 +109,6 @@ object DecompilerUtil {
 
     val isPackageObject = file.getName == "package.class"
     val byteCode = ByteCode(bytes)
-    def unpickleFromAnnotation(classFile: ClassFile, isPackageObject: Boolean): ScalaSig = {
-      import classFile._
-      classFile.annotation(SCALA_SIG_ANNOTATION) match {
-        case None => null
-        case Some(Annotation(_, elements)) =>
-          val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
-          val bytes = ((bytesElem.elementValue match {
-            case ConstValueIndex(index) => constantWrapped(index)
-          }).asInstanceOf[StringBytesPair].bytes)
-          val length = ByteCodecs.decode(bytes)
-          val scalaSig = ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
-          scalaSig
-      }
-    }
     val classFile = ClassFileParser.parse(byteCode)
     val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
       // No entries in ScalaSig attribute implies that the signature is stored in the annotation
