@@ -2,22 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package autoImport
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import annotator.intention.ScalaImportClassFix
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCache
 import com.intellij.openapi.command.undo.UndoManager
-import com.intellij.openapi.fileEditor.impl.text.{TextEditorImpl, PsiAwareTextEditorImpl, TextEditorProvider}
+import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
 
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.psi.{PsiManager, PsiClass}
+import com.intellij.psi.PsiManager
 import java.io.File
 import psi.api.base.ScReferenceElement
 import psi.api.ScalaFile
 import com.intellij.psi.util.PsiTreeUtil
-import psi.api.expr.ScExpression
 import base.ScalaPsiTestCase
 import lexer.ScalaTokenTypes
 import util.ScalaUtils
@@ -33,7 +28,7 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
   override protected def rootPath = super.rootPath + "autoImport/"
 
 
-  protected def doTest: Unit = {
+  protected def doTest {
     import _root_.junit.framework.Assert._
     val filePath = rootPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -47,7 +42,7 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
             getParentOfType(scalaFile.findElementAt(refOffset), classOf[ScReferenceElement])
     assert(ref != null, "Not specified reference at marker.")
 
-    ref.resolve match {
+    ref.resolve() match {
       case null =>
       case _ => assert(false, "Reference must be unresolved.")
     }
@@ -68,7 +63,7 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
    
     try {
       ScalaUtils.runWriteAction(new Runnable {
-        def run {
+        def run() {
           org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix.
                   getImportHolder(ref, myProject).addImportForClass(classes(0))
         }
@@ -77,11 +72,13 @@ abstract class AutoImportTestBase extends ScalaPsiTestCase {
       assert(ref.resolve != null, "reference is unresolved after import action")
     }
     catch {
-      case e: Exception => assert(false, e.getMessage + "\n" + e.getStackTrace)
+      case e: Exception =>
+        println(e)
+        assert(false, e.getMessage + "\n" + e.getStackTrace)
     }
     finally {
       ScalaUtils.runWriteAction(new Runnable {
-        def run {
+        def run() {
           val undoManager = UndoManager.getInstance(myProject)
           val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
           if (undoManager.isUndoAvailable(fileEditor)) {

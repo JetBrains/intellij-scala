@@ -291,7 +291,9 @@ trait ScImportsHolder extends ScalaPsiElement {
                 this.processDeclarations(completionProcessor, ResolveState.initial, elem, elem)
                 completionProcessor.candidatesS.size > 0
               }
-              val nextImportContainsRef = PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
+              val nextImportContainsRef =
+                if (ref != null) PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
+                else false
               val cond2 = importSt.getText.toLowerCase < im.getText.toLowerCase && processPackage(im)
               if (nextImportContainsRef || cond2) {
                 added = true
