@@ -9,5 +9,7 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
 
   def testImportsDependent = doTest
 
+  def testInnerClassDependentType = doTest
+
   def testObjectDependent = doTest
 }
