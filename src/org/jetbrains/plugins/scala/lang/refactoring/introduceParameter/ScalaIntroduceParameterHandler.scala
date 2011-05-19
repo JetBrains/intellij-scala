@@ -18,11 +18,12 @@ import com.intellij.openapi.util.TextRange
 import namesSuggester.NameSuggester
 import psi.api.statements.ScFunctionDefinition
 import refactoring.util.{ScalaVariableValidator, ConflictsReporter, ScalaRefactoringUtil}
-import collection.mutable.ArrayBuffer
 import com.intellij.psi._
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.refactoring.{RefactoringBundle, HelpID, RefactoringActionHandler}
+import collection.mutable.{HashSet, ArrayBuffer}
+import psi.types.result.TypingContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,6 +51,12 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
 
       val (expr: ScExpression, typez: ScType) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
               getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor))
+      val types = new HashSet[ScType]
+
+      if (typez != psi.types.Unit) types += typez
+      expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+      expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+      if (typez == psi.types.Unit) types += typez
 
       expr.getParent match {
         case inf: ScInfixExpr if inf.operation == expr => showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
@@ -59,7 +66,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         case _ =>
       }
 
-     chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, typez)
+     chooseEnclosingMethod(project, editor, file, startOffset, endOffset, expr, types.toArray)
     }
     catch {
       case _: IntroduceException => return
@@ -67,7 +74,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
   }
 
   def runDialog(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int,
-                function: ScFunctionDefinition, expr: ScExpression, typez: ScType) {
+                function: ScFunctionDefinition, expr: ScExpression, types: Array[ScType]) {
     try {
       if (function == null) {
         showErrorMessage(ScalaBundle.message("cannot.refactor.no.function"), project, editor)
@@ -86,7 +93,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
         ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
       val possibleNames = NameSuggester.suggestNames(expr, validator)
-      val dialog = new ScalaIntroduceParameterDialog(project, editor, typez, occurrences,
+      val dialog = new ScalaIntroduceParameterDialog(project, editor, types, occurrences,
         validator, possibleNames, methodToSearchFor, startOffset, endOffset, function, expr)
       dialog.show()
     }
@@ -154,17 +161,17 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Confl
 
   def chooseEnclosingMethod(project: Project, editor: Editor,
                             file: PsiFile, startOffset: Int, endOffset: Int,
-                            expr: ScExpression, typez: ScType) {
+                            expr: ScExpression, types: Array[ScType]) {
     val validEnclosingMethods: Seq[ScFunctionDefinition] = getEnclosingMethods(expr)
     if (validEnclosingMethods.size > 1 && !ApplicationManager.getApplication.isUnitTestMode) {
       ScalaRefactoringUtil.showChooser[ScFunctionDefinition](editor, validEnclosingMethods.toArray, {selectedValue =>
         runDialog(project, editor, file, startOffset, endOffset,
-          selectedValue.asInstanceOf[ScFunctionDefinition], expr, typez)
+          selectedValue.asInstanceOf[ScFunctionDefinition], expr, types)
       }, "Choose level for Extract Method", getTextForElement _, false)
     }
     else if (validEnclosingMethods.size == 1) {
-      runDialog(project, editor, file, startOffset, endOffset, validEnclosingMethods(0), expr, typez)
-    } else runDialog(project, editor, file, startOffset, endOffset, null, expr, typez)
+      runDialog(project, editor, file, startOffset, endOffset, validEnclosingMethods(0), expr, types)
+    } else runDialog(project, editor, file, startOffset, endOffset, null, expr, types)
   }
 
   private def isLibraryInterfaceMethod(method: PsiMethod): Boolean = {

@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.HelpID;
@@ -44,7 +43,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
   private JLabel myTypeLabel;
   private JButton buttonOK;
   private Project project;
-  private ScType myType;
+  private ScType[] myTypes;
   private int occurrencesCount;
   private ScalaVariableValidator validator;
   private String[] possibleNames;
@@ -64,7 +63,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
 
   protected ScalaIntroduceParameterDialog(Project project,
                                           Editor editor,
-                                          ScType myType,
+                                          ScType[] myTypes,
                                           TextRange[] occurrences,
                                           ScalaVariableValidator validator,
                                           String[] possibleNames, PsiMethod methodToSearchFor,
@@ -73,7 +72,7 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
                                           ScExpression expression) {
     super(project, true);
     this.project = project;
-    this.myType = myType;
+    this.myTypes = myTypes;
     this.occurrencesCount = occurrences.length;
     this.occurrences = occurrences;
     this.validator = validator;
@@ -205,11 +204,16 @@ public class ScalaIntroduceParameterDialog extends RefactoringDialog implements 
     myNameLabel.setLabelFor(myNameComboBox);
     myTypeLabel.setLabelFor(typeComboBox);
 
+    boolean nullText = false;
+    for (ScType myType : myTypes) {
+      if (ScTypeUtil.presentableText(myType) == null) nullText = true;
+    }
+
     // Type specification
-    if (myType == null || ScTypeUtil.presentableText(myType) == null) {
+    if (myTypes == null || nullText) {
       typeComboBox.setEnabled(false);
     } else {
-      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myType);
+      myTypeMap = ScalaRefactoringUtil.getCompatibleTypeNames(myTypes);
       for (String typeName : myTypeMap.keySet()) {
         typeComboBox.addItem(typeName);
       }
