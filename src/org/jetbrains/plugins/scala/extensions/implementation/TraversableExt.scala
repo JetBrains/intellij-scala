@@ -14,4 +14,6 @@ class TraversableExt[CC[X] <: Traversable[X], A](value: CC[A]) {
 
   def findBy[T](aClass: Class[T]): Option[T] =
     value.find(aClass.isInstance(_)).map(_.asInstanceOf[T])
+
+  def mkParenString(implicit ev: A <:< String): String = value.mkString("(", ", ", ")")
 }
