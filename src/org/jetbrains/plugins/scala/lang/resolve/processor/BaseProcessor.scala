@@ -237,7 +237,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case des: ScTypedDefinition =>
         des.getType(TypingContext.empty) match {
           case Success(tp, _) =>
-            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, newSubst), false, false)
+            processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty), false, false)
           case _ => true
         }
       case des =>

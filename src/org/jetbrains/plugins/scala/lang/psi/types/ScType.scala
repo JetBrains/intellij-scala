@@ -12,6 +12,7 @@ import api.toplevel.typedef.ScClass
 import nonvalue.{ScMethodType, NonValueType}
 import api.toplevel.typedef.ScObject
 import result.{Success, TypeResult, TypingContext}
+import types.ScThisType
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -124,6 +125,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
 
   def extractDesignated(t: ScType): Option[Pair[PsiNamedElement, ScSubstitutor]] = t match {
     case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
+    case ScThisType(c) => Some(c, ScSubstitutor.empty)
     case proj@ScProjectionType(p, e, s) => Some((proj.actualElement, proj.actualSubst))
     case p@ScParameterizedType(t1, _) => {
       extractClassType(t1) match {

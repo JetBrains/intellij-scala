@@ -25,6 +25,10 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     val updateThisType: Option[ScType]) {
   def this() = this(Map.empty, Map.empty, None)
 
+  def this(updateThisType: ScType) {
+    this(Map.empty, Map.empty, Some(updateThisType))
+  }
+
   def this(tvMap: Map[(String, String), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
                     updateThisType: Option[ScType],
@@ -50,9 +54,9 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     this followed (new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
   }
   def followed(s: ScSubstitutor): ScSubstitutor = {
-    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) return s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) return this
-    else return new ScSubstitutor(tvMap, aliasesMap, updateThisType,
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) this
+    else new ScSubstitutor(tvMap, aliasesMap, updateThisType,
       if (follower != null) follower followed s else s)
   }
 
@@ -91,18 +95,18 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
             def update(typez: ScType): ScType = {
               ScType.extractDesignated(typez) match {
                 case Some((cl: PsiClass, subst)) => {
-                  if (cl == clazz) return tp
-                  else if (cl.isInheritor(clazz, true)) return tp
-                  else return null
+                  if (cl == clazz) tp
+                  else if (cl.isInheritor(clazz, true)) tp
+                  else null
                 }
                 case Some((named: ScTypedDefinition, subst)) =>
-                  return update(named.getType(TypingContext.empty).getOrElse(Any))
+                  update(named.getType(TypingContext.empty).getOrElse(Any))
                 case _ =>
                   typez match {
                     case ScCompoundType(types, _, _, _) =>
                       val iter = types.iterator
                       while (iter.hasNext) {
-                        val tps = iter.next
+                        val tps = iter.next()
                         ScType.extractClass(tps) match {
                           case Some(cl) => {
                             if (cl == clazz) return tp
@@ -113,7 +117,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                       }
                     case _ =>
                   }
-                  return null
+                  null
               }
             }
             while (tp != null) {
@@ -124,9 +128,9 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                 case _ => tp = null
               }
             }
-            return t
+            t
           }
-          case _ => return t
+          case _ => t
         }
       }
 
@@ -267,7 +271,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
       res = res.addLower(name, lower)
     }
 
-    return res
+    res
   }
 
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
