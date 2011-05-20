@@ -12,7 +12,6 @@ import api.toplevel.typedef.ScClass
 import nonvalue.{ScMethodType, NonValueType}
 import api.toplevel.typedef.ScObject
 import result.{Success, TypeResult, TypingContext}
-import types.ScThisType
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).

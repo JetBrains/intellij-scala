@@ -555,13 +555,16 @@ object TypeDefinitionMembers {
                 // Expose the accessor method for vals and vars to Java.
                 context match {
                   case classParam: ScClassParameter if classParam.isEffectiveVal =>
-                    if (!processor.execute(new FakePsiMethod(classParam, t.getName, Array.empty, classParam.getType(TypingContext.empty).getOrElse(Any), classParam.hasModifierProperty _), state))
+                    if (!processor.execute(new FakePsiMethod(classParam, t.getName, Array.empty,
+                      classParam.getType(TypingContext.empty).getOrElse(Any), classParam.hasModifierProperty _), state))
                       return false
                   case value: ScValue =>
-                    if (!processor.execute(new FakePsiMethod(value, t.getName, Array.empty, value.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state))
+                    if (!processor.execute(new FakePsiMethod(value, t.getName, Array.empty,
+                      value.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state))
                       return false
                   case variable: ScVariable =>
-                    if (!processor.execute(new FakePsiMethod(variable, t.getName, Array.empty, variable.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state))
+                    if (!processor.execute(new FakePsiMethod(variable, t.getName, Array.empty,
+                      variable.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state))
                       return false
                   case _ =>
                 }
@@ -618,7 +621,8 @@ object TypeDefinitionMembers {
         val (_, n) = iterator.next()
         if (checkName(n.info.getName)) {
           ProgressManager.checkCanceled()
-          if (n.info.isInstanceOf[ScTypeDefinition] && !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (n.info.isInstanceOf[ScTypeDefinition] &&
+            !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
         }
       }
     }

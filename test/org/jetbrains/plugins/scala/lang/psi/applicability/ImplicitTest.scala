@@ -8,7 +8,7 @@ import lang.psi.types._
  */
 
 class ImplicitTest extends ApplicabilityTestBase {
-  def testExplicitArguments {
+  def testExplicitArguments() {
     assertProblemsFunction("", "(implicit p: A)", "(A)") {
       case Nil =>
     }
@@ -20,7 +20,7 @@ class ImplicitTest extends ApplicabilityTestBase {
     }
   }
 
-  def testImplicitValue {
+  def testImplicitValue() {
     assertProblemsFunction("implicit val v = A", "(implicit p: A)", "") {
       case Nil =>
     }
@@ -31,8 +31,14 @@ class ImplicitTest extends ApplicabilityTestBase {
       case Nil =>
     }
   }
+
+  def testEmptyArguments() {
+    assertProblemsConstructor("", "(implicit p: A)", "") {
+      case Nil =>
+    }
+  }
   
-  def testSwitchToExplicitMode {
+  def testSwitchToExplicitMode() {
     assertProblemsFunction("implicit val v = A", "(implicit p: A)", "()") {
       case MissedValueParameter(Parameter("p")) :: Nil =>
     }

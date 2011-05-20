@@ -30,14 +30,14 @@ class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstr
   def this(stub: ScPrimaryConstructorStub) = {this(); setStub(stub); setNode(null)}
 
   override def hasAnnotation: Boolean = {
-    return !(getNode.getFirstChildNode.getFirstChildNode == null)
+    !(getNode.getFirstChildNode.getFirstChildNode == null)
   }
 
   //todo rewrite me!
   override def hasModifier: Boolean = false
 
   def getClassNameText: String = {
-    return getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
+    getNode.getTreeParent.getPsi.asInstanceOf[ScTypeDefinition].getName
   }
 
   override def toString: String = "PrimaryConstructor"
