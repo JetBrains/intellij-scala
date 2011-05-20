@@ -11,33 +11,23 @@ package typedef
 import api.base.{ScFieldId, ScPrimaryConstructor}
 import api.statements.params.ScClassParameter
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import impl.compiled.ClsClassImpl
 import impl.light.LightMethod
 import scope.{NameHint, PsiScopeProcessor, ElementClassHint}
-import types._
 import api.toplevel.typedef._
 import api.statements._
-import nonvalue.Parameter
-import result.TypingContext
-import types.PhysicalSignature
+import types.result.TypingContext
 import com.intellij.openapi.util.Key
 import fake.FakePsiMethod
 import api.toplevel.ScTypedDefinition
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.text.StringUtil
 import util._
 import lang.resolve.processor.BaseProcessor
 import synthetic.ScSyntheticClass
 import lang.resolve.ResolveUtils
-import psi.util.CommonClassesSearcher
 import reflect.NameTransformer
-import extensions._
-import java.util.concurrent.locks.{ReentrantLock, Lock}
-import collection.mutable.{Stack, WeakHashMap, HashMap}
-import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
-import caches.CachesUtil.MyProvider
 import com.intellij.openapi.diagnostic.Logger
+import types._
 
 object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
@@ -441,9 +431,8 @@ object TypeDefinitionMembers {
     }
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, valuesMap, getMethods(clazz), getTypes(clazz),
-      clazz.isInstanceOf[ScObject], methodsForJava, syntheticMethods)) {
-      return false
-    }
+      clazz.isInstanceOf[ScObject], methodsForJava, syntheticMethods)) return false
+
     if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
             Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
@@ -461,7 +450,7 @@ object TypeDefinitionMembers {
       if (!processor.execute(values, state)) return false
       if (!processor.execute(valueOf, state)) return false
     }
-    return true
+    true
   }
 
   def processSuperDeclarations(td: ScTemplateDefinition,
@@ -472,9 +461,11 @@ object TypeDefinitionMembers {
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSuperVals(td), getSuperMethods(td), getSuperTypes(td),
       td.isInstanceOf[ScObject])) return false
 
-    if (!(AnyRef.asClass(td.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            Any.asClass(td.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
-    return true
+    if (!(AnyRef.asClass(td.getProject).getOrElse(return true).
+      processDeclarations(processor, state, lastParent, place) &&
+            Any.asClass(td.getProject).getOrElse(return true).
+              processDeclarations(processor, state, lastParent, place))) return false
+    true
   }
 
   def processDeclarations(comp: ScCompoundType,
@@ -482,7 +473,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    privateProcessDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, MethodNodes.build(comp)._2, TypeNodes.build(comp)._2, false)
+    privateProcessDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2,
+      MethodNodes.build(comp)._2, TypeNodes.build(comp)._2, false)
   }
 
   private def privateProcessDeclarations(processor: PsiScopeProcessor,
@@ -494,7 +486,8 @@ object TypeDefinitionMembers {
                                   types: => TypeNodes.Map,
                                   isObject: Boolean,
                                   methodsForJava: => MethodNodes.Map = new MethodNodes.Map,
-                                  syntheticMethods: => Seq[(PhysicalSignature, MethodNodes.Node)] = Seq.empty): Boolean = {
+                                  syntheticMethods: => Seq[(PhysicalSignature, MethodNodes.Node)] =
+                                    Seq.empty): Boolean = {
     val substK = state.get(ScSubstitutor.key)
     val subst = if (substK == null) ScSubstitutor.empty else substK
     val nameHint = processor.getHint(NameHint.KEY)
