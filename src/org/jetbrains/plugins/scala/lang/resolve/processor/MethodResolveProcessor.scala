@@ -76,7 +76,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
             fromType = fromType))
       }
     }
-    return true
+    true
   }
 
 
@@ -168,6 +168,7 @@ object MethodResolveProcessor {
             def onlyDefaultOrVarargs(paramClause: ScParameterClause) = paramClause.parameters.forall(p => p.isDefaultParam || p.isVarArgs)
             c.effectiveParameterClauses match {
               case Seq(x) if x.isImplicit || onlyDefaultOrVarargs(x) => true
+              case Seq(x, y) if x.parameters.isEmpty && y.isImplicit => true
               case _ => false
             }
           }
@@ -188,10 +189,10 @@ object MethodResolveProcessor {
 
     element match {
       //objects
-      case obj: PsiClass => return ConformanceExtResult(Seq.empty)
+      case obj: PsiClass => ConformanceExtResult(Seq.empty)
       //Implicit Application
-      case f: ScFunction if f.hasMalformedSignature => return ConformanceExtResult(Seq(new MalformedDefinition))
-      case c: ScPrimaryConstructor if c.hasMalformedSignature => return ConformanceExtResult(Seq(new MalformedDefinition))
+      case f: ScFunction if f.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))
+      case c: ScPrimaryConstructor if c.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))
       case fun: ScFunction  if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.apply(0).isImplicit &&
