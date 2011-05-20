@@ -42,7 +42,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox includeBlockExpressionsExpressionsCheckBox;
   private JCheckBox includeLiteralsCheckBox;
   private JCheckBox treatDocCommentAsBlockComment;
-  private JCheckBox addImportsOnPasteCheckBox;
   private JCheckBox importMembersUsingUnderscoreCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
@@ -79,7 +78,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE = addImportStatementInCheckBox.isSelected();
     scalaSettings.ADD_FULL_QUALIFIED_IMPORTS = addFullQualifiedImportsCheckBox.isSelected();
     scalaSettings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND = (Integer) classCountSpinner.getValue();
-    scalaSettings.ADD_IMPORTS_ON_PASTE = addImportsOnPasteCheckBox.isSelected();
     scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE = importMembersUsingUnderscoreCheckBox.isSelected();
 
     scalaSettings.SEARCH_ALL_SYMBOLS = searchAllSymbolsIncludeCheckBox.isSelected();
@@ -130,7 +128,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.ADD_UNAMBIGIOUS_IMPORTS_ON_THE_FLY != addUnambiguousImportsOnCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE != addImportStatementInCheckBox.isSelected()) return true;
     if (scalaSettings.ADD_FULL_QUALIFIED_IMPORTS != addFullQualifiedImportsCheckBox.isSelected()) return true;
-    if (scalaSettings.ADD_IMPORTS_ON_PASTE != addImportsOnPasteCheckBox.isSelected()) return true;
     if (scalaSettings.IMPORTS_MEMBERS_USING_UNDERSCORE != importMembersUsingUnderscoreCheckBox.isSelected()) return true;
 
     if (scalaSettings.SEARCH_ALL_SYMBOLS != searchAllSymbolsIncludeCheckBox.isSelected()) return true;
@@ -169,7 +166,6 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(addImportStatementInCheckBox, settings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE);
     setValue(addFullQualifiedImportsCheckBox, settings.ADD_FULL_QUALIFIED_IMPORTS);
     setValue(classCountSpinner, settings.CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND);
-    setValue(addImportsOnPasteCheckBox, settings.ADD_IMPORTS_ON_PASTE);
     setValue(importMembersUsingUnderscoreCheckBox, settings.IMPORTS_MEMBERS_USING_UNDERSCORE);
 
     setValue(searchAllSymbolsIncludeCheckBox, settings.SEARCH_ALL_SYMBOLS);

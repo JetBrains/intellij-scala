@@ -6,8 +6,11 @@ import com.intellij.psi.PsiElement
  * Pavel Fatin
  */
 
-case class PatternDependency(startOffset: Int, endOffset: Int, className: String) extends Dependency with Cloneable {
-  override def clone() = new TypeDependency(startOffset, endOffset, className)
+case class PatternDependency(startOffset: Int, endOffset: Int, className: String) extends Dependency {
+  def movedTo(startOffset: Int, endOffset: Int) =
+    new TypeDependency(startOffset, endOffset, className)
+
+  def path(wildchardMembers: Boolean) = className
 }
 
 object PatternDependency {

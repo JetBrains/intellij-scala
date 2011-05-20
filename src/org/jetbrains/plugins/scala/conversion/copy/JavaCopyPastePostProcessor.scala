@@ -93,26 +93,47 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     if (text == "") return //copy as usually
     if (!scalaSettings.DONT_SHOW_CONVERSION_DIALOG) dialog.show()
     if (scalaSettings.DONT_SHOW_CONVERSION_DIALOG || dialog.isOK) {
-      inWriteAction {
+      val shiftedDependencies = inWriteAction {
         editor.getDocument.replaceString(bounds.getStartOffset, bounds.getEndOffset, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-        val marker = editor.getDocument.createRangeMarker(bounds.getStartOffset, bounds.getStartOffset + text.length)
-        scalaProcessor.processTransferableData(project, editor, bounds, i, ref, new DependencyData(dependencies))
-        val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
-        val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
-        val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-        val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-        settings.KEEP_BLANK_LINES_IN_CODE = 0
-        settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
-        settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-        manager.reformatText(file, marker.getStartOffset, marker.getEndOffset)
-        marker.dispose()
-        settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-        settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-        settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+
+        val markedDependencies = dependencies.toList.zipMapped(dependency => editor.getDocument.createRangeMarker(
+          bounds.getStartOffset + dependency.startOffset, bounds.getStartOffset + dependency.endOffset))
+
+        withSpecialStyleIn(project) {
+          val manager = CodeStyleManager.getInstance(project)
+          manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
+        }
+
+        markedDependencies.map {
+          case (dependency, marker) =>
+            val movedDependency = dependency.movedTo(marker.getStartOffset - bounds.getStartOffset,
+              marker.getEndOffset - bounds.getStartOffset)
+            marker.dispose()
+            movedDependency
+        }
       }
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, new DependencyData(shiftedDependencies))
     }
+  }
+
+  private def withSpecialStyleIn(project: Project)(block: => Unit) {
+    val settings = CodeStyleSettingsManager.getSettings(project)
+
+    val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
+    val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+    val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
+
+    settings.KEEP_BLANK_LINES_IN_CODE = 0
+    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
+    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
+
+    block
+
+    settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
+    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
+    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
   }
 
   class ConvertedCode(val data: String, val dependencies: Array[Dependency]) extends TextBlockTransferableData {
