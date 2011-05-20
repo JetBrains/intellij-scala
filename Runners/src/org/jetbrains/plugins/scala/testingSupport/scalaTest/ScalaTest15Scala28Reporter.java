@@ -44,7 +44,7 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       String detail = "";
       if (throwableOption instanceof Some) {
         if (throwableOption.get() instanceof AssertionError) error = false;
-        getStackTraceString(throwableOption.get());
+        detail = getStackTraceString(throwableOption.get());
       }
       Option<Long> durationOption = ((TestFailed) event).duration();
       long duration = 0;
