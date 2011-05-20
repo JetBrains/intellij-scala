@@ -17,6 +17,12 @@ package object extensions {
   implicit def toTraversableExt[CC[X] <: Traversable[X], A](t: CC[A]): TraversableExt[CC, A] =
     new TraversableExt[CC, A](t)
 
+  implicit def toSeqExt[CC[X] <: Seq[X], A](t: CC[A]): SeqExt[CC, A] =
+    new SeqExt[CC, A](t)
+
+  implicit def toIterableExt[CC[X] <: Seq[X], A](t: CC[A]): IterableExt[CC, A] =
+    new IterableExt[CC, A](t)
+
   implicit def toObjectExt[T](o: T) = new ObjectExt[T](o)
 
   implicit def toBooleanExt[T](b: Boolean) = new BooleanExt(b)

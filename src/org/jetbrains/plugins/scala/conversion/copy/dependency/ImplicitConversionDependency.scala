@@ -6,8 +6,11 @@ import com.intellij.psi.PsiElement
  * Pavel Fatin
  */
 
-case class ImplicitConversionDependency(startOffset: Int, endOffset: Int, className: String, memberName: String) extends Dependency with Cloneable {
-  override def clone() = new ImplicitConversionDependency(startOffset, endOffset, className, memberName)
+case class ImplicitConversionDependency(startOffset: Int, endOffset: Int, className: String, memberName: String) extends Dependency  {
+  def movedTo(startOffset: Int, endOffset: Int) =
+    new ImplicitConversionDependency(startOffset, endOffset, className, memberName)
+
+  def path(wildchardMembers: Boolean) = "%s._".format(className)
 }
 
 object ImplicitConversionDependency {

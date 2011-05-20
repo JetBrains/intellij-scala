@@ -209,7 +209,7 @@ class ScalaImportClassFix(private var classes: Array[PsiClass], ref: ScReference
 }
 
 object ScalaImportClassFix {
-  def getImportHolder(ref: ScReferenceElement, project: Project): ScImportsHolder = {
+  def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
     val scalaSettings: ScalaCodeStyleSettings =
       CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (scalaSettings.ADD_IMPORT_MOST_CLOSE_TO_REFERENCE)

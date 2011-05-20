@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.openapi.editor.{RangeMarker, Editor}
 import dependency._
-import dependency.MemberDependency._
-import dependency.PackageDependency._
-import dependency.PrimaryConstructorDependency._
-import dependency.TypeDependency._
 import java.lang.Boolean
 import java.awt.datatransfer.Transferable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -19,10 +15,12 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportClassFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import com.intellij.codeInsight.CodeInsightSettings
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScExpression}
+import com.intellij.openapi.ui.DialogWrapper
 
 /**
  * Pavel Fatin
@@ -42,7 +40,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
      
     val referenceDependencies =
       for((element, startOffset) <- elements;
-          reference <- element.asOptionOf[ScReferenceElement] if reference.qualifier.isEmpty;
+          reference <- element.asOptionOf[ScReferenceElement] if isPrimary(reference);
           target <- reference.resolve().toOption if target.getContainingFile != file;
           dependency <- dependencyFor(reference, startOffset, target)) yield dependency
 
@@ -55,6 +53,12 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
       yield ImplicitConversionDependency(element, startOffset, obj.getQualifiedName, member.getName)
 
     new DependencyData(referenceDependencies ++ conversionDependencies)
+  }
+
+  private def isPrimary(ref: ScReferenceElement) = ref match {
+    case it @ Parent(postfix: ScPostfixExpr) => it == postfix.operand
+    case it @ Parent(infix: ScInfixExpr) => it == infix.lOp
+    case it => it.qualifier.isEmpty
   }
 
   private def dependencyFor(element: ScReferenceElement, startOffset: Int, target: PsiElement) = {
@@ -95,7 +99,7 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
 
     val settings = ScalaCodeStyleSettings.getInstance(project)
 
-    if(!settings.ADD_IMPORTS_ON_PASTE) return
+    if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.NO) return
 
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
 
@@ -103,53 +107,50 @@ class ScalaCopyPastePostProcessor extends CopyPastePostProcessor[DependencyData]
 
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    object ClassFromName {
-      def unapply(name: String) =
-        Option(JavaPsiFacade.getInstance(file.getProject).findClass(name, file.getResolveScope))
+    val bindings = value.dependencies
+            .map(it => Binding(it, it.path(settings.IMPORTS_MEMBERS_USING_UNDERSCORE), elementFor(it, file, bounds)))
+            .distinctBy(_.path)
+
+    val referenceBindings = bindings.filter {
+      case Binding(_: ImplicitConversionDependency, _, _) => false
+      case Binding(_, _, Some(ref: ScReferenceElement)) => ref.resolve() == null
+      case _ => false
     }
 
-    val elements = zipElementsTo(value.dependencies, file, bounds)
+    val conversionBindings = bindings.filter {
+      case Binding(_: ImplicitConversionDependency, _, Some(exp: ScExpression)) =>
+          exp.getTypeAfterImplicitConversion().implicitFunction.isEmpty
+      case _ => false
+    }
+
+    val bindingsToRestore = (referenceBindings ++ conversionBindings).distinct
+
+    if (bindingsToRestore.isEmpty) return
+
+    val bs = if (CodeInsightSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
+      val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path).sorted.toArray)
+      dialog.show()
+      val selectedPahts = dialog.getSelectedElements
+      if (dialog.getExitCode == DialogWrapper.OK_EXIT_CODE)
+        bindingsToRestore.filter(it => selectedPahts.contains(it.path))
+      else
+        Seq.empty
+    } else {
+      bindingsToRestore
+    }
 
     inWriteAction {
-      // add imports for reference dependencies
-      for((dependency, Some(ref: ScReferenceElement)) <- elements if ref.resolve() == null;
-          holder = ScalaImportClassFix.getImportHolder(ref, file.getProject)) {
-        dependency match {
-          case TypeDependency(_, _, ClassFromName(aClass)) =>
-            holder.addImportForClass(aClass, ref)
-          case PackageDependency(_, _, packageName) =>
-            holder.addImportForPath(packageName, ref)
-          case PrimaryConstructorDependency(_, _, ClassFromName(aClass)) =>
-            holder.addImportForClass(aClass, ref)
-          case PatternDependency(_, _, ClassFromName(aClass)) =>
-            holder.addImportForClass(aClass, ref)
-          case MemberDependency(_, _, className @ ClassFromName(_), memberName) =>
-            val name = if (settings.IMPORTS_MEMBERS_USING_UNDERSCORE) "_" else memberName
-              holder.addImportForPath("%s.%s".format(className, name), ref)
-          case _ =>
-        }
-      }
-
-      // add imports for implicit conversion dependencies
-      for((dependency, Some(exp: ScExpression)) <- elements;
-          tr = exp.getTypeAfterImplicitConversion() if tr.implicitFunction.isEmpty) {
-        dependency match {
-          case ImplicitConversionDependency(_, _, className @ ClassFromName(_), memberName) =>
-            val holder = file.asInstanceOf[ScalaFile]
-            holder.addImportForPath("%s.%s".format(className, "_"), exp)
-          case _ =>
-        }
-      }
+      for(Binding(_, path, Some(ref)) <- bs; holder = ScalaImportClassFix.getImportHolder(ref, file.getProject))
+        holder.addImportForPath(path, ref)
     }
   }
 
-  private def zipElementsTo(dependencies: Seq[Dependency], file: PsiFile, bounds: RangeMarker) = {
-    for(dependency <- dependencies;
-        range = new TextRange(dependency.startOffset, dependency.endOffset).shiftRight(bounds.getStartOffset);
-        ref <- Option(file.findElementAt(range.getStartOffset))) yield
-      ref match {
-        case Parent(e) if e.getTextRange == range => (dependency, Some(e))
-        case _ => (dependency, None)
-      }
+  private def elementFor(dependency: Dependency, file: PsiFile, bounds: RangeMarker): Option[PsiElement] = {
+    val range = new TextRange(dependency.startOffset, dependency.endOffset).shiftRight(bounds.getStartOffset)
+
+    for(ref <- Option(file.findElementAt(range.getStartOffset));
+        parent <- ref.parent if parent.getTextRange == range) yield parent
   }
+
+  case class Binding(dependency: Dependency, path: String, element: Option[PsiElement])
 }
