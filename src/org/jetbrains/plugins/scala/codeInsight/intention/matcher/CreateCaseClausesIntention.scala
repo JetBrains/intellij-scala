@@ -29,7 +29,7 @@ import com.intellij.psi._
 import lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 
 final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ""
+  def getFamilyName: String = "Pattern Matching"
 
   override def getText: String = "Add case clauses"
 
