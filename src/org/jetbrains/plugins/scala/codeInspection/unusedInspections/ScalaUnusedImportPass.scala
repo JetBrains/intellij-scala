@@ -52,6 +52,7 @@ class ScalaUnusedImportPass(file: PsiFile, editor: Editor)
           }
           psi match {
             case null => Seq[Annotation]()
+            case sel: ScImportSelector if sel.importedName == "_" => Seq[Annotation]()
             case _ => {
               val annotation: Annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
               annotation.setHighlightType(ProblemHighlightType.LIKE_UNUSED_SYMBOL)
