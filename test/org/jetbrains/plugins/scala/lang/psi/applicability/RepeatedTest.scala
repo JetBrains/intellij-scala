@@ -93,8 +93,11 @@ class RepeatedTest extends ApplicabilityTestBase {
   }*/
   
   def testMissedArguments() {
-    assertProblems("(a: A*)", "") {
+    assertProblemsFunction("", "(a: A*)", "") {
       case MissedParametersClause(_) :: Nil =>
+    }
+    assertProblemsConstructor("", "(a: A*)", "") {
+      case Nil =>
     }
   }
   
