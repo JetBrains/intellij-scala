@@ -82,9 +82,10 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     } {
       param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
         case Some(func) =>
-          if (param.typeElement.isDefined)
+          if (param.typeElement.isDefined) {
             strategy.removeFromParameter(param)
-          else {
+            return true
+          } else {
             val index = func.parameters.indexOf(param)
             func.expectedType.flatMap(ScType.extractFunctionType) match {
               case Some(funcType) =>
