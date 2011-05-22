@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.{ChainedPackageInspection, PackageNameInspection}
 import postfix.PostfixMethodCall
 import redundantReturnInspection.RemoveRedundantReturnInspection
+import shadow.VariablePatternShadowInspection
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationManager
@@ -65,6 +66,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[FloatLiteralEndingWithDecimalPoint]
     res += classOf[ChainedPackageInspection]
     res += classOf[RemoveRedundantReturnInspection]
+    res += classOf[VariablePatternShadowInspection]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
