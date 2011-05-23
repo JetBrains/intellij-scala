@@ -60,6 +60,20 @@ case class ScExistentialType(quantified : ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.removeAbstracts.asInstanceOf[ScExistentialArgument]))
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        try {
+          ScExistentialType(quantified.recursiveUpdate(update),
+            wildcards.map(_.recursiveUpdate(update).asInstanceOf[ScExistentialArgument]))
+        }
+        catch {
+          case cce: ClassCastException => throw new RecursiveUpdateException
+        }
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
@@ -332,6 +346,14 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
 
   override def removeAbstracts = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScExistentialArgument(name, args, lowerBound.recursiveUpdate(update), upperBound.recursiveUpdate(update))
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
@@ -351,4 +373,11 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], low
 extends ValueType {
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScSkolemizedType(name, args, lower.recursiveUpdate(update), upper.recursiveUpdate(update))
+    }
+  }
 }

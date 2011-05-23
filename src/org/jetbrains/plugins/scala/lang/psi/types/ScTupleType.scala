@@ -58,5 +58,13 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
 
   override def removeAbstracts = ScTupleType(components.map(_.removeAbstracts))(project, scope)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScTupleType(components.map(_.recursiveUpdate(update)))(project, scope)
+    }
+  }
+
   private def tupleTraitName = "scala.Tuple" + components.length
 }

@@ -12,6 +12,8 @@ import api.toplevel.typedef.ScClass
 import nonvalue.{ScMethodType, NonValueType}
 import api.toplevel.typedef.ScObject
 import result.{Success, TypeResult, TypingContext}
+import java.lang.Exception
+import collection.mutable.HashSet
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -77,11 +79,43 @@ trait ScType {
   /**
    * This method is important for parameters expected type.
    * There shouldn't be any abstract type in this expected type.
+   * todo rewrite with recursiveUpdate method
    */
   def removeAbstracts = this
 
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
+  }
+
+  class RecursiveUpdateException extends Exception {
+    override def getMessage: String = "Type mismatch after update method"
+  }
+
+  /**
+   * use 'update' to replace appropriate type part with another type
+   * 'update' should return true if type changed, false otherwise.
+   * To just collect info about types (see collectAbstracts) always return false
+   *
+   * default implementation for types, which don't contain other types.
+   */
+  def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    val res = update(this)
+    if (res._1) res._2
+    else this
+  }
+
+  def collectAbstracts: Seq[ScAbstractType] = {
+    val set: HashSet[ScAbstractType] = new HashSet[ScAbstractType]
+
+    recursiveUpdate(tp => {
+      tp match {
+        case a: ScAbstractType => set += a
+        case _ =>
+      }
+      (false, tp)
+    })
+
+    set.toSeq
   }
 }
 

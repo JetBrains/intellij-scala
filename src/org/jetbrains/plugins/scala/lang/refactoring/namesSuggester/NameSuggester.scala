@@ -5,7 +5,7 @@ package namesSuggester
 
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
+import com.intellij.psi.PsiClass
 import psi.types._
 import psi.api.expr._
 import java.util.regex.Matcher
@@ -34,7 +34,7 @@ object NameSuggester {
       names += validator.validateName("value", true)
     }
 
-    return (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
+    (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
   }
@@ -45,12 +45,12 @@ object NameSuggester {
     if (names.size == 0) {
       names += "value"
     }
-    return (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
+    (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
   }
 
-  private def generateNamesByType(typez: ScType, names: HashSet[String], validator: NameValidator): Unit = {
+  private def generateNamesByType(typez: ScType, names: HashSet[String], validator: NameValidator) {
     def add(s: String) {
       names += validator.validateName(s, true)
     }
@@ -207,12 +207,12 @@ object NameSuggester {
         names += candidate
       }
     }
-    return names.toSeq
+    names.toSeq
   }
 
   private def deleteNonLetterFromString(s: String): String = {
     val pattern: Pattern = Pattern.compile("[^a-zA-Z]");
     val matcher: Matcher = pattern.matcher(s);
-    return matcher.replaceAll("");
+    matcher.replaceAll("");
   }
 }

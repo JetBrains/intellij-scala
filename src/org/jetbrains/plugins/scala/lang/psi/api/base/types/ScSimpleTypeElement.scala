@@ -5,13 +5,10 @@ package api
 package base
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-
 trait ScSimpleTypeElement extends ScTypeElement {
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
@@ -20,4 +17,6 @@ trait ScSimpleTypeElement extends ScTypeElement {
   def singleton: Boolean
 
   def findConsturctor: Option[ScConstructor]
+
+  override def accept(visitor: ScalaElementVisitor) {visitor.visitSimpleTypeElement(this)}
 }

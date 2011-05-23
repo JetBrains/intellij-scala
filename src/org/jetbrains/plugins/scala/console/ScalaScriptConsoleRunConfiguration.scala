@@ -137,7 +137,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
           params.getProgramParametersList.add(getClassPath(project, facet))
           params.getProgramParametersList.addParametersString(consoleArgs)
         }
-        return params
+        params
       }
     }
 
@@ -164,7 +164,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
               override def getIcon(f: File): Icon = {
                 if (f.isDirectory) return super.getIcon(f)
                 val fileType = FileTypeManager.getInstance.getFileTypeByFileName(f.getName)
-                return fileType.getIcon
+                fileType.getIcon
               }
             };
             fileChooser.setFileView(fileView)
@@ -176,8 +176,8 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
                 f.getName.endsWith(".scala") || f.isDirectory
               }
 
-              def getDescription(): String = {
-                return "Scala File"
+              def getDescription: String = {
+                "Scala File"
               }
             };
 
@@ -229,7 +229,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
             stream.flush
           }
         }*/
-        return consoleView
+        consoleView
       }
 
       override def addFilter(filter: Filter): Unit = {
@@ -237,7 +237,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       }
     }
     state.setConsoleBuilder(consoleBuilder);
-    return state;
+    state;
   }
 
   def getModule: Module = if (getValidModules.size > 0) getValidModules.get(0) else null
@@ -288,7 +288,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       }
       res.append(path).append(File.pathSeparator)
     }
-    return res.toString
+    res.toString
   }
 
   private def getClassPath(facet: ScalaFacet): String = {
@@ -302,6 +302,6 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       path = PathUtil.getCanonicalPath(path).replace('/', File.separatorChar)
       res.append(path).append(File.pathSeparator)
     }
-    return res.toString
+    res.toString
   }
 }

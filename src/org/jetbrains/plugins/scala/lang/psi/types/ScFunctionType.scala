@@ -35,7 +35,16 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
 
   def arity: Int = params.length
 
-  override def removeAbstracts = new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
+  override def removeAbstracts =
+    new ScFunctionType(returnType.removeAbstracts, params.map(_.removeAbstracts))(project, scope)
+
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        new ScFunctionType(returnType.recursiveUpdate(update), params.map(_.recursiveUpdate(update)))(project, scope)
+    }
+  }
 
   private def functionTraitName = "scala.Function" + params.length
 
