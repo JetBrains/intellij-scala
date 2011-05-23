@@ -82,8 +82,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
       fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
-      return fun
-    } else return null
+      fun
+    } else null
   }
 
   def createImplicitClassParamClauseFromTextWithContext(clauseText: String, manager: PsiManager, context: PsiElement): ScParameterClause = {
@@ -100,8 +100,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
       fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
-      return fun
-    } else return null
+      fun
+    } else null
   }
 
   def createEmptyClassParamClauseWithContext(manager: PsiManager, context: PsiElement): ScParameterClause = {
@@ -117,8 +117,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
       fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
-      return fun
-    } else return null
+      fun
+    } else null
   }
 
   def createParameterFromText(paramText: String, manager: PsiManager): ScParameter = {
@@ -208,14 +208,14 @@ object ScalaPsiElementFactory {
     val text = "package " + (if (!ScalaNamesUtil.isKeyword(name)) name else "`" + name + "`")
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
+    dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
   }
 
   def createModifierFromText(name: String, manager: PsiManager): ASTNode = {
     val text = name + " class a"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return dummyFile.typeDefinitions(0).getModifierList.getFirstChild.getNode
+    dummyFile.typeDefinitions(0).getModifierList.getFirstChild.getNode
   }
 
   def createImportExprFromText(name: String, manager: PsiManager): ScImportExpr = {
@@ -228,7 +228,7 @@ object ScalaPsiElementFactory {
   def createImportFromText(text: String, manager: PsiManager): ScImportStmt = {
     val dummyFile: ScalaFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
+    dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
   }
 
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
@@ -238,7 +238,7 @@ object ScalaPsiElementFactory {
     val imp: ScImportStmt = dummyFile.getFirstChild.asInstanceOf[ScImportStmt]
     val expr: ScImportExpr = imp.importExprs.apply(0)
     val ref = expr.reference match {case Some(x) => x case None => return null}
-    return ref
+    ref
   }
 
   def createImportStatementFromClass(holder: ScImportsHolder, clazz: PsiClass, manager: PsiManager): ScImportStmt = {
@@ -259,10 +259,10 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.firstOption match {
-      case Some(x) => return x
+      case Some(x) => x
       case None => {
         //cannot be
-        return null
+        null
       }
     }
   }
@@ -289,10 +289,10 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     dummyFile.getImportStatements.headOption match {
-      case Some(x) => return x
+      case Some(x) => x
       case None => {
         //cannot be
-        return null
+        null
       }
     }
   }
@@ -365,7 +365,7 @@ object ScalaPsiElementFactory {
   def createNewLineNode(manager: PsiManager, text: String): ASTNode = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return dummyFile.getNode.getFirstChildNode
+    dummyFile.getNode.getFirstChildNode
   }
 
   def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression = {
@@ -386,7 +386,7 @@ object ScalaPsiElementFactory {
       case Some(x) => x
       case None => return null
     }
-    return body
+    body
   }
 
   def createTemplateBody(manager: PsiManager): ScTemplateBody = {
@@ -413,7 +413,7 @@ object ScalaPsiElementFactory {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val function = classDef.functions(0)
-    return function
+    function
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
@@ -423,7 +423,7 @@ object ScalaPsiElementFactory {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val al = classDef.aliases(0)
-    return al
+    al
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
@@ -457,9 +457,9 @@ object ScalaPsiElementFactory {
     }
     imp.resolve match {
       case x: PsiClass => {
-        return x.getQualifiedName == clazz.getQualifiedName
+        x.getQualifiedName == clazz.getQualifiedName
       }
-      case _ => return false
+      case _ => false
     }
   }
 
@@ -498,7 +498,7 @@ object ScalaPsiElementFactory {
             typeParam.contextBound foreach {
               (tp: ScType) => res = res + " : " + ScType.canonicalText(ScTypeUtil.stripTypeArgs(substitutor.subst(tp)))
             }
-            return res
+            res
           }
           val strings = (for (t <- method.typeParameters) yield get(t))
           res += strings.mkString("[", ", ", "]")
@@ -512,7 +512,7 @@ object ScalaPsiElementFactory {
                         ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
                 if (param.isRepeatedParameter) res += "*"
               }
-              return res
+              res
             }
             val strings = (for (t <- paramClause.parameters) yield get(t))
             res += strings.mkString(if (paramClause.isImplicit) "(implicit " else "(", ", ", ")")
@@ -602,12 +602,12 @@ object ScalaPsiElementFactory {
 
       }
     }
-    return res
+    res
   }
 
   private def changeKeyword(s: String): String = {
-    if (ScalaNamesUtil.isKeyword(s)) return "`" + s + "`"
-    else return s
+    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
+    else s
   }
 
   def getOverrideImplementTypeSign(alias: ScTypeAlias, substitutor: ScSubstitutor, body: String,
@@ -615,18 +615,18 @@ object ScalaPsiElementFactory {
     try {
       alias match {
         case alias: ScTypeAliasDefinition => {
-          return (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
+          (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
                   alias.getModifierList.getText + " type " + alias.getName + " = " +
                   ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrElse(Any)))
         }
         case alias: ScTypeAliasDeclaration => {
-          return alias.getModifierList.getText + " type " + alias.getName + " = " + body
+          alias.getModifierList.getText + " type " + alias.getName + " = " + body
         }
       }
     }
     catch {
       case e: Exception => e.printStackTrace()
-      return ""
+      ""
     }
   }
 
@@ -643,7 +643,7 @@ object ScalaPsiElementFactory {
       res = res + (if (res.endsWith("_")) " " else "") + ": " +
               ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any)))
     res = res + " = " + body
-    return res
+    res
   }
 
   private def getShortName(qualifiedName: String, packageName: String): String = {
@@ -658,7 +658,7 @@ object ScalaPsiElementFactory {
       res = res + "."
       i = i + 1
     }
-    return res.substring(0, res.length - 1)
+    res.substring(0, res.length - 1)
   }
 
   private def getStandardValue(typez: ScType): String = {
@@ -675,8 +675,8 @@ object ScalaPsiElementFactory {
 
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {
     val te = createTypeElementFromText(text, context, child)
-    if (te == null) return null
-    else return te.getType(TypingContext.empty).getOrElse(Any)
+    if (te == null) null
+    else te.getType(TypingContext.empty).getOrElse(Any)
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction = {
@@ -690,8 +690,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScFunction]) {
       val fun = psi.asInstanceOf[ScFunction]
       fun.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      return fun
-    } else return null
+      fun
+    } else null
   }
 
   def createObjectWithContext(text: String, context: PsiElement, child: PsiElement): ScObject = {
@@ -705,8 +705,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScObject]) {
       val obj = psi.asInstanceOf[ScObject]
       obj.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      return obj
-    } else return null
+      obj
+    } else null
   }
 
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
@@ -720,8 +720,8 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScStableCodeReferenceElement]) {
       val referenceElement = psi.asInstanceOf[ScStableCodeReferenceElement]
       referenceElement.asInstanceOf[ScalaPsiElement].setContext(context, child)
-      return referenceElement
-    } else return null
+      referenceElement
+    } else null
   }
 
   def createExpressionWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
@@ -736,8 +736,8 @@ object ScalaPsiElementFactory {
       val expr = psi.asInstanceOf[ScMethodCall]
       val res = expr.argumentExpressions.apply(0)
       res.setContext(context, child)
-      return res
-    } else return null
+      res
+    } else null
   }
 
   def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
