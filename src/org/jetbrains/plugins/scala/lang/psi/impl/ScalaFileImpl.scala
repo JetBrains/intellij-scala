@@ -6,7 +6,6 @@ package impl
 
 import api.expr.ScExpression
 import api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable}
-import com.intellij.util.ArrayFactory
 import expr.ScReferenceExpressionImpl
 import lexer.ScalaTokenTypes
 import psi.stubs.ScFileStub
@@ -40,7 +39,7 @@ import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
-        extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage())
+        extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
                 with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder
                 with CompiledFileAdjuster with ScControlFlowOwner {
   override def getViewProvider = viewProvider
@@ -81,20 +80,18 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val sourceFile = sourceName
       val relPath = if (pName.length == 0) sourceFile else pName.replace(".", "/") + "/" + sourceFile
 
-      val project = getProject
-
       // Look in libraries' sources
       val vFile = getContainingFile.getVirtualFile
       val index = ProjectRootManager.getInstance(getProject).getFileIndex
       val entries = index.getOrderEntriesForFile(vFile).toArray(OrderEntry.EMPTY_ARRAY)
       var entryIterator = entries.iterator
       while (entryIterator.hasNext) {
-        val entry = entryIterator.next
+        val entry = entryIterator.next()
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
         val filesIterator = files.iterator
         while (!filesIterator.isEmpty) {
-          val file = filesIterator.next
+          val file = filesIterator.next()
           val source = file.findFileByRelativePath(relPath)
           if (source != null) {
             val psiSource = getManager.findFile(source)
@@ -108,12 +105,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       entryIterator = entries.iterator
       //Look in libraries sources if file not relative to path
       while (entryIterator.hasNext) {
-        val entry = entryIterator.next
+        val entry = entryIterator.next()
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
         val filesIterator = files.iterator
         while (filesIterator.hasNext) {
-          val file = filesIterator.next
+          val file = filesIterator.next()
           if (typeDefinitions.length == 0) return this
           val qual = typeDefinitions.apply(0).getQualifiedName
           def scanFile(file: VirtualFile): Option[PsiElement] = {
@@ -121,14 +118,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
             if (children != null) {
               val childIterator = children.iterator
               while (childIterator.hasNext) {
-                val child = childIterator.next
+                val child = childIterator.next()
                 if (child.getName == sourceFile) {
                   val psiSource = getManager.findFile(child)
                   psiSource match {
                     case o: PsiClassOwner => {
                       val clazzIterator = o.getClasses.iterator
                       while (clazzIterator.hasNext) {
-                        val clazz = clazzIterator.next
+                        val clazz = clazzIterator.next()
                         if (qual == clazz.getQualifiedName) {
                           return Some(o)
                         }
@@ -166,14 +163,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (stub == null) {
       val childrenIterator = getNode.getChildren(null).iterator
       while (childrenIterator.hasNext) {
-        val n = childrenIterator.next
+        val n = childrenIterator.next()
         n.getPsi match {
           case _: ScPackaging => return false
           case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
           case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
         }
       }
-      return false
+      false
     } else {
       stub.isScript
     }
@@ -192,7 +189,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     option = Some(isScriptFileImpl)
     isScriptFileCache = option
     isScriptFileCacheModCount = curModCount
-    return option.get
+    option.get
   }
 
   /**
@@ -320,7 +317,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
             val packages = defaultPackage.getSubPackages(scope)
             val iterator = packages.iterator
             while (iterator.hasNext) {
-              val pack = iterator.next
+              val pack = iterator.next()
               if (!processor.execute(pack, state)) return false
             }
             val migration = facade.getCurrentMigration
@@ -329,7 +326,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
               val packages = list.toArray(new Array[PsiPackage](list.size)).map(ScPackageImpl(_))
               val iterator = packages.iterator
               while (iterator.hasNext) {
-                val pack = iterator.next
+                val pack = iterator.next()
                 if (!processor.execute(pack, state)) return false
               }
             }
@@ -469,7 +466,7 @@ object ImplicitlyImported {
     importedObjects(manager.getProject) = res
     modCount(manager.getProject) = count
     val filter = new ScalaSourceFilterScope(scope, manager.getProject)
-    return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
+    res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
   }
   private def implicitlyImportedObjectsImpl(manager: PsiManager): Seq[PsiClass] = {
     val res = new ArrayBuffer[PsiClass]

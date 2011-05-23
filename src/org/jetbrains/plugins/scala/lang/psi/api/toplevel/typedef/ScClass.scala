@@ -12,6 +12,8 @@ import lexer.ScalaTokenTypes
 import com.intellij.psi.PsiElement
 import statements.params.{ScParameterClause, ScTypeParam, ScParameters}
 import statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
 * @author Alexander Podkhalyuzin
@@ -39,46 +41,43 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     }
   }
 
-  @volatile
-  private var companionModuleRes: Option[ScObject] = null
-  @volatile
-  private var modCount: Long = 0L
-
   def fakeCompanionModule: Option[ScObject] = {
     ScalaPsiUtil.getBaseCompanionModule(this) match {
-      case Some(td: ScObject) => return None
-      case _ if !isCase => return None
+      case Some(td: ScObject) => None
+      case _ if !isCase => None
       case _ =>
-        var res = companionModuleRes
-        val count = getManager.getModificationTracker.getJavaStructureModificationCount
-        if (res != null && count == modCount) return res
-        val texts = getSyntheticMethodsText
+        CachesUtil.get(this, CachesUtil.FAKE_CLASS_COMPANION,
+          new CachesUtil.MyProvider[ScClass, Option[ScObject]](this, clazz => {
+              val texts = getSyntheticMethodsText
 
-        // TODO SCL-3081
-//        val extendsText = {
-//          val clause: Option[ScParameterClause] = clauses.flatMap(_.clauses.take(1).headOption)
-//          (clause, typeParameters) match {
-//            case (Some(clause), Seq()) =>
-//               " extends Function" + clause.paramTypes.length + "[" + clause.paramTypes.map(_.canonicalText).mkString(", ") + ", " + getQualifiedName + "]"
-//            case _ => ""
-//          }
-//
-//        }
-        val objText = "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
-        val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
-        val obj = ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
-        val objOption = obj.toOption
-        objOption.foreach { (obj: ScObject) =>
-          obj.setSyntheticObject()
-          obj.members.foreach {
-            case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
-            case _ =>
-          }
-        }
-        res = objOption
-        modCount = count
-        companionModuleRes = res
-        return res
+            // TODO SCL-3081
+            //        val extendsText = {
+            //          val clause: Option[ScParameterClause] = clauses.flatMap(_.clauses.take(1).headOption)
+            //          (clause, typeParameters) match {
+            //            case (Some(clause), Seq()) =>
+            //               " extends Function" + clause.paramTypes.length + "[" + clause.paramTypes.map(_.canonicalText).mkString(", ") + ", " + getQualifiedName + "]"
+            //            case _ => ""
+            //          }
+            //
+            //        }
+            val objText = "object " + getName + "{\n  " + texts._1 + "\n  " + texts._2 + "\n" + "}"
+            val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
+            val obj: ScObject =
+              ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
+            val objOption: Option[ScObject] = obj.toOption
+            objOption.foreach { (obj: ScObject) =>
+              obj.setSyntheticObject()
+              obj.members.foreach {
+                case s: ScFunctionDefinition => s.setSynthetic() // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
+                case _ =>
+              }
+            }
+            System.out.println(obj.getQualifiedName + ": " + obj.hashCode() + " cout: " +
+              getManager.getModificationTracker.getJavaStructureModificationCount)
+            objOption
+          })
+          (PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT))
+
     }
   }
 

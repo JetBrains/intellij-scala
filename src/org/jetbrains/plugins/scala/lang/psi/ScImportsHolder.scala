@@ -106,7 +106,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   def addImportForClass(clazz: PsiClass, ref: PsiElement = null) {
     ref match {
       case ref: ScReferenceElement => {
-        if (!ref.isValid || ref.resolve == clazz) return
+        if (!ref.isValid || ref.isReferenceTo(clazz)) return
       }
       case _ =>
     }
@@ -127,7 +127,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       for (expr: ScImportExpr <- imp.importExprs) {
         val qualifier = expr.qualifier
         if (qualifier != null) { //in case "import scala" it can be null
-          val qn = qualifier.resolve match {
+          val qn = qualifier.resolve() match {
             case pack: PsiPackage => pack.getQualifiedName
             case clazz: PsiClass => clazz.getQualifiedName
             case _ => ""
@@ -154,7 +154,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     
     if (!hasRenamedImport &&
             (selectors.exists(_ == "_") || selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
-      selectors.clear
+      selectors.clear()
       selectors += "_"
       isPlaceHolderImport = true
     }
