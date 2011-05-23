@@ -37,22 +37,22 @@ class ScalaRefCountHolder private (file: PsiFile) {
 
   def isRedundant(used: ImportUsed): Boolean = {
     assertIsRetrieving()
-    return !myImportUsed.contains(used)
+    !myImportUsed.contains(used)
   }
 
   def isValueWriteUsed(e: PsiNamedElement): Boolean = {
     assertIsRetrieving()
-    return myValueUsed.contains(WriteValueUsed(e))
+    myValueUsed.contains(WriteValueUsed(e))
   }
 
   def isValueReadUsed(e: PsiNamedElement): Boolean = {
     assertIsRetrieving()
-    return myValueUsed.contains(ReadValueUsed(e))
+    myValueUsed.contains(ReadValueUsed(e))
   }
 
   def isValueUsed(e: PsiNamedElement): Boolean = {
     assertIsRetrieving()
-    return isValueReadUsed(e) || isValueWriteUsed(e)
+    isValueReadUsed(e) || isValueWriteUsed(e)
   }
 
   private def removeInvalidRefs() {
@@ -91,7 +91,7 @@ class ScalaRefCountHolder private (file: PsiFile) {
       val set: Boolean = myState.compareAndSet(State.WRITE, State.READY)
       assert(set, myState.get)
     }
-    return true
+    true
   }
 
 
@@ -106,7 +106,7 @@ class ScalaRefCountHolder private (file: PsiFile) {
       val set: Boolean = myState.compareAndSet(State.READ, State.READY)
       assert(set, myState.get)
     }
-    return true
+    true
   }
 
 
@@ -129,6 +129,6 @@ object ScalaRefCountHolder {
       refCountHolder = (file.asInstanceOf[UserDataHolderEx]).putUserDataIfAbsent(SCALA_REF_COUNT_HOLDER_IN_FILE_KEY,
         new ScalaRefCountHolder(file))
     }
-    return refCountHolder
+    refCountHolder
   }
 }

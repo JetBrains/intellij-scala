@@ -53,6 +53,7 @@ class ConvertToStableIdentifierPatternFix(ref: ScReferencePattern)
 
 class RenameVariablePatternFix(ref: ScReferencePattern) extends AbstractFix("Rename Variable Pattern", ref) {
   def doApplyFix(project: Project, descriptor: ProblemDescriptor) {
+    if (!ref.isValid) return
     val action: AnAction = new RenameElementAction
     val event: AnActionEvent = actionEventForElement(descriptor, project, action)
     invokeLater {
