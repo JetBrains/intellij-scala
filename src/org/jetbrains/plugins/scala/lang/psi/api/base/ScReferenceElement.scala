@@ -15,6 +15,7 @@ import toplevel.typedef._
 import psi.types._
 import psi.impl.ScalaPsiElementFactory
 import statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -48,7 +49,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     val parent = id.getTreeParent
     parent.replaceChild(id,
       ScalaPsiElementFactory.createIdentifier(if (isQuoted) "`" + newElementName + "`" else newElementName, getManager))
-    return this
+    this
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
@@ -56,7 +57,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     //todo if there are a reason, fix it in other way
     /*def eqviv(elem1: PsiElement, elem2: PsiElement): Boolean = {...}*/
 
-    val res = resolve
+    val res = resolve()
     if (res == null) {
       //case for imports with reference to Class and Object
       element match {
@@ -74,7 +75,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         case _ => return false
       }
     }
-    if (res == element) return true
+    if (ScEquivalenceUtil.smartEquivalence(res, element)) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
         res match {
@@ -125,7 +126,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       }
       case _ =>
     }
-    return isIndirectReferenceTo(res, element)
+    isIndirectReferenceTo(res, element)
   }
 
   /**

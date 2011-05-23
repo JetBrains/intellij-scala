@@ -5,43 +5,27 @@ package impl
 package toplevel
 package typedef
 
-import api.base.{ScPrimaryConstructor, ScModifierList}
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.ArrayFactory
-import psi.stubs.elements.wrappers.DummyASTNode
+import api.base.ScPrimaryConstructor
 import psi.stubs.ScTemplateDefinitionStub
-import com.intellij.psi.tree.IElementType
 import com.intellij.openapi.progress.ProgressManager
 import collection.mutable.ArrayBuffer
-import synthetic.ScSyntheticFunction
-import types.nonvalue.Parameter
-import types.result.TypingContext
-import types.{ScType, ScThisType, ScSubstitutor}
 import com.intellij.lang.ASTNode
 
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 
 import org.jetbrains.plugins.scala.icons.Icons
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
-import api.statements.params.{ScClassParameter, ScTypeParamClause}
-
 /**
  * @author Alexander.Podkhalyuzin
  */
 
 class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -70,11 +54,11 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   override def members = constructor match {
-    case Some(c) => super.members ++ Seq.singleton(c)
+    case Some(c) => super.members ++ Seq(c)
     case _ => super.members
   }
 
-  import com.intellij.psi.{scope, PsiElement, ResolveState}
+  import com.intellij.psi.{PsiElement, ResolveState}
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
@@ -83,7 +67,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
 
     for (p <- parameters) {
-      ProgressManager.checkCanceled
+      ProgressManager.checkCanceled()
       if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
         if (!processor.execute(p, state)) return false
       }
@@ -108,7 +92,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       case Some(x) => buffer += x
       case _ =>
     }
-    return buffer.toArray
+    buffer.toArray
   }
 
   @volatile
@@ -126,7 +110,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     answer = res.toSeq
     modCount = count
     syntheticMembersRes = answer
-    return answer
+    answer
   }
 
   private def syntheticMembersImpl: Seq[PsiMethod] = {
