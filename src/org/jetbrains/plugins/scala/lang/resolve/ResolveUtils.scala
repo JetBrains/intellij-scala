@@ -452,7 +452,8 @@ object ResolveUtils {
             }
             case _ =>
           }
-          presentation.setIcon(element.getIcon(0))
+          if (presentation.isReal)
+            presentation.setIcon(element.getIcon(0))
           presentation.setItemText(name + (if (isRenamed == None) "" else " <= " + element.getName))
           presentation.setStrikeout(isDeprecated)
           presentation.setItemTextBold(isBold)

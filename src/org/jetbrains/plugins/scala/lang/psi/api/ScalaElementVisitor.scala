@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
+import base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import com.intellij.psi.{PsiFile, PsiElementVisitor}
@@ -55,4 +56,7 @@ class ScalaElementVisitor extends PsiElementVisitor {
   def visitFunctionExpression(stmt: ScFunctionExpr) { visitExpression(stmt) }
   def visitThrowExpression(throwStmt: ScThrowStmt) { visitExpression(throwStmt) }
   def visitTryExpression(tryStmt: ScTryStmt) { visitExpression(tryStmt) }
+
+  //type elements
+  def visitSimpleTypeElement(simple: ScSimpleTypeElement) {visitElement(simple)}
 }

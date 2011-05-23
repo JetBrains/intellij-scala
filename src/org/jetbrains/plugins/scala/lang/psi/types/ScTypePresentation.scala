@@ -52,7 +52,7 @@ trait ScTypePresentation {
 
   private def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     val buffer = new StringBuilder
-    def appendSeq(ts: Seq[ScType], sep: String) = {
+    def appendSeq(ts: Seq[ScType], sep: String) {
       var first = true
       for (t <- ts) {
         if (!first) buffer.append(sep)
@@ -62,7 +62,8 @@ trait ScTypePresentation {
     }
 
     def inner(t: ScType): Unit = t match {
-      case ScAbstractType(tpt, lower, upper) => buffer.append("AbstractType").append(tpt.name.capitalize)
+      case ScAbstractType(tpt, lower, upper) =>
+        buffer.append(ScTypePresentation.ABSTRACT_TYPE_PREFIX).append(tpt.name.capitalize)
       case StdType(name, _) => buffer.append(name)
       case ScFunctionType(ret, params) => {
         buffer.append("(");
@@ -79,7 +80,7 @@ trait ScTypePresentation {
         val e = proj.actualElement
         val s = proj.actualSubst
         val refName = e.getName
-        def appendPointType {
+        def appendPointType() {
           e match {
             case obj: ScObject => buffer.append(".type")
             case v: ScBindingPattern => buffer.append(".type")
@@ -90,15 +91,15 @@ trait ScTypePresentation {
           case ScDesignatorType(pack: PsiPackage) => buffer.append(nameWithPointFun(pack)).append(refName)
           case ScDesignatorType(obj: ScObject) => {
             buffer.append(nameWithPointFun(obj)).append(refName)
-            appendPointType
+            appendPointType()
           }
           case ScDesignatorType(v: ScBindingPattern) => {
             buffer.append(nameWithPointFun(v)).append(refName)
-            appendPointType
+            appendPointType()
           }
           case ScThisType(obj: ScObject) => {
             buffer.append(nameWithPointFun(obj)).append(refName)
-            appendPointType
+            appendPointType()
           }
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScObject] =>
             inner(p); buffer.append(".").append(refName)
@@ -167,7 +168,7 @@ trait ScTypePresentation {
                   val text = if (!c.equiv(scType)) typeText(scType, nameFun, nameWithPointFun) else "this.type"
                     buffer.append(": ").append(text)
                 }
-                buffer.toString
+                buffer.toString()
               }
               case v: ScValue => {
                 v.declaredElements.map(td => {
@@ -248,7 +249,7 @@ trait ScTypePresentation {
       case _ => null //todo
     }
     inner(t)
-    buffer.toString
+    buffer.toString()
   }
 
   private def typeParamText(param: ScTypeParam, subst: ScSubstitutor, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
@@ -273,4 +274,8 @@ trait ScTypePresentation {
     }
     paramText
   }
+}
+
+object ScTypePresentation {
+  val ABSTRACT_TYPE_PREFIX = "AbstractType"
 }

@@ -15,6 +15,8 @@ import psi.ScalaPsiElement
 import stubs.NamedStub
 import templates.ScTemplateBody
 import typedef._
+import base.patterns.ScCaseClause
+import icons.Icons
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
 
@@ -41,7 +43,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     val id = nameId.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(name, getManager))
-    return this
+    this
   }
 
   override def getPresentation: ItemPresentation = {
@@ -50,7 +52,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     else null
     var parent: PsiElement = this
     while (parent != null && !(parent.isInstanceOf[ScMember])) parent = parent.getParent
-    return new ItemPresentation {
+    new ItemPresentation {
       def getPresentableText(): String = name
       def getTextAttributesKey(): TextAttributesKey = null
       def getLocationString(): String = clazz match {
@@ -62,5 +64,10 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     }
   }
 
-  override def getIcon(flags: Int) = ScalaPsiUtil.nameContext(this) match {case null => null case x => x.getIcon(flags)}
+  override def getIcon(flags: Int) =
+    ScalaPsiUtil.nameContext(this) match {
+      case null => null
+      case c: ScCaseClause => Icons.PATTERN_VAL
+      case x => x.getIcon(flags)
+    }
 }

@@ -26,6 +26,9 @@ import com.intellij.codeInsight.completion.{PrefixMatcher, CompletionParameters}
 import com.intellij.codeInsight.lookup.LookupElement
 import lang.resolve.ResolveUtils.ScalaLookupObject
 import lang.resolve.ResolveUtils
+import refactoring.namesSuggester.NameSuggester
+import types.ScType
+import collection.mutable.{ArrayBuffer, HashMap}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -33,6 +36,43 @@ import lang.resolve.ResolveUtils
 */
 
 object ScalaCompletionUtil {
+  def generateAnonymousFunctionText(braceArgs: Boolean, params: scala.Seq[ScType], canonical: Boolean,
+                                    withoutEnd: Boolean = false): String = {
+    val text = new StringBuilder()
+    if (braceArgs) text.append("case ")
+    val paramNamesWithTypes = new ArrayBuffer[(String, ScType)]
+    def contains(name: String): Boolean = {
+      paramNamesWithTypes.find {
+        case (s, _) => s == name
+      } != None
+    }
+    for (param <- params) {
+      val names = NameSuggester.suggestNamesByType(param)
+      var name = if (names.length == 0) "x" else names(0)
+      if (contains(name)) {
+        var count = 0
+        var newName = name + count
+        while (contains(newName)) {
+          count += 1
+          newName = name + count
+        }
+        name = newName
+      }
+      paramNamesWithTypes.+=(name -> param)
+    }
+    val iter = paramNamesWithTypes.map {
+      case (s, tp) => s + ": " + (if (canonical) {
+        ScType.canonicalText(tp)
+      } else ScType.presentableText(tp))
+    }
+    val paramsString =
+      if (paramNamesWithTypes.size != 1 || !braceArgs) iter.mkString("(", ", ", ")")
+      else iter.head
+    text.append(paramsString)
+    if (!withoutEnd) text.append(" =>")
+    text.toString()
+  }
+
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {
     if (offset < 0) {
       return null

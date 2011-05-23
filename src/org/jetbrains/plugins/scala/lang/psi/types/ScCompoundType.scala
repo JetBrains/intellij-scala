@@ -103,6 +103,14 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
 
   override def removeAbstracts = ScCompoundType(components.map(_.removeAbstracts), decls, typeDecls, subst)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScCompoundType(components.map(_.recursiveUpdate(update)), decls, typeDecls, subst)
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {

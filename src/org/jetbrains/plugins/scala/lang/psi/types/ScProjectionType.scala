@@ -25,6 +25,14 @@ import resolve.ResolveTargets
 case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: ScSubstitutor) extends ValueType {
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, subst)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScProjectionType(projected.recursiveUpdate(update), element, subst)
+    }
+  }
+
   private def actual: (PsiNamedElement, ScSubstitutor) = {
     var res = actualInnerTuple
     if (res != null) return res

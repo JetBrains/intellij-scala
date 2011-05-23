@@ -46,6 +46,14 @@ case class JavaArrayType(arg: ScType) extends ValueType {
 
   override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        JavaArrayType(arg.recursiveUpdate(update))
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
@@ -106,6 +114,14 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
 
   override def removeAbstracts = ScParameterizedType(designator.removeAbstracts, typeArgs.map(_.removeAbstracts))
 
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScParameterizedType(designator.recursiveUpdate(update), typeArgs.map(_.recursiveUpdate(update)))
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
@@ -118,7 +134,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         })
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
-        return Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
+        Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
       case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) => {
         val lBound = a.lowerBound match {
@@ -127,7 +143,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         }
         val genericSubst = ScalaPsiUtil.
                 typesCallSubstitutor(a.typeParameters.map(tp => (tp.getName, ScalaPsiUtil.getPsiElementId(tp))), args)
-        return Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
+        Equivalence.equivInner(genericSubst.subst(lBound), r, undefinedSubst, falseUndef)
       }
       case (ScParameterizedType(designator, typeArgs), ScParameterizedType(designator1, typeArgs1)) => {
         var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
@@ -140,9 +156,9 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
-        return (true, undefinedSubst)
+        (true, undefinedSubst)
       }
-      case _ => return (false, undefinedSubst)
+      case _ => (false, undefinedSubst)
     }
   }
 

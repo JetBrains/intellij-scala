@@ -51,4 +51,18 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
   }
 
   override def removeAbstracts = simplifyType
+
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        try {
+          ScAbstractType(tpt.recursiveUpdate(update).asInstanceOf[ScTypeParameterType], lower.recursiveUpdate(update),
+            upper.recursiveUpdate(update))
+        }
+        catch {
+          case cce: ClassCastException => throw new RecursiveUpdateException
+        }
+    }
+  }
 }

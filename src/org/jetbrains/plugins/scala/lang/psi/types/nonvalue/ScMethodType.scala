@@ -2,12 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.types.nonvalue
 
 import collection.immutable.HashMap
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.Suspension
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.{PsiElement, PsiTypeParameter}
+import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import result.TypingContext
 
@@ -38,11 +36,20 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
 
   def inferValueType: ValueType = {
-    return new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
+    new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
   }
 
   override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)), isImplicit)(project, scope)
+
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        new ScMethodType(returnType.recursiveUpdate(update),
+          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update))), isImplicit)(project, scope)
+    }
+  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
@@ -61,7 +68,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
           undefinedSubst = t._2
           i = i + 1
         }
-        return (true, undefinedSubst)
+        (true, undefinedSubst)
       }
       case _ => (false, undefinedSubst)
     }
@@ -106,6 +113,16 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
     TypeParameter(tp.name, tp.lowerType.removeAbstracts, tp.upperType.removeAbstracts, tp.ptp)
   }))
+
+  override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ =>
+        ScTypePolymorphicType(internalType.recursiveUpdate(update), typeParameters.map(tp => {
+          TypeParameter(tp.name, tp.lowerType.recursiveUpdate(update), tp.upperType.recursiveUpdate(update), tp.ptp)
+        }))
+    }
+  }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst

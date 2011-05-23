@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import handlers.ScalaConstuctorInsertHandler
+import handlers.{ScalaGenerateAnonymousFunctionInsertHandler, ScalaConstuctorInsertHandler}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.codeInsight.completion._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import collection.mutable.ArrayBuffer
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi._
 import api.base.types.ScSimpleTypeElement
@@ -23,10 +22,13 @@ import com.intellij.patterns.PsiElementPattern.Capture
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import com.intellij.psi._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.codeInsight.lookup._
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import search.searches.ClassInheritorsSearch
 import com.intellij.util.{Processor, ProcessingContext}
+import com.intellij.codeInsight.lookup._
+import java.lang.StringBuilder
+import collection.mutable.{HashMap, ArrayBuffer}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Alexander Podkhalyuzin
@@ -129,6 +131,95 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val element = parameters.getPosition
       val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
       acceptTypes(referenceExpression.expectedTypes, referenceExpression.getVariants, result, referenceExpression.getResolveScope)
+    }
+  })
+
+  private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
+                           result: CompletionResultSet) {
+    val braceArgs = args.isBraceArgs
+    val expects = referenceExpression.expectedTypes
+    for (expected <- expects) {
+      val actualParams: Seq[ScType] = expected match {
+        case ScFunctionType(_, params) => params
+        case p: ScParameterizedType if p.getFunctionType != None =>
+          p.getFunctionType match {
+            case Some(ScFunctionType(_, params)) => params
+            case _ => null
+          }
+        case _ => null
+      }
+      if (actualParams != null) {
+        val params = actualParams match {
+          case Seq(ScTupleType(params)) if braceArgs => params
+          case Seq(p: ScParameterizedType) if p.getTupleType != None => p.getTupleType match {
+            case Some(ScTupleType(params)) if braceArgs=> params
+          }
+          case _ => actualParams
+        }
+        val presentableParams = params.map(_.removeAbstracts)
+        var builder = LookupElementBuilder.create("")
+        builder = builder.setRenderer(new LookupElementRenderer[LookupElement] {
+          def renderElement(element: LookupElement, presentation: LookupElementPresentation) {
+            val text = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs, presentableParams, false)
+            presentation match {
+              case realPresentation: RealLookupElementPresentation =>
+                if (!realPresentation.hasEnoughSpaceFor(text, false)) {
+                  var prefixIndex = presentableParams.length - 1
+                  val suffix = ", ... =>"
+                  var end = false
+                  while (prefixIndex > 0 && !end) {
+                    val prefix = ScalaCompletionUtil.generateAnonymousFunctionText(braceArgs,
+                      presentableParams.slice(0, prefixIndex), false, true)
+                    if (realPresentation.hasEnoughSpaceFor(prefix + suffix, false)) {
+                      presentation.setItemText(prefix + suffix)
+                      end = true
+                    } else prefixIndex -= 1
+                  }
+                  if (!end) {
+                    presentation.setItemText("... => ")
+                  }
+                } else presentation.setItemText(text)
+                presentation.setIcon(Icons.LAMBDA)
+              case _ =>
+                presentation.setItemText(text)
+            }
+          }
+        })
+        builder = builder.setInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
+        val lookupElement = builder.withAutoCompletionPolicy(AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
+        result.addElement(lookupElement)
+      }
+    }
+  }
+
+  /*
+    call(exprs, ref, exprs)
+    if expected type is function, so we can suggest anonymous function creation
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScArgumentExprList]),
+    new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet) {
+      val element = parameters.getPosition
+      val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
+      val args = referenceExpression.getParent.asInstanceOf[ScArgumentExprList]
+      argumentsForFunction(args, referenceExpression, result)
+    }
+  })
+
+  /*
+    call {ref}
+    if expected type is function, so we can suggest anonymous function creation
+   */
+  extend(CompletionType.SMART, bracesCallPattern,
+    new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet) {
+      val element = parameters.getPosition
+      val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
+      val block = referenceExpression.getParent.asInstanceOf[ScBlockExpr]
+      val args = block.getParent.asInstanceOf[ScArgumentExprList]
+      argumentsForFunction(args, referenceExpression, result)
     }
   })
 
@@ -285,13 +376,6 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                     else
                       ScDesignatorType(clazz)
 
-                  val tpt =
-                    if (clazz.getTypeParameters.length == 1)
-                      ScParameterizedType(ScDesignatorType(clazz),
-                        clazz.getTypeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty))
-                      )
-                    else
-                      ScDesignatorType(clazz)
                   if (!predefinedType.conforms(typez)) return true
                   val undef = Conformance.undefinedSubst(typez, predefinedType)
                   undef.getSubstitutor match {
@@ -331,8 +415,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
               clazz.hasModifierProperty("static"))) return null
             if (!ResolveUtils.isAccessible(clazz, newExpr)) return null
-            return getLookupElementFromClass(tp, clazz, subst)
-          case _ => return null
+            getLookupElementFromClass(tp, clazz, subst)
+          case _ => null
         }
       }
     })
@@ -355,6 +439,9 @@ object ScalaSmartCompletionContributor {
   val afterNewPattern = superParentsPattern(classOf[ScStableCodeReferenceElement], classOf[ScSimpleTypeElement],
     classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
 
+  val bracesCallPattern = superParentsPattern(classOf[ScReferenceExpression], classOf[ScBlockExpr],
+    classOf[ScArgumentExprList], classOf[ScMethodCall])
+
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass): LookupElement = {
     val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
       new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
@@ -374,13 +461,6 @@ object ScalaSmartCompletionContributor {
       else
         ScDesignatorType(clazz)
 
-    val tpt =
-      if (clazz.getTypeParameters.length == 1)
-        ScParameterizedType(ScDesignatorType(clazz),
-          clazz.getTypeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty))
-        )
-      else
-        ScDesignatorType(clazz)
     val iterator = expectedTypes.iterator
     while (iterator.hasNext) {
       val typez = iterator.next()
@@ -407,7 +487,7 @@ object ScalaSmartCompletionContributor {
       lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
         new java.lang.Boolean(true))
     }
-    return lookupElement
+    lookupElement
   }
 
   def getLookupElementFromClass(tp: ScType, psiClass: PsiClass, subst: ScSubstitutor): LookupElement = {
