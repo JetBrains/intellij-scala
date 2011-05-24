@@ -59,7 +59,19 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
             case Some(ref) =>
               val refName = ref.refName
               if (abstractNames.contains(refName)) {
-                val node = new ConstantNode(refName.substring(12))
+                val prefixLength = ScTypePresentation.ABSTRACT_TYPE_PREFIX.length
+                val node = abstracts.find(a => ScTypePresentation.ABSTRACT_TYPE_PREFIX + a.tpt.name == refName) match {
+                  case Some(abstr) =>
+                    import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing}
+                    abstr.simplifyType match {
+                      case Any | Nothing =>
+                        new ConstantNode(refName.substring(prefixLength))
+                      case tp =>
+                        new ConstantNode(ScType.presentableText(tp))
+                    }
+                  case None =>
+                    new ConstantNode(refName.substring(prefixLength))
+                }
                 builder.replaceElement(simple, refName, node, false)
               }
             case None =>
