@@ -121,19 +121,6 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
     }
   })
 
-  /*
-    call(exprs, ref, exprs)
-   */
-  extend(CompletionType.SMART, superParentPattern(classOf[ScArgumentExprList]),
-    new CompletionProvider[CompletionParameters] {
-    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
-                       result: CompletionResultSet) {
-      val element = parameters.getPosition
-      val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
-      acceptTypes(referenceExpression.expectedTypes, referenceExpression.getVariants, result, referenceExpression.getResolveScope)
-    }
-  })
-
   private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
                            result: CompletionResultSet) {
     val braceArgs = args.isBraceArgs
@@ -220,6 +207,19 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val block = referenceExpression.getParent.asInstanceOf[ScBlockExpr]
       val args = block.getParent.asInstanceOf[ScArgumentExprList]
       argumentsForFunction(args, referenceExpression, result)
+    }
+  })
+
+  /*
+    call(exprs, ref, exprs)
+   */
+  extend(CompletionType.SMART, superParentPattern(classOf[ScArgumentExprList]),
+    new CompletionProvider[CompletionParameters] {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
+                       result: CompletionResultSet) {
+      val element = parameters.getPosition
+      val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
+      acceptTypes(referenceExpression.expectedTypes, referenceExpression.getVariants, result, referenceExpression.getResolveScope)
     }
   })
 

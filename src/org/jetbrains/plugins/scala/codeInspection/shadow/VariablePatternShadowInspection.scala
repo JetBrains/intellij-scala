@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.ide.DataManager
 import com.intellij.refactoring.actions.RenameElementAction
 import com.intellij.openapi.actionSystem._
+import lang.psi.ScalaPsiUtil
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
   val description: String = """Detects a Variable Pattern that shadows a stable identifier defined in the enclosing scope.
@@ -32,7 +33,7 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
   }
 
   private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
-    val isInCaseClause = refPat.parents.findByType(classOf[ScCaseClause]).isDefined
+    val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
       val dummyRef = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
       val resolve = dummyRef.resolve()
