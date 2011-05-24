@@ -139,7 +139,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         val params = actualParams match {
           case Seq(ScTupleType(params)) if braceArgs => params
           case Seq(p: ScParameterizedType) if p.getTupleType != None => p.getTupleType match {
-            case Some(ScTupleType(params)) if braceArgs=> params
+            case Some(ScTupleType(params)) if braceArgs => params
+            case _ => actualParams
           }
           case _ => actualParams
         }

@@ -2,16 +2,12 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package shadow
 
-import lang.resolve.processor.ResolveProcessor
-import lang.resolve.StdKinds
-import lang.psi.api.base.ScLiteral
 import com.intellij.openapi.project.Project
 import com.intellij.codeInspection.{ProblemDescriptor, ProblemsHolder}
 import lang.psi.impl.ScalaPsiElementFactory
 import extensions._
-import lang.psi.api.statements.ScPatternDefinition
 import lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import com.intellij.psi.{PsiFile, ResolveState, PsiElement}
+import com.intellij.psi.PsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.injected.editor.EditorWindow
