@@ -25,10 +25,9 @@ import com.intellij.openapi.application.ApplicationManager
 import search.searches.ClassInheritorsSearch
 import com.intellij.util.{Processor, ProcessingContext}
 import com.intellij.codeInsight.lookup._
-import java.lang.StringBuilder
-import collection.mutable.{HashMap, ArrayBuffer}
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -174,7 +173,10 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           }
         })
         builder = builder.setInsertHandler(new ScalaGenerateAnonymousFunctionInsertHandler(params, braceArgs))
-        val lookupElement = builder.withAutoCompletionPolicy(AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
+        val lookupElement =
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            builder.withAutoCompletionPolicy(AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE)
+          else builder.withAutoCompletionPolicy(AutoCompletionPolicy.NEVER_AUTOCOMPLETE)
         result.addElement(lookupElement)
       }
     }
@@ -192,6 +194,13 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val referenceExpression = element.getParent.asInstanceOf[ScReferenceExpression]
       val args = referenceExpression.getParent.asInstanceOf[ScArgumentExprList]
       argumentsForFunction(args, referenceExpression, result)
+    }
+  })
+
+  extend(CompletionType.SMART, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER),
+    new CompletionProvider[CompletionParameters]() {
+    def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+      "for test"
     }
   })
 

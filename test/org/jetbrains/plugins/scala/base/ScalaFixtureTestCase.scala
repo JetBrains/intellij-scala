@@ -21,9 +21,9 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
-  override protected def setUp: Unit = {
-    super.setUp
-    myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses
+  override protected def setUp {
+    super.setUp()
+    myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses()
 
     val rootModel = ModuleRootManager.getInstance(myFixture.getModule).getModifiableModel
 
@@ -48,9 +48,9 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
 
     ApplicationManager.getApplication.runWriteAction(new Runnable {
-      def run {
-        libModel.commit
-        rootModel.commit
+      def run() {
+        libModel.commit()
+        rootModel.commit()
       }
     })
   }
