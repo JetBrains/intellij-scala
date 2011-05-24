@@ -72,8 +72,6 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
                 case _ =>
               }
             }
-            System.out.println(obj.getQualifiedName + ": " + obj.hashCode() + " cout: " +
-              getManager.getModificationTracker.getJavaStructureModificationCount)
             objOption
           })
           (PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT))
