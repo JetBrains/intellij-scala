@@ -8,13 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import types.result.{Success, TypeResult, Failure, TypingContext}
-import resolve.ScalaResolveResult
-import com.intellij.psi.{PsiElement, PsiMethod, PsiClass}
+import com.intellij.psi.PsiElement
 import types._
 
 /**
-* @author Alexander Podkhalyuzin, ilyas
-*/
+ * @author Alexander Podkhalyuzin, ilyas
+ */
 
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScUnderscoreSection {
   override def toString: String = "UnderscoreSection"
@@ -55,19 +54,19 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             var forEqualsParamLength: Boolean = false //this is for working completion
             for (tp <- expr.expectedTypes if result != None) {
 
-              def processFunctionType(tp: ScFunctionType) = {
+              def processFunctionType(tp: ScFunctionType) {
                 import tp.params
                 if (result != null) {
-                    if (params.length == unders.length && !forEqualsParamLength) {
-                      result = Some(params(i).removeAbstracts)
-                      forEqualsParamLength = true
-                    } else if (params.length == unders.length) result = None
-                  }
-                  else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
-                  else {
+                  if (params.length == unders.length && !forEqualsParamLength) {
                     result = Some(params(i).removeAbstracts)
                     forEqualsParamLength = true
-                  }
+                  } else if (params.length == unders.length) result = None
+                }
+                else if (params.length > unders.length) result = Some(params(i).removeAbstracts)
+                else {
+                  result = Some(params(i).removeAbstracts)
+                  forEqualsParamLength = true
+                }
               }
 
               ScType.extractFunctionType(tp) match {

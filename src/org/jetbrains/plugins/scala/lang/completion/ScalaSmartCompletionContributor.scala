@@ -25,9 +25,9 @@ import com.intellij.openapi.application.ApplicationManager
 import search.searches.ClassInheritorsSearch
 import com.intellij.util.{Processor, ProcessingContext}
 import com.intellij.codeInsight.lookup._
-import collection.mutable.ArrayBuffer
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.ScalaFileType
+import collection.mutable.{HashSet, ArrayBuffer}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -350,13 +350,14 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
   extend(CompletionType.SMART, afterNewPattern, new CompletionProvider[CompletionParameters] {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val element = parameters.getPosition
+        val addedClasses = new HashSet[String]
         val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
         val types: Array[ScType] = newExpr.expectedTypes.map(tp => tp match {
           case ScAbstractType(_, lower, upper) => upper
           case _ => tp
         })
         for (typez <- types) {
-          val element: LookupElement = convertType(typez, newExpr)
+          val element: LookupElement = convertType(typez, newExpr, addedClasses)
           if (element != null) {
             result.addElement(element)
           }
@@ -389,11 +390,11 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
                   if (!predefinedType.conforms(typez)) return true
                   val undef = Conformance.undefinedSubst(typez, predefinedType)
                   undef.getSubstitutor match {
-                    case Some(subst) =>
-                      val lookupElement = convertType(subst.subst(noUndefType), newExpr)
+                    case Some(undefSubst) =>
+                      val lookupElement = convertType(undefSubst.subst(noUndefType), newExpr, addedClasses)
                       if (lookupElement != null) {
                         for (undefine <- undefines) {
-                          subst.subst(undefine) match {
+                          undefSubst.subst(undefine) match {
                             case ScUndefinedType(_) =>
                               lookupElement.putUserData(ResolveUtils.typeParametersProblemKey,
                                 new java.lang.Boolean(true))
@@ -412,7 +413,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
         }
       }
 
-      private def convertType(tp: ScType, newExpr: ScNewTemplateDefinition): LookupElement = {
+      private def convertType(tp: ScType, newExpr: ScNewTemplateDefinition,
+                              addedClasses: HashSet[String]): LookupElement = {
         ScType.extractClassType(tp, Some(newExpr.getProject)) match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
             //filter base types (it's important for scala 2.9)
@@ -425,6 +427,8 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
             if (clazz.getContainingClass != null && (!clazz.getContainingClass.isInstanceOf[ScObject] ||
               clazz.hasModifierProperty("static"))) return null
             if (!ResolveUtils.isAccessible(clazz, newExpr)) return null
+            if (addedClasses.contains(clazz.getQualifiedName)) return null
+            addedClasses += clazz.getQualifiedName
             getLookupElementFromClass(tp, clazz, subst)
           case _ => null
         }
