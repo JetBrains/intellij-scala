@@ -331,45 +331,31 @@ object TypeDefinitionMembers {
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
 
   def getVals(clazz: PsiClass): VMap = {
-    ScalaPsiUtil.synchronized {
-      get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
-    }
+    get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
   }
 
   def getMethods(clazz: PsiClass): MMap = {
-    ScalaPsiUtil.synchronized {
-      get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
-    }
+    get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
   }
 
   def getTypes(clazz: PsiClass) = {
-    ScalaPsiUtil.synchronized {
-      get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
-    }
+    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
   }
 
   def getSignatures(c: PsiClass): SMap = {
-    ScalaPsiUtil.synchronized {
-      get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
-    }
+    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
   }
 
   def getSuperVals(c: PsiClass) = {
-    ScalaPsiUtil.synchronized {
-      get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
-    }
+    get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
   }
 
   def getSuperMethods(c: PsiClass) = {
-    ScalaPsiUtil.synchronized {
-      get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
-    }
+    get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
   }
 
   def getSuperTypes(c: PsiClass) = {
-   ScalaPsiUtil.synchronized {
-      get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
-    }
+    get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
   }
 
   private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {

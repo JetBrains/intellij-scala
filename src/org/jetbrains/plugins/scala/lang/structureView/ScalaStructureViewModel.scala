@@ -3,12 +3,8 @@ package lang
 package structureView
 
 import com.intellij.ide.structureView.impl.java.InheritedMembersFilter
-import com.intellij.ide.structureView.StructureViewTreeElement
-import com.intellij.ide.structureView.TextEditorBasedStructureViewModel
 import com.intellij.ide.util.treeView.smartTree._
-import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiElement
-import java.lang.String
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -18,30 +14,35 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import psi._
 import psi.api.ScalaFile
+import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 
 /**
 * @author Alexander.Podkhalyuz
 * Date: 04.05.2008
 */
 
-class ScalaStructureViewModel(private val myRootElement: ScalaFile) extends TextEditorBasedStructureViewModel(myRootElement) {
+class ScalaStructureViewModel(private val myRootElement: ScalaFile)
+  extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
+  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = false
+
+  def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = true
+
   @NotNull
-  def getRoot(): StructureViewTreeElement = {
-    return new ScalaFileStructureViewElement(myRootElement);
+  def getRoot: StructureViewTreeElement = {
+    new ScalaFileStructureViewElement(myRootElement);
   }
 
   @NotNull
-  override def getSorters(): Array[Sorter] = {
+  override def getSorters: Array[Sorter] = {
     val res = new Array[Sorter](1)
     res(0) = Sorter.ALPHA_SORTER
-    return res
+    res
   }
 
   @NotNull
-  override def getFilters(): Array[Filter] = {
-    return Array[Filter](new ScalaInheritedMembersFilter)
+  override def getFilters: Array[Filter] = {
+    Array[Filter](new ScalaInheritedMembersFilter)
   }
 
   override def isSuitable(element: PsiElement) = element match {

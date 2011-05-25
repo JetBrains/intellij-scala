@@ -7,7 +7,6 @@ package templates
 
 
 import _root_.scala.collection.mutable.ListBuffer
-import api.expr.ScNewTemplateDefinition
 import api.toplevel.{ScEarlyDefinitions}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
@@ -23,7 +22,9 @@ import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
 import collection.Seq
 import util.CommonClassesSearcher
 import api.base.types._
-import com.intellij.psi.util.PsiTreeUtil
+import caches.CachesUtil
+import api.expr.{ExpectedTypes, ScNewTemplateDefinition}
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -61,22 +62,10 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     case _ => None
   }
 
-  @volatile
-  private var superTypesCache: List[ScType] = null
-
-  @volatile
-  private var superTypesModCount: Long = 0L
-
   def superTypes: List[ScType] = {
-    var tp = superTypesCache
-    val curModCount = getManager.getModificationTracker.getJavaStructureModificationCount
-    if (tp != null && curModCount == superTypesModCount) {
-      return tp
-    }
-    tp = superTypesInner
-    superTypesCache = tp
-    superTypesModCount = curModCount
-    return tp
+    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY,
+      new CachesUtil.MyProvider(this, (expr: ScExtendsBlock) => superTypesInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def isScalaObject: Boolean = {

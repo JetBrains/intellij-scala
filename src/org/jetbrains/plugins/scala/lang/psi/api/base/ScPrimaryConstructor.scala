@@ -11,6 +11,8 @@ import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import psi.types._
 import impl.ScalaPsiElementFactory
 import toplevel.ScTypeParametersOwner
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
 * @author Alexander Podkhalyuzin
@@ -44,15 +46,9 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
-    var tp = effectiveParamClauses_
-    var curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && curModCount == effectiveParamClausesModCount) {
-      return tp
-    }
-    tp = effectiveParametersInner
-    effectiveParamClauses_ = tp
-    effectiveParamClausesModCount = curModCount
-    return tp
+    CachesUtil.get(this, CachesUtil.EFFECTIVE_PARAMETER_CLAUSE,
+      new CachesUtil.MyProvider(this, (p: ScPrimaryConstructor) => effectiveParametersInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   /**
@@ -70,11 +66,6 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
     }
     clausesWithInitialEmpty ++ syntheticParamClause
   }
-
-  @volatile
-  private var effectiveParamClauses_ : Seq[ScParameterClause] = null
-  @volatile
-  private var effectiveParamClausesModCount: Long = 0
 
   def effectiveFirstParameterSection: Seq[ScClassParameter] = effectiveParameterClauses.head.unsafeClassParameters
 

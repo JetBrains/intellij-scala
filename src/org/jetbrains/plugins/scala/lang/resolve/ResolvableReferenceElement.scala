@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.psi._
 import com.intellij.psi.PsiPolyVariantReference
 import com.intellij.openapi.progress.ProgressManager
@@ -17,14 +16,14 @@ trait ResolvableReferenceElement extends PsiPolyVariantReference {
   }
 
   def advancedResolve: Option[ScalaResolveResult] = {
-    bind match {
+    bind() match {
       case Some(result) if !result.isCyclicReference =>  Some(result)
       case _ => None
     }
   }
 
   def bind(): Option[ScalaResolveResult] = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     val results = multiResolve(false)
     if (results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
   }

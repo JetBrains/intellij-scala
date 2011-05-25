@@ -10,9 +10,12 @@ import impl.PsiManagerEx
 import scope.PsiScopeProcessor
 import java.lang.String
 import collection.Iterator
+import scope.PsiScopeProcessor.Event
 import toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.util.Key
+import collection.mutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,38 +27,46 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (!pack.processDeclarations(processor, state, lastParent, place)) return false
-    /*pack match {
-      case synth: ScSyntheticPackage =>
-      case _ =>
-        val synth = ScSyntheticPackage.get(getQualifiedName, getProject)
-        if (synth != null && !synth.processDeclarations(processor, state, lastParent, place)) return false
-    }*/
+    if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
+      val namesSet = new HashSet[String]
+
+      if (!pack.processDeclarations(new PsiScopeProcessor {
+        def execute(element: PsiElement, state: ResolveState): Boolean = {
+          element match {
+            case clazz: PsiClass => namesSet += clazz.getName
+            case _ =>
+          }
+          processor.execute(element, state)
+        }
+
+        def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
+
+        def handleEvent(event: Event, associated: AnyRef) {
+          processor.handleEvent(event, associated)
+        }
+      }, state, lastParent, place)) return false
+
+      //Process synthetic classes for scala._ package
+      /**
+       * Does the "scala" package already contain a class named `className`?
+       *
+       * @see http://youtrack.jetbrains.net/issue/SCL-2913
+       */
+      def alreadyContains(className: String) = namesSet.contains(className)
+
+      for (synth <- SyntheticClasses.get(getProject).getAll) {
+        if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
+      }
+      for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
+
+        // Assume that is the scala package contained a class with the same names as the synthetic object,
+        // then it must also contain the object.
+        if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
+      }
+    } else if (!pack.processDeclarations(processor, state, lastParent, place)) return false
 
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
-      //Process synthetic classes for scala._ package
-      if (pack.getQualifiedName == "scala") {
-        /**
-         * Does the "scala" package already contain a class named `className`?
-         *
-         * @see http://youtrack.jetbrains.net/issue/SCL-2913
-         */
-        def alreadyContains(className: String) = pack match {
-          case psiPackImpl: PsiPackageImpl => psiPackImpl.containsClassNamed(className)
-          case _ => false
-        }
-
-        for (synth <- SyntheticClasses.get(getProject).getAll) {
-          if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
-        }
-        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
-          // Assume that is the scala package contained a class with the same names as the synthetic object, then it must also contain the object.
-          // TODO Find a better way to directly check if the object already exists.
-          if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
-        }
-      }
-
       if (getQualifiedName == "scala") {
         val iterator: Iterator[PsiClass] = ImplicitlyImported.implicitlyImportedObjects(place.getManager,
           place.getResolveScope, "scala").iterator
@@ -71,7 +82,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
         }
       }
     }
-    return true
+    true
   }
 
   def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {

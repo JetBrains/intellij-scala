@@ -18,6 +18,8 @@ import lang.resolve._
 import processor.ExpandedExtractorResolveProcessor
 import statements.params.ScParameter
 import psi.util.CommonClassesSearcher
+import caches.CachesUtil
+import util.PsiModificationTracker
 
 /**
  * @author Alexander Podkhalyuzin
@@ -187,21 +189,10 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  @volatile
-  private var expectedTypeCache: Option[ScType] = null
-  @volatile
-  private var expectedTypeModCount: Long = 0L
-
   def expectedType: Option[ScType] = {
-    var tp = expectedTypeCache
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && curModCount == expectedTypeModCount) {
-      return tp
-    }
-    tp = innerExpectedType
-    expectedTypeModCount = curModCount
-    expectedTypeCache = tp
-    return tp
+    CachesUtil.get(this, CachesUtil.PATTERN_EXPECTED_TYPE,
+      new CachesUtil.MyProvider(this, (p: ScPattern) => innerExpectedType)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def innerExpectedType: Option[ScType] = getContext match {

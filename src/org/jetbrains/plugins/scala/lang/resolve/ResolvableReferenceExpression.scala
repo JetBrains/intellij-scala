@@ -23,6 +23,7 @@ import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
 import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
+import util.PsiModificationTracker
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -32,22 +33,11 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
   }
 
-  @volatile
-  private var shapeResolveResults: Array[ResolveResult] = null
-  @volatile
-  private var shapeResolveResultsModCount: Long = 0
-
   def shapeResolve: Array[ResolveResult] = {
-    ProgressManager.checkCanceled
-    var tp = shapeResolveResults
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && shapeResolveResultsModCount == curModCount) {
-      return tp
-    }
-    tp = shapeResolveInner
-    shapeResolveResults = tp
-    shapeResolveResultsModCount = curModCount
-    return tp
+    ProgressManager.checkCanceled()
+    CachesUtil.get(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => shapeResolveInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {
@@ -367,7 +357,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         case Some(a) => a
         case None => return
       }
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
     state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
     e.getClazzForType(t) match {

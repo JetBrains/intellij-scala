@@ -25,6 +25,8 @@ import statements.{ScTypeAliasDefinition, ScFunction}
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import java.lang.Integer
 import base.types.ScTypeElement
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -107,46 +109,27 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     if (!checkImplicits || isShape || expectedOption != None || ignoreBaseTypes)
       return inner //no cache with strange parameters
 
-    //caching
-    var tp = exprAfterImplicitType
-    var curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && curModCount == exprTypeAfterImplicitModCount) {
-      return tp
-    }
-    tp = inner
-    exprAfterImplicitType = tp
-    exprTypeAfterImplicitModCount = curModCount
-    tp
+    CachesUtil.get(this, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => inner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def getTypeWithoutImplicits(ctx: TypingContext, 
                               ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, ignoreBaseTypes = ignoreBaseTypes)
-    var tp = exprType
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && exprTypeModCount == curModCount) {
-      return tp
-    }
-    tp = valueType(ctx)
-    exprType = tp
-    exprTypeModCount = curModCount
-    tp
+    CachesUtil.get(this, CachesUtil.TYPE_WITHOUT_IMPLICITS,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => valueType(ctx))
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def getTypeWithoutImplicitsWithoutUnderscore(ctx: TypingContext, 
                                                ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, true, ignoreBaseTypes)
-    var tp = exprTypeWithoutUnderscore
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && exprTypeModCountWithoutUnderscore == curModCount) {
-      return tp
-    }
-    tp = valueType(ctx, true)
-    exprTypeWithoutUnderscore = tp
-    exprTypeModCountWithoutUnderscore = curModCount
-    tp
+    CachesUtil.get(this, CachesUtil.TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => valueType(ctx, true))
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
@@ -173,28 +156,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
   @volatile
   private var implicitParameters: Option[Seq[ScalaResolveResult]] = None
-  @volatile
-  private var exprType: TypeResult[ScType] = null
-  @volatile
-  private var exprTypeWithoutUnderscore: TypeResult[ScType] = null
-  @volatile
-  private var exprAfterImplicitType: ExpressionTypeResult = null
-  @volatile
-  private var expectedTypesCache: Array[(ScType, Option[ScTypeElement])] = null
-
-  @volatile
-  private var exprTypeModCount: Long = 0
-  @volatile
-  private var exprTypeModCountWithoutUnderscore: Long = 0
-  @volatile
-  private var expectedTypesModCount: Long = 0
-  @volatile
-  private var exprTypeAfterImplicitModCount: Long = 0
-
-  @volatile
-  private var nonValueType: TypeResult[ScType] = null
-  @volatile
-  private var nonValueTypeModCount: Long = 0
 
   private def typeWithUnderscore(ctx: TypingContext, ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     getText.indexOf("_") match {
@@ -217,11 +178,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
 
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()
-    val ip = implicitParameters
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (ip != null && exprTypeModCount == curModCount) {
-      return ip
-    }
     getType(TypingContext.empty) //to update implicitParameters field
     implicitParameters
   }
@@ -468,15 +424,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def getNonValueType(ctx: TypingContext, ignoreBaseType: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseType) return typeWithUnderscore(ctx, ignoreBaseType)
-    var tp = nonValueType
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && nonValueTypeModCount == curModCount) {
-      return tp
-    }
-    tp = typeWithUnderscore(ctx)
-    nonValueType = tp
-    nonValueTypeModCount = curModCount
-    tp
+    CachesUtil.get(this, CachesUtil.NON_VALUE_TYPE_KEY,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => typeWithUnderscore(ctx))
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
@@ -528,20 +478,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def expectedTypes: Array[ScType] = expectedTypesEx.map(_._1)
   
   def expectedTypesEx: Array[(ScType, Option[ScTypeElement])] = {
-    var tp = expectedTypesCache
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && expectedTypesModCount == curModCount) {
-      return tp
-    }
-    tp = ExpectedTypes.expectedExprTypes(this)
-    expectedTypesCache = tp
-    expectedTypesModCount = curModCount
-    tp
-  }
-
-  private[expr] def setExpectedTypes(tps: Array[(ScType, Option[ScTypeElement])]) {
-    expectedTypesCache = tps
-    expectedTypesModCount = getManager.getModificationTracker.getModificationCount
+    CachesUtil.get(this, CachesUtil.EXPECTED_TYPES_KEY,
+      new CachesUtil.MyProvider(this, (expr: ScExpression) => ExpectedTypes.expectedExprTypes(this))
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {
