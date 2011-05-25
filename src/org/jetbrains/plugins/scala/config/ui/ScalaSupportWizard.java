@@ -176,7 +176,7 @@ public class ScalaSupportWizard {
     }
     
     if(!distribution.hasDocs()) {
-      labelState.setText("(version " + version + ", no /docs/scala-devel-docs/api)");
+      labelState.setText("(version " + version + ", no /doc/scala-devel-docs/api)");
       labelState.setIcon(Icons.WARNING);
     } else {    
       labelState.setText("(version " + version + ")");
