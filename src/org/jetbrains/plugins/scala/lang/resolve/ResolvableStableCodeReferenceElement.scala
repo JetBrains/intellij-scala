@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
-import com.intellij.psi.util.PsiTreeUtil
 import processor.BaseProcessor
 import psi.api.base._
 import psi.api.expr._
@@ -19,6 +18,8 @@ import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
+import caches.CachesUtil
+import util.{PsiModificationTracker, PsiTreeUtil}
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false)
@@ -84,6 +85,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     _qualifier() match {
       case None => {
         def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+          ProgressManager.checkCanceled()
           place match {
             case null =>
             case p => {
@@ -139,44 +141,22 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
-  @volatile
-  private var shapeResolveResults: Array[ResolveResult] = null
-  @volatile
-  private var shapeResolveResultsModCount: Long = 0
-
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    var tp = shapeResolveResults
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && shapeResolveResultsModCount == curModCount) {
-      return tp
-    }
-    tp = shapeResolveInner
-    shapeResolveResults = tp
-    shapeResolveResultsModCount = curModCount
-    return tp
+    CachesUtil.get(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {
     ShapesResolver.resolve(this, false)
   }
 
-  @volatile
-  private var shapeResolveResultsConstr: Array[ResolveResult] = null
-  @volatile
-  private var shapeResolveResultsConstrModCount: Long = 0
-
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    var tp = shapeResolveResultsConstr
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && shapeResolveResultsConstrModCount == curModCount) {
-      return tp
-    }
-    tp = shapeResolveConstrInner
-    shapeResolveResultsConstr = tp
-    shapeResolveResultsConstrModCount = curModCount
-    return tp
+    CachesUtil.get(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveConstrInner)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def shapeResolveConstrInner: Array[ResolveResult] = {

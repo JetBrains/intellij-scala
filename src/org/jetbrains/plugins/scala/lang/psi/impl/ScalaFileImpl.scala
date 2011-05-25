@@ -24,7 +24,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.base.ScStableCodeReferenceElement
-import com.intellij.psi.util.PsiTreeUtil
 import scope.PsiScopeProcessor
 import lang.resolve.processor.{ResolveProcessor, ResolverEnv}
 import com.intellij.openapi.editor.Document
@@ -37,6 +36,8 @@ import reflect.NameTransformer
 import org.jetbrains.plugins.scala.extensions._
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
+import caches.CachesUtil
+import util.{PsiModificationTracker, PsiTreeUtil}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -152,12 +153,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     }
   }
 
-
-  @volatile
-  private var isScriptFileCache: Option[Boolean] = None
-  @volatile
-  private var isScriptFileCacheModCount: Long = 0
-
   private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
@@ -180,16 +175,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   def isScriptFile(withCashing: Boolean): Boolean = {
     if (!withCashing) return isScriptFileImpl
-    //todo: modCount only for changed file?
-    var option = isScriptFileCache
-    val curModCount = getManager.getModificationTracker.getJavaStructureModificationCount
-    if (option != None && isScriptFileCacheModCount == curModCount) {
-      return option.get
-    }
-    option = Some(isScriptFileImpl)
-    isScriptFileCache = option
-    isScriptFileCacheModCount = curModCount
-    option.get
+    CachesUtil.get(this, CachesUtil.IS_SCRIPT_FILE_KEY,
+      new CachesUtil.MyProvider(this, (file: ScalaFile) => isScriptFileImpl)(this))
   }
 
   /**

@@ -57,6 +57,10 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def injectUsingAnnotation(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
+    Configuration.getInstance().getDfaOption match {
+      case Configuration.DfaOption.OFF => return false
+      case _ =>
+    }
     val expression = host.asInstanceOf[ScExpression]
     // TODO implicit conversion checking (SCL-2599), disabled (performance reasons)
     val annotationOwner = annotationOwnerFor(expression) //.orElse(implicitAnnotationOwnerFor(literal))
@@ -89,7 +93,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
       var done = false
 
       while(!done && injections.hasNext) {
-        val injection = injections.next
+        val injection = injections.next()
 
         if(injection.acceptsPsiElement(host)) {
           val language = InjectedLanguage.findLanguageById(injection.getInjectedLanguageId)
@@ -126,7 +130,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     val l = assignment.getLExpression
     // map(x) = y check
     if (l.isInstanceOf[ScMethodCall]) None else l.asOptionOf[ScReferenceElement]
-            .flatMap(_.resolve.toOption)
+            .flatMap(_.resolve().toOption)
             .map(contextOf)
             .flatMap(_.asOptionOf[PsiAnnotationOwner])
     }
@@ -138,7 +142,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
         args.getParent match {
           case call: ScMethodCall => {
             call.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression].flatMap { ref =>
-              ref.resolve.toOption match {
+              ref.resolve().toOption match {
                 case Some(f: ScFunction) => {
                   val parameters = f.parameters
                   if(parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))

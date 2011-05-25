@@ -22,7 +22,7 @@ import api.ScalaElementVisitor
 */
 
 class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScForStatement {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -37,8 +37,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   // Binding patterns in reverse order
   def patterns: Seq[ScPattern] = enumerators match {
-    case None => return Seq.empty
-    case Some(x) => return x.namings.reverse.map(_.pattern)
+    case None => Seq.empty
+    case Some(x) => x.namings.reverse.map(_.pattern)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -175,7 +175,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case _ =>
       }
     }
-    Some(exprText.toString)
+    Some(exprText.toString())
   }
 
   @volatile
@@ -233,9 +233,9 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     val failure = Failure("Cannot create expression", Some(this))
     getDesugarisedExpr match {
       case Some(newExpr) => {
-          return newExpr.getNonValueType(ctx)
+          newExpr.getNonValueType(ctx)
       }
-      case None => return failure
+      case None => failure
     }
   }
 }

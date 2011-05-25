@@ -25,6 +25,8 @@ import lexer.ScalaTokenTypes
 import base.ScMethodLike
 import collection.immutable.Set
 import java.lang.String
+import caches.CachesUtil
+import util.PsiModificationTracker
 
 /**
  * @author Alexander Podkhalyuzin
@@ -210,21 +212,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
-    var tp = effectiveParamClauses_
-    var curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && curModCount == effectiveParamClausesModCount) {
-      return tp
-    }
-    tp = paramClauses.clauses ++ syntheticParamClause
-    effectiveParamClauses_ = tp
-    effectiveParamClausesModCount = curModCount
-    return tp
+    CachesUtil.get(this, CachesUtil.FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY,
+      new CachesUtil.MyProvider(this, (f: ScFunction) => paramClauses.clauses ++ syntheticParamClause)
+      (PsiModificationTracker.MODIFICATION_COUNT))
   }
-
-  @volatile
-  private var effectiveParamClauses_ : Seq[ScParameterClause] = null
-  @volatile
-  private var effectiveParamClausesModCount: Long = 0
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))

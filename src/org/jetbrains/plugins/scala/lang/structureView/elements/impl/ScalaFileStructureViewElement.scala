@@ -5,14 +5,11 @@ package elements
 package impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
-import psi._
 import psi.api.ScalaFile
 import com.intellij.navigation.ItemPresentation
 import psi.api.statements.{ScFunction, ScValue, ScTypeAlias, ScVariable};
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import com.intellij.psi._
-
 import _root_.scala.collection.mutable._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 
@@ -22,11 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 */
 
 class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewElement(file, false) {
-  def getPresentation(): ItemPresentation = {
-    return new ScalaFileItemPresentation(file);
+  def getPresentation: ItemPresentation = {
+    new ScalaFileItemPresentation(file);
   }
 
-  def getChildren(): Array[TreeElement] = {
+  def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[ScalaStructureViewElement]
     /*for (td <- file.immediateTypeDefinitions) {
       children += new ScalaTypeDefinitionStructureViewElement(td)
@@ -48,7 +45,7 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
             for (p <- pack.packagings) {
               children ++= getChildren(p)
             }
-            return children.toArray
+            children.toArray
           }
           children ++= getChildren(packaging)
         }
@@ -69,6 +66,6 @@ class ScalaFileStructureViewElement(file: ScalaFile) extends ScalaStructureViewE
         case _ =>
       }
     }
-    return children.toArray
+    children.toArray
   }
 }

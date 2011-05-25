@@ -14,6 +14,8 @@ import synthetic.ScSyntheticClass
 import caches.CachesUtil
 import api.toplevel.typedef.{ScTrait, ScObject, ScTypeDefinition, ScTemplateDefinition}
 import com.intellij.psi.{PsiClassType, PsiElement, PsiClass}
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi.util.PsiModificationTracker
 
 abstract class MixinNodes {
   type T
@@ -222,15 +224,10 @@ object MixinNodes {
       case _ =>
     }
 
-    val data = clazz.getUserData(CachesUtil.LINEARIZATION_KEY)
-    val currModCount = clazz.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (data != null && currModCount == data._2) {
-      return data._1
-    }
     if (visited.contains(clazz)) return Seq.empty
-    val linearizationResult = linearizationInner(clazz, visited + clazz)
-    clazz.putUserData(CachesUtil.LINEARIZATION_KEY, (linearizationResult, currModCount))
-    return linearizationResult
+    CachesUtil.get(clazz, CachesUtil.LINEARIZATION_KEY,
+      new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz))
+      (PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT))
   }
 
   def linearization(compound: ScCompoundType): Seq[ScType] = {
@@ -280,6 +277,7 @@ object MixinNodes {
   }
 
   def linearizationInner(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
+    ProgressManager.checkCanceled()
     val tp = {
       if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
       else ScParameterizedType(ScType.designator(clazz), clazz.
