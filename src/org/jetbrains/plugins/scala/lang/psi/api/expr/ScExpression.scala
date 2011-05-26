@@ -165,7 +165,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         if (unders.length == 0) innerType(ctx)
         else {
           val params = unders.map {u => 
-            Parameter("", u.getTypeWithoutImplicits(ctx, ignoreBaseTypes).getOrElse(Any), false, false, false)
+            Parameter("", u.getNonValueType(ctx, ignoreBaseTypes).getOrElse(Any).inferValueType, false, false, false)
           }
           val methType = 
             new ScMethodType(getTypeWithoutImplicitsWithoutUnderscore(ctx, ignoreBaseTypes).getOrElse(Any), 

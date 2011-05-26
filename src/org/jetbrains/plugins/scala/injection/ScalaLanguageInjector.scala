@@ -13,8 +13,8 @@ import org.intellij.plugins.intelliLang.inject.InjectorUtils
 import lang.psi.api.expr._
 import lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScVariableDefinition}
 import com.intellij.psi._
-import lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import lang.psi.api.base.{ScPatternList, ScReferenceElement, ScLiteral}
+import lang.psi.api.base.patterns.ScReferencePattern
+import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.extensions._
 
