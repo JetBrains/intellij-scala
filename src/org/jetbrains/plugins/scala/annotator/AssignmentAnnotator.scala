@@ -14,8 +14,9 @@ import lang.psi.api.base.patterns.ScCaseClause
 import lang.psi.api.expr._
 import codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import lang.psi.ScalaPsiUtil
-import com.intellij.psi.{PsiNamedElement, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import collection.Iterable
+import com.intellij.psi.{ResolveResult, PsiNamedElement, PsiElement}
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -24,20 +25,20 @@ import org.jetbrains.plugins.scala.extensions._
 trait AssignmentAnnotator {
 
   def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
-    if (assignment.getContext.isInstanceOf[ScArgumentExprList]) return // named argument
-    
     val l = assignment.getLExpression
     val r = assignment.getRExpression
 
     if (l.isInstanceOf[ScMethodCall]) return // map(x) = y
 
-    val ref: Option[PsiElement] = l.asOptionOf[ScReferenceElement].flatMap(_.resolve.toOption)
+    val ref: Option[PsiElement] = l.asOptionOf[ScReferenceElement].flatMap(_.resolve().toOption)
+    val results: Iterable[ScalaResolveResult] =
+      l.asOptionOf[ScReferenceElement].toSeq.flatMap(_.multiResolve(false)).flatMap(_.asOptionOf[ScalaResolveResult])
+    val namedParam = results.find(_.isNamedParameter) != None
+    if (namedParam) return
     val reassignment = ref.find(ScalaPsiUtil.isReadonly).isDefined
 
     for {
-      lref <- l.asOptionOf[ScReferenceElement].toList
-      result <- lref.multiResolve(false)
-      sresult <- result.asOptionOf[ScalaResolveResult].toList
+      sresult <- results
       if sresult.isSetterFunction
     } {
       val problems = sresult.problems

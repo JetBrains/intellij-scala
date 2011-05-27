@@ -26,7 +26,20 @@ trait ScAssignStmt extends ScExpression {
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitAssignmentStatement(this)
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitAssignmentStatement(this)
+  }
+
+  def isNamedParameter: Boolean = {
+    getLExpression match {
+      case expr: ScReferenceExpression =>
+        expr.bind() match {
+          case Some(r) if r.isNamedParameter => true
+          case _ => false
+        }
+      case _ => false
+    }
+  }
 }
 
 object NamedAssignStmt {

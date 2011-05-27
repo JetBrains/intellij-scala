@@ -59,7 +59,7 @@ class ScalaCompletionContributor extends CompletionContributor {
                   case clazz: PsiClass => {
                     val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
                       def compute: Boolean = {
-                        return JavaCompletionUtil.isInExcludedPackage(clazz)
+                        JavaCompletionUtil.isInExcludedPackage(clazz)
                       }
                     }).booleanValue
 
@@ -129,7 +129,6 @@ class ScalaCompletionContributor extends CompletionContributor {
   }
 
   override def beforeCompletion(context: CompletionInitializationContext) {
-    val rulezzz = CompletionInitializationContext.DUMMY_IDENTIFIER
     val offset = context.getStartOffset - 1
     val file = context.getFile
     val element = file.findElementAt(offset);

@@ -107,7 +107,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       val classes: Array[PsiClass] = getContainingFile.getNavigationElement.asInstanceOf[PsiClassOwner].getClasses
       val classesIterator = classes.iterator
       while (classesIterator.hasNext) {
-        val c = classesIterator.next
+        val c = classesIterator.next()
         if (name == c.getName && hasSameScalaKind(c)) return c
       }
     } else {
@@ -254,21 +254,21 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       case Some(td: ScTemplateDefinition) => buffer ++= methods(td) //to see from Java methods from companion modules.
       case _ =>
     }
-    return buffer.toArray
+    buffer.toArray
   }
 
   override def getAllMethods: Array[PsiMethod] = {
     val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
     val methodsIterator = TypeDefinitionMembers.getMethods(this).iterator
     while (methodsIterator.hasNext) {
-      val method = methodsIterator.next._1.method
+      val method = methodsIterator.next()._1.method
           buffer += method
       }
 
     buffer ++= syntheticMembers
     val valsIterator = TypeDefinitionMembers.getVals(this).iterator
     while (valsIterator.hasNext) {
-      val t = valsIterator.next._1
+      val t = valsIterator.next()._1
       t match {
         case t: ScTypedDefinition => {
           val context = ScalaPsiUtil.nameContext(t)
@@ -291,7 +291,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       }
     }
     //todo: methods from companion module?
-    return buffer.toArray
+    buffer.toArray
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =

@@ -48,7 +48,7 @@ trait ScArgumentExprList extends ScArguments {
   /**
    * Reference from which started to invoke method calls.
    */
-  def callReference: Option[ScReferenceElement]
+  def callReference: Option[ScReferenceExpression]
 
   /**
    * Expression from which we try to invoke call, or apply method.

@@ -69,7 +69,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     processor.candidates
   }
 
-  private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) = {
+  private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
     ref.getContext match {
       case inf: ScInfixExpr if ref == inf.operation => {
         val thisOp = if (ref.rightAssoc) inf.rOp else inf.lOp
@@ -81,7 +81,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
   }
 
-  private def resolveUnqualifiedExpression(ref: ResolvableReferenceExpression, processor: BaseProcessor) = {
+  private def resolveUnqualifiedExpression(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
       place match {
         case null =>
@@ -115,16 +115,49 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     assign.getContext match { //trying to resolve naming parameter
       case args: ScArgumentExprList => {
         args.callReference match {
-          case Some(callReference) => processCallReference(args, callReference, ref, assign, processor)
+          case Some(callReference) =>
+            processAnyAssignment(args.exprs, callReference, args.invocationCount, ref, assign, processor)
           case None => processConstructorReference(args, ref, assign, processor)
         }
+      }
+      case tuple: ScTuple => tuple.getContext match {
+        case inf: ScInfixExpr if inf.getArgExpr == tuple =>
+          processAnyAssignment(tuple.exprs, inf.operation, 0, ref, assign, processor)
+        case _ =>
+      }
+      case p: ScParenthesisedExpr => p.getContext match {
+        case inf: ScInfixExpr if inf.getArgExpr == p =>
+          processAnyAssignment(p.expr.toSeq, inf.operation, 0, ref, assign, processor)
+        case _ =>
       }
       case _ =>
     }
   }
 
+  def processAnyAssignment(exprs: Seq[ScExpression], callReference: ScReferenceExpression, invocationCount: Int,
+                             ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
+    for (variant <- callReference.multiResolve(false)) {
+      variant match {
+        case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
+          if (!processor.isInstanceOf[CompletionProcessor])
+            fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
+              case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                      put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
+              case None =>
+            }
+          else {
+            //for completion only!
+            funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
+          }
+        }
+        case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => //todo: ?
+        case _ =>
+      }
+    }
+  }
+
   private def processConstructorReference(args: ScArgumentExprList, ref: ResolvableReferenceExpression,
-                                          assign: PsiElement, baseProcessor: BaseProcessor): Unit = {
+                                          assign: PsiElement, baseProcessor: BaseProcessor) {
     args.getContext match {
       case constr: ScConstructor => {
         val te: ScTypeElement = constr.typeElement
@@ -196,7 +229,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                     }
                   else {
                     //for completion only!
-                    funCollectNamedCompletions(fun.paramClauses, args, assign, baseProcessor, subst)
+                    funCollectNamedCompletions(fun.paramClauses, assign, baseProcessor, subst, args.exprs, args.invocationCount)
                   }
                 }
                 case ScalaResolveResult(constructor: ScPrimaryConstructor, _) => {
@@ -207,7 +240,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                     }
                   else {
                     //for completion only!
-                    funCollectNamedCompletions(constructor.parameterList, args, assign, baseProcessor, subst)
+                    funCollectNamedCompletions(constructor.parameterList, assign, baseProcessor, subst, args.exprs, args.invocationCount)
                   }
                 }
                 case _ =>
@@ -221,14 +254,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
   }
 
-  private def funCollectNamedCompletions(clauses: ScParameters, args: ScArgumentExprList, assign: PsiElement,
-                                         processor: BaseProcessor, subst: ScSubstitutor): Unit = {
-    if (clauses.clauses.length >= args.invocationCount) {
-      val actualClause = clauses.clauses(args.invocationCount - 1)
+  private def funCollectNamedCompletions(clauses: ScParameters, assign: PsiElement, processor: BaseProcessor,
+                                         subst: ScSubstitutor, exprs: Seq[ScExpression], invocationCount: Int) {
+    if (clauses.clauses.length >= invocationCount) {
+      val actualClause = clauses.clauses(invocationCount - 1)
       val params = new ArrayBuffer[ScParameter] ++ actualClause.parameters
-      val exprs = args.exprs
       var i = 0
-      def tail: Unit = if (!params.isEmpty) params.remove(0)
+      def tail() {
+        if (!params.isEmpty) params.remove(0)
+      }
       while (exprs(i) != assign) {
         exprs(i) match {
           case assignStmt: ScAssignStmt => {
@@ -236,12 +270,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
               case ref: ScReferenceExpression => {
                 val ind = params.indexWhere(_.name == ref.refName)
                 if (ind != -1) params.remove(ind)
-                else tail
+                else tail()
               }
-              case _ => tail
+              case _ => tail()
             }
           }
-          case _ => tail
+          case _ => tail()
         }
         i = i + 1
       }
@@ -252,40 +286,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
   }
 
-  private def processCallReference(args: ScArgumentExprList, callReference: ScReferenceElement,
-          ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) = {
-    for (variant <- callReference.multiResolve(false)) {
-      variant match {
-        case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
-          if (!processor.isInstanceOf[CompletionProcessor])
-            fun.getParamByName(ref.refName, args.invocationCount - 1) match {
-              case Some(param) => processor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
-                      put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
-              case None =>
-            }
-          else {
-            //for completion only!
-            funCollectNamedCompletions(fun.paramClauses, args, assign, processor, subst)
-          }
-        }
-        case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => {
-          if (!processor.isInstanceOf[CompletionProcessor]) {
-            val clausePosition = args.invocationCount - 1
-            val paramByName = clausePosition match {
-              case 1 => fun.params.find(p => p.name == ref.refName)
-              case _ => None
-            }
-          } else {
-            //todo:
-          }
-        }
-        case _ =>
-      }
-    }
-  }
-
   private def processTypes(e: ScExpression, processor: BaseProcessor) {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     val result = e.getType(TypingContext.empty)
     if (result.isDefined) {
       processType(result.get, e, processor)
@@ -299,7 +301,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
 
     val fromType = e match {
-      case ref: ScReferenceExpression => ref.bind match {
+      case ref: ScReferenceExpression => ref.bind() match {
         case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, b, ScSubstitutor.empty)
@@ -324,7 +326,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {
         case rp: ResolveProcessor =>
-          rp.resetPrecedence //do not clear candidate set, we want wrong resolve, if don't found anything
+          rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
         case _ =>
       }
       collectImplicits(e, processor)
@@ -335,7 +337,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     processor match {
       case _: CompletionProcessor => {
         for ((t, fun, importsUsed) <- e.implicitMap()) {
-          ProgressManager.checkCanceled
+          ProgressManager.checkCanceled()
           var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
           state = state.put(CachesUtil.IMPLICIT_FUNCTION, fun).put(CachesUtil.IMPLICIT_TYPE, t)
           e.getClazzForType(t) match {

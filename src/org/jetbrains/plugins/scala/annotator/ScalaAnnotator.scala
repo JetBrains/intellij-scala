@@ -200,7 +200,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     def getFix: Seq[IntentionAction] = {
       val classes = ScalaImportClassFix.getClasses(refElement, refElement.getProject)
       if (classes.length == 0) return Seq.empty
-      return Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
+      Seq[IntentionAction](new ScalaImportClassFix(classes, refElement))
     }
 
     val resolve: Array[ResolveResult] = refElement.multiResolve(false)
@@ -468,7 +468,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           } else false
         def isConcretes: Boolean = {
           for (signature <- signatures if isConcrete(signature)) return true
-          return false
+          false
         }
         if (isConcretes) {
           val annotation: Annotation = holder.createErrorAnnotation(method.nameId.getTextRange,
@@ -505,8 +505,19 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case fun: ScFunctionExpr =>
       case tr: ScTryStmt =>
       case _ => {
-        if (expr.getParent.isInstanceOf[ScArgumentExprList]) return
-        val tp = expr.expectedTypeEx match {
+        expr.getParent match {
+          case args: ScArgumentExprList => return
+          case inf: ScInfixExpr if inf.getArgExpr == expr => return
+          case parent@(_: ScTuple | _: ScParenthesisedExpr) =>
+            parent.getParent match {
+              case inf: ScInfixExpr if inf.getArgExpr == parent => return
+              case _ =>
+            }
+          case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
+          case _ =>
+        }
+
+        expr.expectedTypeEx match {
           case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
           case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
@@ -515,13 +526,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             if (settings(expr).SHOW_IMPLICIT_CONVERSIONS) {
               implicitFunction match {
                 case Some(fun) => {
-                  val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
+                  //todo:
+                  /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
                   val typeTo = exprType.getOrElse(Any)
                   val exprText = expr.getText
                   val range = expr.getTextRange
-                  //todo:
-                  //showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
-                  // EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)
+                  showImplicitUsageAnnotation(exprText, typeFrom, typeTo, fun, range, holder,
+                    EffectType.LINE_UNDERSCORE, Color.LIGHT_GRAY)*/
                 }
                 case None => //do nothing
               }
@@ -628,6 +639,6 @@ object ScalaAnnotator {
         return false
       } else return true
     }
-    return true
+    true
   }
 }

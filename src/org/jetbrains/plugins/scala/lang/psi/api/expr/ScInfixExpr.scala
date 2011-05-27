@@ -6,12 +6,13 @@ package expr
 
 import types.ScType
 import parser.util.ParserUtils
+import com.intellij.psi.PsiElement
 
 /**
 * @author Alexander Podkhalyuzin
 */
 
-trait ScInfixExpr extends ScExpression with MethodInvocation {
+trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExpr {
   def lOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0)
 
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1) match {
@@ -39,4 +40,6 @@ trait ScInfixExpr extends ScExpression with MethodInvocation {
   def getInvokedExpr: ScExpression = operation
 
   def argumentExpressions: Seq[ScExpression] = Seq(getArgExpr)
+
+  def argsElement: PsiElement = getArgExpr
 }

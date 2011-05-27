@@ -11,7 +11,6 @@ import lang.psi.api.statements.{ScVariable, ScValue, ScAnnotationsHolder}
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.fake.FakePsiMethod
 import lang.psi.types.nonvalue.Parameter
-import lang.psi.types.nonvalue.Parameter._
 import lang.psi.types.result.TypingContext
 import com.intellij.openapi.util.text.StringUtil
 import lang.psi.types.{Any, ScType, Unit}

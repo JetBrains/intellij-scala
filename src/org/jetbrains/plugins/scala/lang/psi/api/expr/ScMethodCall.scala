@@ -4,11 +4,10 @@ package psi
 package api
 package expr
 
-import statements.params.ScArguments
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import types.result.TypeResult
 import types.{ScType, ApplicabilityProblem}
 import types.nonvalue.Parameter
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -25,33 +24,16 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
     }
   }
 
-  def getInvokedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
-
-  /** Like getInvokedExpr, but it unwraps ScParenthesisedExpr. See SCL-2763 */
-  def getEffectiveInvokedExpr: ScExpression = {
-    findChildByClassScala(classOf[ScExpression]) match {
-      case x: ScParenthesisedExpr => x.expr.getOrElse(x)
-      case x => x
-    }
-  }
-
   def args: ScArgumentExprList = findChildByClassScala(classOf[ScArgumentExprList])
 
-  def argumentExpressions : Seq[ScExpression] = if (args != null) args.exprs else Nil
-
-  def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = {
-    updateExpression match {
-      case Some(expr) => argumentExpressions ++ Seq(expr)
-      case _ => argumentExpressions
-    }
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitMethodCallExpression(this)
   }
-
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitMethodCallExpression(this)
 
   def isUpdateCall: Boolean = getContext.isInstanceOf[ScAssignStmt] &&
                       getContext.asInstanceOf[ScAssignStmt].getLExpression == this
 
-  def updateExpression: Option[ScExpression] = {
+  def updateExpression(): Option[ScExpression] = {
     getContext match {
       case a: ScAssignStmt if a.getLExpression == this => a.getRExpression
       case _ => None
@@ -69,4 +51,6 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
    * For exmample:
    */
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType]): TypeResult[ScType]
+
+  def argsElement: PsiElement = args
 }

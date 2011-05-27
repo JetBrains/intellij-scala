@@ -6,21 +6,17 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import processor.{MostSpecificUtil, BaseProcessor}
 import result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import collection.mutable.ArrayBuffer
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypedDefinition, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScBindingPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTemplateDefinition}
-import collection.immutable.{HashSet, ::}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import collection.immutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-
 class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
   def collect: Seq[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor
@@ -41,7 +37,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       obj.processDeclarations(processor, ResolveState.initial, null, place)
     }
 
-    return processor.candidatesS.toSeq
+    processor.candidatesS.toSeq
   }
 
   class ImplicitParametersProcessor extends BaseProcessor(StdKinds.methodRef) {
@@ -53,12 +49,14 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         case patt: ScBindingPattern => {
           val memb = ScalaPsiUtil.getContextOfType(patt, true, classOf[ScValue], classOf[ScVariable])
           memb match {
-            case memb: ScMember if memb.hasModifierProperty("implicit") => candidatesSet += new ScalaResolveResult(named, subst, getImports(state))
+            case memb: ScMember if memb.hasModifierProperty("implicit") =>
+              candidatesSet += new ScalaResolveResult(named, subst, getImports(state))
             case _ =>
           }
         }
         case function: ScFunction if function.hasModifierProperty("implicit") => {
-          candidatesSet += new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state))
+          candidatesSet +=
+            new ScalaResolveResult(named, subst.followed(inferMethodTypesArgs(function, subst)), getImports(state))
         }
         case _ =>
       }
@@ -67,19 +65,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
       def forFilter(c: ScalaResolveResult): Boolean = {
-        val subst = c.substitutor
-        val currentThread = Thread.currentThread
-        var userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
-        var searches: List[ScType] = if (userData == null) null else userData.getOrElse(currentThread, null)
-        if (searches != null && searches.find(_.equiv(tp)) == None)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
-                  +(currentThread -> (tp :: searches)))
-        else if (searches == null && userData != null)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.+(currentThread -> List(tp)))
-        else if (searches == null && userData == null)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, Map(currentThread -> List(tp)))
-        else return false
-        try {
+        def compute(): Boolean = {
+          val subst = c.substitutor
           c.element match {
             case patt: ScBindingPattern
               if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false)=> {
@@ -92,7 +79,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
               val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
               fun.getType(TypingContext.empty) match {
                 case Success(funType: ScType, _) => {
-                  if (subst.subst(funType) conforms tp) return true
+                  if (subst.subst(funType) conforms tp) true
                   else {
                     subst.subst(funType) match {
                       case ScFunctionType(ret, params) if params.length == 0 || oneImplicit => ret conforms tp
@@ -106,27 +93,18 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
             case _ => false
           }
         }
-        finally {
-          userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
-          searches = userData.getOrElse(currentThread, null)
-          if (searches != null && searches.length > 0)
-            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
-                    +(currentThread -> searches.tail))
-          else {} //do nothing
+
+        import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
+
+        doComputations(c.element, (tp: ScType, searches: List[ScType]) => searches.find(_.equiv(tp)) == None,
+          tp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+          case Some(res) => res
+          case None => false
         }
       }
       def forMap(c: ScalaResolveResult): ScalaResolveResult = {
-        val subst = c.substitutor
-        val currentThread = Thread.currentThread
-        var userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
-        var searches: List[ScType] = if (userData == null) null else userData.getOrElse(currentThread, null)
-        if (searches != null && searches.find(_.equiv(tp)) == None)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
-                  +(currentThread -> (tp :: searches)))
-        else if (searches == null)
-          c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, Map(currentThread -> List(tp)))
-        else {}
-        try {
+        def compute(): ScalaResolveResult = {
+          val subst = c.substitutor
           c.element match {
             case fun: ScFunction if fun.typeParameters.length > 0 => {
               val funType = fun.getType(TypingContext.empty).get
@@ -134,7 +112,8 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
                 if (subst.subst(funType) conforms tp) Conformance.undefinedSubst(tp, subst.subst(funType))
                 else {
                   subst.subst(funType) match {
-                    case ScFunctionType(ret, params) => Conformance.undefinedSubst(tp, ret) //todo: check is implicit first parameter clause
+                    case ScFunctionType(ret, params) =>
+                      Conformance.undefinedSubst(tp, ret) //todo: check is implicit first parameter clause
                   }
                 }
               }
@@ -146,18 +125,17 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
             case _ => c
           }
         }
-        finally {
-          userData = c.element.getUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY)
-          searches = userData.getOrElse(currentThread, null)
-          if (searches != null && searches.length > 0)
-            c.element.putUserData(CachesUtil.IMPLICIT_PARAM_TYPES_KEY, userData.-(currentThread).
-                    +(currentThread -> searches.tail))
-          else {} //do nothing
+
+        import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
+
+        (doComputations(c.element, (tp: ScType, searches: List[ScType]) => true,
+          tp, compute() , IMPLICIT_PARAM_TYPES_KEY): @unchecked) match {
+          case Some(res) => res
         }
       }
       val applicable = candidatesSet.filter(forFilter(_)).map(forMap(_))
       new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
-        case Some(r) => return HashSet(r)
+        case Some(r) => HashSet(r)
         case _ => applicable
       }
     }
@@ -173,4 +151,3 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     }
   }
 }
-

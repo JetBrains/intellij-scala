@@ -48,8 +48,8 @@ trait ScFun extends ScTypeParametersOwner {
   }
 
   def polymorphicType: ScType = {
-    if (typeParameters.length == 0) return methodType
-    else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
+    if (typeParameters.length == 0) methodType
+    else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
   }
 }
@@ -114,9 +114,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasParameterClause: Boolean = {
     if (effectiveParameterClauses.length != 0) return true
     superMethod match {
-      case Some(fun: ScFunction) => return fun.hasParameterClause
-      case Some(psi: PsiMethod) => return true
-      case None => return false
+      case Some(fun: ScFunction) => fun.hasParameterClause
+      case Some(psi: PsiMethod) => true
+      case None => false
     }
   }
 
@@ -127,7 +127,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
-      case _ if !hasAssign => return Success(Unit, Some(this))
+      case _ if !hasAssign => Success(Unit, Some(this))
       case _ => {
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
@@ -163,8 +163,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def polymorphicType: ScType = polymorphicType(None)
   def polymorphicType(result: Option[ScType]): ScType = {
-    if (typeParameters.length == 0) return methodType(result)
-    else return ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
+    if (typeParameters.length == 0) methodType(result)
+    else ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
   }
 
@@ -239,18 +239,23 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def hasParamName(name: String, clausePosition: Int = -1): Boolean = getParamByName(name, clausePosition) != None
 
+  /**
+   * Seek parameter with appropriate name in appropriate parameter clause.
+   * @param parameter name
+   * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
+   */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 => {
         for (param <- parameters if param.name == name) return Some(param)
-        return None
+        None
       }
-      case i if i < 0 => return None
-      case i if i >= effectiveParameterClauses.length => return None
+      case i if i < 0 => None
+      case i if i >= effectiveParameterClauses.length => None
       case i => {
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
-        return None
+        None
       }
     }
   }
@@ -260,7 +265,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def hasAssign: Boolean
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitFunction(this)
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitFunction(this)
+  }
 
   def getGetterOrSetterFunction: Option[ScFunction] = {
     getContainingClass match {
@@ -287,7 +294,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         case _ => parent = parent.getParent
       }
     }
-    return None
+    None
   }
 
   def isBridge: Boolean = hasAnnotation("scala.annotation.bridge").isDefined
@@ -300,7 +307,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       val newClause = clause.addParameter(param)
       paramClauses.addClause(newClause)
     }
-    return this
+    this
   }
 }
 
