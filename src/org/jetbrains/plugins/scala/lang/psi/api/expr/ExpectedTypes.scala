@@ -7,19 +7,17 @@ package expr
 import base.patterns.ScCaseClause
 import statements._
 import params.ScParameter
-import psi.impl.toplevel.synthetic.ScSyntheticFunction
-import base.{ScConstructor, ScReferenceElement}
+import base.ScConstructor
 import collection.mutable.ArrayBuffer
 import types._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import nonvalue.{TypeParameter, Parameter, ScTypePolymorphicType, ScMethodType}
-import toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import nonvalue.{Parameter, ScTypePolymorphicType, ScMethodType}
+import toplevel.ScTypedDefinition
 import result.{TypeResult, Success, TypingContext}
-import base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScSequenceArg, ScTypeElement}
-import collection.immutable.HashMap
+import base.types.{ScSequenceArg, ScTypeElement}
 import lang.resolve.{StdKinds, ScalaResolveResult}
-import lang.resolve.processor.{MethodResolveProcessor, ResolveProcessor}
+import lang.resolve.processor.MethodResolveProcessor
 import types.Compatibility.Expression
 
 /**
@@ -129,7 +127,7 @@ private[expr] object ExpectedTypes {
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
         a.getLExpression match {
           case ref: ScReferenceExpression if !a.getParent.isInstanceOf[ScArgumentExprList] => {
-            ref.bind match {
+            ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
                   case v: ScValue => Array((named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any), v.typeElement))
@@ -181,8 +179,8 @@ private[expr] object ExpectedTypes {
         }
         buffer.map(typeToPair).toArray
       }
-      case infix: ScInfixExpr if (infix.isLeftAssoc && infix.lOp == expr) ||
-              (!infix.isLeftAssoc && infix.rOp == expr) => {
+      case infix: ScInfixExpr if ((infix.isLeftAssoc && infix.lOp == expr) ||
+              (!infix.isLeftAssoc && infix.rOp == expr)) && !expr.isInstanceOf[ScTuple] => {
         val res = new ArrayBuffer[ScType]
         val zExpr: ScExpression = expr match {
           case p: ScParenthesisedExpr => p.expr.getOrElse(return Array.empty)
@@ -229,11 +227,11 @@ private[expr] object ExpectedTypes {
         fun.returnTypeElement match {
           case Some(rte: ScTypeElement) => {
             fun.returnType match {
-              case Success(rt: ScType, _) => return Array((rt, Some(rte)))
+              case Success(rt: ScType, _) => Array((rt, Some(rte)))
               case _ => Array.empty
             }
           }
-          case None => return Array.empty
+          case None => Array.empty
         }
       }
       case args: ScArgumentExprList => {
@@ -255,7 +253,7 @@ private[expr] object ExpectedTypes {
           args.getParent match {
             case call: ScMethodCall =>
               tps = tps.map(call.updateAccordingToExpectedType(_))
-            case _ => //todo: infix calls? or to change according compiler, like syntax suger, see: ScForStmt
+            case _ =>
           }
           tps.foreach(processArgsExpected(res, expr, i, _, exprs))
         } else {
@@ -376,6 +374,6 @@ private[expr] object ExpectedTypes {
     if (next != null) return next.getPrevSibling
     val prev = expr.getPrevSibling
     if (prev != null) return prev.getNextSibling
-    return null
+    null
   }
 }

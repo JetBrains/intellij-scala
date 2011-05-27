@@ -10,25 +10,25 @@ import api.expr._
 import java.lang.String
 import api.statements.params.ScTypeParam
 import types._
-import types.result.TypingContext
 import api.statements.ScFunction
-import com.intellij.psi.{PsiParameter, PsiMethod, PsiTypeParameter}
 import collection.mutable.ArrayBuffer
 import resolve.ScalaResolveResult
 import collection.Seq
+import com.intellij.psi.{PsiParameter, PsiMethod, PsiTypeParameter}
+import result.{Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
  * Date: 06.03.2008
  */
 
-class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr with ScCallExprImpl {
+class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScInfixExpr {
   override def toString: String = "InfixExpression"
 
   override def argumentExpressions: Seq[ScExpression] = {
-    if (isLeftAssoc) Seq.singleton(lOp) else rOp match {
+    if (isLeftAssoc) Seq(lOp) else rOp match {
       case tuple: ScTuple => tuple.exprs
-      case rOp => Seq.singleton(rOp)
+      case rOp => Seq(rOp)
     }
   }
 
@@ -78,5 +78,12 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
       }
     }
     buffer.toArray
+  }
+
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    operation.bind() match {
+      case Some(r) if r.element.getName + "=" == operation.refName => Success(Unit, Some(this))
+      case _ => super.innerType(ctx)
+    }
   }
 }

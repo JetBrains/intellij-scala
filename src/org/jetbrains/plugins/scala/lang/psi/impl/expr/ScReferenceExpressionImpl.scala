@@ -111,7 +111,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    convertBindToType(bind)
+    convertBindToType(bind())
   }
 
   def shapeType = {
@@ -127,14 +127,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
-    def isMethodCall: Boolean = {
-      var parent = getContext
-      while (parent != null && parent.isInstanceOf[ScGenericCall]) parent = parent.getContext
-      parent match {
-        case _: ScUnderscoreSection | _: ScMethodCall => true
-        case _ => false
-      }
-    }
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val inner: ScType = bind match {
     //prevent infinite recursion for recursive method invocation
@@ -235,6 +227,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
-    Success( /*if (fromType != None) inner.updateThisType(fromType.get) else*/ inner, Some(this))
+    Success(inner, Some(this))
   }
 }

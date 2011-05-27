@@ -42,8 +42,8 @@ object CachesUtil {
   val EXTENDS_BLOCK_SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("extends.block.super.types.key")
   val SIGNATURES_MAP_KEY: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures.map.key")
   val LINEARIZATION_KEY: Key[CachedValue[Seq[ScType]]] = Key.create("linearization.key")
-  val IMPLICIT_PARAM_TYPES_KEY: Key[Map[Thread, List[ScType]]] = Key.create("implicit.param.types.key")
-  val CYCLIC_HELPER_KEY: Key[Map[Thread, List[PsiNamedElement]]] = Key.create("cyclic.helper.key")
+
+
   val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
   val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 
 class ScalaDeprecationInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    def checkDeprecated(refElement: PsiElement, elementToHighlight: PsiElement, name: String): Unit = {
+    def checkDeprecated(refElement: PsiElement, elementToHighlight: PsiElement, name: String) {
       if (refElement == null) return
       if (!refElement.isInstanceOf[PsiNamedElement]) return
       val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
@@ -45,34 +45,34 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
     }
 
     new ScalaElementVisitor {
-      override def visitFunction(fun: ScFunction): Unit = {
+      override def visitFunction(fun: ScFunction) {
         //todo: check super method is deprecated
       }
 
-      override def visitReference(ref: ScReferenceElement): Unit = {
-        checkDeprecated(ref.resolve, ref.nameId, ref.refName)
+      override def visitReference(ref: ScReferenceElement) {
+        checkDeprecated(ref.resolve(), ref.nameId, ref.refName)
       }
     }
   }
 
   def getDisplayName: String = {
-    return "Scala Deprecation"
+    "Scala Deprecation"
   }
 
   def getGroupDisplayName: String = {
-    return InspectionsUtil.SCALA
+    InspectionsUtil.SCALA
   }
 
   def getShortName: String = {
-    return "Scala Deprecation"
+    "Scala Deprecation"
   }
 
   override def getID: String = {
-    return "ScalaDeprecation"
+    "ScalaDeprecation"
   }
 
   override def isEnabledByDefault: Boolean = {
-    return true
+    true
   }
 
   override def getStaticDescription: String = "This inspection reports where deprecated code is used in the specified inspection scope."

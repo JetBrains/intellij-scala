@@ -285,42 +285,10 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
 
 private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
-    val currentThread = Thread.currentThread
-    def setup(pn1: PsiNamedElement, pn2: PsiNamedElement): Boolean = {
-      synchronized {
-        var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
-        var searches: List[PsiNamedElement] = if (userData == null) null else userData.getOrElse(currentThread, null)
-        if (searches != null && searches.find(_ == pn2) == None)
-          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
-                  +(currentThread -> (pn2 :: searches)))
-        else if (searches == null && userData != null)
-          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.+(currentThread -> List(pn2)))
-        else if (searches == null && userData == null)
-          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, Map(currentThread -> List(pn2)))
-        else return false
-        true
-      }
-    }
-
-    def close(pn1: PsiNamedElement, pn2: PsiNamedElement) = {
-      synchronized {
-        var userData = pn1.getUserData(CachesUtil.CYCLIC_HELPER_KEY)
-        var searches = userData.getOrElse(currentThread, null)
-        if (searches != null && searches.length > 0)
-          pn1.putUserData(CachesUtil.CYCLIC_HELPER_KEY, userData.-(currentThread).
-                  +(currentThread -> searches.tail))
-        else {} //do nothing
-      }
-    }
-    if (!setup(pn1, pn2)) return None
-    if (pn1 != pn2 && !setup(pn2, pn1)) return None
-    try {
-      Some(fun.apply)
-    }
-    finally {
-      close(pn1, pn2)
-      if (pn1 != pn2) close(pn2, pn1)
-    }
+    import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
+    doComputationsForTwoElements(pn1, pn2, (p: PsiNamedElement, searches: List[PsiNamedElement]) => {
+      searches.find(_ == p) == None
+    }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }
 }
 
