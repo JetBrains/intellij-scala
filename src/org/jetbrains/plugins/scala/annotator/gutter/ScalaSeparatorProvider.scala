@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScBlock, ScNewTemplateDefinition}
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * Pavel.Fatin, 20.01.2010
@@ -81,7 +80,7 @@ trait ScalaSeparatorProvider {
   def getNewLinesCount(element: PsiElement) = {
     val text = element.getText
     if (element.isInstanceOf[PsiWhiteSpace])
-      text.count(_ == '\n')
+      augmentString(text).count(_ == '\n')
     else 0
   }
 
@@ -154,7 +153,7 @@ trait ScalaSeparatorProvider {
       if (g.isDefined) {
         if (lines > 0 && filter(e)) return g
       } else {
-        lines += e.getText.count(_ == '\n')
+        lines += augmentString(e.getText).count(_ == '\n')
       }
       e = e.getPrevSibling
     }
