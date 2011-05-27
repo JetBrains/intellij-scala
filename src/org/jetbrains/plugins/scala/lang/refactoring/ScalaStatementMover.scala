@@ -61,7 +61,7 @@ class ScalaStatementMover extends LineMover {
 
   private def isComment(pair: Iterable[PsiElement]) = pair.toList match {
     case (ws: PsiWhiteSpace) :: (_: PsiComment) :: Nil
-      if ws.getText.count(_ == '\n') == 1 => true
+      if augmentString(ws.getText).count(_ == '\n') == 1 => true
     case _ => false
   }
 
