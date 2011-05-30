@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
-import caches.CachesUtil
 import com.intellij.psi._
 import psi.types.result.TypingContext
 import psi.ScalaPsiUtil
@@ -24,6 +23,8 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
 import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
 import util.PsiModificationTracker
+import caches.{ScalaRecursionManager, CachesUtil}
+import com.intellij.openapi.util.Computable
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -35,9 +36,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.get(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => shapeResolveInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {

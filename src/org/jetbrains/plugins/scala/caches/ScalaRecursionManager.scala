@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.util.Key
 import collection.immutable.Map
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.openapi.util.{RecursionManager, Key}
 
 /**
  * @author Alexander Podkhalyuzin
  */
 object ScalaRecursionManager { //todo: is it really important to use mod count?
+  val functionRecursionGuard = RecursionManager.createGuard("function.inference.recursion")
+  val resolveReferenceRecursionGuard = RecursionManager.createGuard("resolve.reference.recursion")
+
   val IMPLICIT_PARAM_TYPES_KEY: RecursionManagerKey[ScType] = Key.create("implicit.param.types.key")
   val CYCLIC_HELPER_KEY: RecursionManagerKey[PsiNamedElement] = Key.create("cyclic.helper.key")
 

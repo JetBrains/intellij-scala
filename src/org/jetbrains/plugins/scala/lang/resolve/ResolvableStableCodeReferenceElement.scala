@@ -18,8 +18,9 @@ import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
-import caches.CachesUtil
 import util.{PsiModificationTracker, PsiTreeUtil}
+import caches.{ScalaRecursionManager, CachesUtil}
+import com.intellij.openapi.util.Computable
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false)
@@ -143,9 +144,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.get(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   private def shapeResolveInner: Array[ResolveResult] = {
@@ -154,9 +155,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.get(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveConstrInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   private def shapeResolveConstrInner: Array[ResolveResult] = {
