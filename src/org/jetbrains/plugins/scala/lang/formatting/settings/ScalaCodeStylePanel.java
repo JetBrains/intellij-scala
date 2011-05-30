@@ -43,6 +43,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox includeLiteralsCheckBox;
   private JCheckBox treatDocCommentAsBlockComment;
   private JCheckBox importMembersUsingUnderscoreCheckBox;
+  private JCheckBox myDisableLanguageInjection;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -102,6 +103,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.INCLUDE_LITERALS = includeLiteralsCheckBox.isSelected();
 
     scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = myResolveToAllClassesCheckBox.isSelected();
+    scalaSettings.DISABLE_LANGUAGE_INJECTION = myDisableLanguageInjection.isSelected();
   }
 
   @SuppressWarnings({"ConstantConditions", "RedundantIfStatement"})
@@ -149,6 +151,9 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES != myResolveToAllClassesCheckBox.isSelected())
       return true;
 
+    if (scalaSettings.DISABLE_LANGUAGE_INJECTION != myDisableLanguageInjection.isSelected())
+      return true;
+
     return false;
   }
 
@@ -190,6 +195,8 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(includeLiteralsCheckBox, settings.INCLUDE_LITERALS);
 
     setValue(myResolveToAllClassesCheckBox, settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES);
+
+    setValue(myDisableLanguageInjection, settings.DISABLE_LANGUAGE_INJECTION);
   }
 
   private static void setValue(JSpinner spinner, int value) {
