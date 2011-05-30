@@ -25,8 +25,9 @@ import statements.{ScTypeAliasDefinition, ScFunction}
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import java.lang.Integer
 import base.types.ScTypeElement
-import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import caches.{ScalaRecursionManager, CachesUtil}
+import com.intellij.openapi.util.Computable
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -109,27 +110,29 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
     if (!checkImplicits || isShape || expectedOption != None || ignoreBaseTypes)
       return inner //no cache with strange parameters
 
-    CachesUtil.get(this, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
       new CachesUtil.MyProvider(this, (expr: ScExpression) => inner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT),
+      ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this)), Set.empty, None))
   }
 
   def getTypeWithoutImplicits(ctx: TypingContext, 
                               ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, ignoreBaseTypes = ignoreBaseTypes)
-    CachesUtil.get(this, CachesUtil.TYPE_WITHOUT_IMPLICITS,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.TYPE_WITHOUT_IMPLICITS,
       new CachesUtil.MyProvider(this, (expr: ScExpression) => valueType(ctx))
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive getTypeWithoutImplicits", Some(this)))
   }
 
   def getTypeWithoutImplicitsWithoutUnderscore(ctx: TypingContext, 
                                                ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseTypes) return valueType(ctx, true, ignoreBaseTypes)
-    CachesUtil.get(this, CachesUtil.TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE,
       new CachesUtil.MyProvider(this, (expr: ScExpression) => valueType(ctx, true))
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT),
+      Failure("Recursive getTypeWithoutImplicitsWithoutUnderscore", Some(this)))
   }
 
   def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
@@ -424,9 +427,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def getNonValueType(ctx: TypingContext, ignoreBaseType: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     if (ctx != TypingContext.empty || ignoreBaseType) return typeWithUnderscore(ctx, ignoreBaseType)
-    CachesUtil.get(this, CachesUtil.NON_VALUE_TYPE_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.NON_VALUE_TYPE_KEY,
       new CachesUtil.MyProvider(this, (expr: ScExpression) => typeWithUnderscore(ctx))
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive getNonValueType", Some(this)))
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
@@ -478,9 +481,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   def expectedTypes: Array[ScType] = expectedTypesEx.map(_._1)
   
   def expectedTypesEx: Array[(ScType, Option[ScTypeElement])] = {
-    CachesUtil.get(this, CachesUtil.EXPECTED_TYPES_KEY,
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.EXPECTED_TYPES_KEY,
       new CachesUtil.MyProvider(this, (expr: ScExpression) => ExpectedTypes.expectedExprTypes(this))
-      (PsiModificationTracker.MODIFICATION_COUNT))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[(ScType, Option[ScTypeElement])])
   }
 
   def getImplicitConversions: (Seq[PsiNamedElement], Option[PsiElement]) = {

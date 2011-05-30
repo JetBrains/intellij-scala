@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi.util.{CachedValueProvider, CachedValue}
 import lang.psi.types.{Signature, ScType}
 import lang.psi.types.result.TypeResult
-import collection.mutable.HashMap
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import lang.psi.api.statements.params.ScParameterClause
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
+import collection.mutable.{Map, HashMap}
+import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
+import util.CachedValueProvider.Result
 
 /**
  * User: Alexander Podkhalyuzin
@@ -19,6 +20,7 @@ import lang.psi.api.base.types.ScTypeElement
  */
 //todo: copy from TypeDefinitionMembers, rewrite or remove duplicates
 object CachesUtil {
+  //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
   val REF_ELEMENT_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
@@ -42,18 +44,43 @@ object CachesUtil {
   val EXTENDS_BLOCK_SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("extends.block.super.types.key")
   val SIGNATURES_MAP_KEY: Key[CachedValue[HashMap[Signature, ScType]]] = Key.create("signatures.map.key")
   val LINEARIZATION_KEY: Key[CachedValue[Seq[ScType]]] = Key.create("linearization.key")
-
-
-  val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
-  val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
-  val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")
-  val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
-  val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
   val FAKE_CLASS_COMPANION: Key[CachedValue[Option[ScObject]]] = Key.create("fake.class.companion.key")
   val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("effective.parameter.clause.key")
   val PATTERN_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("pattern.expected.type.key")
   val TYPE_WITHOUT_IMPLICITS: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.without.implicits.key")
+
+  //keys for getUserData
+  val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
+  val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
+  val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")
+  val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
+  val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
+
+  def getWithRecurisionPreventing[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]],
+                                                        provider: MyProvider[Dom, T],
+                                                        defaultValue: => T): T = {
+    var computed: CachedValue[T] = e.getUserData(key)
+    if (computed == null) {
+      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
+      computed = manager.createCachedValue(new CachedValueProvider[T] {
+        def compute(): Result[T] = {
+          val guard = getRecursionGuard(key.toString)
+          if (guard.currentStack().contains(e)) {
+            return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
+          }
+          guard.doPreventingRecursion(e, new Computable[Result[T]] {
+            def compute(): Result[T] = provider.compute()
+          }) match {
+            case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
+            case notNull => notNull
+          }
+        }
+      }, false)
+      e.putUserData(key, computed)
+    }
+    computed.getValue
+  }
 
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
@@ -66,6 +93,13 @@ object CachesUtil {
   }
 
   class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends CachedValueProvider[T] {
+    def getDependencyItem: Object = dependencyItem
+
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
+  }
+
+  private val guards: Map[String, RecursionGuard] = Map()
+  private def getRecursionGuard(id: String): RecursionGuard = {
+    guards.getOrElseUpdate(id, RecursionManager.createGuard(id))
   }
 }

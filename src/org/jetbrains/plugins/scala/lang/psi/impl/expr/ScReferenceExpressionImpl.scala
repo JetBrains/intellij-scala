@@ -24,7 +24,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import api.{ScalaElementVisitor, ScalaFile}
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 import api.toplevel.imports.ScImportStmt
-
+import caches.ScalaRecursionManager
+import com.intellij.openapi.util.{Computable, RecursionManager}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -129,18 +130,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val inner: ScType = bind match {
-    //prevent infinite recursion for recursive method invocation
-      case Some(ScalaResolveResult(f: ScFunction, s: ScSubstitutor))
-        if (PsiTreeUtil.getContextOfType(this, false, classOf[ScFunction]) == f) => {
-        val result: Option[ScType] = {
-          f.definedReturnType match {
-            case s: Success[ScType] => Some(s.get)
-            case fail: Failure => None
-          }
-        }
-        if (result == None) return Failure("Cannot infer recursive method type", Some(this))
-        s.subst(f.polymorphicType(result))
-      }
       case Some(ScalaResolveResult(fun: ScFun, s)) => {
         s.subst(fun.polymorphicType)
       }
@@ -151,7 +140,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case Some(t) => s.subst(t)
           case None => Nothing
         }
-
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, this, true)) => pd.declaredType match {
             case Some(t) => t
@@ -184,7 +172,22 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       }
       case Some(ScalaResolveResult(value: ScSyntheticValue, _)) => value.tp
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
-        s.subst(fun.polymorphicType)
+        //prevent infinite recursion for recursive method invocation
+        var result: ScType =
+          ScalaRecursionManager.functionRecursionGuard.doPreventingRecursion(this, new Computable[ScType] {
+            def compute(): ScType = s.subst(fun.polymorphicType)
+          })
+        if (result == null) {
+          val optionResult: Option[ScType] = {
+            fun.definedReturnType match {
+              case s: Success[ScType] => Some(s.get)
+              case fail: Failure => None
+            }
+          }
+          if (optionResult == None) return Failure("Cannot infer recursive method type", Some(this))
+          result = s.subst(fun.polymorphicType(optionResult))
+        }
+        result
       }
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter => {
         val seqClass = JavaPsiFacade.getInstance(getProject).

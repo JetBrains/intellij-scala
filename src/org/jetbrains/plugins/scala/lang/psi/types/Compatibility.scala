@@ -129,7 +129,7 @@ object Compatibility {
 
       def doNoNamed(expr: Expression): List[ApplicabilityProblem] = {
         if (namedMode) {
-          return List(new PositionalAfterNamedArgument(expr.expr))
+          List(new PositionalAfterNamedArgument(expr.expr))
         }
         else {
           val getIt = used.indexOf(false)
@@ -246,7 +246,7 @@ object Compatibility {
       defaultParameterUsed = parameters.zip(used).find{case (p, b) => !b && p.isDefault} != None
       if(!missed.isEmpty) return ConformanceExtResult(missed, undefSubst, defaultParameterUsed, matched)
     }
-    return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
+    ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
@@ -310,7 +310,7 @@ object Compatibility {
         val res = checkConformanceExt(true, parameters.map(toParameter(_, substitutor)),
           exprs, checkWithImplicits, isShapesResolve)
 
-        return res
+        res
       }
       case constructor: ScPrimaryConstructor => {
         val parameters: Seq[ScParameter] = constructor.effectiveFirstParameterSection
@@ -350,7 +350,7 @@ object Compatibility {
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
-        return res
+        res
       }
       case method: PsiMethod => {
         val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq

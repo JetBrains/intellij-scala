@@ -24,6 +24,7 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import params.{ScParameter, ScTypeParam}
+import psi.util.CommonClassesSearcher
 
 /**
  * @author ilyas
@@ -231,9 +232,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       val subst: ScSubstitutor = getSubst(state)
-      lazy val funType = {
-        val fun = "scala.Function1"
-        val funClass = JavaPsiFacade.getInstance(element.getProject).findClass(fun, element.getResolveScope)
+      val funType: ScParameterizedType = {
+        val funClasses =
+          CommonClassesSearcher.getCachedClass(element.getManager, element.getResolveScope, "scala.Function1")
+        val funClass: PsiClass = if (funClasses.length >= 1) funClasses(0) else null
         funClass match {
           case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
             new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))

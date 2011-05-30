@@ -24,6 +24,8 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import api.toplevel.imports.ScImportStmt
+import caches.ScalaRecursionManager
+import com.intellij.openapi.util.Computable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -61,6 +63,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
 
   def multiResolve(incomplete: Boolean) =
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
+
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     doResolve(new CompletionProcessor(getKinds(true))).flatMap {

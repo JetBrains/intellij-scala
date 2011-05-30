@@ -63,7 +63,7 @@ object Conformance {
   def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor,
                             noBaseTypes: Boolean = false, //todo: remove, not used
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
 
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
@@ -160,7 +160,7 @@ object Conformance {
           }
         }
       }
-      return (true, undefinedSubst)
+      (true, undefinedSubst)
     }
     (l, r) match {
       case (ScMethodType(returnType1, params1, _), ScMethodType(returnType2, params2, _)) => {
@@ -627,7 +627,7 @@ object Conformance {
     }
     if (noBaseTypes) return (false, undefinedSubst)
     ScType.extractClassType(r) match {
-      case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, undefinedSubst)
+      case Some((clazz: PsiClass, _)) if visited.contains(clazz) => (false, undefinedSubst)
       case Some((rClass: PsiClass, subst: ScSubstitutor)) => {
         ScType.extractClass(l) match {
           case Some(lClass) => {
@@ -649,10 +649,10 @@ object Conformance {
               }
             }
             val t = conformsInner(l, tp, visited + rClass, undefinedSubst, true)
-            if (t._1) return (true, t._2)
-            else return (false, undefinedSubst)
+            if (t._1) (true, t._2)
+            else (false, undefinedSubst)
           }
-          case _ => return (false, undefinedSubst)
+          case _ => (false, undefinedSubst)
         }
       }
       case _ => {
@@ -664,7 +664,7 @@ object Conformance {
           val t = conformsInner(l, tp, visited, undefinedSubst, true)
           if (t._1) return (true, t._2)
         }
-        return (false, undefinedSubst)
+        (false, undefinedSubst)
       }//return BaseTypes.get(r).find {t => conforms(l, t, visited)}
     }
   }
