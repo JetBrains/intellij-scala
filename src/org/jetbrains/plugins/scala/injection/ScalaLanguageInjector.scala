@@ -17,6 +17,7 @@ import lang.psi.api.base.patterns.ScReferencePattern
 import lang.psi.api.base.{ScReferenceElement, ScLiteral}
 import lang.psi.ScalaPsiUtil.readAttribute
 import org.jetbrains.plugins.scala.extensions._
+import lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Pavel Fatin
@@ -26,6 +27,8 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   override def elementsToInjectIn = List(classOf[ScLiteral], classOf[ScInfixExpr])
 
   override def getLanguagesToInject(registrar: MultiHostRegistrar, host: PsiElement) {
+    if (ScalaCodeStyleSettings.getInstance(host.getProject).DISABLE_LANGUAGE_INJECTION) return
+
     val literals = literalsOf(host)
 
     if (literals.isEmpty) return
