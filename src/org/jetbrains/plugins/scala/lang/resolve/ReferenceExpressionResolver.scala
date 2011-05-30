@@ -78,17 +78,22 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
     // and for case
     // val a: (Int) => Int = _.foo
     val expectedOption = {
-      ref.getText.indexOf("_") match {
-        case -1 => info.expectedType.apply //optimization
+      val expr: PsiElement = ref.getContext match {
+        case parent@(_: ScPrefixExpr | _: ScPostfixExpr | _: ScInfixExpr) => parent
+        case _ => ref
+      }
+      expr.getText.indexOf("_") match {
+        case -1 => info.expectedType.apply() //optimization
         case _ => {
-          val unders = ScUnderScoreSectionUtil.underscores(ref)
+
+          val unders = ScUnderScoreSectionUtil.underscores(expr)
           if (unders.length != 0) {
-            info.expectedType.apply match {
+            info.expectedType.apply() match {
               case Some(ScFunctionType(ret, _)) => Some(ret)
               case Some(p: ScParameterizedType) if p.getFunctionType != None => Some(p.typeArgs.last)
-              case x => x
+              case other => other
             }
-          } else info.expectedType.apply
+          } else info.expectedType.apply()
         }
       }
     }
