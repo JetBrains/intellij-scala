@@ -108,6 +108,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
+    this match {
+      case pref: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
+      case postf: ScPostfixExpr => return nonValueType //no arg exprs, just reference expression type
+      case _ =>
+    }
+
     nonValueType = updateAccordingToExpectedType(nonValueType)
 
     def tuplizyCase(fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]),
