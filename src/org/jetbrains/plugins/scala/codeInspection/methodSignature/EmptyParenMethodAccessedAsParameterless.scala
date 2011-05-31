@@ -27,12 +27,12 @@ its receiver object.
 <small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>"""
 
   def actionFor(holder: ProblemsHolder) = {
-    case e: ScReferenceExpression =>
+    case e: ScReferenceExpression if e.isValid =>
       e.getParent match {
         case gc: ScGenericCall =>
           ScalaPsiUtil.findCall(gc) match {
             case None =>
-              e.resolve match {
+              e.resolve() match {
                 case (f: ScFunction) if f.isEmptyParen =>
                   holder.registerProblem(e.nameId, getDisplayName, new AddGenericCallParentheses(gc))
                 case _ =>
@@ -40,7 +40,7 @@ its receiver object.
             case Some(_) =>
           }
         case _: ScMethodCall | _: ScInfixExpr | _: ScPrefixExpr | _: ScUnderscoreSection => // okay
-        case _ => e.resolve match {
+        case _ => e.resolve() match {
           case (f: ScFunction) if f.isEmptyParen =>
             holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))
           case _ =>

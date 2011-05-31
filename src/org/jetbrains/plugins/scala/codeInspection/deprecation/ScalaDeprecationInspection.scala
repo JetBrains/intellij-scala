@@ -50,6 +50,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
 
       override def visitReference(ref: ScReferenceElement) {
+        if (!ref.isValid) return
         checkDeprecated(ref.resolve(), ref.nameId, ref.refName)
       }
     }

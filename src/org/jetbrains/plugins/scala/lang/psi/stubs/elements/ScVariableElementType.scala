@@ -12,6 +12,7 @@ import com.intellij.util.io.StringRef
 import impl.ScVariableStubImpl
 import index.ScalaIndexKeys
 import java.io.IOException
+import com.intellij.util.IncorrectOperationException
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +27,13 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
       case Some(te) => te.getText
       case None => ""
     }
-    val bodyText = if (!isDecl) psi.asInstanceOf[ScVariableDefinition].expr.getText else ""
+    val bodyText = if (!isDecl) {
+      val expr = psi.asInstanceOf[ScVariableDefinition].expr
+      if (expr == null) {
+        throw new IncorrectOperationException("Expr is null for variable: " + psi.getText)
+      }
+      expr.getText
+    } else ""
     val containerText = if (isDecl) psi.asInstanceOf[ScVariableDeclaration].getIdList.getText
       else psi.asInstanceOf[ScVariableDefinition].pList.getText
     new ScVariableStubImpl[ParentPsi](parentStub, this,
