@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import com.intellij.openapi.project.{DumbService, DumbAware, Project}
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
@@ -25,10 +25,10 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   private var myRefCountHolder: ScalaRefCountHolder = null
 
   override def suitableForFile(file: PsiFile): Boolean = {
-    return file.isInstanceOf[ScalaFile]
+    file.isInstanceOf[ScalaFile]
   }
 
-  override def visit(element: PsiElement, holder: HighlightInfoHolder): Unit = {
+  override def visit(element: PsiElement, holder: HighlightInfoHolder) {
     myHolder = holder
     runAnnotator(element)
   }
@@ -48,21 +48,21 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       }
       else {
         myRefCountHolder = null
-        action.run
+        action.run()
       }
     }
     finally {
       myHolder = null
       myRefCountHolder = null
     }
-    return success
+    success
   }
 
   override def clone: HighlightVisitor = {
-    return new ScalaAnnotatorHighlightVisitor(project)
+    new ScalaAnnotatorHighlightVisitor(project)
   }
 
-  private def runAnnotator(element: PsiElement): Unit = {
+  private def runAnnotator(element: PsiElement) {
     if (DumbService.getInstance(project).isDumb) {
       return
     }
@@ -74,7 +74,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       for (annotation <- myAnnotationHolder) {
         myHolder.add(HighlightInfo.fromAnnotation(annotation))
       }
-      myAnnotationHolder.clear
+      myAnnotationHolder.clear()
     }
   }
 }

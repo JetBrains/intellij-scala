@@ -15,6 +15,7 @@ abstract class AbstractFix(name: String, e: PsiElement) extends LocalQuickFix {
   def getFamilyName = getName
 
   final def applyFix(project: Project, descriptor: ProblemDescriptor) {
+    if (!e.isValid) return
     val file = e.getContainingFile
     if(file == null) return
     if (!CodeInsightUtilBase.prepareFileForWrite(file)) return

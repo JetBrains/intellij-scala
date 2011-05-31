@@ -27,7 +27,7 @@ if the method has side effects.
   def actionFor(holder: ProblemsHolder) = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
             !e.getParent.isInstanceOf[ScInfixExpr] &&
-            !e.getParent.isInstanceOf[ScUnderscoreSection] => e.resolve match {
+            !e.getParent.isInstanceOf[ScUnderscoreSection] && e.isValid => e.resolve() match {
         case _: ScalaPsiElement => // do nothing
         case (m: PsiMethod) if m.isMutator =>
           holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))

@@ -19,7 +19,7 @@ import api.statements.ScTypeAlias
 import api.expr.{ScSuperReference, ScThisReference}
 import api.base.patterns.{ScInfixPattern, ScConstructorPattern}
 import api.base.types.{ScParameterizedTypeElement, ScInfixTypeElement, ScSimpleTypeElement}
-import processor.{ExpandedExtractorResolveProcessor, CompletionProcessor}
+import processor.CompletionProcessor
 import api.ScalaElementVisitor
 
 /**
@@ -28,7 +28,7 @@ import api.ScalaElementVisitor
  */
 
 class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableStableCodeReferenceElement {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -89,7 +89,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   //  @throws(IncorrectOperationException)
   def bindToElement(element: PsiElement): PsiElement = {
-    if (isReferenceTo(element)) return this
+    if (isReferenceTo(element)) this
     else element match {
       case c: PsiClass => {
         val suitableKinds = getKinds(false)
@@ -107,7 +107,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                 addImportForClass(c, ref = this) //todo: correct handling
         this
       }
-      case t: ScTypeAlias => return this //todo: do something
+      case t: ScTypeAlias => this //todo: do something
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class")
     }
   }
