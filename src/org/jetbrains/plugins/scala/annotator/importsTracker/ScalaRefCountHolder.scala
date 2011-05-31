@@ -57,18 +57,22 @@ class ScalaRefCountHolder private (file: PsiFile) {
 
   private def removeInvalidRefs() {
     assertIsAnalyzing()
-    val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
-    while (iterator.hasNext) {
-      val ref: ImportUsed = iterator.next
-      if (!ref.e.isValid) {
-        iterator.remove()
+    myImportUsed synchronized {
+      val iterator: java.util.Iterator[ImportUsed] = myImportUsed.iterator
+      while (iterator.hasNext) {
+        val ref: ImportUsed = iterator.next
+        if (!ref.e.isValid) {
+          iterator.remove()
+        }
       }
     }
-    val valuesIterator: java.util.Iterator[ValueUsed] = myValueUsed.iterator()
-    while (valuesIterator.hasNext) {
-      val ref: ValueUsed = valuesIterator.next
-      if (!ref.e.isValid) {
-        iterator.remove()
+    myValueUsed synchronized {
+      val valuesIterator: java.util.Iterator[ValueUsed] = myValueUsed.iterator()
+      while (valuesIterator.hasNext) {
+        val ref: ValueUsed = valuesIterator.next
+        if (!ref.e.isValid) {
+          valuesIterator.remove()
+        }
       }
     }
   }
