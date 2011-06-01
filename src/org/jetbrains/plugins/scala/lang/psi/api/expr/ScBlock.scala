@@ -15,7 +15,7 @@ import toplevel.ScTypedDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import types._
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import com.intellij.psi.{PsiElement, ResolveState}
 
 /**
  * @author ilyas
@@ -36,11 +36,14 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
       return ScType.extractFunctionType(et) match {
         case Some(f @ ScFunctionType(_, params)) =>
-            Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope), Some(this))
+            Success(new ScFunctionType(clausesType, params.map(_.removeAbstracts))(f.getProject, f.getScope),
+              Some(this))
         case None =>
           ScType.extractPartialFunctionType(et) match {
-            case Some((des, param, _)) => Success(ScParameterizedType(des, Seq(param.removeAbstracts, clausesType)), Some(this))
-            case None => Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
+            case Some((des, param, _)) =>
+              Success(ScParameterizedType(des, Seq(param.removeAbstracts, clausesType)), Some(this))
+            case None =>
+              Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
           }
       }
     }
@@ -51,7 +54,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         def existize(t: ScType): ScType = t match {
           case fun@ScFunctionType(ret, params) => new ScFunctionType(existize(ret),
             collection.immutable.Seq(params.map({existize _}).toSeq: _*))(fun.getProject, fun.getScope)
-          case ScTupleType(comps) => new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
+          case ScTupleType(comps) =>
+            new ScTupleType(collection.immutable.Seq(comps.map({existize _}).toSeq: _*))(getProject, getResolveScope)
           case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
             case obj: ScObject => {
               val t = existize(leastClassType(obj))
@@ -77,7 +81,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           case JavaArrayType(arg) => JavaArrayType(existize(arg))
           case ScParameterizedType(des, typeArgs) =>
             new ScParameterizedType(existize(des), collection.immutable.Seq(typeArgs.map({existize _}).toSeq: _*))
-          case ScExistentialArgument(name, args, lower, upper) => new ScExistentialArgument(name, args, existize(lower), existize(upper))
+          case ScExistentialArgument(name, args, lower, upper) =>
+            new ScExistentialArgument(name, args, existize(lower), existize(upper))
           case ex@ScExistentialType(q, wildcards) => {
             new ScExistentialType(existize(q), wildcards.map {
               ex =>
@@ -120,7 +125,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)
     getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
-    return true
+    true
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,

@@ -5,9 +5,10 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import result.TypingContext
+import com.intellij.psi.{PsiNamedElement, PsiTypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
  * @author ilyas
@@ -26,11 +27,6 @@ case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepe
   }
 }
 case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp: PsiTypeParameter)
-case class TypeConstructorParameter(name: String, lowerType: ScType, upperType: ScType,
-                                    isCovariant: Boolean, ptp: PsiTypeParameter) {
-  def isContravariant: Boolean = !isCovariant
-}
-
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
@@ -124,17 +120,20 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case p: ScTypePolymorphicType => {
         if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
         var i = 0
         while (i < typeParameters.length) {
-          var t = Equivalence.equivInner(typeParameters(i).lowerType, p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
+          var t = Equivalence.equivInner(typeParameters(i).lowerType,
+            p.typeParameters(i).lowerType, undefinedSubst, falseUndef)
           if (!t._1) return (false,undefinedSubst)
           undefinedSubst = t._2
-          t = Equivalence.equivInner(typeParameters(i).upperType, p.typeParameters(i).upperType, undefinedSubst, falseUndef)
+          t = Equivalence.equivInner(typeParameters(i).upperType,
+            p.typeParameters(i).upperType, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
@@ -153,11 +152,3 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 }
-
-/*case class ScTypeConstructorType(internalType: ScType, params: Seq[TypeConstructorParameter]) extends NonValueType {
-  def inferValueType: ValueType = {
-    //todo: implement
-    throw new UnsupportedOperationException("Type Constuctors not implemented yet")
-  }
-  //todo: equiv
-}*/

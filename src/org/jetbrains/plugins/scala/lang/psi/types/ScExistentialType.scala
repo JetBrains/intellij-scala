@@ -333,10 +333,10 @@ case class ScExistentialType(quantified : ScType,
     val res = updateRecursive(this, HashSet.empty, 1)
     if (updated) {
       res match {
-        case ex: ScExistentialType => return ex.simplify()
-        case _ => return res
+        case ex: ScExistentialType if ex != this => ex.simplify()
+        case _ => res
       }
-    } else return this
+    } else this
   }
 }
 
@@ -370,7 +370,7 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
-extends ValueType {
+  extends ValueType {
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {

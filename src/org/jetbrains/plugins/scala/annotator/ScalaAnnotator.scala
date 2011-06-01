@@ -521,7 +521,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
           case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
-            val expectedType = Success(tp, None).map(_.removeAbstracts)
+            val expectedType = Success(tp, None)
             val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
             if (settings(expr).SHOW_IMPLICIT_CONVERSIONS) {
               implicitFunction match {
