@@ -775,6 +775,14 @@ object ScalaPsiElementFactory {
     } else null
   }
 
+  def createExistentialClauseForName(name: String, manager: PsiManager): ScExistentialClause = {
+   val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+      ScalaFileType.SCALA_FILE_TYPE, "val x: T forSome {type " + name + "}").asInstanceOf[ScalaFile]
+    dummyFile.getChildren.head.asInstanceOf[ScValueDeclaration].typeElement.get.
+      asInstanceOf[ScExistentialTypeElement].clause
+  }
+
   def createWildcardPattern(manager: PsiManager): ScWildcardPattern = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,

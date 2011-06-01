@@ -47,7 +47,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
    */
   def getClazzForType(t: ScType): Option[PsiClass] = {
     implicitMap().find(tp => t.equiv(tp._1)) match {
-      case Some((_, fun, _)) => return {
+      case Some((_, fun, _)) => {
         fun.getParent match {
           case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
           case _ => None
@@ -88,7 +88,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     tp = buildImplicitMap()
     cachedImplicitMap = tp
     modCount = curModCount
-    return tp
+    tp
   }
 
   private def buildImplicitMap(exp: Option[ScType] = expectedType,
@@ -97,16 +97,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     // Collect implicit conversions from bottom to up
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-      place match {
-        case null =>
-        case p => {
-          if (!p.processDeclarations(processor,
-            ResolveState.initial,
-            lastParent, this)) return
-          if (!processor.changedLevel) return
-          treeWalkUp(place.getContext, place)
-        }
-      }
+      if (place == null) return
+      if (!place.processDeclarations(processor,
+        ResolveState.initial,
+        lastParent, this)) return
+      if (!processor.changedLevel) return
+      treeWalkUp(place.getContext, place)
     }
     treeWalkUp(this, null)
 
@@ -198,7 +194,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                   exp match {
                     case Some(expected) =>
                       val additionalUSubst = Conformance.undefinedSubst(expected, newSubst.subst(retTp))
-                      uSubst + additionalUSubst getSubstitutor match {
+                      (uSubst + additionalUSubst).getSubstitutor match {
                         case Some(substitutor) =>
                           (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
                         case None =>

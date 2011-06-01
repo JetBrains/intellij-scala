@@ -48,6 +48,7 @@ import collection.immutable.{HashMap, Stream}
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions._
+import java.lang.Exception
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,7 +70,7 @@ object ScalaPsiUtil {
     val qual = "scala.Tuple" + exprTypes.length
     val tupleClass = JavaPsiFacade.getInstance(project).findClass(qual, scope)
     if (tupleClass == null)
-      return None
+      None
     else
       Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
   }
@@ -83,7 +84,7 @@ object ScalaPsiUtil {
       }
       child = child.getNextSibling
     }
-    return null.asInstanceOf[T]
+    null.asInstanceOf[T]
   }
 
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
@@ -225,7 +226,7 @@ object ScalaPsiUtil {
 
   def getModule(element: PsiElement): Module = {
     var index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    return index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
   def collectImplicitObjects(tp: ScType, place: PsiElement): Seq[ScObject] = {
@@ -381,10 +382,12 @@ object ScalaPsiUtil {
     }
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
-                                 typeParams: Seq[TypeParameter],
-                                 subst: ScSubstitutor = ScSubstitutor.empty,
-                                 shouldUndefineParameters: Boolean = true): ScTypePolymorphicType = {
-    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst, shouldUndefineParameters)._1
+                         typeParams: Seq[TypeParameter],
+                         subst: ScSubstitutor = ScSubstitutor.empty,
+                         shouldUndefineParameters: Boolean = true,
+                         safeCheck: Boolean = false): ScTypePolymorphicType = {
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst,
+      shouldUndefineParameters, safeCheck)._1
   }
 
   def polymorphicTypeSubstitutorMissedEmptyParams(typeParameters: Seq[TypeParameter]): ScSubstitutor =
@@ -396,19 +399,26 @@ object ScalaPsiUtil {
       else Seq.empty
     ) : _*),  Map.empty, None)
 
+  class SafeCheckException extends Exception
 
+
+  //todo: move to InferUtil
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                           typeParams: Seq[TypeParameter],
                                           subst: ScSubstitutor = ScSubstitutor.empty,
-                                          shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
-    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams, subst, shouldUndefineParameters)
+                                          shouldUndefineParameters: Boolean = true,
+                                          safeCheck: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams, subst,
+      shouldUndefineParameters, safeCheck)
     (tp, problems)
   }
 
   def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                              typeParams: Seq[TypeParameter],
                                              subst: ScSubstitutor = ScSubstitutor.empty,
-                                             shouldUndefineParameters: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
+                                             shouldUndefineParameters: Boolean = true,
+                                             safeCheck: Boolean = false
+                                            ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     // See SCL-3052. TODO: SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
     val checkWeak = true
@@ -422,12 +432,21 @@ object ScalaPsiUtil {
       ScTypePolymorphicType(retType, typeParams.map(tp => {
         var lower = tp.lowerType
         var upper = tp.upperType
-        for ((name, addLower) <- un.lowerMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) {
+        for {
+          (name, addLower) <- un.lowerMap
+          if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+        } {
           lower = Bounds.lub(lower, prevInfoSubst.subst(addLower), checkWeak = checkWeak)
         }
-        for ((name, addUpperSeq) <- un.upperMap if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)); addUpper <- addUpperSeq) {
+        for {
+          (name, addUpperSeq) <- un.upperMap
+          if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+          addUpper <- addUpperSeq
+        } {
           upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper), checkWeak = checkWeak)
         }
+        if (safeCheck && !lower.conforms(upper, true))
+          throw new SafeCheckException
         TypeParameter(tp.name, lower, upper, tp.ptp)
       }))
     } else {
@@ -466,7 +485,7 @@ object ScalaPsiUtil {
       }
       child = child.getTreeNext
     }
-    return buffer.toSeq
+    buffer.toSeq
   }
 
   def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {
@@ -484,11 +503,11 @@ object ScalaPsiUtil {
       case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
               _: ScModifierList | _: ScVariable | _: ScValue | _: ScParameter | _: ScParameterClause |
               _: ScParameters | _: ScTypeParamClause | _: ScTypeParam | _: ScImportExpr |
-              _: ScImportSelector | _: ScImportSelectors | _: ScPatternList | _: ScReferencePattern => return shouldCreateStub(elem.getParent)
+              _: ScImportSelector | _: ScImportSelectors | _: ScPatternList | _: ScReferencePattern => shouldCreateStub(elem.getParent)
       /*case _: ScalaFile | _: ScPrimaryConstructor | _: ScSelfTypeElement | _: ScEarlyDefinitions |
               _: ScPackageStatement | _: ScPackaging | _: ScTemplateParents | _: ScTemplateBody |
               _: ScExtendsBlock | _: ScTypeDefinition => return true*/
-      case _ => return true
+      case _ => true
     }
   }
 
@@ -617,7 +636,7 @@ object ScalaPsiUtil {
       case Some(x) => x.supers.map {_.info}
       case None => throw new RuntimeException("internal error: could not find signature matching: %s\namong: %s".format(s, sigs.mkString("\n")))
     }
-    return t
+    t
   }
 
   def superTypeMembers(element: PsiNamedElement): Seq[PsiNamedElement] = {
@@ -631,7 +650,7 @@ object ScalaPsiUtil {
       //partial match
       case Some(x) => x.supers.map {_.info}
     }
-    return t
+    t
   }
 
   def nameContext(x: PsiNamedElement): PsiElement = {
@@ -645,7 +664,7 @@ object ScalaPsiUtil {
     }
     if (isAppropriatePsiElement(x)) return x
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
-    return parent
+    parent
   }
 
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
@@ -675,11 +694,11 @@ object ScalaPsiUtil {
     val buffer = new StringBuffer("")
     method match {
       case method: ScFunction => {
-        return ScalaElementPresentation.getMethodPresentableText(method, false)
+        ScalaElementPresentation.getMethodPresentableText(method, false)
       }
       case _ => {
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-        return PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
+        PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
@@ -694,7 +713,7 @@ object ScalaPsiUtil {
       case _ =>
         for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
     }
-    return buffer.toString
+    buffer.toString
   }
 
   def isLineTerminator(element: PsiElement): Boolean = {
@@ -743,7 +762,7 @@ object ScalaPsiUtil {
       element.getParent
     }
     while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
-    return el
+    el
   }
 
   /**
@@ -755,7 +774,7 @@ object ScalaPsiUtil {
       element.getContext
     }
     while (el != null && classes.find(_.isInstance(el)) == None) el = el.getContext
-    return el
+    el
   }
 
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
@@ -982,7 +1001,7 @@ object ScalaPsiUtil {
       }
       parent = parent.getParent
     }
-    return false
+    false
   }
 
   def stringValueOf(e: PsiLiteral): Option[String] = e.getValue.toOption.flatMap(_.asOptionOf[String])

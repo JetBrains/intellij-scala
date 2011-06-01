@@ -28,6 +28,7 @@ import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
 import caches.{ScalaRecursionManager, CachesUtil}
 import com.intellij.openapi.util.Computable
+import psi.ScalaPsiUtil.SafeCheckException
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -188,165 +189,77 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
   private def valueType(ctx: TypingContext, fromUnderscoreSection: Boolean = false, 
                         ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
-    var res = inner match {
+    var res: ScType = inner match {
       case Success(res, _) => res
       case _ => return inner
     }
 
-    //let's update implicitParameters field
-    res match {
-      case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
-        /*val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-          (subst: ScSubstitutor, tp: TypeParameter) =>
-            subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-              new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
-        }*/
-        val polymorphicSubst = t.polymorphicTypeSubstitutor
-        //val existentialSubst = t.existentialTypeSubstitutor
-        val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
-        val exprs = new ArrayBuffer[Expression]
-        val resolveResults = new ArrayBuffer[ScalaResolveResult]
-        val iterator = params.iterator
-        while (iterator.hasNext) {
-          val param = iterator.next()
-          val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(this, paramType)
-          val results = collector.collect
-          if (results.length == 1) {
-            resolveResults += results(0)
-            results(0) match {
-              case ScalaResolveResult(patt: ScBindingPattern, subst) => {
-                exprs += new Expression(polymorphicSubst subst subst.subst(patt.getType(TypingContext.empty).get))
-              }
-              case ScalaResolveResult(fun: ScFunction, subst) => {
-                val funType = {
-                  if (fun.parameters.length == 0 || fun.paramClauses.clauses.apply(0).isImplicit) {
-                    subst.subst(fun.getType(TypingContext.empty).get) match {
-                      case ScFunctionType(ret, _) => ret
-                      case x => x
+    def tryUpdateRes(checkExpectedType: Boolean) {
+      if (checkExpectedType) {
+        InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromUnderscoreSection, true,
+          expectedType, this, checkExpectedType) match {
+          case Success(newRes, _) => res = newRes
+          case _ =>
+        }
+      }
+
+      val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, checkExpectedType)
+      res = tuple._1
+      implicitParameters = tuple._2
+    }
+
+    //if (!this.isInstanceOf[MethodInvocation]) { //todo: remove reference to MethodInvocation?
+    val oldRes = res
+    try {
+      tryUpdateRes(true)
+    } catch {
+      case _: SafeCheckException =>
+        res = oldRes
+        tryUpdateRes(false)
+    }
+    //}
+
+    def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
+      def updateRes(exp: Option[ScType]) {
+        exp match {
+          case Some(expected) => {
+            expected match {
+              case ScFunctionType(_, params) =>
+              case p: ScParameterizedType if p.getFunctionType != None =>
+              case _ => {
+                Conformance.isAliasType(expected) match {
+                  case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
+                    ta.aliasedType match {
+                      case Success(ScFunctionType(_, _), _) =>
+                      case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
+                      case _ => res = updateType(retType)
                     }
                   }
-                  else subst.subst(fun.getType(TypingContext.empty).get)
+                  case _ => res = updateType(retType)
                 }
-                exprs += new Expression(polymorphicSubst subst funType)
               }
             }
-          } else {
-            resolveResults += null
-            exprs += new Expression(Any)
           }
+          case _ => res = updateType(retType)
         }
-        implicitParameters = Some(resolveResults.toSeq)
-        res = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, polymorphicSubst)
       }
-      case ScMethodType(retType, params, isImplicit) if isImplicit => {
-        val resolveResults = new ArrayBuffer[ScalaResolveResult]
-        val iterator = params.iterator
-        while (iterator.hasNext) {
-          val param = iterator.next()
-          val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(this, paramType)
-          val results = collector.collect
-          if (results.length == 1) {
-            resolveResults += results(0)
-          } else {
-            resolveResults += null
-          }
+      if (!fromUnderscoreSection) {
+        updateRes(expectedType)
+      } else {
+        expectedType match {
+          case Some(ScFunctionType(functionRetType, _)) => updateRes(Some(functionRetType))
+          case Some(p: ScParameterizedType) if p.getFunctionType != None =>
+            updateRes(Some(p.getFunctionType.get.returnType))
+          case _ => res = updateType(retType)
         }
-        implicitParameters = Some(resolveResults.toSeq)
-        res = retType
       }
-      case _ =>
     }
 
     res match {
-      case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0 => {
-        def updateRes(exp: Option[ScType]) {
-          exp match {
-            case Some(expected) => {
-              expected match {
-                case ScFunctionType(_, params) =>
-                case p: ScParameterizedType if p.getFunctionType != None =>
-                case _ => {
-                  Conformance.isAliasType(expected) match {
-                    case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
-                      ta.aliasedType match {
-                        case Success(ScFunctionType(_, _), _) =>
-                        case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
-                        case _ => res = ScTypePolymorphicType(retType, tp)
-                      }
-                    }
-                    case _ => res = ScTypePolymorphicType(retType, tp)
-                  }
-                }
-              }
-            }
-            case _ => res = ScTypePolymorphicType(retType, tp)
-          }
-        }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType)
-        } else {
-          expectedType match {
-            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType)) //todo: another functions
-            case _ => res = ScTypePolymorphicType(retType, tp)
-          }
-        }
-      }
-      case ScMethodType(retType, params, _) if params.length == 0 => {
-        //todo: duplicate
-        def updateRes(exp: Option[ScType]) {
-          exp match {
-            case Some(expected) => {
-              expected match {
-                case ScFunctionType(_, params) =>
-                case p: ScParameterizedType if p.getFunctionType != None =>
-                case _ => {
-                  Conformance.isAliasType(expected) match {
-                    case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => {
-                      ta.aliasedType match {
-                        case Success(ScFunctionType(_, _), _) =>
-                        case Success(p: ScParameterizedType, _) if p.getFunctionType != None =>
-                        case _ => res = retType
-                      }
-                    }
-                    case _ => res = retType
-                  }
-                }
-              }
-            }
-            case _ => res = retType
-          }
-        }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType)
-        } else {
-          expectedType match {
-            case Some(ScFunctionType(retType, _)) => updateRes(Some(retType))  //todo: another functions
-            case _ => res = retType
-          }
-        }
-      }
-      case _ =>
-    }
-
-    res match {
-      case ScTypePolymorphicType(internal, typeParams) if expectedType != None => {
-        def updateRes(expected: ScType) {
-          res = ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false, false)),
-              Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
-            typeParams, shouldUndefineParameters = false) //here should work in different way:
-        }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType.get)
-        } else {
-          expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType) //todo: another functions
-            case _ => //do not update res, we haven't expected type
-          }
-        }
-
-      }
+      case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0 =>
+        removeMethodType(retType, t => ScTypePolymorphicType(t, tp))
+      case ScMethodType(retType, params, _) if params.length == 0 =>
+        removeMethodType(retType)
       case _ =>
     }
 

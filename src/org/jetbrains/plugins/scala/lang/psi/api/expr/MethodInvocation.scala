@@ -6,6 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.
@@ -53,7 +55,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def matchedParameters: Map[ScExpression, Parameter] = {
     getType(TypingContext.empty) //update matchedArgumentsVar if needed
-    matchedParametersVar.map{ case (a, b) => (b, a)}.toMap
+    matchedParametersVar.map {case (a: Parameter, b: ScExpression) => (b, a)}.toMap
   }
 
   /**
@@ -63,9 +65,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def argsElement: PsiElement
 
-  //todo: duplicate? see: ScExpression.*Type
-  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType]): TypeResult[ScType] = {
-    var nonValueType: TypeResult[ScType] = _nonValueType
+  def updateAccordingToExpectedType(nonValueType: TypeResult[ScType]): TypeResult[ScType] = {
     val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
       case -1 => false
       case _ => {
@@ -74,39 +74,21 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         else true
       }
     }
-    nonValueType match {
-      case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _) if expectedType != None => {
-        def updateRes(expected: ScType) {
-          val subIntenal: ScType = internal match {
-            case ScMethodType(internal, _, impl) if impl => internal
-            case _ => internal
-          }
-          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(subIntenal,
-            Seq(Parameter("", expected, false, false, false)),
-            Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(subIntenal.inferValueType))),
-            typeParams, shouldUndefineParameters = false)
-          nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(this)) //here should work in different way:
-        }
-        if (!fromUnderscoreSection) {
-          updateRes(expectedType.get)
-        } else {
-          expectedType.get match {
-            case ScFunctionType(retType, _) => updateRes(retType)
-            case p: ScParameterizedType => p.getFunctionType match {
-              case Some(ScFunctionType(retType, _)) => updateRes(retType)
-              case _ =>
-            }
-            case _ => //do not update res, we haven't expected type
-          }
-        }
-
-      }
-      case _ =>
-    }
-    nonValueType
+    InferUtil.updateAccordingToExpectedType(nonValueType, fromUnderscoreSection, false,
+      expectedType, this, false /* todo: ? */)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    try {
+      tryToGetInnerType(ctx, true)
+    } catch {
+      case _: SafeCheckException =>
+        tryToGetInnerType(ctx, false)
+    }
+  }
+
+
+  private def tryToGetInnerType(ctx: TypingContext, useExpectedType: Boolean): TypeResult[ScType] = {
     var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
     this match {
       case pref: ScPrefixExpr => return nonValueType //no arg exprs, just reference expression type
@@ -114,7 +96,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case _ =>
     }
 
-    nonValueType = updateAccordingToExpectedType(nonValueType)
+    val withExpectedType = useExpectedType && expectedType != None //optimization to avoid except
+
+    if (useExpectedType)
+      nonValueType = updateAccordingToExpectedType(nonValueType)
 
     def tuplizyCase(fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]),
                     exprs: Seq[Expression]): ScType = {
@@ -122,12 +107,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       def tail: ScType = {
         applicabilityProblemsVar = c._2
         matchedParametersVar = c._3
-
         c._1
       }
       if (!c._2.isEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getProject, getResolveScope) match {
-          case Some(e) => {
+        ScalaPsiUtil.tuplizy(exprs, getProject, getResolveScope).map { e =>
             val cd = fun(e)
             if (!cd._2.isEmpty) tail
             else {
@@ -135,10 +118,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
               matchedParametersVar = cd._3
               cd._1
             }
-          }
-          case _ => tail
-        }
-
+        }.getOrElse(tail)
       } else tail
     }
 
@@ -165,7 +145,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
       case Success(ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams), _) => {
         val exprs: Seq[Expression] = argumentExpressions.map(expr => new Expression(expr))
-        def fun(t: Seq[Expression]) = ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params, t, typeParams)
+        def fun(t: Seq[Expression]) =
+          ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params, t,
+            typeParams, safeCheck = withExpectedType)
         tuplizyCase(fun, exprs)
       }
       case Success(ScTypePolymorphicType(ScFunctionType(retType, params), typeParams), _) => {
@@ -173,7 +155,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         def fun(t: Seq[Expression]) =
           ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params.zipWithIndex.map {
             case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
-          }, t, typeParams)
+          }, t, typeParams, safeCheck = withExpectedType)
         tuplizyCase(fun, exprs)
       }
       case Success(tp: ScType, _) if this.isInstanceOf[ScMethodCall] => //todo: remove reference to method call
@@ -198,7 +180,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           }
           case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) => {
             val exprs: Seq[Expression] = argumentExpressionsIncludeUpdateCall.map(expr => new Expression(expr))
-            def fun(t: Seq[Expression]) = ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params, t, typeParams)
+            def fun(t: Seq[Expression]) =
+              ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params, t,
+                typeParams, safeCheck = withExpectedType)
             tuplizyCase(fun, exprs)
           }
           case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) => {
@@ -207,7 +191,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
               val params1 = params.zipWithIndex.map {
                 case (paramType, i) => new Parameter("v" + (i + 1), paramType, false, false, false)
               }
-              ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params1, t, typeParams)
+              ScalaPsiUtil.localTypeInferenceWithApplicabilityExt(retType, params1, t,
+                typeParams, safeCheck = withExpectedType)
             }
             tuplizyCase(fun, exprs)
           }
