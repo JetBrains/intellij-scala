@@ -225,7 +225,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                 case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
                     fun.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
-                      case Some(param) => baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
+                      case Some(param) =>
+                        baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
                       case None =>
                     }
                   else {
@@ -236,7 +238,9 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                 case ScalaResolveResult(constructor: ScPrimaryConstructor, _) => {
                   if (!baseProcessor.isInstanceOf[CompletionProcessor])
                     constructor.getParamByName(ref.refName, constr.arguments.indexOf(args)) match {
-                      case Some(param) => baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst))
+                      case Some(param) =>
+                        baseProcessor.execute(param, ResolveState.initial.put(ScSubstitutor.key, subst).
+                          put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE))
                       case None =>
                     }
                   else {
