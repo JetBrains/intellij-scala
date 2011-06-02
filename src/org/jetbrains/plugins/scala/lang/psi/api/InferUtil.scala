@@ -120,13 +120,14 @@ object InferUtil {
         if expectedType != None && (!fromImplicitParameters || impl) => {
         def updateRes(expected: ScType) {
           if (expected.equiv(Unit)) return //do not update according to Unit type
-          val subIntenal: ScType = internal match {
-            case ScMethodType(innerInternal, _, innerImpl) if innerImpl && !fromImplicitParameters => innerInternal
+          internal match {
+            case ScMethodType(innerInternal, _, innerImpl) if innerImpl && !fromImplicitParameters =>
+              return //do not update, this case will be updated, when implicit clause will be processed
             case _ => internal
           }
-          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(subIntenal,
+          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(internal,
             Seq(Parameter("", expected, expected, false, false, false)),
-            Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(subIntenal.inferValueType))),
+            Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check)
           nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(expr)) //here should work in different way:
         }
