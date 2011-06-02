@@ -13,6 +13,8 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
 
   def testForIndexedSeq = doTest
 
+  def testFromImplicitParam = doTest
+
   def testInfixMap = doTest
 
   def testIntArrayCreation = doTest
