@@ -3,11 +3,10 @@ package lang
 package psi
 package types
 
-import api.statements.params.{ScParameters, ScParameter}
+import api.statements.params.ScParameter
 import api.statements.ScFunction
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
-import api.toplevel.typedef.ScClass
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
 import result.{TypeResult, Success, TypingContext}
@@ -86,7 +85,7 @@ object Compatibility {
                           exprs: Seq[Expression],
                           checkWithImplicits: Boolean,
                           isShapesResolve: Boolean): ConformanceExtResult = {
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     var undefSubst = new ScUndefinedSubstitutor
 
     val clashedAssignments = clashedAssignmentsIn(exprs)
@@ -136,7 +135,9 @@ object Compatibility {
           used(getIt) = true
           val param: Parameter = parameters(getIt)
           val paramType = param.paramType
-          val typeResult = expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(paramType))._1
+          val expectedType = param.expectedType
+          val typeResult =
+            expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
           typeResult.toOption.toList.flatMap { exprType =>
             {
               val conforms = Conformance.conforms(paramType, exprType, true)
@@ -243,7 +244,7 @@ object Compatibility {
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used);
                         if (!b && !parameter.isDefault)) yield MissedValueParameter(parameter)
-      defaultParameterUsed = parameters.zip(used).find{case (p, b) => !b && p.isDefault} != None
+      defaultParameterUsed = parameters.zip(used).find{case (param, bool) => !bool && param.isDefault} != None
       if(!missed.isEmpty) return ConformanceExtResult(missed, undefSubst, defaultParameterUsed, matched)
     }
     ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched)
@@ -251,11 +252,11 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrElse(Nothing))
-    Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
+    new Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    Parameter(p.getName, t, false, p.isVarArgs, false)
+    new Parameter(p.getName, t, false, p.isVarArgs, false)
   }
 
   // TODO refactor a lot of duplication out of this method 
@@ -342,12 +343,12 @@ object Compatibility {
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any)
-            Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
+            new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
-        val res = checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
+        val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.getName, {
           substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
         }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
         res
@@ -370,7 +371,7 @@ object Compatibility {
           return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
 
 
-        checkConformanceExt(false, parameters.map {param: PsiParameter => Parameter("", {
+        checkConformanceExt(false, parameters.map {param: PsiParameter => new Parameter("", {
           val tp = substitutor.subst(ScType.create(param.getType, method.getProject, scope, paramTopLevel = true))
           if (param.isVarArgs) tp match {
             case ScParameterizedType(_, args) if args.length == 1 => args(0)
@@ -380,28 +381,6 @@ object Compatibility {
           else tp
         }, false, param.isVarArgs, false)}, exprs, checkWithImplicits, isShapesResolve)
       }
-      /*case cc: ScClass if cc.isCase => {
-        val parameters: Seq[ScParameter] = {
-          cc.clauses match {
-            case Some(params: ScParameters) if params.clauses.length != 0 => params.clauses.apply(0).parameters
-            case _ => Seq.empty
-          }
-        }
-
-        //optimization:
-        val hasRepeated = parameters.find(_.isRepeatedParameter) != None
-        val maxParams = parameters.length
-        if (exprs.length > maxParams && !hasRepeated)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("20")))
-        val minParams = parameters.count(p => !p.isDefaultParam && !p.isRepeatedParameter)
-        if (exprs.length < minParams)
-          return ConformanceExtResult(Seq(new ApplicabilityProblem("21")))
-
-        checkConformanceExt(true, parameters.map{param: ScParameter => Parameter(param.getName, {
-          substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
-        }, param.isDefaultParam, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
-      }*/
-
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
     }
   }

@@ -63,7 +63,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         if (!checkImplicits) return defaultResult //do not try implicit conversions for shape check
 
         val tp = tr match {
-          case Success(tp, _) => tp
+          case Success(innerTp, _) => innerTp
           case _ => return defaultResult
         }
         //if this result is ok, we do not need to think about implicits
@@ -77,7 +77,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         else if (f.length == 0) defaultResult
         else {
           val res = MostSpecificUtil(this, 1).mostSpecificForImplicit(f.toSet) match {
-            case Some(res) => res
+            case Some(innerRes) => innerRes
             case None => return defaultResult
           }
           ExpressionTypeResult(Success(res._1, Some(this)), res._3, Some(res._2))
@@ -169,7 +169,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         if (unders.length == 0) innerType(ctx)
         else {
           val params = unders.map {u => 
-            Parameter("", u.getNonValueType(ctx, ignoreBaseTypes).getOrElse(Any).inferValueType, false, false, false)
+            new Parameter("", u.getNonValueType(ctx, ignoreBaseTypes).getOrElse(Any).inferValueType, false, false, false)
           }
           val methType = 
             new ScMethodType(getTypeWithoutImplicitsWithoutUnderscore(ctx, ignoreBaseTypes).getOrElse(Any), 

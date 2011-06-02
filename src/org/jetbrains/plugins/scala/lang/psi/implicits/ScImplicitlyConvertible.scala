@@ -124,7 +124,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     
     val sigsFound = processor.candidatesS.map((r: ScalaResolveResult) => {
       if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), this, false)) { //to prevent infinite recursion
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         lazy val funType: ScParameterizedType = {
           val fun = "scala.Function1"
           val funClass = JavaPsiFacade.getInstance(this.getProject).findClass(fun, this.getResolveScope)
@@ -142,13 +142,13 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           }
           case f: ScFunction => {
             Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
-              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
               case _ => (Nothing, Nothing)
             }
           }
           case b: ScBindingPattern => {
             Conformance.undefinedSubst(funType, subst.subst(b.getType(TypingContext.empty).get)).getSubstitutor match {
-              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
               case _ => (Nothing, Nothing)
             }
           }
@@ -156,14 +156,14 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
             // View Bounds and Context Bounds are processed as parameters.
             Conformance.undefinedSubst(funType, subst.subst(param.getType(TypingContext.empty).get)).
                     getSubstitutor match {
-              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
               case _ => (Nothing, Nothing)
             }
           }
           case obj: ScObject => {
             Conformance.undefinedSubst(funType, subst.subst(obj.getType(TypingContext.empty).get)).
                     getSubstitutor match {
-              case Some(subst) => (subst.subst(funType.typeArgs.apply(0)), subst.subst(funType.typeArgs.apply(1)))
+              case Some(innerSubst) => (innerSubst.subst(funType.typeArgs.apply(0)), innerSubst.subst(funType.typeArgs.apply(1)))
               case _ => (Nothing, Nothing)
             }
           }
@@ -195,8 +195,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
                     case Some(expected) =>
                       val additionalUSubst = Conformance.undefinedSubst(expected, newSubst.subst(retTp))
                       (uSubst + additionalUSubst).getSubstitutor match {
-                        case Some(substitutor) =>
-                          (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
+                        case Some(innerSubst) =>
+                          (true, r.copy(subst = innerSubst.followed(r.substitutor)), innerSubst.subst(tp), innerSubst.subst(retTp))
                         case None =>
                           (true, r.copy(subst = substitutor.followed(r.substitutor)), substitutor.subst(tp), substitutor.subst(retTp))
                       }
@@ -216,7 +216,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
 
     for ((pass, resolveResult, tp, rt) <- sigsFound if pass) {
-      result += Tuple(rt, resolveResult.element, resolveResult.importsUsed)
+      result += ((rt, resolveResult.element, resolveResult.importsUsed))
     }
 
     result.toSeq

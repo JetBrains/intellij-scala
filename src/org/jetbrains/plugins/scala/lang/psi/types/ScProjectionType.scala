@@ -174,17 +174,17 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
         (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), uSubst)
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
         (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), uSubst)
-      case (ScThisType(clazz), ScDesignatorType(obj: ScObject)) =>
+      case (_, ScDesignatorType(obj: ScObject)) =>
         (false, uSubst)
-      case (ScThisType(clazz), ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
+      case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.getType(TypingContext.empty) match {
           case Success(tp, _) if ScType.isSingletonType(tp) =>
             Equivalence.equivInner(this, tp, uSubst, falseUndef)
           case _ =>
             (false, uSubst)
         }
-      case (ScThisType(clazz), ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
-      case (ScThisType(clazz), p@ScProjectionType(tp, elem: ScTypedDefinition, subst)) if elem.isStable =>
+      case (_, ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
+      case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, subst)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
           case Success(singl, _) if ScType.isSingletonType(singl) =>
             val newSubst = subst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
@@ -219,7 +219,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
         }, r, uSubst, falseUndef)
-      case (ScDesignatorType(element), ScDesignatorType(element1)) =>
+      case (_, ScDesignatorType(element1)) =>
         if (ScEquivalenceUtil.smartEquivalence(element, element1)) return (true, uSubst)
         if (ScType.isSingletonType(this) && ScType.isSingletonType(r)) {
           element match {

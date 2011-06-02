@@ -5,6 +5,9 @@ package types
 
 import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import com.intellij.openapi.project.Project
+import util.CommonClassesSearcher
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiElement, PsiManager}
 
 
 abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
@@ -22,14 +25,14 @@ abstract case class StdType(name: String, tSuper: Option[StdType]) extends Value
 
   override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
-      case (l: StdType, r: StdType) => (l == r, subst)
-      case (AnyRef, r) => {
+      case (l: StdType, _: StdType) => (l == r, subst)
+      case (AnyRef, _) => {
         ScType.extractClass(r) match {
           case Some(clazz) if clazz.getQualifiedName == "java.lang.Object" => (true, subst)
           case _ => (false, subst)
         }
       }
-      case (_, r) => {
+      case (_, _) => {
         ScType.extractClass(r) match {
           case Some(clazz) if clazz.getQualifiedName == "scala." + name => (true, subst)
           case _ => (false, subst)
@@ -76,7 +79,17 @@ case object Singleton extends StdType("Singleton", Some(AnyRef))
 
 case object AnyVal extends StdType("AnyVal", Some(Any))
 
-abstract case class ValType(override val name: String) extends StdType(name, Some(AnyVal))
+abstract case class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
+  def apply(element: PsiElement): ScType = {
+    apply(element.getManager, element.getResolveScope)
+  }
+
+  def apply(manager: PsiManager, scope: GlobalSearchScope): ScType = {
+    val classes = CommonClassesSearcher.getCachedClass(manager, scope, "scala." + name)
+    if (classes.length > 0) ScDesignatorType(classes(0))
+    else this
+  }
+}
 
 object Unit extends ValType("Unit")
 

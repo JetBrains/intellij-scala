@@ -424,7 +424,9 @@ object ScalaPsiUtil {
     val checkWeak = true
 
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
-    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType)))
+    val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
+    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
+      expectedType = abstractSubst.subst(p.paramType)))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     val tpe = if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst

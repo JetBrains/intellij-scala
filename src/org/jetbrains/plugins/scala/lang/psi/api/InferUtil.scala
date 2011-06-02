@@ -125,7 +125,7 @@ object InferUtil {
             case _ => internal
           }
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(subIntenal,
-            Seq(Parameter("", expected, false, false, false)),
+            Seq(Parameter("", expected, expected, false, false, false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(subIntenal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check)
           nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(expr)) //here should work in different way:
@@ -146,7 +146,8 @@ object InferUtil {
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters => {
         def updateRes(expected: ScType) {
-          nonValueType = Success(ScalaPsiUtil.localTypeInference(internal, Seq(Parameter("", expected, false, false, false)),
+          nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
+            Seq(Parameter("", expected, expected, false, false, false)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check), Some(expr)) //here should work in different way:
         }
