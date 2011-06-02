@@ -208,7 +208,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       implicitParameters = tuple._2
     }
 
-    //if (!this.isInstanceOf[MethodInvocation]) { //todo: remove reference to MethodInvocation?
     val oldRes = res
     try {
       tryUpdateRes(true)
@@ -217,7 +216,6 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
         res = oldRes
         tryUpdateRes(false)
     }
-    //}
 
     def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
       def updateRes(exp: Option[ScType]) {

@@ -21,15 +21,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
   def collect: Seq[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
-      placeForTreeWalkUp match {
-        case null =>
-        case p => {
-          if (!p.processDeclarations(processor,
-            ResolveState.initial(),
-            lastParent, place)) return
-          treeWalkUp(placeForTreeWalkUp.getContext, placeForTreeWalkUp)
-        }
-      }
+      if (placeForTreeWalkUp == null) return
+      if (!placeForTreeWalkUp.processDeclarations(processor,
+        ResolveState.initial(), lastParent, place)) return
+      treeWalkUp(placeForTreeWalkUp.getContext, placeForTreeWalkUp)
     }
     treeWalkUp(place, null) //collecting all references from scope
     //todo: check for candidates, if not found, continue
@@ -64,33 +59,51 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     }
 
     override def candidatesS: scala.collection.Set[ScalaResolveResult] = {
-      def forFilter(c: ScalaResolveResult): Boolean = {
-        def compute(): Boolean = {
+      def forFilter(c: ScalaResolveResult): Option[ScalaResolveResult] = {
+        def compute(): Option[ScalaResolveResult] = {
           val subst = c.substitutor
           c.element match {
             case patt: ScBindingPattern
               if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false)=> {
               patt.getType(TypingContext.empty) match {
-                case Success(pattType: ScType, _) => subst.subst(pattType) conforms tp
-                case _ => false
+                case Success(pattType: ScType, _) =>
+                  if (!subst.subst(pattType).conforms(tp)) None
+                  else Some(c)
+                case _ => None
               }
             }
             case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) => {
               val oneImplicit = fun.paramClauses.clauses.length == 1 && fun.paramClauses.clauses.apply(0).isImplicit
               fun.getType(TypingContext.empty) match {
                 case Success(funType: ScType, _) => {
-                  if (subst.subst(funType) conforms tp) true
+                  if (subst.subst(funType) conforms tp) {
+                    Conformance.undefinedSubst(tp, subst.subst(funType)).getSubstitutor match {
+                      case Some(substitutor) =>
+                        Some(c.copy(subst.followed(substitutor)))
+                      //failed to get implicit parameter, there is no substitution to resolve constraints
+                      case None => None
+                    }
+                  }
                   else {
                     subst.subst(funType) match {
-                      case ScFunctionType(ret, params) if params.length == 0 || oneImplicit => ret conforms tp
-                      case _ => false
+                      case ScFunctionType(ret, params) if params.length == 0 || oneImplicit =>
+                        if (!ret.conforms(tp)) None
+                        else {
+                          Conformance.undefinedSubst(tp, ret).getSubstitutor match {
+                            case Some(substitutor) =>
+                              Some(c.copy(subst.followed(substitutor)))
+                            //failed to get implicit parameter, there is no substitution to resolve constraints
+                            case None => None
+                          }
+                        }
+                      case _ => None
                     }
                   }
                 }
-                case _ => false
+                case _ => None
               }
             }
-            case _ => false
+            case _ => None
           }
         }
 
@@ -99,41 +112,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
         doComputations(c.element, (tp: ScType, searches: List[ScType]) => searches.find(_.equiv(tp)) == None,
           tp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
           case Some(res) => res
-          case None => false
+          case None => None
         }
       }
-      def forMap(c: ScalaResolveResult): ScalaResolveResult = {
-        def compute(): ScalaResolveResult = {
-          val subst = c.substitutor
-          c.element match {
-            case fun: ScFunction if fun.typeParameters.length > 0 => {
-              val funType = fun.getType(TypingContext.empty).get
-              val undefSubst = {
-                if (subst.subst(funType) conforms tp) Conformance.undefinedSubst(tp, subst.subst(funType))
-                else {
-                  subst.subst(funType) match {
-                    case ScFunctionType(ret, params) =>
-                      Conformance.undefinedSubst(tp, ret) //todo: check is implicit first parameter clause
-                  }
-                }
-              }
-              undefSubst.getSubstitutor match {
-                case Some(s: ScSubstitutor) => c.copy(subst.followed(s))
-                case _ => c
-              }
-            }
-            case _ => c
-          }
-        }
 
-        import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
-
-        (doComputations(c.element, (tp: ScType, searches: List[ScType]) => true,
-          tp, compute() , IMPLICIT_PARAM_TYPES_KEY): @unchecked) match {
-          case Some(res) => res
-        }
-      }
-      val applicable = candidatesSet.filter(forFilter(_)).map(forMap(_))
+      val applicable = candidatesSet.map(forFilter).filter(_ != None).map(_.get)
       new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
         case Some(r) => HashSet(r)
         case _ => applicable
