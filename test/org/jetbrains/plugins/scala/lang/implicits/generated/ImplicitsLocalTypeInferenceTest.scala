@@ -8,4 +8,6 @@ class ImplicitsLocalTypeInferenceTest extends ImplicitsTestBase {
   def testConvert1 = doTest
 
   def testConvert2 = doTest
+
+  def testSCL2920 = doTest
 }
