@@ -102,12 +102,12 @@ object ResolveUtils {
       if (param.isVarArgs && psiType.isInstanceOf[PsiArrayType]) {
         psiType = psiType.asInstanceOf[PsiArrayType].getComponentType
       }
-      Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false)
+      new Parameter("", s.subst(ScType.create(psiType, m.getProject, scope, paramTopLevel = true)), false, param.isVarArgs, false)
     }).toSeq, false)(m.getProject, scope)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
-    if (m.getTypeParameters.length == 0) return javaMethodType(m, s, scope, returnType)
+    if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
     else {
       ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(tp =>
         TypeParameter(tp.getName, Nothing, Any, tp))) //todo: add lower and upper bounds
@@ -173,7 +173,7 @@ object ResolveUtils {
                   case obj: ScObject => obj.getQualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
-                return packageContains(packageName, placePackageName)
+                packageContains(packageName, placePackageName)
               }
               bind match {
                 case td: ScTemplateDefinition => {
@@ -184,7 +184,7 @@ object ResolveUtils {
                 }
                 case pack: PsiPackage => {
                   val packageName = pack.getQualifiedName
-                  return processPackage(packageName)
+                  processPackage(packageName)
                 }
                 case _ => true
               }
@@ -217,7 +217,7 @@ object ResolveUtils {
                     case file: ScalaFile => file.getPackageName
                     case pack: ScPackaging => pack.getPackageName
                   }
-                  return packageContains(packageName, placePackageName)
+                  packageContains(packageName, placePackageName)
                 }
               }
             }
@@ -301,7 +301,7 @@ object ResolveUtils {
                   case file: ScalaFile => file.getPackageName
                   case pack: ScPackaging => pack.fullPackageName
                 }
-                return packageContains(packageName, placePackageName)
+                packageContains(packageName, placePackageName)
               }
             }
           } else true
@@ -332,7 +332,7 @@ object ResolveUtils {
             case file: ScalaFile => file.getPackageName
             case pack: ScPackaging => pack.fullPackageName
           }
-          return packageContains(packageName, placePackageName)
+          packageContains(packageName, placePackageName)
         }
       }
     }

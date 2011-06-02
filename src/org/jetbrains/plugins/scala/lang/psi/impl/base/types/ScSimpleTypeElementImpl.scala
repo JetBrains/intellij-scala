@@ -122,7 +122,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           c.expectedType match {
             case Some(expected) => {
               def updateRes(expected: ScType) {
-                typeParameters = ScalaPsiUtil.localTypeInference(res, Seq(Parameter("", expected, false, false, false)),
+                typeParameters = ScalaPsiUtil.localTypeInference(res, Seq(new Parameter("", expected, false, false, false)),
                     Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParameters).subst(res.inferValueType))),
                   typeParameters, shouldUndefineParameters = false).typeParameters //here should work in different way:
               }

@@ -118,7 +118,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
           ScalaDocumentationProvider.parseParameter(param, (t: ScType) => ScType.presentableText(subst.subst(t)))
         }
-        def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean, isImplicit: Boolean = false) {
+        def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
+                              isImplicit: Boolean = false) {
           if (parameters.length > 0) {
             var k = 0
             val exprs: Seq[ScExpression] = args.exprs

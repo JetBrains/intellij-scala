@@ -11,7 +11,7 @@ import psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
-import psi.api.base.{ScPrimaryConstructor, ScConstructor, ScReferenceElement}
+import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
 import psi.types.result.TypingContext
 import psi.ScalaPsiUtil
@@ -23,8 +23,7 @@ import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
 import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
 import util.PsiModificationTracker
-import caches.{ScalaRecursionManager, CachesUtil}
-import com.intellij.openapi.util.Computable
+import caches.CachesUtil
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(this, false)
@@ -84,19 +83,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def resolveUnqualifiedExpression(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
     def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
+      if (place == null) return
+      if (!place.processDeclarations(processor,
+        ResolveState.initial(),
+        lastParent, ref)) return
       place match {
-        case null =>
-        case p => {
-          if (!p.processDeclarations(processor,
-            ResolveState.initial(),
-            lastParent, ref)) return
-          place match {
-            case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
-            case _ => if (!processor.changedLevel) return
-          }
-          treeWalkUp(place.getContext, place)
-        }
+        case (_: ScTemplateBody | _: ScExtendsBlock) => //template body and inherited members are at the same level
+        case _ => if (!processor.changedLevel) return
       }
+      treeWalkUp(place.getContext, place)
     }
     val context = ref.getContext
     val contextElement = (context, processor) match {

@@ -21,9 +21,19 @@ trait NonValueType extends ScType {
   def isValue = false
 }
 
-case class Parameter(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean, isByName: Boolean) {
+/**
+ * Generalized parameter. It's not psi element. So can be used in any place.
+ * Some difference
+ */
+case class Parameter(name: String, paramType: ScType, expectedType: ScType, isDefault: Boolean,
+                     isRepeated: Boolean, isByName: Boolean) {
+  def this(name: String, paramType: ScType, isDefault: Boolean, isRepeated: Boolean, isByName: Boolean) {
+    this(name, paramType, paramType, isDefault, isRepeated, isByName)
+  }
+
   def this(param: ScParameter) {
-    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter)
+    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam,
+      param.isRepeatedParameter, param.isCallByNameParameter)
   }
 }
 case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp: PsiTypeParameter)

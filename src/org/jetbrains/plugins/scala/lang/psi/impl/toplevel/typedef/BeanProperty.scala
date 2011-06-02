@@ -27,7 +27,7 @@ object BeanProperty {
 
   def processBeanPropertyDeclarationsInternal(annotated: ScAnnotationsHolder, context: PsiElement, t: ScTypedDefinition)
                                              (callback: (PsiMethod => Boolean)): Boolean = {
-    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(Parameter("", _, false, false, false))
+    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(new Parameter("", _, false, false, false))
     def has(annotationName: String): Boolean = annotated.hasAnnotation(annotationName).isDefined
     val isBeanProperty = has("scala.reflect.BeanProperty")
     val isBooleanBeanProperty = has("scala.reflect.BooleanBeanProperty")
