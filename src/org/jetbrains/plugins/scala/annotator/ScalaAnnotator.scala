@@ -498,6 +498,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean) {
+    val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
+    ImportTracker.getInstance(expr.getProject).
+                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+
     expr match {
       case m: ScMatchStmt =>
       case bl: ScBlock if bl.lastStatement != None =>
@@ -522,7 +526,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case Some((tp: ScType, typeElement)) => {
             import org.jetbrains.plugins.scala.lang.psi.types._
             val expectedType = Success(tp, None)
-            val ExpressionTypeResult(exprType, importUsed, implicitFunction) = expr.getTypeAfterImplicitConversion()
             if (settings(expr).SHOW_IMPLICIT_CONVERSIONS) {
               implicitFunction match {
                 case Some(fun) => {
@@ -549,8 +552,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   case None =>
                 }
               }
-            } else ImportTracker.getInstance(expr.getProject).
-                    registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
+            }
           }
           case _ => //do nothing
         }
