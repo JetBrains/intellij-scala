@@ -9,6 +9,8 @@ class TypeInferenceGenericCallTest extends TypeInferenceTestBase {
 
   def testCaseClasses = doTest
 
+  def testConstructorInsideClass = doTest
+
   def testGenericFunction = doTest
 
   def testInfixLeftAssocType = doTest

@@ -33,7 +33,7 @@ object Bounds {
     for (i <- 1 until typez.length) {
       res = glb(res, typez(i), checkWeak)
     }
-    return res
+    res
   }
 
   def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, 0, checkWeak)
@@ -145,7 +145,7 @@ object Bounds {
             case _ => calcForTypeParamWithoutVariance(substed1, substed2)
           })
         }
-        return ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
+        ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
       }
       case _ => Any
     }
@@ -247,6 +247,6 @@ object Bounds {
       }
     }
     checkClasses(aClasses)
-    return res.toArray
+    res.toArray
   }
 }

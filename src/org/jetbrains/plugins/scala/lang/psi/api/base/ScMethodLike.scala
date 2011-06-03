@@ -5,12 +5,39 @@ package api
 package base
 
 import psi.types.ScType
-import toplevel.typedef.ScMember
+import statements.params.ScTypeParamClause
+import com.intellij.psi.PsiMethod
+import toplevel.typedef.{ScTypeDefinition, ScMember}
+import impl.ScalaPsiElementFactory
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
  */
-trait ScMethodLike extends ScMember {
+trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
   def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType
+
+  /**
+   * This method is very important for generic type inference.
+   * In case if we use just containg class type parameters
+   * we can get problems about intersection of just class
+   * type parameters and constructor type parameters. And
+   * in that context it will have different meaning. See SCL-3095.
+   * @return generated type parameters only for constructors
+   */
+  def getConstructorTypeParameters: Option[ScTypeParamClause] = {
+    this match {
+      case method: PsiMethod if method.isConstructor =>
+        val clazz = method.getContainingClass
+        clazz match {
+          case c: ScTypeDefinition =>
+            c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
+              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(typeParamClause.getText,
+                typeParamClause.getContext, typeParamClause)
+            })
+          case _ => None
+        }
+      case _ => None
+    }
+  }
 }

@@ -501,6 +501,7 @@ object ScalaPsiUtil {
 
   //todo: always returns true?!
   def shouldCreateStub(elem: PsiElement): Boolean = {
+    return true
     elem match {
       case _: ScAnnotation | _: ScAnnotations | _: ScFunction | _: ScTypeAlias | _: ScAccessModifier |
               _: ScModifierList | _: ScVariable | _: ScValue | _: ScParameter | _: ScParameterClause |
