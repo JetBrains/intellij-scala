@@ -34,10 +34,10 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
 import parser.parsing.top.TmplDef
 import parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
-import parser.parsing.params.ImplicitParamClause
 import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
 import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
 import api.base.patterns._
+import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
 
 object ScalaPsiElementFactory {
 
@@ -741,22 +741,22 @@ object ScalaPsiElementFactory {
   }
 
   def createTypeElementFromText(text: String, manager: PsiManager): ScTypeElement = {
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), 
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, "var f: " + text).asInstanceOf[ScalaFile]
     dummyFile.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
   }
   
   def createColon(manager: PsiManager): PsiElement = {
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(), 
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, "var f: Int").asInstanceOf[ScalaFile]
     dummyFile.getFirstChild.asInstanceOf[ScalaPsiElement].findChildrenByType(ScalaTokenTypes.tCOLON).head
   }
 
   def createComma(manager: PsiManager): PsiElement = {
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject()).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
+            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, ",").asInstanceOf[ScalaFile]
     dummyFile.findChildrenByType(ScalaTokenTypes.tCOMMA).head
   }
@@ -772,6 +772,21 @@ object ScalaPsiElementFactory {
     if (psi.isInstanceOf[ScTypeElement]) {
       psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
       psi.asInstanceOf[ScTypeElement]
+    } else null
+  }
+
+  def createTypeParameterClauseFromTextWithContext(text: String, context: PsiElement,
+                                                   child: PsiElement): ScTypeParamClause = {
+    val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val builder: ScalaPsiBuilder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+        new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text))
+    TypeParamClause.parse(builder)
+    val node = builder.getTreeBuilt
+    holder.rawAddChildren(node.asInstanceOf[TreeElement])
+    val psi = node.getPsi
+    if (psi.isInstanceOf[ScTypeParamClause]) {
+      psi.asInstanceOf[ScalaPsiElement].setContext(context, child)
+      psi.asInstanceOf[ScTypeParamClause]
     } else null
   }
 

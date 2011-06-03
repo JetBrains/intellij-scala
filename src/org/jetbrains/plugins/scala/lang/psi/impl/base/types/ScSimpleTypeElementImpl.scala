@@ -21,8 +21,8 @@ import params.ScTypeParam
 import psi.types.Compatibility.Expression
 import collection.immutable.HashMap
 import api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
-import api.base.{ScPathElement, ScStableCodeReferenceElement, ScPrimaryConstructor, ScConstructor}
 import lang.resolve.ScalaResolveResult
+import api.base._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -61,19 +61,39 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       }
     }
 
-    def typeForConstructor(ref: ScStableCodeReferenceElement, constr: PsiMethod, subst: ScSubstitutor, parentElement: PsiNamedElement): ScType = {
-      /* val noTypeInference = parentElement match {
-           case t: ScTypeParametersOwner => t.typeParameters.isEmpty
-           case p: PsiTypeParameterListOwner => p.getTypeParameters.isEmpty
-           case _ => true
-         }*/
+    def typeForConstructor(ref: ScStableCodeReferenceElement, constr: PsiMethod,
+                           _subst: ScSubstitutor, parentElement: PsiNamedElement): ScType = {
       val clazz = constr.getContainingClass
+      val (constrTypParameters: Seq[ScTypeParam], constrSubst: ScSubstitutor) = parentElement match {
+        case ta: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
+        case s: ScTypeParametersOwner if s.typeParameters.length > 0 =>
+          constr match {
+            case method: ScMethodLike =>
+              val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
+              val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
+                case (tpClass: ScTypeParam, tpConstr: ScTypeParam) => {
+                  ((tpClass.getName, ScalaPsiUtil.getPsiElementId(tpClass)),
+                    new ScTypeParameterType(tpConstr, ScSubstitutor.empty))
+                }
+              }.toMap, Map.empty, None)
+              (params, subst)
+            case _ => (Seq.empty, ScSubstitutor.empty)
+          }
+        case _ => (Seq.empty, ScSubstitutor.empty)
+      }
+      val subst = _subst followed constrSubst
       val tp = parentElement match {
-        case ta: ScTypeAliasDefinition => subst.subst(ta.aliasedType.getOrElse(return Nothing))
-        case _ => parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, false).getOrElse(return Nothing), clazz, subst)
+        case ta: ScTypeAliasDefinition =>
+          ta.aliasedType.getOrElse(return Nothing)
+        case _ =>
+          parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, false).
+            getOrElse(return Nothing), clazz, subst)
       }
       val res = subst.subst(tp)
       var typeParameters: Seq[TypeParameter] = parentElement match {
+        case tp: ScTypeParametersOwner if constrTypParameters.length > 0 =>
+          constrTypParameters.map(tp => new TypeParameter(tp.name,
+                tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
         case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
           tp.typeParameters.map(tp => new TypeParameter(tp.name,
                 tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
@@ -88,8 +108,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       getContext match {
         case p: ScParameterizedTypeElement => {
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, tp) =>
-            ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))}),
+          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
+            (
+              (typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
+              arg.getType(TypingContext.empty).getOrElse(Any)
+              )}),
             Map.empty, None)
           return appSubst.subst(res)
         }
@@ -118,7 +141,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               typeParameters, subst).typeParameters
           }
           //todo: last implicit clause
-
+          //todo: change order: expected type before last implicit clause or last clause
           c.expectedType match {
             case Some(expected) => {
               def updateRes(expected: ScType) {
@@ -194,8 +217,8 @@ object ScSimpleTypeElementImpl {
         case _ => None
       }
     }) match {
-      case Some(r@ScalaResolveResult(n: PsiMethod, subst)) if n.isConstructor =>
-        (n.getContainingClass, subst, r.fromType)
+      case Some(r@ScalaResolveResult(n: PsiMethod, resolveSubstitutor)) if n.isConstructor =>
+        (n.getContainingClass, resolveSubstitutor, r.fromType)
       case Some(r@ScalaResolveResult(n: PsiNamedElement, subst: ScSubstitutor)) => (n, subst, r.fromType)
       case _ => return Failure("Cannot resolve reference", Some(ref))
     }
