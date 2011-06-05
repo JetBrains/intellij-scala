@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandlerBase
 import lang.lexer.ScalaTokenTypes
 import lang.psi.api.expr.ScSelfInvocation
 import com.intellij.psi.PsiElement
@@ -10,6 +9,7 @@ import lang.psi.api.statements.ScFunction
 import lang.psi.ScalaPsiUtil
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScObject, ScClass}
 import lang.psi.api.statements.params.ScParameter
+import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 
 
 /**
@@ -17,9 +17,9 @@ import lang.psi.api.statements.params.ScParameter
  * Date: 22.11.2008
  */
 
-// TODO we can return multiple targets with IDEA 10.5. Should we return both case class and companion object for A(x)?
-class ScalaGoToDeclarationHandler extends GotoDeclarationHandlerBase {
-  def getGotoDeclarationTarget(sourceElement: PsiElement): PsiElement = {
+class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
+
+  def getGotoDeclarationTargets(sourceElement: PsiElement): Array[PsiElement] = {
     if (sourceElement == null) return null
     if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null;
 
@@ -27,7 +27,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandlerBase {
       sourceElement.getParent match {
         case self: ScSelfInvocation => {
           self.bind match {
-            case Some(elem) => return elem
+            case Some(elem) => return Array(elem)
             case None => return null
           }
         }
@@ -46,30 +46,33 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandlerBase {
           if (fun.name == "copy" && fun.isSyntheticCopy) {
             clazz match {
               case td: ScClass if td.isCase =>
-                return td
+                return Array(td)
               case _ =>
             }
           }
           ScalaPsiUtil.getCompanionModule(clazz) match {
             case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None =>
-              return td
+              return Array(td)
             case _ =>
           }
           clazz match {
             case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
-              return o
+              return ScalaPsiUtil.getCompanionModule(clazz) match {
+                case Some(c: ScClass) => Array(o, c) // Offer navigation to the class and object for apply/unapply.
+                case _ => Array(o)
+              }
             case td: ScTypeDefinition if td.syntheticMembers.contains(fun) =>
-              return td
+              return Array(td)
             case _ =>
               return null
           }
         case o: ScObject =>
           ScalaPsiUtil.getCompanionModule(o) match {
-            case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None => return td
+            case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None => return Array(td)
             case _ => return null
           }
         case param: ScParameter =>
-          return ScalaPsiUtil.parameterForSyntheticParameter(param).orNull
+          return ScalaPsiUtil.parameterForSyntheticParameter(param).map(Array[PsiElement](_)).orNull
         case _ => return null
       }
     }
