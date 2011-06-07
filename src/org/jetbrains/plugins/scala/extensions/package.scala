@@ -31,6 +31,8 @@ package object extensions {
     override def repr = e
   }
 
+  implicit def toPipedObject[T](value: T) = new PipedObject[T](value)
+
   implicit def toRichIterator[A](it: Iterator[A]) = new IteratorExt[A](it)
 
 
