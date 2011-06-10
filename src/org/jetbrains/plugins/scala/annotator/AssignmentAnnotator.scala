@@ -37,6 +37,19 @@ trait AssignmentAnnotator {
     if (namedParam) return
     val reassignment = ref.find(ScalaPsiUtil.isReadonly).isDefined
 
+    if(reassignment) {
+      val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")
+      ref.get match {
+        case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
+          annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))
+        case _ =>
+      }
+      return
+    }
+
+    if(!advancedHighlighting) 
+      return
+
     for {
       sresult <- results
       if sresult.isSetterFunction
@@ -54,19 +67,6 @@ trait AssignmentAnnotator {
       }
       return
     }
-
-    if(reassignment) {
-      val annotation = holder.createErrorAnnotation(assignment, "Reassignment to val")
-      ref.get match {
-        case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
-          annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))
-        case _ =>
-      }
-      return
-    }
-
-    if(!advancedHighlighting) 
-      return
 
     l.getType(TypingContext.empty).foreach { lType =>
       r.foreach { expression =>
