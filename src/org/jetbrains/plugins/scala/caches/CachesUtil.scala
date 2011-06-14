@@ -7,12 +7,12 @@ import lang.psi.types.{Signature, ScType}
 import lang.psi.types.result.TypeResult
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import lang.psi.api.statements.params.ScParameterClause
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
 import collection.mutable.{Map, HashMap}
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
 import util.CachedValueProvider.Result
+import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,6 +23,8 @@ object CachesUtil {
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
+  val CONSTRUCTOR_TYPE_PARAMETERS_KEY: Key[CachedValue[Option[ScTypeParamClause]]] =
+    Key.create("constructor.type.parameters.key")
   val REF_ELEMENT_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.key")
   val REF_EXPRESSION_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
