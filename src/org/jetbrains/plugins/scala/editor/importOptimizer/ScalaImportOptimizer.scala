@@ -30,7 +30,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       def getUnusedImports: HashSet[ImportUsed] = {
         val usedImports = new HashSet[ImportUsed]
         file.accept(new ScalaRecursiveElementVisitor {
-          override def visitReference(ref: ScReferenceElement) = {
+          override def visitReference(ref: ScReferenceElement) {
             if (PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null) {
               ref.multiResolve(false) foreach {
                 case scalaResult: ScalaResolveResult =>
@@ -42,7 +42,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             super.visitReference(ref)
           }
 
-          override def visitElement(element: ScalaPsiElement) = {
+          override def visitElement(element: ScalaPsiElement) {
             val imports = element match {
               case expression: ScExpression => {
                 checkTypeForExpression(expression)
@@ -59,7 +59,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         unusedImports
       }
       new Runnable {
-        def run: Unit = {
+        def run() {
           val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
           documentManager.commitDocument(documentManager.getDocument(scalaFile)) //before doing changes let's commit document
           //remove unnecessary imports
@@ -123,7 +123,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           documentManager.commitDocument(documentManager.getDocument(scalaFile))
 
           file.accept(new ScalaRecursiveElementVisitor {
-            override def visitImportExpr(expr: ScImportExpr) = {
+            override def visitImportExpr(expr: ScImportExpr) {
               expr.selectorSet match {
                 case Some(selectors) if selectors.selectors.length == 1 - (if (selectors.hasWildcard) 1 else 0) => {
                   if (selectors.hasWildcard) {

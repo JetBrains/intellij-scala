@@ -331,7 +331,7 @@ object ScalaPsiUtil {
   def getExprImports(z: ScExpression): Set[ImportUsed] = {
     var res: Set[ImportUsed] = Set.empty
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitExpression(expr: ScExpression) = {
+      override def visitExpression(expr: ScExpression) {
         expr match {
           case f: ScForStatement => {
             f.getDesugarisedExpr match {

@@ -9,11 +9,11 @@ import scala.collection.Set
 import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 30.04.2010
  */
-
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)
@@ -69,7 +69,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
         case _ =>
       }
     }
-    return true
+    true
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {

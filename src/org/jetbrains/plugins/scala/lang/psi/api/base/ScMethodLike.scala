@@ -9,6 +9,8 @@ import statements.params.ScTypeParamClause
 import com.intellij.psi.PsiMethod
 import toplevel.typedef.{ScTypeDefinition, ScMember}
 import impl.ScalaPsiElementFactory
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -26,6 +28,14 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
    * @return generated type parameters only for constructors
    */
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
+    CachesUtil.get(this, CachesUtil.CONSTRUCTOR_TYPE_PARAMETERS_KEY,
+      new CachesUtil.MyProvider[ScMethodLike, Option[ScTypeParamClause]](
+        this, (value: ScMethodLike) => getConstructorTypeParametersImpl
+      )(PsiModificationTracker.MODIFICATION_COUNT)
+    )
+  }
+
+  private def getConstructorTypeParametersImpl: Option[ScTypeParamClause] = {
     this match {
       case method: PsiMethod if method.isConstructor =>
         val clazz = method.getContainingClass
