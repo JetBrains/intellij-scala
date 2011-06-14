@@ -17,20 +17,20 @@ class ScalaSourceFilterScope(myDelegate: GlobalSearchScope, project: Project) ex
   val myIndex = ProjectRootManager.getInstance(project).getFileIndex
 
   def isSearchInLibraries: Boolean = {
-    return null == myDelegate || myDelegate.isSearchInLibraries
+    null == myDelegate || myDelegate.isSearchInLibraries
   }
 
   def compare(file1: VirtualFile, file2: VirtualFile): Int = {
-    return if (null != myDelegate) myDelegate.compare(file1, file2) else 0
+    if (null != myDelegate) myDelegate.compare(file1, file2) else 0
   }
 
   def isSearchInModuleContent(aModule: Module): Boolean = {
-    return null == myDelegate || myDelegate.isSearchInModuleContent(aModule)
+    null == myDelegate || myDelegate.isSearchInModuleContent(aModule)
   }
 
   def contains(file: VirtualFile): Boolean = {
     val fileType: FileType = file.getFileType
-    return (null == myDelegate || myDelegate.contains(file)) && (ScalaFileType.SCALA_FILE_TYPE == fileType &&
+    (null == myDelegate || myDelegate.contains(file)) && (ScalaFileType.SCALA_FILE_TYPE == fileType &&
             myIndex.isInSourceContent(file) || StdFileTypes.CLASS == fileType && myIndex.isInLibraryClasses(file))
   }
 }

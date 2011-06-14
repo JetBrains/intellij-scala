@@ -210,6 +210,7 @@ object ScSimpleTypeElementImpl {
       }
     }
   }
+
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
     val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind() else {
       ref.shapeResolve match {

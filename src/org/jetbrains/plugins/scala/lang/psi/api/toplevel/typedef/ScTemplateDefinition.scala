@@ -26,6 +26,7 @@ import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import search.GlobalSearchScope
 import com.intellij.openapi.project.DumbService
+import caches.CachesUtil
 
 /**
  * @author ven
@@ -207,7 +208,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         return members(0)
       }
     }
-    return member
+    member
   }
 
   def deleteMember(member: ScMember): Unit = {
@@ -223,7 +224,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   override def findMethodsAndTheirSubstitutorsByName
       (name: String, checkBases: Boolean): java.util.List[com.intellij.openapi.util.Pair[PsiMethod, PsiSubstitutor]] = {
     import com.intellij.openapi.util.Pair
-    val functions = functionsByName(name).filter(_.getContainingClass == this)
     val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
     for {(_, n) <- TypeDefinitionMembers.getMethods(this)
          substitutor = n.info.substitutor
@@ -241,6 +241,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     val baseQualifiedName = baseClass.getQualifiedName
     val baseName = baseClass.getName
     def isInheritorInner(base: PsiClass, drv: PsiClass, deep: Boolean): Boolean = {
+      ProgressManager.checkCanceled()
       if (!visited.contains(drv)) {
         visited.add(drv)
 
@@ -252,7 +253,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             val supers = drg.superTypes
             val supersIterator = supers.iterator
             while (supersIterator.hasNext) {
-              val t = supersIterator.next
+              val t = supersIterator.next()
               ScType.extractClass(t) match {
                 case Some(c) => {
                   val value = baseClass match {
@@ -271,7 +272,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             val supers = drv.getSuperTypes
             val supersIterator = supers.iterator
             while (supersIterator.hasNext) {
-              val psiT = supersIterator.next
+              val psiT = supersIterator.next()
               val c = psiT.resolveGenerics.getElement
               if (c != null) {
                 if (c.getName == baseName && c.getQualifiedName == baseQualifiedName) return true
@@ -280,7 +281,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
             }
         }
       }
-      return false
+      false
     }
     if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
     isInheritorInner(baseClass, this, deep)
