@@ -135,14 +135,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         case Some(p) if (PsiTreeUtil.isContextAncestor(p, place, true)) => {
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
-              ProgressManager.checkCanceled
+              ProgressManager.checkCanceled()
               m match {
                 case _var: ScVariable => for (declared <- _var.declaredElements) {
-                  ProgressManager.checkCanceled
+                  ProgressManager.checkCanceled()
                   if (!processor.execute(declared, state)) return false
                 }
                 case _val: ScValue => for (declared <- _val.declaredElements) {
-                  ProgressManager.checkCanceled
+                  ProgressManager.checkCanceled()
                   if (!processor.execute(declared, state)) return false
                 }
               }
@@ -211,7 +211,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     member
   }
 
-  def deleteMember(member: ScMember): Unit = {
+  def deleteMember(member: ScMember) {
     member.getParent.getNode.removeChild(member.getNode)
   }
 

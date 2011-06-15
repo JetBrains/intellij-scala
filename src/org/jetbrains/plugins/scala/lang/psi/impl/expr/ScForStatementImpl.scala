@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import types.result.{Failure, TypeResult, TypingContext}
 import types._
 import api.ScalaElementVisitor
+import caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
 * @author Alexander Podkhalyuzin
@@ -178,19 +180,15 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     Some(exprText.toString())
   }
 
-  @volatile
-  private var desugarizedExpr: Option[ScExpression] = null
-  @volatile
-  private var desugarizedExprModCount: Long = 0
-
   def getDesugarisedExpr: Option[ScExpression] = {
+    CachesUtil.get(this, CachesUtil.DESUGARIZED_EXPR_KEY,
+      new CachesUtil.MyProvider[ScForStatementImpl, Option[ScExpression]](this, _ => getDesugarisedExprImpl)
+    (PsiModificationTracker.MODIFICATION_COUNT))
+  }
+
+  private def getDesugarisedExprImpl: Option[ScExpression] = {
     synchronized[Option[ScExpression]] {
-      var res = desugarizedExpr
-      val currModCount = getManager.getModificationTracker.getModificationCount
-      if (res != null && desugarizedExprModCount == currModCount) {
-        return res
-      }
-      res = getDesugarisedExprText(forDisplay = false) match {
+      val res = getDesugarisedExprText(forDisplay = false) match {
         case Some(text) =>
           if (text == "") None
           else {
@@ -203,6 +201,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           }
         case _ => None
       }
+
       res match {
         case Some(expr: ScExpression) =>
           enumerators.map(e => e.generators.map(g => g.pattern)).foreach(patts =>
@@ -223,8 +222,6 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           )
         case _ =>
       }
-      desugarizedExpr = res
-      desugarizedExprModCount = currModCount
       res
     }
   }

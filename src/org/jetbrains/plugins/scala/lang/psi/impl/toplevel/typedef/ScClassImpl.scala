@@ -20,6 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import com.intellij.psi._
 import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
+import caches.CachesUtil
+import util.PsiModificationTracker
+
 /**
  * @author Alexander.Podkhalyuzin
  */
@@ -95,22 +98,14 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     buffer.toArray
   }
 
-  @volatile
-  private var syntheticMembersRes: Seq[PsiMethod] = null
-  @volatile
-  private var modCount: Long = 0L
-
   override def syntheticMembers: scala.Seq[PsiMethod] = {
-    var answer = syntheticMembersRes
-    val count = getManager.getModificationTracker.getJavaStructureModificationCount
-    if (answer != null && count == modCount) return answer
-    val res = new ArrayBuffer[PsiMethod]
-    res ++= super.syntheticMembers
-    res ++= syntheticMembersImpl
-    answer = res.toSeq
-    modCount = count
-    syntheticMembersRes = answer
-    answer
+    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
+      new CachesUtil.MyProvider[ScClassImpl, Seq[PsiMethod]](this, _ => {
+        val res = new ArrayBuffer[PsiMethod]
+        res ++= super.syntheticMembers
+        res ++= syntheticMembersImpl
+        res.toSeq
+      })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 
   private def syntheticMembersImpl: Seq[PsiMethod] = {

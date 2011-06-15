@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
+import caches.CachesUtil
+import util.PsiModificationTracker
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,21 +70,20 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
       val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
       if (pack != null && !pack.processDeclarations(processor, state, lastParent, place)) return false
     }
-    return true
+    true
   }
 
-  @volatile
-  private var syntheticMembersRes: Seq[PsiMethod] = null
-  @volatile
-  private var modCount: Long = 0L
-
   def objectSyntheticMembers: Seq[PsiMethod] = {
+    import CachesUtil._
+    get(this, OBJECT_SYNTHETIC_MEMBERS_KEY, new MyProvider[ScObjectImpl, Seq[PsiMethod]](this, _ => {
+      objectSyntheticMembersImpl
+    })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+  }
+
+  private def objectSyntheticMembersImpl: Seq[PsiMethod] = {
     if (isSyntheticObject) return Seq.empty
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
-        var answer = syntheticMembersRes
-        val count = getManager.getModificationTracker.getJavaStructureModificationCount
-        if (answer != null && count == modCount) return answer
         val res = new ArrayBuffer[PsiMethod]
         val texts = c.getSyntheticMethodsText
         Seq(texts._1, texts._2).foreach(s => {
@@ -95,11 +96,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
             case e: Exception => //do not add methods with wrong signature
           }
         })
-        answer = res.toSeq
-        modCount = count
-        syntheticMembersRes = answer
-        return answer
-      case _ => return Seq.empty
+        res.toSeq
+      case _ => Seq.empty
     }
   }
 }
