@@ -13,16 +13,23 @@ import collection.mutable.{Map, HashMap}
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
 import util.CachedValueProvider.Result
 import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
+import lang.psi.api.expr.ScExpression
+import lang.psi.api.toplevel.imports.usages.ImportUsed
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 08.06.2009
  */
-//todo: copy from TypeDefinitionMembers, rewrite or remove duplicates
 object CachesUtil {
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
+  val IMPLICIT_MAP_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
+    Key.create("implicit.map.key")
+  val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")
+  val SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("stynthetic.members.key")
+  val DESUGARIZED_EXPR_KEY: Key[CachedValue[Option[ScExpression]]] = Key.create("desugarized.expr.key")
+  val TYPE_ELEMENT_TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.element.type.key")
   val IS_FUNCTION_INHERITOR_KEY: Key[CachedValue[Boolean]] = Key.create("is.function1.inheritor.key")
   val CONSTRUCTOR_TYPE_PARAMETERS_KEY: Key[CachedValue[Option[ScTypeParamClause]]] =
     Key.create("constructor.type.parameters.key")

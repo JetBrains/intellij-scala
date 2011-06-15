@@ -80,15 +80,11 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       case None =>
     }
     if (fromUnder) return buildImplicitMap(exp, fromUnder)
-    var tp = cachedImplicitMap
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (tp != null && modCount == curModCount) {
-      return tp
-    }
-    tp = buildImplicitMap()
-    cachedImplicitMap = tp
-    modCount = curModCount
-    tp
+    import org.jetbrains.plugins.scala.caches.CachesUtil._
+    get(this, CachesUtil.IMPLICIT_MAP_KEY,
+      new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
+        buildImplicitMap()
+      })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def buildImplicitMap(exp: Option[ScType] = expectedType,

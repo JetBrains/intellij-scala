@@ -28,6 +28,7 @@ import lang.resolve.ResolveUtils
 import reflect.NameTransformer
 import com.intellij.openapi.diagnostic.Logger
 import types._
+import caches.CachesUtil
 
 object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
@@ -330,47 +331,36 @@ object TypeDefinitionMembers {
   val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
 
+  import CachesUtil.get
+  import CachesUtil.MyProvider
+  import PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT => dep_item}
+
   def getVals(clazz: PsiClass): VMap = {
-    get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)}))._2
+    get(clazz, valsKey, new MyProvider(clazz, {clazz: PsiClass => ValueNodes.build(clazz)})(dep_item))._2
   }
 
   def getMethods(clazz: PsiClass): MMap = {
-    get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)}))._2
+    get(clazz, methodsKey, new MyProvider(clazz, {clazz: PsiClass => MethodNodes.build(clazz)})(dep_item))._2
   }
 
   def getTypes(clazz: PsiClass) = {
-    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)}))._2
+    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(dep_item))._2
   }
 
   def getSignatures(c: PsiClass): SMap = {
-    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)}))._2
+    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))._2
   }
 
   def getSuperVals(c: PsiClass) = {
-    get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)}))._1
+    get(c, valsKey, new MyProvider(c, {c: PsiClass => ValueNodes.build(c)})(dep_item))._1
   }
 
   def getSuperMethods(c: PsiClass) = {
-    get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)}))._1
+    get(c, methodsKey, new MyProvider(c, {c: PsiClass => MethodNodes.build(c)})(dep_item))._1
   }
 
   def getSuperTypes(c: PsiClass) = {
-    get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)}))._1
-  }
-
-  private def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
-    var computed: CachedValue[T] = e.getUserData(key)
-    if (computed == null) {
-      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
-      computed = manager.createCachedValue(provider, false)
-      e.putUserData(key, computed)
-    }
-    computed.getValue
-  }
-
-  class MyProvider[Dom, T](e: Dom, builder: Dom => T) extends CachedValueProvider[T] {
-    def compute() = new CachedValueProvider.Result(builder(e),
-      PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT)
+    get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)})(dep_item))._1
   }
 
   def processDeclarations(clazz: PsiClass,
