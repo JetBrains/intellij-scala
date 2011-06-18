@@ -23,7 +23,12 @@ public class TestRunnerUtil {
   }
 
   public static String formatCurrentTimestamp() {
-    return TIMESTAMP_FORMAT.format(new Date());
+    Date date = new Date();
+    return formatTimestamp(date);
+  }
+
+  public static String formatTimestamp(Date date) {
+    return TIMESTAMP_FORMAT.format(date);
   }
 
   public static String actualExpectedAttrs(String actual, String expected) {
