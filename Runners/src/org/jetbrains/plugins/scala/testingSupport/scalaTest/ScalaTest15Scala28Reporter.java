@@ -7,6 +7,7 @@ import scala.Some;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Date;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
 
@@ -14,6 +15,12 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
  * @author Alexander Podkhalyuzin
  */
 public class ScalaTest15Scala28Reporter implements Reporter {
+  // IDEA 107.199 gives this error when parsing a Message service message.
+  //  Caused by: java.lang.RuntimeException: java.lang.NoClassDefFoundError: jetbrains/buildServer/messages/Status
+  //        at jetbrains.buildServer.messages.serviceMessages.ServiceMessage.doParse(ServiceMessage.java:380)
+  // TODO enable output after http://youtrack.jetbrains.net/issue/IDEA-71145
+  public static final boolean OUTPUT_STATUS_MESSAGE = false;
+  
   private String getStackTraceString(Throwable throwable) {
     StringWriter writer = new StringWriter();
     throwable.printStackTrace(new PrintWriter(writer));
@@ -57,7 +64,7 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       String res = "\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "'";
       if (error) res += "error = '" + error + "'";
-      res += "timestamp='" + escapeString(formatCurrentTimestamp()) + "']";
+      res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "']";
       System.out.println(res);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
           "' duration='" + duration +"']");
@@ -80,11 +87,16 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       if (throwableOption instanceof Some) {
         throwableString = " errorDetails='" + escapeString(getStackTraceString(throwableOption.get())) + "'";
       }
-      System.out.println("\n##teamcity[message text='" + escapeString(message) + "' status='ERROR'" +
-          throwableString + "]");
+      String statusText = "ERROR";
+      if (OUTPUT_STATUS_MESSAGE) {
+        System.out.println("\n##teamcity[message text='" + escapeString(message) + "' status='" + statusText + "'" +
+            throwableString + "]");
+      }
     } else if (event instanceof InfoProvided) {
       String message = ((InfoProvided) event).message();
-      System.out.println("\n##teamcity[message text='" + escapeString(message + "\n") + "' status='WARNING'" + "]");
+      if (OUTPUT_STATUS_MESSAGE) {
+        System.out.println("\n##teamcity[message text='" + escapeString(message + "\n") + "' status='WARNING'" + "]");
+      }
     } else if (event instanceof RunStopped) {
 
     } else if (event instanceof RunAborted) {
@@ -94,8 +106,10 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       if (throwableOption instanceof Some) {
         throwableString = " errorDetails='" + escapeString(getStackTraceString(throwableOption.get())) + "'";
       }
-      System.out.println("\n##teamcity[message text='" + escapeString(message) + "' status='ERROR'" +
-          throwableString + "]");
+      if (OUTPUT_STATUS_MESSAGE) {
+        System.out.println("\n##teamcity[message text='" + escapeString(message) + "' status='ERROR'" +
+            throwableString + "]");
+      }
     } else if (event instanceof RunCompleted) {
 
     }
