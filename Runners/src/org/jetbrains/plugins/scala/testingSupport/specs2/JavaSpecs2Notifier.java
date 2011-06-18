@@ -9,6 +9,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCurrentTimestamp;
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -16,31 +19,31 @@ public class JavaSpecs2Notifier implements Notifier {
   private HashMap<String, Long> map = new HashMap<String, Long>();
 
   public void specStart(String title, String location) {
-    System.out.println("##teamcity[testSuiteStarted name='" + TestRunnerUtil.escapeString(title) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteStarted name='" + escapeString(title) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void specEnd(String title, String location) {
-    System.out.println("\n##teamcity[testSuiteFinished name='" + TestRunnerUtil.escapeString(title) + "']");
+    System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(title) + "']");
   }
 
   public void contextStart(String text, String location) {
-      System.out.println("##teamcity[testSuiteStarted name='" + TestRunnerUtil.escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+      System.out.println("##teamcity[testSuiteStarted name='" + escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void contextEnd(String text, String location) {
-    System.out.println("##teamcity[testSuiteFinished name='" + TestRunnerUtil.escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
+    System.out.println("##teamcity[testSuiteFinished name='" + escapeString(text) + "' "+ TestRunnerUtil.parseLocation(location).toHint() + "]");
   }
 
   public void text(String text, String location) {
   }
 
   public void exampleStarted(String name, String location) {
-    System.out.println("\n##teamcity[testStarted name='" + TestRunnerUtil.escapeString(name) + "' " + TestRunnerUtil.parseLocation(location).toHint() +
+    System.out.println("\n##teamcity[testStarted name='" + escapeString(name) + "' " + TestRunnerUtil.parseLocation(location).toHint() +
             " captureStandardOutput='true']");
   }
 
   public void exampleSuccess(String text, long duration) {
-    System.out.println("\n##teamcity[testFinished name='" + TestRunnerUtil.escapeString(text) + "' duration='"+ duration +"']");
+    System.out.println("\n##teamcity[testFinished name='" + escapeString(text) + "' duration='"+ duration +"']");
   }
 
   // Old API before 23/4/2011. TODO remove
@@ -60,7 +63,7 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   public void exampleSkipped(String name, String message, long duration) {
-    System.out.println("\n##teamcity[testIgnored name='" + TestRunnerUtil.escapeString(name) + "' message='" + TestRunnerUtil.escapeString(message) + "']");
+    System.out.println("\n##teamcity[testIgnored name='" + escapeString(name) + "' message='" + escapeString(message) + "']");
   }
 
   public void examplePending(String name, String message, long duration) {
@@ -72,11 +75,11 @@ public class JavaSpecs2Notifier implements Notifier {
     StringWriter writer = new StringWriter();
     f.printStackTrace(new PrintWriter(writer));
     detail = writer.getBuffer().toString();
-    String res = "\n##teamcity[testFailed name='" + TestRunnerUtil.escapeString(name) + "' message='" + TestRunnerUtil.escapeString(message) +
-        "' details='" + TestRunnerUtil.escapeString(detail) + "'";
+    String res = "\n##teamcity[testFailed name='" + escapeString(name) + "' message='" + escapeString(message) +
+        "' details='" + escapeString(detail) + "'";
     if (error) res += "error = '" + error + "'";
     res += actualExpectedAttrs;
-    res += " timestamp='" + TestRunnerUtil.escapeString(message) +  "']";
+    res += " timestamp='" + escapeString(formatCurrentTimestamp()) +  "']";
     System.out.println(res);
     exampleSuccess(name, 0);
   }

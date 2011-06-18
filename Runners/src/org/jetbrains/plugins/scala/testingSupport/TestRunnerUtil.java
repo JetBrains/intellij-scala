@@ -5,6 +5,8 @@ import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 import org.specs2.execute.FailureException;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,16 +14,20 @@ public class TestRunnerUtil {
   public static final Pattern COMPARISON_PATTERN = Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL);
   public static final Pattern LOCATION_PATTERN = Pattern.compile("(\\S+)( \\((.+)\\))?");
 
+  // from ServiceMessage
+  private static final String FORMAT_WITHOUT_TZ = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+  private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(FORMAT_WITHOUT_TZ);
+
   public static String escapeString(String s) {
     return s.replaceAll("[|]", "||").replaceAll("[']", "|'").replaceAll("[\n]", "|n").replaceAll("[\r]", "|r").replaceAll("]","|]");
   }
 
+  public static String formatCurrentTimestamp() {
+    return TIMESTAMP_FORMAT.format(new Date());
+  }
+
   public static String actualExpectedAttrs(String actual, String expected) {
-    String actualExpectedAttrs;
-//    actualExpectedAttrs = " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
-    // Workaround for http://youtrack.jetbrains.net/issue/IDEA-69058
-    actualExpectedAttrs = " expected='" + escapeString(actual) + "' actual='" + escapeString(expected) + "' ";
-    return actualExpectedAttrs;
+    return " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
   }
 
   public static String actualExpectedAttrsSpecs2(String message, @Nullable Details details) {
