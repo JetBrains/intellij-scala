@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.actualExpectedAttrs;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -49,7 +48,7 @@ public class JavaSpecsNotifier implements Notifier {
     String detail;
     if (t instanceof AssertionError) error = false;
 
-    String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsFromRegex(t.getMessage());
+    String actualExpectedAttrs = actualExpectedAttrsFromRegex(t.getMessage());
 
     StringWriter writer = new StringWriter();
     t.printStackTrace(new PrintWriter(writer));
@@ -58,7 +57,7 @@ public class JavaSpecsNotifier implements Notifier {
         "' details='" + escapeString(detail) + "' ";
     if (error) res += "error = '" + error + "'";
     res += actualExpectedAttrs;
-    res += "timestamp='" + escapeString(s) + "']";
+    res += "timestamp='" + escapeString(formatCurrentTimestamp()) + "']";
     System.out.println(res);
     exampleSucceeded(s);
   }

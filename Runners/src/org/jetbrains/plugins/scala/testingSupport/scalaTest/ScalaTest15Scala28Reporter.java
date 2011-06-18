@@ -8,7 +8,7 @@ import scala.Some;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
+import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -57,7 +57,7 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       String res = "\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "'";
       if (error) res += "error = '" + error + "'";
-      res += "timestamp='" + escapeString("" + timeStamp) + "']";
+      res += "timestamp='" + escapeString(formatCurrentTimestamp()) + "']";
       System.out.println(res);
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
           "' duration='" + duration +"']");
