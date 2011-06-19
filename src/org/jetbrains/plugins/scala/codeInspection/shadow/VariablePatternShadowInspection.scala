@@ -18,6 +18,9 @@ import com.intellij.ide.DataManager
 import com.intellij.refactoring.actions.RenameElementAction
 import com.intellij.openapi.actionSystem._
 import lang.psi.ScalaPsiUtil
+import lang.resolve.processor.ResolveProcessor
+import lang.psi.api.base.ScStableCodeReferenceElement
+import lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
 
 class VariablePatternShadowInspection extends AbstractInspection("VariablePatternShadow", "Suspicious shadowing by a Variable Pattern") {
   val description: String = """Detects a Variable Pattern that shadows a stable identifier defined in the enclosing scope.
@@ -31,9 +34,10 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
   private def check(refPat: ScReferencePattern, holder: ProblemsHolder) {
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
-      val dummyRef = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
-      val resolve = dummyRef.resolve()
-      if (resolve != null) {
+      val dummyRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
+      val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
+      val results = dummyRef.asInstanceOf[ResolvableStableCodeReferenceElement].doResolve(dummyRef, proc)
+      if (results.nonEmpty) {
         holder.registerProblem(refPat.nameId, getDisplayName, new ConvertToStableIdentifierPatternFix(refPat), new RenameVariablePatternFix(refPat))
       }
     }
