@@ -282,7 +282,7 @@ object MethodResolveProcessor {
     val onlyValues = mapped.forall(_.isApplicable)
     if (filtered.isEmpty && onlyValues) {
       //possible implicit conversions in ScMethodCall
-      return input
+      return input.map(_.copy(notCheckedResolveResult = true))
     } else if (!onlyValues) {
       //in this case all values are not applicable
       mapped = mapped.map(r => {
@@ -297,7 +297,7 @@ object MethodResolveProcessor {
     }
 
     //remove default parameters alternatives
-    if (filtered.size > 1) filtered = filtered.filter(r => r.innerResolveResult match {
+    if (filtered.size > 1 && !isShapeResolve) filtered = filtered.filter(r => r.innerResolveResult match {
       case Some(rr) => !rr.defaultParameterUsed
       case None => !r.defaultParameterUsed
     })
@@ -315,15 +315,15 @@ object MethodResolveProcessor {
               case _ => false
             }
           }).map(r => r.copy(tuplingUsed = true))
-          if (filtered2.isEmpty) return input
+          if (filtered2.isEmpty) return input.map(r => r.copy(notCheckedResolveResult = true))
           return filtered2
         }
-        return input
+        return input.map(r => r.copy(notCheckedResolveResult = true))
       }
       else return filtered
     }
 
-    if (filtered.isEmpty && mapped.isEmpty) input
+    if (filtered.isEmpty && mapped.isEmpty) input.map(r => r.copy(notCheckedResolveResult = true))
     else if (filtered.isEmpty) mapped
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses(0).length

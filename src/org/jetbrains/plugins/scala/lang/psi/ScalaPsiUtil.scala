@@ -178,7 +178,7 @@ object ScalaPsiUtil {
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
       for (t <- getEffectiveInvokedExpr.getImplicitTypes) {
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         val importsUsed = getEffectiveInvokedExpr.getImportsForImplicit(t)
         var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
         getEffectiveInvokedExpr.getClazzForType(t) match {

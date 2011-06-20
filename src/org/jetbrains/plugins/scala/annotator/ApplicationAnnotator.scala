@@ -109,10 +109,10 @@ trait ApplicationAnnotator {
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>
         ref.bind() match {
-          case Some(r) if r.problems.length == 0 => //then it's possibly unhandled case
+          case Some(r) if r.notCheckedResolveResult => //it's unhandled case
           case _ => return //it's definetely handled case
         }
-      case _ => //handled case (only ref expressions was checked)
+      case _ => //unhandled case (only ref expressions was checked)
     }
     val problems = call.applicationProblems
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText

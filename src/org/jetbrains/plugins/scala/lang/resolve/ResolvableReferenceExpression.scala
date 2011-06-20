@@ -26,8 +26,8 @@ import util.PsiModificationTracker
 import caches.CachesUtil
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
-  private object Resolver extends ReferenceExpressionResolver(this, false)
-  private object ShapesResolver extends ReferenceExpressionResolver(this, true)
+  private object Resolver extends ReferenceExpressionResolver(false)
+  private object ShapesResolver extends ReferenceExpressionResolver(true)
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)

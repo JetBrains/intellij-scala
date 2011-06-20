@@ -11,8 +11,9 @@ import psi.types.Compatibility.Expression._
 import com.intellij.psi.{ResolveResult, PsiElement}
 import psi.api.statements.ScFunction
 import psi.types.{Equivalence, ScParameterizedType, ScFunctionType, ScType}
+import collection.Set
 
-class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shapesOnly: Boolean) 
+class ReferenceExpressionResolver(shapesOnly: Boolean)
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
   case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
   
@@ -56,7 +57,7 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
       case inf: ScInfixExpr if ref == inf.operation => StdKinds.methodRef
       case postf: ScPostfixExpr if ref == postf.operation => StdKinds.methodRef
       case pref: ScPrefixExpr if ref == pref.operation => StdKinds.methodRef
-      case _ => reference.getKinds(incomplete)
+      case _ => ref.getKinds(incomplete)
     }
   }
 
@@ -68,19 +69,19 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
     }
   }
 
-  def resolve(ref: ResolvableReferenceExpression, incomplete: Boolean): Array[ResolveResult] = {
-    val name = if(ref.isUnaryOperator) "unary_" + reference.refName else reference.refName
+  def resolve(reference: ResolvableReferenceExpression, incomplete: Boolean): Array[ResolveResult] = {
+    val name = if(reference.isUnaryOperator) "unary_" + reference.refName else reference.refName
 
-    val info = getContextInfo(ref, ref)
+    val info = getContextInfo(reference, reference)
 
     //expectedOption different for cases
     // val a: (Int) => Int = foo
     // and for case
     // val a: (Int) => Int = _.foo
     val expectedOption = {
-      val expr: PsiElement = ref.getContext match {
+      val expr: PsiElement = reference.getContext match {
         case parent@(_: ScPrefixExpr | _: ScPostfixExpr | _: ScInfixExpr) => parent
-        case _ => ref
+        case _ => reference
       }
       expr.getText.indexOf("_") match {
         case -1 => info.expectedType.apply() //optimization
@@ -99,29 +100,56 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
     }
 
     def nonAssignResolve: Array[ResolveResult] = {
-      val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-        getTypeArgs(ref), kinds(ref, ref, incomplete), () => expectedOption, info.isUnderscore,
-        shapesOnly, enableTupling = true)
+      def processor(smartProcessor: Boolean): MethodResolveProcessor =
+        new MethodResolveProcessor(reference, name, info.arguments.toList,
+          getTypeArgs(reference), kinds(reference, reference, incomplete), () => expectedOption, info.isUnderscore,
+          shapesOnly, enableTupling = true) {
+          override def candidatesS: Set[ScalaResolveResult] = {
+            if (!smartProcessor) super.candidatesS
+            else {
+              levelSet ++= reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult])
+              super.candidatesS
+            }
+          }
+        }
 
-      val result = reference.doResolve(ref, processor)
-      if (result.isEmpty && ref.isAssignmentOperator) {
-        val result1: Array[ResolveResult] = reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName.init, List(argumentsOf(ref)),
-          Nil, isShapeResolve = shapesOnly, enableTupling = true))
-        result1.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
+      var result: Array[ResolveResult] = Array.empty
+      if (shapesOnly) {
+        result = reference.doResolve(reference, processor(false))
+      } else {
+        val candidatesS = processor(true).candidatesS //let's try to avoid treeWalkUp
+        if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable)) {
+          // it has another resolve only in one case:
+          // clazz.ref(expr)
+          // clazz has method ref with one argument, but it's not ok
+          // so shape resolve return this wrong result
+          // however there is implicit conversion with right argument
+          // this is ugly, but it can improve performance
+          result = reference.doResolve(reference, processor(false))
+        } else {
+          result = candidatesS.toArray
+        }
+      }
+      if (result.isEmpty && reference.isAssignmentOperator) {
+        val assignProcessor = new MethodResolveProcessor(reference, reference.refName.init, List(argumentsOf(reference)),
+          Nil, isShapeResolve = shapesOnly, enableTupling = true)
+        result = reference.doResolve(reference, assignProcessor)
+        result.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
       } else {
         result
       }
     }
 
-    ref.getContext match {
-      case assign: ScAssignStmt if assign.getLExpression == ref
-              && !ref.getContext.getContext.isInstanceOf[ScArgumentExprList] =>
+    reference.getContext match {
+      case assign: ScAssignStmt if assign.getLExpression == reference
+              && !reference.getContext.getContext.isInstanceOf[ScArgumentExprList] =>
         // SLS 6.1.5 "The interpretation of an assignment to a simple variable x = e depends on the definition of x."
 
-        // If x denotes a mutable variable, then the assignment changes the current value of x to be the result of evaluating the expression e
-        val processor = new MethodResolveProcessor(ref, name, info.arguments.toList,
-          getTypeArgs(ref), /*todo refExprLastRef? */StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
-        val result = reference.doResolve(ref, processor)
+        // If x denotes a mutable variable, then the assignment changes the current value of x to be
+        // the result of evaluating the expression e
+        val processor = new MethodResolveProcessor(reference, name, info.arguments.toList,
+          getTypeArgs(reference), /*todo refExprLastRef? */StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
+        val result = reference.doResolve(reference, processor)
 
         /*
         todo: this is wrong algorithm
@@ -132,7 +160,7 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
          */
         if (result.nonEmpty) result
         else {
-          val setterResult = searchForSetter(ref, assign, info.isUnderscore)
+          val setterResult = searchForSetter(reference, assign, info.isUnderscore)
           if (setterResult.nonEmpty) setterResult
           else nonAssignResolve // resolve to val, to be able to highlight 'reassignment to val.
         }
@@ -145,11 +173,11 @@ class ReferenceExpressionResolver(reference: ResolvableReferenceExpression, shap
   // then the assignment x = e is interpreted as the invocation x_=(e ) of that setter function.
   // Analogously, an assignment f.x = e to a parameterless function x is interpreted as the invocation f.x_=(e).
   def searchForSetter(ref: ResolvableReferenceExpression, assign: ScAssignStmt, isUnderscore: Boolean): Array[ResolveResult] = {
-    val getterResults = reference.doResolve(ref, new MethodResolveProcessor(ref, reference.refName, Nil, Nil, kinds = StdKinds.methodsOnly))
+    val getterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, ref.refName, Nil, Nil, kinds = StdKinds.methodsOnly))
 
     val args = List(assign.getRExpression.toList.map(Expression(_)))
-    val setterName = reference.refName + "_="
-    val setterResults = reference.doResolve(ref, new MethodResolveProcessor(ref, setterName, args, Nil,
+    val setterName = ref.refName + "_="
+    val setterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, setterName, args, Nil,
       kinds = StdKinds.methodsOnly, isUnderscore = isUnderscore, isShapeResolve = shapesOnly, enableTupling = true))
 
     val r1 = setterResults.map(x => x.asInstanceOf[ScalaResolveResult].copy(isSetterFunction = true): ResolveResult)
