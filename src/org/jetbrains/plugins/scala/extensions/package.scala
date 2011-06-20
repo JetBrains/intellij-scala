@@ -27,6 +27,8 @@ package object extensions {
 
   implicit def toBooleanExt[T](b: Boolean) = new BooleanExt(b)
 
+  implicit def toStringExt[T](s: String) = new StringExt(s)
+
   implicit def toPsiElementExt(e: PsiElement) = new PsiElementExt {
     override def repr = e
   }

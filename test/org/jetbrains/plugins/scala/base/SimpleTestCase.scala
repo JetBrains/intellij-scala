@@ -68,6 +68,9 @@ abstract class SimpleTestCase extends UsefulTestCase {
 
     def parse: ScalaFile = parseText(s)
 
+    def parse[T <: PsiElement: ClassManifest]: T =
+      parse(classManifest[T].erasure.asInstanceOf[Class[T]])
+
     def parse[T <: PsiElement](aClass: Class[T]): T =
       parse.depthFirst.findByType(aClass).getOrElse {
         throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
