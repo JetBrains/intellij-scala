@@ -14,13 +14,10 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import java.lang.{StringBuilder, String}
-import api.statements.{ScVariableDefinition, ScAnnotationsHolder, ScPatternDefinition}
-import api.base.{ScReferenceElement, ScLiteral}
-import api.expr.{ScArgumentExprList, ScMethodCall, ScAssignStmt, ScAnnotation}
-import api.base.patterns.ScReferencePattern
-import api.statements.params.ScParameter
+import api.base.ScLiteral
 import com.intellij.psi._
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,18 +25,18 @@ import org.jetbrains.annotations.NotNull
 */
 
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral with ContributedReferenceHost {
-  override def toString: String = "Literal"
+  override def toString: String = "Literal(%s)".format(node.getText)
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val child = getFirstChild.getNode
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
       case ScalaTokenTypes.tINTEGER => {
-        if (child.getText.endsWith("l") || child.getText.endsWith("L")) Long
+        if (child.getText.endsWith('l') || child.getText.endsWith('L')) Long
         else Int //but a conversion exists to narrower types in case range fits
       }
       case ScalaTokenTypes.tFLOAT => {
-        if (child.getText.endsWith("f") || child.getText.endsWith("F")) Float
+        if (child.getText.endsWith('f') || child.getText.endsWith('F')) Float
         else Double
       }
       case ScalaTokenTypes.tCHAR => Char
@@ -64,9 +61,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val textLength = getTextLength
     child.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING => {
-        if (!text.startsWith("\"")) return null
+        if (!text.startsWith('"')) return null
         text = text.substring(1)
-        if (text.endsWith("\"")) {
+        if (text.endsWith('"')) {
           text = text.substring(0, text.length - 1)
         }
         StringUtil.unescapeStringCharacters(text)
@@ -93,9 +90,9 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         val success: Boolean = PsiLiteralExpressionImpl.parseStringCharacters(text, chars, null)
         if (!success) return null
         if (chars.length != 1) return null
-        return Character.valueOf(chars.charAt(0))
+        Character.valueOf(chars.charAt(0))
       case ScalaTokenTypes.tINTEGER =>
-        if (child.getText.endsWith("l") || child.getText.endsWith("L"))
+        if (child.getText.endsWith('l') || child.getText.endsWith('L'))
           try {
             java.lang.Long.valueOf(text.substring(0, text.length - 1))
           } catch {
@@ -105,7 +102,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           try {
             if (text.startsWith("0x")) {
               Integer.valueOf(java.lang.Integer.parseInt(text.substring(2), 16))
-            } else if (text.startsWith("0")) {
+            } else if (text.startsWith('0')) {
               Integer.valueOf(Integer.parseInt(text, 8))
             } else {
               Integer.valueOf(text)
@@ -115,7 +112,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           }
         }
       case ScalaTokenTypes.tFLOAT =>
-        if (child.getText.endsWith("f") || child.getText.endsWith("F"))
+        if (child.getText.endsWith('f') || child.getText.endsWith('F'))
           try {
             java.lang.Float.valueOf(text.substring(0, text.length - 1))
           } catch {
@@ -162,6 +159,6 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   }
 
   @NotNull override def getReferences: Array[PsiReference] = {
-    return PsiReferenceService.getService.getContributedReferences(this)
+    PsiReferenceService.getService.getContributedReferences(this)
   }
 }
