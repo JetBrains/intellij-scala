@@ -85,7 +85,9 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
   def parseParameters(s: String): Parameters = {
     if (s.isEmpty) Map() else Map(s.split("""\s*,\s*""").map(_.trim).map {
-      it: String => val parts = it.split("""\s*:\s*"""); (parts(0), parts(1))
+      it: String =>
+        val parts = it.split("""\s*:\s*""");
+        (parts(0), parts(1))
     }: _*)
   }
 
@@ -113,20 +115,21 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     }
 
     if (options.contains(Resolved) && options(Resolved) == "false") {
-      Assert.assertNull(message(referenceName + " must NOT be resolved!"), target);
+      Assert.assertNull(message(referenceName + " must NOT be resolved!"), target)
     } else {
-      Assert.assertNotNull(message(referenceName + " must BE resolved!"), target);
+      Assert.assertNotNull(message(referenceName + " must BE resolved!"), target)
 
       if (options.contains(Accessible) && options(Accessible) == "false") {
-        Assert.assertFalse(message(referenceName + " must NOT be accessible!"), accessible);
+        Assert.assertFalse(message(referenceName + " must NOT be accessible!"), accessible)
       } else {
-        Assert.assertTrue(message(referenceName + " must BE accessible!"), accessible);
+        Assert.assertTrue(message(referenceName + " must BE accessible!"), accessible)
       }
 
       if (options.contains(Applicable) && options(Applicable) == "false") {
-        Assert.assertFalse(message(referenceName + " must NOT be applicable!"), applicable);
+        Assert.assertFalse(message(referenceName + " must NOT be applicable!"), applicable)
       } else {
-        Assert.assertTrue(message(referenceName + " must BE applicable! " + result.get.problems.mkString("(", ",", ")")), applicable);
+        Assert.assertTrue(message(referenceName + " must BE applicable! " +
+          result.get.problems.mkString("(", ",", ")")), applicable)
       }
 
       if (options.contains(Path)) {

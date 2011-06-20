@@ -111,13 +111,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def isAnonymousClass: Boolean = {
-    getParent() match {
+    getParent match {
       case _: ScNewTemplateDefinition =>
       case _ => return false
     }
     templateBody match {
-      case Some(x) => return true
-      case None => return false
+      case Some(x) => true
+      case None => false
     }
   }
 
@@ -228,8 +228,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   override def getParent: PsiElement = {
     val p = super.getParent
     p match {
-      case _: ScTypeDefinition => return p
-      case _ => return SharedImplUtil.getParent(getNode)
+      case _: ScTypeDefinition => p
+      case _ => SharedImplUtil.getParent(getNode)
     }
   }
 }
