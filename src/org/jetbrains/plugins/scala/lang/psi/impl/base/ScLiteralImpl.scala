@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.extensions._
 */
 
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral with ContributedReferenceHost {
-  override def toString: String = "Literal(%s)".format(node.getText)
+  override def toString: String = "Literal"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val child = getFirstChild.getNode
