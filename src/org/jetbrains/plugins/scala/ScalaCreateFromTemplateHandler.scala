@@ -14,7 +14,7 @@ import com.intellij.psi.{PsiElement, PsiDirectory}
 // (SCL-2799 Hide plugin's internal templates in "New" menu)
 class ScalaCreateFromTemplateHandler extends CreateFromTemplateHandler {
   def handlesTemplate(template: FileTemplate): Boolean =
-    ScalaFileType.DEFAULT_EXTENSION.equalsIgnoreCase(template.getExtension)
+    ScalaFileType.DEFAULT_EXTENSION.equalsIgnoreCase(template.getExtension) && !template.getName.contains("Script")
 
   def createFromTemplate(project: Project, directory: PsiDirectory, fileName: String,
                          template: FileTemplate, templateText: String, props: Properties): PsiElement = null
