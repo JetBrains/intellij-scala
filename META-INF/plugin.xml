@@ -83,6 +83,7 @@
     <internalFileTemplate name="Scala Class"/>
     <internalFileTemplate name="Scala Trait"/>
     <internalFileTemplate name="Scala Object"/>
+    <internalFileTemplate name="Scala Script"/>
     <createFromTemplateHandler implementation="org.jetbrains.plugins.scala.ScalaCreateFromTemplateHandler"/>
     <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
     <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
