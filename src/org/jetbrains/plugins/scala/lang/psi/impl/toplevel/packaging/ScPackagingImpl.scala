@@ -120,7 +120,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
-    ProgressManager.checkCanceled
+    ProgressManager.checkCanceled()
     var p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
     if (!(p == null || p.processDeclarations(processor, state, lastParent, place))) {
       return false

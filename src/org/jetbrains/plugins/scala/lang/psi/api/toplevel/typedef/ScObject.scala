@@ -7,7 +7,7 @@ package typedef
 
 import com.intellij.psi.{PsiElement, PsiMethod}
 import lexer.ScalaTokenTypes
-import statements.ScDeclaredElementsHolder
+import statements.{ScFunction, ScDeclaredElementsHolder}
 
 /**
 * @author Alexander Podkhalyuzin

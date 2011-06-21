@@ -177,14 +177,69 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     reference match {
-      case Some(ref) => ref.bind() match {
-        case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) => {
-          Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
+      case Some(ref) =>
+        def updateForParameterized(subst: ScSubstitutor, elem: PsiNamedElement,
+                                    p: ScParameterizedTypeElement): ScType = {
+          val tp = elem match {
+            case ta: ScTypeAliasDefinition =>
+              ta.aliasedType.getOrElse(return Nothing)
+            case clazz: PsiClass =>
+              parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, false).
+                getOrElse(return Nothing), clazz, subst)
+          }
+          val res = subst.subst(tp)
+          val typeParameters: Seq[TypeParameter] = elem match {
+            case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
+              tp.typeParameters.map(tp => new TypeParameter(tp.name,
+                    tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+            }
+            case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
+              ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
+                Nothing, Any, ptp)) //todo: add lower and upper bound
+            }
+            case _ => return res
+          }
+
+          val zipped = p.typeArgList.typeArgs.zip(typeParameters)
+          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
+            ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
+              arg.getType(TypingContext.empty).getOrElse(Any)
+              )}),
+            Map.empty, None)
+          appSubst.subst(res)
         }
-        case Some(ScalaResolveResult(tp: PsiTypeParameter, _)) => lift(ScalaPsiManager.typeVariable(tp))
-        case Some(r@ScalaResolveResult(synth: ScSyntheticClass, _)) => lift(synth.t)
-        case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
-      }
+        val constrRef = ref.isConstructorReference
+        ref.resolveNoConstructor match {
+          case Array(ScalaResolveResult(tp: PsiTypeParameter, _)) =>
+            lift(ScalaPsiManager.typeVariable(tp))
+          case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
+            lift(synth.t)
+          case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+            if constrRef && to.isInstanceOf[PsiNamedElement] &&
+              (to.typeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
+            getContext match {
+              case p: ScParameterizedTypeElement =>
+                Success(updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p), Some(this))
+              case _ =>
+                ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
+            }
+          case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+            if constrRef && to.isInstanceOf[PsiNamedElement] &&
+              (to.getTypeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
+            getContext match {
+              case p: ScParameterizedTypeElement =>
+                Success(updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p), Some(this))
+              case _ =>
+                ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
+            }
+          case _ => //resolve constructor with local type inference
+            ref.bind() match {
+              case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) => {
+                Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
+              }
+              case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, false)
+            }
+        }
       case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement, false)
     }
   }

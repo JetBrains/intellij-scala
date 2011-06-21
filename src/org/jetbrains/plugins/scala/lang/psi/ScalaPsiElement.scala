@@ -30,6 +30,14 @@ trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransforme
     }
   }
 
+  def getDeepSameElementInContext: PsiElement = {
+    child match {
+      case null => this
+      case child: ScalaPsiElement => child.getDeepSameElementInContext
+      case _ => child
+    }
+  }
+
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]

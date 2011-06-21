@@ -269,10 +269,6 @@ object TypeDefinitionMembers {
                 dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
             }
           case constr: ScPrimaryConstructor => {
-            val isCase: Boolean = template match {
-              case td: ScTypeDefinition if td.isCase => true
-              case _ => false
-            }
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
               if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {

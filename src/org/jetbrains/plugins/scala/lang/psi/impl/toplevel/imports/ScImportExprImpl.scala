@@ -49,11 +49,11 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
       return stub.asInstanceOf[ScImportExprStub].isSingleWildcard
     }
     if (findChildByType(ScalaTokenTypes.tUNDER) != null) {
-      return true
+      true
     } else {
       selectorSet match {
         case Some(set) => set.hasWildcard
-        case None => return false
+        case None => false
       }
     }
   }

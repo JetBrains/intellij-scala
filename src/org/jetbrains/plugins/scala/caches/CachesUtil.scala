@@ -24,6 +24,7 @@ object CachesUtil {
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
+  val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
   val IMPLICIT_MAP_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
     Key.create("implicit.map.key")
   val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")

@@ -43,7 +43,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     if (n == null) {
       return ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName, getManager).getPsi
     }
-    return n.getPsi
+    n.getPsi
   }
 
   def parameters: Seq[ScParameter] = paramClauses.params
@@ -106,7 +106,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def findDeepestSuperMethod: PsiMethod = {
     val s = superMethods
-    if (s.length == 0) return null
+    if (s.length == 0) null
     else s(s.length - 1)
   }
 
@@ -208,7 +208,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   override def getName = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
 
   override def setName(name: String): PsiElement = {
-    if (isConstructor) return this
+    if (isConstructor) this
     else super.setName(name)
   }
 }

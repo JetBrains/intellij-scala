@@ -23,9 +23,10 @@ import caches.{ScalaRecursionManager, CachesUtil}
 import com.intellij.openapi.util.Computable
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
-  private object Resolver extends StableCodeReferenceElementResolver(this, false, false)
-  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false)
-  private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true)
+  private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
+  private object NoConstructorResolver extends StableCodeReferenceElementResolver(this, false, false, true)
+  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
+  private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean) = {
     getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
@@ -104,7 +105,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         treeWalkUp(ref, null)
       }
       case Some(q: ScStableCodeReferenceElement) => {
-        val results = q.bind() match {
+        q.bind() match {
           case Some(res) => processQualifierResolveResult(res, processor, ref)
           case _ =>
         }
@@ -142,25 +143,27 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
-  def shapeResolve: Array[ResolveResult] = {
+  def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveInner)
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
+        NoConstructorResolver.resolve(this, false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
-  private def shapeResolveInner: Array[ResolveResult] = {
-    ShapesResolver.resolve(this, false)
+  def shapeResolve: Array[ResolveResult] = {
+    ProgressManager.checkCanceled()
+    CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
+        ShapesResolver.resolve(this, false))
+      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
   }
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
     CachesUtil.getWithRecurisionPreventing(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) => shapeResolveConstrInner)
+      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
+        ShapesResolverAllConstructors.resolve(this, false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
-  }
-
-  private def shapeResolveConstrInner: Array[ResolveResult] = {
-    ShapesResolverAllConstructors.resolve(this, false)
   }
 }
