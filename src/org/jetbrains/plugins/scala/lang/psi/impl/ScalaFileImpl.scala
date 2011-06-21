@@ -197,7 +197,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       case Some(pack) if name.startsWith(pack + ".") =>
         val remaining = name.stripPrefix(pack + ".").split("\\.")
         (pack +: remaining).map("package " + _).mkString("\n") + "\n\n"
-      case _ => "package " + name + "\n\n"
+      case _ => if (name.isEmpty) "" else "package " + name + "\n\n"
     }
 
     try {
