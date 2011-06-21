@@ -6,16 +6,16 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import processor._
 import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import psi.api.base.{ScConstructor, ScStableCodeReferenceElement}
+import psi.api.base.ScStableCodeReferenceElement
 import psi.types.Compatibility.Expression
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
-                                          allConstructorResults: Boolean)
+                                          allConstructorResults: Boolean, noConstructorResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {
     val kinds = ref.getKinds(false)
 
-    val proc = if (ref.isConstructorReference) {
+    val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
       new ConstructorResolveProcessor(ref, ref.refName, constr.arguments.toList.map(_.exprs.map(new Expression(_))),
         Seq.empty /*todo*/, kinds, shapeResolve, allConstructorResults)

@@ -13,7 +13,8 @@ import collection.mutable.HashMap
 import result.{TypeResult, Success, Failure, TypingContext}
 import api.base.ScConstructor
 import resolve.ScalaResolveResult
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiTypeParameterListOwner, PsiNamedElement, PsiMethod}
+import api.toplevel.ScTypeParametersOwner
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -37,12 +38,27 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     val tr = typeElement.getType(ctx)
     val res = tr.getOrElse(return tr)
 
+    //todo: possible refactoring to remove parameterized type inference in simple type
     typeElement match {
       case s: ScSimpleTypeElement => {
         s.reference match {
           case Some(ref) => {
-            ref.bind match {
-              case Some(ScalaResolveResult(e: PsiMethod, _)) => return tr //all things were done in ScSimpleTypeElementImpl.innerType
+            if (ref.isConstructorReference) {
+              ref.resolveNoConstructor match {
+                case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+                  if to.isInstanceOf[PsiNamedElement] &&
+                    to.typeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement] =>
+                  return tr //all things were done in ScSimpleTypeElementImpl.innerType
+                case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+                  if to.isInstanceOf[PsiNamedElement] &&
+                    to.getTypeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement] =>
+                  return tr //all things were done in ScSimpleTypeElementImpl.innerType
+                case _ =>
+              }
+            }
+            ref.bind() match {
+              case Some(ScalaResolveResult(e: PsiMethod, _)) =>
+                return tr //all things were done in ScSimpleTypeElementImpl.innerType
               case _ =>
             }
           }

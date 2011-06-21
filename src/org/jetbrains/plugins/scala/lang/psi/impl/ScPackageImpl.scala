@@ -104,9 +104,9 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
     if (myQualifiedName.length == 0) return null
     val lastDot: Int = myQualifiedName.lastIndexOf('.')
     if (lastDot < 0) {
-      return ScPackageImpl.findPackage(getProject, "")
+      ScPackageImpl.findPackage(getProject, "")
     } else {
-      return ScPackageImpl.findPackage(getProject, myQualifiedName.substring(0, lastDot))
+      ScPackageImpl.findPackage(getProject, myQualifiedName.substring(0, lastDot))
     }
   }
 

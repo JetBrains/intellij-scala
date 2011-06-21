@@ -1,20 +1,13 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
-import com.intellij.testFramework.{ResolveTestCase, PsiTestCase}
-import com.intellij.openapi.application.ex.PathManagerEx
 import org.jetbrains.plugins.scala.util.TestUtils
 import com.intellij.openapi.vfs.VirtualFile
-import scala.util.matching.Regex.{Match, MatchData}
 import junit.framework._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import java.lang.String
-import com.intellij.psi.{PsiFile, PsiNamedElement, PsiReference, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import com.intellij.psi.{PsiNamedElement, PsiReference, PsiElement}
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -42,13 +35,13 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
 
 
   override def setUp() {
-    super.setUp
+    super.setUp()
     options = List()
     references = List()
   }
 
   override def getTestDataPath: String = {
-    return TestUtils.getTestDataPath + "/resolve2/"
+    TestUtils.getTestDataPath + "/resolve2/"
   }
 
   override def configureByFileText(text: String, fileName: String, parentDir: VirtualFile): PsiReference = {
@@ -76,7 +69,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     null
   }
 
-  def assertKnown(parameters: Parameters) = {
+  def assertKnown(parameters: Parameters) {
     for ((key, value) <- parameters) {
       Assert.assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
         Parameters.contains(key))
@@ -91,7 +84,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     }: _*)
   }
 
-  def doTest {
+  def doTest() {
     doTest(getTestName(false) + ".scala")
   }
 

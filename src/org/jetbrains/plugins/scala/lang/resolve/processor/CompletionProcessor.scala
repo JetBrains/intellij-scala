@@ -4,16 +4,14 @@ package resolve
 package processor
 
 import com.intellij.psi._
-
 import _root_.scala.collection.Set
 import collection.mutable.HashSet
 import psi.api.base.patterns.{ScPattern, ScBindingPattern}
-
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
-import psi.types.{ScType, PhysicalSignature, Signature, ScSubstitutor}
+import psi.types.{PhysicalSignature, Signature, ScSubstitutor}
 import caches.CachesUtil
-import psi.implicits.ScImplicitlyConvertible
+import psi.api.statements.ScFunction
 
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
@@ -47,16 +45,13 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case null => None
       case x => Some(x)
     }
-    lazy val implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE) match {
-      case null => None
-      case x => Some(x)
-    }
     lazy val isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY) match {
       case null => false
       case v => v.booleanValue
     }
 
     element match {
+      case fun: ScFunction if fun.isConstructor => return true//do not add constructor
       case td: ScTypeDefinition if !names.contains(Tuple(td.getName, false)) => {
         if (kindMatches(td)) {
           val result = new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
@@ -111,6 +106,6 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case pat : ScPattern => for (b <- pat.bindings) execute(b, state)
       case _ => // Is it really a case?
     }
-    return true
+    true
   }
 }

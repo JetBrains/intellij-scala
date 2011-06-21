@@ -20,6 +20,7 @@ import psi.api.toplevel.templates.ScTemplateBody
 import reflect.NameTransformer
 import collection.mutable.HashSet
 import psi.api.toplevel.typedef.{ScClass, ScTrait, ScMember, ScObject}
+import psi.api.toplevel.ScNamedElement
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
@@ -191,7 +192,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         }
       }
     }
-    return ResolveUtils.isAccessible(memb, place)
+    ResolveUtils.isAccessible(memb, place)
   }
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
@@ -212,13 +213,17 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
             getImports(state), boundClass = getBoundClass(state), fromType = getFromType(state)))
       }
     }
-    return true
+    true
   }
 
   protected def nameAndKindMatch(named: PsiNamedElement, state: ResolveState): Boolean = {
     val nameSet = state.get(ResolverEnv.nameKey)
     val elName = if (nameSet == null) {
-      val name = named.getName
+      val name = named match {
+        case named: ScNamedElement => named.name //todo: it's not the same. It can't be class name in scala.
+          //so class name in ScFunctionImpl.getName for constructors is only for Java
+        case _ => named.getName
+      }
       if (name == null) return false
       if (name == "") return false
       if (name.charAt(0) == '`') name.substring(1, name.length - 1) else name

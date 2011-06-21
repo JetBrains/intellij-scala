@@ -37,7 +37,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val constructorResolve: Boolean = false,
                              val enableTupling: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
 
-  override def execute(element: PsiElement, state: ResolveState): Boolean = {
+  override def execute(element : PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     def implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY).toOption
     def implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION).toOption

@@ -16,7 +16,7 @@ import toplevel.ScNamedElement
 
 trait ScNameValuePair extends ScalaPsiElement with ScNamedElement with PsiNameValuePair  {
   override def getName: String = {
-    if (nameId == null) return ""
+    if (nameId == null) ""
     else super.getName
   }
 

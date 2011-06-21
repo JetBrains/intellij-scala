@@ -152,8 +152,8 @@ private[expr] object ExpectedTypes {
       case tuple: ScTuple if tuple.isCall => {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = tuple.exprs
-        val actExpr = actualExpr(expr)
-        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == expr)
+        val actExpr = expr.getDeepSameElementInContext
+        val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
         val callExpression = tuple.getContext.asInstanceOf[ScInfixExpr].operation
         if (callExpression != null) {
           val tps = callExpression match {
@@ -237,7 +237,7 @@ private[expr] object ExpectedTypes {
       case args: ScArgumentExprList => {
         val res = new ArrayBuffer[ScType]
         val exprs: Seq[ScExpression] = args.exprs
-        val actExpr = actualExpr(expr)
+        val actExpr = expr.getDeepSameElementInContext
         val i = if (actExpr == null) 0 else exprs.findIndexOf(_ == actExpr)
         val callExpression = args.callExpression
         if (callExpression != null) {
@@ -358,22 +358,13 @@ private[expr] object ExpectedTypes {
         val cand = applyProc.candidates
         if (cand.length == 1) {
           cand(0) match {
-            case ScalaResolveResult(fun: ScFunction, subst) => {
+            case ScalaResolveResult(fun: ScFunction, subst) =>
               processArgsExpected(res, expr, i, Success(subst.subst(fun.methodType), Some(expr)), exprs)
-            }
             case _ =>
           }
         }
       }
       case _ =>
     }
-  }
-
-  private def actualExpr(expr: PsiElement): PsiElement = {
-    val next = expr.getNextSibling
-    if (next != null) return next.getPrevSibling
-    val prev = expr.getPrevSibling
-    if (prev != null) return prev.getNextSibling
-    null
   }
 }
