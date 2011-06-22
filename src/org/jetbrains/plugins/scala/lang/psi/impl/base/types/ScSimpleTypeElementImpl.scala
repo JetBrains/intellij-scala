@@ -267,7 +267,19 @@ object ScSimpleTypeElementImpl {
   }
 
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
-    val (resolvedElement, subst, fromType) = (if (!shapesOnly) ref.bind() else {
+    val (resolvedElement, subst, fromType) = (if (!shapesOnly) {
+      if (ref.isConstructorReference) {
+        ref.resolveNoConstructor match {
+          case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+            if to.isInstanceOf[PsiNamedElement] &&
+              (to.typeParameters.length == 0 || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
+          case Array(r@ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+            if to.isInstanceOf[PsiNamedElement] &&
+              (to.getTypeParameters.length == 0 || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
+          case _ => ref.bind()
+        }
+      } else ref.bind()
+    } else {
       ref.shapeResolve match {
         case Array(r: ScalaResolveResult) => Some(r)
         case _ => None

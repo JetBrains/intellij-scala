@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import collection.mutable.HashMap
 import result.{TypeResult, Success, Failure, TypingContext}
 import api.base.ScConstructor
 import resolve.ScalaResolveResult
@@ -46,12 +45,10 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
             if (ref.isConstructorReference) {
               ref.resolveNoConstructor match {
                 case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
-                  if to.isInstanceOf[PsiNamedElement] &&
-                    to.typeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement] =>
+                  if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
                 case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
-                  if to.isInstanceOf[PsiNamedElement] &&
-                    to.getTypeParameters.length == 0 || getContext.isInstanceOf[ScParameterizedTypeElement] =>
+                  if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
                 case _ =>
               }
