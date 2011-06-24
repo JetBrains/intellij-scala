@@ -34,7 +34,7 @@ object TemplateBody {
     }
     SelfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
-    @tailrec
+    //@tailrec
     def subparse(): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
