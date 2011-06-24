@@ -184,7 +184,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                                    checkWrite: Boolean) {
     val named = resolveResult.getElement
     val file = element.getContainingFile
-    if (named.getContainingFile == file) {
+    if (named.isValid && named.getContainingFile == file) {
       val value: ValueUsed = element match {
         case ref: ScReferenceExpression if checkWrite &&
           ScalaPsiUtil.isPossiblyAssignment(ref.asInstanceOf[PsiElement]) => WriteValueUsed(named)
