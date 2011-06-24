@@ -32,7 +32,7 @@ object EarlyDef {
       }
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
-    @tailrec
+    //@tailrec
     def subparse: Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {

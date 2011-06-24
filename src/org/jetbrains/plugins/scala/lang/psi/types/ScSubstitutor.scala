@@ -278,14 +278,14 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
 
   def addLower(name: (String, String), lower: ScType): ScUndefinedSubstitutor = {
     lowerMap.get(name) match {
-      case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.update(name, Bounds.lub(lower, tp)))
+      case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Bounds.lub(lower, tp)))
       case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, lower))
     }
   }
 
   def addUpper(name: (String, String), upper: ScType): ScUndefinedSubstitutor = {
     upperMap.get(name) match {
-      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.update(name, Seq(upper) ++ seq), lowerMap)
+      case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.updated(name, Seq(upper) ++ seq), lowerMap)
       case None => new ScUndefinedSubstitutor(upperMap + Tuple(name, Seq(upper)), lowerMap)
     }
   }
