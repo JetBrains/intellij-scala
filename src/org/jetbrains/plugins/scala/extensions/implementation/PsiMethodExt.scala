@@ -21,16 +21,23 @@ class PsiMethodExt(repr: PsiMethod) {
     hasVoidReturnType || hasMutatorLikeName
   }
 
-  def hasQueryLikeName = repr.getNameIdentifier.getText match {
-    case "getInstance" => false // TODO others?
-    case AccessorNamePattern() => true
-    case _ => false
+  private def getNameIdentifierText: String = {
+    val id = repr.getNameIdentifier
+    if (id != null) id.getText else ""
   }
 
-  def hasMutatorLikeName = repr.getNameIdentifier.getText match {
+  def hasQueryLikeName = {
+    getNameIdentifierText match {
+      case "getInstance" => false // TODO others?
+      case AccessorNamePattern() => true
+      case _ => false
+    }
+  }
+
+  def hasMutatorLikeName = getNameIdentifierText match {
     case MutatorNamePattern() => true
     case _ => false
   }
 
-  def hasVoidReturnType = repr.getReturnType() == PsiType.VOID
+  def hasVoidReturnType = repr.getReturnType == PsiType.VOID
 }

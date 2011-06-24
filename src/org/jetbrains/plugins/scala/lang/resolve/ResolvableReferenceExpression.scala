@@ -118,12 +118,12 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       }
       case tuple: ScTuple => tuple.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == tuple =>
-          processAnyAssignment(tuple.exprs, inf.operation, 0, ref, assign, processor)
+          processAnyAssignment(tuple.exprs, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case p: ScParenthesisedExpr => p.getContext match {
         case inf: ScInfixExpr if inf.getArgExpr == p =>
-          processAnyAssignment(p.expr.toSeq, inf.operation, 0, ref, assign, processor)
+          processAnyAssignment(p.expr.toSeq, inf.operation, 1, ref, assign, processor)
         case _ =>
       }
       case _ =>

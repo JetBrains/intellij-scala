@@ -44,7 +44,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       fileName, signs, isPO, isSFC, isDepr)
   }
 
-  def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.qualName)
     dataStream.writeBoolean(stub.isPackageObject)
@@ -70,7 +70,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC, isDepr)
   }
 
-  def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
+  def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
     if (stub.isScriptFileClass) return
     val name = stub.getName
     if (name != null) {
@@ -90,7 +90,11 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     }
     if (stub.isPackageObject) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY,
-        if (name != "`package`") fqn.hashCode else fqn.substring(0, fqn.lastIndexWhere(_ == '.')).hashCode)
+        if (name != "`package`") fqn.hashCode else {
+          val index = fqn.lastIndexWhere(_ == '.')
+          if (index < 0) "".hashCode
+          else fqn.substring(0, index).hashCode
+        })
     }
   }
 }

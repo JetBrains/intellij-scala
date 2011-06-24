@@ -40,7 +40,7 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
         val iter1 = components.iterator
         val iter2 = c1.iterator
         while (iter1.hasNext) {
-          val t = Equivalence.equivInner(iter1.next, iter2.next, undefinedSubst, falseUndef)
+          val t = Equivalence.equivInner(iter1.next(), iter2.next(), undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
