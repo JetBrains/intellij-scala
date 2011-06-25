@@ -13,7 +13,7 @@ object SurroundWithTestUtil {
     "<else>", "<while>", "<do>", "<for>", "<yield>"
     , "<catch>", "<finally>", "<try>", "<braces>",
     "<match>", "<parenthesis>", "<if_cond>", "<else_cond>", "<unary>")
-  def prepareFile(text: String): (String, Int, Int, Int) = {
+  def prepareFile(text: String): (String, Integer, Integer, Integer) = {
     var workingText = text
     val start = text.indexOf(startMarker)
     val t = endMarkers.findIndexOf(text.indexOf(_) != -1)
