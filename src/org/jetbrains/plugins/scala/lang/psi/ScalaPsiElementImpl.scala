@@ -3,14 +3,12 @@ package lang
 package psi
 
 import api.ScalaElementVisitor
-import com.intellij.psi.stubs.{StubElement, IStubElementType}
 import com.intellij.lang.ASTNode
-import stubs.elements.wrappers.DummyASTNode
-import com.intellij.psi.{PsiElementVisitor, PsiElement, StubBasedPsiElement}
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
 import com.intellij.psi.tree.{TokenSet, IElementType}
-import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil, CompositeElement}
+import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
 import com.intellij.psi.impl.CheckUtil
-import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase, ASTWrapperPsiElement}
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 
 /**
 @author ven
@@ -92,17 +90,12 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement]
-        extends StubBasedPsiElementBase[StubElement[T]](DummyASTNode) with ScalaPsiElement with StubBasedPsiElement[StubElement[T]] {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+        extends ScalaStubBaseElementImplJavaRawTypeHack[T] with ScalaPsiElement {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
     }
-  }
-
-  override def getElementType(): IStubElementType[StubElement[T], T] = {
-    if (getNode != DummyASTNode && getNode != null) getNode.getElementType.asInstanceOf[IStubElementType[StubElement[T], T]]
-    else getStub.getStubType.asInstanceOf[IStubElementType[StubElement[T], T]]
   }
 
   override def getContext: PsiElement = {

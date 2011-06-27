@@ -4,7 +4,6 @@ package parser
 package parsing
 package top.template
 
-import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
@@ -28,51 +27,53 @@ object TemplateBody {
     builder.enableNewlines
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
-        builder.advanceLexer //Ate {
+        builder.advanceLexer() //Ate {
       }
       case _ => builder error ScalaBundle.message("lbrace.expected")
     }
     SelfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
-    //@tailrec
+    @tailrec
     def subparse(): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
-          builder.advanceLexer //Ate }
-          return true
+          builder.advanceLexer() //Ate }
+          true
         }
         case null => {
           builder error ScalaBundle.message("rbrace.expected")
-          return true
+          true
         }
         case _ => {
           if (TemplateStat parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
-                builder.advanceLexer //Ate }
-                return true
+                builder.advanceLexer() //Ate }
+                true
               }
               case ScalaTokenTypes.tSEMICOLON => {
-                while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer
-                return subparse
+                while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer()
+                subparse()
               }
               case _ => {
-                if (builder.newlineBeforeCurrentToken) return subparse
-                builder error ScalaBundle.message("semi.expected")
-                builder.advanceLexer //Ate something
-                return subparse
+                if (builder.newlineBeforeCurrentToken) subparse()
+                else {
+                  builder error ScalaBundle.message("semi.expected")
+                  builder.advanceLexer() //Ate something
+                  subparse()
+                }
               }
             }
           }
           else {
             builder error ScalaBundle.message("def.dcl.expected")
-            builder.advanceLexer //Ate something
-            return subparse
+            builder.advanceLexer() //Ate something
+            subparse()
           }
         }
       }
     }
-    subparse
+    subparse()
     builder.restoreNewlinesState
     templateBodyMarker.done(ScalaElementTypes.TEMPLATE_BODY)
   }

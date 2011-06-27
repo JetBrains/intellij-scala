@@ -15,7 +15,7 @@ import formatting.ScalaFormattingModelBuilder._
 
 sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
 
-  def createModel(element: PsiElement, settings: CodeStyleSettings): PsiBasedFormattingModel = {
+  def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
     val node: ASTNode = element.getNode
     assert(node != null)
     val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE)
@@ -44,7 +44,7 @@ object ScalaFormattingModelBuilder {
         elementTypeToUse = prevNode.getElementType
       }
       com.intellij.psi.formatter.FormatterUtil.replaceWhiteSpace(whiteSpace, leafElement, elementTypeToUse, textRange)
-      return whiteSpace
+      whiteSpace
     }
   }
 }

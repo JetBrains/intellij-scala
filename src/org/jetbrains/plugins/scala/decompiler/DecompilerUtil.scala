@@ -23,7 +23,7 @@ import CharsetToolkit.UTF8
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 133
+  val DECOMPILER_VERSION = 135
   private val isScalaCompiledAttribute = new FileAttribute("_is_scala_compiled_", DECOMPILER_VERSION, true)
 
   def isScalaFile(file: VirtualFile): Boolean = try {
@@ -50,7 +50,7 @@ object DecompilerUtil {
             getOrElse(null) match {
             // No entries in ScalaSig attribute implies that the signature is stored in the annotation
             case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
-            case scalaSig => scalaSig
+            case other => other
           }
           if (scalaSig == null) false
           else true
@@ -112,7 +112,7 @@ object DecompilerUtil {
     val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
       // No entries in ScalaSig attribute implies that the signature is stored in the annotation
       case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
-      case scalaSig => scalaSig
+      case other => other
     }
 
     // Lazy so that ScalaFileImpl#sourceName, called frequently during debugging, is fast. See SCL-2852

@@ -90,7 +90,7 @@ object ScalaMarkerType {
           elems.size match {
             case 0 =>
             case 1 => {
-              val elem = elems.elements.next
+              val elem = elems.elements.next()
               if (elem.canNavigate) elem.navigate(true)
             }
             case _ => {
@@ -102,14 +102,14 @@ object ScalaMarkerType {
         }
         case _: ScValue | _: ScVariable => {
           val signatures = new ArrayBuffer[FullSignature]
-          val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
+          val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           val elems = new HashSet[NavigatablePsiElement]
           signatures.foreach(elems += _.element)
           elems.size match {
             case 0 =>
             case 1 => {
-              val elem = elems.elements.next
+              val elem = elems.elements.next()
               if (elem.canNavigate) elem.navigate(true)
             }
             case _ => {
