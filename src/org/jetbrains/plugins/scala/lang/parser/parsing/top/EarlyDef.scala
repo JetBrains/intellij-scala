@@ -23,43 +23,44 @@ object EarlyDef {
     //Look for {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
-        builder.advanceLexer //Ate {
+        builder.advanceLexer() //Ate {
         builder.enableNewlines
       case _ => {
         builder error ScalaBundle.message("unreachable.error")
-        earlyMarker.drop
+        earlyMarker.drop()
         return false
       }
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
-    //@tailrec
+    @tailrec
     def subparse: Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE => {
-          builder.advanceLexer //Ate }
-          return true
+          builder.advanceLexer() //Ate }
+          true
         }
         case _ => {
           if (PatVarDef parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
-                builder.advanceLexer //Ate }
-                return true
+                builder.advanceLexer() //Ate }
+                true
               }
               case ScalaTokenTypes.tSEMICOLON => {
-                builder.advanceLexer //Ate semicolon
-                return subparse
+                builder.advanceLexer() //Ate semicolon
+                subparse
               }
               case _ => {
                 if (builder.newlineBeforeCurrentToken) {
-                  return subparse
+                  subparse
+                } else {
+                  false
                 }
-                return false
               }
             }
           }
           else {
-            return false
+            false
           }
         }
       }
@@ -67,7 +68,7 @@ object EarlyDef {
     if (!subparse) {
       builder.restoreNewlinesState
       builder error ScalaBundle.message("unreachable.error")
-      earlyMarker.rollbackTo
+      earlyMarker.rollbackTo()
       return false
     }
     builder.restoreNewlinesState
@@ -75,13 +76,13 @@ object EarlyDef {
     builder.getTokenType match {
       case ScalaTokenTypes.kWITH => {
         earlyMarker.done(ScalaElementTypes.EARLY_DEFINITIONS)
-        builder.advanceLexer //Ate with
-        return true
+        builder.advanceLexer() //Ate with
+        true
       }
       case _ => {
         builder error ScalaBundle.message("unreachable.error")
-        earlyMarker.rollbackTo
-        return false
+        earlyMarker.rollbackTo()
+        false
       }
     }
   }

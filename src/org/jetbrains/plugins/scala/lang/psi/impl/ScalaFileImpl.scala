@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.extensions._
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
-import util.{PsiModificationTracker, PsiTreeUtil}
+import util.PsiTreeUtil
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)

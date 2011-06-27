@@ -45,4 +45,6 @@ object DummyASTNode extends TreeElement(ScalaElementTypes.DUMMY_ELEMENT) {
   def getNotCachedLength: Int = 42
   def getChars: CharSequence = textToCharArray.mkString
   def getPsi[T <: PsiElement](p1: Class[T]): T = null.asInstanceOf[T]
+
+  def getInstanceForJava = this
 }
