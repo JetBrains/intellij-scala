@@ -11,8 +11,6 @@ import api.base.ScReferenceElement
 import api.toplevel.imports.usages.{ImportSelectorUsed, ImportExprUsed, ImportWildcardSelectorUsed, ImportUsed}
 import collection.mutable.{HashSet, ArrayBuffer}
 import com.intellij.codeInsight.hint.HintManager
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import formatting.settings.ScalaCodeStyleSettings
 import lexer.ScalaTokenTypes
 import api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import api.toplevel.packaging.ScPackaging
@@ -38,7 +36,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
       while (run != null) {
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         if (run.isInstanceOf[ScImportStmt] &&
             !run.processDeclarations(processor, state, lastParent, place)) return false
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
@@ -68,7 +66,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
     processChild(this)
-    return res
+    res
   }
 
 
@@ -82,7 +80,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         case _ =>
       }
     }
-    return buf.toSeq
+    buf.toSeq
   }
 
   //Utility method to find first import statement, but only in element header
@@ -96,10 +94,10 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
     findChild(classOf[ScImportStmt]) match {
       case Some(x) => {
-        if (checkReference(x)) return Some(x)
-        else return None
+        if (checkReference(x)) Some(x)
+        else None
       }
-      case None => return None
+      case None => None
     }
   }
 
@@ -150,7 +148,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     //creating selectors string (after last '.' in import expression)
     var isPlaceHolderImport = false
     val simpleName = path.substring(path.lastIndexOf('.') + 1)
-    simpleName +: selectors
+    simpleName +=: selectors
     
     if (!hasRenamedImport &&
             (selectors.exists(_ == "_") || selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
@@ -231,13 +229,13 @@ trait ScImportsHolder extends ScalaPsiElement {
       def checkImports(element: PsiElement) {
         element match {
           case expr: ScImportExpr => {
-            def iterateExpr {
+            def iterateExpr() {
               val qualifier = expr.qualifier
               var firstQualifier = qualifier
               if (firstQualifier.getText == "_root_") return
               while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier.get
               if (subPackages.map(_.getName).contains(firstQualifier.getText)) {
-                var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve match {
+                var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve() match {
                   case pack: PsiPackage => pack.getQualifiedName
                   case cl: PsiClass => cl.getQualifiedName
                   case _ => return
@@ -259,10 +257,10 @@ trait ScImportsHolder extends ScalaPsiElement {
                 }
                 val newQualifier = ScalaPsiElementFactory.createReferenceFromText(importString, getManager)
                 qualifier.replace(newQualifier)
-                iterateExpr
+                iterateExpr()
               }
             }
-            iterateExpr
+            iterateExpr()
           }
           case _ => for (child <- element.getChildren) checkImports(child)
         }
@@ -361,7 +359,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
     val anchorNode = anchor.getNode
-    return CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
+    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
   }
 
   def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
