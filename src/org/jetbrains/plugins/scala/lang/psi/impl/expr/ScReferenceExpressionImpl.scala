@@ -174,7 +174,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(fun: ScFunction, s)) => {
         //prevent infinite recursion for recursive method invocation
         var result: ScType =
-          ScalaRecursionManager.functionRecursionGuard.doPreventingRecursion(this, new Computable[ScType] {
+          ScalaRecursionManager.functionRecursionGuard.doPreventingRecursion(this, true, new Computable[ScType] {
             def compute(): ScType = s.subst(fun.polymorphicType)
           })
         if (result == null) {

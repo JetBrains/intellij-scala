@@ -121,7 +121,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
           if (addCopy) {
             try {
-              val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, getLastChild)
+              val method = ScalaPsiElementFactory.createMethodWithContext(copyMethodText, this, this)
               method.setSynthetic()
               buf += method
             } catch {

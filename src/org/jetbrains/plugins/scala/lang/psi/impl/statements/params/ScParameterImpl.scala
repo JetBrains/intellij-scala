@@ -15,7 +15,6 @@ import com.intellij.psi.util._
 import toplevel.synthetic.JavaIdentifier
 import com.intellij.psi._
 import api.expr._
-import psi.types.{ScParameterizedType, ScType, ScFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import result.{Failure, Success, TypingContext, TypeResult}
 import api.toplevel.typedef.ScClass
@@ -37,6 +36,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def isCallByNameParameter: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScParameterStub].isCallByNameParameter
+    }
     paramType match {
       case Some(paramType) => {
         paramType.isCallByNameParameter
@@ -53,10 +56,10 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
       case f@Success(tp: ScType, elem) => {
         val seq = JavaPsiFacade.getInstance(getProject).findClass("scala.collection.Seq", getResolveScope)
         if (seq != null) {
-          return Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
-        } else return f
+          Success(new ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
+        } else f
       }
-      case f => return f
+      case f => f
     }
   }
 
@@ -221,29 +224,37 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
                     if (j >= clauses.length) return None
                     val parameters: Seq[ScParameter] = clauses.apply(j).parameters
                     if (i >= parameters.length) return None
-                    return Some(parameters.apply(i))
+                    Some(parameters.apply(i))
                   }
-                  case _ => return None
+                  case _ => None
                 }
               }
-              case _ => return None
+              case _ => None
             }
           }
-          case _ => return None
+          case _ => None
         }
       }
-      case _ => return None
+      case _ => None
     }
   }
 
+  def getActualDefaultExpression: Option[ScExpression] = {
+     val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScParameterStub].getDefaultExpr
+    }
+    findChild(classOf[ScExpression])
+  }
+
   def getDefaultExpression: Option[ScExpression] = {
-    val res = findChild(classOf[ScExpression])
+    val res = getActualDefaultExpression
     if (res == None) {
       getSuperParameter.flatMap(_.getDefaultExpression)
     } else res
   }
 
-  def remove: Unit = {
+  def remove {
     val node = getNode
     val toRemove: ArrayBuffer[ASTNode] = ArrayBuffer.apply(node)
     getParent match {

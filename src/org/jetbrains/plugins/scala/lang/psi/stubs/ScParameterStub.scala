@@ -6,6 +6,7 @@ package stubs
 import api.statements.params.ScParameter
 import com.intellij.psi.stubs.NamedStub
 import api.base.types.ScTypeElement
+import api.expr.ScExpression
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,4 +27,10 @@ trait ScParameterStub extends NamedStub[ScParameter] {
   def isVal: Boolean
 
   def isVar: Boolean
+
+  def isCallByNameParameter: Boolean
+
+  def getDefaultExprText: Option[String]
+
+  def getDefaultExpr: Option[ScExpression]
 }

@@ -43,6 +43,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isDefaultParam: Boolean
 
+  def getActualDefaultExpression: Option[ScExpression]
+
   def getDefaultExpression: Option[ScExpression]
 
   def getRealParameterType(ctx: TypingContext): TypeResult[ScType]

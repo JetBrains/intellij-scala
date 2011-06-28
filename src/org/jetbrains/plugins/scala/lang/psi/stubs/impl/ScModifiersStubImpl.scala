@@ -7,7 +7,6 @@ package impl
 import api.base.ScModifierList
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IStubElementType}
-import com.intellij.util.io.StringRef
 /**
  * User: Alexander Podkhalyuzin
  * Date: 21.01.2009
@@ -20,10 +19,15 @@ class ScModifiersStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   private var modifiers: Array[String] = Array[String]()
 
+  private var _hasExplicitModifiers: Boolean = false
+
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          modifiers: Array[String]) {
+          modifiers: Array[String], explicitModifiers: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     this.modifiers = modifiers
+    this._hasExplicitModifiers = explicitModifiers
   }
+
+  def hasExplicitModifiers: Boolean = _hasExplicitModifiers
 }
