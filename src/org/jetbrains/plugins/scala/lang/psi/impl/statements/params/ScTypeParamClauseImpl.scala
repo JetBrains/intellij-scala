@@ -40,6 +40,14 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
 
   override def toString: String = "TypeParameterClause"
 
+  def getTextByStub: String = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScTypeParamClauseStub].getTypeParamClauseText
+    }
+    getText
+  }
+
   def typeParameters: Seq[ScTypeParam] = {
     val stub = getStub
     if (stub != null) {

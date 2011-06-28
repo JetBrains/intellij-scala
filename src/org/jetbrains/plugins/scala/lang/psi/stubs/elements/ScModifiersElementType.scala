@@ -21,7 +21,8 @@ import impl.ScModifiersStubImpl
 
 class ScModifiersElementType[Func <: ScModifierList](debugName: String)
         extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
-  def serialize(stub: ScModifiersStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScModifiersStub, dataStream: StubOutputStream) {
+    dataStream.writeBoolean(stub.hasExplicitModifiers)
     dataStream.writeByte(stub.getModifiers.length)
     for (modifier <- stub.getModifiers) dataStream.writeName(modifier)
   }
@@ -31,15 +32,16 @@ class ScModifiersElementType[Func <: ScModifierList](debugName: String)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScModifierList, parentStub: StubElement[ParentPsi]): ScModifiersStub = {
-    new ScModifiersStubImpl(parentStub, this, psi.getModifiersStrings)
+    new ScModifiersStubImpl(parentStub, this, psi.getModifiersStrings, psi.hasExplicitModifiers)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
+    val explicitModifiers = dataStream.readBoolean()
     val num = dataStream.readByte
     val modifiers = new Array[String](num)
     for (i <- 1 to num) modifiers(i-1) = dataStream.readName.toString
-    new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers)
+    new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers, explicitModifiers)
   }
 
-  def indexStub(stub: ScModifiersStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScModifiersStub, sink: IndexSink) {}
 }

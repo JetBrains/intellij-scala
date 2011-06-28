@@ -13,7 +13,7 @@ import api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.types.Nothing
-import psi.types.result.TypingContext
+import psi.types.result.{Failure, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,8 +30,9 @@ class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScV
 
   def declaredElements = getIdList.fieldIds
 
-  override def getType(ctx: TypingContext) = wrap(typeElement)(ScalaBundle.message("no.type.element.found", getText)) flatMap {
-    te => te.getType(ctx)
+  override def getType(ctx: TypingContext) = typeElement match {
+    case None => Failure(ScalaBundle.message("no.type.element.found", getText), Some(this))
+    case Some(te) => te.getType(ctx)
   }
 
   def typeElement: Option[ScTypeElement] = {

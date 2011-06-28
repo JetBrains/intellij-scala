@@ -58,7 +58,8 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
     * In addition, view and context bounds generate an additional implicit parameter section.
     */
   private def effectiveParametersInner: Seq[ScParameterClause] = {
-    def emptyParameterList: ScParameterClause = ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
+    def emptyParameterList: ScParameterClause =
+      ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
     val clausesWithInitialEmpty = parameterList.clauses match {
       case Seq() => Seq(emptyParameterList)
       case Seq(clause) if clause.isImplicit => Seq(emptyParameterList, clause)
@@ -99,8 +100,8 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
 
   def polymorphicType: ScType = {
     val typeParameters = getParent.asInstanceOf[ScTypeDefinition].typeParameters
-    if (typeParameters.length == 0) return methodType
-    else return ScTypePolymorphicType(methodType, typeParameters.map(tp =>
+    if (typeParameters.length == 0) methodType
+    else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
       TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
   }
 
@@ -108,14 +109,14 @@ trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
     clausePosition match {
       case -1 => {
         for (param <- parameters if param.name == name) return Some(param)
-        return None
+        None
       }
-      case i if i < 0 => return None
-      case i if i >= effectiveParameterClauses.length => return None
+      case i if i < 0 => None
+      case i if i >= effectiveParameterClauses.length => None
       case i => {
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
         for (param <- clause.parameters if param.name == name) return Some(param)
-        return None
+        None
       }
     }
   }

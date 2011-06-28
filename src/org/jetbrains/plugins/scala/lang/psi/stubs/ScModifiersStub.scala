@@ -12,5 +12,7 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScModifiersStub extends StubElement[ScModifierList] {
+  def hasExplicitModifiers: Boolean
+
   def getModifiers: Array[String]
 }

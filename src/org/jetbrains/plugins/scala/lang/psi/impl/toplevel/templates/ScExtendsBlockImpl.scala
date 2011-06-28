@@ -6,24 +6,23 @@ package toplevel
 package templates
 
 
-import _root_.scala.collection.mutable.ListBuffer
-import api.toplevel.{ScEarlyDefinitions}
+import collection.mutable.ListBuffer
+import api.toplevel.ScEarlyDefinitions
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.source.tree.SharedImplUtil
-import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiClass}
-import com.intellij.util.{ArrayFactory}
+import com.intellij.psi.{PsiElement, PsiClass}
 import parser.ScalaElementTypes
 import api.toplevel.templates._
 import psi.types._
 import _root_.scala.collection.mutable.ArrayBuffer
 import result.{TypingContext, Success}
-import stubs.{ScExtendsBlockStub}
-import api.toplevel.typedef.{ScMember, ScTypeDefinition, ScObject}
+import stubs.ScExtendsBlockStub
+import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import collection.Seq
 import util.CommonClassesSearcher
 import api.base.types._
 import caches.CachesUtil
-import api.expr.{ExpectedTypes, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedTypes, ScNewTemplateDefinition}
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 
 /**
@@ -69,8 +68,11 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   def isScalaObject: Boolean = {
-    val clazz = PsiTreeUtil.getParentOfType(this, classOf[PsiClass], true)
-    clazz.getQualifiedName == "scala.ScalaObject"
+    getParentByStub match {
+      case clazz: PsiClass =>
+        clazz.getQualifiedName == "scala.ScalaObject"
+      case _ => false
+    }
   }
 
   private def superTypesInner: List[ScType] = {
@@ -84,7 +86,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     templateParents match {
       case Some(parents: ScTemplateParents) => {
         val parentSupers: Seq[ScType] = parents.superTypes
-        val noInferValueType = getParent().isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
+        val noInferValueType = getParentByStub.isInstanceOf[ScNewTemplateDefinition] && parentSupers.length == 1
         parentSupers foreach {t => addType(if (noInferValueType) t else t.inferValueType)}
       }
       case _ =>

@@ -29,6 +29,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import lexer.{ScalaTokenTypes, ScalaLexer}
+import stubs.StubElement
 import types._
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.typedef.{ScObject, ScTypeDefinition, ScMember}
@@ -81,7 +82,7 @@ object ScalaPsiElementFactory {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
+      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
       fun
     } else null
   }
@@ -99,7 +100,7 @@ object ScalaPsiElementFactory {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
+      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
       fun
     } else null
   }
@@ -116,9 +117,21 @@ object ScalaPsiElementFactory {
     val psi = node.getPsi
     if (psi.isInstanceOf[ScParameterClause]) {
       val fun = psi.asInstanceOf[ScParameterClause]
-      fun.asInstanceOf[ScalaPsiElement].setContext(context, context.getLastChild)
+      fun.asInstanceOf[ScalaPsiElement].setContext(context, contextLastChild(context))
       fun
     } else null
+  }
+
+  private def contextLastChild(context: PsiElement): PsiElement = {
+    context match {
+      case s: StubBasedPsiElement[_] if s.getStub != null=>
+        val stub = s.getStub.asInstanceOf[StubElement[_ <: PsiElement]]
+        val children = stub.getChildrenStubs
+        val size = children.size()
+        if (size == 0) null
+        else children.get(size - 1).getPsi
+      case _ => context.getLastChild
+    }
   }
 
   def createParameterFromText(paramText: String, manager: PsiManager): ScParameter = {

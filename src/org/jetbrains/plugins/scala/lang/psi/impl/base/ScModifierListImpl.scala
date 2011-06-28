@@ -79,6 +79,11 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
   def getModifiersStrings: Array[String] = ScModifierListImpl.AllModifiers.filter(hasModifierProperty(_))
 
   def hasExplicitModifiers: Boolean = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScModifiersStub].hasExplicitModifiers
+    }
+
     val access = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
     access != null || findChildrenByType(TokenSets.MODIFIERS).size > 0
   }

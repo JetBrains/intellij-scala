@@ -6,27 +6,37 @@ package statements
 
 import com.intellij.lang.ASTNode
 import api.base.types.ScTypeElement
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import parser.ScalaElementTypes
-import stubs.{ScValueStub, ScVariableStub}
-import org.jetbrains.plugins.scala.lang.psi.types.Any
+import stubs.ScVariableStub
 import psi.types.result.TypingContext
 import com.intellij.psi.PsiElementVisitor
 import api.ScalaElementVisitor
+import api.expr.ScExpression
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDefinition {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
     }
+  }
+
+  def expr: ScExpression = {
+    val stub = getStub
+    if (stub != null) {
+      stub.asInstanceOf[ScVariableStub].getBodyExpr match {
+        case Some(expr) => return expr
+        case _ =>
+      }
+    }
+    findChildByClassScala(classOf[ScExpression])
   }
 
   def this(node: ASTNode) = {this (); setNode(node)}

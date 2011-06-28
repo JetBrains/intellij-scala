@@ -13,5 +13,5 @@ import com.intellij.psi.stubs.StubElement
  */
 
 trait ScTypeParamClauseStub extends StubElement[ScTypeParamClause] {
-
+  def getTypeParamClauseText: String
 }

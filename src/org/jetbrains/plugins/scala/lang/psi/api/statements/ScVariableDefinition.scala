@@ -18,6 +18,6 @@ trait ScVariableDefinition extends ScVariable {
   def pList: ScPatternList
   def bindings: Seq[ScBindingPattern]
   def declaredElements = bindings
-  def expr = findChildByClassScala(classOf[ScExpression])
+  def expr: ScExpression
   override def accept(visitor: ScalaElementVisitor) = visitor.visitVariableDefinition(this)
 }

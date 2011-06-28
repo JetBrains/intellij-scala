@@ -20,19 +20,22 @@ import impl.ScTypeParamClauseStubImpl
 
 class ScTypeParamClauseElementType[Func <: ScTypeParamClause]
         extends ScStubElementType[ScTypeParamClauseStub, ScTypeParamClause]("type parameter clause") {
-  def serialize(stub: ScTypeParamClauseStub, dataStream: StubOutputStream): Unit = {}
+  def serialize(stub: ScTypeParamClauseStub, dataStream: StubOutputStream) {
+    dataStream.writeName(stub.getTypeParamClauseText)
+  }
 
-  def indexStub(stub: ScTypeParamClauseStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScTypeParamClauseStub, sink: IndexSink) {}
 
   def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = {
     new ScTypeParamClauseImpl(stub)
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeParamClause, parentStub: StubElement[ParentPsi]): ScTypeParamClauseStub = {
-    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getText)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamClauseStub = {
-    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    val text = dataStream.readName().toString
+    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, text)
   }
 }

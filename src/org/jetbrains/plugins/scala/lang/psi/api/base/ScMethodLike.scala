@@ -42,7 +42,8 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
         clazz match {
           case c: ScTypeDefinition =>
             c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
-              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(typeParamClause.getText,
+              val paramClauseText = typeParamClause.getTextByStub
+              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramClauseText,
                 typeParamClause.getContext, typeParamClause)
             })
           case _ => None
