@@ -38,7 +38,8 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
 
   import scope._
 
-  def importExprs: Array[ScImportExpr] = getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, ScalaPsiUtil.arrayFactory[ScImportExpr])
+  def importExprs: Array[ScImportExpr] =
+    getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

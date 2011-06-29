@@ -66,7 +66,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
   def pList: ScPatternList = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, ScalaPsiUtil.arrayFactory[ScPatternList]).apply(0)
+      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, JavaArrayFactoryUtil.ScPatternListFactory).apply(0)
     } else findChildByClass(classOf[ScPatternList])
   }
 }

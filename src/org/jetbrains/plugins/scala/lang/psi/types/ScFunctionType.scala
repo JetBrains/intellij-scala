@@ -7,7 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.{ScClass, ScTrait}
 import decompiler.DecompilerUtil
-import com.intellij.psi.{PsiElement, JavaPsiFacade, PsiClass}
+import util.CommonClassesSearcher
+import com.intellij.psi.{PsiManager, PsiElement, JavaPsiFacade, PsiClass}
 
 /**
 * @author ilyas
@@ -21,8 +22,9 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
 
   def resolveFunctionTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-        val psiFacade = JavaPsiFacade.getInstance(project)
-        Option(psiFacade.findClass(functionTraitName, getScope))
+      val classes = CommonClassesSearcher.getCachedClass(PsiManager.getInstance(project), getScope, fullyQualifiedName)
+      if (classes.length == 0) None
+      else Some(classes(0))
     }
     findClass(functionTraitName) match {
       case Some(t: ScTrait) => {

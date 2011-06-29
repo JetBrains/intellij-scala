@@ -9,6 +9,7 @@ import com.intellij.psi._
 import com.intellij.ide.highlighter.JavaFileType
 import util.MethodSignatureUtil
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
+import api.statements.params.ScParameters
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
                 val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
@@ -51,7 +52,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
       val t2 = otherTypesIterator.next()
       if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
     }
-    return true
+    true
   }
 
   protected def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
@@ -81,13 +82,20 @@ import com.intellij.psi.PsiMethod
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
         extends Signature(method.getName, method match {
           case fun: ScFunction => ScalaPsiUtil.getTypesStream(fun.parameters)
-          case _ => ScalaPsiUtil.getTypesStream(method.getParameterList.getParameters.toSeq)
-        }, method.getParameterList.getParameters.length,
+          case _ => ScalaPsiUtil.getTypesStream(method.getParameterList match {
+            case p: ScParameters => p.params
+            case p => p.getParameters.toSeq
+          })
+        }, method.getParameterList.getParametersCount,
           method.getTypeParameters,
           substitutor) {
 
   override def hasRepeatedParam: Boolean = {
-    method.getParameterList.getParameters.lastOption match {
+    val lastParam = method.getParameterList match {
+      case p: ScParameters => p.params.lastOption
+      case p => p.getParameters.lastOption
+    }
+    lastParam match {
       case Some(p: PsiParameter) => p.isVarArgs
       case _ => false
     }

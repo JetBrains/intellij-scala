@@ -45,7 +45,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   def constructor: Option[ScPrimaryConstructor] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, ScalaPsiUtil.arrayFactory[ScPrimaryConstructor])
+      val array =
+        stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory)
       return array.headOption
     }
     findChild(classOf[ScPrimaryConstructor])

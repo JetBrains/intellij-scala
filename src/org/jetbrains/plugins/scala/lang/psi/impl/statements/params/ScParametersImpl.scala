@@ -5,7 +5,6 @@ package impl
 package statements
 package params
 
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import com.intellij.lang.ASTNode
 import stubs.ScParamClausesStub;
@@ -25,16 +24,18 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
 
   def params: Seq[ScParameter] = clauses.flatMap((clause: ScParameterClause) => clause.parameters)
 
-  def clauses: Seq[ScParameterClause] = getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, ScalaPsiUtil.arrayFactory[ScParameterClause]).toSeq
+  def clauses: Seq[ScParameterClause] = {
+    getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
+  }
 
   def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
 
   def getParametersCount = params.length
 
-  override def getParameters = params.toArray
+  override def getParameters: Array[PsiParameter] = params.toArray
 
   def addClause(clause: ScParameterClause): ScParameters = {
     getNode.addChild(clause.getNode)
-    return this
+    this
   }
 }

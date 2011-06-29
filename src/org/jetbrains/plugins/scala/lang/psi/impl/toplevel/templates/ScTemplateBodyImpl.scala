@@ -32,19 +32,22 @@ class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with 
   def aliases: Array[ScTypeAlias] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(TokenSets.ALIASES_SET, ScalaPsiUtil.arrayFactory[ScTypeAlias])
+      stub.getChildrenByType(TokenSets.ALIASES_SET, JavaArrayFactoryUtil.ScTypeAliasFactory)
     } else findChildrenByClass(classOf[ScTypeAlias])
   }
 
-  def functions: Array[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, ScalaPsiUtil.arrayFactory[ScFunction])
+  def functions: Array[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory)
 
-  def typeDefinitions: Seq[ScTypeDefinition] = getStubOrPsiChildren[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, ScalaPsiUtil.arrayFactory[ScTypeDefinition])
+  def typeDefinitions: Seq[ScTypeDefinition] =
+    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
 
-  def members: Array[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, ScalaPsiUtil.arrayFactory[ScMember])
+  def members: Array[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory)
 
-  def holders: Array[ScDeclaredElementsHolder] = getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, ScalaPsiUtil.arrayFactory[ScDeclaredElementsHolder])
+  def holders: Array[ScDeclaredElementsHolder] =
+    getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, JavaArrayFactoryUtil.ScDeclaredElementsHolderFactory)
 
-  def exprs: Array[ScExpression] = getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, ScalaPsiUtil.arrayFactory[ScExpression])
+  def exprs: Array[ScExpression] =
+    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, JavaArrayFactoryUtil.ScExpressionFactory)
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
     val stub = getStub

@@ -20,7 +20,7 @@ import com.intellij.codeInsight.editorActions.ReferenceTransferableData.Referenc
  */
 
 object JavaToScala {
-  def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name;
+  def escapeKeyword(name : String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name;
 
   class Offset(val value: Int) {
     override def toString = value.toString
@@ -213,7 +213,7 @@ object JavaToScala {
             case l: PsiLiteralExpression if l.getText == "null" => return false
             case _ =>
           }
-          return true
+          true
         }
         val operation = b.getOperationSign.getText match {
           case "==" if isOk => "eq"
@@ -585,7 +585,7 @@ object JavaToScala {
         }
         res.append(escapeKeyword(annot.getNameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes
-        if (attributes nonEmpty) {
+        if (attributes nonEmpty()) {
           res.append("(")
           for (attribute <- attributes) {
             if (attribute.getName != null) {
@@ -626,7 +626,7 @@ object JavaToScala {
       }
       //case e => res.append(e.toString)
     }
-    return res.toString
+    res.toString()
   }
 
   def convertPsisToText(elements: Array[PsiElement],
@@ -637,14 +637,14 @@ object JavaToScala {
       res.append(convertPsiToText(element)(dependencies, refs, new Offset(res.length))).append("\n")
     }
     res.delete(res.length - 1, res.length)
-    return res.toString
+    res.toString()
   }
 
   def isArrayAnnotationParameter(pair: PsiNameValuePair): Boolean = {
     AnnotationUtil.getAnnotationMethod(pair) match {
       case method: PsiMethod => {
         val returnType = method.getReturnType
-        return returnType != null && returnType.isInstanceOf[PsiArrayType];
+        returnType != null && returnType.isInstanceOf[PsiArrayType];
       }
       case _ => false
     }
