@@ -6,8 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
-import impl.migration.PsiMigrationImpl
-import impl.{JavaPsiFacadeImpl, PsiManagerEx}
+import impl.PsiManagerEx
 import java.lang.String
 import collection.Iterator
 import scope.PsiScopeProcessor.Event
@@ -17,8 +16,6 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.Key
 import collection.mutable.HashSet
-import com.intellij.codeInsight.completion.scope.JavaCompletionProcessor
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010

@@ -179,7 +179,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
     val stub = getStub
     if (stub != null) {
       val annotations: Array[ScAnnotations] = stub.getParentStub.
-              getChildrenByType(ScalaElementTypes.ANNOTATIONS, ScalaPsiUtil.arrayFactory[ScAnnotations])
+              getChildrenByType(ScalaElementTypes.ANNOTATIONS, JavaArrayFactoryUtil.ScAnnotationsFactory)
       if (annotations.length > 0) {
         return annotations.apply(0).getAnnotations.map(_.asInstanceOf[PsiAnnotation])
       } else return PsiAnnotation.EMPTY_ARRAY

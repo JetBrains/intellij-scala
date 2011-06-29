@@ -28,7 +28,7 @@ abstract class MixinNodes {
   }
   
   class Map extends HashMap[T, Node] {
-    override def elemHashCode(t : T) = computeHashCode(t)
+    override def elemHashCode(t: T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
 
     /**

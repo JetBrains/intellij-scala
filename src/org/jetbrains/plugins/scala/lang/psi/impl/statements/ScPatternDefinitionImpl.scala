@@ -78,7 +78,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   def pList: ScPatternList = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, ScalaPsiUtil.arrayFactory[ScPatternList]).apply(0)
+      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, JavaArrayFactoryUtil.ScPatternListFactory).apply(0)
     } else findChildByClass(classOf[ScPatternList])
   }
 }

@@ -40,7 +40,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def templateBody: Option[ScTemplateBody] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, ScalaPsiUtil.arrayFactory[ScTemplateBody])
+      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, JavaArrayFactoryUtil.ScTemplateBodyFactory)
       array.headOption
     } else {
       getLastChild match {
@@ -209,7 +209,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def templateParents: Option[ScTemplateParents] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, ScalaPsiUtil.arrayFactory[ScTemplateParents])
+      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, JavaArrayFactoryUtil.ScTemplateParentsFactory)
       array.headOption
     } else findChild(classOf[ScTemplateParents])
   }
@@ -217,7 +217,7 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def earlyDefinitions: Option[ScEarlyDefinitions] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, ScalaPsiUtil.arrayFactory[ScEarlyDefinitions])
+      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
       array.headOption
     } else findChild(classOf[ScEarlyDefinitions])
   }

@@ -223,7 +223,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   def getPackagings: Array[ScPackaging] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PACKAGING, ScalaPsiUtil.arrayFactory[ScPackaging])
+      stub.getChildrenByType(ScalaElementTypes.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
     } else findChildrenByClass(classOf[ScPackaging])
   }
 
@@ -259,7 +259,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     } else ""
   }
 
-  override def getClasses = {
+  override def getClasses: Array[PsiClass] = {
     if (!isScriptFile) {
       typeDefinitions.toArray[PsiClass]
     } else PsiClass.EMPTY_ARRAY
