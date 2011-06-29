@@ -585,7 +585,7 @@ object JavaToScala {
         }
         res.append(escapeKeyword(annot.getNameReferenceElement.getText))
         val attributes = annot.getParameterList.getAttributes
-        if (attributes nonEmpty()) {
+        if (attributes.nonEmpty) {
           res.append("(")
           for (attribute <- attributes) {
             if (attribute.getName != null) {
