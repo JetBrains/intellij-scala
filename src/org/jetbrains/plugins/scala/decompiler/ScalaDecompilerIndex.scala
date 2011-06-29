@@ -66,7 +66,10 @@ private[decompiler] object ScalaDecompilerIndex {
   
   val notScala = "Not scala"
 
+  val notInScope = "Not in scope"
+
   def decompile(vFile: VirtualFile, scope: GlobalSearchScope): (String, String) = {
+    if (!scope.contains(vFile)) return (notInScope, notInScope)
     val list = FileBasedIndex.getInstance().getValues(id, vFile.getPath, scope)
     if (list.size() != 1) (notScala, notScala)
     else list.get(0)

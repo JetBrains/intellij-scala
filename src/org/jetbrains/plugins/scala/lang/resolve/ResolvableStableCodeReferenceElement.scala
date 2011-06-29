@@ -8,7 +8,6 @@ import psi.api.expr._
 import psi.api.toplevel.ScTypedDefinition
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition, ScClass}
-import psi.api.ScalaFile
 import psi.api.toplevel.packaging.ScPackaging
 import psi.ScalaPsiUtil
 import psi.types._
@@ -19,8 +18,8 @@ import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
 import util.{PsiModificationTracker, PsiTreeUtil}
-import caches.{ScalaRecursionManager, CachesUtil}
-import com.intellij.openapi.util.Computable
+import caches.CachesUtil
+import psi.api.{ScPackage, ScalaFile}
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -50,6 +49,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case ScalaResolveResult(clazz: PsiClass, s) => {
         processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
       }
+      case ScalaResolveResult(pack: ScPackage, s) =>
+        pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
+          null, ResolvableStableCodeReferenceElement.this, true)
       case other: ScalaResolveResult => {
         other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
           null, ResolvableStableCodeReferenceElement.this)

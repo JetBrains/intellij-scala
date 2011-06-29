@@ -22,7 +22,7 @@ import com.intellij.psi.search.GlobalSearchScope
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 139
+  val DECOMPILER_VERSION = 144
 
   def isScalaFile(file: VirtualFile): Boolean = try {
     isScalaFile(file, file.contentsToByteArray)
@@ -35,12 +35,12 @@ object DecompilerUtil {
 
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
     def inner: Boolean = {
-      if (isDumbMode) {
-        if (file.getFileType != StdFileTypes.CLASS) return false
-        if (!file.isInstanceOf[VirtualFileWithId]) return false
+      if (file.getFileType != StdFileTypes.CLASS) return false
+      if (!file.isInstanceOf[VirtualFileWithId]) return false
+      def calc: Boolean = {
         val byteCode = ByteCode(bytes)
         val isPackageObject = file.getName == "package.class"
-        val isScala = try {
+        try {
           val classFile = ClassFileParser.parse(byteCode)
           val scalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).
             getOrElse(null) match {
@@ -53,10 +53,13 @@ object DecompilerUtil {
         } catch {
           case e => false
         }
-        isScala
+      }
+      if (isDumbModeOrUnitTesting) {
+        calc
       } else {
-        ScalaDecompilerIndex.decompile(file, allProjectsScope)._1 !=
-          ScalaDecompilerIndex.notScala
+        val decompiled = ScalaDecompilerIndex.decompile(file, allProjectsScope)._1
+        if (decompiled == ScalaDecompilerIndex.notInScope) calc
+        else decompiled != ScalaDecompilerIndex.notScala
       }
     }
     val timeStamp = file.getTimeStamp
@@ -116,73 +119,79 @@ object DecompilerUtil {
    * @return (Suspension(sourceText), sourceFileName)
    */
 
-  def isDumbMode: Boolean = {
-    openedNotDisposedProjects.find(p => DumbServiceImpl.getInstance(p).isDumb) != None
+  def isDumbModeOrUnitTesting: Boolean = {
+    openedNotDisposedProjects.find(p => DumbServiceImpl.getInstance(p).isDumb) != None ||
+      ApplicationManager.getApplication.isUnitTestMode
   }
 
   def decompile(bytes: Array[Byte], file: VirtualFile): (String, String) = {
-    if (isDumbMode) {
-        val isPackageObject = file.getName == "package.class"
-        val byteCode = ByteCode(bytes)
-        val classFile = ClassFileParser.parse(byteCode)
-        val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
-          // No entries in ScalaSig attribute implies that the signature is stored in the annotation
-          case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
-          case other => other
-        }
+    def calc: (String, String) = {
+      val isPackageObject = file.getName == "package.class"
+      val byteCode = ByteCode(bytes)
+      val classFile = ClassFileParser.parse(byteCode)
+      val scalaSig: ScalaSig = classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse).get match {
+        // No entries in ScalaSig attribute implies that the signature is stored in the annotation
+        case ScalaSig(_, _, entries) if entries.length == 0 => unpickleFromAnnotation(classFile, isPackageObject)
+        case other => other
+      }
 
-        val sourceText = {
-          val baos = new ByteArrayOutputStream
-          val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
-          if (scalaSig == null) {
-            throw new RuntimeException("null scalaSig for file: " + file.getPath)
-          }
-          val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
-          // Print package with special treatment for package objects
-          syms.head.parent match {
-            //Partial match
-            case Some(p) if (p.name != "<empty>") => {
-              val path = p.path
-              if (!isPackageObject) {
+      val sourceText = {
+        val baos = new ByteArrayOutputStream
+        val stream = new PrintStream(baos, true, CharsetToolkit.UTF8)
+        if (scalaSig == null) {
+          throw new RuntimeException("null scalaSig for file: " + file.getPath)
+        }
+        val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects
+        // Print package with special treatment for package objects
+        syms.head.parent match {
+          //Partial match
+          case Some(p) if (p.name != "<empty>") => {
+            val path = p.path
+            if (!isPackageObject) {
+              stream.print("package ");
+              stream.print(path);
+              stream.print("\n")
+            } else {
+              val i = path.lastIndexOf(".")
+              if (i > 0) {
                 stream.print("package ");
-                stream.print(path);
+                stream.print(path.substring(0, i))
                 stream.print("\n")
-              } else {
-                val i = path.lastIndexOf(".")
-                if (i > 0) {
-                  stream.print("package ");
-                  stream.print(path.substring(0, i))
-                  stream.print("\n")
-                }
               }
             }
-            case _ =>
           }
-
-          // Print classes
-          val printer = new ScalaSigPrinter(stream, false)
-
-          for (c <- syms) {
-            printer.printSymbol(c)
-          }
-          val sourceBytes = baos.toByteArray
-          new String(sourceBytes, UTF8)
+          case _ =>
         }
 
-        val sourceFileName = {
-          val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
-          val c = classFile.header.constants(index)
-          val sBytes: Array[Byte] = c match {
-            case s: String => s.getBytes(UTF8)
-            case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
-            case _ => Array.empty
-          }
-          new String(sBytes, UTF8)
-        }
+        // Print classes
+        val printer = new ScalaSigPrinter(stream, false)
 
-        (sourceText, sourceFileName)
+        for (c <- syms) {
+          printer.printSymbol(c)
+        }
+        val sourceBytes = baos.toByteArray
+        new String(sourceBytes, UTF8)
+      }
+
+      val sourceFileName = {
+        val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
+        val c = classFile.header.constants(index)
+        val sBytes: Array[Byte] = c match {
+          case s: String => s.getBytes(UTF8)
+          case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
+          case _ => Array.empty
+        }
+        new String(sBytes, UTF8)
+      }
+
+      (sourceText, sourceFileName)
+    }
+    if (isDumbModeOrUnitTesting) {
+      calc
     } else {
-      ScalaDecompilerIndex.decompile(file, allProjectsScope)
+      val decompile = ScalaDecompilerIndex.decompile(file, allProjectsScope)
+      if (decompile._1 == ScalaDecompilerIndex.notInScope) calc
+      else decompile
     }
   }
 }
