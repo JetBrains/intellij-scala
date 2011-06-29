@@ -131,7 +131,17 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
-  def getTypeParameters = typeParameters.toArray
+  def getTypeParameters: Array[PsiTypeParameter] = {
+    val params = typeParameters
+    val size = params.length
+    val result = PsiTypeParameter.ARRAY_FACTORY.create(size)
+    var i = 0
+    while (i < size) {
+      result(i) = params(i).asInstanceOf[PsiTypeParameter]
+      i += 1
+    }
+    result
+  }
 
   //todo implement me!
   def isVarArgs = false
