@@ -240,6 +240,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
             processType(newSubst subst tp, place, state.put(ScSubstitutor.key, ScSubstitutor.empty), false, false)
           case _ => true
         }
+      case pack: ScPackage =>
+        pack.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place, true)
       case des =>
         des.processDeclarations(this, state.put(ScSubstitutor.key, newSubst), null, place)
     }
