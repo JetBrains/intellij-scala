@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayFactory;
 import org.jetbrains.plugins.scala.lang.psi.api.base.*;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
@@ -28,6 +29,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  * @author Alexander Podkhalyuzin
  */
 public class JavaArrayFactoryUtil {
+  public static ArrayFactory<ScTypeElement> ScTypeElementFactory = new ArrayFactory<ScTypeElement>() {
+    @Override
+    public ScTypeElement[] create(int count) {
+      return new ScTypeElement[count];
+    }
+  };
+
   public static ArrayFactory<ScAnnotation> ScAnnotationFactory = new ArrayFactory<ScAnnotation>() {
     @Override
     public ScAnnotation[] create(int count) {
