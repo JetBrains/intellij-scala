@@ -6,16 +6,18 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaFileType
 import com.intellij.psi._
-import impl.PsiManagerEx
-import scope.PsiScopeProcessor
+import impl.migration.PsiMigrationImpl
+import impl.{JavaPsiFacadeImpl, PsiManagerEx}
 import java.lang.String
 import collection.Iterator
 import scope.PsiScopeProcessor.Event
+import scope.{NameHint, ElementClassHint, PsiScopeProcessor}
 import toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.Key
 import collection.mutable.HashSet
+import com.intellij.codeInsight.completion.scope.JavaCompletionProcessor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,9 +26,13 @@ import collection.mutable.HashSet
 
 class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asInstanceOf[PsiManagerEx],
         pack.getQualifiedName) with ScPackage {
-
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
+    processDeclarations(processor, state, lastParent, place, false)
+  }
+
+  def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                          lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
       val namesSet = new HashSet[String]
 
@@ -63,7 +69,27 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
         // then it must also contain the object.
         if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
       }
-    } else if (!pack.processDeclarations(processor, state, lastParent, place)) return false
+    } else {
+      def process: Boolean = pack.processDeclarations(processor, state, lastParent, place)
+      if (!lite && !process) return false
+      else if (lite) {
+        val scope: GlobalSearchScope = place.getResolveScope
+        processor.handleEvent(PsiScopeProcessor.Event.SET_DECLARATION_HOLDER, this)
+        var classHint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
+
+        if (classHint == null || classHint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)) {
+          val nameHint: NameHint = processor.getHint(NameHint.KEY)
+          if (nameHint != null) {
+            val shortName: String = nameHint.getName(state)
+            if (processClassesByName(processor, state, place, scope, shortName)) return false
+            val aPackage: PsiPackage = findSubPackageByName(nameHint.getName(state))
+            if (aPackage != null) {
+              if (!processor.execute(aPackage, state)) return false
+            }
+          } else if (!process) return false
+        } else if (!process) return false
+      }
+    }
 
     //for Scala
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
@@ -81,6 +107,35 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
           case None =>
         }
       }
+    }
+    true
+  }
+
+  private def findSubPackageByName(name: String): PsiPackage = {
+    val qName: String = getQualifiedName
+    val subpackageQName: String = if (qName.length > 0) qName + "." + name else name
+    var aPackage: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(subpackageQName)
+    if (aPackage == null) return null
+    aPackage
+  }
+
+  private def findClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    val qName: String = getQualifiedName
+    val classQName: String = if (qName.length > 0) qName + "." + name else name
+    JavaPsiFacade.getInstance(getProject).findClasses(classQName, scope)
+  }
+
+  private def processClassesByName(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
+                                   scope: GlobalSearchScope, className: String): Boolean = {
+    val classes: Array[PsiClass] = findClassesByName(className, scope)
+    !processClasses(processor, state, classes)
+  }
+
+  private def processClasses(processor: PsiScopeProcessor, state: ResolveState, classes: Array[PsiClass]): Boolean = {
+    val iter = classes.iterator
+    while (iter.hasNext) {
+      val aClass = iter.next()
+      if (!processor.execute(aClass, state)) return false
     }
     true
   }
