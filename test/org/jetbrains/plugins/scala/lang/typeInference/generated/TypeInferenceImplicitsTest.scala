@@ -15,5 +15,7 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
 
   def testImplicitParamClause = doTest
 
+  def testImplicitParameterOnlyFirstStep = doTest
+
   def testSCL1580 = doTest
 }

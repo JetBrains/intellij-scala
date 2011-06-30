@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
 import lexer.ScalaTokenTypes
-import processor.BaseProcessor
+import processor.{ImplicitProcessor, BaseProcessor}
 import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
@@ -27,6 +27,7 @@ import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, 
 import result.{Success, TypingContext}
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.openapi.application.{ApplicationManager, Application}
+import scope.PsiScopeProcessor
 import search.GlobalSearchScope
 import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
 import java.lang.String
@@ -36,6 +37,8 @@ import psi.fake.FakePsiMethod
 import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
 import psi.api.base.types.{ScCompoundTypeElement, ScTypeElement, ScSelfTypeElement}
 import com.intellij.openapi.util.Key
+import caches.{ScalaCachesManager, ScalaShortNamesCache}
+import psi.impl.ScalaPsiManager
 
 /**
  * @author ven
@@ -538,4 +541,18 @@ object ResolveUtils {
     potentialChild == packageName || potentialChild.startsWith(packageName + ".")
   }
 
+  def packageProcessDeclarations(pack: PsiPackage, processor: PsiScopeProcessor,
+                                  state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
+    processor match {
+      case impl: ImplicitProcessor =>
+        val objectsIterator = ScalaPsiManager.instance(pack.getProject).
+          getPackageImplicitObjects(pack.getQualifiedName, place.getResolveScope).iterator
+        while (objectsIterator.hasNext) {
+          val obj = objectsIterator.next()
+          if (!processor.execute(obj, state)) return false
+        }
+        true
+      case _ => pack.processDeclarations(processor, state, lastParent, place)
+    }
+  }
 }

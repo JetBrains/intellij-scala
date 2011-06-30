@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
 
@@ -116,6 +117,24 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
       }
     }
     return null;
+  }
+
+  public ScObject[] getImplicitObjectsByPackage(@NotNull @NonNls String fqn, @NotNull GlobalSearchScope scope) {
+    final Collection<? extends PsiElement> classes = StubIndex.getInstance().get(ScalaIndexKeys.IMPLICIT_OBJECT_KEY(), fqn,
+        myProject, new ScalaSourceFilterScope(scope, myProject));
+    ArrayList<ScObject> res = new ArrayList<ScObject>();
+    for (PsiElement element: classes) {
+      if (!(element instanceof ScObject)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return new ScObject[0];
+      }
+      res.add((ScObject) element);
+    }
+    return res.toArray(new ScObject[res.size()]);
   }
 
   public Set<String> getClassNames(PsiPackage psiPackage, GlobalSearchScope scope) {

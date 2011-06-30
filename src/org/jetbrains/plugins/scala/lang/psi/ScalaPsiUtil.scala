@@ -54,6 +54,18 @@ import java.lang.Exception
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def lastChildElementOrStub(element: PsiElement): PsiElement = {
+    element match {
+      case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {
+        val stub = st.getStub
+        val children = stub.getChildrenStubs
+        if (children.size() == 0) element.getLastChild
+        else children.get(children.size() - 1).getPsi
+      }
+      case _ => element.getLastChild
+    }
+  }
+
   def fileContext(psi: PsiElement): PsiFile = {
     if (psi == null) return null
     psi match {

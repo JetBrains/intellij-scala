@@ -38,18 +38,6 @@ public class ScalaCachesManager implements ProjectComponent{
 
   public void initComponent() {
     myCache = new ScalaShortNamesCache(myProject);
-    StartupManager.getInstance(myProject).registerPostStartupActivity(new Runnable() {
-      public void run() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-          public void run() {
-            if (!myProject.isDisposed()) {
-              JavaPsiFacade.getInstance(myProject).registerShortNamesCache(getNamesCache());
-            }
-          }
-        });
-      }
-    });
-
   }
 
   public void disposeComponent() {

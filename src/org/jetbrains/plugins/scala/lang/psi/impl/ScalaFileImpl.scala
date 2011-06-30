@@ -38,6 +38,7 @@ import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
 import util.PsiTreeUtil
+import lang.resolve.ResolveUtils
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -294,7 +295,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       case _ => {
         val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
-          if (defaultPackage != null && !defaultPackage.processDeclarations(processor, state, null, place)) return false
+          if (defaultPackage != null &&
+            !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
         }
         else if (defaultPackage != null) {
           //only packages resolve, no classes from default package
@@ -366,7 +368,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val implP = implPIterator.next()
       ProgressManager.checkCanceled()
       val pack: PsiPackage = JavaPsiFacade.getInstance(getProject).findPackage(implP)
-      if (pack != null && !pack.processDeclarations(processor, state, null, place)) return false
+      if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
     }
 
     true

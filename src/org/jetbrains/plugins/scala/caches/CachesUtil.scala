@@ -3,18 +3,19 @@ package caches
 
 
 import com.intellij.psi.util.{CachedValueProvider, CachedValue}
-import lang.psi.types.{Signature, ScType}
 import lang.psi.types.result.TypeResult
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
-import collection.mutable.{Map, HashMap}
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
 import util.CachedValueProvider.Result
 import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.usages.ImportUsed
+import collection.mutable.{ArrayBuffer, Map, HashMap}
+import lang.resolve.ScalaResolveResult
+import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, Signature, ScType}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,6 +25,9 @@ object CachesUtil {
   //keys for cachedValue
   val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.element.shape.resolve.constr.key")
+  val IMPLICIT_SIMPLE_MAP_KEY: Key[CachedValue[ArrayBuffer[(ScalaResolveResult, ScType,
+    ScType, ScSubstitutor, ScUndefinedSubstitutor)]]] =
+    Key.create("implicit.simple.map.key")
   val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
   val IMPLICIT_MAP_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
     Key.create("implicit.map.key")

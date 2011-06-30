@@ -16,6 +16,9 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaCachesManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.openapi.util.Key
 import collection.mutable.HashSet
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.processor.ImplicitProcessor
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.04.2010
@@ -31,43 +34,47 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
   def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                           lastParent: PsiElement, place: PsiElement, lite: Boolean): Boolean = {
     if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
-      val namesSet = new HashSet[String]
+      if (!processor.isInstanceOf[ImplicitProcessor]) {
+        val namesSet = new HashSet[String]
 
-      if (!pack.processDeclarations(new PsiScopeProcessor {
-        def execute(element: PsiElement, state: ResolveState): Boolean = {
-          element match {
-            case clazz: PsiClass => namesSet += clazz.getName
-            case _ =>
+        if (!pack.processDeclarations(new PsiScopeProcessor {
+          def execute(element: PsiElement, state: ResolveState): Boolean = {
+            element match {
+              case clazz: PsiClass => namesSet += clazz.getName
+              case _ =>
+            }
+            processor.execute(element, state)
           }
-          processor.execute(element, state)
+
+          def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
+
+          def handleEvent(event: Event, associated: AnyRef) {
+            processor.handleEvent(event, associated)
+          }
+        }, state, lastParent, place)) return false
+
+        //Process synthetic classes for scala._ package
+        /**
+         * Does the "scala" package already contain a class named `className`?
+         *
+         * @see http://youtrack.jetbrains.net/issue/SCL-2913
+         */
+        def alreadyContains(className: String) = namesSet.contains(className)
+
+        for (synth <- SyntheticClasses.get(getProject).getAll) {
+          if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
         }
+        for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
 
-        def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
-
-        def handleEvent(event: Event, associated: AnyRef) {
-          processor.handleEvent(event, associated)
+          // Assume that is the scala package contained a class with the same names as the synthetic object,
+          // then it must also contain the object.
+          if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
         }
-      }, state, lastParent, place)) return false
-
-      //Process synthetic classes for scala._ package
-      /**
-       * Does the "scala" package already contain a class named `className`?
-       *
-       * @see http://youtrack.jetbrains.net/issue/SCL-2913
-       */
-      def alreadyContains(className: String) = namesSet.contains(className)
-
-      for (synth <- SyntheticClasses.get(getProject).getAll) {
-        if (!alreadyContains(synth.getName)) processor.execute(synth, ResolveState.initial)
-      }
-      for (synthObj <- SyntheticClasses.get(getProject).syntheticObjects) {
-
-        // Assume that is the scala package contained a class with the same names as the synthetic object,
-        // then it must also contain the object.
-        if (!alreadyContains(synthObj.getName)) processor.execute(synthObj, ResolveState.initial)
       }
     } else {
-      def process: Boolean = pack.processDeclarations(processor, state, lastParent, place)
+      def process: Boolean =
+        ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place)
+
       if (!lite && !process) return false
       else if (lite) {
         val scope: GlobalSearchScope = place.getResolveScope
