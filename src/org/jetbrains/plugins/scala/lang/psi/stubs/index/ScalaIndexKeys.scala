@@ -25,6 +25,7 @@ object ScalaIndexKeys {
   val PACKAGE_FQN_KEY: StubIndexKey[java.lang.Integer, ScPackageContainer]  = StubIndexKey.createIndexKey("sc.package.fqn")
   val METHOD_NAME_KEY: StubIndexKey[String, ScFunction] = StubIndexKey.createIndexKey("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.class.name.in.package")
+  val IMPLICIT_OBJECT_KEY: StubIndexKey[String, PsiClass] = StubIndexKey.createIndexKey("sc.implcit.object")
   @deprecated
   val METHOD_NAME_TO_CLASS_KEY: StubIndexKey[String, ScTypeDefinition] = StubIndexKey.createIndexKey("sc.method.name.class")
   val ANNOTATED_MEMBER_KEY: StubIndexKey[String, ScAnnotation] = StubIndexKey.createIndexKey("sc.annotatde.member.name")

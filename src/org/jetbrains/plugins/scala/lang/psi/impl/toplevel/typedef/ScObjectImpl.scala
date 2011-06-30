@@ -17,6 +17,7 @@ import collection.mutable.ArrayBuffer
 import api.ScalaElementVisitor
 import caches.CachesUtil
 import util.PsiModificationTracker
+import lang.resolve.ResolveUtils
 
 /**
  * @author Alexander Podkhalyuzin
@@ -68,7 +69,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
       val qual = getQualifiedName
       val facade = JavaPsiFacade.getInstance(getProject)
       val pack = facade.findPackage(qual) //do not wrap into ScPackage to avoid SOE
-      if (pack != null && !pack.processDeclarations(processor, state, lastParent, place)) return false
+      if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, lastParent, place))
+        return false
     }
     true
   }

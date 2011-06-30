@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import processor.{MostSpecificUtil, BaseProcessor}
+import processor.{ImplicitProcessor, MostSpecificUtil}
 import result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import com.intellij.psi._
@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import collection.immutable.HashSet
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,7 +28,13 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
       treeWalkUp(placeForTreeWalkUp.getContext, placeForTreeWalkUp)
     }
     treeWalkUp(place, null) //collecting all references from scope
-    //todo: check for candidates, if not found, continue
+
+    val candidates = processor.candidatesS.toSeq
+    if (!candidates.isEmpty) return candidates
+
+    processor.clear()
+
+    //todo: objects should be dependent
     for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
       obj.processDeclarations(processor, ResolveState.initial, null, place)
     }
@@ -35,7 +42,11 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     processor.candidatesS.toSeq
   }
 
-  class ImplicitParametersProcessor extends BaseProcessor(StdKinds.methodRef) {
+  class ImplicitParametersProcessor extends ImplicitProcessor(StdKinds.refExprLastRef) {
+    def clear() {
+      candidatesSet.clear()
+    }
+
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       if (!kindMatches(element)) return true
       val named = element.asInstanceOf[PsiNamedElement]

@@ -40,8 +40,10 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
         case _ => true
       })
 
+    val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
+
     new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.getName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr)
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject)
   }
 
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
@@ -54,6 +56,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     dataStream.writeInt(methodNames.length)
     for (name <- methodNames) dataStream.writeName(name)
     dataStream.writeBoolean(stub.isDeprecated)
+    dataStream.writeBoolean(stub.isImplicitObject)
   }
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
@@ -67,7 +70,9 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     for (i <- 0 until length) methodNames(i) = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val isDepr = dataStream.readBoolean
-    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC, isDepr)
+    val isImplcitObject = dataStream.readBoolean
+    new ScTemplateDefinitionStubImpl(parent, this, name, qualName, fileName, methodNames, isPO, isSFC, isDepr,
+      isImplcitObject)
   }
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
@@ -82,10 +87,12 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       sink.occurrence[PsiClass, java.lang.Integer](JavaFullClassNameIndex.KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
-      if (i == -1) {
-        sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, "")
-      } else {
-        sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, fqn.substring(0, i))
+      val pack =
+        if (i == -1) ""
+        else fqn.substring(0, i)
+      sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
+      if (stub.isImplicitObject) {
+        sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
       }
     }
     if (stub.isPackageObject) {
@@ -96,5 +103,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
           else fqn.substring(0, index).hashCode
         })
     }
+
+
   }
 }

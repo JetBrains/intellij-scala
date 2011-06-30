@@ -22,7 +22,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     if (lastParent != null) {
       var run = lastParent
       while (run != null) {
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         place match {
           case id: ScStableCodeReferenceElement => run match {
             case po: ScObject if po.isPackageObject && id.qualName == po.getQualifiedName => // do nothing
@@ -33,10 +33,10 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
 
-      //forward references are allowed (e.g. 2 local methods see each other), with highlighting errors in case of var/vals
+      //forward references are allowed (e.g. 2 local methods see each other)
       run = ScalaPsiUtil.getNextStubOrPsiElement(lastParent)
       while (run != null) {
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         if (!processElement(run, processor, state)) return false
         run = ScalaPsiUtil.getNextStubOrPsiElement(run)
       }
@@ -53,7 +53,7 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       val elements: Seq[PsiNamedElement] = holder.declaredElements
       var i = 0
       while (i < elements.length) {
-        ProgressManager.checkCanceled
+        ProgressManager.checkCanceled()
         if (!processor.execute(elements(i), state)) return false
         i = i + 1
       }

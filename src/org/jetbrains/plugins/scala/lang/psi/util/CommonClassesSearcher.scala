@@ -10,6 +10,7 @@ import collection.mutable.{HashMap, ArrayBuffer}
  * @author Alexander Podkhalyuzin
  */
 
+//todo: improve it, see GroovyPsiManager
 object CommonClassesSearcher {
   import collection.mutable.WeakHashMap
   private val cachedClasses: WeakHashMap[(Project, String), Seq[PsiClass]] = new WeakHashMap[(Project, String), Seq[PsiClass]]
@@ -25,7 +26,7 @@ object CommonClassesSearcher {
       modCount((manager.getProject, fqn)) = count
     }
     val filter = new ScalaSourceFilterScope(scope, manager.getProject)
-    return res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
+    res.filter(c => filter.contains(c.getContainingFile.getVirtualFile))
   }
 
   private def getCachedClassImpl(manager: PsiManager, fqn: String): Seq[PsiClass] = {

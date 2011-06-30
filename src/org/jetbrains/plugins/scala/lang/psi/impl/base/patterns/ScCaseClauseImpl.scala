@@ -41,7 +41,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
         def process: Boolean = {
           val iterator = p.bindings.iterator
           while (iterator.hasNext) {
-            val b = iterator.next
+            val b = iterator.next()
             if (!processor.execute(b, state)) return false
           }
           true

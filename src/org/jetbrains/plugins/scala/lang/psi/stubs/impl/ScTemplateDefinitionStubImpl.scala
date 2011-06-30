@@ -26,6 +26,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   private var _isScriptFileClass: Boolean = _
   private var _isPackageObject: Boolean = _
   private var _isDeprecated: Boolean = _
+  private var _isImplicitObject: Boolean = _
 
   def this(parent: StubElement[ParentPsi],
           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -35,7 +36,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           methodNames: Array[String],
           isPackageObject: Boolean,
           isScriptFileClass: Boolean,
-          isDeprecated: Boolean) {
+          isDeprecated: Boolean,
+          isImplicitObject: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = StringRef.fromString(sourceFileName)
     myName = StringRef.fromString(name)
@@ -44,6 +46,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
+    _isImplicitObject = isImplicitObject
   }
 
   def this(parent: StubElement[ParentPsi],
@@ -54,7 +57,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           methodNames: Array[StringRef],
           isPackageObject: Boolean,
           isScriptFileClass: Boolean,
-          isDeprecated: Boolean) {
+          isDeprecated: Boolean,
+          isImplicitObject: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
     mySourceFileName = sourceFileName
     myName = name
@@ -63,6 +67,7 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
+    _isImplicitObject = isImplicitObject
   }
 
 
@@ -80,6 +85,8 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
 
   def isDeprecated: Boolean = _isDeprecated
 
+  def isImplicitObject: Boolean = _isImplicitObject
+
   //todo PsiClassStub methods
   def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
   def isEnum: Boolean = false
@@ -90,5 +97,4 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
   def hasDeprecatedAnnotation: Boolean = false
   def isEnumConstantInitializer: Boolean = false
   def getBaseClassReferenceText: String = null
-
 }
