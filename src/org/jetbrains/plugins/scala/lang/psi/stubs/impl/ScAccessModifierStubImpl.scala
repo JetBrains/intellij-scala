@@ -33,9 +33,9 @@ class ScAccessModifierStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
     this.idText = idText
   }
 
-  def isProtected: Boolean = _isPrivate
+  def isProtected: Boolean = _isProtected
 
-  def isPrivate: Boolean = _isProtected
+  def isPrivate: Boolean = _isPrivate
 
   def isThis: Boolean = _isThis
 

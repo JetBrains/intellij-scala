@@ -29,7 +29,7 @@ import lang.resolve.{StdKinds, ScalaResolveResult}
  *
  * Mix-in implementing functionality to collect [and possibly apply] implicit conversions
  */
-
+//todo: refactor this terrible code
 trait ScImplicitlyConvertible extends ScalaPsiElement {
   self: ScExpression =>
 
@@ -67,38 +67,62 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   def implicitMap(exp: Option[ScType] = None,
                   fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    implicitMapFirstPart(exp, fromUnder) ++ implicitMapSecondPart(exp, fromUnder)
+  }
+
+  def implicitMapFirstPart(exp: Option[ScType] = None,
+                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     exp match {
-      case Some(expected) => return buildImplicitMap(exp, fromUnder)
+      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (true, false))
       case None =>
     }
-    if (fromUnder) return buildImplicitMap(exp, fromUnder)
+    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (true, false))
     import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(this, CachesUtil.IMPLICIT_MAP_KEY,
+    get(this, CachesUtil.IMPLICIT_MAP1_KEY,
       new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
-        buildImplicitMap()
+        buildImplicitMap(part = (true, false))
+      })(PsiModificationTracker.MODIFICATION_COUNT))
+  }
+
+  def implicitMapSecondPart(exp: Option[ScType] = None,
+                  fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+    exp match {
+      case Some(expected) => return buildImplicitMap(exp, fromUnder, part = (false, true))
+      case None =>
+    }
+    if (fromUnder) return buildImplicitMap(exp, fromUnder, part = (false, true))
+    import org.jetbrains.plugins.scala.caches.CachesUtil._
+    get(this, CachesUtil.IMPLICIT_MAP2_KEY,
+      new MyProvider[ScImplicitlyConvertible, Seq[(ScType, PsiNamedElement, Set[ImportUsed])]](this, _ => {
+        buildImplicitMap(part = (false, true))
       })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   private def buildImplicitMap(exp: Option[ScType] = expectedType,
-                               fromUnder: Boolean = false): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
+                               fromUnder: Boolean = false,
+                               part: (Boolean, Boolean)): Seq[(ScType, PsiNamedElement, Set[ImportUsed])] = {
     val typez: ScType =
       if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(return Seq.empty)
       else getTypeWithoutImplicitsWithoutUnderscore(TypingContext.empty).getOrElse(return Seq.empty)
 
-    val processor = new CollectImplicitsProcessor
-    if (processor.funType == null) return Seq.empty
-    val expandedType: ScType = exp match {
-      case Some(expected) => new ScFunctionType(expected, Seq(typez))(getProject, getResolveScope)
-      case None => typez
-    }
-    for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
-      obj.processDeclarations(processor, ResolveState.initial, null, this)
-    }
 
     val buffer = new ArrayBuffer[(ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor)]
-    buffer ++= buildSimpleImplicitMap(typez, fromUnder)
-    for ((pass, resolveResult, tp, rt, newSubst, subst) <- processor.candidatesS.map(forMap(_, typez)) if pass) {
-      buffer += ((resolveResult, tp, rt, newSubst, subst))
+    if (part._1) {
+      buffer ++= buildSimpleImplicitMap(typez, fromUnder)
+    }
+    if (part._2) {
+      val processor = new CollectImplicitsProcessor
+      if (processor.funType == null) return Seq.empty
+      val expandedType: ScType = exp match {
+        case Some(expected) => new ScFunctionType(expected, Seq(typez))(getProject, getResolveScope)
+        case None => typez
+      }
+      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, this)) {
+        obj.processDeclarations(processor, ResolveState.initial, null, this)
+      }
+      for ((pass, resolveResult, tp, rt, newSubst, subst) <- processor.candidatesS.map(forMap(_, typez)) if pass) {
+        buffer += ((resolveResult, tp, rt, newSubst, subst))
+      }
     }
 
     val result = new ArrayBuffer[(ScType, PsiNamedElement, Set[ImportUsed])]

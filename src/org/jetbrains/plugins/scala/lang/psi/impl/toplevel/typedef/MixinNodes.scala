@@ -59,13 +59,13 @@ abstract class MixinNodes {
     val res = MultiMap.empty
     val mapsIterator = maps.iterator
     while (mapsIterator.hasNext) {
-      val currentIterator = mapsIterator.next.iterator
+      val currentIterator = mapsIterator.next().iterator
       while (currentIterator.hasNext) {
-        val (k, node) = currentIterator.next
+        val (k, node) = currentIterator.next()
         res.addBinding(k, node)
       }
     }
-    return res
+    res
   }
 
   //Return primary selected from supersMerged
@@ -189,8 +189,8 @@ abstract class MixinNodes {
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (tp <- superClass.getTypeParameters) {
-      val tv = ScalaPsiManager.typeVariable(tp)
-      res = res bindT ((tp.getName, ScalaPsiUtil.getPsiElementId(tp)), derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
+      res = res bindT ((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+        derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
     }
     superClass match {
       case td : ScTypeDefinition => {
@@ -273,7 +273,7 @@ object MixinNodes {
         case _ =>
       }
     }
-    return buffer.toSeq
+    buffer.toSeq
   }
 
   def linearizationInner(clazz: PsiClass, visited: collection.immutable.HashSet[PsiClass]): Seq[ScType] = {
@@ -342,6 +342,6 @@ object MixinNodes {
       }
     }
     add(tp)
-    return buffer.toSeq
+    buffer.toSeq
   }
 }

@@ -137,10 +137,18 @@ object TypeDefinitionMembers {
             for (dcl <- _var.declaredElements) {
               map += ((dcl, new Node(dcl, subst)))
             }
-          case _val: ScValue if isAccessible(place, _val) =>
-            for (dcl <- _val.declaredElements) {
-              map += ((dcl, new Node(dcl, subst)))
+          case _val: ScValue  =>
+            if (template.getName == "ResolveProcessor") {
+              for (dcl <- _val.declaredElements) {
+                if (dcl.getName == "levelSet") {
+                  "stop here"
+                }
+              }
             }
+            if (isAccessible(place, _val))
+              for (dcl <- _val.declaredElements) {
+                map += ((dcl, new Node(dcl, subst)))
+              }
           case constr: ScPrimaryConstructor => {
             val isCase: Boolean = template match {
               case td: ScTypeDefinition if td.isCase => true

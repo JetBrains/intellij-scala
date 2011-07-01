@@ -90,8 +90,8 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       var res = initial
       val argsIterator = typeArgs.iterator
       while (paramsIterator.hasNext && argsIterator.hasNext) {
-        val p1 = map(paramsIterator.next)
-        val p2 = argsIterator.next
+        val p1 = map(paramsIterator.next())
+        val p2 = argsIterator.next()
         res = res bindT ((p1.name, p1.getId), p2)
       }
       res
@@ -152,7 +152,7 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
         val iterator1 = typeArgs.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
-          t = Equivalence.equivInner(iterator1.next, iterator2.next, undefinedSubst, falseUndef)
+          t = Equivalence.equivInner(iterator1.next(), iterator2.next(), undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
