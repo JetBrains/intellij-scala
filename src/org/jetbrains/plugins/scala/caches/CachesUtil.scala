@@ -29,8 +29,10 @@ object CachesUtil {
     ScType, ScSubstitutor, ScUndefinedSubstitutor)]]] =
     Key.create("implicit.simple.map.key")
   val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
-  val IMPLICIT_MAP_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
-    Key.create("implicit.map.key")
+  val IMPLICIT_MAP1_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
+    Key.create("implicit.map1.key")
+  val IMPLICIT_MAP2_KEY: Key[CachedValue[Seq[(ScType, PsiNamedElement, collection.Set[ImportUsed])]]] =
+    Key.create("implicit.map2.key")
   val OBJECT_SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("object.synthetic.members.key")
   val SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("stynthetic.members.key")
   val DESUGARIZED_EXPR_KEY: Key[CachedValue[Option[ScExpression]]] = Key.create("desugarized.expr.key")

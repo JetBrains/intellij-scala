@@ -5,10 +5,9 @@ package types
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import api.toplevel.typedef.{ScClass, ScTrait}
-import decompiler.DecompilerUtil
+import api.toplevel.typedef.ScTrait
 import util.CommonClassesSearcher
-import com.intellij.psi.{PsiManager, PsiElement, JavaPsiFacade, PsiClass}
+import com.intellij.psi.{PsiManager, PsiClass}
 
 /**
 * @author ilyas
@@ -28,7 +27,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
     }
     findClass(functionTraitName) match {
       case Some(t: ScTrait) => {
-        val typeParams = params.toList ++ List(returnType)
+        val typeParams = params.toList :+ returnType
         Some(ScParameterizedType(ScType.designator(t), typeParams))
       }
       case _ => None

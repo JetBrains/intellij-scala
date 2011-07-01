@@ -4,11 +4,11 @@ package psi
 
 import api.base._
 import api.base.types.{ScRefinement, ScExistentialClause, ScTypeElement}
-import api.toplevel.packaging.{ScPackaging, ScPackageContainer}
+import api.toplevel.packaging.ScPackageContainer
 import api.toplevel.imports.usages.ImportUsed
 import api.toplevel.imports.{ScImportStmt, ScImportExpr, ScImportSelector, ScImportSelectors}
 import api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions, ScTypedDefinition}
-import api.{ScPackageLike, ScPackage, ScalaFile, ScalaRecursiveElementVisitor}
+import api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.psi.scope.PsiScopeProcessor
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
@@ -35,7 +35,6 @@ import parser.parsing.expressions.InfixExpr
 import parser.util.ParserUtils
 import result.{TypingContext, Success, TypeResult}
 import structureView.ScalaElementPresentation
-import com.intellij.util.ArrayFactory
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
@@ -121,38 +120,42 @@ object ScalaPsiUtil {
   def findImplicitConversion(e: ScExpression, refName: String, kinds: collection.Set[ResolveTargets.Value],
                              ref: PsiElement, processor: BaseProcessor):
     Option[(ScType, PsiNamedElement, collection.Set[ImportUsed])] = {
-    lazy val exprType = e.getTypeWithoutImplicits(TypingContext.empty)
     //TODO! remove this after find a way to improve implicits according to compiler.
-    val isHardCoded = refName == "+" && exprType.map(_.isInstanceOf[ValType]).getOrElse(false)
-    val mp = e.implicitMap()
-    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = mp.filter({
-      case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
-        ProgressManager.checkCanceled()
-        if (!isHardCoded || !t.isInstanceOf[ValType]) {
-          val newProc = new ResolveProcessor(kinds, ref, refName)
-          newProc.processType(t, e, ResolveState.initial)
-          !newProc.candidatesS.isEmpty
-        } else false
-      }
-    })
-    if (implicitMap.length != 1 && processor.isInstanceOf[MethodResolveProcessor]) {
-      implicitMap = implicitMap.filter({
+    val isHardCoded = refName == "+" &&
+      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+    var implicitMap: Seq[(ScType, PsiNamedElement, scala.collection.Set[ImportUsed])] = Seq.empty
+    def checkImplicits(secondPart: Boolean, noApplicability: Boolean) {
+      val mp =
+        if (noApplicability) e.implicitMap()
+        else if (!secondPart) e.implicitMapFirstPart()
+        else e.implicitMapSecondPart()
+      implicitMap = mp.filter({
         case (t: ScType, fun: PsiNamedElement, importsUsed: collection.Set[ImportUsed]) => {
-          val mrp = processor.asInstanceOf[MethodResolveProcessor]
-          val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
-            mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
-          val tp = t
-          newProc.processType(tp, e, ResolveState.initial)
-          val cand = newProc.candidatesS
-          val filtered = !cand.filter(_.isApplicable).isEmpty
-          filtered
+          ProgressManager.checkCanceled()
+          if (!isHardCoded || !t.isInstanceOf[ValType]) {
+            val newProc = new ResolveProcessor(kinds, ref, refName)
+            newProc.processType(t, e, ResolveState.initial)
+            val res = !newProc.candidatesS.isEmpty
+            if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
+              val mrp = processor.asInstanceOf[MethodResolveProcessor]
+              val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
+                mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
+              val tp = t
+              newProc.processType(tp, e, ResolveState.initial)
+              val cand = newProc.candidatesS
+              val filtered = !cand.filter(_.isApplicable).isEmpty
+              filtered
+            } else res
+          } else false
         }
       })
     }
-    val mostSpecificImplicit = if (implicitMap.length == 0) return None
-    else if (implicitMap.length == 0) implicitMap.apply(0)
-    else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet).getOrElse(return None)
-    Some(mostSpecificImplicit)
+    checkImplicits(false, false)
+    if (implicitMap.isEmpty) checkImplicits(true, false)
+    if (implicitMap.isEmpty) checkImplicits(false, true)
+    if (implicitMap.length == 0) None
+    else if (implicitMap.length == 0) Some(implicitMap.apply(0))
+    else MostSpecificUtil(ref, 1).mostSpecificForImplicit(implicitMap.toSet)
   }
 
   def findCall(place: PsiElement): Option[ScMethodCall] = {
@@ -181,7 +184,6 @@ object ScalaPsiUtil {
       case gen: ScGenericCall => gen.arguments
       case _ => Seq.empty
     }
-    import Compatibility.Expression._
     val processor = new MethodResolveProcessor(getEffectiveInvokedExpr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)

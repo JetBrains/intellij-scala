@@ -22,17 +22,17 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = subst
     r match {
-      case _ if falseUndef => return (false, undefinedSubst)
+      case _ if falseUndef => (false, undefinedSubst)
       case u2: ScUndefinedType if u2.level > level =>
-        return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), this))
+        (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), this))
       case u2: ScUndefinedType if u2.level < level =>
-        return (true, undefinedSubst.addUpper((tpt.name, tpt.getId), u2))
+        (true, undefinedSubst.addUpper((tpt.name, tpt.getId), u2))
       case u2: ScUndefinedType if u2.level == level =>
-        return (true, undefinedSubst)
+        (true, undefinedSubst)
       case rt => {
         undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), rt)
         undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), rt)
-        return (true, undefinedSubst)
+        (true, undefinedSubst)
       }
     }
   }

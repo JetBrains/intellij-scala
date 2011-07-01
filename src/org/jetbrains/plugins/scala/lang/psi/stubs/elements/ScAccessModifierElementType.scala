@@ -5,7 +5,7 @@ package stubs
 package elements
 
 
-import api.base.{ScAccessModifier, ScModifierList}
+import api.base.ScAccessModifier
 import com.intellij.psi.stubs.{StubOutputStream, IndexSink, StubElement, StubInputStream}
 
 
@@ -21,7 +21,7 @@ import com.intellij.util.io.StringRef
 
 class ScAccessModifierElementType[Func <: ScAccessModifier]
         extends ScStubElementType[ScAccessModifierStub, ScAccessModifier]("access modifier") {
-  def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isProtected)
     dataStream.writeBoolean(stub.isPrivate)
     dataStream.writeBoolean(stub.isThis)
@@ -32,7 +32,7 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
     }
   }
 
-  def indexStub(stub: ScAccessModifierStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScAccessModifierStub, sink: IndexSink) {}
 
   def createPsi(stub: ScAccessModifierStub): ScAccessModifier = {
     new ScAccessModifierImpl(stub)
