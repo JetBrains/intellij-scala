@@ -24,6 +24,7 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.SyntheticElement;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
@@ -61,7 +62,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
       Object parentValue = parent.getValue();
 
       boolean insertFile = childValue instanceof ScTypeDefinition
-          && !(parentValue instanceof ScalaFile)
+          && parentValue instanceof PsiDirectory
           && !hasNameOfFile((ScTypeDefinition) childValue);
 
       result.add(insertFile
