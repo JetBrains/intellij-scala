@@ -8,8 +8,8 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 
 import com.intellij.ui.NonFocusableCheckBox
-import com.intellij.util.{IncorrectOperationException, SmartList}
-import javax.swing.{JCheckBox, JComponent}
+import com.intellij.util.IncorrectOperationException
+import javax.swing.JCheckBox
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
 import lang.psi.api.toplevel.ScTypedDefinition
@@ -71,7 +71,7 @@ object ScalaOIUtil {
     val elem = file.findElementAt(editor.getCaretModel.getOffset - 1)
     def getParentClass(elem: PsiElement): PsiElement = {
       elem match {
-        case _: ScTemplateDefinition | null => return elem
+        case _: ScTemplateDefinition | null => elem
         case _ => getParentClass(elem.getParent)
       }
     }
@@ -91,7 +91,7 @@ object ScalaOIUtil {
     val chooser = new ScalaMemberChooser
     chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement")
                      else ScalaBundle.message("select.method.override"))
-    chooser.show
+    chooser.show()
 
     val selectedMembers = chooser.getSelectedElements
     if (selectedMembers == null || selectedMembers.size == 0) return
@@ -103,13 +103,13 @@ object ScalaOIUtil {
   def runAction(selectedMembers: java.util.List[ClassMember],
                isImplement: Boolean, clazz: ScTemplateDefinition, editor: Editor, needsInferType: Boolean) {
     ScalaUtils.runWriteAction(new Runnable {
-      def run {
+      def run() {
         def addUpdateThisType(subst: ScSubstitutor) = clazz.getType(TypingContext.empty) match {
           case Success(tpe, _) => subst.addUpdateThisType(tpe)
           case Failure(_, _) => subst
         }
 
-        for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size))) {
+        for (member <- selectedMembers.toArray(new Array[ClassMember](selectedMembers.size)).reverse) {
           val offset = editor.getCaretModel.getOffset
           val anchor = getAnchor(offset, clazz)
           member match {
@@ -157,7 +157,7 @@ object ScalaOIUtil {
           val name = if (m == null) "" else m.getName
           m match {
             case _ if isProductAbstractMethod(m, clazz) =>
-            case x if x.getName == "$tag" || x.getName == "$init$" =>
+            case x if name == "$tag" || name == "$init$" =>
             case x if !withOwn && x.getContainingClass == clazz =>
             case x if x.getContainingClass.isInterface && !x.getContainingClass.isInstanceOf[ScTrait] => {
               buf2 += sign
@@ -182,7 +182,7 @@ object ScalaOIUtil {
         case _ =>
       }
     }
-    return buf2.toSeq
+    buf2.toSeq
   }
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass) : Boolean = clazz match {
     case td: ScTypeDefinition if td.isCase => {
@@ -287,7 +287,7 @@ object ScalaOIUtil {
       }
     }
 
-    return buf2.toSeq
+    buf2.toSeq
   }
 
 
@@ -302,7 +302,7 @@ object ScalaOIUtil {
           case _ =>
         }
       }
-      return null
+      null
     }
     val obj = getObjectByName
     if (obj == null) return null
@@ -316,22 +316,22 @@ object ScalaOIUtil {
       case sign: PhysicalSignature => {
         val method: PsiMethod = sign.method
         val sign1 = sign.updateSubst(addUpdateThisType)
-        return ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, true)
+        ScalaPsiElementFactory.createOverrideImplementMethod(sign1, method.getManager, !isImplement, true)
       }
       case (name: PsiNamedElement, subst: ScSubstitutor) => {
         val element: PsiElement = ScalaPsiUtil.nameContext(name)
         element match {
           case alias: ScTypeAlias => {
             val subst1 = addUpdateThisType(subst)
-            return ScalaPsiElementFactory.createOverrideImplementType(alias, subst1, alias.getManager, !isImplement)
+            ScalaPsiElementFactory.createOverrideImplementType(alias, subst1, alias.getManager, !isImplement)
           }
           case _: ScValue | _: ScVariable => {
             val typed: ScTypedDefinition = name match {case x: ScTypedDefinition => x case _ => return null}
             val subst1 = addUpdateThisType(subst)
-            return ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst1, typed.getManager, !isImplement,
+            ScalaPsiElementFactory.createOverrideImplementVariable(typed, subst1, typed.getManager, !isImplement,
               element match {case _: ScValue => true case _ => false}, true)
           }
-          case _ => return null
+          case _ => null
         }
       }
     }
@@ -355,10 +355,10 @@ object ScalaOIUtil {
     }
   }
 
-  private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor): Unit = {
+  private def adjustTypesAndSetCaret(meth: PsiElement, editor: Editor) {
     ScalaPsiUtil.adjustTypes(meth)
     //hack for postformatting IDEA bug.
-    val member = CodeStyleManager.getInstance(meth.getProject()).reformat(meth)
+    val member = CodeStyleManager.getInstance(meth.getProject).reformat(meth)
     //Setting selection
     val body: PsiElement = member match {
       case meth: ScTypeAliasDefinition => meth.aliasedTypeElement
