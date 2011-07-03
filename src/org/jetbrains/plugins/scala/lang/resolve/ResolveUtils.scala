@@ -3,9 +3,8 @@ package lang
 package resolve
 
 import com.intellij.psi.util.PsiTreeUtil
-import lexer.ScalaTokenTypes
 import processor.{ImplicitProcessor, BaseProcessor}
-import psi.api.base.{ScStableCodeReferenceElement, ScAccessModifier, ScFieldId}
+import psi.api.base.{ScAccessModifier, ScFieldId}
 import psi.api.ScalaFile
 import psi.api.toplevel.typedef._
 import psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -18,26 +17,22 @@ import psi.api.toplevel.packaging.ScPackaging
 import ResolveTargets._
 import psi.api.statements._
 import com.intellij.codeInsight.lookup._
-import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
-import icons.Icons
 import params.{ScClassParameter, ScParameter, ScTypeParam}
-import psi.{PresentationUtil, ScalaPsiUtil, ScalaPsiElement}
-import psi.api.toplevel.{ScTypeParametersOwner, ScModifierListOwner}
-import psi.impl.toplevel.synthetic.{ScSyntheticTypeParameter, ScSyntheticClass, ScSyntheticValue}
-import result.{Success, TypingContext}
-import com.intellij.psi.impl.compiled.ClsParameterImpl
-import com.intellij.openapi.application.{ApplicationManager, Application}
+import psi.{ScalaPsiUtil, ScalaPsiElement}
+import psi.api.toplevel.ScTypeParametersOwner
+import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
+import com.intellij.openapi.application.ApplicationManager
+import result.{TypingContextOwner, Success, TypingContext}
 import scope.PsiScopeProcessor
 import search.GlobalSearchScope
-import psi.api.expr.{ScNewTemplateDefinition, ScSuperReference}
+import psi.api.expr.ScSuperReference
 import java.lang.String
 import com.intellij.lang.StdLanguages
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import psi.fake.FakePsiMethod
 import completion.handlers.{ScalaClassNameInsertHandler, ScalaInsertHandler}
-import psi.api.base.types.{ScCompoundTypeElement, ScTypeElement, ScSelfTypeElement}
+import psi.api.base.types.{ScTypeElement, ScSelfTypeElement}
 import com.intellij.openapi.util.Key
-import caches.{ScalaCachesManager, ScalaShortNamesCache}
 import psi.impl.ScalaPsiManager
 
 /**
@@ -354,7 +349,7 @@ object ResolveUtils {
   def getLookupElement(resolveResult: ScalaResolveResult,
                        qualifierType: ScType = Nothing,
                        isClassName: Boolean = false, isInImport: Boolean = false): Seq[(LookupElement, PsiElement, ScSubstitutor)] = {
-    import PresentationUtil.presentationString
+    import org.jetbrains.plugins.scala.lang.psi.PresentationUtil.presentationString
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
     val isRenamed: Option[String] = resolveResult.isRenamed match {
@@ -368,26 +363,34 @@ object ResolveUtils {
       lookupBuilder = lookupBuilder.setInsertHandler(
         if (isClassName) new ScalaClassNameInsertHandler else new ScalaInsertHandler
       )
+      var isBold = false
+      var isDeprecated = false
+      ScType.extractDesignated(qualifierType) match {
+        case Some((named, _)) => {
+          val clazz: PsiClass = named match {
+            case cl: PsiClass => cl
+            case tp: TypingContextOwner => tp.getType(TypingContext.empty).map(ScType.extractClass(_)) match {
+              case Success(Some(cl), _) => cl
+              case _ => null
+            }
+          }
+          if (clazz != null)
+            element match {
+              case m: PsiMember => {
+                if (m.getContainingClass == clazz) isBold = true
+              }
+              case _ =>
+            }
+        }
+        case _ =>
+      }
+      val isUnderlined = resolveResult.implicitFunction != None
+      element match {
+        case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
+        case _ =>
+      }
       lookupBuilder = lookupBuilder.setRenderer(new LookupElementRenderer[LookupElement] {
         def renderElement(ignore: LookupElement, presentation: LookupElementPresentation) {
-          var isBold = false
-          var isDeprecated = false
-          ScType.extractClass(qualifierType) match {
-            case Some(clazz) => {
-              element match {
-                case m: PsiMember => {
-                  if (m.getContainingClass == clazz) isBold = true
-                }
-                case _ =>
-              }
-            }
-            case _ =>
-          }
-          val isUnderlined = resolveResult.implicitFunction != None
-          element match {
-            case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
-            case _ =>
-          }
           val tailText: String = element match {
             case t: ScFun => {
               if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).mkString("[", ", ", "]")
@@ -470,6 +473,8 @@ object ResolveUtils {
         else lookupBuilder
       returnLookupElement.putUserData(isInImportKey, new java.lang.Boolean(isInImport))
       returnLookupElement.putUserData(isNamedParameter, new java.lang.Boolean(resolveResult.isNamedParameter))
+      returnLookupElement.putUserData(isBoldKey, new java.lang.Boolean(isBold))
+      returnLookupElement.putUserData(isUnderlinedKey, new java.lang.Boolean(isUnderlined))
 
       (returnLookupElement, element, substitutor)
     }
@@ -483,6 +488,8 @@ object ResolveUtils {
   }
 
   val isNamedParameter: Key[java.lang.Boolean] = Key.create("is.named.parameter.key")
+  val isBoldKey: Key[java.lang.Boolean] = Key.create("is.bold.key")
+  val isUnderlinedKey: Key[java.lang.Boolean] = Key.create("is.underlined.key")
   val isInImportKey: Key[java.lang.Boolean] = Key.create("is.in.import.key")
   val typeParametersProblemKey: Key[java.lang.Boolean] = Key.create("type.parameters.problem.key")
   val typeParametersKey: Key[Seq[ScType]] = Key.create("type.parameters.key")

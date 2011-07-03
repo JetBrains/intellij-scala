@@ -140,6 +140,6 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
       case _ =>
     }
-    return 0
+    0
   }
 }

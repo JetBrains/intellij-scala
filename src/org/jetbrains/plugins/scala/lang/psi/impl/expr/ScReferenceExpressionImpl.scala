@@ -75,10 +75,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    val tp: ScType = qualifier match {
-      case Some(qual) => qual.getType(TypingContext.empty).getOrElse(psi.types.Nothing)
-      case None => psi.types.Nothing
-    }
 
     doResolve(this, new CompletionProcessor(getKinds(true), implicits)).filter(r => {
       if (filterNotNamedVariants) {
@@ -88,7 +84,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       } else true
     }).flatMap {
-      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, tp, isInImport = isInImport)
+      case res: ScalaResolveResult =>
+        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        val qualifier = res.fromType.getOrElse(Nothing)
+        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
       case r => Seq(r.getElement)
     }
   }

@@ -38,7 +38,10 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     doResolve(this, new CompletionProcessor(getKinds(true))).flatMap {
-      case res: ScalaResolveResult => ResolveUtils.getLookupElement(res, isInImport = isInImport)
+      case res: ScalaResolveResult =>
+        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        val qualifier = res.fromType.getOrElse(Nothing)
+        ResolveUtils.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
       case r => Seq(r.getElement)
     }
   }
