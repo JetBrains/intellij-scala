@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.console;
 
+import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
@@ -18,10 +20,17 @@ public class ScalaScriptConsoleRunConfigurationForm {
   private JPanel myPanel;
   private RawCommandLineEditor consoleArgsEditor;
   private TextFieldWithBrowseButton workingDirectoryField;
+  private JComboBox moduleComboBox;
   private Project myProject;
   private ScalaScriptConsoleRunConfiguration myConfiguration;
 
-  public ScalaScriptConsoleRunConfigurationForm(final Project project, final ScalaScriptConsoleRunConfiguration configuration) {
+  private ConfigurationModuleSelector myModuleSelector;
+
+  public ScalaScriptConsoleRunConfigurationForm(final Project project,
+                                                final ScalaScriptConsoleRunConfiguration configuration) {
+    myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
+    myModuleSelector.reset(configuration);
+    moduleComboBox.setEnabled(true);
     myProject = project;
     myConfiguration = configuration;
     javaOptionsEditor.setName("VM options");
@@ -50,6 +59,8 @@ public class ScalaScriptConsoleRunConfigurationForm {
     setJavaOptions(configuration.getJavaOptions());
     setConsoleArgs(configuration.getConsoleArgs());
     setWorkingDirectory(configuration.getWorkingDirectory());
+
+    myModuleSelector.applyTo(configuration);
   }
 
   public String getConsoleArgs() {
@@ -66,6 +77,10 @@ public class ScalaScriptConsoleRunConfigurationForm {
 
   public void setWorkingDirectory(String s) {
     workingDirectoryField.setText(s);
+  }
+
+  public Module getModule() {
+    return myModuleSelector.getModule();
   }
 
   private FileChooserDescriptor addFileChooser(final String title,

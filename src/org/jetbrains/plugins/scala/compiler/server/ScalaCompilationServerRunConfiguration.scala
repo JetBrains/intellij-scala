@@ -2,17 +2,13 @@ package org.jetbrains.plugins.scala.compiler.server
 
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.execution.configurations._
-import com.intellij.openapi.module.{ModuleManager, Module}
-import com.intellij.facet.FacetManager
+import com.intellij.openapi.module.Module
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
 import com.intellij.openapi.projectRoots.JavaSdkType
-import com.intellij.vcsUtil.VcsUtil
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
-import com.intellij.execution.filters.{TextConsoleBuilderFactory}
-import collection.mutable.{HashSet, ArrayBuffer}
-import com.intellij.openapi.roots.{ModuleRootManager}
-import java.util.Arrays
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
 import org.jetbrains.plugins.scala.config.ScalaFacet
@@ -32,10 +28,13 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
   private var javaOptions = ""
 
   def getJavaOptions = javaOptions
-  def setJavaOptions(s: String): Unit = javaOptions = s
+  def setJavaOptions(s: String) {
+    javaOptions = s
+  }
 
   def apply(params: ScalaCompilationServerRunConfigurationForm) {
     setJavaOptions(params.getJavaOptions)
+    setModule(params.getModule)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -48,11 +47,10 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
     }
 
     val rootManager = ModuleRootManager.getInstance(module);
-    val sdk = rootManager.getSdk();
+    val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
       throw CantRunException.noJdkForModule(module);
     }
-    val sdkType = sdk.getSdkType
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
@@ -70,20 +68,17 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
         params.getClassPath.addAllFiles(facet.files)
         
         params.setMainClass(MAIN_CLASS)
-        return params
+        params
       }
     }
 
     val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
     state.setConsoleBuilder(consoleBuilder);
-    return state;
+    state;
   }
 
   def getModule: Module = {
-    var module: Module = null
-    //todo:
-    if (module == null) module = getConfigurationModule.getModule
-    return module
+    getConfigurationModule.getModule
   }
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
@@ -93,13 +88,13 @@ class ScalaCompilationServerRunConfiguration(val project: Project, val configura
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaCompilationServerRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
   }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
