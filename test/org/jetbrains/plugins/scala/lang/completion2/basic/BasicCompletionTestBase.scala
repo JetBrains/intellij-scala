@@ -1,24 +1,23 @@
-package org.jetbrains.plugins.scala.lang.completion2.smart
+package org.jetbrains.plugins.scala.lang.completion2.basic
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.ScalaFileType
 import java.io.File
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class SmartCompletionTestBase extends ScalaFixtureTestCase {
+class BasicCompletionTestBase extends ScalaFixtureTestCase {
   private val caretMarker = "/*caret*/"
 
-  override def rootPath: String = super.rootPath + "completion2/smart/"
+  override def rootPath: String = super.rootPath + "completion2/basic/"
 
   protected def doTest() {
-    import _root_.junit.framework.Assert._
+    import junit.framework.Assert._
 
     val testName = getTestName(false)
     val filePath = rootPath + testName + ".scala"
@@ -34,8 +33,7 @@ class SmartCompletionTestBase extends ScalaFixtureTestCase {
     myFixture.getEditor.getCaretModel.moveToOffset(offset)
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    CodeInsightSettings.getInstance.AUTOCOMPLETE_ON_SMART_TYPE_COMPLETION = true
-    myFixture.complete(CompletionType.SMART)
+    myFixture.complete(CompletionType.BASIC)
     val res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
 
     println("------------------------ " + scalaFile.getName + " ------------------------")

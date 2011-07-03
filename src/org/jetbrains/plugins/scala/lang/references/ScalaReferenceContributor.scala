@@ -24,7 +24,7 @@ class ScalaReferenceContributor extends PsiReferenceContributor {
   }
 }
 
-// Copy of the corresponding class from IDEA, changed to use ScLiteral rather than PsiLiteralExpr
+// todo: Copy of the corresponding class from IDEA, changed to use ScLiteral rather than PsiLiteralExpr
 class FilePathReferenceProvider extends PsiReferenceProvider {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.references.FilePathReferenceProvider")
 
@@ -45,7 +45,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         }
       }
     }
-    for (module <- JavaConversions.asIterable(modules)) {
+    for (module <- JavaConversions.asScalaIterable(modules)) {
       moduleRootManager = ModuleRootManager.getInstance(module)
       val sourceRoots: Array[VirtualFile] = moduleRootManager.getSourceRoots
       for (root <- sourceRoots) {
@@ -66,41 +66,41 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         }
       }
     }
-    return result
+    result
   }
 
   @NotNull def getReferencesByElement(element: PsiElement, text: String, offset: Int, soft: Boolean): Array[PsiReference] = {
-    return new FileReferenceSet(text, element, offset, this, true, myEndingSlashNotAllowed) {
+    new FileReferenceSet(text, element, offset, this, true, myEndingSlashNotAllowed) {
       protected override def isSoft: Boolean = {
-        return soft
+        soft
       }
 
       override def isAbsolutePathReference: Boolean = {
-        return true
+        true
       }
 
       override def couldBeConvertedTo(relative: Boolean): Boolean = {
-        return !relative
+        !relative
       }
 
       override def absoluteUrlNeedsStartSlash: Boolean = {
         val s: String = getPathString
-        return s != null && s.length > 0 && s.charAt(0) == '/'
+        s != null && s.length > 0 && s.charAt(0) == '/'
       }
 
       @NotNull override def computeDefaultContexts: java.util.Collection[PsiFileSystemItem] = {
         val module: Module = ModuleUtil.findModuleForPsiElement(getElement)
-        return getRoots(module, true)
+        getRoots(module, true)
       }
 
       override def createFileReference(range: TextRange, index: Int, text: String): FileReference = {
-        return FilePathReferenceProvider.this.createFileReference(this, range, index, text)
+        FilePathReferenceProvider.this.createFileReference(this, range, index, text)
       }
 
       protected override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] = {
-        return new Condition[PsiFileSystemItem] {
+        new Condition[PsiFileSystemItem] {
           def value(element: PsiFileSystemItem): Boolean = {
-            return isPsiElementAccepted(element)
+            isPsiElementAccepted(element)
           }
         }
       }
@@ -108,15 +108,15 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
   }
 
   override def acceptsTarget(@NotNull target: PsiElement): Boolean = {
-    return target.isInstanceOf[PsiFileSystemItem]
+    target.isInstanceOf[PsiFileSystemItem]
   }
 
   protected def isPsiElementAccepted(element: PsiElement): Boolean = {
-    return !(element.isInstanceOf[PsiJavaFile] && element.isInstanceOf[PsiCompiledElement])
+    !(element.isInstanceOf[PsiJavaFile] && element.isInstanceOf[PsiCompiledElement])
   }
 
   protected def createFileReference(referenceSet: FileReferenceSet, range: TextRange, index: Int, text: String): FileReference = {
-    return new FileReference(referenceSet, range, index, text)
+    new FileReference(referenceSet, range, index, text)
   }
 
   @NotNull def getReferencesByElement(@NotNull element: PsiElement, @NotNull context: ProcessingContext): Array[PsiReference] = {
@@ -128,7 +128,7 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
       }
     }
     if (text == null) return PsiReference.EMPTY_ARRAY
-    return getReferencesByElement(element, text, 1, true)
+    getReferencesByElement(element, text, 1, true)
   }
 
   private final val myEndingSlashNotAllowed: Boolean = false

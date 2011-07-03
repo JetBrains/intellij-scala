@@ -18,6 +18,7 @@ import api.base.ScLiteral
 import com.intellij.psi._
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
+import com.intellij.openapi.extensions.Extensions
 
 /**
 * @author Alexander Podkhalyuzin
@@ -159,6 +160,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   }
 
   @NotNull override def getReferences: Array[PsiReference] = {
+    val exts = Extensions.getExtensions(PsiReferenceContributor.EP_NAME)
     PsiReferenceService.getService.getContributedReferences(this)
   }
 }
