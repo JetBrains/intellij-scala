@@ -5,6 +5,7 @@ import com.intellij.util.ThreeState
 import com.intellij.psi.{PsiFile, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
 /**
  * @author Alexander Podkhalyuzin
@@ -13,7 +14,10 @@ import com.intellij.psi.tree.IElementType
 class ScalaCompletionConfidence extends CompletionConfidence {
   def shouldFocusLookup(parameters: CompletionParameters): ThreeState = {
     if (parameters.getOriginalPosition.getText == "_") return ThreeState.NO //SCL-3290 _ <space> =>
-    ThreeState.YES
+    parameters.getPosition.getParent match {
+      case ref: ScReferenceElement => ThreeState.YES
+      case _ => ThreeState.NO //keyword completion can be here in case of broken tree
+    }
   }
 
   override def shouldSkipAutopopup(contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState = {
