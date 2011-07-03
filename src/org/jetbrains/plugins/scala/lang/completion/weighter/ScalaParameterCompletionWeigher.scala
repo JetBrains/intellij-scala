@@ -13,9 +13,9 @@ class ScalaParameterCompletionWeigher extends CompletionWeigher {
   case class ParameterNameComparable(isNamedParameters: Boolean)
     extends Comparable[ParameterNameComparable] {
     def compareTo(o: ParameterNameComparable): Int = {
-      if (isNamedParameters == o.isNamedParameters) return 0
-      else if (isNamedParameters && !o.isNamedParameters) return -1
-      else return 1
+      if (isNamedParameters == o.isNamedParameters) 0
+      else if (isNamedParameters && !o.isNamedParameters) -1
+      else 1
     }
   }
 

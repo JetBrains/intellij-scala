@@ -92,7 +92,9 @@ class ScalaCompletionContributor extends CompletionContributor {
             }
           }
           def postProcessMethod(result: ScalaResolveResult) {
-            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport)) {
+            import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+            val qualifier = result.fromType.getOrElse(Nothing)
+            for (variant <- ResolveUtils.getLookupElement(result, isInImport = isInImport, qualifierType = qualifier)) {
               applyVariant(variant)
             }
           }

@@ -9,9 +9,9 @@ import collection.mutable.HashSet
 import psi.api.base.patterns.{ScPattern, ScBindingPattern}
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.ScalaPsiUtil
-import psi.types.{PhysicalSignature, Signature, ScSubstitutor}
 import caches.CachesUtil
 import psi.api.statements.ScFunction
+import psi.types.{ScType, PhysicalSignature, Signature, ScSubstitutor}
 
 
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
@@ -50,19 +50,24 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case v => v.booleanValue
     }
 
+    val fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY) match {
+      case null => None
+      case v => Some(v)
+    }
+
     element match {
       case fun: ScFunction if fun.isConstructor => return true//do not add constructor
       case td: ScTypeDefinition if !names.contains(Tuple(td.getName, false)) => {
         if (kindMatches(td)) {
           val result = new ScalaResolveResult(td, substitutor, nameShadow = isRenamed,
-            implicitFunction = implFunction)
+            implicitFunction = implFunction, fromType = fromType)
           candidatesSet += result
           postProcess(result)
         }
         ScalaPsiUtil.getCompanionModule(td) match {
           case Some(td: ScTypeDefinition) if kindMatches(td)=>
             val result = new ScalaResolveResult(td, substitutor,
-              nameShadow = isRenamed, implicitFunction = implFunction)
+              nameShadow = isRenamed, implicitFunction = implFunction, fromType = fromType)
             candidatesSet += result
             postProcess(result)
           case _ =>
@@ -76,7 +81,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               if (!signatures.contains(sign)) {
                 signatures += sign
                 val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType)
                 candidatesSet += result
                 postProcess(result)
               }
@@ -86,7 +91,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               if (!signatures.contains(sign)) {
                 signatures += sign
                 val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType)
                 candidatesSet += result
                 postProcess(result)
               }
@@ -94,7 +99,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
             case _ => {
               if (!names.contains((named.getName, isNamedParameter))) {
                 val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
-                  implicitFunction = implFunction, isNamedParameter = isNamedParameter)
+                  implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType)
                 candidatesSet += result
                 postProcess(result)
                 names += Tuple(isRenamed.getOrElse(named.getName), isNamedParameter)
