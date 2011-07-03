@@ -465,7 +465,8 @@ object ResolveUtils {
         }
       })
       val returnLookupElement: LookupElement =
-        if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
+        if (ApplicationManager.getApplication.isUnitTestMode)
+          AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE.applyPolicy(lookupBuilder)
         else lookupBuilder
       returnLookupElement.putUserData(isInImportKey, new java.lang.Boolean(isInImport))
       returnLookupElement.putUserData(isNamedParameter, new java.lang.Boolean(resolveResult.isNamedParameter))

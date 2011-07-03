@@ -540,7 +540,9 @@ object ScalaSmartCompletionContributor {
     var lookupElement: LookupElement = lookupBuilder
     if (ApplicationManager.getApplication.isUnitTestMode || psiClass.isInterface ||
       psiClass.isInstanceOf[ScTrait] || psiClass.hasModifierProperty("abstract"))
-      lookupElement = AutoCompletionPolicy.NEVER_AUTOCOMPLETE.applyPolicy(lookupBuilder)
+      lookupElement =
+        (if (ApplicationManager.getApplication.isUnitTestMode) AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE
+        else AutoCompletionPolicy.NEVER_AUTOCOMPLETE).applyPolicy(lookupBuilder)
     lookupElement = LookupElementDecorator.withInsertHandler(lookupElement, new ScalaConstuctorInsertHandler)
     tp match {
       case ScParameterizedType(_, tps) =>
