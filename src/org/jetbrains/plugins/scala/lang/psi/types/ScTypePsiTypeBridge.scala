@@ -41,9 +41,9 @@ trait ScTypePsiTypeBridge {
             def constructTypeForClass(clazz: PsiClass): ScType = {
               val containingClass: PsiClass = clazz.getContainingClass
               if (containingClass == null) {
-                return ScDesignatorType(clazz)
+                ScDesignatorType(clazz)
               } else {
-                return ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
+                ScProjectionType(constructTypeForClass(containingClass), clazz, ScSubstitutor.empty)
               }
             }
             val des = constructTypeForClass(clazz)

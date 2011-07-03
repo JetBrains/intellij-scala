@@ -4,23 +4,21 @@ package console
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
 import com.intellij.execution.configurations._
-import com.intellij.execution.filters.{Filter, TextConsoleBuilder, TextConsoleBuilderImpl, TextConsoleBuilderFactory}
+import com.intellij.execution.filters.{Filter, TextConsoleBuilderImpl}
 
 import com.intellij.execution.impl.{ConsoleInputListener, ConsoleViewImpl}
-import com.intellij.execution.runners.{ExecutionEnvironment}
+import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.{CantRunException, ExecutionException, Executor}
-import com.intellij.ide.util.{PropertiesComponent, DirectoryChooser}
-import com.intellij.ide.{IdeBundle, CommonActionsManager}
-import com.intellij.openapi.actionSystem.{CustomShortcutSet, ShortcutSet, AnActionEvent, AnAction}
+import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.actionSystem.{CustomShortcutSet, AnActionEvent, AnAction}
 import com.intellij.openapi.fileEditor.{OpenFileDescriptor, FileEditorManager}
-import com.intellij.openapi.fileTypes.{FileTypeManager, FileType}
+import com.intellij.openapi.fileTypes.FileTypeManager
 
 import com.intellij.openapi.vfs.{LocalFileSystem, JarFileSystem, VirtualFile}
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi.{PsiDocumentManager, PsiFileFactory, PsiManager}
+import com.intellij.psi.PsiDocumentManager
 import java.awt.event.{KeyEvent, InputEvent}
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.Project
 import com.intellij.util.PathUtil
 import icons.Icons
@@ -28,22 +26,15 @@ import java.lang.String
 import javax.swing.filechooser.{FileFilter, FileView}
 import javax.swing.{Icon, JFileChooser, KeyStroke}
 import org.jdom.Element
-import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
 import com.intellij.openapi.options.SettingsEditor
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
-import com.intellij.vcsUtil.VcsUtil
-import java.util.Arrays
-import com.intellij.facet.FacetManager
-import lang.psi.api.ScalaFile
-import settings.ScalaApplicationSettings
+import com.intellij.openapi.module.{ModuleManager, Module}
 import util.ScalaUtils
 import com.intellij.openapi.projectRoots.{JdkUtil, JavaSdkType}
-import com.intellij.execution.console.{LanguageConsoleViewImpl, LanguageConsoleImpl}
 import java.io._
-import lang.psi.ScalaPsiUtil
-import com.intellij.openapi.util.{TextRange, JDOMExternalizer}
+import com.intellij.openapi.util.JDOMExternalizer
 import config.ScalaFacet
 import collection.JavaConversions._
+import com.intellij.openapi.roots.{CompilerModuleExtension, OrderRootType, ModuleRootManager}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -80,6 +71,8 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     setJavaOptions(params.getJavaOptions)
     setConsoleArgs(params.getConsoleArgs)
     setWorkingDirecoty(params.getWorkingDirectory)
+
+    setModule(params.getModule)
   }
 
   def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -91,11 +84,10 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     }
 
     val rootManager = ModuleRootManager.getInstance(module);
-    val sdk = rootManager.getSdk();
+    val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
       throw CantRunException.noJdkForModule(module);
     }
-    val sdkType = sdk.getSdkType
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
@@ -124,7 +116,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
             for (parm <- parms) {
               printer.println(parm)
             }
-            printer.close
+            printer.close()
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
           }
           catch {
@@ -201,7 +193,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
             val editor = FileEditorManager.getInstance(project).openTextEditor(new OpenFileDescriptor(project, virtualFile), true)
             ScalaUtils.runWriteAction(new Runnable() {
               def run() {
-                editor.getDocument.replaceString(0, editor.getDocument.getTextLength, builder.toString)
+                editor.getDocument.replaceString(0, editor.getDocument.getTextLength, builder.toString())
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               }
             }, project, "Save script")
@@ -232,7 +224,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
         consoleView
       }
 
-      override def addFilter(filter: Filter): Unit = {
+      override def addFilter(filter: Filter) {
         filters += filter
       }
     }
@@ -240,7 +232,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     state;
   }
 
-  def getModule: Module = if (getValidModules.size > 0) getValidModules.get(0) else null
+  def getModule: Module = getConfigurationModule.getModule
 
   def createInstance: ModuleBasedConfiguration[_ <: RunConfigurationModule] =
     new ScalaScriptConsoleRunConfiguration(getProject, getFactory, getName)
@@ -249,7 +241,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
 
   def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new ScalaScriptConsoleRunConfigurationEditor(project, this)
 
-  override def writeExternal(element: Element): Unit = {
+  override def writeExternal(element: Element) {
     super.writeExternal(element)
     writeModule(element)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
@@ -257,7 +249,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     JDOMExternalizer.write(element, "workingDirectory", getWorkingDirectory)
   }
 
-  override def readExternal(element: Element): Unit = {
+  override def readExternal(element: Element) {
     super.readExternal(element)
     readModule(element)
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
@@ -276,8 +268,9 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
     val moduleRootManager = ModuleRootManager.getInstance(module)
     val entries = moduleRootManager.getOrderEntries
     val cpVFiles = new HashSet[VirtualFile];
+    cpVFiles ++= CompilerModuleExtension.getInstance(module).getOutputRoots(true)
     for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
+      cpVFiles ++= orderEntry.getFiles(OrderRootType.CLASSES)
     }
     val res = new StringBuilder("")
     for (file <- cpVFiles) {
@@ -288,7 +281,7 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       }
       res.append(path).append(File.pathSeparator)
     }
-    res.toString
+    res.toString()
   }
 
   private def getClassPath(facet: ScalaFacet): String = {
@@ -302,6 +295,6 @@ class ScalaScriptConsoleRunConfiguration(val project: Project, val configuration
       path = PathUtil.getCanonicalPath(path).replace('/', File.separatorChar)
       res.append(path).append(File.pathSeparator)
     }
-    res.toString
+    res.toString()
   }
 }
