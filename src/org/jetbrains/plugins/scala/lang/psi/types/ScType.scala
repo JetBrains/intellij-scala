@@ -14,45 +14,46 @@ import api.toplevel.typedef.ScObject
 import result.{Success, TypeResult, TypingContext}
 import java.lang.Exception
 import collection.mutable.HashSet
+import collection.immutable.HashMap
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
 Better to use OOP approach instead.
 match {
-  case Any =>
-  case Null =>
-  case AnyRef =>
-  case Nothing =>
-  case Singleton =>
-  case AnyVal =>
-  case Unit =>
-  case Boolean =>
-  case Char =>
-  case Int =>
-  case Long =>
-  case Float =>
-  case Double =>
-  case Byte =>
-  case Short =>
-  case ScFunctionType(returnType, params) =>
-  case ScTupleType(components) =>
-  case ScCompoundType(components, decls, typeDecls, subst) =>
-  case ScProjectionType(projected, element, subst) =>
-  case JavaArrayType(arg) =>
-  case ScParameterizedType(designator, typeArgs) =>
-  case ScExistentialType(quantified, wildcards) =>
-  case ScThisType(clazz) =>
-  case ScDesignatorType(element) =>
-  case ScTypeParameterType(name, args, lower, upper, param) =>
-  case ScExistentialArgument(name, args, lowerBound, upperBound) =>
-  case ScSkolemizedType(name, args, lower, upper) =>
-  case ScTypeVariable(name) =>
-  case ScUndefinedType(tpt) =>
-  case ScMethodType(returnType, params, isImplicit) =>
-  case ScAbstractType(tpt, lower, upper) =>
-  case ScTypePolymorphicType(internalType, typeParameters) =>
+ case Any =>
+ case Null =>
+ case AnyRef =>
+ case Nothing =>
+ case Singleton =>
+ case AnyVal =>
+ case Unit =>
+ case Boolean =>
+ case Char =>
+ case Int =>
+ case Long =>
+ case Float =>
+ case Double =>
+ case Byte =>
+ case Short =>
+ case ScFunctionType(returnType, params) =>
+ case ScTupleType(components) =>
+ case ScCompoundType(components, decls, typeDecls, subst) =>
+ case ScProjectionType(projected, element, subst) =>
+ case JavaArrayType(arg) =>
+ case ScParameterizedType(designator, typeArgs) =>
+ case ScExistentialType(quantified, wildcards) =>
+ case ScThisType(clazz) =>
+ case ScDesignatorType(element) =>
+ case ScTypeParameterType(name, args, lower, upper, param) =>
+ case ScExistentialArgument(name, args, lowerBound, upperBound) =>
+ case ScSkolemizedType(name, args, lower, upper) =>
+ case ScTypeVariable(name) =>
+ case ScUndefinedType(tpt) =>
+ case ScMethodType(returnType, params, isImplicit) =>
+ case ScAbstractType(tpt, lower, upper) =>
+ case ScTypePolymorphicType(internalType, typeParameters) =>
 }
- */
+*/
 trait ScType {
   final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
 
@@ -117,9 +118,22 @@ trait ScType {
 
     set.toSeq
   }
+
+  def getValType: Option[StdType] = None
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
+  val baseTypesQualMap: Map[String, StdType] = HashMap(
+    "scala.Unit" -> Unit,
+    "scala.Boolean" -> Boolean,
+    "scala.Char" -> Char,
+    "scala.Int" -> Int,
+    "scala.Long" -> Long,
+    "scala.Float" -> Float,
+    "scala.Double" -> Double,
+    "scala.Byte" -> Byte,
+    "scala.AnyVal" -> AnyVal
+  )
 
   def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = extractClassType(t, project).map(_._1)
 

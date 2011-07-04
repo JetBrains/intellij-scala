@@ -17,6 +17,14 @@ object Equivalence {
 
   def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
+
+    if (l.isInstanceOf[ScDesignatorType] && l.getValType != None) {
+      return equivInner(l.getValType.get, r, subst, falseUndef)
+    }
+    if (r.isInstanceOf[ScDesignatorType] && r.getValType != None) {
+      return equivInner(l, r.getValType.get, subst, falseUndef)
+    }
+
     (l, r) match {
       case (_, _: ScUndefinedType) => r.equivInner(l, subst, falseUndef)
       case (_: ScUndefinedType, _) => l.equivInner(r, subst, falseUndef)

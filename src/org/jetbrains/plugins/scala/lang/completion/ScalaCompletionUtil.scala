@@ -81,7 +81,7 @@ object ScalaCompletionUtil {
     while (candidate.getNode().getChildren(null).length > 0) {
       candidate = candidate.findElementAt(offset)
     }
-    return candidate
+    candidate
   }
 
   def getForAll(parent: PsiElement, leaf: PsiElement): (Boolean, Boolean) = {
@@ -120,7 +120,7 @@ object ScalaCompletionUtil {
       case _ =>
     }
 
-    return (false, true)
+    (false, true)
   }
 
   def awful(parent: PsiElement, leaf: PsiElement): Boolean = {
@@ -140,7 +140,7 @@ object ScalaCompletionUtil {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return !checkErrors(dummyFile)
+    !checkErrors(dummyFile)
   }
 
   def checkElseWith(text: String, manager: PsiManager): Boolean = {
@@ -148,7 +148,7 @@ object ScalaCompletionUtil {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
-    return !checkErrors(dummyFile)
+    !checkErrors(dummyFile)
   }
 
   def checkTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
@@ -159,7 +159,7 @@ object ScalaCompletionUtil {
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
-    return value
+    value
   }
 
   def checkAnyTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
@@ -170,7 +170,7 @@ object ScalaCompletionUtil {
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
-    return value
+    value
   }
 
   def checkAnyWith(typez: PsiElement, additionText: String, manager: PsiManager): Boolean = {
@@ -180,15 +180,15 @@ object ScalaCompletionUtil {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return !checkErrors(dummyFile)
+    !checkErrors(dummyFile)
   }
 
   def removeDummy(text: String): String = {
-    return replaceDummy(text, "")
+    replaceDummy(text, "")
   }
 
   def replaceDummy(text: String, to: String): String = {
-    return if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
+    if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
       val empty = to
       text.replaceAll("\\w*" + DUMMY_IDENTIFIER,to)
       //text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
@@ -202,7 +202,7 @@ object ScalaCompletionUtil {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return !checkErrors(dummyFile)
+    !checkErrors(dummyFile)
   }
 
   def checkReplace(elem: PsiElement, additionText: String, manager: PsiManager): Boolean = {
@@ -214,7 +214,7 @@ object ScalaCompletionUtil {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
-    return !checkErrors(dummyFile)
+    !checkErrors(dummyFile)
   }
 
   private def checkErrors(elem: PsiElement): Boolean = {
@@ -227,7 +227,7 @@ object ScalaCompletionUtil {
       val child = iterator.next()
       if (checkErrors(child)) return true
     }
-    return false
+    false
   }
 
   def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {

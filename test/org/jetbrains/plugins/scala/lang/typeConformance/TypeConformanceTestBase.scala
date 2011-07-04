@@ -3,17 +3,15 @@ package lang
 package typeConformance
 
 import base.ScalaPsiTestCase
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiComment, PsiManager}
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.psi.{PsiElement, PsiManager}
 import java.io.File
 import java.lang.String
 import lexer.ScalaTokenTypes
 import parser.ScalaElementTypes
-import psi.api.expr.ScExpression
 import psi.api.ScalaFile
-import psi.api.statements.{ScValueDeclaration, ScValue, ScPatternDefinition}
-import psi.types.{Conformance, ScType}
+import psi.api.statements.ScPatternDefinition
+import psi.types.Conformance
 import psi.types.result.{TypingContext, Failure, Success}
 
 /**
@@ -22,12 +20,9 @@ import psi.types.result.{TypingContext, Failure, Success}
  */
 
 abstract class TypeConformanceTestBase extends ScalaPsiTestCase {
-  private val startExprMarker = "/*start*/"
-  private val endExprMarker = "/*end*/"
-
   override def rootPath: String = super.rootPath + "typeConformance/"
 
-  protected def doTest = {
+  protected def doTest() {
     import _root_.junit.framework.Assert._
 
     val filePath = rootPath + getTestName(false) + ".scala"

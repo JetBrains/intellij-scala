@@ -9,6 +9,7 @@ import scala.collection.Set
 import lang.psi.api.statements.{ScTypeAliasDefinition, ScTypeAliasDeclaration}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.ScType
+import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 
 /**
  * User: Alexander Podkhalyuzin
