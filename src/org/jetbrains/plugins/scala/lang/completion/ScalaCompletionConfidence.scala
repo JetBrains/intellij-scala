@@ -16,7 +16,7 @@ class ScalaCompletionConfidence extends CompletionConfidence {
   def shouldFocusLookup(parameters: CompletionParameters): ThreeState = {
     if (parameters.getOriginalPosition.getText == "_") return ThreeState.NO //SCL-3290 _ <space> =>
     parameters.getPosition.getParent match {
-      case ref: ScReferenceElement => {
+      case ref: ScReferenceElement if ref.qualifier == None => {
         ref.getParent match {
           case args: ScArgumentExprList => ThreeState.NO //possible anonymous method parameter name
           case parent@(_: ScTuple | _: ScParenthesisedExpr | _: ScBlockExpr) =>

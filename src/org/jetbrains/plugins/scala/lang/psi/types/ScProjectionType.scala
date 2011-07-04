@@ -3,7 +3,6 @@ package lang
 package psi
 package types
 
-import com.intellij.psi.{ResolveState, PsiNamedElement}
 import impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import api.toplevel.typedef._
@@ -12,6 +11,7 @@ import result.{TypingContext, Success}
 import api.toplevel.ScTypedDefinition
 import resolve.processor.ResolveProcessor
 import resolve.ResolveTargets
+import com.intellij.psi.{PsiClass, ResolveState, PsiNamedElement}
 
 /**
  * @author ilyas
@@ -202,6 +202,14 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
  * element can be any stable element, class, value or type alias
  */
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
+  override def getValType: Option[StdType] = {
+    element match {
+      case clazz: PsiClass =>
+        ScType.baseTypesQualMap.get(clazz.getQualifiedName)
+      case _ => None
+    }
+  }
+
   private var isStaticClass = false
   //You can use this method to check if it's Java class,
   // which is used for getting static context => no implicit conversion

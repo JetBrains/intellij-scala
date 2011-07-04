@@ -322,14 +322,24 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
             case _: NumberFormatException => //do nothing
           }
         }
+
         //numeric widening
-        (valType, expected) match {
-          case (Byte, Short | Int | Long | Float | Double) => return Success(expected, Some(this))
-          case (Short, Int | Long | Float | Double) => return Success(expected, Some(this))
-          case (Char, Byte | Short | Int | Long | Float | Double) => return Success(expected, Some(this))
-          case (Int, Long | Float | Double) => return Success(expected, Some(this))
-          case (Long, Float | Double) => return Success(expected, Some(this))
-          case (Float, Double) => return Success(expected, Some(this))
+        def checkWidening(l: ScType, r: ScType): Option[TypeResult[ScType]] = {
+           (l, r) match {
+            case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected, Some(this)))
+            case (Short, Int | Long | Float | Double) => Some(Success(expected, Some(this)))
+            case (Char, Byte | Short | Int | Long | Float | Double) => Some(Success(expected, Some(this)))
+            case (Int, Long | Float | Double) => Some(Success(expected, Some(this)))
+            case (Long, Float | Double) => Some(Success(expected, Some(this)))
+            case (Float, Double) => Some(Success(expected, Some(this)))
+            case _ => None
+          }
+        }
+        (valType.getValType, expected.getValType) match {
+          case (Some(l), Some(r)) => checkWidening(l, r) match {
+            case Some(x) => return x
+            case _ =>
+          }
           case _ =>
         }
       }

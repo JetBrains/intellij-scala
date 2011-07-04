@@ -373,6 +373,7 @@ object ResolveUtils {
               case Success(Some(cl), _) => cl
               case _ => null
             }
+            case _ => null
           }
           if (clazz != null)
             element match {

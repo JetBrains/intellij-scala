@@ -29,10 +29,10 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
   /**
    * Main test body. All tests should be with same body: def testSmthing = doTest
    */
-  protected def doTest: Unit
+  protected def doTest()
 
-  override protected def setUp: Unit = {
-    super.setUp
+  override protected def setUp() {
+    super.setUp()
     val rootModel: ModifiableRootModel = ModuleRootManager.getInstance(getModule).getModifiableModel
 
     try {

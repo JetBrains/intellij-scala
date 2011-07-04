@@ -117,14 +117,14 @@ public class TestUtils {
     }
   }
 
-  public static final ScalaSdkVersion DEFAULT_SCALA_SDK_VERSION = ScalaSdkVersion._2_8;
+  public static final ScalaSdkVersion DEFAULT_SCALA_SDK_VERSION = ScalaSdkVersion._2_9;
 
   public static String getMockScalaLib() {
-    return getMockScalaLib(ScalaSdkVersion._2_8);
+    return getMockScalaLib(DEFAULT_SCALA_SDK_VERSION);
   }
 
   public static String getMockScalaSrc() {
-    return getMockScalaSrc(ScalaSdkVersion._2_8);
+    return getMockScalaSrc(DEFAULT_SCALA_SDK_VERSION);
   }
 
   public static String getMockScalaLib(ScalaSdkVersion version) {

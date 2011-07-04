@@ -31,8 +31,7 @@ class ScalaDistribution(val home: File) {
   private val Dbc = Pack("scala-dbc.jar", "scala-dbc-src.jar")
 
   private val VersionProperty = "version.number"
-  private val SupportedVersion = """^(?:2\.7|2\.8)""".r
-  
+
   private val Libs = List(Library, Swing, Dbc)
   private val Lib = home / "lib"
   private val Src = home / "src"

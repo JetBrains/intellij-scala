@@ -21,6 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.config.ScalaFacet
+import com.intellij.openapi.module.{ModuleUtil, Module}
 
 class ScalaClassNameCompletionContributor extends CompletionContributor {
   import ScalaSmartCompletionContributor._
@@ -44,33 +47,44 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       case _: ScConstructorPattern => false
       case _ => true
     })
+    def addClass(psiClass: PsiClass) {
+      val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
+        def compute: Boolean = {
+          JavaCompletionUtil.isInExcludedPackage(psiClass)
+        }
+      }).booleanValue
+      if (isExcluded) return
+      if (lookingForAnnotations && !psiClass.isAnnotationType) return
+      psiClass match {
+        case _: ScClass | _: ScTrait if !isInImport && !onlyClasses => return
+        case _: ScObject if !isInImport && onlyClasses => return
+        case _ =>
+      }
+      for {
+        (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
+          isClassName = true, isInImport = isInImport)
+      } {
+        if (afterNewPattern.accepts(parameters.getPosition, context)) {
+          result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass))
+        } else {
+          result.addElement(el)
+        }
+      }
+    }
+
+    val project = insertedElement.getProject
+    val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalPosition)
+     val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet =>
+       facet.version.substring(0, 3).toDouble < 2.9 - Double.MinPositiveValue).getOrElse(true)
+    for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
+      if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.getQualifiedName)) {
+        addClass(clazz)
+      }
+    }
+
     AllClassesGetter.processJavaClasses(parameters, result.getPrefixMatcher, parameters.getInvocationCount <= 1,
       new Consumer[PsiClass] {
         def consume(psiClass: PsiClass) {
-          def addClass(psiClass: PsiClass) {
-            val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-              def compute: Boolean = {
-                JavaCompletionUtil.isInExcludedPackage(psiClass)
-              }
-            }).booleanValue
-            if (isExcluded) return
-            if (lookingForAnnotations && !psiClass.isAnnotationType) return
-            psiClass match {
-              case _: ScClass | _: ScTrait if !isInImport && !onlyClasses => return
-              case _: ScObject if !isInImport && onlyClasses => return
-              case _ =>
-            }
-            for {
-              (el, _, _) <- ResolveUtils.getLookupElement(new ScalaResolveResult(psiClass),
-                isClassName = true, isInImport = isInImport)
-            } {
-              if (afterNewPattern.accepts(parameters.getPosition, context)) {
-                result.addElement(getLookupElementFromClass(expectedTypesAfterNew, psiClass))
-              } else {
-                result.addElement(el)
-              }
-            }
-          }
           //todo: filter according to position
           ScalaPsiUtil.getCompanionModule(psiClass) match {
             case Some(c) => addClass(c)

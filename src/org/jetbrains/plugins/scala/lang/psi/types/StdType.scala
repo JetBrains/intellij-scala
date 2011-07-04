@@ -77,7 +77,9 @@ case object Nothing extends StdType("Nothing", Some(Any))
 
 case object Singleton extends StdType("Singleton", Some(AnyRef))
 
-case object AnyVal extends StdType("AnyVal", Some(Any))
+case object AnyVal extends StdType("AnyVal", Some(Any)) {
+  override def getValType: Option[StdType] = Some(this)
+}
 
 abstract case class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
   def apply(element: PsiElement): ScType = {
@@ -89,6 +91,8 @@ abstract case class ValType(override val name: String) extends StdType(name, Som
     if (classes.length > 0) ScDesignatorType(classes(0))
     else this
   }
+
+  override def getValType: Option[StdType] = Some(this)
 }
 
 object Unit extends ValType("Unit")

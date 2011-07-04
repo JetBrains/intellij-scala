@@ -63,6 +63,12 @@ object Conformance {
   def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], subst: ScUndefinedSubstitutor,
                             checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
+    if (l.isInstanceOf[ScDesignatorType] && l.getValType != None) {
+      return conformsInner(l.getValType.get, r, visited, subst, checkWeak)
+    }
+    if (r.isInstanceOf[ScDesignatorType] && r.getValType != None) {
+      return conformsInner(l, r.getValType.get, visited, subst, checkWeak)
+    }
 
     var undefinedSubst: ScUndefinedSubstitutor = subst
 
