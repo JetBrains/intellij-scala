@@ -27,6 +27,7 @@ class ScalaCompletionConfidence extends CompletionConfidence {
           case _ => ThreeState.YES
         }
       }
+      case ref: ScReferenceElement => ThreeState.YES
       case _ => ThreeState.NO //keyword completion can be here in case of broken tree
     }
   }
