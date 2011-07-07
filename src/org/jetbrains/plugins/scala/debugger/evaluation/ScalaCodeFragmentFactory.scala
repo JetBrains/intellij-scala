@@ -4,10 +4,6 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.debugger.engine.evaluation.{TextWithImports, CodeFragmentFactory}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.debugger.{DebuggerManagerEx, DebuggerManager}
-import com.intellij.openapi.util.text.StringUtil
-import java.util.Random
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
@@ -17,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
-    val debuggerContext = DebuggerManager.getInstance(project).asInstanceOf[DebuggerManagerEx].getContext
+    //val debuggerContext = DebuggerManager.getInstance(project).asInstanceOf[DebuggerManagerEx].getContext
     //todo: val visibleVariables = debuggerContext.getFrameProxy.visibleVariables()
     //on buildserver visibleVariables is not a member of FrameProxy.
     val contextClass: PsiClass = ScalaPsiUtil.getContextOfType(context, false, classOf[PsiClass]) match {
