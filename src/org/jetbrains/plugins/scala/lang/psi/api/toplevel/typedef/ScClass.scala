@@ -74,7 +74,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             }
             objOption
           })
-          (PsiModificationTracker.JAVA_STRUCTURE_MODIFICATION_COUNT))
+          (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
 
     }
   }
