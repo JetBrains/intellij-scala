@@ -4,13 +4,13 @@ import com.intellij.psi._
 import util.proximity.ProximityWeigher
 import util.ProximityLocation
 import java.lang.Integer
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportStmt, ScImportExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.util.Key
