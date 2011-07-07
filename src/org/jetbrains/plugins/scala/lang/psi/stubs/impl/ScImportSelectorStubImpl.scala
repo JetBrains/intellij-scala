@@ -36,7 +36,7 @@ extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelecto
     val res = if (referenceText == "") {
       null
     } else {
-      ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, getPsi /*doesn't matter*/)
+      ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
     }
     myReference = new PatchedSoftReference[ScStableCodeReferenceElement](res)
     res

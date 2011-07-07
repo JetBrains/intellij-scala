@@ -74,8 +74,19 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
 
     val project = insertedElement.getProject
     val module: Module = ModuleUtil.findModuleForPsiElement(parameters.getOriginalPosition)
-     val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet =>
-       facet.version.substring(0, 3).toDouble < 2.9 - Double.MinPositiveValue).getOrElse(true)
+     val checkSynthetic = if (module == null) true else ScalaFacet.findIn(module).map(facet => {
+       val version = facet.version
+       if (version.length() < 3) true //let's think about 2.9
+       else {
+         val substring = version.substring(0, 3)
+         try {
+           substring.toDouble < 2.9 - Double.MinPositiveValue
+         }
+         catch {
+           case n: NumberFormatException => true //let's think about 2.9
+         }
+       }
+     }).getOrElse(true)
     for (clazz <- SyntheticClasses.get(project).all.valuesIterator) {
       if (checkSynthetic || !ScType.baseTypesQualMap.contains(clazz.getQualifiedName)) {
         addClass(clazz)

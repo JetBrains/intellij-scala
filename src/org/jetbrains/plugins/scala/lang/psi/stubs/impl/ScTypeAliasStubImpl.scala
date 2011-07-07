@@ -49,7 +49,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     if (getTypeElementText == "") return null
     val res: ScTypeElement = {
-      ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, getPsi /*doesn't matter*/)
+      ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, null)
     }
     myTypeElement = new PatchedSoftReference[ScTypeElement](res)
     return res
@@ -61,7 +61,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     if (myUpperTypeElement != null && myUpperTypeElement.get != null) return myUpperTypeElement.get
     if (getUpperBoundElementText == "") return null
     val res: ScTypeElement = {
-      ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, getPsi /*doesn't matter*/)
+      ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, null)
     }
     myUpperTypeElement = new PatchedSoftReference[ScTypeElement](res)
     return res
@@ -73,7 +73,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
     if (myLowerTypeElement != null && myLowerTypeElement.get != null) return myLowerTypeElement.get
     if (getLowerBoundElementText == "") return null
     val res: ScTypeElement = {
-      ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, getPsi /*doesn't matter*/)
+      ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, null)
     }
     myLowerTypeElement = new PatchedSoftReference[ScTypeElement](res)
     return res

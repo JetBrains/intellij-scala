@@ -45,6 +45,19 @@ trait ScImportsHolder extends ScalaPsiElement {
     true
   }
 
+  def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
+    val buffer: ArrayBuffer[ScImportStmt] = new ArrayBuffer[ScImportStmt]()
+    if (lastParent != null) {
+      var run = ScalaPsiUtil.getPrevStubOrPsiElement(lastParent)
+      while (run != null) {
+        ProgressManager.checkCanceled()
+        if (run.isInstanceOf[ScImportStmt]) buffer += run.asInstanceOf[ScImportStmt]
+        run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
+      }
+    }
+    buffer.toSeq
+  }
+
   def getAllImportUsed: Set[ImportUsed] = {
     val res: Set[ImportUsed] = new HashSet[ImportUsed]
     def processChild(element: PsiElement) {

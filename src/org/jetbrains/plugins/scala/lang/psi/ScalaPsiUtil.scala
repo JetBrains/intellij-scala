@@ -38,7 +38,6 @@ import structureView.ScalaElementPresentation
 import com.intellij.psi.util._
 import formatting.settings.ScalaCodeStyleSettings
 import com.intellij.openapi.roots.{ProjectRootManager, ProjectFileIndex}
-import com.intellij.openapi.module.Module
 import lang.resolve.processor._
 import lang.resolve.{ResolveTargets, ResolveUtils, ScalaResolveResult}
 import com.intellij.psi.impl.light.LightModifierList
@@ -48,11 +47,19 @@ import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions._
 import java.lang.Exception
+import com.intellij.openapi.module.{ModuleUtil, Module}
+import config.ScalaFacet
 
 /**
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def hasScalaFacet(element: PsiElement): Boolean = {
+    val module: Module = ModuleUtil.findModuleForPsiElement(element)
+    if (module == null) false
+    else ScalaFacet.findIn(module) != None
+  }
+
   def lastChildElementOrStub(element: PsiElement): PsiElement = {
     element match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null => {

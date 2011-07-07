@@ -79,7 +79,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     if (lowerElement != null && lowerElement.get != null) return lowerElement.get
     val res: Option[ScTypeElement] = {
       if (getLowerText != "")
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getLowerText, getPsi, null))
       else None
     }
     lowerElement = new PatchedSoftReference[Option[ScTypeElement]](res)
@@ -90,7 +90,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     if (upperElement != null && upperElement.get != null) return upperElement.get
     val res: Option[ScTypeElement] = {
       if (getUpperText != "")
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getUpperText, getPsi, null))
       else None
     }
     upperElement = new PatchedSoftReference[Option[ScTypeElement]](res)
@@ -105,14 +105,14 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   def getViewTypeElement: Array[ScTypeElement] = {
     if (viewElement != null && viewElement.forall(_.get ne null)) return viewElement.map(_.get)
-    val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, getPsi /*doesn't matter*/))
+    val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
     viewElement = res.map(new PatchedSoftReference[ScTypeElement](_))
     return res
   }
 
   def getContextBoundTypeElement: Array[ScTypeElement] = {
     if (contextBoundElement != null && contextBoundElement.forall(_.get ne null)) return contextBoundElement.map(_.get)
-    val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, getPsi /*doesn't matter*/))
+    val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
     contextBoundElement = res.map(new PatchedSoftReference[ScTypeElement](_))
     return res
   }

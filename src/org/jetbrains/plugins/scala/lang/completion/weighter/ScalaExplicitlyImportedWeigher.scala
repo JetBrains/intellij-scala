@@ -5,13 +5,15 @@ import util.proximity.ProximityWeigher
 import util.ProximityLocation
 import java.lang.Integer
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportStmt, ScImportExpr}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import collection.mutable.ArrayBuffer
+import com.intellij.openapi.util.Key
 
 /**
   * @author Alexander Podkhalyuzin
@@ -20,53 +22,64 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
   def applyQualifier(qual: String, position: PsiElement): Option[Integer] = {
     val index = qual.lastIndexOf('.')
     val qualNoPoint = if (index < 0) null else qual.substring(0, index)
-    val context = ScalaPsiUtil.getContextOfType(position, false, classOf[ScalaFile])
-    if (context != null) {
-      val scalaFile: ScalaFile = context.asInstanceOf[ScalaFile]
-      var accepted = false
-      val visitor = new ScalaRecursiveElementVisitor {
-        override def visitImportExpr(expr: ScImportExpr) {
-          if (accepted) return
-          if (expr.singleWildcard && qualNoPoint != null) {
-            for (resolve <- expr.qualifier.multiResolve(false))
+    var buffer: ArrayBuffer[ScImportStmt] = position.getUserData(ScalaExplicitlyImportedWeigher.key)
+    def treeWalkup(place: PsiElement, lastParent: PsiElement) {
+      place match {
+        case holder: ScImportsHolder =>
+          buffer ++= holder.getImportsForLastParent(lastParent)
+          if (place.isInstanceOf[ScalaFile]) return
+        case _ =>
+      }
+      treeWalkup(place.getContext, place)
+    }
+    if (buffer == null) {
+      buffer = new ArrayBuffer[ScImportStmt]()
+      treeWalkup(position.getContext, position)
+      position.putUserData(ScalaExplicitlyImportedWeigher.key, buffer)
+    }
+    val iter = buffer.iterator
+    while (iter.hasNext) {
+      val stmt = iter.next()
+      val exprIter = stmt.importExprs.iterator
+      while (exprIter.hasNext) {
+        val expr = exprIter.next()
+        if (expr.singleWildcard && qualNoPoint != null) {
+          for (resolve <- expr.qualifier.multiResolve(false))
+            resolve match {
+              case ScalaResolveResult(pack: PsiPackage, _) =>
+                if (qualNoPoint == pack.getQualifiedName) return Some(3)
+              case ScalaResolveResult(clazz: PsiClass, _) =>
+                if (qualNoPoint == clazz.getQualifiedName) return Some(3)
+              case _ =>
+            }
+        } else if (expr.selectorSet != None) {
+          for (selector <- expr.selectors) {
+            for (resolve <- selector.reference.multiResolve(false)) {
               resolve match {
-                case ScalaResolveResult(pack: PsiPackage, _) =>
-                  if (qualNoPoint == pack.getQualifiedName) accepted = true
                 case ScalaResolveResult(clazz: PsiClass, _) =>
-                  if (qualNoPoint == clazz.getQualifiedName) accepted = true
+                  if (qual == clazz.getQualifiedName) return Some(3)
                 case _ =>
               }
-          } else if (expr.selectorSet != None) {
-            for (selector <- expr.selectors) {
-              for (resolve <- selector.reference.multiResolve(false)) {
+            }
+          }
+        } else {
+          expr.reference match {
+            case Some(ref) =>
+              for (resolve <- ref.multiResolve(false))
                 resolve match {
                   case ScalaResolveResult(clazz: PsiClass, _) =>
-                    if (qual == clazz.getQualifiedName) accepted = true
+                    if (qual == clazz.getQualifiedName) return Some(3)
                   case _ =>
                 }
-              }
-            }
-          } else {
-            expr.reference match {
-              case Some(ref) =>
-                for (resolve <- ref.multiResolve(false))
-                  resolve match {
-                    case ScalaResolveResult(clazz: PsiClass, _) =>
-                      if (qual == clazz.getQualifiedName) accepted = true
-                    case _ =>
-                  }
-              case None =>
-            }
+            case None =>
           }
         }
       }
-      scalaFile.accept(visitor)
-      if (accepted) return Some(3)
-      if (qualNoPoint != null && qualNoPoint == "scala" ||
-        qualNoPoint == "java.lang" || qualNoPoint == "scala.Predef") {
-        if (qualNoPoint == "java.lang") return Some(1)
-        else return Some(2)
-      }
+    }
+    if (qualNoPoint != null && qualNoPoint == "scala" ||
+      qualNoPoint == "java.lang" || qualNoPoint == "scala.Predef") {
+      if (qualNoPoint == "java.lang") return Some(1)
+      else return Some(2)
     }
     None
   }
@@ -143,4 +156,8 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
     }
     0
   }
+}
+
+object ScalaExplicitlyImportedWeigher {
+  private[weighter] val key: Key[ArrayBuffer[ScImportStmt]] = Key.create("scala.explicitly.imported.weigher.key")
 }

@@ -4,26 +4,20 @@ package conversion
 
 import com.intellij.openapi.actionSystem.{AnActionEvent, DataConstants, AnAction}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
-import util.ScalaUtils
-import com.intellij.util.IncorrectOperationException
-import com.intellij.psi.codeStyle. {CodeStyleSettingsManager, CodeStyleSettings, CodeStyleManager}
+import com.intellij.psi.codeStyle. {CodeStyleSettingsManager, CodeStyleManager}
+import lang.psi.ScalaPsiUtil
 
 /**
- * Created by IntelliJ IDEA.
- * User: Alexander
- * Date: 28.07.2009
- * Time: 20:13:48
- * To change this template use File | Settings | File Templates.
+ * @author Alexander Podkhalyuzin
  */
-
 class RenameJavaToScalaAction extends AnAction {
-  override def update(e: AnActionEvent): Unit = {
+  override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
-    def enable {
+    def enable() {
       presentation.setEnabled(true)
       presentation.setVisible(true)
     }
-    def disable {
+    def disable() {
       presentation.setEnabled(false)
       presentation.setVisible(false)
     }
@@ -31,25 +25,25 @@ class RenameJavaToScalaAction extends AnAction {
       val dataContext = e.getDataContext
       val file = dataContext.getData(DataConstants.PSI_FILE)
       file match {
-        case j: PsiJavaFile =>
+        case j: PsiJavaFile if ScalaPsiUtil.hasScalaFacet(j) =>
           val dir = j.getContainingDirectory
-          if (dir.isWritable) enable
-          else disable
-        case _ => disable
+          if (dir.isWritable) enable()
+          else disable()
+        case _ => disable()
       }
     }
     catch {
-      case e: Exception => disable
+      case e: Exception => disable()
     }
 
   }
 
-  def actionPerformed(e: AnActionEvent): Unit = {
+  def actionPerformed(e: AnActionEvent) {
     val file = e.getDataContext.getData(DataConstants.PSI_FILE)
     file match {
       case jFile: PsiJavaFile => {
         org.jetbrains.plugins.scala.util.ScalaUtils.runWriteAction(new Runnable {
-          def run {
+          def run() {
             val directory = jFile.getContainingDirectory
             val name = jFile.getName.substring(0, jFile.getName.length - 5)
             val file = directory.createFile(name + ".scala")
