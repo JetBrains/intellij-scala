@@ -64,7 +64,7 @@
     <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                             implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
-                            order="first after scalaCompletionContrubutor"/>
+                            order="after scalaCompletionContrubutor"/>
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
     <weigher key="completionSorting" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
              id="scalaContainingClassWeigher" order="before sLookupString"/>
