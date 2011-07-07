@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     val debuggerContext = DebuggerManager.getInstance(project).asInstanceOf[DebuggerManagerEx].getContext
-    val visibleVariables = debuggerContext.getFrameProxy.visibleVariables()
+    //todo: val visibleVariables = debuggerContext.getFrameProxy.visibleVariables()
+    //on buildserver visibleVariables is not a member of FrameProxy.
     val contextClass: PsiClass = ScalaPsiUtil.getContextOfType(context, false, classOf[PsiClass]) match {
       case null => null
       case clazz: PsiClass => clazz
