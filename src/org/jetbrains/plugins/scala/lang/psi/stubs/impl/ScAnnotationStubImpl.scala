@@ -40,7 +40,7 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   def getTypeElement: ScTypeElement = {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     val res: ScTypeElement = {
-        ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, getPsi /*doesn't matter*/)
+        ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null)
     }
     myTypeElement = new PatchedSoftReference[ScTypeElement](res)
     res

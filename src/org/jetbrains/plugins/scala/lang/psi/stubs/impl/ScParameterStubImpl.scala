@@ -73,7 +73,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     val res: Option[ScTypeElement] = {
       if (getTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
       }
       else None
     }
@@ -102,7 +102,7 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
         case None => None
         case Some("") => None
         case Some(text) =>
-          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, getPsi, getPsi /*doesn't matter*/))
+          Some(ScalaPsiElementFactory.createExpressionWithContextFromText(text, getPsi, null))
       }
     }
     myDefaultExpression = new PatchedSoftReference[Option[ScExpression]](res)

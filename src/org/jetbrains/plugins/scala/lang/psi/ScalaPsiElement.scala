@@ -33,6 +33,7 @@ trait ScalaPsiElement extends PsiElement with PsiElementExt with MonadTransforme
   def getDeepSameElementInContext: PsiElement = {
     child match {
       case null => this
+      case _ if child == context => this
       case child: ScalaPsiElement => child.getDeepSameElementInContext
       case _ => child
     }

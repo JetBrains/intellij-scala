@@ -23,7 +23,7 @@ import util.CommonClassesSearcher
 import api.base.types._
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedTypes, ScNewTemplateDefinition}
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import com.intellij.psi.util.PsiModificationTracker
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -217,7 +217,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def earlyDefinitions: Option[ScEarlyDefinitions] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS, JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
+      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS,
+        JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
       array.headOption
     } else findChild(classOf[ScEarlyDefinitions])
   }

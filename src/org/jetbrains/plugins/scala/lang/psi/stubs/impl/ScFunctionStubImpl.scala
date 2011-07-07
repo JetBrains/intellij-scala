@@ -68,7 +68,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     if (myReturnTypeElement != null && myReturnTypeElement.get != null) return myReturnTypeElement.get
     val res: Option[ScTypeElement] = {
       if (getReturnTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi, null))
       }
       else None
     }
@@ -80,7 +80,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
     if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
     val res: Option[ScExpression] = {
       if (getBodyText != "") {
-        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, getPsi/*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
       }
       else {
         None

@@ -66,7 +66,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     if (myPatterns != null && myPatterns.get != null) return myPatterns.get
     val res: Option[ScPatternList] = {
       if (getBindingsContainerText != "") {
-        Some(ScalaPsiElementFactory.createPatterListFromText(getBindingsContainerText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createPatterListFromText(getBindingsContainerText, getPsi, null))
       } else None
     }
     myPatterns = new PatchedSoftReference[Option[ScPatternList]](res)
@@ -79,7 +79,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     if (myBodyExpression != null && myBodyExpression.get != null) return myBodyExpression.get
     val res: Option[ScExpression] = {
       if (getBodyText != "") {
-        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
       }
       else {
         None
@@ -93,7 +93,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get
     val res: Option[ScTypeElement] = {
       if (getTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null))
       }
       else None
     }
@@ -106,7 +106,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
     if (myIds != null && myIds.get != null) return myIds.get
     val res: Option[ScIdList] = {
       if (getBindingsContainerText != "") {
-        Some(ScalaPsiElementFactory.createIdsListFromText(getBindingsContainerText, getPsi, getPsi /*doesn't matter*/))
+        Some(ScalaPsiElementFactory.createIdsListFromText(getBindingsContainerText, getPsi, null))
       } else None
     }
     myIds = new PatchedSoftReference[Option[ScIdList]](res)
