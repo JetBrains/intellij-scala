@@ -81,7 +81,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
     val clazz = getContainingClass
     if (clazz != null) {
       val option = TypeDefinitionMembers.getMethods(clazz).
-          smartGet(new PhysicalSignature(this, ScSubstitutor.empty))
+          fastGet(new PhysicalSignature(this, ScSubstitutor.empty))
       if (option == None) return None
       option.get.primarySuper.map(node => (node.info.method, node.info.substitutor))
     }

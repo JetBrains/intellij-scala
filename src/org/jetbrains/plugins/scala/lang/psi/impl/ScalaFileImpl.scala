@@ -25,7 +25,6 @@ import api.{ScControlFlowOwner, ScalaFile}
 import psi.controlFlow.impl.ScalaControlFlowBuilder
 import api.base.ScStableCodeReferenceElement
 import scope.PsiScopeProcessor
-import lang.resolve.processor.{ResolveProcessor, ResolverEnv}
 import com.intellij.openapi.editor.Document
 import decompiler.{DecompilerUtil, CompiledFileAdjuster}
 import collection.mutable.ArrayBuffer
@@ -39,6 +38,7 @@ import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
 import util.PsiTreeUtil
 import lang.resolve.ResolveUtils
+import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -298,7 +298,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
           if (defaultPackage != null &&
             !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
         }
-        else if (defaultPackage != null) {
+        else if (defaultPackage != null && !processor.isInstanceOf[ImplicitProcessor]) { //we will add only packages
           //only packages resolve, no classes from default package
           val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
           val facade = JavaPsiFacade.getInstance(getProject).asInstanceOf[com.intellij.psi.impl.JavaPsiFacadeImpl]

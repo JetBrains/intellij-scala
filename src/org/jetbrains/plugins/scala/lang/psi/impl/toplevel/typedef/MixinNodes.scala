@@ -34,11 +34,13 @@ abstract class MixinNodes {
     /**
      * Use this method if you are sure, that map contains key
      */
-    def smartGet(key: T): Option[Node] = {
+    def fastGet(key: T): Option[Node] = {
+    //todo: possible optimization to filter without types first then if only one variant left, get it.
       val h = index(elemHashCode(key))
       var e = table(h).asInstanceOf[Entry]
       if (e != null && e.next == null) return Some(e.value)
-      while (e != null && !elemEquals(e.key, key)) {
+      while (e != null) {
+        if (elemEquals(e.key, key)) return Some(e.value)
         e = e.next
         if (e.next == null) return Some(e.value)
       }
