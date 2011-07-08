@@ -66,7 +66,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case Some(superQ : ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
       case Some(q) => processTypes(q, processor)
     }
-    processor.candidates
+    processor.rrcandidates
   }
 
   private def resolveUnqalified(ref: ResolvableReferenceExpression, processor: BaseProcessor) {
