@@ -322,7 +322,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       //todo: check type
                       false
                     }
-                    val paramText = buffer.toString
+                    val paramText = buffer.toString()
                     if (isBold) "<b>" + paramText + "</b>" else paramText
                   }).mkString(", "))
                 }
@@ -347,7 +347,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         if (endOffset != -1) buffer.replace(endOffset, endOffset + 4, "")
 
         if (buffer.toString != "")
-          context.setupUIComponentPresentation(buffer.toString, startOffset, endOffset, isGrey, false, false, color)
+          context.setupUIComponentPresentation(buffer.toString(), startOffset, endOffset, isGrey, false, false, color)
         else
           context.setUIComponentEnabled(false)
       }
@@ -374,7 +374,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
           args.getParent match {
             case call: ScMethodCall => {
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-              def collectResult {
+              def collectResult() {
                 val canBeUpdate = call.getParent match {
                   case assignStmt: ScAssignStmt if call == assignStmt.getLExpression => true
                   case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
@@ -424,7 +424,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     val name = ref.refName
                     if (count > 1) {
                       //todo: missed case with last implicit call
-                      ref.bind match {
+                      ref.bind() match {
                         case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
                                 effectiveParameterClauses.length >= count => {
                           res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
@@ -469,7 +469,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   }
                 }
               }
-              collectResult
+              collectResult()
               context.setItemsToShow(res.toArray)
             }
             case constr: ScConstructor => {

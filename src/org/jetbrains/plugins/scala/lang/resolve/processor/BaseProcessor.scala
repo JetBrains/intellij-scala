@@ -38,7 +38,35 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def changedLevel = true
 
-  def candidates[T >: ScalaResolveResult : ClassManifest]: Array[T] = candidatesS.toArray[T]
+  def rrcandidates: Array[ResolveResult] = {
+    val set = candidatesS
+    val size = set.size
+    val res = JavaArrayFactoryUtil.ResolveResultFactory.create(size)
+    if (size == 0) return res
+    val iter = set.iterator
+    var count = 0
+    while (iter.hasNext) {
+      val next = iter.next()
+      res(count) = next
+      count += 1
+    }
+    res
+  }
+
+  def candidates: Array[ScalaResolveResult] = {
+    val set = candidatesS
+    val size = set.size
+    val res = JavaArrayFactoryUtil.ScalaResolveResultFactory.create(size)
+    if (size == 0) return res
+    val iter = set.iterator
+    var count = 0
+    while (iter.hasNext) {
+      val next = iter.next()
+      res(count) = next
+      count += 1
+    }
+    res
+  }
 
   def candidatesS: Set[ScalaResolveResult] = candidatesSet
 

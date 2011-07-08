@@ -24,6 +24,7 @@ import com.intellij.psi._
 import collection.immutable.{::, Map, HashMap}
 import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
+import collection.mutable.ArrayBuffer
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -286,7 +287,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
 private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
     import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
-    doComputationsForTwoElements(pn1, pn2, (p: PsiNamedElement, searches: List[PsiNamedElement]) => {
+    doComputationsForTwoElements(pn1, pn2, (p: Object, searches: ArrayBuffer[Object]) => {
       searches.find(_ == p) == None
     }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }

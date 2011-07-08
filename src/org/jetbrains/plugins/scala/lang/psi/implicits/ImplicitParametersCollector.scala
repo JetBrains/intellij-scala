@@ -13,6 +13,7 @@ import util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import collection.immutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -120,7 +121,10 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
 
         import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
-        doComputations(c.element, (tp: ScType, searches: List[ScType]) => searches.find(_.equiv(tp)) == None,
+        doComputations(c.element, (tp: Object, searches: ArrayBuffer[Object]) => searches.find{
+          case t: ScType if tp.isInstanceOf[ScType] => t.equiv(tp.asInstanceOf[ScType])
+          case _ => false
+        } == None,
           tp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
           case Some(res) => res
           case None => None
