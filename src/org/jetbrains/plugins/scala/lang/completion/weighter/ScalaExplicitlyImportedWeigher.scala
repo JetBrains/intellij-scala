@@ -30,7 +30,9 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
           if (place.isInstanceOf[ScalaFile]) return
         case _ =>
       }
-      treeWalkup(place.getContext, place)
+      if (place.getContext != null) {
+        treeWalkup(place.getContext, place)
+      }
     }
     if (buffer == null) {
       buffer = new ArrayBuffer[ScImportStmt]()
