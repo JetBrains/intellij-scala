@@ -10,7 +10,6 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.util.containers.WeakValueHashMap
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
-import com.intellij.psi.{PsiClassType, PsiManager, PsiTypeParameter}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.ScObject
@@ -21,9 +20,13 @@ import caches.ScalaCachesManager
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import collection.Seq
 import java.util.Map
+import com.intellij.psi._
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
+    new ConcurrentHashMap()
+
+  private val classMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, PsiClass]]] =
     new ConcurrentHashMap()
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
@@ -35,13 +38,31 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val map = if (reference == null || reference.get() == null) {
       val map = new ConcurrentHashMap[GlobalSearchScope, Seq[ScObject]]()
       map.put(scope, calc())
-      implicitObjectMap.put(fqn, new SoftReference[Map[GlobalSearchScope, Seq[ScObject]]](map))
+      implicitObjectMap.put(fqn, new SoftReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
     if (result == null) {
       result = calc()
+      map.put(scope, result)
+    }
+    result
+  }
+
+  def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
+    def calc(): PsiClass = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
+
+    val reference = classMap.get(fqn)
+    val map = if (reference == null || reference.get() == null) {
+      val map = new ConcurrentHashMap[GlobalSearchScope, PsiClass]()
       map.put(scope, calc())
+      classMap.put(fqn, new SoftReference(map))
+      map
+    } else reference.get()
+    var result = map.get(scope)
+    if (result == null) {
+      result = calc()
+      map.put(scope, result)
     }
     result
   }
@@ -60,6 +81,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnChange(new Runnable {
       def run() {
         implicitObjectMap.clear()
+        classMap.clear()
       }
     })
 
@@ -70,6 +92,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
       def rootsChanged(event: ModuleRootEvent) {
         implicitObjectMap.clear()
+        classMap.clear()
       }
     })
   }

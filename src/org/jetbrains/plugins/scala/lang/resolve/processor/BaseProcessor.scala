@@ -23,7 +23,7 @@ import psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import toplevel.ScTypedDefinition
 import toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.extensions._
-import psi.util.CommonClassesSearcher
+import psi.impl.ScalaPsiManager
 
 object BaseProcessor {
   def unapply(p: BaseProcessor) = Some(p.kinds)
@@ -203,9 +203,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
 
         val scope = place.getResolveScope
-        val classes = CommonClassesSearcher.getCachedClass(place.getManager, scope, "java.lang.Object")
-        if (classes.length == 1) {
-          val obj = classes(0)
+        val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object")
+        if (obj != null) {
           val namesSet = Set("hashCode", "toString", "equals")
           val methods = obj.getMethods.iterator
           while (methods.hasNext) {

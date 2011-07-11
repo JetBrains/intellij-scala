@@ -20,9 +20,9 @@ import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import params.{ScParameter, ScTypeParam}
-import psi.util.CommonClassesSearcher
 import lang.resolve.processor.ImplicitProcessor
 import lang.resolve.{StdKinds, ScalaResolveResult}
+import psi.impl.ScalaPsiManager
 
 /**
  * @author ilyas
@@ -108,7 +108,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
     val buffer = new ArrayBuffer[(ScalaResolveResult, ScType, ScType, ScSubstitutor, ScUndefinedSubstitutor)]
     if (part._1) {
-      buffer ++= buildSimpleImplicitMap(typez, fromUnder)
+      buffer ++= buildSimpleImplicitMap(fromUnder)
     }
     if (part._2) {
       val processor = new CollectImplicitsProcessor
@@ -157,20 +157,23 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
     result.toSeq
   }
 
-  private def buildSimpleImplicitMap(typez: ScType, fromUnder: Boolean): ArrayBuffer[(ScalaResolveResult, ScType,
+  private def buildSimpleImplicitMap(fromUnder: Boolean): ArrayBuffer[(ScalaResolveResult, ScType,
                                                                     ScType, ScSubstitutor, ScUndefinedSubstitutor)] = {
-    if (fromUnder) return buildSimpleImplicitMapInner(typez, fromUnder)
+    if (fromUnder) return buildSimpleImplicitMapInner(fromUnder)
     import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(this, CachesUtil.IMPLICIT_SIMPLE_MAP_KEY,
+    get(this, IMPLICIT_SIMPLE_MAP_KEY,
       new MyProvider[ScImplicitlyConvertible, ArrayBuffer[(ScalaResolveResult, ScType,
                                                           ScType, ScSubstitutor, ScUndefinedSubstitutor)]](this, _ => {
-        buildSimpleImplicitMapInner(typez, fromUnder)
+        buildSimpleImplicitMapInner(fromUnder /* false */)
       })(PsiModificationTracker.MODIFICATION_COUNT))
   }
 
-  private def buildSimpleImplicitMapInner(typez: ScType,
-                                  fromUnder: Boolean): ArrayBuffer[(ScalaResolveResult, ScType,
+  private def buildSimpleImplicitMapInner(fromUnder: Boolean): ArrayBuffer[(ScalaResolveResult, ScType,
                                                                     ScType, ScSubstitutor, ScUndefinedSubstitutor)] = {
+    val typez: ScType =
+      if (!fromUnder) getTypeWithoutImplicits(TypingContext.empty).getOrElse(null)
+      else getTypeWithoutImplicitsWithoutUnderscore(TypingContext.empty).getOrElse(null)
+    if (typez == null) return ArrayBuffer.empty
     val processor = new CollectImplicitsProcessor
     if (processor.funType == null) return ArrayBuffer.empty
 
@@ -249,8 +252,9 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
         case f: ScFunction => inferMethodTypesArgs(f, r.substitutor)
         case _ => ScSubstitutor.empty
       }
-      if (!typez.weakConforms(newSubst.subst(tp))) (false, r, tp, retTp, null: ScSubstitutor, null: ScUndefinedSubstitutor)
-      else {
+      if (!typez.weakConforms(newSubst.subst(tp))) {
+        (false, r, tp, retTp, null: ScSubstitutor, null: ScUndefinedSubstitutor)
+      } else {
         r.element match {
           case f: ScFunction if f.hasTypeParameters => {
             var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
@@ -277,9 +281,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
 
   private class CollectImplicitsProcessor extends ImplicitProcessor(StdKinds.refExprLastRef) {
     val funType: ScParameterizedType = {
-      val funClasses =
-        CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Function1")
-      val funClass: PsiClass = if (funClasses.length >= 1) funClasses(0) else null
+      val funClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Function1")
       funClass match {
         case cl: ScTrait => new ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))

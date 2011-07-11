@@ -19,7 +19,6 @@ import result.{TypingContext, Success}
 import stubs.ScExtendsBlockStub
 import api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import collection.Seq
-import util.CommonClassesSearcher
 import api.base.types._
 import caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedTypes, ScNewTemplateDefinition}
@@ -103,13 +102,13 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   }
 
   private def scalaProduct: ScType = {
-    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.Product")
-    if (so.length > 0) ScType.designator(so(0)) else null
+    val sp = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
+    if (sp != null) ScType.designator(sp) else null
   }
 
   private def scalaObject: ScType = {
-    val so = CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.ScalaObject")
-    if (so.length > 0) ScType.designator(so(0)) else null
+    val so = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
+    if (so != null) ScType.designator(so) else null
   }
 
   def isAnonymousClass: Boolean = {

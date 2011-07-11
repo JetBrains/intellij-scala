@@ -6,8 +6,8 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import api.toplevel.typedef.ScTrait
-import util.CommonClassesSearcher
 import com.intellij.psi.{PsiManager, PsiClass}
+import impl.ScalaPsiManager
 
 /**
 * @author ilyas
@@ -21,9 +21,7 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
 
   def resolveFunctionTrait(project: Project): Option[ScParameterizedType] = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-      val classes = CommonClassesSearcher.getCachedClass(PsiManager.getInstance(project), getScope, fullyQualifiedName)
-      if (classes.length == 0) None
-      else Some(classes(0))
+      Option(ScalaPsiManager.instance(project).getCachedClass(getScope, fullyQualifiedName))
     }
     findClass(functionTraitName) match {
       case Some(t: ScTrait) => {
