@@ -3,10 +3,7 @@ package lang
 package parser
 package util
 
-import _root_.scala.collection.mutable._
-
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.util.DebugPrint
 import com.intellij.psi.tree.IElementType
@@ -21,46 +18,46 @@ object ParserUtils extends ParserUtilsBase {
 
   def lookAheadSeq(n: Int)(builder: PsiBuilder) = (1 to n).map(i => {
     val token = if (!builder.eof) builder.getTokenType else null
-    builder.advanceLexer
+    builder.advanceLexer()
     token
   })
 
   //Write element node
-  def eatElement(builder: PsiBuilder, elem: IElementType): Unit = {
+  def eatElement(builder: PsiBuilder, elem: IElementType) {
     if (!builder.eof()) {
-      builder.advanceLexer // Ate something
+      builder.advanceLexer() // Ate something
     }
     ()
 
   }
 
-  def parseTillLast(builder: PsiBuilder, lastSet: TokenSet): Unit = {
+  def parseTillLast(builder: PsiBuilder, lastSet: TokenSet) {
     while (!builder.eof() && !lastSet.contains(builder.getTokenType)) {
-      builder.advanceLexer
+      builder.advanceLexer()
       DebugPrint println "an error"
     }
 
     if (builder.eof()) /*builder error "unexpected end of file"; */ return
 
-    if (lastSet.contains(builder.getTokenType)) builder advanceLexer;
+    if (lastSet.contains(builder.getTokenType)) builder.advanceLexer()
     return
   }
 
   def eatSeqWildcardNext(builder: PsiBuilder): Boolean = {
     val marker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-      builder.advanceLexer
+      builder.advanceLexer()
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
               builder.getTokenText == "*") {
-        builder.advanceLexer
+        builder.advanceLexer()
         marker.done(ScalaElementTypes.SEQ_WILDCARD)
         true
       } else {
-        marker.rollbackTo
+        marker.rollbackTo()
         false
       }
     } else {
-      marker.drop
+      marker.drop()
       false
     }
   }
@@ -69,22 +66,22 @@ object ParserUtils extends ParserUtilsBase {
   def build(t : IElementType, builder : PsiBuilder)  (inner : => Boolean) : Boolean = {
     val marker = builder.mark
     val parsed = inner
-    if (parsed) marker.done(t) else marker.rollbackTo
+    if (parsed) marker.done(t) else marker.rollbackTo()
     parsed
   }
 
   def isAssignmentOperator(id: String) = id.charAt(id.length - 1) match {
-    case '=' if id != "<=" && id != ">=" && id != "!=" => true
+    case '=' if id != "<=" && id != ">=" && id != "!=" && (id.charAt(0) != '=' || id == "=") => true
     case _ => false
   }
 
   //Defines priority
   def priority(id: String, assignments: Boolean = false): Int = {
     if (assignments && isAssignmentOperator(id)) {
-      return 4
+      return 10
     }
     id.charAt(0) match {
-      case '~' | '#' | '@' | '$' | '?' | '\\' => 0
+      case '~' | '#' | '@' | '$' | '?' | '\\' => 0 //todo: other special characters?
       case '*' | '/' | '%' => 1
       case '+' | '-' => 2
       case ':' => 3
@@ -99,9 +96,9 @@ object ParserUtils extends ParserUtilsBase {
 
   def caseLookAheadFunction(builder: ScalaPsiBuilder): IElementType = {
     val marker: Marker = builder.mark
-    builder.advanceLexer
+    builder.advanceLexer()
     val res = builder.getTokenType
-    marker.rollbackTo
+    marker.rollbackTo()
     res
   }
 
@@ -111,7 +108,7 @@ object ParserUtils extends ParserUtilsBase {
     fun()
     builder.getTokenType match {
       case ScalaTokenTypes.tRBRACE =>
-        builder.advanceLexer
+        builder.advanceLexer()
         return
       case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
         if (!braceReported) {
@@ -119,14 +116,14 @@ object ParserUtils extends ParserUtilsBase {
           br = true
         }
         var balance = 1
-        builder.advanceLexer
+        builder.advanceLexer()
         while (balance != 0 && !builder.eof) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => balance -= 1
             case ScalaTokenTypes.tLBRACE => balance += 1
             case _ =>
           }
-          builder.advanceLexer
+          builder.advanceLexer()
         }
         if (builder.eof)
           return
@@ -135,7 +132,7 @@ object ParserUtils extends ParserUtilsBase {
           builder error ErrMsg("rbrace.expected")
           br = true
         }
-        builder.advanceLexer
+        builder.advanceLexer()
         if (builder.eof) {
           return
         }

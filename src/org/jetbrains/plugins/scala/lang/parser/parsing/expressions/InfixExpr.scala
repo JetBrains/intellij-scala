@@ -98,29 +98,29 @@ object InfixExpr {
     while (!markerStack.isEmpty) {
       markerStack.pop.drop
     }
-    return true
+    true
   }
   //private var assoc: Int = 0  //this mark associativity: left - 1, right - -1
 
   //compares two operators a id2 b id1 c
   private def compar(id1: String, id2: String, builder: PsiBuilder): Boolean = {
-    if (priority(id1, true) < priority(id2, true)) return true //  a * b + c  =((a * b) + c)
-    else if (priority(id1, true) > priority(id2, true)) return false //  a + b * c = (a + (b * c))
+    if (priority(id1, true) < priority(id2, true)) true //  a * b + c  =((a * b) + c)
+    else if (priority(id1, true) > priority(id2, true)) false //  a + b * c = (a + (b * c))
     else if (associate(id1) == associate(id2))
-      if (associate(id1) == -1) return true
-      else return false
+      if (associate(id1) == -1) true
+      else false
     else {
       builder error ErrMsg("wrong.type.associativity")
-      return false
+      false
     }
   }
   private def opeq(id1: String, id2: String): Boolean = priority(id1, true) == priority(id2, true)
   //Associations of operator
   def associate(id: String): Int = {
     id.charAt(id.length - 1) match {
-      case ':' => return -1
+      case ':' => -1
       // right
-      case _ => return +1 // left
+      case _ => +1 // left
     }
   }
 }
