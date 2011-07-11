@@ -6,7 +6,6 @@ import javax.swing.Icon
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTreeUtil
-import lang.psi.api.base.ScLiteral
 import com.intellij.testIntegration.JavaTestFramework
 import com.intellij.psi.{PsiMethod, PsiClass, JavaPsiFacade}
 import icons.Icons
@@ -38,7 +37,7 @@ class SpecsTestFramework extends JavaTestFramework {
     val facade = JavaPsiFacade.getInstance(clazz.getProject)
     val suiteClazz: PsiClass = facade.findClass(getMarkerClassFQName, clazz.getResolveScope)
     if (suiteClazz == null) return false
-    return parent.isInheritor(suiteClazz, true)
+    parent.isInheritor(suiteClazz, true)
   }
 
   def getMarkerClassFQName: String = "org.specs.Specification"

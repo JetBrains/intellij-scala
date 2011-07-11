@@ -20,19 +20,19 @@ import com.intellij.openapi.util.Key
   */
 class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
   def applyQualifier(qual: String, position: PsiElement): Option[Integer] = {
+    if (position == null) return None
     val index = qual.lastIndexOf('.')
     val qualNoPoint = if (index < 0) null else qual.substring(0, index)
     var buffer: ArrayBuffer[ScImportStmt] = position.getUserData(ScalaExplicitlyImportedWeigher.key)
     def treeWalkup(place: PsiElement, lastParent: PsiElement) {
+      if (place == null) return
       place match {
         case holder: ScImportsHolder =>
           buffer ++= holder.getImportsForLastParent(lastParent)
           if (place.isInstanceOf[ScalaFile]) return
         case _ =>
       }
-      if (place.getContext != null) {
-        treeWalkup(place.getContext, place)
-      }
+      treeWalkup(place.getContext, place)
     }
     if (buffer == null) {
       buffer = new ArrayBuffer[ScImportStmt]()

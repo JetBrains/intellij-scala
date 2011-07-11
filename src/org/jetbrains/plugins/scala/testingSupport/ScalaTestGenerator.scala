@@ -19,7 +19,7 @@ import lang.psi.api.base.ScStableCodeReferenceElement
 
 class ScalaTestGenerator extends TestGenerator {
   def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
-    return postponeFormattingWithin(project) {
+    postponeFormattingWithin(project) {
       inWriteAction {
         try {
           val file: PsiFile = generateTestInternal(project, d)

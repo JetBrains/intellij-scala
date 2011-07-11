@@ -37,7 +37,7 @@ class ScalatestTestFramework extends JavaTestFramework {
     val facade = JavaPsiFacade.getInstance(clazz.getProject)
     val suiteClazz: PsiClass = facade.findClass(getMarkerClassFQName, clazz.getResolveScope)
     if (suiteClazz == null) return false
-    return parent.isInheritor(suiteClazz, true)
+    parent.isInheritor(suiteClazz, true)
   }
 
   def getMarkerClassFQName: String = "org.scalatest.Suite"
