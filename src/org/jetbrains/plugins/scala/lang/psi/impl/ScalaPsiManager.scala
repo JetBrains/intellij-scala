@@ -26,7 +26,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
     new ConcurrentHashMap()
 
-  private val classMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, PsiClass]]] =
+  private val classMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Option[PsiClass]]]] =
     new ConcurrentHashMap()
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
@@ -50,11 +50,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
-    def calc(): PsiClass = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
+    def calc(): Option[PsiClass] = Option(JavaPsiFacade.getInstance(project).findClass(fqn, scope))
 
     val reference = classMap.get(fqn)
     val map = if (reference == null || reference.get() == null) {
-      val map = new ConcurrentHashMap[GlobalSearchScope, PsiClass]()
+      val map = new ConcurrentHashMap[GlobalSearchScope, Option[PsiClass]]()
       map.put(scope, calc())
       classMap.put(fqn, new SoftReference(map))
       map
@@ -64,7 +64,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       result = calc()
       map.put(scope, result)
     }
-    result
+    result.getOrElse(null)
   }
 
   def projectOpened() {}
