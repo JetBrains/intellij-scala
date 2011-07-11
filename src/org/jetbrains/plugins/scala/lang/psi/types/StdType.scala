@@ -5,9 +5,9 @@ package types
 
 import impl.toplevel.synthetic.{SyntheticClasses, ScSyntheticClass}
 import com.intellij.openapi.project.Project
-import util.CommonClassesSearcher
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiManager}
+import impl.ScalaPsiManager
 
 
 abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
@@ -87,8 +87,9 @@ abstract case class ValType(override val name: String) extends StdType(name, Som
   }
 
   def apply(manager: PsiManager, scope: GlobalSearchScope): ScType = {
-    val classes = CommonClassesSearcher.getCachedClass(manager, scope, "scala." + name)
-    if (classes.length > 0) ScDesignatorType(classes(0))
+    val clazz =
+      ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, "scala." + name)
+    if (clazz != null) ScDesignatorType(clazz)
     else this
   }
 

@@ -228,7 +228,7 @@ object MixinNodes {
 
     if (visited.contains(clazz)) return Seq.empty
     CachesUtil.get(clazz, CachesUtil.LINEARIZATION_KEY,
-      new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz))
+      new CachesUtil.MyProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz, visited + clazz)) //todo: bad reference to 'visited'
       (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
   }
 

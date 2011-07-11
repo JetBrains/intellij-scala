@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import lang.resolve._
 import processor.ExpandedExtractorResolveProcessor
 import statements.params.ScParameter
-import psi.util.CommonClassesSearcher
 import caches.CachesUtil
 import util.PsiModificationTracker
+import psi.impl.ScalaPsiManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -254,16 +254,15 @@ trait ScPattern extends ScalaPsiElement {
 
       }
       case _: ScXmlPattern => {
-        val nodeClasses: Seq[PsiClass] =
-          CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.xml.Node")
-        if (nodeClasses.isEmpty) return None
+        val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
+        if (nodeClass != null) return None
         this match {
           case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
-            val seqClasses: Seq[PsiClass] =
-              CommonClassesSearcher.getCachedClass(getManager, getResolveScope, "scala.collection.Seq")
-            if (seqClasses.isEmpty) return None
-            return Some(ScParameterizedType(ScDesignatorType(seqClasses(0)), Seq(ScDesignatorType(nodeClasses(0)))))
-          case _ => return Some(ScDesignatorType(nodeClasses(0)))
+            val seqClass: PsiClass =
+              ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.collection.Seq")
+            if (seqClass == null) return None
+            Some(ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass))))
+          case _ => Some(ScDesignatorType(nodeClass))
         }
       }
       case _ => None

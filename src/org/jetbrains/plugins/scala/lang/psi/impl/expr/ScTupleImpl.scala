@@ -8,17 +8,8 @@ import psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import api.expr._
 import types._
-import result.{TypeResult, Failure, TypingContext, Success}
+import result.{TypeResult, TypingContext, Success}
 import java.lang.String
-import api.base.{ScPrimaryConstructor, ScStableCodeReferenceElement, ScConstructor}
-import api.statements.params.{ScParameter, ScTypeParam}
-import api.toplevel.typedef.ScClass
-import api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
-import com.intellij.psi.{PsiClass, PsiParameter, PsiMethod, PsiTypeParameter}
-import resolve.ScalaResolveResult
-import collection.mutable.ArrayBuffer
-import api.statements.ScFunction
-
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
