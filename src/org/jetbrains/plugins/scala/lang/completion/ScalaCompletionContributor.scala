@@ -115,7 +115,6 @@ class ScalaCompletionContributor extends CompletionContributor {
                 applyVariant(variant)
               }
           }
-          result.stopHere()
         }
         case _ =>
       }

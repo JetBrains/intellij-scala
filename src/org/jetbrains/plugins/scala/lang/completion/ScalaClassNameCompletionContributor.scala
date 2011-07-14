@@ -121,6 +121,7 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
       if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
         completeClassName(parameters, context, result)
       }
+      result.stopHere()
     }
   })
 }
