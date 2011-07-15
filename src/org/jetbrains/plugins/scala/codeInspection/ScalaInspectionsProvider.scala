@@ -12,7 +12,7 @@ import literal.FloatLiteralEndingWithDecimalPoint
 import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.{ChainedPackageInspection, PackageNameInspection}
 import postfix.PostfixMethodCall
-import redundantReturnInspection.RemoveRedundantReturnInspection
+import redundantReturnInspection.{EqualsBetweenInconvertibleTypes, RemoveRedundantReturnInspection}
 import shadow.VariablePatternShadowInspection
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
@@ -67,6 +67,7 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[ChainedPackageInspection]
     res += classOf[RemoveRedundantReturnInspection]
     res += classOf[VariablePatternShadowInspection]
+    res += classOf[EqualsBetweenInconvertibleTypes]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]

@@ -27,7 +27,7 @@ It is <a href="http://twitter.com/#!/odersky/status/49882758968905728">recommend
       case _: ScParenthesisedExpr => true
       case _: ScArgumentExprList => true
       case _ =>
-        val next = pexpr.getNextSibling
+        val next = pexpr.getNextSiblingNotWhitespace
         if (next == null) return false
         val nextNode = next.getNode
         if (nextNode == null) return false
