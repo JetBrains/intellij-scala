@@ -82,7 +82,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal))(t1.getProject, t1.getScope)
       case ScProjectionType(proj, element, subst) => new ScProjectionType(substInternal(proj), element, subst)
       case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
-        params.map(p => p.copy(paramType = substInternal(p.paramType))), isImplicit)(m.project, m.scope)
+        params.map(p => p.copy(paramType = substInternal(p.paramType), expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
       case ScTypePolymorphicType(internalType, typeParameters) => {
         ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
           TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
