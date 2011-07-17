@@ -133,7 +133,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   def processAnyAssignment(exprs: Seq[ScExpression], callReference: ScReferenceExpression, invocationCount: Int,
                              ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
     for (variant <- callReference.multiResolve(false)) {
-      variant match {
+      def processResult(r: ScalaResolveResult) = r match {
         case ScalaResolveResult(fun: ScFunction, subst: ScSubstitutor) => {
           if (!processor.isInstanceOf[CompletionProcessor])
             fun.getParamByName(ref.refName, invocationCount - 1) match { //todo: why -1?
@@ -147,6 +147,13 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           }
         }
         case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => //todo: ?
+        case _ =>
+      }
+      variant match {
+        case x: ScalaResolveResult =>
+          processResult(x)
+          // Consider named parameters of apply method; see SCL-2407
+          x.innerResolveResult.foreach(processResult)
         case _ =>
       }
     }
