@@ -20,6 +20,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.impl.ApplicationImpl
 import typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
 import unusedInspections.ScalaUnusedSymbolInspection
+import valInTraitInspection.AbstractValueInTraitInspection
 import varCouldBeValInspection.VarCouldBeValInspection
 
 /**
@@ -68,6 +69,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[RemoveRedundantReturnInspection]
     res += classOf[VariablePatternShadowInspection]
     res += classOf[EqualsBetweenInconvertibleTypes]
+
+    res += classOf[AbstractValueInTraitInspection]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
