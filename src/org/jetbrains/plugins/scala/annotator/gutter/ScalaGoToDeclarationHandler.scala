@@ -39,8 +39,10 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       val file = sourceElement.getContainingFile
       val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
       if (ref == null) return null
+      val resolved = ref.resolve()
+      if (resolved == null) return null
 
-      val mainTargets = goToTargets(ref.resolve())
+      val mainTargets = goToTargets(resolved)
       val extraTargets: Seq[PsiElement] = ref match {
         case resRef: ResolvableReferenceElement =>
           // `x` should resolve to the apply method and the val in :
