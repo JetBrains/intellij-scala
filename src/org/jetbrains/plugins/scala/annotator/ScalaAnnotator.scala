@@ -192,6 +192,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       val holder = ScalaRefCountHolder.getInstance(file)
       holder.registerValueUsed(value)
+      // For use of unapply method, see SCL-3463
+      resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
     }
   }
 
