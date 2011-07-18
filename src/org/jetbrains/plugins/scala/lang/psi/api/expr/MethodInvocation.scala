@@ -159,7 +159,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         tuplizyCase(fun, exprs)
       }
       case Success(tp: ScType, _) if this.isInstanceOf[ScMethodCall] => //todo: remove reference to method call
-        ScalaPsiUtil.processTypeForUpdateOrApply(tp, this.asInstanceOf[ScMethodCall], false).getOrElse(Nothing) match {
+        var processedType = ScalaPsiUtil.processTypeForUpdateOrApply(tp, this.asInstanceOf[ScMethodCall], false).getOrElse(Nothing)
+        if (useExpectedType) {
+          updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
+        }
+        processedType match {
           case ScFunctionType(retType: ScType, params: Seq[ScType]) => {
             val exprs: Seq[Expression] = argumentExpressionsIncludeUpdateCall.map(Expression(_))
             def fun(t: Seq[Expression]) = {
