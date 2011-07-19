@@ -40,7 +40,8 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType)
+          val concreteParamType = polymorphicSubst.subst(param.paramType)
+          val collector = new ImplicitParametersCollector(element, paramType, concreteParamType)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
@@ -84,7 +85,7 @@ object InferUtil {
         while (iterator.hasNext) {
           val param = iterator.next()
           val paramType = param.paramType //we should do all of this with information known before
-          val collector = new ImplicitParametersCollector(element, paramType)
+          val collector = new ImplicitParametersCollector(element, paramType, paramType /*TODO?*/)
           val results = collector.collect
           if (results.length == 1) {
             resolveResults += results(0)
