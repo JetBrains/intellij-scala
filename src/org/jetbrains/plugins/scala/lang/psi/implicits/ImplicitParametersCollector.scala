@@ -16,10 +16,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import collection.mutable.ArrayBuffer
 
 /**
+ * @param place        The call site
+ * @param tp           Search for an implicit definition of this type. May have type variables.
+ * @param concreteType The type from which to determine the implicit scope.
+ *
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
+class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: ScType) {
   def collect: Seq[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor
     def treeWalkUp(placeForTreeWalkUp: PsiElement, lastParent: PsiElement) {
@@ -36,7 +40,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType) {
     processor.clear()
 
     //todo: objects should be dependent
-    for (obj <- ScalaPsiUtil.collectImplicitObjects(tp, place)) {
+    for (obj <- ScalaPsiUtil.collectImplicitObjects(concreteType, place)) {
       obj.processDeclarations(processor, ResolveState.initial, null, place)
     }
 
