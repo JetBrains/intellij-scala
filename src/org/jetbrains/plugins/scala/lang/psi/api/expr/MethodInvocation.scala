@@ -55,7 +55,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def matchedParameters: Map[ScExpression, Parameter] = {
     getType(TypingContext.empty) //update matchedArgumentsVar if needed
-    matchedParametersVar.map {case (a: Parameter, b: ScExpression) => (b, a)}.toMap
+    matchedParametersVar.map(a => a.swap).filter(a => a._1 != null).toMap
   }
 
   /**
