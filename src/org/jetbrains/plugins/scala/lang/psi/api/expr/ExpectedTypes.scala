@@ -130,8 +130,12 @@ private[expr] object ExpectedTypes {
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
-                  case v: ScValue => Array((named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any), v.typeElement))
-                  case v: ScVariable => Array((named.asInstanceOf[ScTypedDefinition].getType(TypingContext.empty).getOrElse(Any), v.typeElement))
+                  case v: ScValue =>
+                    Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
+                      getType(TypingContext.empty).getOrElse(Any)), v.typeElement))
+                  case v: ScVariable =>
+                    Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
+                      getType(TypingContext.empty).getOrElse(Any)), v.typeElement))
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters
