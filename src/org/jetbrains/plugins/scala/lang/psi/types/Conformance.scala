@@ -250,6 +250,15 @@ object Conformance {
         if (res._1) return res
         return conformsInner(l, tpt2.upper.v, HashSet.empty, undefinedSubst)
       }
+      case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty =>
+        return conformsInner(upper, r, HashSet.empty, undefinedSubst)
+      case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty =>
+        return conformsInner(l, upper, HashSet.empty, undefinedSubst)
+      case (ScDesignatorType(a: ScTypeAlias), _) if a.isExistentialTypeAlias => //todo: duplicate, must be befor tpt
+        val t = conformsInner(a.upperBound.getOrElse(return (false, undefinedSubst)), r, visited, undefinedSubst)
+        if (!t._1) return (false, undefinedSubst)
+        undefinedSubst = t._2
+        return conformsInner(r, a.lowerBound.getOrElse(return (false, undefinedSubst)), visited, undefinedSubst)
       case (tpt: ScTypeParameterType, _) => return conformsInner(tpt.lower.v, r, HashSet.empty, undefinedSubst)
       case (_, tpt: ScTypeParameterType) => return conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
       case (Null, _) => return (r == Nothing, undefinedSubst)
@@ -617,7 +626,6 @@ object Conformance {
         undefinedSubst = t._2
         return (true, undefinedSubst)
       }
-      case (ScExistentialArgument(_, params, lower, upper), _) if params.isEmpty => return conformsInner(upper, r, HashSet.empty, undefinedSubst)
       case (ex@ScExistentialType(q, wilds), _) => return conformsInner(q, r, HashSet.empty, undefinedSubst)
       case (_, ScSkolemizedType(_, _, _, upper)) => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
       case (_, ScCompoundType(comps, _, _, _)) => {
@@ -629,7 +637,6 @@ object Conformance {
         }
         return (false, undefinedSubst)
       }
-      case (_, ScExistentialArgument(_, params, _, upper)) if params.isEmpty => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
       case (_, ex: ScExistentialType) => return conformsInner(l, ex.skolem, HashSet.empty, undefinedSubst)
       case (_, proj@ScProjectionType(projected, _, _)) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
