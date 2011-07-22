@@ -55,8 +55,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def refs = {
     extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
-      val psiClass = refElement.getType(TypingContext.empty).toOption.flatMap(ScType.extractClass(_))
-      (refElement, psiClass)
+      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap(
+        ScType.extractClassType(_, Some(getProject)))
+      (refElement, tuple)
     }
   }
 

@@ -19,7 +19,7 @@ object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
     if (newInstance && !hasBody) return
 
     definition.refs.foreach {
-      case (refElement, Some(psiClass)) if psiClass.getModifierList.hasModifierProperty("final") =>
+      case (refElement, Some((psiClass, _))) if psiClass.getModifierList.hasModifierProperty("final") =>
         holder.createErrorAnnotation(refElement,
           "Illegal inheritance from final %s %s".format(kindOf(psiClass).toLowerCase, psiClass.getName))
       case _ =>

@@ -101,6 +101,15 @@ object Conformance {
       }
     }
 
+    if (l.isInstanceOf[ScExistentialType]) {
+      val simplified = l.asInstanceOf[ScExistentialType].simplify()
+      if (simplified != l) return conformsInner(simplified, r, visited, undefinedSubst, checkWeak)
+    }
+    if (r.isInstanceOf[ScExistentialType]) {
+      val simplified = r.asInstanceOf[ScExistentialType].simplify()
+      if (simplified != r) return conformsInner(l, simplified, visited, undefinedSubst, checkWeak)
+    }
+
     def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
                                args2: scala.Seq[ScType]): (Boolean, ScUndefinedSubstitutor) = {
       val args1Iterator = args1.iterator
@@ -110,12 +119,22 @@ object Conformance {
         val argsPair = (args1Iterator.next(), args2Iterator.next())
         tp match {
           case scp: ScTypeParam if (scp.isContravariant) => {
-            val y = Conformance.conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
+            //simplification rule 4 for existential types
+            val r1 = argsPair._1 match {
+              case ScExistentialArgument(_, List(), lower, upper) => lower
+              case _ => argsPair._1
+            }
+            val y = Conformance.conformsInner(argsPair._2, r1, HashSet.empty, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             else undefinedSubst = y._2
           }
           case scp: ScTypeParam if (scp.isCovariant) => {
-            val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+            //simplification rule 4 for existential types
+            val r1 = argsPair._1 match {
+              case ScExistentialArgument(_, List(), lower, upper) => upper
+              case _ => argsPair._1
+            }
+            val y = Conformance.conformsInner(r1, argsPair._2, HashSet.empty, undefinedSubst)
             if (!y._1) return (false, undefinedSubst)
             else undefinedSubst = y._2
           }
