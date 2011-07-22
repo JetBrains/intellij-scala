@@ -74,10 +74,15 @@ case class ScExistentialType(quantified : ScType,
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
+    val simplified = simplify()
+    if (this != simplified) return Equivalence.equivInner(simplified, r, undefinedSubst, falseUndef)
     r match {
       case ex: ScExistentialType => {
+        val simplified = ex.simplify()
+        if (ex != simplified) return Equivalence.equivInner(this, simplified, undefinedSubst, falseUndef)
         val unify = (ex.boundNames zip wildcards).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1, ""), p._2)}
         val list = wildcards.zip(ex.wildcards)
         val iterator = list.iterator

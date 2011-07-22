@@ -13,7 +13,7 @@ object NeedsToBeTrait extends AnnotatorPart[ScTemplateDefinition] {
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     definition.refs.drop(1).foreach {
-      case (refElement, Some(psiClass)) if !isMixable(psiClass) =>
+      case (refElement, Some((psiClass, _))) if !isMixable(psiClass) =>
         holder.createErrorAnnotation(refElement,
           "%s %s needs to be trait to be mixed in".format(kindOf(psiClass), psiClass.getName))
       case _ =>
