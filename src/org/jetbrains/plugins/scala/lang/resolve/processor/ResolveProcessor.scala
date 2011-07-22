@@ -156,7 +156,8 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       }
       return 6
     }
-    val importUsed: ImportUsed = result.importsUsed.toSeq.apply(0)
+    val importsUsedSeq = result.importsUsed.toSeq
+    val importUsed: ImportUsed = importsUsedSeq.apply(importsUsedSeq.length - 1)
     // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
     //      these separately.
     importUsed match {
