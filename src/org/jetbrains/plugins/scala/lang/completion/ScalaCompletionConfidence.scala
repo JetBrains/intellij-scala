@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScParenthesis
 
 class ScalaCompletionConfidence extends CompletionConfidence {
   def shouldFocusLookup(parameters: CompletionParameters): ThreeState = {
-    if (parameters.getOriginalPosition.getText == "_") return ThreeState.NO //SCL-3290 _ <space> =>
+    if (parameters.getOriginalPosition == null || parameters.getOriginalPosition.getText == "_") return ThreeState.NO //SCL-3290 _ <space> =>
     parameters.getPosition.getParent match {
       case ref: ScReferenceElement if ref.qualifier == None => {
         ref.getParent match {

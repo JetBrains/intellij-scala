@@ -14,7 +14,7 @@ import api.ScalaFile
 // TODO Add a proper file type?
 object SbtFile {
   def isSbtFile(file: ScalaFile): Boolean = {
-    file.isScriptFile() && file.getName != null && file.getName.endsWith(".sbt")
+    file.isScriptFile() && file.getName != null && file.getName.endsWith("." + ScalaFileType.SBT_FILE_EXTENSION)
   }
 
   def findSbtProjectModule(project: Project): Option[Module] = {

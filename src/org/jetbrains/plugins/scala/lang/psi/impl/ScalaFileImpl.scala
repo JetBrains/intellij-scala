@@ -276,8 +276,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
-
     if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
@@ -331,6 +329,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         }
       }
     }
+
+    if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
 
     val implObjIter = ImplicitlyImported.implicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
