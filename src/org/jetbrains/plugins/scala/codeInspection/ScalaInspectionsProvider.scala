@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature._
 import packageNameInspection.{ChainedPackageInspection, PackageNameInspection}
 import postfix.PostfixMethodCall
 import redundantReturnInspection.{EqualsBetweenInconvertibleTypes, RemoveRedundantReturnInspection}
+import sbt.SbtFileStructure
 import shadow.VariablePatternShadowInspection
 import sugar.FunctionTupleSyntacticSugarInspection
 import collection.mutable.ArrayBuffer
@@ -71,6 +72,8 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[EqualsBetweenInconvertibleTypes]
 
     res += classOf[AbstractValueInTraitInspection]
+
+    res += classOf[SbtFileStructure]
 
     if (ApplicationManager.getApplication.asInstanceOf[ApplicationImpl].isInternal) {
       res += classOf[AnnotatorBasedErrorInspection]
