@@ -6,4 +6,4 @@ object test {
     /*start*/ self /*end*/
   }
 }
-//A[X] with test.B
+//test.A[X] with test.B
