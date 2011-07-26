@@ -65,7 +65,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     if (typeParameters.length == 0)
       Success(ScType.designator(this), Some(this))
     else {
-      Success(ScParameterizedType(ScType.designator(this), typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+      Success(ScParameterizedType(ScType.designator(this),
+        typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
     }
   }
 

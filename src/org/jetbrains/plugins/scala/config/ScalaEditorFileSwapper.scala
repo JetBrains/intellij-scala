@@ -6,6 +6,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import com.intellij.openapi.fileEditor.impl.EditorFileSwapper
 
 //todo: possibly join with JavaEditorFileSwapper (code is almost the same)
 object ScalaEditorFileSwapper {
@@ -34,4 +35,9 @@ object ScalaEditorFileSwapper {
     if (fqn == null) return null
     fqn
   }
+}
+
+class ScalaEditorFileSwapper extends EditorFileSwapper {
+  def getFileToSwapTo(project: Project, original: VirtualFile): VirtualFile =
+    ScalaEditorFileSwapper.findSourceFile(project, original)
 }

@@ -103,59 +103,70 @@ abstract class MixinNodes {
     val superTypesBuff = new ListBuffer[Map]
     //val superTypesBuff = new ListBuffer[(Map, ScSubstitutor)]
     val (superTypes, subst, thisTypeSubst): (Seq[ScType], ScSubstitutor, ScSubstitutor) = tp match {
-      case ScDesignatorType(template: ScTypeDefinition) => {
-        if (template.getQualifiedName == "scala.Predef") isPredef = true
-        place = Some(template.extendsBlock)
-        processScala(template, ScSubstitutor.empty, map, place)
-        val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
-        var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
-        var placer = template.getContext
-        while (placer != null) {
-          placer match {
-            case t: ScTemplateDefinition => zSubst = zSubst.followed(
-              new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
-            )
-            case _ =>
-          }
-          placer = placer.getContext
-        }
-        (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
-      }
-      case ScDesignatorType(template : ScTemplateDefinition) => {
-        place = Some(template.getLastChild)
-        processScala(template, ScSubstitutor.empty, map, place)
-        var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
-        var placer = template.getContext
-        while (placer != null) {
-          placer match {
-            case t: ScTemplateDefinition => zSubst = zSubst.followed(
-              new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
-            )
-            case _ =>
-          }
-          placer = placer.getContext
-        }
-        (MixinNodes.linearization(template, collection.immutable.HashSet.empty),
-          Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
-      }
-      case ScDesignatorType(syn: ScSyntheticClass) => {
-        processSyntheticScala(syn, ScSubstitutor.empty, map, place)
-        (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
-          ScSubstitutor.empty, ScSubstitutor.empty)
-      }
-      case ScDesignatorType(clazz: PsiClass) => {
-        place = Some(clazz.getLastChild)
-        processJava(clazz, ScSubstitutor.empty, map, place)
-        val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
-        (if (!lin.isEmpty) lin.tail else lin,
-          ScSubstitutor.empty, ScSubstitutor.empty)
-      }
       case cp: ScCompoundType => {
         processRefinement(cp, map, place)
         (MixinNodes.linearization(cp), ScSubstitutor.empty,
           new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp)))
       }
-      case _ => (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
+      case _ =>
+        val clazz = tp match {
+          case ScDesignatorType(clazz: PsiClass) => clazz
+          case ScProjectionType(_, clazz: PsiClass, _) => clazz
+          case _ => null
+        }
+        if (clazz == null) (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
+        else
+          clazz match {
+            case template: ScTypeDefinition => {
+              if (template.getQualifiedName == "scala.Predef") isPredef = true
+              place = Some(template.extendsBlock)
+              processScala(template, ScSubstitutor.empty, map, place)
+              val lin = MixinNodes.linearization(template, collection.immutable.HashSet.empty)
+              var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+              var placer = template.getContext
+              while (placer != null) {
+                placer match {
+                  case t: ScTemplateDefinition => zSubst = zSubst.followed(
+                    new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+                  )
+                  case _ =>
+                }
+                placer = placer.getContext
+              }
+              (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
+            }
+            case template: ScTemplateDefinition => {
+              place = Some(template.getLastChild)
+              processScala(template, ScSubstitutor.empty, map, place)
+              var zSubst = new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(template)))
+              var placer = template.getContext
+              while (placer != null) {
+                placer match {
+                  case t: ScTemplateDefinition => zSubst = zSubst.followed(
+                    new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(ScThisType(t)))
+                  )
+                  case _ =>
+                }
+                placer = placer.getContext
+              }
+              (MixinNodes.linearization(template, collection.immutable.HashSet.empty),
+                Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
+            }
+            case syn: ScSyntheticClass => {
+              processSyntheticScala(syn, ScSubstitutor.empty, map, place)
+              (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
+                ScSubstitutor.empty, ScSubstitutor.empty)
+            }
+            case clazz: PsiClass => {
+              place = Some(clazz.getLastChild)
+              processJava(clazz, ScSubstitutor.empty, map, place)
+              val lin = MixinNodes.linearization(clazz, collection.immutable.HashSet.empty)
+              (if (!lin.isEmpty) lin.tail else lin,
+                ScSubstitutor.empty, ScSubstitutor.empty)
+            }
+            case _ =>
+              (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)
+          }
     }
 
     val iter = superTypes.iterator

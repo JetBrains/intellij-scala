@@ -8,13 +8,14 @@ import com.intellij.psi._
 import com.intellij.openapi.project.Project
 import api.statements._
 import api.toplevel.ScTypedDefinition
-import api.toplevel.typedef.ScClass
 import nonvalue.{ScMethodType, NonValueType}
-import api.toplevel.typedef.ScObject
 import result.{Success, TypeResult, TypingContext}
 import java.lang.Exception
 import collection.mutable.HashSet
 import collection.immutable.HashMap
+import api.toplevel.templates.ScTemplateBody
+import util.PsiTreeUtil
+import api.toplevel.typedef.{ScTemplateDefinition, ScClass, ScObject}
 
 /*
 Current types for pattern matching, this approach is bad for many reasons (one of them is bad performance).
@@ -297,7 +298,14 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   def designator(element: PsiNamedElement): ScType = {
     element match {
       case td: ScClass => StdType.QualNameToType.getOrElse(td.getQualifiedName, new ScDesignatorType(element))
-      case _ => new ScDesignatorType(element)
+      case _ =>
+        element.getParent match {
+          case td: ScTemplateBody =>
+            val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition], true)
+            new ScProjectionType(ScThisType(clazz), element, ScSubstitutor.empty)
+          case _ =>
+            new ScDesignatorType(element)
+        }
     }
   }
 
