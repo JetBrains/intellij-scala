@@ -158,6 +158,7 @@
     <gotoSymbolContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToSymbolContributor"/>
     <lang.importOptimizer language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer"/>
     <lang.namesValidator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesValidator"/>
+    <editorNotificationProvider implementation="org.jetbrains.plugins.scala.config.ScalaAttachSourcesNotificationProvider"/>
 
     <configurationType implementation="org.jetbrains.plugins.scala.script.ScalaScriptConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.console.ScalaScriptConsoleConfigurationType"/>

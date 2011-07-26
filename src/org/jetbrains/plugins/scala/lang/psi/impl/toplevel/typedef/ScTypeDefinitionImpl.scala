@@ -100,7 +100,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     case _ => false
   }
 
-  private def getSourceMirrorClass: PsiClass = {
+  def getSourceMirrorClass: PsiClass = {
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     val name = getName
     if (classParent == null) {

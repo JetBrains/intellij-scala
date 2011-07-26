@@ -44,4 +44,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   override def accept(visitor: ScalaElementVisitor) = visitor.visitTypeDefintion(this)
 
   def getObjectClassOrTraitToken: PsiElement
+
+  def getSourceMirrorClass: PsiClass
 }
