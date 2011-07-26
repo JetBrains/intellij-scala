@@ -9,6 +9,7 @@ import com.intellij.codeInsight.lookup.CharFilter.Result
 class ScalaCharFilter extends CharFilter {
   def acceptChar(c: Char, prefixLength: Int, lookup: Lookup): Result = {
     if (lookup == null || lookup.getPsiElement == null) return null
+    if (c == ':') return Result.HIDE_LOOKUP
     lookup.getPsiElement.getContext match {
       // avoids:
       //   "(va:" => "(var"
