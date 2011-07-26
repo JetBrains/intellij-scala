@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import psi.api.toplevel.packaging._
 import com.intellij.openapi.roots._
 import com.intellij.psi._
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.file.impl.FileManagerImpl
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import com.intellij.openapi.progress.ProgressManager
@@ -39,11 +41,13 @@ import caches.CachesUtil
 import util.PsiTreeUtil
 import lang.resolve.ResolveUtils
 import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import com.intellij.openapi.module.ModuleManager
+import api.toplevel.typedef.ScObject
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
                 with ScalaFile with ScImportsHolder with ScDeclarationSequenceHolder
-                with CompiledFileAdjuster with ScControlFlowOwner {
+                with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
   override def getViewProvider = viewProvider
 
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
@@ -272,7 +276,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-
     if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
@@ -326,6 +329,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         }
       }
     }
+
+    if (!SbtFile.processDeclarations(this, processor, state, lastParent, place)) return false
 
     val implObjIter = ImplicitlyImported.implicitlyImportedObjects(getManager, scope).iterator
     while (implObjIter.hasNext) {
@@ -426,6 +431,26 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
         case _ => getRange
       }
     }
+  }
+
+  // Special case for SBT 0.10 "build.sbt" files: they should be typed as though they are in the "project" module,
+  // even though they are located in the other modules.
+  def getFileResolveScope: GlobalSearchScope = {
+    def default: GlobalSearchScope = {
+      val vFile = getOriginalFile.getVirtualFile
+      if (vFile == null) GlobalSearchScope.allScope(getProject)
+      else {
+        // Same casts as found in GroovyFileImpl
+        val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager.asInstanceOf[FileManagerImpl]
+        fileManager.getDefaultResolveScope(vFile)
+      }
+    }
+    if (SbtFile.isSbtFile(this)) {
+      SbtFile.findSbtProjectModule(getProject) match {
+        case Some(module) => module.getModuleRuntimeScope(false)
+        case None => default
+      }
+    } else default
   }
 }
 

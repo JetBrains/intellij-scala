@@ -56,7 +56,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
         options.append("-server:").append(SERVER_PORT).append(" ");
       }
       if (!FSC_ARGUMENTS.equals("")) {
-        options.append(FSC_ARGUMENTS).append(" ");
+        options.append("-max-idle 0 ").append(FSC_ARGUMENTS).append(" ");
       }
     }
     final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
