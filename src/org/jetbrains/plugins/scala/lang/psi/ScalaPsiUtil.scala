@@ -199,26 +199,28 @@ object ScalaPsiUtil {
                   getManager)) //we can't to not add something => add Nothing expression
             }
             else Seq.empty)
-    val typeArgs: Seq[ScTypeElement] = getEffectiveInvokedExpr match {
-      case gen: ScGenericCall => gen.arguments
-      case _ => Seq.empty
+    val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = getEffectiveInvokedExpr match {
+      case gen: ScGenericCall =>
+        // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
+        (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrElse(Nothing), gen.arguments)
+      case expr => (expr, tp, Seq.empty)
     }
-    val processor = new MethodResolveProcessor(getEffectiveInvokedExpr, methodName, args :: Nil, typeArgs,
+    val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape, enableTupling = true)
-    processor.processType(tp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
+    processor.processType(exprTp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
     var candidates = processor.candidatesS
 
     if (!noImplicits && candidates.forall(!_.isApplicable)) {
       //should think about implicit conversions
-      for (t <- getEffectiveInvokedExpr.getImplicitTypes) {
+      for (t <- expr.getImplicitTypes) {
         ProgressManager.checkCanceled()
-        val importsUsed = getEffectiveInvokedExpr.getImportsForImplicit(t)
+        val importsUsed = expr.getImportsForImplicit(t)
         var state = ResolveState.initial.put(ImportUsed.key, importsUsed)
-        getEffectiveInvokedExpr.getClazzForType(t) match {
+        expr.getClazzForType(t) match {
           case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
           case _ =>
         }
-        processor.processType(t, getEffectiveInvokedExpr, state)
+        processor.processType(t, expr, state)
       }
       candidates = processor.candidatesS
     }

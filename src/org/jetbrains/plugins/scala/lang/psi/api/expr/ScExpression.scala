@@ -139,9 +139,9 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
       Failure("Recursive getTypeWithoutImplicitsWithoutUnderscore", Some(this)))
   }
 
-  def getType(ctx: TypingContext) = getTypeAfterImplicitConversion().tr
+  def getType(ctx: TypingContext): TypeResult[ScType] = getTypeAfterImplicitConversion().tr
 
-  def getTypeIgnoreBaseType(ctx: TypingContext) = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+  def getTypeIgnoreBaseType(ctx: TypingContext): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
   def getTypeExt(ctx: TypingContext): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
