@@ -80,17 +80,29 @@ object ScalaPsiUtil {
     }
   }
 
-  def tuplizy(s: Seq[Expression], project: Project, scope: GlobalSearchScope): Option[Seq[Expression]] = {
-    val exprTypes: Seq[ScType] =
-      s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {
-        case (res, _) => res.getOrElse(Any)
-      }
-    val qual = "scala.Tuple" + exprTypes.length
-    val tupleClass = JavaPsiFacade.getInstance(project).findClass(qual, scope)
-    if (tupleClass == null)
-      None
-    else
-      Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
+  /**
+   * If `s` is an empty sequence, (), otherwise TupleN(s0, ..., sn))
+   *
+   * See SCL-2001, SCL-3485
+   */
+  def tuplizy(s: Seq[Expression], project: Project, scope: GlobalSearchScope, manager: PsiManager): Option[Seq[Expression]] = {
+    s match {
+      case Seq() =>
+        // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
+        val unitExpr = ScalaPsiElementFactory.createExpressionFromText("()", manager)
+        Some(Seq(Expression(unitExpr)))
+      case _ =>
+        val exprTypes: Seq[ScType] =
+          s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {
+            case (res, _) => res.getOrElse(Any)
+          }
+        val qual = "scala.Tuple" + exprTypes.length
+        val tupleClass = JavaPsiFacade.getInstance(project).findClass(qual, scope)
+        if (tupleClass == null)
+          None
+        else
+          Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes))))
+    }
   }
 
   def getNextSiblingOfType[T <: PsiElement](sibling: PsiElement, aClass: Class[T]): T = {
