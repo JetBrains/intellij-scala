@@ -5,15 +5,8 @@ package template
 import org.jetbrains.plugins.scala.annotator.AnnotatorTestBase
 
 
-class NeedsToBeAbstractProblematicTest extends AnnotatorTestBase(NeedsToBeAbstract) {
-
-  def testSCL2981A {
-    assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T; def t(p: T) = ()}")) {
-      case Nil =>
-    }
-  }
-
-  def testSCL2981B {
+class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
+  def testSCL2981() {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; def t(p: T) = ()}")) {
       case Nil =>
     }

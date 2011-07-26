@@ -93,11 +93,6 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
-      case t: StdType =>
-        element match {
-          case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
-          case _ => (false, uSubst)
-        }
       case _ if actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val a = actualElement.asInstanceOf[ScTypeAliasDefinition]
         val subst = actualSubst
@@ -105,6 +100,11 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
         }), r, uSubst, falseUndef)
+      case t: StdType =>
+        element match {
+          case synth: ScSyntheticClass => Equivalence.equivInner(synth.t, t, uSubst, falseUndef)
+          case _ => (false, uSubst)
+        }
       case proj2@ScProjectionType(p1, element1, subst1) => {
         if (actualElement != proj2.actualElement) {
           actualElement match {
