@@ -38,7 +38,8 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType, true)
       case inf: ScInfixExpr if ref == inf.operation => {
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
-          case tuple: ScTuple => Some(tuple.exprs)
+          case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
+          case unit: ScUnitExpr => Some(Nil) // See SCL-3485
           case rOp => Some(Seq(rOp))
         }, () => None, false)
       }
