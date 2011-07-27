@@ -83,14 +83,14 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
   override def candidatesS: Set[ScalaResolveResult] = {
     val input: Set[ScalaResolveResult] = super.candidatesS
-    if (!isShapeResolve && enableTupling && argumentClauses.length > 0 && argumentClauses.apply(0).length > 1) {
+    if (!isShapeResolve && enableTupling && argumentClauses.length > 0) {
       isShapeResolve = true
       val cand1 = MethodResolveProcessor.candidates(this, input)
       if (cand1.size == 0 || cand1.forall(_.tuplingUsed)) {
         //tupling ok
         isShapeResolve = false
         val oldArg = argumentClauses
-        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.apply(0), ref.getProject, ref.getResolveScope)
+        val tpl = ScalaPsiUtil.tuplizy(argumentClauses.apply(0), ref.getProject, ref.getResolveScope, ref.getManager)
         if (tpl == None) {
           return MethodResolveProcessor.candidates(this, input)
         }
