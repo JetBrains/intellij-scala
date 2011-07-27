@@ -10,13 +10,12 @@ package descriptors;
  */
 import com.intellij.lang.surroundWith.SurroundDescriptor
 import psi.ScalaPsiUtil
-;
-import com.intellij.lang.surroundWith.Surrounder;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.codeInsight.CodeInsightUtil;
-import com.intellij.featureStatistics.FeatureUsageTracker;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.lang.surroundWith.Surrounder
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.codeInsight.CodeInsightUtil
+import com.intellij.featureStatistics.FeatureUsageTracker
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
@@ -71,7 +70,7 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
     val expr: Array[PsiElement] = findExpressionInRange(file, startOffset, endOffset)
     if (expr == null) return PsiElement.EMPTY_ARRAY
-    return expr
+    expr
   }
 
   def findExpressionInRange(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
@@ -80,23 +79,23 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
     val element2: PsiElement = file.findElementAt(endOffset - 1);
     (element1, element2) match {
       case (_: PsiWhiteSpace, _) => {
-        return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
+        return findExpressionInRange(file, element1.getTextRange.getEndOffset, endOffset)
       }
       case (_, _: PsiWhiteSpace) => {
-        return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
+        return findExpressionInRange(file, startOffset, element2.getTextRange.getStartOffset)
       }
       case (null, _) | (_, null) => return null
       case _ => {
         if (element2.getNode.getElementType == ScalaTokenTypes.tSEMICOLON)
           return findExpressionInRange(file, startOffset, endOffset - 1)
         if (ScalaPsiUtil.isLineTerminator(element1))
-          return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
+          return findExpressionInRange(file, element1.getTextRange.getEndOffset, endOffset)
         if (ScalaPsiUtil.isLineTerminator(element2))
-          return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
+          return findExpressionInRange(file, startOffset, element2.getTextRange.getStartOffset)
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element1.getNode.getElementType)
-          return findExpressionInRange(file, element1.getTextRange().getEndOffset(), endOffset)
+          return findExpressionInRange(file, element1.getTextRange.getEndOffset, endOffset)
         if (ScalaTokenTypes.COMMENTS_TOKEN_SET contains element2.getNode.getElementType)
-          return findExpressionInRange(file, startOffset, element2.getTextRange().getStartOffset())
+          return findExpressionInRange(file, startOffset, element2.getTextRange.getStartOffset)
       }
     }
 
@@ -107,32 +106,32 @@ class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
               !element.isInstanceOf[ScVariable] && !element.isInstanceOf[PsiWhiteSpace] &&
               element.getNode.getElementType != ScalaTokenTypes.tSEMICOLON &&
               !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(element.getNode.getElementType)||
-              (element.getParent().getTextRange().getStartOffset() == startOffset &&
-                      (element.getParent().isInstanceOf[ScExpression] ||
-                              element.getParent().isInstanceOf[ScValue] ||
-                              element.getParent().isInstanceOf[ScVariable] ||
-                              element.getParent().isInstanceOf[ScFunction] ||
-                              element.getParent().isInstanceOf[ScTypeAlias]) &&
-                      element.getParent().getTextRange().getEndOffset <= endOffset)) {
-        element = element.getParent()
-        if (element == null || element.getTextRange().getStartOffset() != startOffset) return null
+              (element.getParent.getTextRange.getStartOffset == startOffset &&
+                      (element.getParent.isInstanceOf[ScExpression] ||
+                              element.getParent.isInstanceOf[ScValue] ||
+                              element.getParent.isInstanceOf[ScVariable] ||
+                              element.getParent.isInstanceOf[ScFunction] ||
+                              element.getParent.isInstanceOf[ScTypeAlias]) &&
+                      element.getParent.getTextRange.getEndOffset <= endOffset)) {
+        element = element.getParent
+        if (element == null || element.getTextRange == null || element.getTextRange.getStartOffset != startOffset) return null
       }
       if (element == null) return null
       val result: Array[PsiElement] = Array.apply(element)
-      if (element.getTextRange().getEndOffset() < endOffset) {
-        val res = findAllInRange(file, element.getTextRange().getEndOffset(), endOffset)
+      if (element.getTextRange.getEndOffset < endOffset) {
+        val res = findAllInRange(file, element.getTextRange.getEndOffset, endOffset)
         if (res == null) return null
-        return result ++ res
+        result ++ res
       }
-      else if (element.getTextRange().getEndOffset() > endOffset) {
-        return null
+      else if (element.getTextRange.getEndOffset > endOffset) {
+        null
       }
       else {
-        return result
+        result
       }
     }
     val result = findAllInRange(file, startOffset, endOffset)
     if (result == null) return null
-    return result
+    result
   }
 }
