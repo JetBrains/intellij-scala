@@ -28,8 +28,10 @@ object ScalaOverridengMemberSearch {
     member match {
       case _: ScFunction =>  if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
       case _: ScTypeAlias => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
-      case td: ScTypeDefinition if !td.isObject => if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
-      case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null && ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
+      case td: ScTypeDefinition if !td.isObject =>
+        if (!member.getParent.isInstanceOf[ScTemplateBody]) return Array[PsiNamedElement]()
+      case x: PsiNamedElement if ScalaPsiUtil.nameContext(x) != null &&
+        ScalaPsiUtil.nameContext(x).getParent.isInstanceOf[ScTemplateBody] =>
       case _: PsiMethod =>
       case _ => return Array[PsiNamedElement]()
     }
@@ -41,50 +43,44 @@ object ScalaOverridengMemberSearch {
     val buffer = new ArrayBuffer[PsiNamedElement]
 
     def process(inheritor: PsiClass): Boolean = {
-      val substitutor = Bounds.superSubstitutor(parentClass, inheritor, ScSubstitutor.empty) match {
-        case Some(x) => x
-        case None => return true
-      }
-      val signatures: Iterable[FullSignature] = (TypeDefinitionMembers.getSignatures(inheritor).values.map {n => n.info}.
-              map(_.asInstanceOf[FullSignature]).
-              filter((x: FullSignature) => PsiTreeUtil.getParentOfType(x.element, classOf[PsiClass]) == inheritor))
-
       def inheritorsOfType(name: String): Boolean = {
         inheritor match {
-            case inheritor: ScTypeDefinition => for (aliass <- inheritor.aliases if name == aliass.getName) {
-              buffer += aliass
-              if (!deep) return false
-            }
-            for (td <- inheritor.typeDefinitions if !td.isObject && name == td.getName) {
-              buffer += td
-              if (!deep) return false
-            }
+            case inheritor: ScTypeDefinition =>
+              for (aliass <- inheritor.aliases if name == aliass.getName) {
+                buffer += aliass
+                if (!deep) return false
+              }
+              for (td <- inheritor.typeDefinitions if !td.isObject && name == td.getName) {
+                buffer += td
+                if (!deep) return false
+              }
             case _ =>
           }
-        return true
+        true
       }
 
       member match {
-        case method: PsiMethod => {
-          val sign = new PhysicalSignature(method, substitutor)
-          for (signature <- signatures if sign.equiv(signature.sig)) {
-            buffer += signature.element.asInstanceOf[PsiNamedElement]
-            if (!deep) return false
-          }
-        }
         case alias: ScTypeAlias =>
           val continue = inheritorsOfType(alias.getName)
           if (!continue) return false
         case td: ScTypeDefinition if !td.isObject =>
           val continue = inheritorsOfType(td.getName)
           if (!continue) return false
-        case x: PsiNamedElement => {
-          val sign = ScalaPsiUtil.namedElementSig(x)
-          for (signature <- signatures if sign.equiv(signature.sig)) {
-            buffer += signature.element.asInstanceOf[PsiNamedElement]
-            if (!deep) return false
+        case _: PsiNamedElement =>
+          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).iterator
+          while (signsIterator.hasNext) {
+            val (t: FullSignature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
+            if (PsiTreeUtil.getParentOfType(t.element, classOf[PsiClass]) == inheritor) {
+              val supersIterator = node.supers.iterator
+              while (supersIterator.hasNext) {
+                val s = supersIterator.next()
+                if (s.info.element eq member) {
+                  buffer += t.element.asInstanceOf[PsiNamedElement]
+                  return deep
+                }
+              }
+            }
           }
-        }
       }
       true
     }
@@ -98,7 +94,8 @@ object ScalaOverridengMemberSearch {
     buffer.toArray
   }
 
-  def search(member: PsiNamedElement, checkDeep: Boolean): Array[PsiNamedElement] = search(member, member.getUseScope(), checkDeep)
+  def search(member: PsiNamedElement, checkDeep: Boolean): Array[PsiNamedElement] =
+    search(member, member.getUseScope, checkDeep)
 
   def search(member: PsiNamedElement): Array[PsiNamedElement] = search(member, true)
 }

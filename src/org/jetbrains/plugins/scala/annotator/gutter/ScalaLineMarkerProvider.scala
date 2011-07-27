@@ -25,7 +25,8 @@ import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerIn
 import lang.psi.api.toplevel.typedef.{ScObject, ScMember, ScTypeDefinition, ScTrait}
 import javax.swing.Icon
 import GutterIcons._
-import lang.psi.api.base.ScReferenceElement
+import lang.psi.api.base.patterns.ScBindingPattern
+import lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 
 
 /**
@@ -41,12 +42,12 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     val gator = getGatorInfo(element)
     if(daemonSettings.SHOW_METHOD_SEPARATORS && isSeparatorNeeded(element)) {
       if(gator == null) {
-        return addSeparatorInfo(createMarkerInfo(element))
+        addSeparatorInfo(createMarkerInfo(element))
       } else {
-        return addSeparatorInfo(gator)
+        addSeparatorInfo(gator)
       }
     } else {
-      return gator
+      gator
     }
   }
 
@@ -94,7 +95,8 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           if (signatures.length > 0) {
             return marker(method.nameId, icon, typez)
           }
-        case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody) if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
+        case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
+          if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
           val signature = new ArrayBuffer[FullSignature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
@@ -132,15 +134,17 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       }
 
     }
-    return null
+    null
   }
 
   def collectSlowLineMarkers(elements: List[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
-    ApplicationManager.getApplication().assertReadAccessAllowed()
+    ApplicationManager.getApplication.assertReadAccessAllowed()
 
-    val members = new ArrayBuffer[PsiNamedElement]
-    for (element <- elements.toArray) {
-      ProgressManager.checkCanceled
+    val members = new ArrayBuffer[PsiElement]
+    val iterator = elements.iterator()
+    while (iterator.hasNext) {
+      val element = iterator.next()
+      ProgressManager.checkCanceled()
 
       element match {
         case clazz: ScTypeDefinition =>
@@ -151,11 +155,12 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
       element match {
         case x: ScTypeDefinition if !x.isObject && x.getParent.isInstanceOf[ScTemplateBody] => members += x
         case x: PsiMember with PsiNamedElement => members += x
+        case _: ScValue | _: ScVariable => members += element
         case _ =>
       }
     }
     if (!members.isEmpty) {
-      GutterUtil.collectOverridingMembers(members.toArray, result)
+      GutterUtil.collectOverridingMembers(members, result)
     }
   }
 }
@@ -177,9 +182,9 @@ private object GutterUtil {
     }
   }
 
-  def collectOverridingMembers(members: Array[PsiNamedElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
+  def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
-      ProgressManager.checkCanceled
+      ProgressManager.checkCanceled()
       val offset = member.getTextOffset
       val members = member match {
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
@@ -188,7 +193,7 @@ private object GutterUtil {
         case _ => Array[PsiNamedElement]()
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
-      for (member <- members if overrides.length == 0) overrides ++= ScalaOverridengMemberSearch.search(member, false)
+      for (member <- members) overrides ++= ScalaOverridengMemberSearch.search(member, false)
       if (overrides.length > 0) {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
