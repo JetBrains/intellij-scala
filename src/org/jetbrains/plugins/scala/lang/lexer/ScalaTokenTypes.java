@@ -200,7 +200,7 @@ public interface ScalaTokenTypes {
           ScalaDocElementTypes.SCALA_DOC_COMMENT
   );
 
-  TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.andSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
+  TokenSet WHITES_SPACES_AND_COMMENTS_TOKEN_SET = TokenSet.orSet(COMMENTS_TOKEN_SET, WHITES_SPACES_TOKEN_SET);
 
   public static TokenSet KEYWORDS = TokenSet.create(
           kABSTRACT,
