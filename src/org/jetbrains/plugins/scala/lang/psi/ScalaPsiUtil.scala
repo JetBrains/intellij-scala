@@ -85,7 +85,7 @@ object ScalaPsiUtil {
    *
    * See SCL-2001, SCL-3485
    */
-  def tuplizy(s: Seq[Expression], project: Project, scope: GlobalSearchScope, manager: PsiManager): Option[Seq[Expression]] = {
+  def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager): Option[Seq[Expression]] = {
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -97,7 +97,7 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrElse(Any)
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = JavaPsiFacade.getInstance(project).findClass(qual, scope)
+        val tupleClass = JavaPsiFacade.getInstance(manager.getProject).findClass(qual, scope)
         if (tupleClass == null)
           None
         else
