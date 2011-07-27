@@ -202,8 +202,14 @@ object ScalaPsiUtil {
     val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = getEffectiveInvokedExpr match {
       case gen: ScGenericCall =>
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
-        (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrElse(Nothing), gen.arguments)
-      case expr => (expr, tp, Seq.empty)
+        val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrElse(Nothing)
+        referencedType match {
+          case tp: ScTypePolymorphicType => //that means that generic call is important here
+            (gen, gen.getType(TypingContext.empty).getOrElse(Nothing), Seq.empty)
+          case _ =>
+            (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrElse(Nothing), gen.arguments)
+        }
+      case expression => (expression, tp, Seq.empty)
     }
     val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs,
       isShapeResolve = isShape, enableTupling = true)
