@@ -110,7 +110,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         c._1
       }
       if (!c._2.isEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getProject, getResolveScope, getManager).map { e =>
+        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager).map { e =>
             val cd = fun(e)
             if (!cd._2.isEmpty) tail
             else {
