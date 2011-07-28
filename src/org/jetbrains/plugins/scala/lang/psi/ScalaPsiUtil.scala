@@ -714,10 +714,10 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement): Unit = {
+  def adjustTypes(element: PsiElement) {
     for (child <- element.getChildren) {
       child match {
-        case x: ScStableCodeReferenceElement => x.resolve match {
+        case x: ScStableCodeReferenceElement => x.resolve() match {
           case clazz: PsiClass =>
             x.replace(ScalaPsiElementFactory.createReferenceFromText(clazz.getName, clazz.getManager)).
                     asInstanceOf[ScStableCodeReferenceElement].bindToElement(clazz)
