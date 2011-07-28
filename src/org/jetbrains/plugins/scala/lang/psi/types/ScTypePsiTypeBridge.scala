@@ -137,6 +137,12 @@ trait ScTypePsiTypeBridge {
                     {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope))}
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
+        case a: ScTypeAliasDefinition =>
+          a.aliasedType(TypingContext.empty) match {
+            case Success(c: ScParameterizedType, _) =>
+              toPsi(c.copy(typeArgs = args), project, scope)
+            case _ => javaObj
+          }
         case _ => javaObj
       }
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
