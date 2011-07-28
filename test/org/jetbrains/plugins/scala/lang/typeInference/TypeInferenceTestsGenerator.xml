@@ -63,7 +63,7 @@
              for (j = 0; j < files.length; j++) {
                fstr = files[j].toString();
                if (fstr.indexOf("\\") == -1 && !fstr.startsWith("Source")) {
-                 text = text + "\n\n  def test" + fstr.substring(0, fstr.indexOf(".")) + " = doTest"
+                 text = text + "\n\n  def test" + fstr.substring(0, fstr.indexOf(".")) + "() {doTest()}"
                }
              }
              text = text + "\n}";
