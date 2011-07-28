@@ -257,7 +257,6 @@ object ScalaElementTypes {
   val COMPOSITE_TYPE = new ScalaElementType("type with =>")
   val TYPE_WITH_TYPES = new ScalaElementType("type WITH types")
   val REFINEMENT = new ScalaElementType("refinement")
-  val ARGUMENT_EXPR = new ScalaElementType("argument expr")
 
   /*************************************** XML *************************************/
 
