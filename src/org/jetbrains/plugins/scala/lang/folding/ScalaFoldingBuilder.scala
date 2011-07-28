@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package folding
 
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager}
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import formatting.settings.ScalaCodeStyleSettings
 import scaladoc.parser.ScalaDocElementTypes
@@ -16,13 +16,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.editor.{FoldingGroup, Document}
 import com.intellij.lang.folding.FoldingBuilder
 import com.intellij.lang.folding.FoldingDescriptor
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import params.ScTypeParamClause
 import com.intellij.openapi.util._
+import params.ScTypeParamClause
 import psi.api.base.patterns.ScCaseClause
+import lexer.ScalaTokenTypes
 
 /*
 *
@@ -35,7 +35,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
 
   private def appendDescriptors(node: ASTNode,
                                document: Document,
-                               descriptors: ArrayBuffer[FoldingDescriptor]): Unit = {
+                               descriptors: ArrayBuffer[FoldingDescriptor]) {
 
 
     val psi = node.getPsi
@@ -57,15 +57,31 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         }
         case _ =>
       }
-      if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScFunction]) {
+      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScFunction]) {
         psi match {
-          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange())
+          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
         }
       }
-      if (node.getTreeParent() != null && node.getTreeParent().getPsi.isInstanceOf[ScCaseClause]) {
+      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScArgumentExprList]) {
         psi match {
-          case _: ScBlock => descriptors += new FoldingDescriptor(node, node.getTextRange())
+          case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
+          case _ =>
+        }
+      }
+      if (node.getTreeParent != null) {
+        node.getTreeParent.getPsi match {
+          case inf: ScInfixExpr if inf.rOp == node.getPsi =>
+            psi match {
+              case _: ScBlockExpr => descriptors += new FoldingDescriptor(node, node.getTextRange)
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+      if (node.getTreeParent != null && node.getTreeParent.getPsi.isInstanceOf[ScCaseClause]) {
+        psi match {
+          case _: ScBlock => descriptors += new FoldingDescriptor(node, node.getTextRange)
           case _ =>
         }
       }
@@ -110,23 +126,25 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case _ =>
       }
     } 
-    if (node.getTreeParent() != null && ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent().getElementType) {
+    if (node.getTreeParent != null && (ScalaElementTypes.FUNCTION_DEFINITION == node.getTreeParent.getElementType
+        || ScalaElementTypes.ARG_EXPRS == node.getTreeParent.getElementType
+        || ScalaElementTypes.INFIX_EXPR == node.getTreeParent.getElementType)) {
       node.getPsi match {
         case _: ScBlockExpr => return "{...}"
         case _ => return null
       }
     }
 
-    return null
+    null
   }
 
   def isCollapsedByDefault(node: ASTNode): Boolean = {
     val settings: ScalaCodeStyleSettings =
       CodeStyleSettingsManager.getSettings(node.getPsi.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
     if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
-            node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING && settings.FOLD_FILE_HEADER) true
-    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE && node.getElementType == ScalaElementTypes.IMPORT_STMT &&
-      settings.FOLD_IMPORT_IN_HEADER) true
+      node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING && settings.FOLD_FILE_HEADER) true
+    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
+      node.getElementType == ScalaElementTypes.IMPORT_STMT && settings.FOLD_IMPORT_IN_HEADER) true
     else {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT if settings.FOLD_BLOCK_COMMENTS => true
@@ -135,7 +153,10 @@ class ScalaFoldingBuilder extends FoldingBuilder {
         case ScalaElementTypes.PACKAGING if settings.FOLD_PACKAGINGS => true
         case ScalaElementTypes.IMPORT_STMT if settings.FOLD_IMPORT_STATEMENTS => true
         case ScalaTokenTypes.tSH_COMMENT if settings.FOLD_SHELL_COMMENTS => true
-        case _ if node.getPsi.isInstanceOf[ScBlockExpr] && settings.FOLD_BLOCK => true
+        case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
+          node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS && settings.FOLD_ARGUMENT_BLOCK => true
+        case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
+          node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION && settings.FOLD_BLOCK => true
         case _ if node.getPsi.isInstanceOf[ScTypeProjection] && settings.FOLD_TYPE_LAMBDA => true
         case _ if node.getPsi.isInstanceOf[ScTypeElement] && settings.FOLD_TYPE_LAMBDA => true
         case _ => false
@@ -144,7 +165,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
   }
 
   private def isMultiline(node: ASTNode): Boolean = {
-    return node.getText.indexOf("\n") != -1
+    node.getText.indexOf("\n") != -1
   }
 
   private def isMultilineImport(node: ASTNode): Boolean = {
@@ -155,7 +176,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT) flag = true
       next = next.getTreeNext
     }
-    return flag
+    flag
   }
 
   private def isGoodImport(node: ASTNode): Boolean = {
@@ -172,7 +193,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       if (next.getElementType == ScalaElementTypes.IMPORT_STMT || next.getElementType == ScalaTokenTypes.tSEMICOLON) last = next.getTextRange.getEndOffset
       next = next.getTreeNext
     }
-    return last
+    last
   }
 }
 
@@ -216,6 +237,6 @@ object TypeLambda {
           }
         case _ =>
       }
-      return None
+      None
   }
 }

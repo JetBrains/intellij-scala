@@ -44,6 +44,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox treatDocCommentAsBlockComment;
   private JCheckBox importMembersUsingUnderscoreCheckBox;
   private JCheckBox myDisableLanguageInjection;
+  private JCheckBox methodCallBodiesCheckBox;
 
   public ScalaCodeStylePanel(CodeStyleSettings settings) {
     super(settings);
@@ -90,6 +91,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     scalaSettings.FOLD_IMPORT_STATEMENTS = importStatementsCheckBox.isSelected();
     scalaSettings.FOLD_SCALADOC = scaladocCommentsCheckBox.isSelected();
     scalaSettings.FOLD_BLOCK = blockExpressionsCheckBox.isSelected();
+    scalaSettings.FOLD_ARGUMENT_BLOCK = methodCallBodiesCheckBox.isSelected();
     scalaSettings.FOLD_TEMPLATE_BODIES = templateBodiesCheckBox.isSelected();
     scalaSettings.FOLD_TYPE_LAMBDA = typeLamdasCheckBox.isSelected();
     scalaSettings.FOLD_SHELL_COMMENTS = shellCommentsInScriptCheckBox.isSelected();
@@ -138,6 +140,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaSettings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT != treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaSettings.FOLD_BLOCK != blockExpressionsCheckBox.isSelected()) return true;
+    if (scalaSettings.FOLD_ARGUMENT_BLOCK != methodCallBodiesCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_BLOCK_COMMENTS != blockCommentsCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_FILE_HEADER != fileHeaderCheckBox.isSelected()) return true;
     if (scalaSettings.FOLD_IMPORT_IN_HEADER != headerImportStatementsCheckBox.isSelected()) return true;
@@ -179,6 +182,7 @@ public class ScalaCodeStylePanel extends CodeStyleAbstractPanel {
     setValue(treatDocCommentAsBlockComment, settings.TREAT_DOC_COMMENT_AS_BLOCK_COMMENT);
 
     setValue(blockExpressionsCheckBox, settings.FOLD_BLOCK);
+    setValue(methodCallBodiesCheckBox, settings.FOLD_ARGUMENT_BLOCK);
     setValue(blockCommentsCheckBox, settings.FOLD_BLOCK_COMMENTS);
     setValue(fileHeaderCheckBox, settings.FOLD_FILE_HEADER);
     setValue(headerImportStatementsCheckBox, settings.FOLD_IMPORT_IN_HEADER);
