@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.codeInspection._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import params.{ScParameters, ScClassParameter}
+import params.{ScParameter, ScParameters, ScClassParameter}
 import patterns.{ScInfixPattern, ScBindingPattern}
 import quickfix.modifiers.{RemoveModifierQuickFix, AddModifierQuickFix}
 import modifiers.ModifierChecker
@@ -519,6 +519,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
               case inf: ScInfixExpr if inf.getArgExpr == parent => return
               case _ =>
             }
+          case param: ScParameter =>
+            // TODO detect if the expected type is abstract (SCL-3508), if not check conformance
+            return
           case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
           case _ =>
         }
