@@ -4,7 +4,6 @@ package parser
 package parsing
 package params
 
-import com.intellij.lang.PsiBuilder
 import expressions.{Expr, Annotation}
 import lexer.ScalaTokenTypes
 import types.ParamType
@@ -28,28 +27,33 @@ object Param {
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate id
+        builder.advanceLexer() //Ate id
       }
       case _ => {
-        paramMarker.rollbackTo
+        paramMarker.rollbackTo()
         return false
       }
     }
+
+    //empty modifiers
+    val modifiersMarker = builder.mark()
+    modifiersMarker.done(ScalaElementTypes.MODIFIERS)
+
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
-        builder.advanceLexer //Ate :
+        builder.advanceLexer() //Ate :
         if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
       }
       case _ =>
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN => {
-        builder.advanceLexer //Ate =
+        builder.advanceLexer() //Ate =
         if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
       }
       case _ =>
     }
     paramMarker.done(ScalaElementTypes.PARAM)
-    return true
+    true
   }
 }

@@ -6,7 +6,6 @@ package top.params
 
 import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Expr, Annotation}
 import base.Modifier
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import types.ParamType
 import builder.ScalaPsiBuilder
@@ -37,7 +36,7 @@ object ClassParam {
     builder.getTokenType match {
       case ScalaTokenTypes.kVAR |
            ScalaTokenTypes.kVAL => {
-        builder.advanceLexer //Let's ate this!
+        builder.advanceLexer() //Let's ate this!
       }
       case _ => {
         if (isModifier) {
@@ -48,17 +47,17 @@ object ClassParam {
     //Look for identifier
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate identifier
+        builder.advanceLexer() //Ate identifier
       }
       case _ => {
-        classParamMarker.rollbackTo
+        classParamMarker.rollbackTo()
         return false
       }
     }
     //Try to parse tale
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {
-        builder.advanceLexer //Ate ':'
+        builder.advanceLexer() //Ate ':'
         if (!ParamType.parse(builder)) {
           builder.error(ScalaBundle.message("parameter.type.expected"))
         }
@@ -71,7 +70,7 @@ object ClassParam {
     //default param
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN => {
-        builder.advanceLexer //Ate '='
+        builder.advanceLexer() //Ate '='
         if (!Expr.parse(builder)) {
           builder error ScalaBundle.message("wrong.expression")
         }
@@ -79,6 +78,6 @@ object ClassParam {
       case _ =>
     }
     classParamMarker.done(ScalaElementTypes.CLASS_PARAM)
-    return true
+    true
   }
 }
