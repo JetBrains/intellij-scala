@@ -5,7 +5,6 @@ package parsing
 package statements
 
 import base.Modifier
-import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
 import top.TmplDef
@@ -39,79 +38,69 @@ object Def {
         while (Modifier.parse(builder)) {}
       }
       else {
-        def getAll() {
-          builder.getTokenType match {
-            case ScalaTokenTypes.kIMPLICIT | ScalaTokenTypes.kLAZY => {
-              builder.advanceLexer //Ate implicit
-              getAll()
-            }
-            case _ => return
-          }
+        while (builder.getTokenType == ScalaTokenTypes.kIMPLICIT || builder.getTokenType == ScalaTokenTypes.kLAZY) {
+          builder.advanceLexer()
         }
-        getAll()
       }
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
     } else {
+      val annotationsMarker = builder.mark
+      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       val modifierMarker = builder.mark
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
     }
     //Look for val,var,def or type
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL => {
-        builder.advanceLexer //Ate val
+        builder.advanceLexer() //Ate val
         if (PatDef parse builder) {
           defMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
-          return true
+          true
         }
         else {
-          defMarker.rollbackTo
-          return false
+          defMarker.rollbackTo()
+          false
         }
       }
       case ScalaTokenTypes.kVAR => {
-        builder.advanceLexer //Ate var
+        builder.advanceLexer() //Ate var
         if (VarDef parse builder) {
           defMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
-          return true
+          true
         }
         else {
-          defMarker.rollbackTo
-          return false
+          defMarker.rollbackTo()
+          false
         }
       }
       case ScalaTokenTypes.kDEF => {
         if (FunDef parse builder) {
           defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
-          return true
+          true
         }
         else {
-          defMarker.rollbackTo
-          return false
+          defMarker.rollbackTo()
+          false
         }
       }
       case ScalaTokenTypes.kTYPE => {
         if (TypeDef parse builder) {
           defMarker.done(ScalaElementTypes.TYPE_DEFINITION)
-          return true
+          true
         }
         else {
-          defMarker.rollbackTo
-          return false
+          defMarker.rollbackTo()
+          false
         }
       }
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
       | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT => {
-        defMarker.rollbackTo
-        if (TmplDef parse builder) {
-          return true
-        }
-        else {
-          return false
-        }
+        defMarker.rollbackTo()
+        TmplDef parse builder
       }
       case _ => {
-        defMarker.rollbackTo
-        return false
+        defMarker.rollbackTo()
+        false
       }
     }
   }
