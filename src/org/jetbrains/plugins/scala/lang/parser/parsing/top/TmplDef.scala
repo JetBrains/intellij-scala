@@ -5,7 +5,6 @@ package parsing
 package top
 
 import base.Modifier
-import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
@@ -35,61 +34,61 @@ object TmplDef {
     //could be case modifier
     val caseMarker = builder.mark
     if (builder.getTokenType == ScalaTokenTypes.kCASE)
-      builder.advanceLexer //Ate case
+      builder.advanceLexer() //Ate case
     //parsing template body
     builder.getTokenType match {
       case ScalaTokenTypes.kCLASS => {
-        caseMarker.drop
+        caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        builder.advanceLexer //Ate class
+        builder.advanceLexer() //Ate class
         if (ClassDef parse builder) {
           templateMarker.done(ScalaElementTypes.CLASS_DEF)
         } else {
-          templateMarker.drop
+          templateMarker.drop()
         }
-        return true
+        true
       }
       case ScalaTokenTypes.kOBJECT => {
-        caseMarker.drop
+        caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        builder.advanceLexer //Ate object
+        builder.advanceLexer() //Ate object
         if (ObjectDef parse builder) {
           templateMarker.done(ScalaElementTypes.OBJECT_DEF)
         } else {
-          templateMarker.drop
+          templateMarker.drop()
         }
-        return true
+        true
       }
       case ScalaTokenTypes.kTRAIT => {
-        caseMarker.rollbackTo
+        caseMarker.rollbackTo()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.getTokenType match {
           case ScalaTokenTypes.kTRAIT => {
-            builder.advanceLexer //Ate trait
+            builder.advanceLexer() //Ate trait
             if (TraitDef.parse(builder)) {
               templateMarker.done(ScalaElementTypes.TRAIT_DEF)
             } else {
-              templateMarker.drop
+              templateMarker.drop()
             }
-            return true
+            true
           }
           // In this way wrong case modifier
           case _ => {
             builder error ErrMsg("wrong.case.modifier")
-            builder.advanceLexer //Ate case
+            builder.advanceLexer() //Ate case
             builder.getTokenText
-            builder.advanceLexer //Ate trait
+            builder.advanceLexer() //Ate trait
             TraitDef.parse(builder)
             templateMarker.done(ScalaElementTypes.TRAIT_DEF)
-            return true
+            true
           }
         }
       }
       //it's error
       case _ => {
-        templateMarker.rollbackTo
+        templateMarker.rollbackTo()
         //builder.advanceLexer //Ate something
-        return false
+        false
       }
     }
   }

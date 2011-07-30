@@ -20,7 +20,7 @@ import builder.ScalaPsiBuilder
 object ObjectDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
+      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
       case _ => {
         builder error ScalaBundle.message("identifier.expected")
         return false
