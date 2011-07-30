@@ -5,7 +5,6 @@ package parsing
 package statements
 
 import base.Modifier
-import com.intellij.lang.PsiBuilder
 import expressions.Annotation
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
@@ -33,10 +32,14 @@ object Dcl {
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       //parse modifiers
       val modifierMarker = builder.mark
-      var isModifier = false
-      while (Modifier.parse(builder)) {
-        isModifier = true
-      }
+      while (Modifier.parse(builder)) {}
+      modifierMarker.done(ScalaElementTypes.MODIFIERS)
+    } else {
+      //empty annotations
+      val annotationsMarker = builder.mark
+      annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+      //empty modifiers
+      val modifierMarker = builder.mark
       modifierMarker.done(ScalaElementTypes.MODIFIERS)
     }
     //Look for val,var,def or type
@@ -44,46 +47,46 @@ object Dcl {
       case ScalaTokenTypes.kVAL => {
         if (ValDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VALUE_DECLARATION)
-          return true
+          true
         }
         else {
-          dclMarker.rollbackTo
-          return false
+          dclMarker.rollbackTo()
+          false
         }
       }
       case ScalaTokenTypes.kVAR => {
         if (VarDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
-          return true
+          true
         }
         else {
-          dclMarker.drop
-          return false
+          dclMarker.drop()
+          false
         }
       }
       case ScalaTokenTypes.kDEF => {
         if (FunDcl parse builder) {
           dclMarker.done(ScalaElementTypes.FUNCTION_DECLARATION)
-          return true
+          true
         }
         else {
-          dclMarker.drop
-          return false
+          dclMarker.drop()
+          false
         }
       }
       case ScalaTokenTypes.kTYPE => {
         if (TypeDcl parse builder) {
           dclMarker.done(ScalaElementTypes.TYPE_DECLARATION)
-          return true
+          true
         }
         else {
-          dclMarker.drop
-          return false
+          dclMarker.drop()
+          false
         }
       }
       case _ => {
-        dclMarker.rollbackTo
-        return false
+        dclMarker.rollbackTo()
+        false
       }
     }
   }

@@ -4,9 +4,7 @@ package parser
 package parsing
 package statements
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import params.TypeParamClause
 import types.Type
 import builder.ScalaPsiBuilder
 
@@ -23,29 +21,26 @@ object TypeDcl {
     val returnMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE => {
-        builder.advanceLexer //Ate type
+        builder.advanceLexer() //Ate type
       }
       case _ => {
-        returnMarker.drop
+        returnMarker.drop()
         return false
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer //Ate identifier
+        builder.advanceLexer() //Ate identifier
       }
       case _ => {
         builder error ScalaBundle.message("identifier.expected")
-        returnMarker.drop
+        returnMarker.drop()
         return false
       }
     }
-    val isTypeParamClause = if (TypeParamClause parse builder) {
-      true
-    } else false
     builder.getTokenText match {
       case ">:" => {
-        builder.advanceLexer
+        builder.advanceLexer()
         if (!Type.parse(builder)) {
           builder error ScalaBundle.message("wrong.type")
         }
@@ -54,21 +49,21 @@ object TypeDcl {
     }
     builder.getTokenText match {
       case "<:" => {
-        builder.advanceLexer
+        builder.advanceLexer()
         if (!Type.parse(builder)) {
           builder error ScalaBundle.message("wrong.type")
         }
       }
       case _ => {} //nothing
     }
-    returnMarker.drop
+    returnMarker.drop()
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN => {
-        builder.advanceLexer
+        builder.advanceLexer()
         builder error ScalaBundle.message("wrong.type")
-        return true
+        true
       }
-      case _ => return true
+      case _ => true
     }
   }
 }
