@@ -5,7 +5,6 @@ package parsing
 
 
 import builder.ScalaPsiBuilder
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import top.ObjectDef
 
@@ -16,24 +15,31 @@ import top.ObjectDef
 object PackageObject {
   def parse(builder: ScalaPsiBuilder) : Boolean = {
     val marker = builder.mark
+    //empty annotations
+     val annotationsMarker = builder.mark
+    annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+    //empty modifiers
+    val modifierMarker = builder.mark
+    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+
     if (builder.getTokenType != ScalaTokenTypes.kPACKAGE) {
-      marker.drop
+      marker.drop()
       return false
     }
     // Eat `package modifier'
-    builder.advanceLexer
+    builder.advanceLexer()
 
     if (builder.getTokenType != ScalaTokenTypes.kOBJECT) {
-      marker.drop
+      marker.drop()
       return false
     }
     // Eat `object' modifier
-    builder.advanceLexer
+    builder.advanceLexer()
 
     if (ObjectDef parse builder) {
       marker.done(ScalaElementTypes.OBJECT_DEF)
     } else {
-      marker.drop
+      marker.drop()
     }
     true
   }
