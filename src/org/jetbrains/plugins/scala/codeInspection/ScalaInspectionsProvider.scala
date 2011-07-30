@@ -69,7 +69,9 @@ class ScalaInspectionsProvider extends InspectionToolProvider {
     res += classOf[ChainedPackageInspection]
     res += classOf[RemoveRedundantReturnInspection]
     res += classOf[VariablePatternShadowInspection]
-    res += classOf[EqualsBetweenInconvertibleTypes]
+
+    // Disabled: SCL-3511
+    // res += classOf[EqualsBetweenInconvertibleTypes]
 
     res += classOf[AbstractValueInTraitInspection]
 
