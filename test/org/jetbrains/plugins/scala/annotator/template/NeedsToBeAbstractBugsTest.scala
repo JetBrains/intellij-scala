@@ -11,4 +11,10 @@ class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
       case Nil =>
     }
   }
+
+  def testSCL3515() {
+    assertMatches(messages("trait A { type T}; class B extends A")) {
+      case Nil =>
+    }
+  }
 }

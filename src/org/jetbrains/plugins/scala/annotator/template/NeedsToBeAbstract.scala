@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.annotator.template
 import org.jetbrains.plugins.scala.annotator.AnnotatorPart
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.annotator.quickfix.ImplementMethodsQuickFix
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil}
+import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 
 /**
  * Pavel Fatin
@@ -25,8 +26,10 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
 
     if(isAbstract(definition)) return
 
-    val members = ScalaOIUtil.toMembers(ScalaOIUtil.getMembersToImplement(definition, true))
-    val undefined = members.map(it => (it.getText, it.getParentNodeDelegate.getText))
+    val undefined = for {
+      member <- toMembers(getMembersToImplement(definition))
+      if !member.isInstanceOf[ScAliasMember] // See SCL-2887
+    } yield (member.getText, member.getParentNodeDelegate.getText)
 
     if(!undefined.isEmpty) {
       val annotation = holder.createErrorAnnotation(definition.nameId,
