@@ -40,6 +40,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     }
   }
 
+  // TODO SCL-3518, SCL-3519
   def paramTypesEquiv(other: Signature): Boolean = {
     if (paramLength != other.paramLength) return false
     if (hasRepeatedParam != other.hasRepeatedParam) return false
@@ -103,7 +104,7 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
 
   override def hasRepeatedParam: Boolean = {
     val lastParam = method.getParameterList match {
-      case p: ScParameters => p.params.lastOption // TODO what about multiple param lists?
+      case p: ScParameters => p.params.lastOption
       case p => p.getParameters.lastOption
     }
     lastParam match {
