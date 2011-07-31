@@ -31,6 +31,11 @@ object InferUtil {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
+        // See SCL-3516
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check)
+        implicitParameters = ps
+        resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
       case t@ScTypePolymorphicType(ScMethodType(retType, params, impl), typeParams) if impl => {
         val polymorphicSubst = t.polymorphicTypeSubstitutor
         val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
@@ -79,6 +84,11 @@ object InferUtil {
         resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams,
           polymorphicSubst, safeCheck = check)
       }
+      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
+        // See SCL-3516
+        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, check)
+        implicitParameters = ps
+        resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
       case ScMethodType(retType, params, isImplicit) if isImplicit => {
         val resolveResults = new ArrayBuffer[ScalaResolveResult]
         val iterator = params.iterator
