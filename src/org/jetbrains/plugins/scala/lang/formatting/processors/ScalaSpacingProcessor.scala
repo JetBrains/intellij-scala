@@ -685,6 +685,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       else if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL && rightString.startsWith("{")) return WITH_SPACING
       else return WITHOUT_SPACING
     }
+    // SCL-2601
+    if ((rightNode.getPsi.isInstanceOf[ScUnitExpr] || rightNode.getPsi.isInstanceOf[ScTuple]) &&
+            (leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr])) {
+      if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES) return WITH_SPACING
+      else return WITHOUT_SPACING
+    }
 
     //processing left parenthesis (if it's from right) only Scala cases
     if (rightNode.getPsi.isInstanceOf[ScParameters] &&
