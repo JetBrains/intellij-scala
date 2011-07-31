@@ -17,4 +17,22 @@ class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
       case Nil =>
     }
   }
+
+  def testSCL3514() {
+    val code = """
+trait M[X]
+abstract class A {
+  def foo[A: M]
+  def bar[A](implicit oa: M[A])
+}
+
+class B extends A {
+  def foo[A](implicit oa: M[A]) = ()
+  def bar[A: M] = ()
+}
+    """
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+  }
 }

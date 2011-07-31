@@ -27,7 +27,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
     if(isAbstract(definition)) return
 
     val undefined = for {
-      member <- toMembers(getMembersToImplement(definition))
+      member <- toMembers(getMembersToImplement(definition, withOwn = true))
       if !member.isInstanceOf[ScAliasMember] // See SCL-2887
     } yield (member.getText, member.getParentNodeDelegate.getText)
 
