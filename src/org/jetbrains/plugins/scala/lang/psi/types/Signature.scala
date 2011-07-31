@@ -78,21 +78,32 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
   def hasRepeatedParam: Boolean = false
 }
 
+
+
 import com.intellij.psi.PsiMethod
+object PhysicalSignature {
+  private def typesEval(method: PsiMethod) = method match {
+    case fun: ScFunction =>
+      ScalaPsiUtil.getTypesStream(fun.effectiveParameterClauses.flatMap(_.parameters))
+    case _ => ScalaPsiUtil.getTypesStream(method.getParameterList match {
+      case p: ScParameters => p.params
+      case p => p.getParameters.toSeq
+    })
+  }
+
+  private def paramLength(method: PsiMethod) = method match {
+    case fun: ScFunction => fun.effectiveParameterClauses.length
+    case _ => method.getParameterList.getParametersCount
+  }
+}
+
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
-        extends Signature(method.getName, method match {
-          case fun: ScFunction => ScalaPsiUtil.getTypesStream(fun.parameters)
-          case _ => ScalaPsiUtil.getTypesStream(method.getParameterList match {
-            case p: ScParameters => p.params
-            case p => p.getParameters.toSeq
-          })
-        }, method.getParameterList.getParametersCount,
-          method.getTypeParameters,
-          substitutor) {
+        extends Signature(method.getName, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
+          method.getTypeParameters, substitutor) {
 
   override def hasRepeatedParam: Boolean = {
     val lastParam = method.getParameterList match {
-      case p: ScParameters => p.params.lastOption
+      case p: ScParameters => p.params.lastOption // TODO what about multiple param lists?
       case p => p.getParameters.lastOption
     }
     lastParam match {
