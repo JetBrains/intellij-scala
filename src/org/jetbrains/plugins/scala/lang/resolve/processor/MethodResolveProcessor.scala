@@ -121,37 +121,7 @@ object MethodResolveProcessor {
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
-    val substitutor: ScSubstitutor = {
-      element match {
-        case t: ScTypeParametersOwner => {
-          s.followed(
-          if (typeArgElements.length  != 0 && t.typeParameters.length == typeArgElements.length ) {
-            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p =>
-              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          } else {
-            t.typeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: ScTypeParam) =>
-                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
-            }
-          })
-        }
-        case p: PsiTypeParameterListOwner => {
-          s.followed(
-          if (typeArgElements.length  != 0 && p.getTypeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
-              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          } else {
-            p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
-                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
-            }
-          })
-        }
-        case _ => s
-      }
-    }
+    val substitutor: ScSubstitutor = undefinedSubstitutor(element, s, proc)
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       expectedOption() match {
@@ -177,7 +147,7 @@ object MethodResolveProcessor {
                     fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
             case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore => ConformanceExtResult(Seq.empty)
-            case c: ScPrimaryConstructor if constructorCanBeCalledNoArgList(c) => // TODO proper handling of contructor applicability
+            case c: ScPrimaryConstructor if constructorCanBeCalledNoArgList(c) => // TODO Is this still needed?
               ConformanceExtResult(Seq.empty)
             case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
@@ -227,6 +197,58 @@ object MethodResolveProcessor {
       //for functions => applicability problem, no type parameters clause
       case method: PsiMethod => ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       case _ => ConformanceExtResult(Seq.empty)
+    }
+  }
+
+  // TODO clean this up
+  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor): ScSubstitutor = {
+    import proc.typeArgElements
+
+    val constructorTypeParameters = element match {
+      case ml: ScMethodLike => ml.getClassTypeParameters
+      case _ => None
+    }
+    (constructorTypeParameters, element) match {
+      case (Some(typeParameterClause), _) =>
+        val typeParameters = typeParameterClause.typeParameters
+        s.followed(
+          if (typeArgElements.length != 0 && typeParameters.length == typeArgElements.length) {
+            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>
+              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            typeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: ScTypeParam) =>
+                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
+      case (None, t: ScTypeParametersOwner) => {
+        s.followed(
+          if (typeArgElements.length != 0 && t.typeParameters.length == typeArgElements.length) {
+            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p =>
+              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            t.typeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: ScTypeParam) =>
+                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
+      }
+      case (None, p: PsiTypeParameterListOwner) => {
+        s.followed(
+          if (typeArgElements.length != 0 && p.getTypeParameters.length == typeArgElements.length) {
+            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
+              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
+                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
+      }
+      case _ => s
     }
   }
 
