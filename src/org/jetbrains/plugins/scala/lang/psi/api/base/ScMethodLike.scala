@@ -51,4 +51,17 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
       case _ => None
     }
   }
+
+  /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
+  def getClassTypeParameters: Option[ScTypeParamClause] = {
+    this match {
+      case method: PsiMethod if method.isConstructor =>
+        val clazz = method.getContainingClass
+        clazz match {
+          case c: ScTypeDefinition => c.typeParametersClause
+          case _ => None
+        }
+      case _ => None
+    }
+  }
 }
