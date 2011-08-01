@@ -126,7 +126,8 @@ private[expr] object ExpectedTypes {
       //SLS[6.15]
       case a: ScAssignStmt if a.getRExpression.getOrElse(null: ScExpression) == expr => {
         a.getLExpression match {
-          case ref: ScReferenceExpression if !a.getParent.isInstanceOf[ScArgumentExprList] => {
+          case ref: ScReferenceExpression if !a.getParent.isInstanceOf[ScArgumentExprList] ||
+                  expr.isInstanceOf[ScUnderscoreSection] /* See SCL-3512, TODO SCL-3525 */ => {
             ref.bind() match {
               case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) => {
                 ScalaPsiUtil.nameContext(named) match {
