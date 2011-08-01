@@ -93,7 +93,7 @@ object PhysicalSignature {
   }
 
   private def paramLength(method: PsiMethod) = method match {
-    case fun: ScFunction => fun.effectiveParameterClauses.length
+    case fun: ScFunction => fun.effectiveParameterClauses.map(_.parameters.length).sum
     case _ => method.getParameterList.getParametersCount
   }
 }
