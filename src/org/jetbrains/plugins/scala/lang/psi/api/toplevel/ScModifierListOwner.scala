@@ -43,9 +43,9 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
       case _ =>
     }
     val res = findChildByClassScala(classOf[ScModifierList])
-    if (res == null) {
-      throw new IncorrectOperationException("null modifier list for: " + getText)
-    }
+//    if (res == null) {
+//      throw new IncorrectOperationException("null modifier list for: " + getText)
+//    }
     res
   }
 
