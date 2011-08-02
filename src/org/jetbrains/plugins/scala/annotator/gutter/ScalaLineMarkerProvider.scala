@@ -27,6 +27,8 @@ import javax.swing.Icon
 import GutterIcons._
 import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
+import collection.Seq
+import params.ScParameter
 
 
 /**
@@ -89,20 +91,20 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
       (parent, parent.getParent) match {
         case (method: ScFunction, _: ScTemplateBody) if method.nameId == element =>
-          val signatures = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
-          val icon = if (GutterUtil.isOverrides(method)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
+          val signatures: Seq[FullSignature] = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
+          val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
             return marker(method.nameId, icon, typez)
           }
         case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
           if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
-          val signature = new ArrayBuffer[FullSignature]
+          val signatures = new ArrayBuffer[FullSignature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
-          for (z <- bindings) signature ++= ScalaPsiUtil.superValsSignatures(z)
-          val icon = if (GutterUtil.isOverrides(x)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
+          for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
+          val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signature.length > 0) {
+          if (signatures.length > 0) {
             val token = x match {
               case v: ScValue => v.getValToken
               case v: ScVariable => v.getVarToken
@@ -110,10 +112,10 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
             return marker(token, icon, typez)
           }
         case (x: ScObject, _: ScTemplateBody) if x.nameId == element =>
-          val signature = ScalaPsiUtil.superValsSignatures(x)
-          val icon = if (GutterUtil.isOverrides(x)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
+          val signatures = ScalaPsiUtil.superValsSignatures(x)
+          val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signature.length > 0) {
+          if (signatures.length > 0) {
             return marker(x.getObjectToken, icon, typez)
           }
         case (td : ScTypeDefinition, _: ScTemplateBody) if !td.isObject =>
@@ -204,13 +206,37 @@ private object GutterUtil {
     }
   }
 
-  def isOverrides(element: PsiElement) = {
+  def isOverrides(element: PsiElement, supers: Seq[FullSignature]): Boolean = {
     element match {
-      case method: PsiMethod => method.isInstanceOf[ScFunctionDeclaration] ||
-                  method.hasModifierProperty("override")
-      case value: ScValue => value.isInstanceOf[ScValueDeclaration] || value.hasModifierProperty("override")
-      case value: ScVariable => value.isInstanceOf[ScVariableDeclaration] || value.hasModifierProperty("override")
-      case _ => false
+      case decl: ScFunctionDeclaration => true
+      case v: ScValueDeclaration => true
+      case v: ScVariableDeclaration => true
+      case _ => {
+        val iter = supers.iterator
+        while (iter.hasNext) {
+          val s = iter.next()
+          s.element match {
+            case named: PsiNamedElement =>
+              ScalaPsiUtil.nameContext(named) match {
+                case fun: ScFunctionDefinition => return true
+                case fun: ScFunction =>
+                case method: PsiMethod if !method.hasModifierProperty("abstract") => return true
+                case _: ScVariableDefinition | _: ScPatternDefinition => return true
+                case f: PsiField if !f.hasModifierProperty("abstract") => return true
+                case _: ScVariableDeclaration =>
+                case _: ScValueDeclaration =>
+                case _: ScParameter => return true
+                case _: ScTypeAliasDefinition => return true
+                case _: ScTypeAliasDeclaration =>
+                case _: PsiClass => return true
+                case _ =>
+              }
+            case _ =>
+          }
+
+        }
+        false
+      }
     }
   }
 
