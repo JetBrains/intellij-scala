@@ -4,6 +4,10 @@ package object scala {
 -----
 ScalaFile
   ScPackageObject
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     PsiElement(object)('object')

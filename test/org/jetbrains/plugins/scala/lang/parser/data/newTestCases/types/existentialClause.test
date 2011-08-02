@@ -45,12 +45,20 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement({)('{')
               ScTypeAliasDeclaration
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
                 PsiElement(type)('type')
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('X')
               PsiElement(;)(';')
               PsiWhiteSpace(' ')
               ScValueDeclaration
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
                 ListOfIdentifiers

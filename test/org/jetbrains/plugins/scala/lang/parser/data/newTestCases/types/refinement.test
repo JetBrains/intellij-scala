@@ -39,6 +39,8 @@ ScalaFile
             Refinement
               PsiElement({)('{')
               ScTypeAliasDefinition
+                AnnotationsList
+                  <empty list>
                 Modifiers
                   <empty list>
                 PsiElement(type)('type')
@@ -53,6 +55,10 @@ ScalaFile
               PsiElement(;)(';')
               PsiWhiteSpace(' ')
               ScValueDeclaration
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
                 PsiElement(val)('val')
                 PsiWhiteSpace(' ')
                 ListOfIdentifiers

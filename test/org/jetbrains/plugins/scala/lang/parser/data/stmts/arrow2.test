@@ -63,6 +63,8 @@ ScalaFile
               Parameter
                 AnnotationsList
                   <empty list>
+                Modifiers
+                  <empty list>
                 PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
@@ -122,6 +124,8 @@ ScalaFile
               PsiElement(()('(')
               Parameter
                 AnnotationsList
+                  <empty list>
+                Modifiers
                   <empty list>
                 PsiElement(identifier)('y')
                 PsiElement(:)(':')
