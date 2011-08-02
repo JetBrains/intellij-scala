@@ -8,6 +8,7 @@ import psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import psi.api.base.ScStableCodeReferenceElement
 import psi.types.Compatibility.Expression
+import psi.api.base.types.ScParameterizedTypeElement
 
 class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
@@ -17,8 +18,12 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
+      val typeArgs = constr.typeElement match {
+        case pte: ScParameterizedTypeElement => pte.typeArgList.typeArgs
+        case _ => Seq()
+      }
       new ConstructorResolveProcessor(ref, ref.refName, constr.arguments.toList.map(_.exprs.map(new Expression(_))),
-        Seq.empty /*todo*/, kinds, shapeResolve, allConstructorResults)
+        typeArgs, kinds, shapeResolve, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
       case e: ScImportExpr if (e.selectorSet == None && !e.singleWildcard) =>

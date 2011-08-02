@@ -23,6 +23,7 @@ import psi.api.{ScPackage, ScalaFile}
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
+  private object ResolverAllConstructors extends StableCodeReferenceElementResolver(this, false, true, false)
   private object NoConstructorResolver extends StableCodeReferenceElementResolver(this, false, false, true)
   private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
@@ -151,6 +152,12 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
         NoConstructorResolver.resolve(this, false))
       (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+  }
+
+  // TODO Caching (?)
+  def resolveAllConstructors: Array[ResolveResult] = {
+    ProgressManager.checkCanceled()
+    ResolverAllConstructors.resolve(this, false)
   }
 
   def shapeResolve: Array[ResolveResult] = {
