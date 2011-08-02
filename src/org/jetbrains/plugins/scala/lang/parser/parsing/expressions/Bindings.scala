@@ -4,7 +4,6 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
 
@@ -22,35 +21,35 @@ object Bindings {
     val bindingsMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
-        builder.advanceLexer //Ate (
+        builder.advanceLexer() //Ate (
         builder.disableNewlines
       }
       case _ => {
-        bindingsMarker.drop
+        bindingsMarker.drop()
         return false
       }
     }
     Binding parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate ,
+      builder.advanceLexer() //Ate ,
       if (!Binding.parse(builder)) {
         builder error ErrMsg("wrong.binding")
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {
-        builder.advanceLexer //Ate )
+        builder.advanceLexer() //Ate )
         builder.restoreNewlinesState
       }
       case _ => {
         builder.restoreNewlinesState
-        bindingsMarker.rollbackTo
+        bindingsMarker.rollbackTo()
         return false
       }
     }
     val pm = bindingsMarker.precede
     bindingsMarker.done(ScalaElementTypes.PARAM_CLAUSE)
     pm.done(ScalaElementTypes.PARAM_CLAUSES)
-    return true
+    true
   }
 }
