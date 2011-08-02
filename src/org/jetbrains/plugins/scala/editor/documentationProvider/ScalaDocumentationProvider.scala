@@ -187,12 +187,12 @@ object ScalaDocumentationProvider {
       case _ => elem.getType(TypingContext.empty).getOrElse(Any)
     }
     buffer.append(typeToString(typez))
-    return buffer.toString
+    buffer.toString
   }
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
     if (clazz == null) return ""
-    return "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" + escapeHtml(clazz.getQualifiedName) + "</code></a>"
+    "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" + escapeHtml(clazz.getQualifiedName) + "</code></a>"
   }
 
   private def parseParameters(elem: ScParameterOwner, typeToString: ScType => String, spaces: Int): String = {
@@ -259,7 +259,7 @@ object ScalaDocumentationProvider {
       }
     }
 
-    return buffer.toString
+    buffer.toString
   }
 
   private def parseModifiers(elem: ScModifierListOwner): String = {
@@ -286,7 +286,7 @@ object ScalaDocumentationProvider {
     })
     val modifiers = Array("abstract", "final", "sealed", "implicit", "lazy", "override")
     for (modifier <- modifiers if elem.hasModifierProperty(modifier)) buffer.append(modifier + " ")
-    return buffer.toString
+    buffer.toString
   }
 
   private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String): String = {
@@ -302,12 +302,12 @@ object ScalaDocumentationProvider {
         }
         s += array.mkString("{","; ","}")
       }
-      return s
+      s
     }
     for (ann <- elem.annotations) {
       buffer.append(parseAnnotation(ann) + "\n")
     }
-    return buffer.toString
+    buffer.toString
   }
 
 
@@ -341,7 +341,7 @@ object ScalaDocumentationProvider {
                   escapeHtml(e.getQualifiedName) + "\"><code>" + escapeHtml(e.getName) + "</code></a><p>", "</p>")
           case _ => ("", "")
         }
-        return s1 + (elem match {
+        s1 + (elem match {
           case _: ScTypeDefinition =>
             val i = javadoc.indexOf("</PRE>")
             javadoc.substring(i + 6, javadoc.length - 14)
@@ -361,9 +361,14 @@ object ScalaDocumentationProvider {
           case fun: ScFunction => {
             fun.superMethod match {
               case Some(fun: PsiMethod) => {
-                return parseDocComment(fun, true)
+                fun.getNavigationElement match {
+                  case fun: PsiMethod =>
+                    parseDocComment(fun, true)
+                  case _ =>
+                    parseDocComment(fun, true)
+                }
               }
-              case _ => return ""
+              case _ => ""
             }
           }
           case method: PsiMethod => {
@@ -376,9 +381,16 @@ object ScalaDocumentationProvider {
               }
             }
             if (superSignature == null) return ""
-            return parseDocComment(superSignature.getMethod, true)
+
+            val meth = superSignature.getMethod
+            meth.getNavigationElement match {
+              case fun: PsiMethod =>
+                parseDocComment(fun, true)
+              case _ =>
+                parseDocComment(meth, true)
+            }
           }
-          case _ => return ""
+          case _ => ""
         }
       }
     }
