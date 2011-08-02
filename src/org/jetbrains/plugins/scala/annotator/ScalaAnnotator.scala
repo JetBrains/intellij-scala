@@ -58,7 +58,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         with ParametersAnnotator with ApplicationAnnotator
         with AssignmentAnnotator with VariableDefinitionAnnotator
         with TypedStatementAnnotator with PatternDefinitionAnnotator
-        with ControlFlowInspections with DumbAware {
+        with ControlFlowInspections with ConstructorAnnotator
+        with DumbAware {
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element)
 
@@ -150,6 +151,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case None => checkNotQualifiedReferenceElement(ref, holder)
           case Some(_) => checkQualifiedReferenceElement(ref, holder)
         }
+      }
+      case constructor: ScConstructor => {
+        if(typeAware) annotateConstructor(constructor, holder)
       }
       case impExpr: ScImportExpr => {
         checkImportExpr(impExpr, holder)

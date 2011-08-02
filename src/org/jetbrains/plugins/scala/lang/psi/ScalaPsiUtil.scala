@@ -1189,6 +1189,8 @@ object ScalaPsiUtil {
 
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
+    if (paramOwner == null) return None
+
     var i = 0
     def nextName(): String = {
       i += 1
@@ -1203,7 +1205,10 @@ object ScalaPsiUtil {
       }
       views ++ bounds
     }
-    val params = paramOwner.typeParameters.flatMap(synthParams)
+    val params = paramOwner.typeParameters match {
+      case null => Seq()
+      case xs => xs.flatMap(synthParams)
+    }
     val clauseText = params.mkString(",")
     if (params.isEmpty) None
     else {

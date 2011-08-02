@@ -5,12 +5,12 @@ package api
 package base
 
 import psi.types.ScType
-import statements.params.ScTypeParamClause
 import com.intellij.psi.PsiMethod
 import toplevel.typedef.{ScTypeDefinition, ScMember}
 import impl.ScalaPsiElementFactory
 import caches.CachesUtil
 import com.intellij.psi.util.PsiModificationTracker
+import statements.params.{ScParameterClause, ScTypeParamClause}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -35,6 +35,21 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
     )
   }
 
+  /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
+  def getClassTypeParameters: Option[ScTypeParamClause] = {
+    this match {
+      case method: PsiMethod if method.isConstructor =>
+        val clazz = method.getContainingClass
+        clazz match {
+          case c: ScTypeDefinition => c.typeParametersClause
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  def effectiveParameterClauses: Seq[ScParameterClause]
+
   private def getConstructorTypeParametersImpl: Option[ScTypeParamClause] = {
     this match {
       case method: PsiMethod if method.isConstructor =>
@@ -46,19 +61,6 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
               ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramClauseText,
                 typeParamClause.getContext, typeParamClause)
             })
-          case _ => None
-        }
-      case _ => None
-    }
-  }
-
-  /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
-  def getClassTypeParameters: Option[ScTypeParamClause] = {
-    this match {
-      case method: PsiMethod if method.isConstructor =>
-        val clazz = method.getContainingClass
-        clazz match {
-          case c: ScTypeDefinition => c.typeParametersClause
           case _ => None
         }
       case _ => None

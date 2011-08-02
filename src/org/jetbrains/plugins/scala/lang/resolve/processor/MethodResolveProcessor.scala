@@ -13,7 +13,6 @@ import result.TypingContext
 import scala._
 import collection.immutable.HashSet
 import scala.collection.Set
-import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import psi.implicits.ScImplicitlyConvertible
 import psi.api.toplevel.typedef.{ScClass, ScObject}
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -24,6 +23,7 @@ import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
 import org.jetbrains.plugins.scala.extensions._
 import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
+import psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -134,26 +134,43 @@ object MethodResolveProcessor {
           Compatibility.compatible(fun, substitutor, List(args), false, ref.getResolveScope, isShapeResolve)
         }
         case _ => {
-          def constructorCanBeCalledNoArgList(c: ScPrimaryConstructor): Boolean = {
-            def onlyDefaultOrVarargs(paramClause: ScParameterClause) = paramClause.parameters.forall(p => p.isDefaultParam || p.isVarArgs)
-            c.effectiveParameterClauses match {
-              case Seq(x) if x.isImplicit || onlyDefaultOrVarargs(x) => true
-              case Seq(x, y) if x.parameters.isEmpty && y.isImplicit => true
-              case _ => false
-            }
-          }
           fun match {
             case fun: ScFunction if fun.paramClauses.clauses.length == 0 ||
                     fun.paramClauses.clauses.apply(0).parameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
             case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore => ConformanceExtResult(Seq.empty)
-            case c: ScPrimaryConstructor if constructorCanBeCalledNoArgList(c) => // TODO Is this still needed?
-              ConformanceExtResult(Seq.empty)
             case method: PsiMethod if method.getParameterList.getParameters.length == 0 ||
                     isUnderscore => ConformanceExtResult(Seq.empty)
             case _ => ConformanceExtResult(Seq(MissedParametersClause(null)))
           }
         }
+      }
+    }
+
+    def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
+      val effectiveArguments: List[Seq[Expression]] = argumentClauses match {
+        case List() => List(Seq())
+        case _ => argumentClauses
+      }
+
+      val classTypeParmeters = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
+      if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
+        Compatibility.compatible(constr, substitutor, effectiveArguments, checkWithImplicits, ref.getResolveScope, isShapeResolve)
+      } else {
+        ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
+      }
+    }
+    def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
+      val effectiveArguments: List[Seq[Expression]] = argumentClauses match {
+        case List() => List(Seq())
+        case _ => argumentClauses
+      }
+
+      val classTypeParmeters = constr.getContainingClass.getTypeParameters
+      if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
+        Compatibility.compatible(constr, substitutor, effectiveArguments, checkWithImplicits, ref.getResolveScope, isShapeResolve)
+      } else {
+        ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       }
     }
 
@@ -163,7 +180,10 @@ object MethodResolveProcessor {
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))
       case c: ScPrimaryConstructor if c.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))
-      case fun: ScFunction  if (typeArgElements.length == 0 ||
+      case f: ScFunction if f.isConstructor => constructorCompatibility(f)
+      case c: ScPrimaryConstructor with PsiNamedElement => constructorCompatibility(c)
+      case method: PsiMethod if method.isConstructor => javaConstructorCompatibility(method)
+      case fun: ScFunction if (typeArgElements.length == 0 ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.apply(0).isImplicit &&
               argumentClauses.length == 0 => ConformanceExtResult(Seq.empty) //special case for cases like Seq.toArray
@@ -219,6 +239,19 @@ object MethodResolveProcessor {
             typeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: ScTypeParam) =>
                 subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
+                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+            }
+          })
+      case (_, method: PsiMethod) if method.isConstructor => // Java constructors
+        val typeParameters = method.getContainingClass.getTypeParameters
+        s.followed(
+          if (typeArgElements.length != 0 && typeParameters.length == typeArgElements.length) {
+            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>
+              (p.getName, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+          } else {
+            typeParameters.foldLeft(ScSubstitutor.empty) {
+              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
+                subst.bindT((tp.getName, ScalaPsiUtil.getPsiElementId(tp)),
                   new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
