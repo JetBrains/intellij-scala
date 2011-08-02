@@ -70,7 +70,7 @@ object ScalaMarkerType {
             ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
         }
-        case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
+        case x@(_: ScTypeDefinition | _: ScTypeAlias) => {
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement])
           assert(superMembers.length != 0)
           val optionClazz = superMembers(0)
@@ -90,7 +90,7 @@ object ScalaMarkerType {
           elems.size match {
             case 0 =>
             case 1 => {
-              val elem = elems.elements.next()
+              val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
             }
             case _ => {
@@ -109,7 +109,7 @@ object ScalaMarkerType {
           elems.size match {
             case 0 =>
             case 1 => {
-              val elem = elems.elements.next()
+              val elem = elems.iterator.next()
               if (elem.canNavigate) elem.navigate(true)
             }
             case _ => {
@@ -219,7 +219,7 @@ object ScalaMarkerType {
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
     def getElementText(element: PsiElement): String = {
       def defaultPresentation: String = {
-        element.getText.substring(0, Math.min(element.getText.length, 20))
+        element.getText.substring(0, math.min(element.getText.length, 20))
       }
 
       element match {
