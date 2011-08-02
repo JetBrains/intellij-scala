@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import _root_.scala.collection.immutable.HashMap
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.collection.mutable.HashSet
-import com.intellij.codeInsight.daemon.impl.{PsiElementListNavigator}
-import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler}
+import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
+import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.openapi.util.Iconable
@@ -25,7 +24,6 @@ import lang.lexer.ScalaTokenTypes
 import presentation.java.ClassPresentationUtil
 import util.PsiTreeUtil
 import lang.psi.api.toplevel.ScNamedElement
-import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
 
@@ -56,7 +54,8 @@ object ScalaMarkerType {
           val optionClazz = signatures(0).clazz
           assert(optionClazz != None)
           val clazz = optionClazz.get
-          if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
+          if (!GutterUtil.isOverrides(element, signatures))
+            ScalaBundle.message("implements.method.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
         }
         case _: ScValue | _: ScVariable => {
@@ -67,7 +66,8 @@ object ScalaMarkerType {
           val optionClazz = signatures(0).clazz
           assert(optionClazz != None)
           val clazz = optionClazz.get
-          if (!GutterUtil.isOverrides(element)) ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
+          if (!GutterUtil.isOverrides(element, signatures))
+            ScalaBundle.message("implements.val.from.super", clazz.getQualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.getQualifiedName)
         }
         case x @(_: ScTypeDefinition | _: ScTypeAlias) => {
@@ -152,11 +152,11 @@ object ScalaMarkerType {
         case _: PsiMember =>
           if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
           else ScalaBundle.message("is.overriden.by")
-        case _ => return null
+        case _ => null
       }
     }
   }, new GutterIconNavigationHandler[PsiElement] {
-    def navigate(e: MouseEvent, element: PsiElement): Unit = {
+    def navigate(e: MouseEvent, element: PsiElement) {
       var elem = element
       element.getNode.getElementType match {
         case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR => {
@@ -195,7 +195,7 @@ object ScalaMarkerType {
       }
     }
   }, new GutterIconNavigationHandler[PsiElement] {
-    def navigate(e: MouseEvent, element: PsiElement): Unit = {
+    def navigate(e: MouseEvent, element: PsiElement) {
       var elem = element
       if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
         elem = PsiTreeUtil.getParentOfType(element, classOf[ScNamedElement])
@@ -219,7 +219,7 @@ object ScalaMarkerType {
   class ScCellRenderer extends PsiElementListCellRenderer[PsiElement] {
     def getElementText(element: PsiElement): String = {
       def defaultPresentation: String = {
-        element.getText().substring(0, Math.min(element.getText().length, 20))
+        element.getText.substring(0, Math.min(element.getText.length, 20))
       }
 
       element match {
