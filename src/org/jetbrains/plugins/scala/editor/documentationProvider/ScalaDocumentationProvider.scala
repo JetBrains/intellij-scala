@@ -1,21 +1,19 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi._
 import lang.psi.api.base.{ScConstructor, ScAccessModifier, ScPrimaryConstructor}
-import lang.psi.api.expr.{ScAnnotation}
+import lang.psi.api.expr.ScAnnotation
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
 import lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import lang.psi.api.toplevel._
 import lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 
 import org.jetbrains.plugins.scala.lang.structureView.StructureViewUtil
@@ -25,7 +23,6 @@ import util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import search.searches.SuperMethodsSearch
 import com.intellij.openapi.project.IndexNotReadyException
 import lang.psi.{PresentationUtil, ScalaPsiUtil}
-import org.apache.commons.lang.StringEscapeUtils
 import lang.resolve.ResolveUtils.ScalaLookupObject
 import lang.psi.api.base.patterns.ScBindingPattern
 
@@ -36,7 +33,8 @@ import lang.psi.api.base.patterns.ScBindingPattern
 
 class ScalaDocumentationProvider extends DocumentationProvider {
   import ScalaDocumentationProvider._
-  def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object, element: PsiElement): PsiElement = {
+  def getDocumentationElementForLookupItem(psiManager: PsiManager, `object` : Object,
+                                           element: PsiElement): PsiElement = {
     `object` match {
       case (_, element: PsiElement, _) => element
       case ScalaLookupObject(element: PsiElement, _, _) => element
@@ -128,8 +126,12 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         decl match {case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an, ScType.urlText(_))) case _ =>}
         decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
         buffer.append(decl match {case _: ScValue => "val " case _: ScVariable => "var " case _ => ""})
-        buffer.append("<b>" + (element match {case named: ScNamedElement => escapeHtml(named.name) case _ => "unknown"}) + "</b>")
-        buffer.append(element match {case typed: ScTypedDefinition => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"} )
+        buffer.append("<b>" + (element match {
+          case named: ScNamedElement => escapeHtml(named.name) case _ => "unknown"
+        }) + "</b>")
+        buffer.append(element match {
+          case typed: ScTypedDefinition => parseType(typed, ScType.urlText(_)) case _ => ": Nothing"
+        } )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
         return "<html><body>" + buffer.toString + "</body></html>"
@@ -192,7 +194,8 @@ object ScalaDocumentationProvider {
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
     if (clazz == null) return ""
-    "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" + escapeHtml(clazz.getQualifiedName) + "</code></a>"
+    "<a href=\"psi_element://" + escapeHtml(clazz.getQualifiedName) + "\"><code>" +
+      escapeHtml(clazz.getQualifiedName) + "</code></a>"
   }
 
   private def parseParameters(elem: ScParameterOwner, typeToString: ScType => String, spaces: Int): String = {
@@ -203,7 +206,8 @@ object ScalaDocumentationProvider {
     val buffer: StringBuilder = new StringBuilder(" ")
     for (i <- 1 to spaces) buffer.append(" ")
     val separator = if (spaces < 0) ", " else ",\n" + buffer
-    elem.parameters.map(parseParameter(_, typeToString)).mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
+    elem.parameters.map(parseParameter(_, typeToString)).
+      mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
   }
 
   def parseParameter(param: ScParameter, typeToString: ScType => String): String = {
@@ -239,7 +243,8 @@ object ScalaDocumentationProvider {
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {
     val typeParameters = elems.typeParameters
     // todo hyperlink identifiers in type bounds
-    if (typeParameters.length > 0) escapeHtml(typeParameters.map(PresentationUtil.presentationString(_)).mkString("[", ", ", "]"))
+    if (typeParameters.length > 0)
+      escapeHtml(typeParameters.map(PresentationUtil.presentationString(_)).mkString("[", ", ", "]"))
     else ""
   }
 
@@ -249,7 +254,8 @@ object ScalaDocumentationProvider {
       case Some(x: ScTemplateParents) => {
         val seq = x.typeElements
         buffer.append(ScType.urlText(seq(0).getType(TypingContext.empty).getOrElse(Any)) + "\n")
-        for (i <- 1 to seq.length - 1) buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrElse(Any))
+        for (i <- 1 to seq.length - 1)
+          buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrElse(Any))
       }
       case None => {
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
@@ -332,8 +338,10 @@ object ScalaDocumentationProvider {
                 createFileFromText("dummy" + ".java", text).asInstanceOf[PsiJavaFile]
         val javadoc: String = elem match {
           case _: ScTypeDefinition => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
-          case _: ScFunction => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
-          case _: PsiMethod => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
+          case _: ScFunction =>
+            JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
+          case _: PsiMethod =>
+            JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0).getAllMethods.apply(0))
           case _ => JavaDocumentationProvider.generateExternalJavadoc(dummyFile.getClasses.apply(0))
         }
         val (s1, s2) = elem.getContainingClass match {
