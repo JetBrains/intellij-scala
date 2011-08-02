@@ -66,7 +66,7 @@ class PackageNameInspection extends LocalInspectionTool {
           case _ =>
             pack.getQualifiedName
         }
-        val expectedPackageName = prefix + expectedFilePackageName
+        val expectedPackageName = (if (prefix != "") prefix + "." else "") + expectedFilePackageName
 
         if (packName == null) {
           val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))
