@@ -5,11 +5,7 @@ package api
 package base
 
 import psi.ScalaPsiElement
-import statements.params.ScArguments
-import statements.ScFunction
-import types.{ScSimpleTypeElement, ScTypeElement}
-import com.intellij.psi.PsiMethod
-import resolve.ScalaResolveResult
+import types.ScTypeElement
 import psi.types.ScType
 import expr.{ScNewTemplateDefinition, ScArgumentExprList}
 import psi.types.result.TypeResult
