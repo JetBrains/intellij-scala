@@ -15,6 +15,7 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.filters.ElementFilter;
 import org.jetbrains.annotations.NonNls;
 import com.intellij.psi._
+import codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
@@ -29,6 +30,7 @@ import lang.resolve.ResolveUtils
 import refactoring.namesSuggester.NameSuggester
 import types.ScType
 import collection.mutable.{ArrayBuffer, HashMap}
+import formatting.settings.ScalaCodeStyleSettings
 
 /**
 * User: Alexander Podkhalyuzin
@@ -189,15 +191,13 @@ object ScalaCompletionUtil {
 
   def replaceDummy(text: String, to: String): String = {
     if (text.indexOf(DUMMY_IDENTIFIER) != -1) {
-      val empty = to
       text.replaceAll("\\w*" + DUMMY_IDENTIFIER,to)
-      //text.replace(DUMMY_IDENTIFIER.subSequence(0, DUMMY_IDENTIFIER.length), empty.subSequence(0, empty.length))
     } else text
   }
 
   def checkNewWith(news: ScNewTemplateDefinition, additionText: String, manager: PsiManager): Boolean = {
     val newsText = news.getText
-    var text = removeDummy("class a { " + newsText + " " + additionText + "}")
+    val text = removeDummy("class a { " + newsText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
       createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
@@ -232,6 +232,9 @@ object ScalaCompletionUtil {
 
   def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher): Boolean = {
     val element = parameters.getPosition
+    val settings = CodeStyleSettingsManager.getSettings(element.getProject).
+      getCustomSettings(classOf[ScalaCodeStyleSettings])
+    if (!settings.USE_CLASS_NAME_COMPLETION_EVERYWHERE) return false
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       element.getParent match {
         case ref: ScReferenceElement if ref.qualifier != None => return false
