@@ -15,6 +15,8 @@ ScalaFile
         Parameter
           AnnotationsList
             <empty list>
+          Modifiers
+            <empty list>
           PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
