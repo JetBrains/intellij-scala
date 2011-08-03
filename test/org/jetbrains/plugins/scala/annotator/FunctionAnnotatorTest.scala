@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.ScalaFile
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -388,7 +389,9 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     val annotator = new FunctionAnnotator() {}
     val mock = new AnnotatorHolderMock
 
-    (Header + code).parse.depthFirst.filterByType(classOf[ScFunctionDefinition]).foreach {
+    val parse: ScalaFile = (Header + code).parse
+
+    parse.depthFirst.filterByType(classOf[ScFunctionDefinition]).foreach {
       annotator.annotateFunction(_, mock, true)
     }
 

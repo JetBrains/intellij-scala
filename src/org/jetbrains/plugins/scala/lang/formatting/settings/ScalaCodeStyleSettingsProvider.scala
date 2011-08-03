@@ -20,6 +20,6 @@ class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
   override def getConfigurableDisplayName: String = ScalaBundle.message("title.scala.settings")
 
   def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable = {
-    return new ScalaFormatConfigurable(settings, originalSettings)
+    new ScalaFormatConfigurable(settings, originalSettings)
   }
 }
