@@ -13,301 +13,301 @@ import org.jetbrains.plugins.scala.extensions._
 class FunctionAnnotatorTest extends SimpleTestCase {
   final val Header = "class A; class B\n"
 
-  def testUnitEmpty {
+  def testUnitEmpty() {
     assertMatches(messages("def f { }")) {
       case Nil =>
     }
   }
 
-  def testUnitExpression {
+  def testUnitExpression() {
     assertMatches(messages("def f { new A }")) {
       case Nil =>
     }
   }
 
-  def testUnitExpressionUnit {
+  def testUnitExpressionUnit() {
     assertMatches(messages("def f { () }")) {
       case Nil =>
     }
   }
 
-  def testUnitReturn {
+  def testUnitReturn() {
     assertMatches(messages("def f { return }")) {
       case Nil =>
     }
   }
 
-  def testUnitReturnType {
+  def testUnitReturnType() {
     assertMatches(messages("def f { return new A }")) {
       case Warning("new A", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testUnitReturnUnit {
+  def testUnitReturnUnit() {
     assertMatches(messages("def f { return () }")) {
       case Warning("()", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testAssignNull {
+  def testAssignNull() {
     assertMatches(messages("def f = null")) {
       case Nil =>
     }
   }
 
-  def testAssignEmpty {
+  def testAssignEmpty() {
     assertMatches(messages("def f = { }")) {
       case Nil =>
     }
   }
 
-  def testAssignExpression {
+  def testAssignExpression() {
     assertMatches(messages("def f = { new A }")) {
       case Nil =>
     }
   }
 
-  def testAssignReturn {
+  def testAssignReturn() {
     assertMatches(messages("def f = { return }")) {
       case Error("return", NeedsResultType()) :: Nil =>
     }
   }
 
-  def testAssignReturnExpression {
+  def testAssignReturnExpression() {
     assertMatches(messages("def f = { return new A }")) {
       case Error("return", NeedsResultType()) :: Nil =>
     }
   }
 
-  def testTypeNull {
+  def testTypeNull() {
     assertMatches(messages("def f: A = null")) {
       case Nil =>
     }
   }
 
-  def testAnyValNull {
+  def testAnyValNull() {
     assertMatches(messages("def f: AnyVal = null")) {
       case Error("null", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeEmpty {
+  def testTypeEmpty() {
     assertMatches(messages("def f: A = { }")) {
       case Error("{ }", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeAbsolutelyEmpty {
+  def testTypeAbsolutelyEmpty() {
     assertMatches(messages("def f: A = {}")) {
       case Error("{}", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeExpression {
+  def testTypeExpression() {
     assertMatches(messages("def f: A = { new A }")) {
       case Nil =>
     }
   }
 
-  def testTypeWrongExpression {
+  def testTypeWrongExpression() {
     assertMatches(messages("def f: A = { new B }")) {
       case Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeWrongExpressionUnit {
+  def testTypeWrongExpressionUnit() {
     assertMatches(messages("def f: A = { () }")) {
       case Error("()", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeWrongExpressionMultiple {
+  def testTypeWrongExpressionMultiple() {
     assertMatches(messages("def f: A = { if(1 > 2) new B else new B }")) {
       case Error("new B", TypeMismatch()) :: Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeReturn {
+  def testTypeReturn() {
     assertMatches(messages("def f: A = { return }")) {
       case Error("return", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeUnitEmpty {
+  def testTypeUnitEmpty() {
     assertMatches(messages("def f: Unit = { }")) {
       case Nil =>
     }
   }
 
-  def testTypeUnitExpression {
+  def testTypeUnitExpression() {
     assertMatches(messages("def f: Unit = { new A }")) {
       case Nil =>
     }
   }
 
-  def testTypeUnitExpressionUnit {
+  def testTypeUnitExpressionUnit() {
     assertMatches(messages("def f: Unit = { () }")) {
       case Nil =>
     }
   }
 
-  def testTypeUnitReturn {
+  def testTypeUnitReturn() {
     assertMatches(messages("def f: Unit = { return }")) {
       case Nil =>
     }
   }
 
-  def testTypeUnitReturnType {
+  def testTypeUnitReturnType() {
     assertMatches(messages("def f: Unit = { return new A }")) {
       case Warning("new A", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testTypeUnitReturnUnit {
+  def testTypeUnitReturnUnit() {
     assertMatches(messages("def f: Unit = { return () }")) {
       case Warning("()", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testTypeReturnType {
+  def testTypeReturnType() {
     assertMatches(messages("def f: A = { return new A }")) {
       case Nil =>
     }
   }
 
-  def testInheritedTypeReturnType {
+  def testInheritedTypeReturnType() {
     assertMatches(messages("trait T { def f: T }; new T { def f = { return new T }}")) {
       case Error("return", NeedsResultType()) :: Nil =>
     }
   }
 
-  def testTypeReturnWrongType {
+  def testTypeReturnWrongType() {
     assertMatches(messages("def f: A = { return new B }")) {
       case Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeReturnWrongUnit {
+  def testTypeReturnWrongUnit() {
     assertMatches(messages("def f: A = { return () }")) {
       case Error("()", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeReturnWrongTypeMultiple {
+  def testTypeReturnWrongTypeMultiple() {
     assertMatches(messages("def f: A = { if(1 > 2) return new B else return new B }")) {
       case Error("new B", TypeMismatch()) :: Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeReturnAndExpressionWrongType{
+  def testTypeReturnAndExpressionWrongType(){
     assertMatches(messages("def f: A = { if(1 > 2) return new B; new B }")) {
       case Error("new B", TypeMismatch()) :: Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testTypeExpressionImplicit {
+  def testTypeExpressionImplicit() {
     assertMatches(messages("implicit def toA(b: B) = new A; def f: A = { new B }")) {
       case Nil =>
     }
   }
 
-  def testTypeReturnImplicit {
+  def testTypeReturnImplicit() {
     assertMatches(messages("implicit def toA(b: B) = new A; def f: A = { return new B }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedTypeEmpty {
+  def testUnresolvedTypeEmpty() {
     assertMatches(messages("def f: C = { }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedTypeExpression {
+  def testUnresolvedTypeExpression() {
     assertMatches(messages("def f: C = { new A }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedTypeReturn {
+  def testUnresolvedTypeReturn() {
     assertMatches(messages("def f: C = { return }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedTypeReturnExpression {
+  def testUnresolvedTypeReturnExpression() {
     assertMatches(messages("def f: C = { return new A }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedExpression {
+  def testUnresolvedExpression() {
      assertMatches(messages("def f: A = { new C }")) {
        case Nil =>
      }
    }
 
-  def testReturnUnresolvedExpression {
+  def testReturnUnresolvedExpression() {
     assertMatches(messages("def f: A = { return new C }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedBoth {
+  def testUnresolvedBoth() {
     assertMatches(messages("def f: C = { new D }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedBothReturn {
+  def testUnresolvedBothReturn() {
     assertMatches(messages("def f: C = { return new D }")) {
       case Nil =>
     }
   }
 
-  def testUnresolvedReference {
+  def testUnresolvedReference() {
     assertMatches(messages("def f: A = { foo }")) {
       case Nil =>
     }
   }
 
-  def testUnitUnresolvedExpression {
+  def testUnitUnresolvedExpression() {
     assertMatches(messages("def f { new C }")) {
       case Nil =>
     }
   }
 
-  def testUnitReturnUnresolvedExpression {
+  def testUnitReturnUnresolvedExpression() {
     assertMatches(messages("def f { return new C }")) {
       case Warning("new C", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testTypeUnitUnresolvedExpression {
+  def testTypeUnitUnresolvedExpression() {
     assertMatches(messages("def f: Unit = { new C }")) {
       case Nil =>
     }
   }
 
-  def testTypeUnitReturnUnresolvedExpression {
+  def testTypeUnitReturnUnresolvedExpression() {
     assertMatches(messages("def f: Unit = { return new C }")) {
       case Warning("new C", RedundantReturnData()) :: Nil =>
     }
   }
 
-  def testAnyTypeUnresolvedExpression {
+  def testAnyTypeUnresolvedExpression() {
     assertMatches(messages("def f: Any = { new C }")) {
       case Nil =>
     }
   }
 
-  def testAnyTypeUnresolvedReturnExpression {
+  def testAnyTypeUnresolvedReturnExpression() {
     assertMatches(messages("def f: Any = { return new C }")) {
       case Nil =>
     }
   }
 
-  def testNestedFunction {
+  def testNestedFunction() {
     val code = """
     def f1 = {
       def f2 { return }
@@ -318,67 +318,67 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
 
-   def testRecursiveUnit {
+   def testRecursiveUnit() {
     assertMatches(messages("def f { f }")) {
       case Nil =>
     }
   }
 
-  def testRecursiveType {
+  def testRecursiveType() {
     assertMatches(messages("def f: A = { f }")) {
       case Nil =>
     }
   }
 
-  def testRecursiveUnresolvedType {
+  def testRecursiveUnresolvedType() {
     assertMatches(messages("def f: C = { f }")) {
       case Nil =>
     }
   }
 
-  def testRecursiveUnapplicable {
+  def testRecursiveUnapplicable() {
     assertMatches(messages("def f = { f( new A ) }")) {
       case Error("f", Recursive()) :: Nil =>
     }
   }
 
-  def testRecursive {
+  def testRecursive() {
     assertMatches(messages("def f = { f }")) {
       case Error("f", Recursive()) :: Nil =>
     }
   }
 
-  def testRecursiveMultiple {
+  def testRecursiveMultiple() {
     assertMatches(messages("def f = { f; f }")) {
       case Error("f", Recursive()) :: Error("f", Recursive()) :: Nil =>
     }
   }
 
-  def testRecursiveParameter {
+  def testRecursiveParameter() {
     assertMatches(messages("def f(a: A) = { f(new A) }")) {
       case Error("f", Recursive()) :: Nil =>
     }
   }
 
-  def testRecursiveWithInheritedResultType {
+  def testRecursiveWithInheritedResultType() {
     assertMatches(messages("trait T { def f: T }; new T { def f = { f }}")) {
       case Nil =>
     }
   }
 
-  def testRecursiveAndNeedsResultType {
+  def testRecursiveAndNeedsResultType() {
     assertMatches(messages("def f = { f; return new A }")) {
       case Error("f", Recursive()) :: Error("return", NeedsResultType()) :: Nil =>
     }
   }
 
-  def testRecursiveAndTypeMismatch {
+  def testRecursiveAndTypeMismatch() {
     assertMatches(messages("def f: A = { f; new B }")) {
       case Error("new B", TypeMismatch()) :: Nil =>
     }
   }
 
-  def testRecursiveAndRedundantReturnData {
+  def testRecursiveAndRedundantReturnData() {
     assertMatches(messages("def f { f; return new A }")) {
       case Warning("new A", RedundantReturnData()) :: Nil =>
     }

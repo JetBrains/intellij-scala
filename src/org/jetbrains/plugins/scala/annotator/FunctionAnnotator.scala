@@ -45,7 +45,6 @@ trait FunctionAnnotator {
 
       val explicitReturn = usage.isInstanceOf[ScReturnStmt]
       val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturnStmt].expr.isEmpty
-      val unitReturn = usageType == UnitType
       val anyReturn = usageType == AnyType
 
       if (explicitReturn && hasAssign && !explicitType) {
@@ -66,7 +65,7 @@ trait FunctionAnnotator {
         holder.createWarningAnnotation(usage.asInstanceOf[ScReturnStmt].expr.get, message);
       }
 
-      def typeMismatch() = {
+      def typeMismatch() {
         if (highlightErrors) {
           val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
           val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
