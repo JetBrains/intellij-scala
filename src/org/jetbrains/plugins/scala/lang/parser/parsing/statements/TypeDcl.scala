@@ -7,6 +7,7 @@ package statements
 import lexer.ScalaTokenTypes
 import types.Type
 import builder.ScalaPsiBuilder
+import params.TypeParamClause
 
 /**
 * @author Alexander Podkhalyuzin
@@ -38,6 +39,7 @@ object TypeDcl {
         return false
       }
     }
+    TypeParamClause parse builder
     builder.getTokenText match {
       case ">:" => {
         builder.advanceLexer()

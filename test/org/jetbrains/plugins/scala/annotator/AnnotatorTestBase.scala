@@ -7,6 +7,7 @@ import junit.framework.Assert._
 import com.intellij.psi.{PsiReference, PsiErrorElement}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.ScalaFile
 
 /**
  * Pavel Fatin
@@ -17,9 +18,9 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
   final val Suffix = " }"
 
   protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): List[Message] = {
-    val s = Prefix + code + Suffix
+    val s: String = Prefix + code + Suffix
     val mock = new AnnotatorHolderMock
-    val file = s.parse
+    val file: ScalaFile = s.parse
 
     assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
 

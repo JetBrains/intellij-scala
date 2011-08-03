@@ -106,7 +106,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement]
   }
 
   override def getStartOffsetInParent: Int = {
-    context match {
+    child match {
       case null => super.getStartOffsetInParent
       case _ => child.getStartOffsetInParent
     }

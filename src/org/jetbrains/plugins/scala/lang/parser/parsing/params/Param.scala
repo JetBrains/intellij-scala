@@ -25,6 +25,11 @@ object Param {
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
+
+    //empty modifiers
+    val modifiersMarker = builder.mark()
+    modifiersMarker.done(ScalaElementTypes.MODIFIERS)
+
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
         builder.advanceLexer() //Ate id
@@ -34,10 +39,6 @@ object Param {
         return false
       }
     }
-
-    //empty modifiers
-    val modifiersMarker = builder.mark()
-    modifiersMarker.done(ScalaElementTypes.MODIFIERS)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON => {

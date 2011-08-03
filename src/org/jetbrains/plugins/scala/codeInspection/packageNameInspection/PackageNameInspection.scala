@@ -4,13 +4,16 @@ package packageNameInspection
 
 
 import lang.psi.api.ScalaFile
-import collection.mutable.ArrayBuffer
 import com.intellij.codeInspection._
 
 import java.lang.String
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
+import codeStyle.CodeStyleSettingsManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import com.intellij.openapi.module.{ModuleUtil, Module}
+import config.ScalaFacet
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -50,12 +53,20 @@ class PackageNameInspection extends LocalInspectionTool {
                     "problems with resolve to classes from this file", ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
             isOnTheFly, buffer: _*)
 
-        val expectedPackageName = file.getClasses.head match {
+        val settings = CodeStyleSettingsManager.getSettings(file.getProject).
+          getCustomSettings(classOf[ScalaCodeStyleSettings])
+
+        val module: Module = ModuleUtil.findModuleForPsiElement(file)
+        val prefix = if (module != null && settings.IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES) {
+          ScalaFacet.findIn(module).flatMap(f => f.basePackage).getOrElse("")
+        } else ""
+        val expectedFilePackageName = file.getClasses.head match {
           case obj: ScObject if obj.hasPackageKeyword =>
             Option(pack.getParentPackage).map(_.getQualifiedName).getOrElse("")
           case _ =>
             pack.getQualifiedName
         }
+        val expectedPackageName = (if (prefix != "") prefix + "." else "") + expectedFilePackageName
 
         if (packName == null) {
           val fixes = Seq(new EnablePerformanceProblemsQuickFix(file.getProject))

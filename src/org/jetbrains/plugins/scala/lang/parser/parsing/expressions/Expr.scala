@@ -4,7 +4,6 @@ package parser
 package parsing
 package expressions
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
 import builder.ScalaPsiBuilder
 
@@ -21,13 +20,12 @@ import builder.ScalaPsiBuilder
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
 object Expr {
-
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
         val pmarker = builder.mark
-        builder.advanceLexer //Ate id
+        builder.advanceLexer() //Ate id
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE => {
             val psm = pmarker.precede // 'parameter clause'
@@ -36,14 +34,14 @@ object Expr {
             psm.done(ScalaElementTypes.PARAM_CLAUSE)
             pssm.done(ScalaElementTypes.PARAM_CLAUSES)
 
-            builder.advanceLexer //Ate =>
+            builder.advanceLexer() //Ate =>
             if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
             exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
             return true
           }
           case _ => {
-            pmarker.drop
-            exprMarker.rollbackTo
+            pmarker.drop()
+            exprMarker.rollbackTo()
           }
         }
       }
@@ -52,20 +50,20 @@ object Expr {
         if (Bindings.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
-              builder.advanceLexer //Ate =>
+              builder.advanceLexer() //Ate =>
               if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
               exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
               return true
             }
-            case _ => exprMarker.rollbackTo
+            case _ => exprMarker.rollbackTo()
           }
         }
         else {
-          exprMarker.drop
+          exprMarker.drop()
         }
       }
-      case _ => exprMarker.drop
+      case _ => exprMarker.drop()
     }
-    return Expr1.parse(builder)
+    Expr1.parse(builder)
   }
 }
