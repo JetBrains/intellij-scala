@@ -5,26 +5,22 @@ package formatting
 import psi.api.ScalaFile
 import settings.ScalaCodeStyleSettings
 import com.intellij.lang.ASTNode
-import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings};
-import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiComment;
+import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettings}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiComment
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiWhiteSpace;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import com.intellij.psi.PsiErrorElement
+import com.intellij.psi.PsiWhiteSpace
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-
-
 import java.util.List
 import scaladoc.psi.api.ScDocComment
 import com.intellij.formatting._
-;
-
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
@@ -63,33 +59,33 @@ extends Object with ScalaTokenTypes with Block {
     parent match {
       case m: ScMatchStmt => {
         if (m.caseClauses.length == 0) {
-          return new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+          new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
         } else {
           val indent = if (mySettings.INDENT_CASE_FROM_SWITCH) Indent.getSpaceIndent(2 * indentSize)
           else Indent.getNormalIndent
-          return new ChildAttributes(indent, null)
+          new ChildAttributes(indent, null)
         }
       }
-      case c: ScCaseClauses => return new ChildAttributes(Indent.getNormalIndent, null)
+      case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock => {
-        return new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
       case p : ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock => new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScIfStmt => return new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
+      case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
         this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
-          return new ChildAttributes(Indent.getNoneIndent, null)
-        else return new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
+          new ChildAttributes(Indent.getNoneIndent, null)
+        else new ChildAttributes(if (mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED)
           Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
-      case _: ScXmlElement => return new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScalaFile => return new ChildAttributes(Indent.getNoneIndent, null)
-      case _: ScCaseClause => return new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScXmlElement => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScalaFile => new ChildAttributes(Indent.getNoneIndent, null)
+      case _: ScCaseClause => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
-        return new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
+        new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _: ScDocComment if scalaSettings.USE_SCALADOC2_FORMATTING =>
         new ChildAttributes(Indent.getSpaceIndent(2), null)
       case _: ScDocComment =>
@@ -117,8 +113,8 @@ extends Object with ScalaTokenTypes with Block {
   }
 
   def isLeaf(node: ASTNode): Boolean = {
-    if (myLastNode == null) return node.getFirstChildNode == null
-    else return false
+    if (myLastNode == null) node.getFirstChildNode == null
+    else false
   }
 
   def isIncomplete(node: ASTNode): Boolean = {
@@ -135,7 +131,7 @@ extends Object with ScalaTokenTypes with Block {
     if (lastChild.getPsi.isInstanceOf[PsiErrorElement]) {
       return true;
     }
-    return isIncomplete(lastChild);
+    isIncomplete(lastChild);
   }
 
   private var _suggestedWrap: Wrap = null

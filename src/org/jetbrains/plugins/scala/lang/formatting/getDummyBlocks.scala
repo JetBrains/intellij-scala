@@ -9,15 +9,13 @@ import settings.ScalaCodeStyleSettings
 import java.util.ArrayList
 import psi.ScalaPsiUtil
 import psi.api.statements._
-import psi.api.base.{ScPatternList, ScIdList, ScModifierList}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
 import psi.api.toplevel.ScModifierListOwner
-;
-import com.intellij.formatting._;
-import com.intellij.psi.tree._;
-import com.intellij.lang.ASTNode;
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import com.intellij.formatting._
+import com.intellij.psi.tree._
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -145,7 +143,7 @@ object getDummyBlocks {
       subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       prevChild = child
     }
-    return subBlocks
+    subBlocks
   }
 
   def apply(node: ASTNode, lastNode: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -161,7 +159,7 @@ object getDummyBlocks {
         subBlocks.addAll(getTemplateParentsBlocks(child, block))
       }
     } while (child != lastNode && {child = child.getTreeNext; true})
-    return subBlocks
+    subBlocks
   }
 
   private def getCaseClauseGroupSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -182,12 +180,12 @@ object getDummyBlocks {
           }
           psi match {
             case _: ScCaseClause => {
-              return true
+              true
             }
-            case _: PsiComment => return false
+            case _: PsiComment => false
             case _ => {
               breaks += 2
-              return false
+              false
             }
           }
         }
@@ -196,7 +194,7 @@ object getDummyBlocks {
         }
         if (breaks != 1) return null
         if (prev == null) return null
-        return prev.getNode
+        prev.getNode
       }
       def getChildAlignment(node: ASTNode, child: ASTNode): Alignment = {
         val prev = getPrevGroupNode(node)
@@ -221,7 +219,7 @@ object getDummyBlocks {
             return getChildAlignment(prev, child)
           } else return getAlignment(prevChild)
         }
-        return null
+        null
       }
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
@@ -229,7 +227,7 @@ object getDummyBlocks {
       subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       prevChild = child
     }
-    return subBlocks
+    subBlocks
   }
 
   private def getFieldGroupSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -255,12 +253,12 @@ object getDummyBlocks {
             case _: ScVariableDeclaration | _: ScValueDeclaration if nodePsi.isInstanceOf[ScPatternDefinition] ||
               nodePsi.isInstanceOf[ScVariableDefinition] => {
               breaks += 2
-              return false
+              false
             }
             case _: ScVariableDefinition | _: ScPatternDefinition if nodePsi.isInstanceOf[ScValueDeclaration] ||
               nodePsi.isInstanceOf[ScValueDeclaration] => {
               breaks += 2
-              return false
+              false
             }
             case _: ScVariable | _: ScValue => {
               val hasMod1 = psi.isInstanceOf[ScModifierListOwner] &&
@@ -269,15 +267,15 @@ object getDummyBlocks {
                       node.getPsi.asInstanceOf[ScModifierListOwner].getModifierList.getText == ""
               if (hasMod1 != hasMod2) {
                 breaks += 2
-                return false
+                false
               } else {
-                return true
+                true
               }
             }
-            case _: PsiComment => return false
+            case _: PsiComment => false
             case _ => {
               breaks += 2
-              return false
+              false
             }
           }
         }
@@ -286,7 +284,7 @@ object getDummyBlocks {
         }
         if (breaks != 1) return null
         if (prev == null) return null
-        return prev.getNode
+        prev.getNode
       }
       def getChildAlignment(node: ASTNode, child: ASTNode): Alignment = {
         val prev = getPrevGroupNode(node)
@@ -322,7 +320,7 @@ object getDummyBlocks {
             return getChildAlignment(prev, child)
           } else return getAlignment(prevChild)
         }
-        return null
+        null
       }
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
@@ -330,7 +328,7 @@ object getDummyBlocks {
       subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       prevChild = child
     }
-    return subBlocks
+    subBlocks
   }
 
   private def getTemplateParentsBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -348,7 +346,7 @@ object getDummyBlocks {
         subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
       }
     }
-    return subBlocks
+    subBlocks
   }
 
   private def getExtendsSubBlocks(node: ASTNode, block: ScalaBlock): ArrayList[Block] = {
@@ -376,7 +374,7 @@ object getDummyBlocks {
       }
       case _ =>
     }
-    return subBlocks
+    subBlocks
   }
 
   private def getIfSubBlocks(node: ASTNode, block: ScalaBlock, alignment: Alignment): ArrayList[Block] = {
@@ -395,7 +393,6 @@ object getDummyBlocks {
     if (child.getTreeNext != null) {
       val firstChild = child.getTreeNext
       child = firstChild
-      val back: ASTNode = null
       while (child.getTreeNext != null) {
         child.getTreeNext.getPsi match {
           case _: ScIfStmt if settings.SPECIAL_ELSE_IF_TREATMENT => {
@@ -412,7 +409,7 @@ object getDummyBlocks {
         subBlocks.add(new ScalaBlock(block, firstChild, child, alignment, indent, childWrap, block.getSettings))
       }
     }
-    return subBlocks
+    subBlocks
   }
 
   private def getInfixBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): ArrayList[Block] = {
@@ -485,7 +482,7 @@ object getDummyBlocks {
   }
 
   private def isCorrectBlock(node: ASTNode) = {
-    node.getText().trim().length() > 0
+    node.getText.trim().length() > 0
   }
 
   private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {

@@ -32,6 +32,6 @@ object FormatterUtil {
     var offset = node.getTextRange.getStartOffset - 1
     var result = 0
     while (offset >= 0 && text(offset) != '\n') {offset += -1; result += 1}
-    return result
+    result
   }
 }
