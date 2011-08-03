@@ -277,6 +277,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
 
   def addLower(name: (String, String), lower: ScType): ScUndefinedSubstitutor = {
+    if (lower.collectAbstracts.length != 0) return this
     lowerMap.get(name) match {
       case Some(tp: ScType) => new ScUndefinedSubstitutor(upperMap, lowerMap.updated(name, Bounds.lub(lower, tp)))
       case None => new ScUndefinedSubstitutor(upperMap, lowerMap + Tuple(name, lower))
@@ -284,13 +285,16 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
   }
 
   def addUpper(name: (String, String), upper: ScType): ScUndefinedSubstitutor = {
+    if (upper.collectAbstracts.length != 0) return this
     upperMap.get(name) match {
       case Some(seq: Seq[ScType]) => new ScUndefinedSubstitutor(upperMap.updated(name, Seq(upper) ++ seq), lowerMap)
       case None => new ScUndefinedSubstitutor(upperMap + Tuple(name, Seq(upper)), lowerMap)
     }
   }
   
-  def getSubstitutor: Option[ScSubstitutor] = {
+  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(false)
+
+  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = {
     import collection.mutable.HashMap
     val tvMap = new HashMap[(String, String), ScType]
     for (tuple <- lowerMap) {
@@ -300,9 +304,10 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), Seq[ScType]], v
     for ((name, seq) <- upperMap if !break) {
       tvMap.get(name) match {
         case Some(lower: ScType) => {
-          for (upper <- seq if !break) {
-            if (!lower.conforms(upper)) break = true
-          }
+          if (!notNonable)
+            for (upper <- seq if !break) {
+              if (!lower.conforms(upper)) break = true
+            }
         }
         case None if seq.length > 1 => tvMap += Tuple(name, Bounds.glb(seq, false))
         case None if seq.length == 0 => tvMap += Tuple(name, Nothing)

@@ -154,7 +154,7 @@ object Compatibility {
       }
 
       exprK match {
-        case Expression(expr: ScTypedStmt) if expr.getLastChild.isInstanceOf[ScSequenceArg] => {
+        case Expression(expr: ScTypedStmt) if expr.isSequenceArg => {
           val seqClass: PsiClass = seqClassFor(expr)
           if (seqClass != null) {
             val getIt = used.indexOf(false)

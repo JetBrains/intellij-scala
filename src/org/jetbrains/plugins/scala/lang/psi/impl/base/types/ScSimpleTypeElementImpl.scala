@@ -11,7 +11,7 @@ import api.base.types._
 import psi.ScalaPsiElementImpl
 import lexer.ScalaTokenTypes
 import psi.types._
-import nonvalue.{TypeParameter, Parameter}
+import nonvalue.{ScTypePolymorphicType, TypeParameter, Parameter}
 import psi.impl.toplevel.synthetic.ScSyntheticClass
 import result.{Failure, TypeResult, Success, TypingContext}
 import scala.None
@@ -90,7 +90,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             getOrElse(return Nothing), clazz, subst)
       }
       val res = subst.subst(tp)
-      var typeParameters: Seq[TypeParameter] = parentElement match {
+      val typeParameters: Seq[TypeParameter] = parentElement match {
         case tp: ScTypeParametersOwner if constrTypParameters.length > 0 =>
           constrTypParameters.map(tp => new TypeParameter(tp.name,
                 tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
@@ -136,18 +136,22 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       findConsturctor match {
         case Some(c) => {
-          for (i <- 0 until params.length if i < c.arguments.length) {
-            typeParameters = ScalaPsiUtil.localTypeInference(res, params(i), c.arguments(i).exprs.map(new Expression(_)),
-              typeParameters, subst).typeParameters
+          var nonValueType = ScTypePolymorphicType(res, typeParameters)
+          var i = 0
+          while (i < params.length - 1 && i < c.arguments.length) {
+            nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
+              c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
+            i += 1
           }
-          //todo: last implicit clause
-          //todo: change order: expected type before last implicit clause or last clause
+          //todo: last implicit clause + right order
+          //todo: add check according to expected type and without it
           c.expectedType match {
             case Some(expected) => {
               def updateRes(expected: ScType) {
-                typeParameters = ScalaPsiUtil.localTypeInference(res, Seq(new Parameter("", expected, false, false, false)),
-                    Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParameters).subst(res.inferValueType))),
-                  typeParameters, shouldUndefineParameters = false).typeParameters //here should work in different way:
+                nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
+                  Seq(new Parameter("", expected, false, false, false)),
+                    Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
+                  nonValueType.typeParameters, shouldUndefineParameters = false) //here should work in different way:
               }
               val fromUnderscore = c.newTemplate match {
                 case Some(n) => ScUnderScoreSectionUtil.underscores(n).length != 0
@@ -165,12 +169,19 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             case _ =>
           }
 
+          //last clause after expected types
+          if (i < params.length && i < c.arguments.length) {
+            nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
+              c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
+          }
+
+
           val pts = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp =>
             ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
                   if (tp.upperType.equiv(Any)) tp.lowerType else if (tp.lowerType.equiv(Nothing)) tp.upperType
                   else tp.lowerType))),
             Map.empty, None)
-          pts.subst(res)
+          pts.subst(nonValueType.internalType) //todo: simple type element should have non value type
         }
         case None => res
       }

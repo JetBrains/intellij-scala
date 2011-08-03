@@ -5,7 +5,6 @@ package stubs
 package impl
 
 
-import api.base.ScAccessModifier
 import api.base.types.ScTypeElement
 import api.statements.params.ScTypeParam
 import com.intellij.psi.PsiElement
@@ -83,7 +82,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
       else None
     }
     lowerElement = new PatchedSoftReference[Option[ScTypeElement]](res)
-    return res
+    res
   }
 
   def getUpperTypeElement: Option[ScTypeElement] = {
@@ -94,7 +93,7 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
       else None
     }
     upperElement = new PatchedSoftReference[Option[ScTypeElement]](res)
-    return res
+    res
   }
 
   def getLowerText: String = lowerText.toString
@@ -107,13 +106,13 @@ class ScTypeParamStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     if (viewElement != null && viewElement.forall(_.get ne null)) return viewElement.map(_.get)
     val res: Array[ScTypeElement] = getViewText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
     viewElement = res.map(new PatchedSoftReference[ScTypeElement](_))
-    return res
+    res
   }
 
   def getContextBoundTypeElement: Array[ScTypeElement] = {
     if (contextBoundElement != null && contextBoundElement.forall(_.get ne null)) return contextBoundElement.map(_.get)
     val res: Array[ScTypeElement] = getContextBoundText.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
     contextBoundElement = res.map(new PatchedSoftReference[ScTypeElement](_))
-    return res
+    res
   }
 }

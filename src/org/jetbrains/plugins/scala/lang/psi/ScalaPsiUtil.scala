@@ -424,21 +424,11 @@ object ScalaPsiUtil {
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                          typeParams: Seq[TypeParameter],
-                         subst: ScSubstitutor = ScSubstitutor.empty,
                          shouldUndefineParameters: Boolean = true,
                          safeCheck: Boolean = false): ScTypePolymorphicType = {
-    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, subst,
-      shouldUndefineParameters, safeCheck)._1
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck)._1
   }
 
-  def polymorphicTypeSubstitutorMissedEmptyParams(typeParameters: Seq[TypeParameter]): ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ Map(typeParameters.flatMap(tp =>
-      if (tp.upperType.equiv(Any))
-        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType))
-      else if (tp.lowerType.equiv(Nothing))
-        Seq(((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType))
-      else Seq.empty
-    ) : _*),  Map.empty, None)
 
   class SafeCheckException extends Exception
 
@@ -446,24 +436,20 @@ object ScalaPsiUtil {
   //todo: move to InferUtil
   def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                           typeParams: Seq[TypeParameter],
-                                          subst: ScSubstitutor = ScSubstitutor.empty,
                                           shouldUndefineParameters: Boolean = true,
                                           safeCheck: Boolean = false): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
-    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams, subst,
+    val (tp, problems, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
       shouldUndefineParameters, safeCheck)
     (tp, problems)
   }
 
   def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                                              typeParams: Seq[TypeParameter],
-                                             subst: ScSubstitutor = ScSubstitutor.empty,
                                              shouldUndefineParameters: Boolean = true,
                                              safeCheck: Boolean = false
-                                            ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
+    ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)]) = {
     // See SCL-3052. TODO: SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
-    val checkWeak = true
-
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
     val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
     val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
@@ -471,27 +457,14 @@ object ScalaPsiUtil {
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     val tpe = if (c.problems.isEmpty) {
       val un: ScUndefinedSubstitutor = c.undefSubst
-      val prevInfoSubst = polymorphicTypeSubstitutorMissedEmptyParams(typeParams) followed subst
-      ScTypePolymorphicType(retType, typeParams.map(tp => {
-        var lower = tp.lowerType
-        var upper = tp.upperType
-        for {
-          (name, addLower) <- un.lowerMap
-          if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-        } {
-          lower = Bounds.lub(lower, prevInfoSubst.subst(addLower), checkWeak = checkWeak)
-        }
-        for {
-          (name, addUpperSeq) <- un.upperMap
-          if name == (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-          addUpper <- addUpperSeq
-        } {
-          upper = Bounds.glb(upper, prevInfoSubst.subst(addUpper), checkWeak = checkWeak)
-        }
-        if (safeCheck && !lower.conforms(upper, true))
-          throw new SafeCheckException
-        TypeParameter(tp.name, lower, upper, tp.ptp)
-      }))
+      c.undefSubst.getSubstitutor(!safeCheck) match {
+        case Some(unSubst) =>
+          ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+            val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+            !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+          })
+        case None => throw new SafeCheckException
+      }
     } else {
       ScTypePolymorphicType(retType, typeParams)
     }

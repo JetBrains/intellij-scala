@@ -4,8 +4,7 @@ package psi
 package api
 package expr
 
-import base.types.ScTypeElement
-import psi.ScalaPsiElement
+import base.types.{ScSequenceArg, ScTypeElement}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,4 +14,5 @@ import psi.ScalaPsiElement
 trait ScTypedStmt extends ScExpression {
   def expr: ScExpression = findChildByClassScala(classOf[ScExpression])
   def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
+  def isSequenceArg: Boolean = getLastChild.isInstanceOf[ScSequenceArg]
 }

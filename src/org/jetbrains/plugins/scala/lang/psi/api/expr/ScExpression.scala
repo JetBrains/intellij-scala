@@ -7,10 +7,8 @@ package expr
 import impl.ScalaPsiElementFactory
 import types.result.{Success, Failure, TypingContext, TypeResult}
 import toplevel.imports.usages.ImportUsed
-import types.Compatibility.Expression
-import base.patterns.ScBindingPattern
 import resolve.ScalaResolveResult
-import implicits.{ImplicitParametersCollector, ScImplicitlyConvertible}
+import implicits.ScImplicitlyConvertible
 import collection.mutable.ArrayBuffer
 import types._
 import nonvalue._
@@ -21,15 +19,13 @@ import psi.ScalaPsiUtil
 import base.ScLiteral
 import lexer.ScalaTokenTypes
 import types.Conformance.AliasType
-import statements.{ScTypeAliasDefinition, ScFunction}
+import statements.ScTypeAliasDefinition
 import com.intellij.psi.{PsiAnnotationMemberValue, PsiNamedElement, PsiElement, PsiInvalidElementAccessException}
 import java.lang.Integer
 import base.types.ScTypeElement
 import com.intellij.psi.util.PsiModificationTracker
-import caches.{ScalaRecursionManager, CachesUtil}
-import com.intellij.openapi.util.Computable
+import caches.CachesUtil
 import psi.ScalaPsiUtil.SafeCheckException
-
 /**
  * @author ilyas, Alexander Podkhalyuzin
  */
@@ -193,7 +189,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
                         ignoreBaseTypes: Boolean = false): TypeResult[ScType] = {
     val inner = if (!fromUnderscoreSection) getNonValueType(ctx) else innerType(ctx)
     var res: ScType = inner match {
-      case Success(res, _) => res
+      case Success(resa, _) => resa
       case _ => return inner
     }
 
@@ -457,7 +453,7 @@ trait ScExpression extends ScBlockStatement with ScImplicitlyConvertible with Ps
             case Some(e) => {
               calculateReturns0(e)
               i.thenBranch match {
-                case Some(e) => calculateReturns0(e)
+                case Some(then) => calculateReturns0(then)
                 case _ =>
               }
             }
