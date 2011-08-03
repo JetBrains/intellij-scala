@@ -121,7 +121,7 @@ object MethodResolveProcessor {
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
-    val substitutor: ScSubstitutor = undefinedSubstitutor(element, s, proc)
+    val substitutor: ScSubstitutor = undefinedSubstitutor(realResolveResult.getActualElement, s, proc)
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       expectedOption() match {

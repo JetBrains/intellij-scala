@@ -27,6 +27,9 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     def this(o: Y[X]) = this(Z)
   }
   class F(implicit a: Int)
+  class Klass[K](a: K)
+  type Alias[A] = Klass[A]
+  new Alias("")
   val iAmAScriptFile = ()
   """ 
   
@@ -49,19 +52,13 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       "new E[Int](new Y[Int])",
       "new E[Int](new Z[Int])",
       "new E(new Y[Int])",
-      "new E(new Z[Int])"
+      "new E(new Z[Int])",
+      "new Alias[Int](0)"
     )
-    assertMatches(messages("new A(0)")) {
-      case Nil =>
-    }
-    assertMatches(messages("new A(a = 0)")) {
-      case Nil =>
-    }
-    assertMatches(messages("new B[Int](0)")) {
-      case Nil =>
-    }
-    assertMatches(messages("new B(0)")) {
-      case Nil =>
+    for {code <- codes} {
+      assertMatches(messages(code)) {
+        case Nil =>
+      }
     }
   }
 
@@ -114,6 +111,16 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       case Error("Malformed", "Constructor has malformed definition") :: Nil =>
     }
   }
+
+  // TODO: Type Aliases
+  //class A(a: Int)
+  //class B[X](a: X)
+  //
+  //type AA[A] = A[A]
+  //type BB[A] = B[A]
+  //new AA(0)
+  //new BB(0)
+  //new AA[Int](0)
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ConstructorAnnotator {}
