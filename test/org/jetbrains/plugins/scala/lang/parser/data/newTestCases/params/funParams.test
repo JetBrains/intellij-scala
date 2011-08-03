@@ -37,6 +37,8 @@ ScalaFile
               Parameter
                 AnnotationsList
                   <empty list>
+                Modifiers
+                  <empty list>
                 PsiElement(identifier)('a')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
@@ -56,6 +58,8 @@ ScalaFile
                         SimpleTypeElement
                           CodeReferenceElement
                             PsiElement(identifier)('annotation')
+                Modifiers
+                  <empty list>
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('b')
               PsiElement())(')')
