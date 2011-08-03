@@ -75,10 +75,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
         val conformance: (Boolean, ScUndefinedSubstitutor) =
           Compatibility.checkConformance(false, params2, exprs, false)
-        return conformance._1
+        conformance._1
       }
-      case (_, m2: PsiMethod) => return true
-      case (e1, e2) => return Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
+      case (_, m2: PsiMethod) => true
+      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))
     }
   }
 
@@ -110,7 +110,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           case (Some(c1), Some(c2)) => if (c1.isInheritor(c2, true)) return true
           case _ =>
         }
-        return false
+        false
       }
       case _ => false
     }
@@ -133,16 +133,16 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
     val a1iterator = applicable.iterator
     while (a1iterator.hasNext) {
-      val a1 = a1iterator.next
+      val a1 = a1iterator.next()
       var break = false
       val a2iterator = applicable.iterator
       while (a2iterator.hasNext && !break) {
-        val a2 = a2iterator.next
+        val a2 = a2iterator.next()
         if (a1 != a2 && !isMoreSpecific(a1, a2)) break = true
       }
       if (!break) return Some(a1)
     }
-    return None
+    None
   }
 
   //todo: implement existential dual

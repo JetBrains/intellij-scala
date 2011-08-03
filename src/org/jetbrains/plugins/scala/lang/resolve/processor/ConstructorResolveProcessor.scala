@@ -28,7 +28,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     if (nameAndKindMatch(named, state)) {
       if (!isAccessible(named, ref)) return true
       named match {
-        case clazz: PsiClass if !qualifiedNames.contains(clazz.getQualifiedName) => {
+        case clazz: PsiClass if clazz.getQualifiedName != null && !qualifiedNames.contains(clazz.getQualifiedName) => {
           qualifiedNames.add(clazz.getQualifiedName)
           val constructors: Array[PsiMethod] = clazz.getConstructors.filter(isAccessible(_, ref))
           if (constructors.isEmpty) {

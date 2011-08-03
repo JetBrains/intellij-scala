@@ -310,7 +310,7 @@ private[expr] object ExpectedTypes {
           }
           case _ => res += p
         }
-      } else if (expr.isInstanceOf[ScTypedStmt] && expr.getLastChild.isInstanceOf[ScSequenceArg] && params.length > 0) {
+      } else if (expr.isInstanceOf[ScTypedStmt] && expr.asInstanceOf[ScTypedStmt].isSequenceArg && params.length > 0) {
         val seqClass: PsiClass = JavaPsiFacade.getInstance(expr.getProject).findClass("scala.collection.Seq", expr.getResolveScope)
         if (seqClass != null) {
           val tp = ScParameterizedType(ScType.designator(seqClass), Seq(params(params.length - 1).paramType))

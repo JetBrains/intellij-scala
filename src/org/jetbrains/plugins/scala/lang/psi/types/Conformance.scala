@@ -84,10 +84,6 @@ object Conformance {
       }
     }
     (l, r) match {
-      case (ScAbstractType(_, lower, upper), right) =>
-        return conformsInner(upper, right, visited, undefinedSubst, checkWeak)
-      case (left, ScAbstractType(_, lower, upper)) =>
-        return conformsInner(left, lower, visited, undefinedSubst, checkWeak)
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level > u1.level =>
         return (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u1))
       case (u2: ScUndefinedType, u1: ScUndefinedType) if u2.level > u1.level =>
@@ -95,6 +91,10 @@ object Conformance {
       case (u1: ScUndefinedType, u2: ScUndefinedType) if u2.level == u1.level => return (true, undefinedSubst)
       case (u: ScUndefinedType, tp: ScType) => return (true, undefinedSubst.addLower((u.tpt.name, u.tpt.getId), tp))
       case (tp: ScType, u: ScUndefinedType) => return (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), tp))
+      case (ScAbstractType(_, lower, upper), right) =>
+        return conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+      case (left, ScAbstractType(_, lower, upper)) =>
+        return conformsInner(left, lower, visited, undefinedSubst, checkWeak)
       case _ => {
         val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
         if (isEquiv._1) return isEquiv
@@ -141,6 +141,14 @@ object Conformance {
           //this case filter out such cases like undefined type
           case _ => {
             argsPair match {
+              case (u: ScUndefinedType, rt) => {
+                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
+                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
+              }
+              case (lt, u: ScUndefinedType) => {
+                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
+                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
+              }
               case (ScAbstractType(_, lower, upper), right) => {
                 var t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
                 if (!t._1) return (false, undefinedSubst)
@@ -156,14 +164,6 @@ object Conformance {
                 t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-              }
-              case (u: ScUndefinedType, rt) => {
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt)
-              }
-              case (lt, u: ScUndefinedType) => {
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt)
               }
               case (_: ScExistentialArgument, _) => {
                 val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)

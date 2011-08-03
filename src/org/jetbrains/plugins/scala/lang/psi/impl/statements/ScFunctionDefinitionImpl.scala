@@ -50,16 +50,15 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
       body match {
         case Some(x) if lastParent != null && x.getStartOffsetInParent == lastParent.getStartOffsetInParent =>
           for (p <- parameterIncludingSynthetic) {
-            ProgressManager.checkCanceled
+            ProgressManager.checkCanceled()
             if (!processor.execute(p, state)) return false
           }
         case _ =>
       }
-    }
-    else {
+    } else {
       if (lastParent != null && lastParent.getContext != lastParent.getParent) {
         for (p <- parameterIncludingSynthetic) {
-          ProgressManager.checkCanceled
+          ProgressManager.checkCanceled()
           if (!processor.execute(p, state)) return false
         }
       }

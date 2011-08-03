@@ -81,8 +81,7 @@ object InferUtil {
           }
         }
         implicitParameters = Some(resolveResults.toSeq)
-        resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams,
-          polymorphicSubst, safeCheck = check)
+        resInner = ScalaPsiUtil.localTypeInference(retType, params, exprs.toSeq, typeParams, safeCheck = check)
       }
       case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
         // See SCL-3516
@@ -136,11 +135,11 @@ object InferUtil {
               return //do not update, this case will be updated, when implicit clause will be processed
             case _ => internal
           }
-          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(internal,
+          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", expected, expected, false, false, false)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check)
-          nonValueType = Success(ScTypePolymorphicType(m, update.typeParameters), Some(expr)) //here should work in different way:
+          nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         if (!fromUnderscoreSection) {
           updateRes(expectedType.get)
