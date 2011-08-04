@@ -18,4 +18,6 @@ trait ScPostfixExpr extends ScExpression with MethodInvocation with ScSugarCallE
     case _ =>
       throw new UnsupportedOperationException("Postfix Expr Operation is not reference expression: " + this.getText)
   }
+
+  def getBaseExpr: ScExpression = operand
 }

@@ -44,6 +44,8 @@ object CachesUtil {
     Key.create("ref.element.shape.resolve.key")
   val REF_EXPRESSION_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
     Key.create("ref.expression.shape.resolve.key")
+  val REF_EXPRESSION_NON_VALUE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
+    Key.create("ref.expression.non.value.resolve.key")
   val IS_SCRIPT_FILE_KEY: Key[CachedValue[Boolean]] = Key.create("is.script.file.key")
   val FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("function.effective.parameter.clause.key")

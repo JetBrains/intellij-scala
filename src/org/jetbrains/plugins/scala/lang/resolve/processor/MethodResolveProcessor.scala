@@ -5,12 +5,11 @@ package processor
 
 import psi.api.statements._
 import com.intellij.psi._
-import params.{ScParameterClause, ScTypeParam}
+import params.ScTypeParam
 import psi.types._
-
+import nonvalue.TypeParameter
 import psi.api.base.types.ScTypeElement
 import result.TypingContext
-import scala._
 import collection.immutable.HashSet
 import scala.collection.Set
 import psi.implicits.ScImplicitlyConvertible
@@ -23,13 +22,14 @@ import psi.{ScalaPsiElement, ScalaPsiUtil}
 import psi.api.expr._
 import org.jetbrains.plugins.scala.extensions._
 import psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
+import psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
                              var argumentClauses: List[Seq[Expression]],
                              val typeArgElements: Seq[ScTypeElement],
+                             val prevTypeInfo: Seq[TypeParameter],
                              override val kinds: Set[ResolveTargets.Value] = StdKinds.methodRef,
                              val expectedOption: () => Option[ScType] = () => None,
                              val isUnderscore: Boolean = false,
@@ -126,7 +126,8 @@ object MethodResolveProcessor {
       case _ => element //do not
     }
 
-    val substitutor: ScSubstitutor = undefinedSubstitutor(elementForUndefining, s, proc)
+    val substitutor: ScSubstitutor =
+      undefinedSubstitutor(elementForUndefining, s, proc).followed(ScalaPsiUtil.undefineSubstitutor(prevTypeInfo))
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       expectedOption() match {

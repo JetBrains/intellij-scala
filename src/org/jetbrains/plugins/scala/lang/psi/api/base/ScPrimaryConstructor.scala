@@ -19,7 +19,7 @@ import com.intellij.psi.util.PsiModificationTracker
 * Date: 07.03.2008
 */
 
-trait ScPrimaryConstructor extends ScMember with PsiMethod with ScMethodLike {
+trait ScPrimaryConstructor extends ScMember with ScMethodLike {
   /**
    *  @return has annotation
    */

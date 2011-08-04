@@ -22,4 +22,6 @@ trait ScPrefixExpr extends ScExpression with MethodInvocation with ScSugarCallEx
   }
 
   def argsElement: PsiElement = operation
+
+  def getBaseExpr: ScExpression = operand
 }

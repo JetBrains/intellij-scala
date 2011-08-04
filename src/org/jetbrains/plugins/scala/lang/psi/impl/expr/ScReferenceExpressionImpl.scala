@@ -11,6 +11,7 @@ import params.ScParameter
 import resolve._
 import processor.CompletionProcessor
 import types._
+import nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
@@ -21,11 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.PsiElement
 import api.base.patterns.ScReferencePattern
 import com.intellij.psi.util.PsiTreeUtil
-import api.{ScalaElementVisitor, ScalaFile}
+import api.ScalaElementVisitor
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 import api.toplevel.imports.ScImportStmt
 import caches.ScalaRecursionManager
-import com.intellij.openapi.util.{Computable, RecursionManager}
+import com.intellij.openapi.util.Computable
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -58,7 +59,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("class does not match expected kind")
         if (refName != c.getName)
           throw new IncorrectOperationException("class does not match expected name")
-        val file = getContainingFile.asInstanceOf[ScalaFile]
         val qualName = c.getQualifiedName
         if (qualName != null) {
           org.jetbrains.plugins.scala.annotator.intention.
@@ -135,10 +135,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
       //prevent infinite recursion for recursive pattern reference
       case Some(r@ScalaResolveResult(refPatt: ScReferencePattern, s)) => {
-        def substIfSome(t: Option[ScType]) = t match {
-          case Some(t) => s.subst(t)
-          case None => Nothing
-        }
         ScalaPsiUtil.nameContext(refPatt) match {
           case pd: ScPatternDefinition if (PsiTreeUtil.isContextAncestor(pd, this, true)) => pd.declaredType match {
             case Some(t) => t
@@ -228,6 +224,35 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
       }
       case _ => return Failure("Cannot resolve expression", Some(this))
+    }
+    qualifier match {
+      case Some(s: ScSuperReference) =>
+      case None => //infix, prefix and postfix
+        getContext match {
+          case sugar: ScSugarCallExpr if sugar.operation == this =>
+            sugar.getBaseExpr.getNonValueType(TypingContext.empty) match {
+              case Success(ScTypePolymorphicType(_, typeParams), _) =>
+                inner match {
+                  case ScTypePolymorphicType(internal, typeParams2) =>
+                    return Success(ScTypePolymorphicType(internal, typeParams ++ typeParams2), Some(this))
+                  case _ =>
+                    return Success(ScTypePolymorphicType(inner, typeParams), Some(this))
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+      case Some(qualifier) =>
+        qualifier.getNonValueType(TypingContext.empty) match {
+          case Success(ScTypePolymorphicType(_, typeParams), _) =>
+            inner match {
+              case ScTypePolymorphicType(internal, typeParams2) =>
+                return Success(ScTypePolymorphicType(internal, typeParams ++ typeParams2), Some(this))
+              case _ =>
+                return Success(ScTypePolymorphicType(inner, typeParams), Some(this))
+            }
+          case _ =>
+        }
     }
     Success(inner, Some(this))
   }

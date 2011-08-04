@@ -157,7 +157,8 @@ object ScalaPsiUtil {
             val res = !newProc.candidatesS.isEmpty
             if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
               val mrp = processor.asInstanceOf[MethodResolveProcessor]
-              val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements, kinds,
+              val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
+                Seq.empty /* todo? */, kinds,
                 mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve)
               val tp = t
               newProc.processType(tp, e, ResolveState.initial)
@@ -211,7 +212,12 @@ object ScalaPsiUtil {
         }
       case expression => (expression, tp, Seq.empty)
     }
-    val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs,
+    val invoked = call.getInvokedExpr
+    val typeParams = invoked.getNonValueType(TypingContext.empty).map {
+      case ScTypePolymorphicType(_, tps) => tps
+      case _ => Seq.empty
+    }.getOrElse(Seq.empty)
+    val processor = new MethodResolveProcessor(expr, methodName, args :: Nil, typeArgs, typeParams,
       isShapeResolve = isShape, enableTupling = true)
     processor.processType(exprTp.inferValueType, getEffectiveInvokedExpr, ResolveState.initial)
     var candidates = processor.candidatesS

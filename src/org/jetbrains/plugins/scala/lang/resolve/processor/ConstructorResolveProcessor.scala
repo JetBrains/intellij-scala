@@ -18,7 +18,7 @@ import lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)
-        extends MethodResolveProcessor(constr, refName, args, typeArgs, kinds,
+        extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
           isShapeResolve = shapeResolve, enableTupling = true) {
   private val qualifiedNames: collection.mutable.HashSet[String] = new collection.mutable.HashSet[String]
 

@@ -13,7 +13,6 @@ import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
-import psi.types.result.TypingContext
 import psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
@@ -21,9 +20,11 @@ import psi.api.statements.params.{ScParameters, ScParameter}
 import psi.api.toplevel.templates.{ScTemplateBody, ScExtendsBlock}
 import psi.api.toplevel.typedef.ScTypeDefinition
 import psi.api.toplevel.ScTypedDefinition
-import psi.types.{ScProjectionType, ScDesignatorType, ScSubstitutor, ScType}
 import util.PsiModificationTracker
 import caches.CachesUtil
+import psi.types.result.{Success, TypingContext}
+import psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import psi.types._
 
 trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
@@ -216,8 +217,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           }
           case Some((clazz, subst)) => {
             val processor: MethodResolveProcessor = new MethodResolveProcessor(constr, "this",
-              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, constructorResolve = true,
-              enableTupling = true)
+              constr.arguments.toList.map(_.exprs.map(Expression(_))), typeArgs, Seq.empty /* todo: ? */,
+              constructorResolve = true, enableTupling = true)
             val state = ResolveState.initial.put(ScSubstitutor.key, subst)
             for (constr <- clazz.getConstructors) {
               processor.execute(constr, state)
@@ -295,6 +296,16 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processTypes(e: ScExpression, processor: BaseProcessor) {
     ProgressManager.checkCanceled()
+    //first of all, try nonValueType.internalType
+    val nonValueType = e.getNonValueType(TypingContext.empty)
+    nonValueType match {
+      case Success(ScTypePolymorphicType(internal, tp), _) if !tp.isEmpty &&
+        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
+        processType(internal, e, processor)
+        if (!processor.candidates.isEmpty) return
+      case _ =>
+    }
+    //if it's ordinar case
     val result = e.getType(TypingContext.empty)
     if (result.isDefined) {
       processType(result.get, e, processor)
