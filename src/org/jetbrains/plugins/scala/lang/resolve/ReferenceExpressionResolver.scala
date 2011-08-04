@@ -12,6 +12,8 @@ import com.intellij.psi.{ResolveResult, PsiElement}
 import psi.api.statements.ScFunction
 import psi.types.{Equivalence, ScParameterizedType, ScFunctionType, ScType}
 import collection.Set
+import psi.types.result.TypingContext
+import psi.types.nonvalue.{TypeParameter, ScTypePolymorphicType}
 
 class ReferenceExpressionResolver(shapesOnly: Boolean)
         extends ResolveCache.PolyVariantResolver[ResolvableReferenceExpression] {
@@ -100,11 +102,28 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       }
     }
 
+    val prevInfoTypeParams = reference.qualifier match {
+      case Some(s: ScSuperReference) => Seq.empty
+      case Some(qual) =>
+        qual.getNonValueType(TypingContext.empty).map {
+          case t: ScTypePolymorphicType => t.typeParameters
+          case _ => Seq.empty
+        }.getOrElse(Seq.empty)
+      case _ => reference.getContext match {
+        case sugar: ScSugarCallExpr if sugar.operation == reference =>
+          sugar.getBaseExpr.getNonValueType(TypingContext.empty).map {
+            case t: ScTypePolymorphicType => t.typeParameters
+            case _ => Seq.empty
+          }.getOrElse(Seq.empty)
+        case _ => Seq.empty
+      }
+    }
+
     def nonAssignResolve: Array[ResolveResult] = {
       def processor(smartProcessor: Boolean): MethodResolveProcessor =
         new MethodResolveProcessor(reference, name, info.arguments.toList,
-          getTypeArgs(reference), kinds(reference, reference, incomplete), () => expectedOption, info.isUnderscore,
-          shapesOnly, enableTupling = true) {
+          getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), () => expectedOption,
+          info.isUnderscore, shapesOnly, enableTupling = true) {
           override def candidatesS: Set[ScalaResolveResult] = {
             if (!smartProcessor) super.candidatesS
             else {
@@ -133,7 +152,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       }
       if (result.isEmpty && reference.isAssignmentOperator) {
         val assignProcessor = new MethodResolveProcessor(reference, reference.refName.init, List(argumentsOf(reference)),
-          Nil, isShapeResolve = shapesOnly, enableTupling = true)
+          Nil, prevInfoTypeParams, isShapeResolve = shapesOnly, enableTupling = true)
         result = reference.doResolve(reference, assignProcessor)
         result.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
       } else {
@@ -149,7 +168,8 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
         // If x denotes a mutable variable, then the assignment changes the current value of x to be
         // the result of evaluating the expression e
         val processor = new MethodResolveProcessor(reference, name, info.arguments.toList,
-          getTypeArgs(reference), /*todo refExprLastRef? */StdKinds.varsRef, () => None, info.isUnderscore, shapesOnly)
+          getTypeArgs(reference), prevInfoTypeParams, /*todo refExprLastRef? */StdKinds.varsRef, () => None,
+          info.isUnderscore, shapesOnly)
         val result = reference.doResolve(reference, processor)
 
         /*
@@ -161,7 +181,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
          */
         if (result.nonEmpty) result
         else {
-          val setterResult = searchForSetter(reference, assign, info.isUnderscore)
+          val setterResult = searchForSetter(reference, assign, info.isUnderscore, prevInfoTypeParams)
           if (setterResult.nonEmpty) setterResult
           else nonAssignResolve // resolve to val, to be able to highlight 'reassignment to val.
         }
@@ -173,12 +193,14 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
   // "If x is a parameterless function defined in some template, and the same template contains a setter function x_= as member,
   // then the assignment x = e is interpreted as the invocation x_=(e ) of that setter function.
   // Analogously, an assignment f.x = e to a parameterless function x is interpreted as the invocation f.x_=(e).
-  def searchForSetter(ref: ResolvableReferenceExpression, assign: ScAssignStmt, isUnderscore: Boolean): Array[ResolveResult] = {
-    val getterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, ref.refName, Nil, Nil, kinds = StdKinds.methodsOnly))
+  def searchForSetter(ref: ResolvableReferenceExpression, assign: ScAssignStmt, isUnderscore: Boolean,
+                      infoTypeParams: Seq[TypeParameter]): Array[ResolveResult] = {
+    val getterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, ref.refName, Nil, Nil, infoTypeParams,
+      kinds = StdKinds.methodsOnly))
 
     val args = List(assign.getRExpression.toList.map(Expression(_)))
     val setterName = ref.refName + "_="
-    val setterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, setterName, args, Nil,
+    val setterResults = ref.doResolve(ref, new MethodResolveProcessor(ref, setterName, args, Nil, infoTypeParams,
       kinds = StdKinds.methodsOnly, isUnderscore = isUnderscore, isShapeResolve = shapesOnly, enableTupling = true))
 
     val r1 = setterResults.map(x => x.asInstanceOf[ScalaResolveResult].copy(isSetterFunction = true): ResolveResult)

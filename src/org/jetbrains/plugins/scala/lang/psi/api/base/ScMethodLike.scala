@@ -15,7 +15,7 @@ import statements.params.{ScParameterClause, ScTypeParamClause}
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
  */
-trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
+trait ScMethodLike extends ScMember with PsiMethod {
   def methodType: ScType = methodType(None)
   def methodType(result: Option[ScType]): ScType
 
@@ -37,15 +37,12 @@ trait ScMethodLike extends ScMember { //todo: extends PsiMethod?
 
   /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
   def getClassTypeParameters: Option[ScTypeParamClause] = {
-    this match {
-      case method: PsiMethod if method.isConstructor =>
-        val clazz = method.getContainingClass
-        clazz match {
-          case c: ScTypeDefinition => c.typeParametersClause
-          case _ => None
-        }
-      case _ => None
-    }
+    if (isConstructor) {
+      getContainingClass match {
+        case c: ScTypeDefinition => c.typeParametersClause
+        case _ => None
+      }
+    } else None
   }
 
   def effectiveParameterClauses: Seq[ScParameterClause]

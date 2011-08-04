@@ -59,7 +59,7 @@ trait ScFun extends ScTypeParametersOwner {
  * Represents Scala's internal function definitions and declarations
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
-        with PsiMethod with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
+        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike {
   private var synth = false
   def setSynthetic() {

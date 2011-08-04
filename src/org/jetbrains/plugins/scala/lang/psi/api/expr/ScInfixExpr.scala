@@ -21,7 +21,7 @@ trait ScInfixExpr extends ScExpression with MethodInvocation with ScSugarCallExp
 
   def rOp: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(2)
 
-  def getBaseExpr = if (isLeftAssoc) rOp else lOp
+  def getBaseExpr: ScExpression = if (isLeftAssoc) rOp else lOp
 
   def getArgExpr = if (isLeftAssoc) lOp else rOp
 

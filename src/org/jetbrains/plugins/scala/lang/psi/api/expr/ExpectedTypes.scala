@@ -344,7 +344,8 @@ private[expr] object ExpectedTypes {
       case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) => {
         import Expression._
         val applyProc =
-          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, StdKinds.methodsOnly, isShapeResolve = true)
+          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
+            StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
         val cand = applyProc.candidates
         if (cand.length == 1) {
@@ -360,7 +361,8 @@ private[expr] object ExpectedTypes {
       case Success(anotherType, _) => {
         import Expression._
         val applyProc =
-          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, StdKinds.methodsOnly, isShapeResolve = true)
+          new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
+            StdKinds.methodsOnly, isShapeResolve = true)
         applyProc.processType(anotherType, expr)
         val cand = applyProc.candidates
         if (cand.length == 1) {

@@ -49,7 +49,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (args == None) return Seq.empty
     val arguments = args.get
     val proc = new MethodResolveProcessor(this, "this", List(arguments.exprs.map(new Expression(_))), Seq.empty,
-      StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve, enableTupling = true)
+      Seq.empty /*todo: ? */, StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve, enableTupling = true)
     for (constr <- constructors) {
       proc.execute(constr, ResolveState.initial)
     }
@@ -68,14 +68,14 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         val params: Seq[TypeParameter] = tp.typeParameters.map(tp =>
           new TypeParameter(tp.name,
             tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
-        return Success(ScTypePolymorphicType(res, params), Some(this))
-      case _ => return Success(res, Some(this))
+        Success(ScTypePolymorphicType(res, params), Some(this))
+      case _ => Success(res, Some(this))
     }
   }
 
   def shapeType(i: Int): TypeResult[ScType] = {
     val option = bindInternal(true)
-    return workWithBindInternal(option, i)
+    workWithBindInternal(option, i)
   }
 
   def shapeMultiType(i: Int): Seq[TypeResult[ScType]] = {

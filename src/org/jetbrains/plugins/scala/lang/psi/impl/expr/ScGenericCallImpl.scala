@@ -49,7 +49,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     val typeArgs: Seq[ScTypeElement] = this.arguments
     import Compatibility.Expression._
     val processor = new MethodResolveProcessor(referencedExpr, methodName, args :: Nil, typeArgs,
-      isShapeResolve = isShape, enableTupling = true)
+      Seq.empty /* todo: ? */, isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp, referencedExpr, ResolveState.initial)
     val candidates = processor.candidates
     if (candidates.length != 1) Nothing
