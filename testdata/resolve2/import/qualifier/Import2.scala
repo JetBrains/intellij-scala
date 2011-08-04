@@ -1,4 +1,10 @@
-import /* resolved: false */ scheduler.ThreadPoolScheduler
-import actors._
+object foo {
+  object bar {
+    class baz
+  }
+}
 
-println(classOf[/* resolved: false */ ThreadPoolScheduler])
+import /* resolved: false */ bar.baz
+import foo._
+
+println(classOf[/* resolved: false */ baz])
