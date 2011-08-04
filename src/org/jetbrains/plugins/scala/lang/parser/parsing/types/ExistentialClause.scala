@@ -4,7 +4,7 @@ package parser
 package parsing
 package types
 
-import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import  org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.ScalaBundle
 import builder.ScalaPsiBuilder
@@ -24,16 +24,16 @@ object ExistentialClause {
     val existMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kFOR_SOME => {
-        builder.advanceLexer //Ate forSome
+        builder.advanceLexer() //Ate forSome
       }
       case _ => {
-        existMarker.drop
+        existMarker.drop()
         return false
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
-        builder.advanceLexer //Ate {
+        builder.advanceLexer() //Ate {
         builder.enableNewlines
       }
       case _ => {
@@ -48,6 +48,6 @@ object ExistentialClause {
     ParserUtils.parseLoopUntilRBrace(builder, foo _)
     builder.restoreNewlinesState
     existMarker.done(ScalaElementTypes.EXISTENTIAL_CLAUSE)
-    return true
+    true
   }
 }

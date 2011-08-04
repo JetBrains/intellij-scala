@@ -8,4 +8,6 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
   def testSCL2549A() {doTest()}
 
   def testSCL2549B() {doTest()}
+
+  def testSCL3364() {doTest()}
 }
