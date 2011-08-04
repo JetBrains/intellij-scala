@@ -121,7 +121,12 @@ object MethodResolveProcessor {
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
-    val substitutor: ScSubstitutor = undefinedSubstitutor(realResolveResult.getActualElement, s, proc)
+    val elementForUndefining = element match {
+      case m: PsiMethod if m.isConstructor => realResolveResult.getActualElement
+      case _ => element //do not
+    }
+
+    val substitutor: ScSubstitutor = undefinedSubstitutor(elementForUndefining, s, proc)
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
       expectedOption() match {
@@ -224,6 +229,7 @@ object MethodResolveProcessor {
   def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor): ScSubstitutor = {
     import proc.typeArgElements
 
+    //todo: it's always None, if you have constructor => actual element is class of type alias
     val constructorTypeParameters = element match {
       case ml: ScMethodLike => ml.getClassTypeParameters
       case _ => None
@@ -242,6 +248,7 @@ object MethodResolveProcessor {
                   new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
+      //todo: this case is impossible case for reasons mentioned above
       case (_, method: PsiMethod) if method.isConstructor => // Java constructors
         val typeParameters = method.getContainingClass.getTypeParameters
         s.followed(
