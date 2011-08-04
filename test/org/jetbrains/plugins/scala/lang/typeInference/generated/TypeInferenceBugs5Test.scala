@@ -6,4 +6,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   override def rootPath: String = super.rootPath + "bugs5/"
 
   def testSCL3426() {doTest()}
+
+  def testSCL3496() {doTest()}
 }
