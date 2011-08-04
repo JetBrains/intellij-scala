@@ -15,7 +15,11 @@ object Equivalence {
   def undefinedSubst(l: ScType, r: ScType): ScUndefinedSubstitutor =
     equivInner(l, r, new ScUndefinedSubstitutor)._2
 
-  def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
+  /**
+   * @param falseUndef use false to consider undef type equals to any type
+   */
+  def equivInner(l: ScType, r: ScType, subst: ScUndefinedSubstitutor,
+                 falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
     if (l.isInstanceOf[ScDesignatorType] && l.getValType != None) {
