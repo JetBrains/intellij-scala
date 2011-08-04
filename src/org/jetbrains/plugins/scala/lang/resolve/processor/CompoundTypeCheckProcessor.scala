@@ -37,25 +37,33 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
 
     var undef = undefSubst
 
-    def checkTypeParameters(tp1: PsiTypeParameter, tp2: ScTypeParam): Boolean = {
+    def checkTypeParameters(tp1: PsiTypeParameter, tp2: ScTypeParam, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
           if (tp1.typeParameters.length != tp2.typeParameters.length) return false
           val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
-            if (!checkTypeParameters(tp1, tp2)) return false
+            if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrElse(Nothing)
           val lower2 = substitutor.subst(tp2.lowerBound.getOrElse(Nothing))
-          var t = Conformance.conformsInner(lower2, lower1, Set.empty, undef)
+          var t = Conformance.conformsInner(
+            if (variance == 1) lower2
+            else lower1,
+            if (variance == 1) lower1
+            else lower2, Set.empty, undef)
           if (!t._1) return false
           undef = t._2
 
           val upper1 = tp1.upperBound.getOrElse(Any)
           val upper2 = substitutor.subst(tp2.upperBound.getOrElse(Any))
-          t = Conformance.conformsInner(upper1, upper2, Set.empty, undef)
+          t = Conformance.conformsInner(
+            if (variance == 1) upper1
+            else upper2,
+            if (variance == 1) upper2
+            else upper1, Set.empty, undef)
           if (!t._1) return false
           undef = t._2
           //todo: view?
