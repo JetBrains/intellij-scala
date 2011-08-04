@@ -1,4 +1,10 @@
-import actors._
-import /* */ scheduler.ThreadPoolScheduler
+object foo {
+  object bar {
+    class baz
+  }
+}
 
-println(classOf[/* path: scala.actors.scheduler.ThreadPoolScheduler */ ThreadPoolScheduler])
+import foo._
+import /* */ bar.baz
+
+println(classOf[/* path: foo.bar.baz */ baz])
