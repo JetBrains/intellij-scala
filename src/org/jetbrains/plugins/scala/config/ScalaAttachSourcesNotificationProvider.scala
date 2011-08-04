@@ -16,6 +16,7 @@ import com.intellij.ide.highlighter.{JavaFileType, JavaClassFileType}
 import java.util.{TreeSet, Comparator, ArrayList, List}
 import com.intellij.openapi.extensions.{ExtensionPointName, Extensions}
 import org.jetbrains.idea.maven.utils.MavenAttachSourcesProvider
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,9 +34,13 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     val libraries: List[LibraryOrderEntry] = findOrderEntriesContainingFile(file)
     if (libraries == null) return null
     val psiFile: PsiFile = PsiManager.getInstance(myProject).findFile(file)
-    val fqn: String = ScalaEditorFileSwapper.getFQN(psiFile)
+    val isScala = psiFile.isInstanceOf[ScalaFile]
+    val fqn: String =
+      if (isScala) ScalaEditorFileSwapper.getFQN(psiFile)
+      else JavaEditorFileSwapper.getFQN(psiFile)
     if (fqn == null) return null
-    if (ScalaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
+    if (isScala && ScalaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
+    if (!isScala && JavaEditorFileSwapper.findSourceFile(myProject, file) != null) return null
     val panel: EditorNotificationPanel = new EditorNotificationPanel
     val sourceFile: VirtualFile = findSourceFile(file)
     var defaultAction: AttachSourcesProvider.AttachSourcesAction = null
@@ -66,8 +71,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
 
 
     for (each <- Extensions.getExtensions(EXTENSION_POINT_NAME)) {
-      if (each.isInstanceOf[MavenAttachSourcesProvider])
-        actions.addAll(each.getActions(libraries, psiFile))
+      actions.addAll(each.getActions(libraries, psiFile))
     }
 
     val iterator = actions.iterator()
