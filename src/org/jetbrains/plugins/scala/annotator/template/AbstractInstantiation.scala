@@ -15,8 +15,9 @@ object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     val newObject = definition.isInstanceOf[ScNewTemplateDefinition]
     val hasBody = definition.extendsBlock.templateBody.isDefined
+    val hasEarlyBody = definition.extendsBlock.earlyDefinitions.exists(_.members.nonEmpty)
 
-    if(!newObject || hasBody) return
+    if(!newObject || hasEarlyBody || hasBody) return
 
     val refs = definition.refs
 

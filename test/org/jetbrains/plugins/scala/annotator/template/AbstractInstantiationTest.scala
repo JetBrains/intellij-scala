@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.annotator.Error
 class AbstractInstantiationTest extends AnnotatorTestBase(AbstractInstantiation) {
   private val Message = "(\\w+\\s\\w+) is abstract; cannot be instantiated".r
 
-  def testOrdinaryClass {
+  def testOrdinaryClass() {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
     assertNothing(messages("class C; new C with Object"))
@@ -26,7 +26,7 @@ class AbstractInstantiationTest extends AnnotatorTestBase(AbstractInstantiation)
     assertNothing(messages("class C; class X extends Object with C {}"))
   }
 
-  def testAbstractClass {
+  def testAbstractClass() {
     assertMatches(messages("trait T; new T")) {
       case Error("T", Message("Trait T")) :: Nil =>
     }
@@ -44,5 +44,12 @@ class AbstractInstantiationTest extends AnnotatorTestBase(AbstractInstantiation)
     assertNothing(messages("abstract class C; class X extends C with Object {}"))
     assertNothing(messages("abstract class C; class X extends Object with C"))
     assertNothing(messages("abstract class C; class X extends Object with C {}"))
+  }
+
+  def testAbstractClassEarlyDefinition() {
+    assertMatches(messages("abstract class C; new {} with C")) {
+      case Error("C", Message("Class C")) :: Nil =>
+    }
+    assertNothing(messages("abstract class C; new { val a = 0 } with C"))
   }
 }
