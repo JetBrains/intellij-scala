@@ -92,8 +92,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     return null
   }
 
-  def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext): Unit = {
-    if (context.getParameterOwner != o) context.removeHint
+  def updateParameterInfo(o: ScArgumentExprList, context: UpdateParameterInfoContext) {
+    if (context.getParameterOwner != o) context.removeHint()
     val offset = context.getOffset
     var child = o.getNode.getFirstChildNode
     var i = 0
@@ -105,11 +105,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   }
 
 
-  def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
+  def updateUI(p: Any, context: ParameterInfoUIContext) {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: ScArgumentExprList => {
-        var color: Color = context.getDefaultParameterColor
+        val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
         var isGrey = false
@@ -143,7 +143,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType =expr.getType(TypingContext.empty).getOrElse(Nothing)
+                  val exprType = expr.getType(TypingContext.empty).getOrElse(Nothing)
                   val getIt = used.indexOf(false)
                   used(getIt) = true
                   val param: (Parameter, String) = parameters(getIt)
@@ -238,10 +238,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (seq.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.map(t =>
-                Tuple(new Parameter(t._1, t._2, t._3 != null, false, false), t._1 + ": " + ScType.presentableText(t._2) + (
-                  if (t._3 != null) " = " + t._3.getText
-                  else ""
-                  )))
+                (new Parameter(t._1, t._2, t._3 != null, false, false), t._1 + ": " + ScType.presentableText(t._2) + (
+                  if (t._3 != null) " = " + t._3.getText else "")))
               applyToParameters(paramsSeq, ScSubstitutor.empty, true, false)
             }
           }
@@ -298,7 +296,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     val lastSize = buffer.length
                     for (a <- list.getAnnotations) {
                       if (lastSize != buffer.length) buffer.append(" ")
-                      val element = a.getNameReferenceElement();
+                      val element = a.getNameReferenceElement;
                       if (element != null) buffer.append("@").append(element.getText)
                     }
                     if (lastSize != buffer.length) buffer.append(" ")
