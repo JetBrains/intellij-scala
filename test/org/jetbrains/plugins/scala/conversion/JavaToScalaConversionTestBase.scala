@@ -18,8 +18,8 @@ abstract class JavaToScalaConversionTestBase extends ScalaPsiTestCase {
 
   override def rootPath: String = super.rootPath + "conversion/"
 
-  protected def doTest {
-    import _root_.junit.framework.Assert._
+  protected def doTest() {
+    import junit.framework.Assert._
 
     val filePath = rootPath + getTestName(false) + ".java"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))

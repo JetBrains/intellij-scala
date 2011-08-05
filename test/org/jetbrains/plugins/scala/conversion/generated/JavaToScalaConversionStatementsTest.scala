@@ -11,6 +11,10 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testEquals = doTest
 
+  def testForeachArray = doTest
+
+  def testForeachJavaList = doTest
+
   def testIfElseChain = doTest
 
   def testIfStatement = doTest
