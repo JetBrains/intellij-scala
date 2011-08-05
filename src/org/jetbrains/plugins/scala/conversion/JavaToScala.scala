@@ -146,6 +146,12 @@ object JavaToScala {
         }
       }
       case f: PsiForeachStatement => {
+        val tp = f.getIteratedValue.getType
+        val isJavaCollection =
+          if (tp == null) true else !tp.isInstanceOf[PsiArrayType]
+        if (isJavaCollection) {
+          res.append("import scala.collection.JavaConversions._\n")
+        }
         res.append("for (").append(escapeKeyword(f.getIterationParameter.getName)).append(" <- ").
                 append(convertPsiToText(f.getIteratedValue)).append(") ").
                 append(convertPsiToText(f.getBody))
