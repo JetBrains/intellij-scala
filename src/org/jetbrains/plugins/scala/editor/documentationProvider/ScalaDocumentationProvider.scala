@@ -189,7 +189,7 @@ object ScalaDocumentationProvider {
       case _ => elem.getType(TypingContext.empty).getOrElse(Any)
     }
     buffer.append(typeToString(typez))
-    buffer.toString
+    buffer.toString()
   }
   private def parseClassUrl(elem: ScMember): String = {
     val clazz = elem.getContainingClass
@@ -237,7 +237,7 @@ object ScalaDocumentationProvider {
         case None => buffer.append("...")
       }
     }
-    buffer.toString
+    buffer.toString()
   }
 
   private def parseTypeParameters(elems: ScTypeParametersOwner): String = {

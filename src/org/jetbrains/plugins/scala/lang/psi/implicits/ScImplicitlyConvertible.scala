@@ -316,7 +316,7 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               case _ => return true
             }
           }
-          case param: ScParameter if param.hasModifierProperty("implicit") => {
+          case param: ScParameter if param.isImplicitParameter => {
             val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             candidatesSet += new ScalaResolveResult(param, subst, getImports(state))

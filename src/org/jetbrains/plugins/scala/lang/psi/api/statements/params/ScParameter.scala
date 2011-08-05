@@ -8,13 +8,13 @@ package params
 import expr.ScExpression
 import icons.Icons
 import javax.swing.Icon
-import lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import com.intellij.psi._
-import api.statements.params._
-import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import types.result.{TypeResult, TypingContext}
 import types.ScType
+import java.lang.Boolean
+import util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -51,5 +51,11 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getSuperParameter: Option[ScParameter]
 
-  def remove: Unit
+  def remove
+
+  def isImplicitParameter: Boolean = {
+    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+    if (clause == false) return false
+    clause.isImplicit
+  }
 }
