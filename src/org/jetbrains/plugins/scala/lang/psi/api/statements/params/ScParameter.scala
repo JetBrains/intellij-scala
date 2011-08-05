@@ -13,7 +13,6 @@ import com.intellij.psi._
 import toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import types.result.{TypeResult, TypingContext}
 import types.ScType
-import java.lang.Boolean
 import util.PsiTreeUtil
 
 /**
@@ -51,7 +50,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getSuperParameter: Option[ScParameter]
 
-  def remove
+  def remove()
 
   def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
