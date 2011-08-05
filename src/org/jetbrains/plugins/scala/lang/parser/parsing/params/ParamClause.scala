@@ -4,9 +4,7 @@ package parser
 package parsing
 package params
 
-import com.intellij.lang.PsiBuilder
 import lexer.ScalaTokenTypes
-import nl.LineTerminator
 import builder.ScalaPsiBuilder
 
 /**
@@ -22,22 +20,22 @@ object ParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     if (builder.countNewlineBeforeCurrentToken > 1) {
-      paramMarker.drop
+      paramMarker.drop()
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS => {
-        builder.advanceLexer //Ate (
+        builder.advanceLexer() //Ate (
         builder.disableNewlines
       }
       case _ => {
-        paramMarker.rollbackTo
+        paramMarker.rollbackTo()
         return false
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPLICIT => {
-        paramMarker.rollbackTo
+        paramMarker.rollbackTo()
         builder.restoreNewlinesState
         return false
       }
@@ -46,7 +44,7 @@ object ParamClause {
     Params parse builder
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS => {
-        builder.advanceLexer //Ate )
+        builder.advanceLexer() //Ate )
       }
       case _ => {
         builder error ScalaBundle.message("rparenthesis.expected")
@@ -54,6 +52,6 @@ object ParamClause {
     }
     builder.restoreNewlinesState
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSE)
-    return true
+    true
   }
 }
