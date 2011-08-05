@@ -316,12 +316,12 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
               case _ => return true
             }
           }
-          case param: ScParameter => {
+          case param: ScParameter if param.hasModifierProperty("implicit") => {
             val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             candidatesSet += new ScalaResolveResult(param, subst, getImports(state))
           }
-          case obj: ScObject => {
+          case obj: ScObject if obj.hasModifierProperty("implicit") => {
             val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
             if (funType == null || !tp.conforms(funType)) return true
             candidatesSet += new ScalaResolveResult(obj, subst, getImports(state))

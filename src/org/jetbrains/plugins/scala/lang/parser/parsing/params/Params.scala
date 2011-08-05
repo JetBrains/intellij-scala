@@ -23,11 +23,11 @@ object Params {
       return false
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate ,
+      builder.advanceLexer() //Ate ,
       if (!Param.parse(builder)) {
         builder error ScalaBundle.message("wrong.parameter")
       }
     }
-    return true
+    true
   }
 }

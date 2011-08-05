@@ -63,6 +63,17 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     }
   }
 
+  override def hasModifierProperty(name: String): Boolean = {
+    name match {
+      case "implicit" =>
+        val paramClause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+        if (paramClause == null) return super.hasModifierProperty(name)
+        paramClause.isImplicit
+      case _ =>
+        super.hasModifierProperty(name)
+    }
+  }
+
   def nameId = {
     val id = findChildByType(ScalaTokenTypes.tIDENTIFIER)
     if (id == null) findChildByType(ScalaTokenTypes.tUNDER) else id
