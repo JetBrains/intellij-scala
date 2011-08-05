@@ -254,7 +254,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
     } else res
   }
 
-  def remove {
+  def remove() {
     val node = getNode
     val toRemove: ArrayBuffer[ASTNode] = ArrayBuffer.apply(node)
     getParent match {
