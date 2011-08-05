@@ -92,7 +92,7 @@ private[annotator] object ModifierChecker {
                       new RemoveModifierQuickFix(owner, "final"))
                   }
                 }
-                case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] => {
+                case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] => {
                   val redundant = (e.getContainingClass, e) match {
                     case (obj: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
                             valMember.pList.allPatternsSimple => false // SCL-899
