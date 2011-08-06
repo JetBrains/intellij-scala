@@ -111,6 +111,14 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        ScCompoundType(components.map(_.recursiveVarianceUpdate(update, variance)), decls, typeDecls, subst)
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {

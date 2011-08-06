@@ -66,5 +66,13 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        ScTupleType(components.map(_.recursiveVarianceUpdate(update, variance)))(project, scope)
+    }
+  }
+
   private def tupleTraitName = "scala.Tuple" + components.length
 }

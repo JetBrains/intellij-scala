@@ -106,6 +106,12 @@ trait ScType {
     else this
   }
 
+  def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int = 1): ScType = {
+    val res = update(this, variance)
+    if (res._1) res._2
+    else this
+  }
+
   def collectAbstracts: Seq[ScAbstractType] = {
     val set: HashSet[ScAbstractType] = new HashSet[ScAbstractType]
 

@@ -74,6 +74,20 @@ case class ScExistentialType(quantified : ScType,
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        try {
+          ScExistentialType(quantified.recursiveVarianceUpdate(update, variance),
+            wildcards.map(_.recursiveVarianceUpdate(update, variance).asInstanceOf[ScExistentialArgument]))
+        }
+        catch {
+          case cce: ClassCastException => throw new RecursiveUpdateException
+        }
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
@@ -359,6 +373,15 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        ScExistentialArgument(name, args, lowerBound.recursiveVarianceUpdate(update, -variance),
+          upperBound.recursiveVarianceUpdate(update, variance))
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
@@ -383,6 +406,15 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], low
       case (true, res) => res
       case _ =>
         ScSkolemizedType(name, args, lower.recursiveUpdate(update), upper.recursiveUpdate(update))
+    }
+  }
+
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        ScSkolemizedType(name, args, lower.recursiveVarianceUpdate(update, -variance),
+          upper.recursiveVarianceUpdate(update, variance))
     }
   }
 }

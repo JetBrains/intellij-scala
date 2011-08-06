@@ -33,6 +33,14 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        ScProjectionType(projected.recursiveVarianceUpdate(update, 0), element, subst)
+    }
+  }
+
   private def actual: (PsiNamedElement, ScSubstitutor) = {
     var res = actualInnerTuple
     if (res != null) return res

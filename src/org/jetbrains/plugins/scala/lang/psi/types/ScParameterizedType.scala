@@ -55,6 +55,14 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        JavaArrayType(arg.recursiveVarianceUpdate(update, 0))
+    }
+  }
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
@@ -120,6 +128,28 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case (true, res) => res
       case _ =>
         ScParameterizedType(designator.recursiveUpdate(update), typeArgs.map(_.recursiveUpdate(update)))
+    }
+  }
+
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        val des = ScType.extractDesignated(designator) match {
+          case Some((n: ScTypeParametersOwner, _)) =>
+            n.typeParameters.map {
+              case tp if tp.isContravariant => -1
+              case tp if tp.isCovariant => 1
+              case _ => 0
+            }
+          case _ => Seq.empty
+        }
+        ScParameterizedType(designator.recursiveVarianceUpdate(update, variance),
+          typeArgs.zipWithIndex.map {
+            case (ta, i) =>
+              val v = if (i < des.length) des(i) else 0
+              ta.recursiveVarianceUpdate(update, v * variance)
+          })
     }
   }
 
