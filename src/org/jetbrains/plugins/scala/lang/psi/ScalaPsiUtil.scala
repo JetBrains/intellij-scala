@@ -462,18 +462,34 @@ object ScalaPsiUtil {
       expectedType = abstractSubst.subst(p.paramType)))
     val c = Compatibility.checkConformanceExt(true, paramsWithUndefTypes, exprs, true, false)
     val tpe = if (c.problems.isEmpty) {
-      val un: ScUndefinedSubstitutor = c.undefSubst
+      var un: ScUndefinedSubstitutor = c.undefSubst
       c.undefSubst.getSubstitutor(!safeCheck) match {
         case Some(unSubst) =>
-          ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+          typeParams.foreach {case tp =>
             val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
-            !un.lowerMap.contains(name) && !un.upperMap.contains(name)
-          })
+            if (un.lowerMap.contains(name) || un.upperMap.contains(name)) {
+              //todo: add only one of them according to variance
+              if (tp.lowerType != Nothing)
+                un = un.addLower(name, tp.lowerType) //todo: do not add this in case of cyclic type parameter
+              if (tp.upperType != Any)
+                un = un.addUpper(name, tp.upperType)
+            }
+          }
+          un.getSubstitutor match {
+            case Some(unSubst) =>
+              ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+                val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+              })
+            case _ =>
+              ScTypePolymorphicType(unSubst.subst(retType), typeParams.filter {case tp =>
+                val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                !un.lowerMap.contains(name) && !un.upperMap.contains(name)
+              })
+          }
         case None => throw new SafeCheckException
       }
-    } else {
-      ScTypePolymorphicType(retType, typeParams)
-    }
+    } else ScTypePolymorphicType(retType, typeParams)
     (tpe, c.problems, c.matchedArgs)
   }
 
