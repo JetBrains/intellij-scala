@@ -7,11 +7,20 @@ import lang.psi.types.result.TypingContext
 import quickfix.ReportHighlightingErrorQuickFix
 import lang.psi.types._
 import lang.psi.api.base.ScConstructor
+import com.intellij.psi.PsiElement
+import lang.psi.api.ScalaFile
 
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
     val resolved = constructor.reference.toList.flatMap(_.resolveAllConstructors)
+    def isScalaCompiled(e: PsiElement) = e.getContainingFile match {
+      case sf: ScalaFile if sf.isCompiled => true
+      case _ => false
+    }
+    val isCompiled = resolved.exists(r => isScalaCompiled(r.getElement))
+    if (isCompiled) return // until SCL-3546 is fixed
+
     resolved match {
       case List() =>
         holder.createErrorAnnotation(constructor.typeElement, "Cannot resolve constructor")
