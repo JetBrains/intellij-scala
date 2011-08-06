@@ -255,7 +255,7 @@ trait ScPattern extends ScalaPsiElement {
       }
       case _: ScXmlPattern => {
         val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
-        if (nodeClass != null) return None
+        if (nodeClass == null) return None
         this match {
           case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
             val seqClass: PsiClass =
@@ -298,8 +298,8 @@ trait ScPattern extends ScalaPsiElement {
     case named: ScNamingPattern => named.expectedType
     case gen: ScGenerator => {
       val analog = getAnalog
-      if (analog != this) return analog.expectedType
-      else return None
+      if (analog != this) analog.expectedType
+      else None
     }
     case enum: ScEnumerator => {
       if (enum.rvalue == null) return None
