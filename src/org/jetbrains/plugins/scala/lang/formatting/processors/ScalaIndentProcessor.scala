@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.PsiComment
+import psi.api.toplevel.ScEarlyDefinitions
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -84,7 +85,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       }
-      case _: ScTemplateBody => {
+      case _: ScEarlyDefinitions | _: ScTemplateBody => {
         child.getElementType match {
           case ScalaTokenTypes.tLBRACE |
                   ScalaTokenTypes.tRBRACE => {
