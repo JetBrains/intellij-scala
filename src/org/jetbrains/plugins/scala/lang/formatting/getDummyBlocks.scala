@@ -11,7 +11,6 @@ import psi.ScalaPsiUtil
 import psi.api.statements._
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiComment, PsiWhiteSpace, PsiElement}
-import psi.api.toplevel.ScModifierListOwner
 import com.intellij.formatting._
 import com.intellij.psi.tree._
 import com.intellij.lang.ASTNode
@@ -26,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import ScalaWrapManager._
+import psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
@@ -38,7 +38,7 @@ object getDummyBlocks {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScValue | _: ScVariable if settings.ALIGN_GROUP_FIELD_DECLARATIONS => {
-        if (node.getTreeParent.getPsi.isInstanceOf[ScTemplateBody]) {
+        if (node.getTreeParent.getPsi match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }) {
           subBlocks.addAll(getFieldGroupSubBlocks(node, block))
           return subBlocks
         }

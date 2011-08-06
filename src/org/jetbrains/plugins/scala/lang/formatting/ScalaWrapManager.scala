@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBo
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScInfixTypeElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -89,7 +89,9 @@ object ScalaWrapManager {
         annot.getParent match {
           case _: ScTypeDefinition => return Wrap.createWrap(settings.CLASS_ANNOTATION_WRAP, false)
           case _: ScFunction => return Wrap.createWrap(settings.METHOD_ANNOTATION_WRAP, false)
-          case _: ScVariable | _: ScValue | _: ScTypeAlias if annot.getParent.getParent.isInstanceOf[ScTemplateBody] =>
+          case _: ScVariable | _: ScValue | _: ScTypeAlias if {
+            annot.getParent.getParent match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }
+          } =>
             return Wrap.createWrap(settings.FIELD_ANNOTATION_WRAP, false)
           case _: ScVariable | _: ScValue | _: ScTypeAlias => Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
           case _: ScParameter => Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)

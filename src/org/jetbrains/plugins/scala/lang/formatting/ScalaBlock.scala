@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import java.util.List
 import scaladoc.psi.api.ScDocComment
 import com.intellij.formatting._
+import psi.api.toplevel.ScEarlyDefinitions
 
 class ScalaBlock (val myParentBlock: ScalaBlock,
         private val myNode: ASTNode,
@@ -67,7 +68,7 @@ extends Object with ScalaTokenTypes with Block {
         }
       }
       case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
-      case _: ScBlockExpr | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
+      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScForStatement  | _: ScWhileStmt |
            _: ScTryBlock | _: ScCatchBlock => {
         new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
       }
