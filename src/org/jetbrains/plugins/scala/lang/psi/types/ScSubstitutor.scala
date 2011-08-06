@@ -20,21 +20,14 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 }
 
-class ScSubstitutor(val lowerMap: Map[(String, String), ScType],
-                    val upperMap: Map[(String, String), ScType],
+class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val updateThisType: Option[ScType]) {
-  def this(tvMap: Map[(String, String), ScType],
-           aliasesMap: Map[String, Suspension[ScType]],
-           updateThisType: Option[ScType]) {
-    this(tvMap, tvMap, aliasesMap, updateThisType)
-  }
+  def this() = this(Map.empty, Map.empty, None)
 
   def this(updateThisType: ScType) {
     this(Map.empty, Map.empty, Some(updateThisType))
   }
-
-  def this() = this(Map.empty, Map.empty, None)
 
   def this(tvMap: Map[(String, String), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
@@ -44,41 +37,31 @@ class ScSubstitutor(val lowerMap: Map[(String, String), ScType],
     this.follower = follower
   }
 
-  def this(lowerMap: Map[(String, String), ScType],
-           upperMap: Map[(String, String), ScType],
-           aliasesMap: Map[String, Suspension[ScType]],
-           updateThisType: Option[ScType],
-           follower: ScSubstitutor) = {
-    this(lowerMap, upperMap, aliasesMap, updateThisType)
-    this.follower = follower
-  }
-
   private var follower: ScSubstitutor = null
 
   def getFollower: ScSubstitutor = follower
 
-  override def toString: String = "Subst(" + lowerMap + ", " + upperMap + ", " + aliasesMap + ")" +
-    (if (follower != null) " -> " + follower.toString else "")
+  override def toString: String = "ScSubstitutor(" + tvMap + ", " + aliasesMap + ")" +
+    (if (follower != null) " followed " + follower.toString else "")
 
   def bindT(name : (String, String), t: ScType) =
-    new ScSubstitutor(lowerMap + ((name, t)), upperMap + ((name, t)), aliasesMap, updateThisType, follower)
+    new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
   def bindA(name: String, t: ScType) =
-    new ScSubstitutor(lowerMap, upperMap, aliasesMap + ((name, new Suspension[ScType](t))), updateThisType, follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](t))), updateThisType, follower)
   def bindA(name: String, f: () => ScType) =
-    new ScSubstitutor(lowerMap, upperMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+    new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
     this followed (new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
   }
   def followed(s: ScSubstitutor): ScSubstitutor = {
-    if (follower == null && lowerMap.size + upperMap.size + aliasesMap.size  == 0 && updateThisType == None) s
-    else if (s.getFollower == null && s.lowerMap.size + s.upperMap.size +
-      s.aliasesMap.size == 0 && s.updateThisType == None) this
-    else new ScSubstitutor(lowerMap, upperMap, aliasesMap, updateThisType,
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) this
+    else new ScSubstitutor(tvMap, aliasesMap, updateThisType,
       if (follower != null) follower followed s else s)
   }
 
-  def subst(t: ScType, variance: Int = 1): ScType = try {
-    if (follower != null) follower.subst(substInternal(t, variance)) else substInternal(t, variance)
+  def subst(t: ScType): ScType = try {
+    if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
   }
   catch {
     case s: StackOverflowError =>
@@ -93,23 +76,16 @@ class ScSubstitutor(val lowerMap: Map[(String, String), ScType],
     }
   }
 
-  private def tvMap(variance: Int) = if (variance == -1) upperMap else lowerMap
-
-  protected def substInternal(t: ScType, variance: Int) : ScType = {
+  protected def substInternal(t: ScType) : ScType = {
     t match {
-      case f@ScFunctionType(ret, params) =>
-        new ScFunctionType(substInternal(ret, variance),
-          params.map(substInternal(_, -variance)))(f.getProject, f.getScope)
-      case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal(_, variance)))(t1.getProject, t1.getScope)
-      case ScProjectionType(proj, element, subst) =>
-        new ScProjectionType(substInternal(proj, variance), element, subst)
-      case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType, variance),
-        params.map(p => p.copy(paramType = substInternal(p.paramType, -variance),
-          expectedType = substInternal(p.expectedType, 0))), isImplicit)(m.project, m.scope)
+      case f@ScFunctionType(ret, params) => new ScFunctionType(substInternal(ret), params.map(substInternal(_)))(f.getProject, f.getScope)
+      case t1@ScTupleType(comps) => new ScTupleType(comps.map(substInternal))(t1.getProject, t1.getScope)
+      case ScProjectionType(proj, element, subst) => new ScProjectionType(substInternal(proj), element, subst)
+      case m@ScMethodType(retType, params, isImplicit) => new ScMethodType(substInternal(retType),
+        params.map(p => p.copy(paramType = substInternal(p.paramType), expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
       case ScTypePolymorphicType(internalType, typeParameters) => {
-        ScTypePolymorphicType(substInternal(internalType, variance), typeParameters.map(tp => {
-          TypeParameter(tp.name, substInternal(tp.lowerType, -variance),
-            substInternal(tp.upperType, variance), tp.ptp)
+        ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
+          TypeParameter(tp.name, substInternal(tp.lowerType), substInternal(tp.upperType), tp.ptp)
         }))
       }
       case ScThisType(clazz) => {
@@ -158,113 +134,112 @@ class ScSubstitutor(val lowerMap: Map[(String, String), ScType],
         }
       }
 
-      case tpt: ScTypeParameterType => tvMap(variance).get((tpt.name, tpt.getId)) match {
+      case tpt: ScTypeParameterType => tvMap.get((tpt.name, tpt.getId)) match {
         case None => tpt
         case Some(v) => extractTpt(tpt, v)
       }
-      case u: ScUndefinedType => tvMap(variance).get((u.tpt.name, u.tpt.getId)) match {
+      case u: ScUndefinedType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
         case None => u
         case Some(v) => v match {
           case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
           case _ => extractTpt(u.tpt, v)
         }
       }
-      case u: ScAbstractType => tvMap(variance).get((u.tpt.name, u.tpt.getId)) match {
+      case u: ScAbstractType => tvMap.get((u.tpt.name, u.tpt.getId)) match {
         case None => u
         case Some(v) => v match {
           case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
           case _ => extractTpt(u.tpt, v)
         }
       }
-      case tv: ScTypeVariable => tvMap(variance).get((tv.name, "")) match {
+      case tv: ScTypeVariable => tvMap.get((tv.name, "")) match {
         case None => tv
         case Some(v) => v
       }
-      case JavaArrayType(arg) => JavaArrayType(substInternal(arg, -variance))
+      case JavaArrayType(arg) => JavaArrayType(substInternal(arg))
       case pt@ScParameterizedType(tpt: ScTypeParameterType, typeArgs) => {
-        tvMap(variance).get((tpt.name, tpt.getId)) match {
+        tvMap.get((tpt.name, tpt.getId)) match {
           case Some(param: ScParameterizedType) if pt != param => {
             if (tpt.args.length == 0) {
-              substInternal(param, variance) //to prevent types like T[A][A]
+              substInternal(param) //to prevent types like T[A][A]
             } else {
-              ScParameterizedType(param.designator, typeArgs.map(substInternal(_, -variance)))
+              ScParameterizedType(param.designator, typeArgs.map(substInternal(_)))
             }
           }
           case _ => {
-            substInternal(tpt, variance) match {
+            substInternal(tpt) match {
               case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
               case des => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
             }
           }
         }
       }
       case pt@ScParameterizedType(u: ScUndefinedType, typeArgs) => {
-        tvMap(variance).get((u.tpt.name, u.tpt.getId)) match {
+        tvMap.get((u.tpt.name, u.tpt.getId)) match {
           case Some(param: ScParameterizedType) if pt != param => {
             if (u.tpt.args.length == 0) {
-              substInternal(param, variance) //to prevent types like T[A][A]
+              substInternal(param) //to prevent types like T[A][A]
             } else {
-              ScParameterizedType(param.designator, typeArgs.map(substInternal(_, -variance)))
+              ScParameterizedType(param.designator, typeArgs.map(substInternal(_)))
             }
           }
           case _ => {
-            substInternal(u, variance) match {
+            substInternal(u) match {
               case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
               case des => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
             }
           }
         }
       }
       case pt@ScParameterizedType(u: ScAbstractType, typeArgs) => {
-        tvMap(variance).get((u.tpt.name, u.tpt.getId)) match {
+        tvMap.get((u.tpt.name, u.tpt.getId)) match {
           case Some(param: ScParameterizedType) if pt != param => {
             if (u.tpt.args.length == 0) {
-              substInternal(param, variance) //to prevent types like T[A][A]
+              substInternal(param) //to prevent types like T[A][A]
             } else {
-              ScParameterizedType(param.designator, typeArgs.map(substInternal(_, -variance)))
+              ScParameterizedType(param.designator, typeArgs.map(substInternal(_)))
             }
           }
           case _ => {
-            substInternal(u, variance) match {
+            substInternal(u) match {
               case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
               case des => new ScParameterizedType(des, typeArgs map {
-                substInternal(_, -variance)
+                substInternal(_)
               })
             }
           }
         }
       }
       case ScParameterizedType(des, typeArgs) => {
-        substInternal(des, variance) match {
+        substInternal(des) match {
           case ScParameterizedType(des, _) => new ScParameterizedType(des, typeArgs map {
-            substInternal(_, -variance)
+            substInternal(_)
           })
           case des => new ScParameterizedType(des, typeArgs map {
-            substInternal(_, -variance)
+            substInternal(_)
           })
         }
       }
       case ScExistentialArgument(name, args, lower, upper) =>
-        new ScExistentialArgument(name, args, substInternal(lower, -variance), substInternal(upper, variance))
+        new ScExistentialArgument(name, args, substInternal(lower), substInternal(upper))
       case ex@ScExistentialType(q, wildcards) => {
         //remove bound names
         val trunc = aliasesMap -- ex.boundNames
-        new ScExistentialType(new ScSubstitutor(lowerMap, upperMap,
-          trunc, updateThisType, follower).substInternal(q, variance), wildcards)
+        new ScExistentialType(new ScSubstitutor(tvMap, trunc, updateThisType, follower).substInternal(q), wildcards)
       }
       case comp@ScCompoundType(comps, decls, typeDecls, substitutor) => {
-        ScCompoundType(comps.map(substInternal(_, variance)), decls, typeDecls, substitutor.followed(
-          new ScSubstitutor(lowerMap, upperMap, aliasesMap, updateThisType)
+        ScCompoundType(comps.map(substInternal(_)), decls, typeDecls, substitutor.followed(
+          new ScSubstitutor(tvMap, aliasesMap, updateThisType)
         ))
       }
       case _ => t

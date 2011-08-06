@@ -45,6 +45,15 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
     }
   }
 
+  override def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int): ScType = {
+    update(this, variance) match {
+      case (true, res) => res
+      case _ =>
+        new ScFunctionType(returnType.recursiveVarianceUpdate(update, variance),
+          params.map(_.recursiveVarianceUpdate(update, -variance)))(project, scope)
+    }
+  }
+
   private def functionTraitName = "scala.Function" + params.length
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {

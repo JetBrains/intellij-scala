@@ -9,9 +9,8 @@ import com.intellij.openapi.editor.Editor
 import lang.psi.api.expr.{ScGenericCall, ScMethodCall, ScReferenceExpression}
 import lang.psi.types.result.TypingContext
 import lang.psi.types.nonvalue.ScTypePolymorphicType
-import lang.psi.api.statements.ScFunction
 import extensions._
-import com.intellij.psi.{PsiTypeParameterListOwner, PsiIdentifier, PsiElement}
+import com.intellij.psi.{PsiTypeParameterListOwner, PsiElement}
 import lang.psi.ScalaPsiUtil
 import lang.psi.types.ScType
 import lang.psi.impl.ScalaPsiElementFactory
@@ -76,7 +75,7 @@ class ToggleTypeArgs extends PsiElementBaseIntentionAction {
         val tps = typeParamOwner.getTypeParameters
         val inferredTypes = tps.map {tp =>
           val key = (tp.getName, ScalaPsiUtil.getPsiElementId(tp))
-          subst.lowerMap.get(key)
+          subst.tvMap.get(key)
         }
         if (inferredTypes.contains(None)) Other else MethodCallWithInferedTypeArgs(mc, inferredTypes.map(_.get))
       case _ => Other
