@@ -16,4 +16,6 @@ class TypeInferenceXmlTest extends TypeInferenceTestBase {
   def testNodeBuffer() {doTest()}
 
   def testProcInstr() {doTest()}
+
+  def testSCL3542() {doTest()}
 }
