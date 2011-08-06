@@ -76,7 +76,7 @@ class ToggleTypeArgs extends PsiElementBaseIntentionAction {
         val tps = typeParamOwner.getTypeParameters
         val inferredTypes = tps.map {tp =>
           val key = (tp.getName, ScalaPsiUtil.getPsiElementId(tp))
-          subst.tvMap.get(key)
+          subst.lowerMap.get(key)
         }
         if (inferredTypes.contains(None)) Other else MethodCallWithInferedTypeArgs(mc, inferredTypes.map(_.get))
       case _ => Other

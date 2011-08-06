@@ -520,8 +520,18 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    privateProcessDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, null,
-      MethodNodes.build(comp)._2, null, TypeNodes.build(comp)._2, null, false)
+    if (!privateProcessDeclarations(processor, state, lastParent, place, ValueNodes.build(comp)._2, null,
+      MethodNodes.build(comp)._2, null, TypeNodes.build(comp)._2, null, false)) return false
+
+    val project =
+      if (lastParent != null) lastParent.getProject
+      else if (place != null) place.getProject
+      else return true
+    if (!(AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+            Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
+      return false
+
+    true
   }
 
   private def convertMemberName(s: String): String = {
