@@ -52,7 +52,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
               result.addElement(el)
             }
           }
-          val userData = el.getUserData(ResolveUtils.isNamedParameter)
+          val userData = el.getUserData(ResolveUtils.isNamedParameterOrAssignment)
           if (userData == null || !userData.booleanValue())
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
