@@ -18,8 +18,10 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaBundle}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.ide.IdeView
 import java.util.Properties
-import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
 import org.jetbrains.plugins.scala.config.ScalaFacet
+import com.intellij.ide.fileTemplates.{FileTemplateManager, FileTemplate, JavaTemplateUtil}
+import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
+import com.intellij.openapi.fileTypes.FileType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -33,7 +35,21 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.addKind("Class", Icons.CLASS, "Scala Class");
     builder.addKind("Object", Icons.OBJECT, "Scala Object");
     builder.addKind("Trait", Icons.TRAIT, "Scala Trait");
+
+
+
+    for (template <- FileTemplateManager.getInstance.getAllTemplates) {
+      if (isScalaTemplate(template) && checkPackageExists(directory)) {
+        builder.addKind(template.getName, Icons.FILE_TYPE_LOGO, template.getName)
+      }
+    }
+
     builder.setTitle("Create New Scala Class")
+  }
+
+  private def isScalaTemplate(template: FileTemplate): Boolean = {
+    val fileType: FileType = FileTypeManagerEx.getInstanceEx.getFileTypeByExtension(template.getExtension)
+    fileType == ScalaFileType.SCALA_FILE_TYPE
   }
 
   def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
@@ -52,11 +68,11 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
         return definition
       }
     }
-    return null
+    null
   }
 
   override def isAvailable(dataContext: DataContext): Boolean = {
-    return super.isAvailable(dataContext) && isUnderSourceRoots(dataContext)
+    super.isAvailable(dataContext) && isUnderSourceRoots(dataContext)
   }
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
@@ -76,12 +92,12 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
         }
       }
     }
-    return false
+    false
   }
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,
-                                                   parameters: String*): PsiFile = {
-    return NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSIOIN, templateName, parameters: _*)
+                                      parameters: String*): PsiFile = {
+    NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSIOIN, templateName, parameters: _*)
   }
 
   private val SCALA_EXTENSIOIN = ".scala";
@@ -135,6 +151,6 @@ object NewScalaTypeDefinitionAction {
     }
     val factory: PsiFileFactory = PsiFileFactory.getInstance(directory.getProject)
     val file: PsiFile = factory.createFileFromText(fileName, text)
-    return directory.add(file).asInstanceOf[PsiFile]
+    directory.add(file).asInstanceOf[PsiFile]
   }
 }
