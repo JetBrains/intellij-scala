@@ -7,8 +7,6 @@ import lang.psi.types.result.TypingContext
 import quickfix.ReportHighlightingErrorQuickFix
 import lang.psi.types._
 import lang.psi.api.base.ScConstructor
-import com.intellij.psi.PsiElement
-import lang.psi.api.ScalaFile
 
 trait ConstructorAnnotator {
   // TODO duplication with application annotator.
