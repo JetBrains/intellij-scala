@@ -50,7 +50,7 @@ trait ScFun extends ScTypeParametersOwner {
   def polymorphicType: ScType = {
     if (typeParameters.length == 0) methodType
     else ScTypePolymorphicType(methodType, typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
+      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
   }
 }
 
@@ -147,7 +147,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def methodType(result: Option[ScType]): ScType = {
     val clauses = effectiveParameterClauses
     val resultType = result match {
-      case None => returnType.getOrElse(Any)
+      case None => returnType.getOrAny
       case Some(x) => x
     }
     if (!hasParameterClause) return resultType
@@ -166,7 +166,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def polymorphicType(result: Option[ScType]): ScType = {
     if (typeParameters.length == 0) methodType(result)
     else ScTypePolymorphicType(methodType(result), typeParameters.map(tp =>
-      TypeParameter(tp.name, tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp)))
+      TypeParameter(tp.name, tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp)))
   }
 
   /**
@@ -210,7 +210,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameters: Seq[ScParameter]
 
-  def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrElse(Nothing)}
+  def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     CachesUtil.get(this, CachesUtil.FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY,

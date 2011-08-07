@@ -51,7 +51,7 @@ object ScalaElementPresentation {
 
     presentableText.append(": ")
     try {
-      presentableText.append(ScType.presentableText(function.returnType.getOrElse(Any)))
+      presentableText.append(ScType.presentableText(function.returnType.getOrAny))
     }
     catch {
       case e: IndexNotReadyException => presentableText.append("NoTypeInfo")

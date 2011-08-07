@@ -269,7 +269,7 @@ trait ScPattern extends ScalaPsiElement {
     }
     case clause: ScCaseClause => clause.getContext/*clauses*/.getContext match {
       case matchStat : ScMatchStmt => matchStat.expr match {
-        case Some(e) => Some(e.getType(TypingContext.empty).getOrElse(Any))
+        case Some(e) => Some(e.getType(TypingContext.empty).getOrAny)
         case _ => None
       }
       case _: ScCatchBlock => {

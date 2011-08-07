@@ -49,7 +49,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.getQualifiedName) != None
 
   def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
-    annotations.find(_.typeElement.getType(TypingContext.empty).getOrElse(Any) match {
+    annotations.find(_.typeElement.getType(TypingContext.empty).getOrAny match {
       case ScDesignatorType(clazz: PsiClass) => clazz.getQualifiedName == qualifiedName
       case _ => false
     })

@@ -47,8 +47,8 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
-          val lower1 = tp1.lowerBound.getOrElse(Nothing)
-          val lower2 = substitutor.subst(tp2.lowerBound.getOrElse(Nothing))
+          val lower1 = tp1.lowerBound.getOrNothing
+          val lower2 = substitutor.subst(tp2.lowerBound.getOrNothing)
           var t = Conformance.conformsInner(
             if (variance == 1) lower2
             else lower1,
@@ -57,8 +57,8 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
           if (!t._1) return false
           undef = t._2
 
-          val upper1 = tp1.upperBound.getOrElse(Any)
-          val upper2 = substitutor.subst(tp2.upperBound.getOrElse(Any))
+          val upper1 = tp1.upperBound.getOrAny
+          val upper2 = substitutor.subst(tp2.upperBound.getOrAny)
           t = Conformance.conformsInner(
             if (variance == 1) upper1
             else upper2,
@@ -98,16 +98,16 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
       case _: ScBindingPattern | _: ScFieldId | _: ScFunction | _: ScParameter if !element.isInstanceOf[ScFunction] ||
         !element.asInstanceOf[ScFunction].hasParameterClause => {
         lazy val bType = subst.subst(element match {
-          case b: ScBindingPattern => b.getType(TypingContext.empty).getOrElse(Nothing)
-          case f: ScFieldId => f.getType(TypingContext.empty).getOrElse(Nothing)
-          case fun: ScFunction => fun.returnType.getOrElse(Nothing)
-          case param: ScParameter => param.getType(TypingContext.empty).getOrElse(Nothing)
+          case b: ScBindingPattern => b.getType(TypingContext.empty).getOrNothing
+          case f: ScFieldId => f.getType(TypingContext.empty).getOrNothing
+          case fun: ScFunction => fun.returnType.getOrNothing
+          case param: ScParameter => param.getType(TypingContext.empty).getOrNothing
         })
         val gType = substitutor.subst(decl match {
-          case g: ScBindingPattern => g.getType(TypingContext.empty).getOrElse(Any)
-          case g: ScFieldId => g.getType(TypingContext.empty).getOrElse(Any)
-          case fun: ScFunction if !fun.hasParameterClause => fun.returnType.getOrElse(Any)
-          case param: ScParameter => param.getType(TypingContext.empty).getOrElse(Any)
+          case g: ScBindingPattern => g.getType(TypingContext.empty).getOrAny
+          case g: ScFieldId => g.getType(TypingContext.empty).getOrAny
+          case fun: ScFunction if !fun.hasParameterClause => fun.returnType.getOrAny
+          case param: ScParameter => param.getType(TypingContext.empty).getOrAny
           case _ => return true
         })
         val t = Conformance.conformsInner(gType, bType, Set.empty, undef)
@@ -128,11 +128,11 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
         val sign2 = new PhysicalSignature(decl.asInstanceOf[PsiMethod], substitutor)
         if (!sign1.paramTypesEquiv(sign2)) return false
         val bType = subst.subst(method match {
-          case fun: ScFunction => fun.returnType.getOrElse(Nothing)
+          case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
         })
         val gType = substitutor.subst(decl match {
-          case fun: ScFunction => fun.returnType.getOrElse(Nothing)
+          case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
         })
         val t = Conformance.conformsInner(gType, bType, Set.empty, undef)

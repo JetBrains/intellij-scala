@@ -19,7 +19,7 @@ class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple 
   protected[expr] override def innerType(ctx: TypingContext): TypeResult[ScType] =
     if (exprs.length == 0) Success(Unit, Some(this))
     else {
-      val tupleType = new ScTupleType(exprs.map(_.getType(ctx).getOrElse(Any)))(getProject, getResolveScope)
+      val tupleType = new ScTupleType(exprs.map(_.getType(ctx).getOrAny))(getProject, getResolveScope)
       Success(tupleType, Some(this))
     }
 

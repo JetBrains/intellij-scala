@@ -100,7 +100,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                   else null
                 }
                 case Some((named: ScTypedDefinition, subst)) =>
-                  update(named.getType(TypingContext.empty).getOrElse(Any))
+                  update(named.getType(TypingContext.empty).getOrAny)
                 case _ =>
                   typez match {
                     case ScCompoundType(types, _, _, _) =>

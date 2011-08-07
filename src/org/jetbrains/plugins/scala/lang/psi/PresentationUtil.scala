@@ -105,7 +105,7 @@ object PresentationUtil {
         buffer.append(fun.getName)
         fun.typeParametersClause match {case Some(tpc) => buffer.append(presentationString(tpc)) case _ =>}
         buffer.append(presentationString(fun.paramClauses, substitutor)).append(": ")
-        buffer.append(presentationString(fun.returnType.getOrElse(psi.types.Any), substitutor))
+        buffer.append(presentationString(fun.returnType.getOrAny, substitutor))
         buffer.toString
       }
       case elem: PsiElement => elem.getText

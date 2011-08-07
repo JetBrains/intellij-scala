@@ -93,10 +93,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val typeParameters: Seq[TypeParameter] = parentElement match {
         case tp: ScTypeParametersOwner if constrTypParameters.length > 0 =>
           constrTypParameters.map(tp => new TypeParameter(tp.name,
-                tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+                tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
         case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
           tp.typeParameters.map(tp => new TypeParameter(tp.name,
-                tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+                tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
         }
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
           ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
@@ -111,7 +111,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
             (
               (typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
-              arg.getType(TypingContext.empty).getOrElse(Any)
+              arg.getType(TypingContext.empty).getOrAny
               )}),
             Map.empty, None)
           return appSubst.subst(res)
@@ -123,11 +123,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val params: Seq[Seq[Parameter]] = constr match {
         case fun: ScFunction =>
           fun.paramClauses.clauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
+            subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
             p.isRepeatedParameter, p.isCallByNameParameter)))
         case f: ScPrimaryConstructor =>
           f.parameterList.clauses.map(_.parameters.map(p => new Parameter(p.name,
-            subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.isDefaultParam,
+            subst.subst(p.getType(TypingContext.empty).getOrAny), p.isDefaultParam,
             p.isRepeatedParameter, p.isCallByNameParameter)))
         case m: PsiMethod =>
           Seq(m.getParameterList.getParameters.toSeq.map(p => new Parameter("",
@@ -202,7 +202,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val typeParameters: Seq[TypeParameter] = elem match {
             case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
               tp.typeParameters.map(tp => new TypeParameter(tp.name,
-                    tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+                    tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
             }
             case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
               ptp.getTypeParameters.toSeq.map(ptp => new TypeParameter(ptp.getName,
@@ -214,7 +214,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map{case (arg, typeParam) =>
             ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
-              arg.getType(TypingContext.empty).getOrElse(Any)
+              arg.getType(TypingContext.empty).getOrAny
               )}),
             Map.empty, None)
           appSubst.subst(res)

@@ -130,14 +130,14 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
             case Some(t) => t
             case None => lang.psi.types.Nothing
           }
-          case Some(e) => e.getType(TypingContext.empty) getOrElse Any
+          case Some(e) => e.getType(TypingContext.empty).getOrAny
         }
       }
     }
     Success(computeType, Some(this))
   }
 
-  def getType : PsiType = ScType.toPsi(getType(TypingContext.empty) getOrElse Nothing, getProject, getResolveScope)
+  def getType : PsiType = ScType.toPsi(getType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
 
   private def expectedParamType: Option[ScType] = getContext match {
     case clause: ScParameterClause => clause.getParent.getParent match {

@@ -39,14 +39,14 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
             problems += lb; problems += ub
             buff +=  new ScExistentialArgument(alias.name,
                                                alias.typeParameters.map{tp => ScalaPsiManager.typeVariable(tp)}.toList,
-                                               lb.getOrElse(Nothing), ub.getOrElse(Any))
+                                               lb.getOrNothing, ub.getOrAny)
           }
           case value: ScValueDeclaration => {
             value.typeElement match {
               case Some(te) =>
                 val ttype = te.getType(ctx)
                 problems += ttype
-                val t = ScCompoundType(Seq(ttype.getOrElse(Any), Singleton), Seq.empty, Seq.empty, ScSubstitutor.empty)
+                val t = ScCompoundType(Seq(ttype.getOrAny, Singleton), Seq.empty, Seq.empty, ScSubstitutor.empty)
                 for (declared <- value.declaredElements) {
                   buff += ScExistentialArgument(declared.name, Nil, Nothing, t)
                 }

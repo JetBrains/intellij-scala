@@ -32,7 +32,7 @@ case class Parameter(name: String, paramType: ScType, expectedType: ScType, isDe
   }
 
   def this(param: ScParameter) {
-    this(param.name, param.getType(TypingContext.empty).getOrElse(Any), param.isDefaultParam,
+    this(param.name, param.getType(TypingContext.empty).getOrAny, param.isDefaultParam,
       param.isRepeatedParameter, param.isCallByNameParameter)
   }
 }

@@ -86,7 +86,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   def doResolve(proc: BaseProcessor) = {
-    val projected = typeElement.getType(TypingContext.empty).getOrElse(Any)
+    val projected = typeElement.getType(TypingContext.empty).getOrAny
     proc.processType(projected, this)
     proc.candidates.map {r : ScalaResolveResult =>
       r.element match {

@@ -159,7 +159,7 @@ object MethodResolveProcessor {
         case _ => argumentClauses
       }
 
-      val classTypeParmeters = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
+      val classTypeParmeters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
       if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
         Compatibility.compatible(constr, substitutor, effectiveArguments, checkWithImplicits, ref.getResolveScope, isShapeResolve)
       } else {

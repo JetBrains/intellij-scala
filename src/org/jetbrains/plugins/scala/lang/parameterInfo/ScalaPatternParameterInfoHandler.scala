@@ -83,7 +83,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             val subst = sign.substitutor
             val p = sign.method match {
               case method: ScFunction => {
-                subst.subst(method.returnType.getOrElse(Any))
+                subst.subst(method.returnType.getOrAny)
               }
               case method: PsiMethod => {
                 subst.subst(ScType.create(method.getReturnType, method.getProject))
@@ -238,7 +238,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
                             substitutor))))
                         val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrElse(Any)))
+                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))
                         val result = fun.parameters(0).getType(TypingContext.empty)
                         if (result.isEmpty) substitutor
                         else {

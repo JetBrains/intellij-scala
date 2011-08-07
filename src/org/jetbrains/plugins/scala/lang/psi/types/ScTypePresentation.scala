@@ -172,14 +172,14 @@ trait ScTypePresentation {
               }
               case v: ScValue => {
                 v.declaredElements.map(td => {
-                  val scType: ScType = td.getType(TypingContext.empty).getOrElse(Any)
+                  val scType: ScType = td.getType(TypingContext.empty).getOrAny
                   val text = if (!c.equiv(scType)) typeText0(scType) else "this.type"
                   "val " + td.name + ": " + text
                 }).mkString("; ")
               }
               case v: ScVariable => {
                 v.declaredElements.map(td => {
-                  val scType: ScType = td.getType(TypingContext.empty).getOrElse(Any)
+                  val scType: ScType = td.getType(TypingContext.empty).getOrAny
                   val text = if (!c.equiv(scType)) typeText0(scType) else "this.type"
                   "var " + td.name + ": " + text
                 }).mkString("; ")

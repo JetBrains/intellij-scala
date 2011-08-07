@@ -101,7 +101,7 @@ class CreateApplyQuickFix(ref: ScStableCodeReferenceElement, call: ScMethodCall)
   }
 
   private def parametersFor(ref: ScStableCodeReferenceElement): String = {
-      val types = call.argumentExpressions.map(_.getType(TypingContext.empty).getOrElse(Any))
+      val types = call.argumentExpressions.map(_.getType(TypingContext.empty).getOrAny)
       val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
       val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
         (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r

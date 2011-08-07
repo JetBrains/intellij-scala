@@ -257,13 +257,13 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     case tp => Success(tp, None)
   }
 
-  def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrElse(Any) match {
+  def extractTupleType(tp: ScType): Option[ScTupleType] = expandAliases(tp).getOrAny match {
     case tt: ScTupleType => Some(tt)
     case pt: ScParameterizedType => pt.getTupleType
     case _ => None
   }
 
-  def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrElse(Any) match {
+  def extractFunctionType(tp: ScType): Option[ScFunctionType] = expandAliases(tp).getOrAny match {
     case ft: ScFunctionType => Some(ft)
     case pt: ScParameterizedType =>
       pt.getFunctionType.flatMap(extractFunctionType)
@@ -273,7 +273,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   /**
    * @return Some((designator, paramType, returnType)), or None
    */
-  def extractPartialFunctionType(tp: ScType): Option[(ScType, ScType, ScType)] = expandAliases(tp).getOrElse(Any) match {
+  def extractPartialFunctionType(tp: ScType): Option[(ScType, ScType, ScType)] = expandAliases(tp).getOrAny match {
     case pt@ScParameterizedType(des, typeArgs) => pt.getPartialFunctionType
     case _ => None
   }

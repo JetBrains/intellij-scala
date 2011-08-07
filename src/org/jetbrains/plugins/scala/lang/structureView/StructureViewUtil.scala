@@ -32,7 +32,7 @@ object StructureViewUtil {
         }
       } else {
         res.append(param.name + ": ")
-        res.append(ScType.presentableText(param.getType(TypingContext.empty) getOrElse Nothing) + (if (param.isRepeatedParameter) "*" else ""))
+        res.append(ScType.presentableText(param.getType(TypingContext.empty).getOrNothing) + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }
     }

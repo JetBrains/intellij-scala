@@ -44,7 +44,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         }
       }
       case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        processor.processType(s.subst(typed.getType(TypingContext.empty).getOrElse(Any)), this)
+        processor.processType(s.subst(typed.getType(TypingContext.empty).getOrAny), this)
       case ScalaResolveResult(field: PsiField, s) =>
         processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
       case ScalaResolveResult(clazz: PsiClass, s) => {

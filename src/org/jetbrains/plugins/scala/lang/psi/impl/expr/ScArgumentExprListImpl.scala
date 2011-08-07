@@ -181,7 +181,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   case fun: ScFunction => {
                     if (fun.paramClauses.clauses.length >= invocationCount) {
                       buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({p => (p.name,
-                              subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))}).toArray
+                              subst.subst(p.getType(TypingContext.empty).getOrAny))}).toArray
                     } else if (invocationCount == 1) buffer += Array.empty
                   }
                   case method: PsiMethod if invocationCount == 1=> {
@@ -209,7 +209,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
         val i: Int = constr.arguments.indexOf(this)
         val extract: Option[(PsiClass, ScSubstitutor)] = constr.typeElement match {
           case elem: ScParameterizedTypeElement => ScType.extractClassType(
-            constr.typeElement.getType(TypingContext.empty).getOrElse(Any), Some(elem.getProject)
+            constr.typeElement.getType(TypingContext.empty).getOrAny, Some(elem.getProject)
           )
           case simple: ScSimpleTypeElement => simple.reference match {
             case Some(ref: ScStableCodeReferenceElement) => ref.bind match {
@@ -228,7 +228,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                 val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                 val clause = clauses(i)
                 for (param: ScParameter <- clause.parameters) {
-                  add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrElse(Any)))
+                  add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrAny))
                 }
                 res += add.toArray
               }
@@ -240,7 +240,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
                   val add: ArrayBuffer[(String, ScType)] = new ArrayBuffer
                   val clause = clauses(i)
                   for (param: ScParameter <- clause.parameters) {
-                    add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrElse(Any)))
+                    add += Tuple(param.name, subst.subst(param.getType(TypingContext.empty).getOrAny))
                   }
                   res += add.toArray
                 }

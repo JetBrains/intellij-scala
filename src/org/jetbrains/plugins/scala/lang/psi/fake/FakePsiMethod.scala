@@ -41,7 +41,7 @@ class FakePsiMethod(
     val language = navElement.getLanguage
   } with LightElement(manager, language) with PsiMethod{
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
-    this(value, value.getName, Array.empty, value.getType(TypingContext.empty).getOrElse(Any), hasModifier)
+    this(value, value.getName, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
   }
   override def toString: String = name + "()"
 

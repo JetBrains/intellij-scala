@@ -39,7 +39,7 @@ object BeanProperty {
       prefix + StringUtil.capitalize(t.getName)
     }
     val setterName = "set" + StringUtil.capitalize(t.getName)
-    def tType = t.getType(TypingContext.empty).getOrElse(Any)
+    def tType = t.getType(TypingContext.empty).getOrAny
 
     context match {
       case value: ScValue => {

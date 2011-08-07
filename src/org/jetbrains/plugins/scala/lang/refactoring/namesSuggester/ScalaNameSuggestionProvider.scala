@@ -25,7 +25,7 @@ class ScalaNameSuggestionProvider extends NameSuggestionProvider {
 
   def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: Set[String]): SuggestedNameInfo = {
     val array = element match {
-      case typed: ScTypedDefinition => NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrElse(Any))
+      case typed: ScTypedDefinition => NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrAny)
       case expr: ScExpression => NameSuggester.suggestNames(expr)
       case _ => Array[String]()
     }

@@ -161,7 +161,7 @@ class ScalaDocumentationProvider extends DocumentationProvider {
         typez match {
           case definition: ScTypeAliasDefinition =>
             buffer.append(" = " +
-                    ScType.urlText(definition.aliasedTypeElement.getType(TypingContext.empty).getOrElse(Any)))
+                    ScType.urlText(definition.aliasedTypeElement.getType(TypingContext.empty).getOrAny))
           case _ =>
         }
         buffer.append("</PRE>")
@@ -185,8 +185,8 @@ object ScalaDocumentationProvider {
   def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
-      case fun: ScFunction => fun.returnType.getOrElse(Any)
-      case _ => elem.getType(TypingContext.empty).getOrElse(Any)
+      case fun: ScFunction => fun.returnType.getOrAny
+      case _ => elem.getType(TypingContext.empty).getOrAny
     }
     buffer.append(typeToString(typez))
     buffer.toString()
@@ -253,9 +253,9 @@ object ScalaDocumentationProvider {
     elem.templateParents match {
       case Some(x: ScTemplateParents) => {
         val seq = x.typeElements
-        buffer.append(ScType.urlText(seq(0).getType(TypingContext.empty).getOrElse(Any)) + "\n")
+        buffer.append(ScType.urlText(seq(0).getType(TypingContext.empty).getOrAny) + "\n")
         for (i <- 1 to seq.length - 1)
-          buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrElse(Any))
+          buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrAny)
       }
       case None => {
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
@@ -301,7 +301,7 @@ object ScalaDocumentationProvider {
       var s = "@"
       val constr: ScConstructor = elem.constructor
       val attributes = elem.attributes
-      s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
+      s += typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny)
       if (attributes.length > 0) {
         val array = attributes.map {
           ne: ScNamedElement => "val " + escapeHtml(ne.name)
@@ -498,7 +498,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.getType(TypingContext.empty).getOrElse(Any)
+            val typez = typed.getType(TypingContext.empty).getOrAny
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -516,7 +516,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.getType(TypingContext.empty).getOrElse(Any)
+            val typez = typed.getType(TypingContext.empty).getOrAny
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -537,7 +537,7 @@ object ScalaDocumentationProvider {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    val typez = binding.getType(TypingContext.empty).getOrElse(Any)
+    val typez = binding.getType(TypingContext.empty).getOrAny
     if (typez != null) buffer.append(": " + ScType.presentableText(typez))
 
     buffer.toString
@@ -569,9 +569,9 @@ object ScalaDocumentationProvider {
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
         clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-                ": " + ScType.presentableText(clParameter.getType(TypingContext.empty).getOrElse(Any))
+                ": " + ScType.presentableText(clParameter.getType(TypingContext.empty).getOrAny)
       }
-      case _ => parameter.name + ": " + ScType.presentableText(parameter.getType(TypingContext.empty).getOrElse(Any))
+      case _ => parameter.name + ": " + ScType.presentableText(parameter.getType(TypingContext.empty).getOrAny)
     }) + (if (parameter.isRepeatedParameter) "*" else "")
   }
 }

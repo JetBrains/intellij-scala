@@ -29,6 +29,6 @@ class ScClassParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] wi
     if (stub != null) {
       return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes.toSeq
     }
-    typeElements.map(_.getType(TypingContext.empty).getOrElse(Any))
+    typeElements.map(_.getType(TypingContext.empty).getOrAny)
   }
 }

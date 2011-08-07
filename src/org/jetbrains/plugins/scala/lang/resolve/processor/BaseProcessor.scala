@@ -257,7 +257,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     val newSubst = if (subst != null) subst followed s else s
     e match {
       case ta: ScTypeAlias =>
-        processType(s.subst(ta.upperBound.getOrElse(Any)), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
+        processType(s.subst(ta.upperBound.getOrAny), place, state.put(ScSubstitutor.key, ScSubstitutor.empty))
       //need to process scala way
       case clazz: PsiClass =>
         TypeDefinitionMembers.processDeclarations(clazz, this, state.put(ScSubstitutor.key, newSubst), null, place)

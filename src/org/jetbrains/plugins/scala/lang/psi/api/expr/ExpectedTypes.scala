@@ -119,7 +119,7 @@ private[expr] object ExpectedTypes {
       //SLS[6.13]
       case t: ScTypedStmt => {
         t.typeElement match {
-          case Some(te) => Array((te.getType(TypingContext.empty).getOrElse(Any), Some(te)))
+          case Some(te) => Array((te.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
         }
       }
@@ -133,14 +133,14 @@ private[expr] object ExpectedTypes {
                 ScalaPsiUtil.nameContext(named) match {
                   case v: ScValue =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
-                      getType(TypingContext.empty).getOrElse(Any)), v.typeElement))
+                      getType(TypingContext.empty).getOrAny), v.typeElement))
                   case v: ScVariable =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
-                      getType(TypingContext.empty).getOrElse(Any)), v.typeElement))
+                      getType(TypingContext.empty).getOrAny), v.typeElement))
                   case f: ScFunction => Array.empty //todo: find functionName_= method and do as argument call expected type
                   case p: ScParameter => {
                     //for named parameters
-                    Array((subst.subst(p.getType(TypingContext.empty).getOrElse(Any)), p.typeElement))
+                    Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
                   }
                   case _ => Array.empty
                 }
@@ -201,13 +201,13 @@ private[expr] object ExpectedTypes {
       //SLS[4.1]
       case v: ScPatternDefinition if v.expr == expr.getSameElementInContext => {
         v.typeElement match {
-          case Some(te) => Array((v.getType(TypingContext.empty).getOrElse(Any), Some(te)))
+          case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
         }
       }
       case v: ScVariableDefinition if v.expr == expr.getSameElementInContext => {
         v.typeElement match {
-          case Some(te) => Array((v.getType(TypingContext.empty).getOrElse(Any), Some(te)))
+          case Some(te) => Array((v.getType(TypingContext.empty).getOrAny, Some(te)))
           case _ => Array.empty
         }
       }
@@ -224,7 +224,7 @@ private[expr] object ExpectedTypes {
       //default parameters
       case param: ScParameter => {
         param.typeElement match {
-          case Some(_) => Array((param.getType(TypingContext.empty).getOrElse(Any), param.typeElement))
+          case Some(_) => Array((param.getType(TypingContext.empty).getOrAny, param.typeElement))
           case _ => Array.empty
         }
       }
