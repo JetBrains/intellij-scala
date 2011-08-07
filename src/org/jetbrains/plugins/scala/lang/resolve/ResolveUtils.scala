@@ -272,7 +272,22 @@ object ResolveUtils {
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
                         (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
-                var placeTd: ScTemplateDefinition = getPlaceTd(place)
+                val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
+                var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
+                if (isConstr) {
+                  if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
+                    placeTd = getPlaceTd(placeTd)
+                  } else if (placeTd !=  null) {
+                    if (isInheritorOrSelfOrSame(placeTd, td)) return true
+                  }
+                  while (placeTd != null) {
+                    if (td == placeTd) return true
+                    val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+                    if (companion != null && companion == td) return true
+                    placeTd = getPlaceTd(placeTd)
+                  }
+                  return false
+                }
                 while (placeTd != null) {
                   if (isInheritorOrSelfOrSame(placeTd, td)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
@@ -310,7 +325,22 @@ object ResolveUtils {
         else if (member.hasModifierProperty("private")) false
         else if (member.hasModifierProperty("protected")) {
           val clazz = member.getContainingClass
-          var placeTd: ScTemplateDefinition = getPlaceTd(place)
+          val isConstr = member match {case m: PsiMethod => m.isConstructor case _ => false}
+          var placeTd = getPlaceTd(place, isConstr)
+          if (isConstr) {
+            if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition]) {
+              placeTd = getPlaceTd(placeTd)
+            } else if (placeTd !=  null) {
+              if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
+            }
+            while (placeTd != null) {
+              if (clazz == placeTd) return true
+              val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+              if (companion != null && companion == clazz) return true
+              placeTd = getPlaceTd(placeTd)
+            }
+            return false
+          }
           while (placeTd != null) {
             if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
             val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
