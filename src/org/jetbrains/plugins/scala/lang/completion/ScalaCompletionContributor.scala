@@ -28,6 +28,7 @@ import psi.api.expr.ScNewTemplateDefinition
 import psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import psi.api.statements.params.ScClassParameter
 
 /**
  * @author Alexander Podkhalyuzin
@@ -71,9 +72,11 @@ class ScalaCompletionContributor extends CompletionContributor {
                       }
                     }
                   }
+                  case param: ScClassParameter =>
+                    result.addElement(el)
                   case memb: PsiMember => {
-                    if (parameters.getInvocationCount > 1 ||
-                      ResolveUtils.isAccessible(memb, parameters.getPosition)) result.addElement(el)
+                    if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, parameters.getPosition))
+                      result.addElement(el)
                   }
                   case patt: ScBindingPattern => {
                     val context = ScalaPsiUtil.nameContext(patt)

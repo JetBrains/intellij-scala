@@ -45,7 +45,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.map(_.booleanValue).getOrElse(false)
     def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
     if (nameAndKindMatch(named, state) || constructorResolve) {
-      if (!isAccessible(named, ref)) return true
+      if (!isNamedParameter && !isAccessible(named, ref)) return true
       val s = fromType match {
         case Some(tp) => getSubst(state).addUpdateThisType(tp)
         case _ => getSubst(state)
@@ -154,27 +154,17 @@ object MethodResolveProcessor {
     }
 
     def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
-      val effectiveArguments: List[Seq[Expression]] = argumentClauses match {
-        case List() => List(Seq())
-        case _ => argumentClauses
-      }
-
       val classTypeParmeters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
       if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
-        Compatibility.compatible(constr, substitutor, effectiveArguments, checkWithImplicits, ref.getResolveScope, isShapeResolve)
+        Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, ref.getResolveScope, isShapeResolve)
       } else {
         ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       }
     }
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
-      val effectiveArguments: List[Seq[Expression]] = argumentClauses match {
-        case List() => List(Seq())
-        case _ => argumentClauses
-      }
-
       val classTypeParmeters = constr.getContainingClass.getTypeParameters
       if (typeArgElements.length == 0 || typeArgElements.length == classTypeParmeters.length) {
-        Compatibility.compatible(constr, substitutor, effectiveArguments, checkWithImplicits, ref.getResolveScope, isShapeResolve)
+        Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, ref.getResolveScope, isShapeResolve)
       } else {
         ConformanceExtResult(Seq(new ApplicabilityProblem("2")))
       }
