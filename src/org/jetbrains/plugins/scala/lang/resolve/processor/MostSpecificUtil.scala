@@ -127,7 +127,20 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case (Some(t1), Some(t2)) => if (t1.isInheritor(t2, true)) return true
       case _ =>
     }
-    relativeWeight(r1, r2) > relativeWeight(r2, r1)
+    val weightR1R2 = relativeWeight(r1, r2)
+    val weightR2R1 = relativeWeight(r2, r1)
+    val result = weightR1R2 > weightR2R1
+
+    // Workaround for Scalaz, see SCL-2381
+    if (weightR1R2 == weightR2R1) {
+      def isLessSpecificHack(element: PsiNamedElement) = {
+        element.getName == "maImplicit"
+      }
+      if (isLessSpecificHack(r1.element)) return false
+      if (isLessSpecificHack(r2.element)) return true
+    }
+
+    result
   }
 
   private def mostSpecificGeneric[T](applicable: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
