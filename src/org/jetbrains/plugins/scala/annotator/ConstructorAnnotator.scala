@@ -14,12 +14,6 @@ trait ConstructorAnnotator {
   // TODO duplication with application annotator.
   def annotateConstructor(constructor: ScConstructor, holder: AnnotationHolder) {
     val resolved = constructor.reference.toList.flatMap(_.resolveAllConstructors)
-    def isScalaCompiled(e: PsiElement) = e.getContainingFile match {
-      case sf: ScalaFile if sf.isCompiled => true
-      case _ => false
-    }
-    val isCompiled = resolved.exists(r => isScalaCompiled(r.getElement))
-    if (isCompiled) return // until SCL-3546 is fixed
 
     resolved match {
       case List() =>
