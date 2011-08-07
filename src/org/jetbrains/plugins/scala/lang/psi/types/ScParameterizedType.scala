@@ -294,18 +294,8 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
     var undefinedSubst = uSubst
     r match {
       case stp: ScTypeParameterType => {
-        if (r eq this) return (true, undefinedSubst)
-        (CyclicHelper.compute(param, stp.param)(() => {
-          val t = Equivalence.equivInner(lower.v, stp.lower.v, undefinedSubst, falseUndef)
-          if (!t._1) (false, undefinedSubst)
-          else {
-            undefinedSubst = t._2
-            Equivalence.equivInner(upper.v, stp.upper.v, undefinedSubst, falseUndef)
-          }
-        }) match {
-          case None => (true, undefinedSubst)
-          case Some(b) => b
-        })
+        if (stp.param eq param) (true, undefinedSubst)
+        else (false, undefinedSubst)
       }
       case _ => (false, undefinedSubst)
     }
