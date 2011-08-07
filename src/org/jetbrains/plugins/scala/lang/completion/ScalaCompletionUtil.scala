@@ -250,7 +250,7 @@ object ScalaCompletionUtil {
     val psi = item.getObject
     if (psi == null || !psi.isInstanceOf[PsiNamedElement]) return null
     val isInImport = item.getUserData(ResolveUtils.isInImportKey)
-    val isNamedParameter = item.getUserData(ResolveUtils.isNamedParameter)
+    val isNamedParameter = item.getUserData(ResolveUtils.isNamedParameterOrAssignment)
 
     val obj = ScalaLookupObject(psi.asInstanceOf[PsiNamedElement],
       if (isNamedParameter == null) false

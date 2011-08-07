@@ -503,7 +503,7 @@ object ResolveUtils {
           AutoCompletionPolicy.ALWAYS_AUTOCOMPLETE.applyPolicy(lookupBuilder)
         else lookupBuilder
       returnLookupElement.putUserData(isInImportKey, new java.lang.Boolean(isInImport))
-      returnLookupElement.putUserData(isNamedParameter, new java.lang.Boolean(resolveResult.isNamedParameter))
+      returnLookupElement.putUserData(isNamedParameterOrAssignment, new java.lang.Boolean(resolveResult.isNamedParameter || isAssignment))
       returnLookupElement.putUserData(isBoldKey, new java.lang.Boolean(isBold))
       returnLookupElement.putUserData(isUnderlinedKey, new java.lang.Boolean(isUnderlined))
 
@@ -513,12 +513,13 @@ object ResolveUtils {
     val name: String = isRenamed.getOrElse(element.getName)
     val Setter = """(.*)_=""".r
     name match {
-      case Setter(prefix) => Seq(getLookupElementInternal(true, prefix), getLookupElementInternal(false, name))
+      case Setter(prefix) =>
+        Seq(getLookupElementInternal(true, prefix), getLookupElementInternal(false, name))
       case _ => Seq(getLookupElementInternal(false, name))
     }
   }
 
-  val isNamedParameter: Key[java.lang.Boolean] = Key.create("is.named.parameter.key")
+  val isNamedParameterOrAssignment: Key[java.lang.Boolean] = Key.create("is.named.parameter.or.assignment.key")
   val isBoldKey: Key[java.lang.Boolean] = Key.create("is.bold.key")
   val isUnderlinedKey: Key[java.lang.Boolean] = Key.create("is.underlined.key")
   val isInImportKey: Key[java.lang.Boolean] = Key.create("is.in.import.key")
