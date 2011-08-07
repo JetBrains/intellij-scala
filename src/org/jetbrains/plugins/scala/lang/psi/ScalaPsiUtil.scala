@@ -616,8 +616,9 @@ object ScalaPsiUtil {
     }
   }
 
-  def getPlaceTd(placer: PsiElement): ScTemplateDefinition = {
+  def getPlaceTd(placer: PsiElement, ignoreTemplateParents: Boolean = false): ScTemplateDefinition = {
     val td = PsiTreeUtil.getContextOfType(placer, true, classOf[ScTemplateDefinition])
+    if (ignoreTemplateParents) return td
     if (td == null) return null
     val res = td.extendsBlock.templateParents match {
       case Some(parents) => {
