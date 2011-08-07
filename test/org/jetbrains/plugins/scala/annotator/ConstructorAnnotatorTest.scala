@@ -47,6 +47,7 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
       "new B(0)",
       "new C(0)",
       "new C()",
+      "new C",
       "new D(0)",
       "new D(false)",
       "new E[Int](new Y[Int])",
