@@ -402,7 +402,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           }
           case _ => return
         }
-        if (!ResolveUtils.isAccessible(memb, refElement)) {
+        if (!res.isNamedParameter && !ResolveUtils.isAccessible(memb, refElement)) {
           val error = ScalaBundle.message("element.is.not.accessible", refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
           annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
