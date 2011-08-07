@@ -55,7 +55,7 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
               if (fun.paramClauses.clauses.length >= invocationCount) {
                 buffer += fun.paramClauses.clauses.apply(invocationCount - 1).parameters.map({
                   p => (p.name,
-                          subst.subst(p.getType(TypingContext.empty).getOrElse(Any)))
+                          subst.subst(p.getType(TypingContext.empty).getOrAny))
                 }).toArray
               } else if (invocationCount == 1) buffer += Array.empty
             }

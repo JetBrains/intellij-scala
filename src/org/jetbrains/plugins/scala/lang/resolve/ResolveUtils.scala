@@ -441,7 +441,7 @@ object ResolveUtils {
           element match {
             //scala
             case fun: ScFunction => {
-              presentation.setTypeText(presentationString(fun.returnType.getOrElse(Any), substitutor))
+              presentation.setTypeText(presentationString(fun.returnType.getOrAny, substitutor))
               val tailText1 = if (isAssignment) {
                 " = " + presentationString(fun.paramClauses, substitutor)
               } else {
@@ -455,13 +455,13 @@ object ResolveUtils {
               presentation.setTailText(tailText + paramClausesText)
             }
             case bind: ScBindingPattern => {
-              presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrElse(Any), substitutor))
+              presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrAny, substitutor))
             }
             case f: ScFieldId => {
-              presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrElse(Any), substitutor))
+              presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrAny, substitutor))
             }
             case param: ScParameter => {
-              val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrElse(Any), substitutor)
+              val str: String = presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
               if (resolveResult.isNamedParameter) {
                 presentation.setTailText(" = " + str)
               } else {
@@ -473,7 +473,7 @@ object ResolveUtils {
               presentation.setTailText(tailText + " " + location, true)
             }
             case alias: ScTypeAliasDefinition => {
-              presentation.setTypeText(presentationString(alias.aliasedType.getOrElse(Any), substitutor))
+              presentation.setTypeText(presentationString(alias.aliasedType.getOrAny, substitutor))
             }
             case method: PsiMethod => {
               val str: String = presentationString(method.getReturnType, substitutor)

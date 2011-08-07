@@ -278,7 +278,7 @@ object ScalaExtractMethodUtils {
       val endOffset = elements(elements.length - 1).getTextRange.getEndOffset
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
-    val retType = definition.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Nothing)
+    val retType = definition.getType(TypingContext.empty).getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
         new ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)

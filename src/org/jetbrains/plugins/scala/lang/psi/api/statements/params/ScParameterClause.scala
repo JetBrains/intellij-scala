@@ -23,7 +23,7 @@ trait ScParameterClause extends ScalaPsiElement {
   //hack: no ClassParamList present at the moment
   def unsafeClassParameters = parameters.asInstanceOf[Seq[ScClassParameter]]
 
-  def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrElse(Any))
+  def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrAny)
 
   def isImplicit: Boolean
 
@@ -33,7 +33,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def getSmartParameters: Seq[Parameter] = {
     parameters.map(param =>
-      new Parameter(param.name, param.getType(TypingContext.empty).getOrElse(Nothing),
+      new Parameter(param.name, param.getType(TypingContext.empty).getOrNothing,
         param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter))
   }
 

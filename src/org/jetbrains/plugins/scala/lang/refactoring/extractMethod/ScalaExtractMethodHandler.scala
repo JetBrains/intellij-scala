@@ -95,7 +95,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val isLastExpressionMeaningful: Option[ScType] = {
       if (lastReturn) None
       else if (checkLastExpressionMeaningful(elements(i)))
-        Some(elements(i).asInstanceOf[ScExpression].getType(TypingContext.empty).getOrElse(psi.types.Any))
+        Some(elements(i).asInstanceOf[ScExpression].getType(TypingContext.empty).getOrAny)
       else None
     }
     var hasReturn: Option[ScType] = None

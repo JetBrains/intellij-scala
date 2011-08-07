@@ -28,7 +28,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
       val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
-        case Some(expr) => expr.getType(TypingContext.empty).getOrElse(types.Nothing)
+        case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
         case _ => types.Nothing
       }))
 
@@ -69,7 +69,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               new ScTypeVariable(clazz.name)
             }
             case typed: ScTypedDefinition => {
-              val t = existize(typed.getType(TypingContext.empty).getOrElse(Any))
+              val t = existize(typed.getType(TypingContext.empty).getOrAny)
               m.put(typed.name, new ScExistentialArgument("_", Nil, t, t))
               new ScTypeVariable(typed.name)
             }
@@ -91,7 +91,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
           case _ => t
         }
-        val t = existize(e.getType(TypingContext.empty).getOrElse(Any))
+        val t = existize(e.getType(TypingContext.empty).getOrAny)
         if (m.size == 0) t else new ScExistentialType(t, m.values.toList)
       }
     }

@@ -27,5 +27,5 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
-  def calcType: ScType = getType(TypingContext.empty).getOrElse(Any)
+  def calcType: ScType = getType(TypingContext.empty).getOrAny
 }

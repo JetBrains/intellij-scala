@@ -143,7 +143,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   isGrey = true
                   appendFirst()
                 } else {
-                  val exprType = expr.getType(TypingContext.empty).getOrElse(Nothing)
+                  val exprType = expr.getType(TypingContext.empty).getOrNothing
                   val getIt = used.indexOf(false)
                   used(getIt) = true
                   val param: (Parameter, String) = parameters(getIt)
@@ -452,7 +452,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                             }
                           }*/
                           case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) => {
-                            val typez = subst.subst(typed.getType(TypingContext.empty).getOrElse(Nothing)) //todo: implicit conversions
+                            val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
                               collectForType(typez)
                           }
                           case _ =>

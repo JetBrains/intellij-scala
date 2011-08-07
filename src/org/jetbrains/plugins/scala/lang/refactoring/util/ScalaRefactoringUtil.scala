@@ -127,7 +127,7 @@ object ScalaRefactoringUtil {
       }
       return None
     }
-    val cachedType = element.getType(TypingContext.empty).getOrElse(Any)
+    val cachedType = element.getType(TypingContext.empty).getOrAny
 
     object ReferenceToFunction {
       def unapply(refExpr: ScReferenceExpression) = refExpr.bind() match {

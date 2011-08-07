@@ -94,7 +94,7 @@ object ScalaPsiUtil {
       case _ =>
         val exprTypes: Seq[ScType] =
           s.map(_.getTypeAfterImplicitConversion(true, false, None)).map {
-            case (res, _) => res.getOrElse(Any)
+            case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
         val tupleClass = JavaPsiFacade.getInstance(manager.getProject).findClass(qual, scope)
@@ -203,12 +203,12 @@ object ScalaPsiUtil {
     val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = getEffectiveInvokedExpr match {
       case gen: ScGenericCall =>
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
-        val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrElse(Nothing)
+        val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrNothing
         referencedType match {
           case tp: ScTypePolymorphicType => //that means that generic call is important here
-            (gen, gen.getType(TypingContext.empty).getOrElse(Nothing), Seq.empty)
+            (gen, gen.getType(TypingContext.empty).getOrNothing, Seq.empty)
           case _ =>
-            (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrElse(Nothing), gen.arguments)
+            (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrNothing, gen.arguments)
         }
       case expression => (expression, tp, Seq.empty)
     }
@@ -349,7 +349,7 @@ object ScalaPsiUtil {
     if (elems.isEmpty) return Stream.empty
     new Stream[ScType] {
       override def head: ScType = elems.head match {
-        case scp : ScParameter => scp.getType(TypingContext.empty).getOrElse(Nothing)
+        case scp : ScParameter => scp.getType(TypingContext.empty).getOrNothing
         case p =>
           val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
             case Some(cls) if cls.getQualifiedName == "java.lang.Object" => true // See SCL-3036
@@ -648,7 +648,7 @@ object ScalaPsiUtil {
   def genericCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, String), ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
-      map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrElse(Any))
+      map += Tuple(tp(i), typeArgs(i).getType(TypingContext.empty).getOrAny)
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
@@ -668,7 +668,7 @@ object ScalaPsiUtil {
       case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] => e.containingClass.orNull // todo unify these two cases.
       case _ => return empty
     }
-    val s = new FullSignature(namedElementSig(x), new Suspension(() => typed.getType(TypingContext.empty).getOrElse(Any)),
+    val s = new FullSignature(namedElementSig(x), new Suspension(() => typed.getType(TypingContext.empty).getOrAny),
       x.asInstanceOf[NavigatablePsiElement], Some(clazz))
     val sigs = TypeDefinitionMembers.getSignatures(clazz)
     val t = (sigs.get(s): @unchecked) match {

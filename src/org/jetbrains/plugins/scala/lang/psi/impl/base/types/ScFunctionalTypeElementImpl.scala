@@ -23,14 +23,14 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
 
     val paramTypes = paramTypeElement match {
       case tup: ScTupleTypeElement =>
-        tup.components.map(_.getType(ctx)).map(_.getOrElse(Nothing))
+        tup.components.map(_.getType(ctx)).map(_.getOrNothing)
       case par: ScParenthesisedTypeElement if par.typeElement == None => Seq.empty
       case other => {
         val oType = other.getType(ctx)
-        Seq(oType.getOrElse(Any))
+        Seq(oType.getOrAny)
       }
     }
-    val funType = new ScFunctionType(returnTypeRes.getOrElse(Any), paramTypes)(getProject, getResolveScope)
+    val funType = new ScFunctionType(returnTypeRes.getOrAny, paramTypes)(getProject, getResolveScope)
     val result = Success(funType, Some(this))
     (for (f@Failure(_, _) <- Seq(returnTypeRes) ++ paramTypes) yield f).foldLeft(result)(_.apply(_))
   }

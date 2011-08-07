@@ -62,7 +62,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   private def getReturnTypeImpl: PsiType = {
-    getType(TypingContext.empty).getOrElse(Any) match {
+    getType(TypingContext.empty).getOrAny match {
       case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
       case x => ScType.toPsi(x, getProject, getResolveScope)
     }
@@ -92,7 +92,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def superSignatures: Seq[FullSignature] = {
     val clazz = getContainingClass
     val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), new Suspension(() =>
-      returnType.getOrElse(Any)), this, Some(clazz))
+      returnType.getOrAny), this, Some(clazz))
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
     //partial match

@@ -67,7 +67,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       val tp = eb.templateParents
       tp match {
         case Some(tp1) => (for (te <- tp1.typeElements;
-                                t = te.getType(TypingContext.empty).getOrElse(Any);
+                                t = te.getType(TypingContext.empty).getOrAny;
                                 asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject));
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
@@ -167,7 +167,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                       PsiTreeUtil.isContextAncestor(e.templateBody.getOrElse(null), place, true) => ste.typeElement match {
                       case Some(t) => (processor, place) match {
                         case (b : BaseProcessor, s: ScalaPsiElement) => {
-                          if (!b.processType(t.getType(TypingContext.empty).getOrElse(Any), s, state)) return false
+                          if (!b.processType(t.getType(TypingContext.empty).getOrAny, s, state)) return false
                         }
                         case _ =>
                       }

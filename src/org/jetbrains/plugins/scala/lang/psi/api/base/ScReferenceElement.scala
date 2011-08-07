@@ -146,7 +146,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         if (cls.getTypeParameters.length != typeAlias.typeParameters.length) {
           false
         } else if (cls.hasTypeParameters) {
-          val typeParamsAreAppliedInOrderToCorrectClass = typeAlias.aliasedType.getOrElse(Any) match {
+          val typeParamsAreAppliedInOrderToCorrectClass = typeAlias.aliasedType.getOrAny match {
             case pte: ScParameterizedType =>
               val refersToClass = Equivalence.equiv(pte.designator, ScType.designator(cls))
               val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeAlias.typeParameters) {

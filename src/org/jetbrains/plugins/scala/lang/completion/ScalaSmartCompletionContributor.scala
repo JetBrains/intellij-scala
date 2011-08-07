@@ -56,7 +56,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
           if (userData == null || !userData.booleanValue())
             elem match {
               case fun: ScSyntheticFunction => checkType(fun.retType)
-              case fun: ScFunction => checkType(fun.returnType.getOrElse(Any))
+              case fun: ScFunction => checkType(fun.returnType.getOrAny)
               case meth: PsiMethod => checkType(ScType.create(meth.getReturnType, meth.getProject, scope))
               case typed: ScTypedDefinition => for (tt <- typed.getType(TypingContext.empty)) checkType(tt)
               case _ =>
@@ -116,7 +116,7 @@ class ScalaSmartCompletionContributor extends CompletionContributor {
       val ref = element.getParent.asInstanceOf[ScReferenceExpression]
       val fun: ScFunction = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
       if (fun == null) return
-      acceptTypes(Seq[ScType](fun.returnType.getOrElse(Any)), ref.getVariants, result, ref.getResolveScope)
+      acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result, ref.getResolveScope)
     }
   })
 

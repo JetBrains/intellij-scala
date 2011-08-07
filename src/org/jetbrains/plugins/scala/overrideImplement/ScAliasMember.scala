@@ -23,7 +23,7 @@ class ScMethodMember(val sign: PhysicalSignature) extends PsiElementClassMember[
   ScalaPsiUtil.getMethodPresentableText(sign.method))
 
 class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScValue](member,
-  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrElse(Any))))
+  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny)))
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor) extends PsiElementClassMember[ScVariable](member,
-  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrElse(Any))))
+  element.name + ": " + ScType.presentableText(substitutor.subst(element.getType(TypingContext.empty).getOrAny)))

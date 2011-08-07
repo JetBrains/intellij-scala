@@ -74,7 +74,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                           val typeArgs = paramType.typeArgList.typeArgs
                           if (params.length == typeArgs.length) {
                             lazy val simplified: String = {
-                              val aliased = typeAliasDefinition.aliasedType.getOrElse(Any)
+                              val aliased = typeAliasDefinition.aliasedType.getOrAny
                               val subst = params.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
                                 case (subst, (param, arg)) =>
                                   val typeVar = ScalaPsiManager.typeVariable(param)

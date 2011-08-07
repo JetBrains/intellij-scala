@@ -510,7 +510,7 @@ object ScalaPsiElementFactory {
     val substitutor = sign.substitutor
     method match {
       case method: ScFunction => {
-        body = getStandardValue(substitutor subst method.getType(TypingContext.empty).getOrElse(Any))
+        body = getStandardValue(substitutor subst method.getType(TypingContext.empty).getOrAny)
         res = res + method.getFirstChild.getText
         if (res != "") res = res + "\n"
         if (!method.getModifierList.hasModifierProperty("override") && isOverride) res = res + "override "
@@ -548,7 +548,7 @@ object ScalaPsiElementFactory {
               param.typeElement foreach {
                 x => res += (if (res.endsWith("_")) " " else "") + ": " +
                   (if (param.isCallByNameParameter) "=>" else "") +
-                        ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrElse(Any)))
+                        ScType.canonicalText(substitutor.subst(x.getType(TypingContext.empty).getOrAny))
                 if (param.isRepeatedParameter) res += "*"
               }
               res
@@ -656,7 +656,7 @@ object ScalaPsiElementFactory {
         case alias: ScTypeAliasDefinition => {
           (if (alias.getModifierList.hasModifierProperty("override")) "" else "override ") +
                   alias.getModifierList.getText + " type " + alias.getName + " = " +
-                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrElse(Any)))
+                  ScType.canonicalText(substitutor.subst(alias.aliasedType(TypingContext.empty).getOrAny))
         }
         case alias: ScTypeAliasDeclaration => {
           alias.getModifierList.getText + " type " + alias.getName + " = " + body
@@ -680,9 +680,9 @@ object ScalaPsiElementFactory {
     res = res + (if (isVal) "val " else "var ")
     res = res + variable.name
     if (needsInferType &&
-      ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any))) != "")
+      ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrAny)) != "")
       res = res + (if (res.endsWith("_")) " " else "") + ": " +
-              ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrElse(Any)))
+              ScType.canonicalText(substitutor.subst(variable.getType(TypingContext.empty).getOrAny))
     res = res + " = " + body
     res
   }
@@ -717,7 +717,7 @@ object ScalaPsiElementFactory {
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {
     val te = createTypeElementFromText(text, context, child)
     if (te == null) null
-    else te.getType(TypingContext.empty).getOrElse(Any)
+    else te.getType(TypingContext.empty).getOrAny
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction = {

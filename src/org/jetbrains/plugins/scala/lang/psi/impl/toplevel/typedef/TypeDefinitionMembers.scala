@@ -268,24 +268,24 @@ object TypeDefinitionMembers {
         member match {
           case _var: ScVariable if isAccessible(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              lazy val t = dcl.getType(TypingContext.empty).getOrElse(Any)
+              lazy val t = dcl.getType(TypingContext.empty).getOrAny
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst), t, dcl)
               addSignature(new Signature(dcl.name + "_", Stream.apply(t), 1, subst), Unit, dcl)
             }
           case _val: ScValue if isAccessible(place, _val) =>
             for (dcl <- _val.declaredElements) {
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst),
-                dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
+                dcl.getType(TypingContext.empty).getOrAny, dcl)
             }
           case constr: ScPrimaryConstructor => {
             val parameters = constr.parameters
             for (param <- parameters if isAccessible(place, param)) {
               if (!param.isEffectiveVal && place != None && place.get == template.extendsBlock) {
                 //this is class parameter without val or var, it's like private val
-                lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
+                lazy val t = param.getType(TypingContext.empty).getOrAny
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
               } else if (isAccessible(place, param)) {
-                lazy val t = param.getType(TypingContext.empty).getOrElse(Any)
+                lazy val t = param.getType(TypingContext.empty).getOrAny
                 addSignature(new Signature(param.name, Stream.empty, 0, subst), t, param)
                 if (!param.isStable) addSignature(new Signature(param.name + "_", Stream.apply(t), 1, subst),
                   Unit, param)
@@ -293,10 +293,10 @@ object TypeDefinitionMembers {
             }
           }
           case f: ScFunction if isAccessible(place, f) && !f.isConstructor =>
-            addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrElse(Any)), f)
+            addSignature(new PhysicalSignature(f, subst), subst.subst(f.returnType.getOrAny), f)
           case o: ScObject if (isAccessible(place, o)) =>
             addSignature(new Signature(o.name, Stream.empty, 0, subst),
-              subst.subst(o.getType(TypingContext.empty).getOrElse(Any)), o)
+              subst.subst(o.getType(TypingContext.empty).getOrAny), o)
           case _ =>
         }
       }
@@ -312,17 +312,17 @@ object TypeDefinitionMembers {
         decl match {
           case fun: ScFunction if isAccessible(place, fun) => {
             val sign = new PhysicalSignature(fun, subst)
-            addSignature(sign, fun.returnType.getOrElse(Any), fun)
+            addSignature(sign, fun.returnType.getOrAny, fun)
           }
           case _var: ScVariable if isAccessible(place, _var) =>
             for (dcl <- _var.declaredElements) {
-              lazy val t = dcl.getType(TypingContext.empty).getOrElse(Any)
+              lazy val t = dcl.getType(TypingContext.empty).getOrAny
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst), t, dcl)
               addSignature(new Signature(dcl.name + "_", Stream.apply(t), 1, subst), Unit, dcl)
             }
           case _val: ScValue if isAccessible(place, _val) =>
             for (dcl <- _val.declaredElements) {
-              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), dcl.getType(TypingContext.empty).getOrElse(Any), dcl)
+              addSignature(new Signature(dcl.name, Stream.empty, 0, subst), dcl.getType(TypingContext.empty).getOrAny, dcl)
             }
           case _ =>
         }
@@ -616,15 +616,15 @@ object TypeDefinitionMembers {
                 context match {
                   case classParam: ScClassParameter if classParam.isEffectiveVal =>
                     if (!processor.execute(new FakePsiMethod(classParam, t.getName, Array.empty,
-                      classParam.getType(TypingContext.empty).getOrElse(Any), classParam.hasModifierProperty _), state))
+                      classParam.getType(TypingContext.empty).getOrAny, classParam.hasModifierProperty _), state))
                       return false
                   case value: ScValue =>
                     if (!processor.execute(new FakePsiMethod(value, t.getName, Array.empty,
-                      value.getType(TypingContext.empty).getOrElse(Any), value.hasModifierProperty _), state))
+                      value.getType(TypingContext.empty).getOrAny, value.hasModifierProperty _), state))
                       return false
                   case variable: ScVariable =>
                     if (!processor.execute(new FakePsiMethod(variable, t.getName, Array.empty,
-                      variable.getType(TypingContext.empty).getOrElse(Any), variable.hasModifierProperty _), state))
+                      variable.getType(TypingContext.empty).getOrAny, variable.hasModifierProperty _), state))
                       return false
                   case _ =>
                 }

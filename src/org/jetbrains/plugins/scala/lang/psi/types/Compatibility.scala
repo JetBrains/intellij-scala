@@ -251,7 +251,7 @@ object Compatibility {
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
-    val t = substitutor.subst(p.getType(TypingContext.empty).getOrElse(Nothing))
+    val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
     new Parameter(p.getName, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
   }
   def toParameter(p: PsiParameter) = {
@@ -342,14 +342,14 @@ object Compatibility {
         
         if (shortage > 0) { 
           val part = obligatory.takeRight(shortage).map { p =>
-            val t = p.getType(TypingContext.empty).getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any)
+            val t = p.getType(TypingContext.empty).getOrAny
             new Parameter(p.name, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter)
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
 
         val res = checkConformanceExt(true, parameters.map{param: ScParameter => new Parameter(param.getName, {
-          substitutor.subst(param.getType(TypingContext.empty).getOrElse(Nothing))
+          substitutor.subst(param.getType(TypingContext.empty).getOrNothing)
         }, param.isDefaultParam, param.isRepeatedParameter, param.isRepeatedParameter)}, exprs, checkWithImplicits, isShapesResolve)
         res
       }

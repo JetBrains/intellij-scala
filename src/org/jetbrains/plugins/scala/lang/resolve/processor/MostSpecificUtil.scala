@@ -168,9 +168,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         pd.declaredType match {case Some(t) => t; case None => Nothing}
       case vd: ScVariableDefinition if (PsiTreeUtil.isContextAncestor(vd, elem, true)) =>
         vd.declaredType match {case Some(t) => t; case None => Nothing}
-      case _ => refPatt.getType(TypingContext.empty).getOrElse(Any)
+      case _ => refPatt.getType(TypingContext.empty).getOrAny
     }
-    case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrElse(Any)
+    case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
     case _ => Nothing
   }
 }

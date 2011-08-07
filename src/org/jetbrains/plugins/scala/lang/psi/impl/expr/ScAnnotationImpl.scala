@@ -38,7 +38,7 @@ class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAn
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    ScType.extractClass(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrElse(Any))
+    ScType.extractClass(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrAny)
 
   def getQualifiedName: String = getClazz match {
     case None => null

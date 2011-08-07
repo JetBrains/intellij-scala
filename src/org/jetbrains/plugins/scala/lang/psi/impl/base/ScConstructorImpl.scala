@@ -116,7 +116,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 => {
           tp.typeParameters.map(tp =>
             new TypeParameter(tp.name,
-              tp.lowerBound.getOrElse(Nothing), tp.upperBound.getOrElse(Any), tp))
+              tp.lowerBound.getOrNothing, tp.upperBound.getOrAny, tp))
         }
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 => {
           ptp.getTypeParameters.toSeq.map(ptp =>
@@ -130,7 +130,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ (zipped.map {
             case (arg, tp) =>
-              ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrElse(Any))
+              ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), arg.getType(TypingContext.empty).getOrAny)
           }), Map.empty, None)
           return Success(appSubst.subst(res), Some(this))
         }

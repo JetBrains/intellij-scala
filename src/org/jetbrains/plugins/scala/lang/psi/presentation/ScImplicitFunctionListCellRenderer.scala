@@ -41,10 +41,10 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends PsiEle
       case method: ScFunction => {
         method.getName + PresentationUtil.presentationString(method.paramClauses) + ": " +
                 PresentationUtil.presentationString(method.returnType.
-                        getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any))
+                        getOrAny)
       }
-      case b: ScBindingPattern => b.getName + ": " + PresentationUtil.presentationString(b.getType(TypingContext.empty).
-              getOrElse(org.jetbrains.plugins.scala.lang.psi.types.Any))
+      case b: ScBindingPattern => b.getName + ": " +
+              PresentationUtil.presentationString(b.getType(TypingContext.empty).getOrAny)
       case _ => element.getName
     }
   }

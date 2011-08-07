@@ -1,8 +1,12 @@
-package org.jetbrains.plugins.scala.lang.psi.types.result
+package org.jetbrains.plugins.scala
+package lang
+package psi
+package types
+package result
 
 import com.intellij.psi.PsiElement
 import scala.None
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 
 /**
  * @author ilyas
@@ -22,6 +26,10 @@ sealed abstract class TypeResult[+T] {
 
   def apply(fail: Failure): TypeResult[T]
   def isCyclic: Boolean
+  
+  def getOrNothing(implicit ev: T <:< ScType): ScType = getOrType(Nothing)
+  def getOrAny(implicit ev: T <:< ScType): ScType = getOrType(Any)
+  def getOrType(default: ScType)(implicit ev: T <:< ScType): ScType = if (isEmpty) default else this.get
 }
 
 object TypeResult {

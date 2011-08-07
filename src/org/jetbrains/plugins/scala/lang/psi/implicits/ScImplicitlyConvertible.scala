@@ -215,8 +215,8 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
       val (tp: ScType, retTp: ScType) = r.element match {
         case f: ScFunction if f.paramClauses.clauses.length > 0 => {
           val params = f.paramClauses.clauses.apply(0).parameters
-          (subst.subst(params.apply(0).getType(TypingContext.empty).getOrElse(Nothing)),
-           subst.subst(f.returnType.getOrElse(Nothing)))
+          (subst.subst(params.apply(0).getType(TypingContext.empty).getOrNothing),
+           subst.subst(f.returnType.getOrNothing))
         }
         case f: ScFunction => {
           Conformance.undefinedSubst(funType, subst.subst(f.returnType.get)).getSubstitutor match {
@@ -257,10 +257,10 @@ trait ScImplicitlyConvertible extends ScalaPsiElement {
           case f: ScFunction if f.hasTypeParameters => {
             var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
             for (tParam <- f.typeParameters) {
-              val lowerType: ScType = tParam.lowerBound.getOrElse(Nothing)
+              val lowerType: ScType = tParam.lowerBound.getOrNothing
               if (lowerType != Nothing) uSubst = uSubst.addLower((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
                 subst.subst(lowerType))
-              val upperType: ScType = tParam.upperBound.getOrElse(Any)
+              val upperType: ScType = tParam.upperBound.getOrAny
               if (upperType != Any) uSubst = uSubst.addUpper((tParam.getName, ScalaPsiUtil.getPsiElementId(tParam)),
                 subst.subst(upperType))
             }

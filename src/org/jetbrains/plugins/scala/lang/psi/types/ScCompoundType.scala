@@ -54,21 +54,21 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
       isInitialized = true
 
       for (typeDecl <- typeDecls) {
-        typesVal += ((typeDecl.name, (typeDecl.lowerBound.getOrElse(Nothing), typeDecl.upperBound.getOrElse(Any))))
+        typesVal += ((typeDecl.name, (typeDecl.lowerBound.getOrNothing, typeDecl.upperBound.getOrAny)))
       }
 
 
       for (decl <- decls) {
         decl match {
           case fun: ScFunction =>
-            signatureMapVal += ((new PhysicalSignature(fun, subst), fun.getType(TypingContext.empty).getOrElse(Any)))
+            signatureMapVal += ((new PhysicalSignature(fun, subst), fun.getType(TypingContext.empty).getOrAny))
           case varDecl: ScVariable => {
             varDecl.typeElement match {
               case Some(te) => for (e <- varDecl.declaredElements) {
                 val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
                 varType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
-                signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrElse(Any)))
-                signatureMapVal += ((new Signature(e.name + "_", Stream(varType.getOrElse(Any)), 1, subst), Unit)) //setter
+                signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrAny))
+                signatureMapVal += ((new Signature(e.name + "_", Stream(varType.getOrAny), 1, subst), Unit)) //setter
               }
               case None =>
             }
@@ -77,7 +77,7 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
             case Some(te) => for (e <- valDecl.declaredElements) {
               val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
               valType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
-              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrElse(Any)))
+              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrAny))
             }
             case None =>
           }
