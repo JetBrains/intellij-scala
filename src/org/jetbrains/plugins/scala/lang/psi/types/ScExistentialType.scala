@@ -417,4 +417,28 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], low
           upper.recursiveVarianceUpdate(update, variance))
     }
   }
+
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
+                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var u = uSubst
+    r match {
+      case ScSkolemizedType(rname, rargs, rlower, rupper) =>
+        if (name != rname) return (false, uSubst)
+        if (args.length != rargs.length) return (false, uSubst)
+        args.zip(rargs) foreach {
+          case (tpt1, tpt2) =>
+            val t = Equivalence.equivInner(tpt1, tpt2, u, falseUndef)
+            if (!t._1) return (false, u)
+            u = t._2
+        }
+        var t = Equivalence.equivInner(lower, rlower, u, falseUndef)
+        if (!t._1) return (false, u)
+        u = t._2
+        t = Equivalence.equivInner(upper, rupper, u, falseUndef)
+        if (!t._1) return (false, u)
+        u = t._2
+        (true, u)
+      case _ => (false, uSubst)
+    }
+  }
 }
