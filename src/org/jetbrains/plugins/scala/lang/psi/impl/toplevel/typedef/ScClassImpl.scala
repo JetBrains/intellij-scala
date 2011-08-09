@@ -22,6 +22,7 @@ import api.ScalaElementVisitor
 import lang.resolve.processor.BaseProcessor
 import caches.CachesUtil
 import util.PsiModificationTracker
+import com.intellij.openapi.project.DumbServiceImpl
 
 /**
  * @author Alexander.Podkhalyuzin
@@ -68,6 +69,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
+    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
 
     for (p <- parameters) {
