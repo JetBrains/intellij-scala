@@ -47,7 +47,7 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
       if (ReflectionCache.isInstance(cur, aClass)) result.add(cur.asInstanceOf[T])
       cur = cur.getNextSibling
     }
-    return result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
+    result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
   }
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
@@ -56,6 +56,6 @@ class ScDocCommentImpl(text: CharSequence) extends LazyParseablePsiElement(Scala
       if (ReflectionCache.isInstance(cur, aClass)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
-    return null
+    null
   }
 }

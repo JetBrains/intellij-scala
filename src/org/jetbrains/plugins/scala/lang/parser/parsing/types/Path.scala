@@ -27,16 +27,16 @@ object Path extends ParserNode with ScalaTokenTypes {
     if (lookAhead(builder, tIDENTIFIER, tDOT, kTHIS)) {
       val thisMarker = builder.mark
       val refMarker = builder.mark
-      builder.advanceLexer
+      builder.advanceLexer()
       refMarker.done(REFERENCE)
-      builder.getTokenType()
-      builder.advanceLexer
-      builder.getTokenType()
-      builder.advanceLexer
+      builder.getTokenType
+      builder.advanceLexer()
+      builder.getTokenType
+      builder.advanceLexer()
       val nm = thisMarker.precede
       thisMarker.done(THIS_REFERENCE)
       if (lookAhead(builder, tDOT, tIDENTIFIER)) {
-        builder.advanceLexer
+        builder.advanceLexer()
         StableId parseQualId(builder, nm, element, false)
       } else {
         nm.drop()
@@ -46,7 +46,7 @@ object Path extends ParserNode with ScalaTokenTypes {
                  builder.getTokenType == kTHIS &&
                  !lookAhead(builder, kTHIS, tDOT)) {
       val thisMarker = builder.mark
-      builder.advanceLexer
+      builder.advanceLexer()
       thisMarker.done(THIS_REFERENCE)
       true
     } else {
