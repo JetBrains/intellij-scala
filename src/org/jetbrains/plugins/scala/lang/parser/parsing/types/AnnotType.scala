@@ -4,7 +4,6 @@ package parser
 package parsing
 package types
 
-import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 import builder.ScalaPsiBuilder
@@ -23,16 +22,16 @@ object AnnotType {
     val annotMarker = builder.mark
     var isAnnotation = false
     //parse Simple type
-    if (SimpleType parse builder){
+    if (SimpleType parse builder) {
       val annotationsMarker = builder.mark
       while (!builder.newlineBeforeCurrentToken && Annotation.parse(builder)) {isAnnotation = true}
 
-      if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS) else annotationsMarker.drop
-      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE) else annotMarker.drop
+      if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS) else annotationsMarker.drop()
+      if (isAnnotation) annotMarker.done(ScalaElementTypes.ANNOT_TYPE) else annotMarker.drop()
       true
     }
     else {
-      annotMarker.rollbackTo
+      annotMarker.rollbackTo()
       false
     }
   }

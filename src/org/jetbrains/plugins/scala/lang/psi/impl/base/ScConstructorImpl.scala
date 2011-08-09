@@ -10,7 +10,6 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import api.toplevel.templates.{ScExtendsBlock, ScClassParents}
 import api.expr.ScNewTemplateDefinition
-import api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import api.toplevel.ScTypeParametersOwner
 import collection.immutable.HashMap
 import api.statements.{ScTypeAliasDefinition, ScFunction}
@@ -23,6 +22,7 @@ import result.{Success, Failure, TypeResult, TypingContext}
 import resolve.{ResolveUtils, ScalaResolveResult}
 import collection.mutable.ArrayBuffer
 import collection.Seq
+import api.base.types.{ScTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -30,6 +30,8 @@ import collection.Seq
 */
 
 class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScConstructor {
+
+  def typeElement: ScTypeElement = findNotNullChildByClass(classOf[ScTypeElement])
 
   override def toString: String = "Constructor"
 

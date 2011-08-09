@@ -6,7 +6,6 @@ package types
 
 import com.intellij.lang.PsiBuilder, org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import ScalaElementTypes._
 import builder.ScalaPsiBuilder
@@ -28,35 +27,35 @@ object StableId extends ParserNode {
   def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = parse(builder, false, element)
 
   def parse(builder: ScalaPsiBuilder, forImport: Boolean, element: IElementType): Boolean = {
-    val marker = builder.mark
+    val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer
+        builder.advanceLexer()
         if (stopAtImportEnd(builder, forImport)) {
           marker.done(element)
           return true
         } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
           val nm = marker.precede
           marker.done(element)
-          builder.advanceLexer
+          builder.advanceLexer()
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER => return parseQualId(builder, nm, element, forImport)
             case ScalaTokenTypes.kTHIS => return parseThisReference(builder, nm, element, forImport)
             case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, nm, element, forImport)
             case _ =>
               builder error ErrMsg("identifier.expected")
-              nm.drop
+              nm.drop()
               return true
           }
         }
         marker.done(element)
-        return true
+        true
       }
-      case ScalaTokenTypes.kTHIS => return parseThisReference(builder, marker, element, forImport)
-      case ScalaTokenTypes.kSUPER => return parseSuperReference(builder, marker, element, forImport)
+      case ScalaTokenTypes.kTHIS => parseThisReference(builder, marker, element, forImport)
+      case ScalaTokenTypes.kSUPER => parseSuperReference(builder, marker, element, forImport)
       case _ => {
-        marker.drop
-        return false
+        marker.drop()
+        false
       }
 
     }
@@ -64,47 +63,47 @@ object StableId extends ParserNode {
 
   def parseThisReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
     val nm = marker.precede()
-    builder.advanceLexer
+    builder.advanceLexer()
     if (builder.getTokenType != tDOT) {
       builder.error(ErrMsg("dot.expected"))
       marker.done(THIS_REFERENCE)
-      nm.drop
+      nm.drop()
       return true
     }
     marker.done(THIS_REFERENCE)
-    return parseEndIdentifier(builder, nm, element, forImport)
+    parseEndIdentifier(builder, nm, element, forImport)
   }
 
   def parseSuperReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
     val nm = marker.precede()
-    builder.advanceLexer
+    builder.advanceLexer()
     if (builder.getTokenType != tDOT && builder.getTokenType != tLSQBRACKET) {
       builder.error(ErrMsg("dot.or.cq.expected"))
-      nm.drop
+      nm.drop()
       marker.done(SUPER_REFERENCE)
       return true
     }
     parseClassQualifier(builder)
     marker.done(SUPER_REFERENCE)
-    return parseEndIdentifier(builder, nm, element, forImport)
+    parseEndIdentifier(builder, nm, element, forImport)
   }
 
-  def parseClassQualifier(builder: ScalaPsiBuilder): Unit = {
+  def parseClassQualifier(builder: ScalaPsiBuilder) {
     if (builder.getTokenType != tLSQBRACKET) return
-    builder.advanceLexer
+    builder.advanceLexer()
     builder.disableNewlines
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
     }
     else {
-      builder.advanceLexer
+      builder.advanceLexer()
     }
 
     if (builder.getTokenType != tRSQBRACKET) {
       builder.error(ErrMsg("rsqbracket.expected"))
     }
     else {
-      builder.advanceLexer
+      builder.advanceLexer()
     }
     builder.restoreNewlinesState
   }
@@ -115,24 +114,24 @@ object StableId extends ParserNode {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       builder.error(ErrMsg("dot.expected"))
     }
-    builder.advanceLexer
+    builder.advanceLexer()
     if (builder.getTokenType != ScalaTokenTypes.tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
-      nm.drop
+      nm.drop()
       return true
     }
     builder.advanceLexer()
     if (stopAtImportEnd(builder, forImport)) {
       nm.done(element)
-      return true
+      true
     } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
       val nm1 = nm.precede()
       nm.done(element)
-      builder.advanceLexer
+      builder.advanceLexer()
       parseQualId(builder, nm1, element, forImport)
     } else {
       nm.done(element)
-      return true
+      true
     }
   }
 
@@ -140,17 +139,17 @@ object StableId extends ParserNode {
   def parseQualId(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
-      marker.drop
+      marker.drop()
       return true
     }
-    builder.advanceLexer // ate identifier
+    builder.advanceLexer() // ate identifier
     if (stopAtImportEnd(builder, forImport)) {
       marker.done(element)
       true
     } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
       val nm = marker.precede
       marker.done(element)
-      builder.advanceLexer // ate dot
+      builder.advanceLexer() // ate dot
       parseQualId(builder, nm, element, forImport)
     } else {
       marker.done(element)
