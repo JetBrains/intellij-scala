@@ -5,16 +5,16 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.packaging.ScPackageContainer
-import com.intellij.psi.PsiElement
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition, ScClass}
 import lang.psi.api.statements._
 import lang.psi.api.base.patterns.ScCaseClause
 import params.{ScParameter, ScTypeParam, ScTypeParamClause, ScParameters}
-import lang.psi.types.ScType
 import lang.psi.api.base.types.{ScRefinement, ScCompoundTypeElement, ScExistentialClause}
 import lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition, ScNamedElement}
 import lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScBlock}
 import org.jetbrains.plugins.scala.extensions._
+import com.intellij.psi.{JavaPsiFacade, PsiElement}
+import lang.psi.types.{ScSubstitutor, ScParameterizedType, ScType}
 
 /**
  * Pavel.Fatin, 25.05.2010
@@ -93,7 +93,7 @@ trait ScopeAnnotator {
 
   private def format(parameters: Seq[ScParameter], types: Seq[ScType]) = {
     val parts = parameters.zip(types).map {
-      case (p, t) => eraseType(t.presentableText) + (if(p.isRepeatedParameter) "*" else "")
+      case (p, t) => eraseType(t.canonicalText) + (if(p.isRepeatedParameter) "*" else "")
     }
     "(%s)".format(parts.mkString(", "))
   }
