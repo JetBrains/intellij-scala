@@ -25,8 +25,8 @@ import lexer.ScalaTokenTypes
 import com.intellij.psi._
 import base.types.ScSelfTypeElement
 import search.GlobalSearchScope
-import com.intellij.openapi.project.DumbService
 import caches.CachesUtil
+import com.intellij.openapi.project.{DumbServiceImpl, DumbService}
 
 /**
  * @author ven
@@ -114,6 +114,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                                   oldState: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement) : Boolean = {
+    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     var state = oldState
     //exception cases
     this match {

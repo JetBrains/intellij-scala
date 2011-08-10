@@ -50,20 +50,27 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     (r1.element, r2.element) match {
       case (m1@(_: PsiMethod | _: ScFun), m2@(_: PsiMethod | _: ScFun)) => {
         val (t1, t2) = (getType(m1), getType(m2))
-        def calcParams(tp: ScType, exisential: Boolean): Seq[Parameter] = {
+        def calcParams(tp: ScType, existential: Boolean): Seq[Parameter] = {
           tp match {
             case ScMethodType(_, params, _) => params
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
-              val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
-                (subst: ScSubstitutor, tp: TypeParameter) =>
-                  if (exisential)
+              if (!existential) {
+                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                  (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType))
-                  else
+                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                }
+                params.map(p => p.copy(paramType = s.subst(p.paramType)))
+              } else {
+                val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
+                  (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScAbstractType(ScalaPsiManager.typeVariable(tp.ptp), tp.lowerType, tp.upperType))
+                      new ScTypeVariable(tp.name))
+                }
+                val arguments = typeParams.toList.map(tp =>
+                  new ScExistentialArgument(tp.name, List.empty /* todo? */, tp.lowerType, tp.upperType))
+                params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments)))
               }
-              params.map(p => p.copy(paramType = s.subst(p.paramType)))
             }
             case _ => Seq.empty
           }
@@ -73,9 +80,22 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
         val default: Expression = new Expression(if (params1.length > 0) params1.last.paramType else Nothing)
         val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType)) ++ Seq.fill(i)(default)
-        val conformance: (Boolean, ScUndefinedSubstitutor) =
-          Compatibility.checkConformance(false, params2, exprs, false)
-        conformance._1
+        val conformance = Compatibility.checkConformance(false, params2, exprs, false)
+        var u = conformance._2
+        if (!conformance._1) return false
+        t2 match {
+          case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) => {
+            typeParams.foreach(tp => {
+              u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType)
+              u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType)
+            })
+          }
+          case _ =>
+        }
+        u.getSubstitutor match {
+          case None => false
+          case _ => true
+        }
       }
       case (_, m2: PsiMethod) => true
       case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1), getType(e2))

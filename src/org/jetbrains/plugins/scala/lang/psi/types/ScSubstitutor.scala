@@ -18,6 +18,8 @@ object ScSubstitutor {
   val empty: ScSubstitutor = new ScSubstitutor()
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
+
+  private val followLimit = 800
 }
 
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
@@ -53,11 +55,15 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
     this followed (new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
   }
-  def followed(s: ScSubstitutor): ScSubstitutor = {
+  def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
+
+  private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
+    if (level > ScSubstitutor.followLimit)
+      throw new RuntimeException("Too much followers for substitutor: " + this.toString)
     if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None) s
     else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None) this
     else new ScSubstitutor(tvMap, aliasesMap, updateThisType,
-      if (follower != null) follower followed s else s)
+      if (follower != null) follower followed (s, level + 1) else s)
   }
 
   def subst(t: ScType): ScType = try {

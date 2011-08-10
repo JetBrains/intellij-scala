@@ -36,6 +36,13 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              var isShapeResolve: Boolean = false,
                              val constructorResolve: Boolean = false,
                              val enableTupling: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+  private def isUpdate: Boolean = {
+    if (ref == null) return false
+    ref.getContext match {
+      case call: ScMethodCall => call.isUpdateCall
+      case _ => false
+    }
+  }
 
   override def execute(element : PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
@@ -57,7 +64,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case cc: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case o: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
-          val seq = o.signaturesByName("apply").map(sign => {
+          val functionName = if (isUpdate) "update" else "apply"
+          val seq = o.signaturesByName(functionName).map(sign => {
             val m = sign.method
             val subst = sign.substitutor
             new ScalaResolveResult(m, s.followed(subst), getImports(state), None, implicitConversionClass,

@@ -95,6 +95,20 @@ object Conformance {
         return conformsInner(upper, right, visited, undefinedSubst, checkWeak)
       case (left, ScAbstractType(_, lower, upper)) =>
         return conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+      case (ScParameterizedType(ScAbstractType(_, lower, upper), args), right) =>
+        upper match {
+          case ScParameterizedType(upper, _) =>
+            return conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+          case _ =>
+            return conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+        }
+      case (left, ScParameterizedType(ScAbstractType(_, lower, upper), args)) =>
+        lower match {
+          case ScParameterizedType(lower, _) =>
+            return conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+          case _ =>
+            return conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+        }
       case _ => {
         val isEquiv = Equivalence.equivInner(l, r, undefinedSubst)
         if (isEquiv._1) return isEquiv
@@ -226,6 +240,22 @@ object Conformance {
         undefinedSubst = t._2
         (true, undefinedSubst)
       }
+      case (ScSkolemizedType(_, _, lower, _), _) => return conformsInner(lower, r, HashSet.empty, undefinedSubst)
+      case (_, ScSkolemizedType(_, _, _, upper)) => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
+        case (ScParameterizedType(ScSkolemizedType(_, _, lower, upper), args), right) =>
+        lower match {
+          case ScParameterizedType(lower, _) =>
+            return conformsInner(lower, right, visited, undefinedSubst, checkWeak)
+          case _ =>
+            return conformsInner(lower, right, visited, undefinedSubst, checkWeak)
+        }
+      case (left, ScParameterizedType(ScSkolemizedType(_, _, lower, upper), args)) =>
+        upper match {
+          case ScParameterizedType(upper, _) =>
+            return conformsInner(left, upper, visited, undefinedSubst, checkWeak)
+          case _ =>
+            return conformsInner(left, upper, visited, undefinedSubst, checkWeak)
+        }
       case (_: NonValueType, _) => return (false, undefinedSubst)
       case (_, _: NonValueType) => return (false, undefinedSubst)
       case (Any, _) => return (true, undefinedSubst)
@@ -599,8 +629,6 @@ object Conformance {
           workWith(typeMember)
         }), undefinedSubst)
       }
-
-      case (ScSkolemizedType(_, _, lower, _), _) => return conformsInner(lower, r, HashSet.empty, undefinedSubst)
       case (proj@ScProjectionType(projected, _, _), _) if proj.actualElement.isInstanceOf[ScTypeAlias] => {
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
@@ -627,7 +655,6 @@ object Conformance {
         return (true, undefinedSubst)
       }
       case (ex@ScExistentialType(q, wilds), _) => return conformsInner(q, r, HashSet.empty, undefinedSubst)
-      case (_, ScSkolemizedType(_, _, _, upper)) => return conformsInner(l, upper, HashSet.empty, undefinedSubst)
       case (_, ScCompoundType(comps, _, _, _)) => {
         val iterator = comps.iterator
         while (iterator.hasNext) {

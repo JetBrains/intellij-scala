@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalaTest
 import org.scalatest.Reporter
 import org.scalatest.events._
 import java.io.{PrintWriter, StringWriter}
+import java.util.Date
+import java.text.SimpleDateFormat
 
 /**
  * User: Alexander Podkhalyuzin
@@ -10,7 +12,9 @@ import java.io.{PrintWriter, StringWriter}
  */
 
 class ScalaTest10Scala28Reporter extends Reporter {
-  def apply(event: Event): Unit = {
+  private val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
+  def apply(event: Event) {
     event match {
       case RunStarting(ordinal, testCount, configMap, formatter, payload, threadName, timeStamp) => {
         println("##teamcity[testCount count='" + testCount + "']")
@@ -37,7 +41,8 @@ class ScalaTest10Scala28Reporter extends Reporter {
         var res = "\n##teamcity[testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
             "' details='" + escapeString(detail) + "'";
         if (error) res += "error = '" + error + "'";
-        res += "timestamp='" + escapeString("" + timeStamp) + "']"
+        val date = new Date(timeStamp)
+        res += "timestamp='" + escapeString("" + format.format(date)) + "']"
         println(res)
         println("\n##teamcity[testFinished name='" + escapeString(testName) +
           "' duration='" + duration.getOrElse(0) +"']")

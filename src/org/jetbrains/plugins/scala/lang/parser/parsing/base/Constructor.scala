@@ -4,7 +4,6 @@ package parser
 package parsing
 package base
 
-import com.intellij.lang.PsiBuilder
 import expressions.ArgumentExprs
 import lexer.ScalaTokenTypes
 import types.{SimpleType, AnnotType}
@@ -23,7 +22,7 @@ object Constructor {
   def parse(builder: ScalaPsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
     if ((!isAnnotation && !AnnotType.parse(builder)) || (isAnnotation && !SimpleType.parse(builder))) {
-      constrMarker.drop
+      constrMarker.drop()
       return false
     }
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
@@ -34,6 +33,6 @@ object Constructor {
       }
     }
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)
-    return true
+    true
   }
 }

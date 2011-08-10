@@ -4,12 +4,7 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDeclarationImpl
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl
 import api.statements.{ScFunctionDefinition, ScFunction, ScFunctionDeclaration}
-import api.toplevel.typedef.ScTemplateDefinition
-import com.intellij.psi.impl.cache.{RecordUtil, TypeInfo}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
@@ -36,7 +31,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
       } else {
         psi match {
           case fDef: ScFunctionDefinition => fDef.body match {
-            case Some(x) => x.getText()
+            case Some(x) => x.getText
             case None => ""
           }
           case _ => ""
@@ -49,11 +44,11 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
         case _ => false
       }
     }
-    new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.getName, psi.isInstanceOf[ScFunctionDeclaration],
+    new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
       psi.annotationNames.toArray, returnTypeText, bodyText, assign)
   }
 
-  def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScFunctionStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     val annotations = stub.getAnnotations
@@ -81,7 +76,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign)
   }
 
-  def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
+  def indexStub(stub: ScFunctionStub, sink: IndexSink) {
 
     val name = stub.getName
     if (name != null) {

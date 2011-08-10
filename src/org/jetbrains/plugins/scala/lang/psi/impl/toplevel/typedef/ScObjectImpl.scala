@@ -18,6 +18,7 @@ import api.ScalaElementVisitor
 import caches.CachesUtil
 import util.PsiModificationTracker
 import lang.resolve.ResolveUtils
+import com.intellij.openapi.project.DumbServiceImpl
 
 /**
  * @author Alexander Podkhalyuzin
@@ -64,6 +65,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
+    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
       val qual = getQualifiedName

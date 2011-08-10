@@ -13,15 +13,14 @@ import com.intellij.psi._
 import psi.types.result.{TypeResult, Failure, Success, TypingContext}
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
-import lang.resolve.processor.BaseProcessor
-import psi.types.{ScSubstitutor, Bounds, ScType}
+import psi.types.ScType
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamingPattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)

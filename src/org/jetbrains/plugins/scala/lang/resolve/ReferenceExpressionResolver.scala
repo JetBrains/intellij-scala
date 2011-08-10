@@ -35,8 +35,11 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
   private def getContextInfo(ref: ResolvableReferenceExpression, e: ScExpression): ContextInfo = {
     e.getContext match {
       case generic : ScGenericCall => getContextInfo(ref, generic)
-      case call: ScMethodCall if !call.isUpdateCall => ContextInfo(Some(call.argumentExpressions), () => None, false)
-      case call: ScMethodCall => ContextInfo(None, () => None, false)
+      case call: ScMethodCall if !call.isUpdateCall =>
+        ContextInfo(Some(call.argumentExpressions), () => None, false)
+      case call: ScMethodCall =>
+        val args = call.argumentExpressions ++ call.getContext.asInstanceOf[ScAssignStmt].getRExpression.toList
+        ContextInfo(Some(args), () => None, false)
       case section: ScUnderscoreSection => ContextInfo(None, () => section.expectedType, true)
       case inf: ScInfixExpr if ref == inf.operation => {
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {

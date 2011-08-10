@@ -17,7 +17,7 @@ import com.intellij.psi.PsiElement
 
 abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName: String)
         extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents](debugName) {
-  def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream) {
     val array = stub.getTemplateParentsTypesTexts
     dataStream.writeByte(array.length)
     for (s <- array) {
@@ -38,5 +38,5 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
     new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, res)
   }
 
-  def indexStub(stub: ScTemplateParentsStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScTemplateParentsStub, sink: IndexSink) {}
 }
