@@ -16,11 +16,12 @@ import psi.types.result.TypeResult
 */
 
 trait ScConstructor extends ScalaPsiElement {
-  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement
 
   def args = findChild(classOf[ScArgumentExprList])
+
   def arguments: Seq[ScArgumentExprList] =
-    collection.immutable.Seq(findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq: _*)
+    Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)
 
   def expectedType: Option[ScType]
 

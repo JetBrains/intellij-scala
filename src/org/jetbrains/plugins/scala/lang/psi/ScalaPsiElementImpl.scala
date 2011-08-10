@@ -61,7 +61,8 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass[T](clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
+    findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 

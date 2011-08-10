@@ -4,7 +4,6 @@ package parser
 package parsing
 package top.template
 
-import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
@@ -24,12 +23,12 @@ object ClassParents {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParentsMarker = builder.mark
     if (!Constructor.parse(builder)) {
-      classParentsMarker.drop
+      classParentsMarker.drop()
       return false
     }
     //Look for mixin
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.advanceLexer //Ate with
+      builder.advanceLexer() //Ate with
       if (!AnnotType.parse(builder)) {
         builder error ScalaBundle.message("wrong.simple.type")
         classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
@@ -37,6 +36,6 @@ object ClassParents {
       }
     }
     classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
-    return true
+    true
   }
 }

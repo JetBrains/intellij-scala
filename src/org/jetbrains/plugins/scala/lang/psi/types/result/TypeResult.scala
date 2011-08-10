@@ -17,7 +17,7 @@ sealed abstract class TypeResult[+T] {
   def flatMap[U](f: T => TypeResult[U]): TypeResult[U]
   def filter(f: T => Boolean): TypeResult[T]
   def exists(f: T => Boolean): Boolean = !filter(f).isEmpty
-  def foreach[B](f: T => B): Unit
+  def foreach[B](f: T => B)
   def get: T
   def isEmpty : Boolean
   def isDefined = !isEmpty

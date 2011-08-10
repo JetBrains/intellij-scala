@@ -103,7 +103,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         (if (x.parameterList.clauses.length == 1 &&
             x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map(c =>
           c.parameters.map(p =>
-            p.name + ": " +
+            p.name + " : " +
                     p.typeElement.map(_.getText).getOrElse("Any") +
                     (if (p.isDefaultParam) " = " + p.getDefaultExpression.map(_.getText).getOrElse("{}")
                     else if (p.isRepeatedParameter) "*" else "")).
@@ -142,7 +142,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
         typeParameters.map(_.name).mkString("[", ", ", "]")
       else ""
 
-    val applyText = "def apply" + typeParamString + paramString + ": " + name + typeParamStringRes +
+    val applyText = "def apply" + typeParamString + paramString + " : " + name + typeParamStringRes +
                 " = throw new Error()"
     val unapplyText = "def unapply" + unapplyMethodNameSuffix + typeParamString + "(x$0: " + name + typeParamStringRes + "): " +
                 paramStringRes + " = throw new Error()"

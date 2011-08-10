@@ -11,8 +11,9 @@ import api.ScalaElementVisitor
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import collection.mutable.ArrayBuffer
-import api.base.ScPatternList
 import api.base.patterns.{ScPatterns, ScPattern}
+import types.{ScDesignatorType, ScType}
+import types.result.{Success, Failure, TypeResult, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +21,7 @@ import api.base.patterns.{ScPatterns, ScPattern}
 */
 
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlPattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -38,4 +39,10 @@ class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   }
 
   override def toString: String = "XmlPattern"
+
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
+    val clazz = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
+    if (clazz == null) return Failure("not found scala.xml.Node", Some(this))
+    Success(ScDesignatorType(clazz), Some(this))
+  }
 }
