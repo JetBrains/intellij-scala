@@ -166,10 +166,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case constr: ScConstructor => {
         val te: ScTypeElement = constr.typeElement
         val tp: ScType = te.getType(TypingContext.empty).getOrElse(return)
-        val typeArgs: Seq[ScTypeElement] = te match {
-          case p: ScParameterizedTypeElement => p.typeArgList.typeArgs
-          case _ => Seq.empty[ScTypeElement]
-        }
+        val typeArgs: Seq[ScTypeElement] = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
         ScType.extractClassType(tp) match {
           case Some((clazz, subst)) if !clazz.isInstanceOf[ScTypeDefinition] && clazz.isAnnotationType => {
             if (!baseProcessor.isInstanceOf[CompletionProcessor]) {

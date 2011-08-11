@@ -18,10 +18,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
-      val typeArgs = constr.typeElement match {
-        case pte: ScParameterizedTypeElement => pte.typeArgList.typeArgs
-        case _ => Seq()
-      }
+      val typeArgs = constr.typeArgList.map(_.typeArgs).getOrElse(Seq())
       val effectiveArgs = constr.arguments.toList.map(_.exprs.map(new Expression(_))) match {
         case List() => List(List())
         case x => x

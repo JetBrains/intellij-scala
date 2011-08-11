@@ -5,10 +5,10 @@ package api
 package base
 
 import psi.ScalaPsiElement
-import types.ScTypeElement
 import psi.types.ScType
 import expr.{ScNewTemplateDefinition, ScArgumentExprList}
 import psi.types.result.TypeResult
+import types.{ScTypeArgs, ScParameterizedTypeElement, ScTypeElement}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,6 +17,11 @@ import psi.types.result.TypeResult
 
 trait ScConstructor extends ScalaPsiElement {
   def typeElement: ScTypeElement
+
+  def typeArgList: Option[ScTypeArgs] = typeElement match {
+    case x: ScParameterizedTypeElement => Some(x.typeArgList)
+    case _ => None
+  }
 
   def args = findChild(classOf[ScArgumentExprList])
 
