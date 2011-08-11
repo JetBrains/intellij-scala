@@ -128,12 +128,22 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getContainingClass = super[ScTypeDefinition].getContainingClass
 
+  @volatile
+  private var qualName: String = null
+  @volatile
+  private var qualNameModCount: Long = -1
+
   override def getQualifiedName: String = {
     val stub = getStub
     if (stub != null) {
       stub.asInstanceOf[ScTemplateDefinitionStub].qualName
     } else {
-      qualifiedName(".")
+      val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+      if (qualName != null && count == qualNameModCount) return qualName
+      val res = qualifiedName(".")
+      qualNameModCount = count
+      qualName = res
+      res
     }
   }
 

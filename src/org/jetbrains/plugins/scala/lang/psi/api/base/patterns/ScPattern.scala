@@ -36,9 +36,11 @@ trait ScPattern extends ScalaPsiElement {
     b
   }
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitPattern(this)
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitPattern(this)
+  }
 
-  private def _bindings(p: ScPattern, b: ArrayBuffer[ScBindingPattern]): Unit = {
+  private def _bindings(p: ScPattern, b: ArrayBuffer[ScBindingPattern]) {
     p match {
       case binding: ScBindingPattern => b += binding
       case _ =>
@@ -56,7 +58,7 @@ trait ScPattern extends ScalaPsiElement {
 
   private def resolveReferenceToExtractor(ref: ScStableCodeReferenceElement, i: Int, expected: Option[ScType],
                                           patternsNumber: Int): Option[ScType] = {
-    val bind: Option[ScalaResolveResult] = ref.bind match {
+    val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) => {
         val refImpl = ref.asInstanceOf[ScStableCodeReferenceElementImpl]
         val resolve = refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(false), ref.getContext match {
