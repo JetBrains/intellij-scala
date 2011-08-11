@@ -135,7 +135,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
         }
       }
 
-      val applicable = candidatesSet.map(forFilter).filter(_ != None).map(_.get)
+      val applicable = candidatesSet.map(forFilter).flatten
       new MostSpecificUtil(place, 1).mostSpecificForResolveResult(applicable) match {
         case Some(r) => HashSet(r)
         case _ => applicable
