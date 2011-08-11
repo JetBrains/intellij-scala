@@ -21,8 +21,8 @@ import api.expr.ScExpression
 class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
-  private var name: StringRef = _
-  private var typeText: StringRef = _
+  private var name: String = _
+  private var typeText: String = _
   private var myTypeElement: PatchedSoftReference[Option[ScTypeElement]] = null
   private var stable: Boolean = false
   private var default: Boolean = false
@@ -38,8 +38,8 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
           name: String, typeText: String, stable: Boolean, default: Boolean, repeated: Boolean,
           isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = StringRef.fromString(name)
-    this.typeText = StringRef.fromString(typeText)
+    this.name = name
+    this.typeText = typeText
     this.stable = stable
     this.default = default
     this.repeated = repeated
@@ -54,8 +54,8 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
           name: StringRef, typeText: StringRef, stable: Boolean, default: Boolean, repeated: Boolean,
           isVal: Boolean, isVar: Boolean, isCallByName: Boolean, defaultExprText: Option[String]) = {
     this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = name
-    this.typeText = typeText
+    this.name = StringRef.toString(name)
+    this.typeText = StringRef.toString(typeText)
     this.stable = stable
     this.default = default
     this.repeated = repeated
@@ -65,9 +65,9 @@ extends StubBaseWrapper[ScParameter](parent, elemType) with ScParameterStub {
     this.defaultExprText = defaultExprText
   }
 
-  def getName: String = StringRef.toString(name)
+  def getName: String = name
 
-  def getTypeText: String = StringRef.toString(typeText)
+  def getTypeText: String = typeText
 
   def getTypeElement: Option[ScTypeElement] = {
     if (myTypeElement != null && myTypeElement.get != null) return myTypeElement.get

@@ -22,7 +22,7 @@ import com.intellij.psi.search.GlobalSearchScope
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil");
 
-  val DECOMPILER_VERSION = 157
+  val DECOMPILER_VERSION = 158
 
   def isScalaFile(file: VirtualFile): Boolean = try {
     isScalaFile(file, file.contentsToByteArray)

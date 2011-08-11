@@ -46,6 +46,25 @@ abstract class MixinNodes {
       }
       None
     }
+
+    def fastPhysicalSignatureGet(key: T): Option[Node] = {
+      key match {
+        case p: PhysicalSignature =>
+          val h = index(elemHashCode(key))
+          var e = table(h).asInstanceOf[Entry]
+          if (e != null && e.next == null) return Some(e.value)
+          while (e != null) {
+            e.value.info match {
+              case p2: PhysicalSignature =>
+                if (p.method == p2.method) return Some(e.value)
+              case _ =>
+            }
+            e = e.next
+          }
+          fastGet(key)
+        case _ => fastGet(key)
+      }
+    }
   }
 
   class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {

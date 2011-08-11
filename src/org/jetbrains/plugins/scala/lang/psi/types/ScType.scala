@@ -142,17 +142,23 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     "scala.AnyVal" -> AnyVal
   )
 
-  def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = extractClassType(t, project).map(_._1)
+  def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = {
+    extractClassType(t, project).map(_._1)
+  }
 
   def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {
     case n: NonValueType => extractClassType(n.inferValueType)
     case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
     case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-      extractClassType(ta.aliasedType(TypingContext.empty).getOrElse(return None))
+      val result = ta.aliasedType(TypingContext.empty)
+      if (result.isEmpty) return None
+      extractClassType(result.get)
     case proj@ScProjectionType(p, elem, subst) => proj.actualElement match {
       case c: PsiClass => Some((c, proj.actualSubst))
       case t: ScTypeAliasDefinition =>
-        extractClassType(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+        val result = t.aliasedType(TypingContext.empty)
+        if (result.isEmpty) return None
+        extractClassType(proj.actualSubst.subst(result.get))
       case _ => None
     }
     case p@ScParameterizedType(t1, _) => {
@@ -173,7 +179,10 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
         case _ => None
       }
     }
-    case std@StdType(_, _) => Some((std.asClass(project.getOrElse(DecompilerUtil.obtainProject)).getOrElse(return None), ScSubstitutor.empty))
+    case std@StdType(_, _) =>
+      val asClass = std.asClass(project.getOrElse(DecompilerUtil.obtainProject))
+      if (asClass.isEmpty) return None
+      Some((asClass.get, ScSubstitutor.empty))
     case _ => None
   }
 
