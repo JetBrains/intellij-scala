@@ -65,6 +65,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    */
   def argsElement: PsiElement
 
+  /**
+   * This method useful in case if you want to update some polymorphic type
+   * according to method call expected type
+   */
   def updateAccordingToExpectedType(nonValueType: TypeResult[ScType]): TypeResult[ScType] = {
     val fromUnderscoreSection: Boolean = getText.indexOf("_") match {
       case -1 => false
@@ -100,9 +104,10 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     if (useExpectedType)
       nonValueType = updateAccordingToExpectedType(nonValueType)
 
-    def checkConformance(retType: ScType, psiExprs: Seq[ScExpression], parameters: Seq[Parameter], checkWithImplicits: Boolean) = {
+    def checkConformance(retType: ScType, psiExprs: Seq[ScExpression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
-        val result = Compatibility.checkConformanceExt(true, parameters, t, checkWithImplicits, false)
+        val result = Compatibility.checkConformanceExt(true, parameters, t,
+          checkWithImplicits = true, isShapesResolve = false)
         (retType, result.problems, result.matchedArgs)
       }
     }
@@ -140,35 +145,34 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case (tp, i) => new Parameter("v" + (i + 1), tp, false, false, false)
     }
 
-    val res: ScType = nonValueType.getOrElse(return nonValueType) match {
+    def checkApplication(tpe: ScType, args: Seq[ScExpression]): Option[ScType] = tpe match {
       case ScFunctionType(retType: ScType, params: Seq[ScType]) =>
-        checkConformance(retType, argumentExpressions, functionParams(params), true)
+        Some(checkConformance(retType, args, functionParams(params)))
       case ScMethodType(retType, params, _) =>
-        checkConformance(retType, argumentExpressions, params, true)
+        Some(checkConformance(retType, args, params))
       case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
-        checkConformanceWithInference(retType, argumentExpressions, typeParams, params)
+        Some(checkConformanceWithInference(retType, args, typeParams, params))
       case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) =>
-        checkConformanceWithInference(retType, argumentExpressions, typeParams, functionParams(params))
-      case tp: ScType if this.isInstanceOf[ScMethodCall] => //todo: remove reference to method call
-        var processedType = ScalaPsiUtil.processTypeForUpdateOrApply(tp, this.asInstanceOf[ScMethodCall], false).getOrElse(Nothing)
-        if (useExpectedType) {
-          updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
-        }
-        processedType match {
-          case ScFunctionType(retType: ScType, params: Seq[ScType]) =>
-            checkConformance(retType, argumentExpressions, functionParams(params), true)
-          case ScMethodType(retType, params, _) =>
-            checkConformance(retType, argumentExpressions, params, true)
-          case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
-            checkConformanceWithInference(retType, argumentExpressionsIncludeUpdateCall, typeParams, params)
-          case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) =>
-            checkConformanceWithInference(retType, argumentExpressionsIncludeUpdateCall, typeParams, functionParams(params))
-          case typeAfterUpdateProcess =>
+        Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
+      case _ => None
+    }
+
+    val invokedType = nonValueType.getOrElse(return nonValueType)
+
+    val res: ScType = checkApplication(invokedType, argumentExpressions).getOrElse {
+      this match {
+        case methodCall: ScMethodCall => //todo: remove reference to method call
+          var processedType = ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, methodCall, false).getOrElse(Nothing)
+          if (useExpectedType) {
+            updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
+          }
+          checkApplication(processedType, argumentExpressionsIncludeUpdateCall).getOrElse {
             applicabilityProblemsVar = Seq(new DoesNotTakeParameters)
             matchedParametersVar = Seq()
-            typeAfterUpdateProcess
+            processedType
+          }
+        case _ => return nonValueType
       }
-      case _ => return nonValueType
     }
 
     Success(res, Some(this))
