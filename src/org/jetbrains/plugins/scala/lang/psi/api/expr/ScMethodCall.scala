@@ -4,9 +4,6 @@ package psi
 package api
 package expr
 
-import types.result.TypeResult
-import types.{ScType, ApplicabilityProblem}
-import types.nonvalue.Parameter
 import com.intellij.psi.PsiElement
 
 /** 
@@ -39,18 +36,6 @@ trait ScMethodCall extends ScExpression with MethodInvocation {
       case _ => None
     }
   }
-
-
-  def applicationProblems: Seq[ApplicabilityProblem]
-
-  def matchedParameters: Map[ScExpression, Parameter]
-
-  /**
-   * This method useful in case if you want to update some polymorphic type
-   * according to method call expected type
-   * For exmample:
-   */
-  def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType]): TypeResult[ScType]
 
   def argsElement: PsiElement = args
 }
