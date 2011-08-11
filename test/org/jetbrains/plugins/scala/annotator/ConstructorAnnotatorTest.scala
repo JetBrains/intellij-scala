@@ -76,10 +76,6 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("new A()")) {
       case Error(_, "Unspecified value parameters: a: Int") :: Nil =>
     }
-    // TODO
-//    assertMatches(messages("new B()")) {
-//      case Error(_, "Unspecified value parameters: b: Int") :: Nil =>
-//    }
     assertMatches(messages("new B[Int]()")) {
       case Error(_, "Unspecified value parameters: a: X") :: Nil =>
     }
