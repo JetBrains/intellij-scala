@@ -19,10 +19,10 @@ class ScTemplateDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[
                                                         elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
 extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateDefinitionStub {
 
-  var myName: StringRef = _
-  var myQualName: StringRef = _
-  var mySourceFileName: StringRef = _
-  var myMethodNames: Array[StringRef] = Array[StringRef]()
+  var myName: String = _
+  var myQualName: String = _
+  var mySourceFileName: String = _
+  var myMethodNames: Array[String] = Array[String]()
   private var _isScriptFileClass: Boolean = _
   private var _isPackageObject: Boolean = _
   private var _isDeprecated: Boolean = _
@@ -39,10 +39,10 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isDeprecated: Boolean,
           isImplicitObject: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    mySourceFileName = StringRef.fromString(sourceFileName)
-    myName = StringRef.fromString(name)
-    myQualName = StringRef.fromString(qualName)
-    myMethodNames = methodNames.map(StringRef.fromString(_))
+    mySourceFileName = sourceFileName
+    myName = name
+    myQualName = qualName
+    myMethodNames = methodNames
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
@@ -60,10 +60,10 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
           isDeprecated: Boolean,
           isImplicitObject: Boolean) {
     this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    mySourceFileName = sourceFileName
-    myName = name
-    myQualName = qualName
-    myMethodNames = methodNames
+    mySourceFileName = StringRef.toString(sourceFileName)
+    myName = StringRef.toString(name)
+    myQualName = StringRef.toString(qualName)
+    myMethodNames = methodNames.map(StringRef.toString(_))
     this._isPackageObject = isPackageObject
     _isScriptFileClass = isScriptFileClass
     _isDeprecated = isDeprecated
@@ -73,13 +73,13 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
 
   def isPackageObject: Boolean = _isPackageObject
 
-  def sourceFileName = StringRef.toString(mySourceFileName)
+  def sourceFileName = mySourceFileName
 
-  def qualName = StringRef.toString(myQualName)
+  def qualName = myQualName
 
-  def getName = StringRef.toString(myName)
+  def getName = myName
 
-  def methodNames: Array[String] = myMethodNames.map(StringRef.toString(_))
+  def methodNames: Array[String] = myMethodNames
 
   def isScriptFileClass: Boolean = _isScriptFileClass
 

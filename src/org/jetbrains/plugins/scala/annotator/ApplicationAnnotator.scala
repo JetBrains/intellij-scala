@@ -46,12 +46,12 @@ trait ApplicationAnnotator {
                     holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
                   case TypeMismatch(expression, expectedType) =>
                     if (expression != null)
-                    for (t <- expression.getType(TypingContext.empty)) {
-                      //TODO show parameter name
-                      val annotation = holder.createErrorAnnotation(expression,
-                        "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
-                      annotation.registerFix(ReportHighlightingErrorQuickFix)
-                    }
+                      for (t <- expression.getType(TypingContext.empty)) {
+                        //TODO show parameter name
+                        val annotation = holder.createErrorAnnotation(expression,
+                          "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+                        annotation.registerFix(ReportHighlightingErrorQuickFix)
+                      }
                     else {
                       //TODO investigate case when expression is null. It's possible when new Expression(ScType)
                     }
