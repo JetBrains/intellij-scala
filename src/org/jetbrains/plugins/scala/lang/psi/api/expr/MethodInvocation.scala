@@ -121,7 +121,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     def tuplizyCase(psiExprs: Seq[ScExpression])
                    (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)])): ScType = {
-      val exprs = argumentExpressions.map(Expression(_))
+      val exprs = psiExprs.map(Expression(_))
       val c = fun(exprs)
       def tail: ScType = {
         applicabilityProblemsVar = c._2
