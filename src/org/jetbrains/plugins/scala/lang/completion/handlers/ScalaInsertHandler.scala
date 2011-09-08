@@ -8,12 +8,10 @@ import com.intellij.codeInsight.completion._
 import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScPostfixExpr}
 import psi.api.statements.{ScFunction, ScFun}
-import psi.api.statements.params.ScParameter
-import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement, LookupItem}
+import com.intellij.codeInsight.lookup.LookupElement
 import resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiMethod}
 import extensions._
-import resolve.ResolveUtils
 
 /**
  * User: Alexander Podkhalyuzin
@@ -24,7 +22,8 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
   override def handleInsert(context: InsertionContext, item: LookupElement) {
     val editor = context.getEditor
     val document = editor.getDocument
-    if (context.getCompletionChar == '(') {
+    val completionChar: Char = context.getCompletionChar
+    if (completionChar == '(') {
       context.setAddCompletionChar(false)
     }
     val startOffset = context.getStartOffset
@@ -32,13 +31,14 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
     if (patchedObject == null) return
+    var endOffset = startOffset + lookupStringLength
 
     patchedObject match {
       case ScalaLookupObject(named: PsiNamedElement, isNamed, _) if isNamed => {
-        val endOffset = startOffset + lookupStringLength
         context.setAddCompletionChar(false)
         document.insertString(endOffset, " = ")
-        editor.getCaretModel.moveToOffset(endOffset + 3)
+        endOffset += 3
+        editor.getCaretModel.moveToOffset(endOffset)
       }
       case ScalaLookupObject(_: PsiMethod, _, _) | ScalaLookupObject(_: ScFun, _, _) => {
         patchedObject match {
@@ -61,12 +61,12 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             }
         }
 
-        val endOffset = startOffset + lookupStringLength
         val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(document)
         val element = file.findElementAt(startOffset)
         if (count == 0 && !isAccessor) {
           document.insertString(endOffset, "()")
-          editor.getCaretModel.moveToOffset(endOffset + 2)
+          endOffset += 2
+          editor.getCaretModel.moveToOffset(endOffset)
         } else if (count > 0) {
           // for infix expressions
           if (element.getParent != null && !(element.getParent.isInstanceOf[ScReferenceExpression] &&
@@ -75,10 +75,12 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
               case _: ScInfixExpr | _: ScPostfixExpr => {
                 if (count > 1) {
                   document.insertString(endOffset, " ()")
-                  editor.getCaretModel.moveToOffset(endOffset + 2)
+                  endOffset += 3
+                  editor.getCaretModel.moveToOffset(endOffset - 1)
                 } else {
                   document.insertString(endOffset, " ")
-                  editor.getCaretModel.moveToOffset(endOffset + 1)
+                  endOffset += 1
+                  editor.getCaretModel.moveToOffset(endOffset)
                 }
                 return
               }
@@ -87,20 +89,28 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
           }
 
           // for reference invocations
-          if (context.getCompletionChar == ' ') {
+          if (completionChar == ' ') {
             context.setAddCompletionChar(false)
             document.insertString(endOffset, " _")
-            editor.getCaretModel.moveToOffset(endOffset + 2)
+            endOffset += 2
+            editor.getCaretModel.moveToOffset(endOffset)
           } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
             document.insertString(endOffset, "()")
-            editor.getCaretModel.moveToOffset(endOffset + 1)
+            endOffset += 2
+            editor.getCaretModel.moveToOffset(endOffset - 1)
             AutoPopupController.getInstance(element.getProject).autoPopupParameterInfo(editor, element)
-          } else {
+          } else if (completionChar != ',') {
             editor.getCaretModel.moveToOffset(endOffset + 1)
           }
         }
       }
       case _ =>
+    }
+    if (completionChar == ',') {
+      context.setAddCompletionChar(false)
+      document.insertString(endOffset, ", ")
+      endOffset += 2
+      editor.getCaretModel.moveToOffset(endOffset)
     }
   }
 }
