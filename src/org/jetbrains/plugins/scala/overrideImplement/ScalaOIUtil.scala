@@ -222,6 +222,7 @@ object ScalaOIUtil {
             case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
             case _: ScFunctionDeclaration =>
             case x if x.getName == "$tag" || x.getName == "$init$"=>
+            case x: ScFunction if x.isSyntheticCopy =>
             case x if x.getContainingClass == clazz =>
             case x: PsiModifierListOwner if x.hasModifierProperty("abstract")
                 || x.hasModifierProperty("final") /*|| x.hasModifierProperty("sealed")*/ =>
