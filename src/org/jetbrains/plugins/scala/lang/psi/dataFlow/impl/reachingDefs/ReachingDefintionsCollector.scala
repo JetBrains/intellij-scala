@@ -134,11 +134,11 @@ object ReachingDefintionsCollector {
     val buffer = new ArrayBuffer[PsiNamedElement]
     for ((i@ReadWriteVariableInstruction(_, readRef, false), rdset) <- dfaResult if !innerInstructions.contains(i);
          reaching <- rdset if innerInstructions.contains(reaching)) {
-      val definitionToRead = readRef.resolve
+      val definitionToRead = readRef.resolve()
       reaching match {
         case DefineValueInstruction(_, named, _)
           if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
-        case ReadWriteVariableInstruction(_, ref, true) => ref.resolve match {
+        case ReadWriteVariableInstruction(_, ref, true) => ref.resolve() match {
           case named: PsiNamedElement
             if !buffer.contains(named) && (named eq definitionToRead) => buffer + named
           case _ =>
