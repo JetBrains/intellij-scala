@@ -132,7 +132,7 @@ class ScalaCompletionContributor extends CompletionContributor {
     messages apply (new Random).nextInt(messages.size)
   }
 
-  override def beforeCompletion(context: CompletionInitializationContext) {
+override def beforeCompletion(context: CompletionInitializationContext) {
     val offset = context.getStartOffset - 1
     val file = context.getFile
     val element = file.findElementAt(offset);
@@ -142,13 +142,24 @@ class ScalaCompletionContributor extends CompletionContributor {
         case ref: PsiElement => ref.getText
         case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
       }
+      val rest = ref match {
+        case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
+        case ref: PsiReference => text.substring(offset - ref.getElement.getTextRange.getStartOffset + 1)
+      }
       if (isOpChar(text(text.length - 1))) {
         context.setDummyIdentifier("+++++++++++++++++++++++")
+      } else if (ScalaNamesUtil.isKeyword(rest)) {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER)
       } else {
         context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
       }
     } else {
-      context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+      val actualElement = file.findElementAt(offset + 1)
+      if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER)
+      } else {
+        context.setDummyIdentifier(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED)
+      }
     }
     super.beforeCompletion(context)
   }

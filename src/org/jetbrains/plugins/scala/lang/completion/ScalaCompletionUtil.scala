@@ -86,6 +86,10 @@ object ScalaCompletionUtil {
     candidate
   }
 
+  /**
+   * first return value mean to stop here.
+   * Second return value in case if first is true return second value
+   */
   def getForAll(parent: PsiElement, leaf: PsiElement): (Boolean, Boolean) = {
     parent match {
       case _: ScalaFile => {
@@ -110,7 +114,7 @@ object ScalaCompletionUtil {
           case _ => return (true, true)
         }
       }
-      case _: ScReferenceExpression => {
+      case expr: ScReferenceExpression => {
         parent.getParent match {
           case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause => {
             if (awful(parent, leaf))

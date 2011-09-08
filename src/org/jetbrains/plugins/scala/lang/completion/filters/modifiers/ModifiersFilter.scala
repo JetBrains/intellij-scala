@@ -32,7 +32,7 @@ class ModifiersFilter extends ElementFilter {
     var leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
     if (leaf != null && leaf.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()) leaf = leaf.getParent
     if (leaf != null) {
-      val parent = leaf.getParent();
+      val parent = leaf.getParent
       parent match {
         case  _: ScClassParameter => {
           return true
@@ -42,7 +42,7 @@ class ModifiersFilter extends ElementFilter {
       val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
       if (tuple._1) return tuple._2
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
