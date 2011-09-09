@@ -3,13 +3,11 @@ package findUsages
 package parameters
 
 import com.intellij.psi.search.searches.ReferencesSearch
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import com.intellij.util.{Query, Processor, QueryExecutor}
+import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import com.intellij.psi._
 import search.{UsageSearchContext, PsiSearchHelper, TextOccurenceProcessor}
-import collection.mutable.{HashSet, ArrayBuffer}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import collection.mutable.HashSet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignStmt}
 import lang.psi.ScalaPsiUtil
@@ -37,14 +35,14 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                   refElement.getParent match {
                     case assign: ScAssignStmt if assign.getLExpression == refElement &&
                             assign.getParent.isInstanceOf[ScArgumentExprList] => {
-                      Option(refElement.resolve) match {
+                      Option(refElement.resolve()) match {
                         case Some(`parameter`) => if (!consumer.process(ref)) return false
                         case Some(x: ScParameter) =>
                           ScalaPsiUtil.parameterForSyntheticParameter(x) match {
                             case Some(realParam) => if (!consumer.process(ref)) return false
                             case None =>
                           }
-                        case None =>
+                        case _ =>
                       }
                     }
                     case _ =>
@@ -53,7 +51,7 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
                 case _ =>
               }
             }
-            return true
+            true
           }
         }
         val helper: PsiSearchHelper = PsiManager.getInstance(parameter.getProject).getSearchHelper
