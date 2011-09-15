@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.caches;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupManager;
-import com.intellij.psi.JavaPsiFacade;
 import org.jetbrains.annotations.NotNull;
 
 /**

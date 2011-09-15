@@ -1,6 +1,6 @@
 /*ref*/be()
 /*
-import _root_.gt.be
+import gt.be
 
 /*ref*/be()
 */

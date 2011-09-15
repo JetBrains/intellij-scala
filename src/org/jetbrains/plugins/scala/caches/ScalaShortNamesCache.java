@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys;
@@ -171,7 +173,30 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public PsiMethod[] getMethodsByName(@NonNls @NotNull String name, @NotNull GlobalSearchScope scope) {
-    return PsiMethod.EMPTY_ARRAY;
+    final Collection<? extends PsiElement> methods = StubIndex.getInstance().get(ScalaIndexKeys.METHOD_NAME_KEY(),
+        name, myProject, new ScalaSourceFilterScope(scope, myProject));
+    ArrayList<PsiMethod> list = new ArrayList<PsiMethod>();
+    PsiMethod method = null;
+    int count = 0;
+    for (PsiElement element : methods) {
+      if (!(element instanceof PsiMethod)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return PsiMethod.EMPTY_ARRAY;
+      }
+      method = (PsiMethod) element;
+      if (name.equals(method.getName())) {
+        list.add(method);
+        count++;
+      }
+    }
+    if (count == 0) return PsiMethod.EMPTY_ARRAY;
+    if (count == 1) return new PsiMethod[]{method};
+
+    return list.toArray(new PsiMethod[count]);
   }
 
   @NotNull
@@ -181,9 +206,8 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
 
   @NotNull
   public String[] getAllMethodNames() {
-    /*final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY());
-    return classNames.toArray(new String[classNames.size()]);*/
-    return new String[0];
+    final Collection<String> classNames = StubIndex.getInstance().getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY(), myProject);
+    return classNames.toArray(new String[classNames.size()]);
   }
 
   public void getAllMethodNames(@NotNull HashSet<String> set) {
@@ -206,4 +230,59 @@ public class ScalaShortNamesCache extends PsiShortNamesCache {
     //todo implement me!
   }
 
+  public String[] getAllScalaFieldNames() {
+    final ArrayList<String> res = new ArrayList<String>();
+    final Collection<String> valNames =
+        StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VALUE_NAME_KEY(), myProject);
+    res.addAll(valNames);
+    final Collection<String> varNames =
+        StubIndex.getInstance().getAllKeys(ScalaIndexKeys.VARIABLE_NAME_KEY(), myProject);
+    res.addAll(varNames);
+    return res.toArray(new String[res.size()]);
+  }
+
+  public PsiMember[] getScalaFieldsByName(@NonNls @NotNull String name, @NotNull GlobalSearchScope scope) {
+    final Collection<? extends PsiElement> values = StubIndex.getInstance().get(ScalaIndexKeys.VALUE_NAME_KEY(),
+        name, myProject, new ScalaSourceFilterScope(scope, myProject));
+    ArrayList<PsiMember> list = new ArrayList<PsiMember>();
+    PsiMember member = null;
+    int count = 0;
+    for (PsiElement element : values) {
+      if (!(element instanceof ScValue)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return PsiMember.EMPTY_ARRAY;
+      }
+      member = (PsiMember) element;
+      if (((ScValue) element).declaredNames().contains(name)) {
+        list.add(member);
+        count++;
+      }
+    }
+
+    final Collection<? extends PsiElement> variables = StubIndex.getInstance().get(ScalaIndexKeys.VARIABLE_NAME_KEY(),
+        name, myProject, new ScalaSourceFilterScope(scope, myProject));
+    for (PsiElement element : variables) {
+      if (!(element instanceof ScVariable)) {
+        VirtualFile faultyContainer = PsiUtilBase.getVirtualFile(element);
+        LOG.error("Wrong Psi in Psi list: " + faultyContainer);
+        if (faultyContainer != null && faultyContainer.isValid()) {
+          FileBasedIndex.getInstance().requestReindex(faultyContainer);
+        }
+        return PsiMember.EMPTY_ARRAY;
+      }
+      member = (PsiMember) element;
+      if (((ScVariable) element).declaredNames().contains(name)) {
+        list.add(member);
+        count++;
+      }
+    }
+    if (count == 0) return PsiMember.EMPTY_ARRAY;
+    if (count == 1) return new PsiMember[]{member};
+
+    return list.toArray(new PsiMember[count]);
+  }
 }

@@ -7,8 +7,6 @@ class SmartCompletionAnonymousFunctionTest extends SmartCompletionTestBase {
 
   def testAbstractTypeInfo() {doTest()}
 
-  def testAbstractTypeInfoFromFirstClause() {doTest()}
-
   def testAbstractTypeInfoTypeParameters() {doTest()}
 
   def testAbstractTypeInfoWithLower() {doTest()}

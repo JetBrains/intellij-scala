@@ -6,7 +6,6 @@ package expr
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import api.statements._
-import com.intellij.util.IncorrectOperationException
 import params.ScParameter
 import resolve._
 import processor.CompletionProcessor
@@ -20,13 +19,16 @@ import result.{TypeResult, Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import com.intellij.psi.PsiElement
-import api.base.patterns.ScReferencePattern
 import com.intellij.psi.util.PsiTreeUtil
 import api.ScalaElementVisitor
 import api.toplevel.typedef.{ScObject, ScClass, ScTypeDefinition, ScTrait}
 import api.toplevel.imports.ScImportStmt
 import caches.ScalaRecursionManager
 import com.intellij.openapi.util.Computable
+import api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import api.base.ScFieldId
+import com.intellij.util.IncorrectOperationException
+import annotator.intention.ScalaImportClassFix
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -67,12 +69,30 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
         this
       }
+      case t: ScTypeAlias =>
+        throw new IncorrectOperationException("type does not match expected kind")
+      case elem: PsiNamedElement =>
+        if (refName != elem.getName)
+          throw new IncorrectOperationException("named element does not match expected name")
+        ScalaPsiUtil.nameContext(elem) match {
+          case memb: PsiMember =>
+            val containingClass = memb.getContainingClass
+            if (containingClass != null && containingClass.getQualifiedName != null) {
+              ScalaImportClassFix.getImportHolder(this, getProject).
+                addImportForPsiNamedElement(elem, this)
+            }
+          case _ =>
+        }
+        this
       case _ => throw new IncorrectOperationException("Cannot bind to anything but class: " + element)
     }
   }
 
   def getVariants: Array[Object] = getVariants(true, false)
 
+  /**
+   * Important! Do not change types of Object values, this can cause errors due to bad architecture.
+   */
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
 

@@ -12,7 +12,7 @@ import java.io.File
  * @author Alexander Podkhalyuzin
  */
 
-class SmartCompletionTestBase extends ScalaFixtureTestCase {
+abstract class SmartCompletionTestBase extends ScalaFixtureTestCase {
   private val caretMarker = "/*caret*/"
 
   override def rootPath: String = super.rootPath + "completion2/smart/"

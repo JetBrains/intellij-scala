@@ -46,7 +46,10 @@ public class OverrideImplementTest extends PsiTestCase {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    myProject.getComponent(SyntheticClasses.class).registerClasses();
+    final SyntheticClasses syntheticClasses = myProject.getComponent(SyntheticClasses.class);
+    if (!syntheticClasses.isClassesRegistered()) {
+      syntheticClasses.registerClasses();
+    }
     ScalaLoader.loadScala();
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();

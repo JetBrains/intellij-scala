@@ -11,7 +11,7 @@ import java.io.File
  * @author Alexander Podkhalyuzin
  */
 
-class BasicCompletionTestBase extends ScalaFixtureTestCase {
+abstract class BasicCompletionTestBase extends ScalaFixtureTestCase {
   private val caretMarker = "/*caret*/"
 
   override def rootPath: String = super.rootPath + "completion2/basic/"

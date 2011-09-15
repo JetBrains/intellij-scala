@@ -183,7 +183,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
       def run() {
         registerClasses()
-        classesInitialized = true
       }
     })
   }
@@ -407,6 +406,8 @@ package scala
 object Unit
 """
     )
+
+    classesInitialized = true
   }
 
   var stringPlusMethod: ScType => ScSyntheticFunction = null

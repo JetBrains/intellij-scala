@@ -4,21 +4,17 @@ package psi
 package stubs
 package elements
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
-import api.toplevel.templates.ScTemplateBody
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInputStream}
 import com.intellij.util.io.StringRef
 import impl.ScValueStubImpl
 import index.ScalaIndexKeys
-import java.io.IOException
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 17.10.2008
  */
-
 abstract class ScValueElementType[Value <: ScValue](debugName: String)
 extends ScStubElementType[ScValueStub, ScValue](debugName) {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScValue, parentStub: StubElement[ParentPsi]): ScValueStub = {
@@ -34,7 +30,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
       (for (elem <- psi.declaredElements) yield elem.getName).toArray, isDecl, typeText, bodyText, containerText)
   }
 
-  def serialize(stub: ScValueStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScValueStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isDeclaration)
     val names = stub.getNames
     dataStream.writeInt(names.length)
@@ -56,7 +52,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText)
   }
 
-  def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
+  def indexStub(stub: ScValueStub, sink: IndexSink) {
     val names = stub.getNames
     for (name <- names if name != null) {
       sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, name)

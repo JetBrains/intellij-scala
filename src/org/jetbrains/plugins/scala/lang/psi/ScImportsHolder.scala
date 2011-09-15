@@ -124,6 +124,23 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportForPath(clazz.getQualifiedName, ref)
   }
 
+  def addImportForPsiNamedElement(elem: PsiNamedElement, ref: PsiElement) {
+    ScalaPsiUtil.nameContext(elem) match {
+      case memb: PsiMember =>
+        val containingClass = memb.getContainingClass
+        if (containingClass != null && containingClass.getQualifiedName != null) {
+          ref match {
+            case ref: ScReferenceElement =>
+              if (!ref.isValid || ref.isReferenceTo(elem)) return
+            case _ =>
+          }
+          val qual = Seq(containingClass.getQualifiedName, elem.getName).filter(_ != "").mkString(".")
+          addImportForPath(qual)
+        }
+      case _ =>
+    }
+  }
+
   def addImportForPath(path: String, ref: PsiElement = null) {
     val selectors = new ArrayBuffer[String]
 
@@ -208,6 +225,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     }
     val packages = packs.map(_.getQualifiedName)
+    val packagesName = packs.map(_.getName)
 
     var importSt: ScImportStmt = null
 
@@ -220,11 +238,13 @@ trait ScImportsHolder extends ScalaPsiElement {
               packages.contains(classPackageQualifier)) {
         importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
       } else {
-        classPackageQualifier = pre
-        if (classPackageQualifier == "") {
-          importString = "_root_." + importString
+        if (pre == "") {
+          if (ScSyntheticPackage.get(classPackageQualifier, getProject) == null ||
+            packagesName.contains(classPackageQualifier))
+            importString = "_root_." + importString
           importSt = ScalaPsiElementFactory.createImportFromText("import " + importString, getManager)
         }
+        classPackageQualifier = pre
       }
     }
 
