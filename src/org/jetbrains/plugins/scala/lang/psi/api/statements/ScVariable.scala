@@ -11,7 +11,6 @@ import toplevel.{ScTypedDefinition}
 import types.ScType
 import toplevel.typedef._
 import base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import icons.Icons
 import types.result.{TypingContext, TypeResult}
 import com.intellij.psi.PsiElement
@@ -26,6 +25,8 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
   def varKeyword = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
 
   def declaredElements: Seq[ScTypedDefinition]
+
+  def declaredNames: Seq[String] = declaredElements.map(_.getName)
 
   def typeElement: Option[ScTypeElement]
 

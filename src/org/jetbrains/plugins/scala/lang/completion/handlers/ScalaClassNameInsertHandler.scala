@@ -6,23 +6,27 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import lang.completion.ScalaCompletionUtil
 import lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
+import lang.psi.ScalaPsiUtil
+import lang.psi.api.ScalaFile
+import com.intellij.psi.{PsiDocumentManager, PsiMember, PsiClass}
+import lang.resolve.ResolveUtils
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
-  def handleInsert(context: InsertionContext, item: LookupElement) {
+class ScalaClassNameInsertHandler extends ScalaInsertHandler {
+  override def handleInsert(context: InsertionContext, item: LookupElement) {
     val startOffset = context.getStartOffset
     var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
-    val useFullyQualiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
+    val useFullyQualifiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
       PsiTreeUtil.getParentOfType(ref, classOf[ScImportSelectors]) == null //do not complete in sel
     if (ref == null) return
+    val file = ref.getContainingFile
     val patchedObject = ScalaCompletionUtil.getScalaLookupObject(item)
     if (patchedObject == null) return
 
@@ -34,7 +38,7 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
                   case _ => true
                 }))
           ref = ref.getParent.asInstanceOf[ScReferenceElement]
-        val newRef = (useFullyQualiedName, ref) match {
+        val newRef = (useFullyQualifiedName, ref) match {
           case (false, ref: ScReferenceExpression) =>
             ScalaPsiElementFactory.createExpressionFromText(cl.getName, cl.getManager).asInstanceOf[ScReferenceExpression]
           case (false, _) =>
@@ -44,6 +48,45 @@ class ScalaClassNameInsertHandler extends InsertHandler[LookupElement] {
         }
         ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
         newRef.bindToElement(cl)
+      case ScalaLookupObject(namedElement, _, _) =>
+        val containingClass = ScalaPsiUtil.nameContext(namedElement) match {
+          case memb: PsiMember =>
+            memb.getContainingClass
+          case _ => null
+        }
+        super.handleInsert(context, item)
+        if (containingClass != null) {
+          val document = context.getEditor.getDocument
+          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          file match {
+            case scalaFile: ScalaFile =>
+              val elem = scalaFile.findElementAt(startOffset)
+              val usedQuickfix = item.getUserData(ResolveUtils.usedImportStaticQuickfixKey)
+              val shouldImport = item.getUserData(ResolveUtils.shouldImportKey)
+              def qualifyReference(ref: ScReferenceExpression) {
+                val newRef = ScalaPsiElementFactory.createExpressionFromText(
+                  containingClass.getName + "." + ref.getText,
+                  containingClass.getManager).asInstanceOf[ScReferenceExpression]
+                ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
+                newRef.qualifier.get.asInstanceOf[ScReferenceExpression].bindToElement(containingClass)
+              }
+              elem.getParent match {
+                case ref: ScReferenceExpression if usedQuickfix == null || !usedQuickfix.booleanValue() =>
+                  if (shouldImport != null && shouldImport.booleanValue()) {
+                    qualifyReference(ref)
+                  }
+                case ref: ScReferenceExpression =>
+                  if (shouldImport == null || !shouldImport.booleanValue()) {
+                    qualifyReference(ref)
+                  } else {
+                    //import static
+                    ref.bindToElement(namedElement)
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
+        }
       case _ =>
     }
   }

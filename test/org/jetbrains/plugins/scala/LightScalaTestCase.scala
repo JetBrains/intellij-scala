@@ -21,7 +21,10 @@ abstract class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
 
   override def setUp() {
     super.setUp()
-    myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses
+    val syntheticClasses = myFixture.getProject.getComponent(classOf[SyntheticClasses])
+    if (!syntheticClasses.isClassesRegistered) {
+      syntheticClasses.registerClasses()
+    }
   }
 }
 

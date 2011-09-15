@@ -23,7 +23,10 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
 
   override protected def setUp {
     super.setUp()
-    myFixture.getProject.getComponent(classOf[SyntheticClasses]).registerClasses()
+    val syntheticClasses = myFixture.getProject.getComponent(classOf[SyntheticClasses])
+    if (!syntheticClasses.isClassesRegistered) {
+      syntheticClasses.registerClasses()
+    }
 
     val rootModel = ModuleRootManager.getInstance(myFixture.getModule).getModifiableModel
 

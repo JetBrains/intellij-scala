@@ -73,7 +73,10 @@ public abstract class ScalaResolveTestCase extends ResolveTestCase {
 
   protected void setUp() throws Exception {
     super.setUp();
-    myProject.getComponent(SyntheticClasses.class).registerClasses();
+    final SyntheticClasses syntheticClasses = myProject.getComponent(SyntheticClasses.class);
+    if (!syntheticClasses.isClassesRegistered()) {
+      syntheticClasses.registerClasses();
+    }
     ScalaLoader.loadScala();
 
     final ModifiableRootModel rootModel = ModuleRootManager.getInstance(getModule()).getModifiableModel();

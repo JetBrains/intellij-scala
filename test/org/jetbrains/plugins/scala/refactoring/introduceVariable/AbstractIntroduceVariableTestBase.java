@@ -58,7 +58,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    myProject.getComponent(SyntheticClasses.class).registerClasses();
+    final SyntheticClasses syntheticClasses = myProject.getComponent(SyntheticClasses.class);
+    if (!syntheticClasses.isClassesRegistered()) {
+      syntheticClasses.registerClasses();
+    }
     String result = "";
     String fileText = file.getText();
     int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);

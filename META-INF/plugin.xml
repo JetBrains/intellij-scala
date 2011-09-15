@@ -63,9 +63,13 @@
     <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
     <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                             implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
-    <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
+    <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
+                            implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
                             order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
+    <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaGlobalMembersCompletionContributor"
+                            order="before scalaClassNameCompletionContributor"/>
     <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
+    <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
     <weigher key="completionSorting" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
              id="scalaContainingClassWeigher" order="before sLookupString"/>
     <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
