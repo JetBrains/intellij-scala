@@ -171,7 +171,6 @@
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationType"/>
     <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationType"/>
-    <configurationType implementation="org.jetbrains.plugins.scala.compiler.server.ScalaCompilationServerConfigurationType"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs.SpecsConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.specs2.Specs2ConfigurationProducer"/>
     <configurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestConfigurationProducer"/>
@@ -297,11 +296,17 @@
       <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.compiler.component.CompilerProjectComponent
+      <implementation-class>org.jetbrains.plugins.scala.components.CompilerProjectComponent
       </implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.components.CompileServerLauncher</implementation-class>
+    </component>
+    <component>
+      <implementation-class>org.jetbrains.plugins.scala.components.CompileServerManager</implementation-class>
     </component>
   </project-components>
 

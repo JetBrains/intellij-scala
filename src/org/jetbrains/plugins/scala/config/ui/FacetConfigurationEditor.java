@@ -4,20 +4,24 @@ import com.intellij.facet.ui.*;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.ui.components.labels.LinkLabel;
+import com.intellij.ui.components.labels.LinkListener;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.plugins.scala.config.*;
-import org.jetbrains.plugins.scala.config.ui.LibraryDescriptor;
 import scala.Option;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +46,15 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private JComboBox myDebuggingInfoLevel;
   private JCheckBox myExplainTypeErrors;
   private JCheckBox myEnableContinuations;
-  private RawCommandLineEditor myVmOptions;
+  private RawCommandLineEditor myVmParameters;
   private JTextField myMaximumHeapSize;
   private JTextField basePackageField;
+  private JRadioButton myFSCRadioButton;
+  private JRadioButton myRunSeparateCompilerRadioButton;
+  private JLabel myCompilerLibraryLabel;
+  private JLabel myMaximumHeapSizeLabel;
+  private JLabel myVmParametersLabel;
+  private LinkLabel myFscSettings;
 
   private MyAction myAddPluginAction = new AddPluginAction();
   private MyAction myRemovePluginAction = new RemovePluginAction();
@@ -75,6 +85,12 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myEnableWarnings.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         updateCheckboxesState();
+      }
+    });
+
+    myFSCRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateCompilerSection();
       }
     });
     
@@ -113,16 +129,33 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myValidatorsManager.registerValidator(new FacetEditorValidator() {
       @Override
       public ValidationResult check() {
-        return checCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
+        return myFSCRadioButton.isSelected()
+            ? ValidationResult.OK
+            : checkCompilerLibrary((LibraryDescriptor) myCompilerLibrary.getSelectedItem());
       }
-    }, myCompilerLibrary);
-    
-    
+    }, myCompilerLibrary, myFSCRadioButton);
+
     myAddPluginAction.update();
     myRemovePluginAction.update();
     myEditPluginAction.update();
     myMoveUpPluginAction.update();
     myMoveDownPluginAction.update();
+
+    myFscSettings.setListener(new LinkListener() {
+      public void linkSelected(LinkLabel aSource, Object aLinkData) {
+        ShowSettingsUtil.getInstance().showSettingsDialog(myEditorContext.getProject(), "Scala Compiler");
+      }
+    }, null);
+  }
+
+  private void updateCompilerSection() {
+    boolean b = !myFSCRadioButton.isSelected();
+    myCompilerLibraryLabel.setEnabled(b);
+    myCompilerLibrary.setEnabled(b);
+    myMaximumHeapSizeLabel.setEnabled(b);
+    myMaximumHeapSize.setEnabled(b);
+    myVmParametersLabel.setEnabled(b);
+    myVmParameters.setEnabled(b);
   }
 
   private void updateCheckboxesState() {
@@ -131,7 +164,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myUncheckedWarnings.setEnabled(enabled);
   }
 
-  private static ValidationResult checCompilerLibrary(LibraryDescriptor descriptor) {
+  private static ValidationResult checkCompilerLibrary(LibraryDescriptor descriptor) {
     if(descriptor == null || descriptor.data().isEmpty()) 
       return ValidationResult.OK;
 
@@ -182,6 +215,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
 
   private void update(ConfigurationData data) {
     data.setBasePackage(basePackageField.getText());
+    data.setFsc(myFSCRadioButton.isSelected());
     data.setCompilerLibraryName(getCompilerLibraryName());
     data.setCompilerLibraryLevel(getCompilerLibraryLevel());
 
@@ -191,7 +225,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
       data.setMaximumHeapSize(myData.getMaximumHeapSize());
     }
     
-    data.setVmOptions(myVmOptions.getText().trim());
+    data.setVmOptions(myVmParameters.getText().trim());
 
     data.setWarnings(myEnableWarnings.isSelected());
     data.setDeprecationWarnings(myDeprecationWarnings.isSelected());
@@ -210,10 +244,12 @@ public class FacetConfigurationEditor extends FacetEditorTab {
 
   public void reset() {
     basePackageField.setText(myData.getBasePackage());
+    myFSCRadioButton.setSelected(myData.getFsc());
+    myRunSeparateCompilerRadioButton.setSelected(!myData.getFsc());
     updateLibrariesList();
     setCompilerLibraryById(new LibraryId(myData.getCompilerLibraryName(), myData.getCompilerLibraryLevel()));
     myMaximumHeapSize.setText(Integer.toString(myData.getMaximumHeapSize()));
-    myVmOptions.setText(myData.getVmOptions());
+    myVmParameters.setText(myData.getVmOptions());
     
     myEnableWarnings.setSelected(myData.getWarnings());
     myDeprecationWarnings.setSelected(myData.getDeprecationWarnings());

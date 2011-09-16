@@ -24,6 +24,8 @@ object ScalaFacet {
   def findModulesIn(project: Project) = ModuleManager.getInstance(project).getModules.filter(isPresentIn _)
 
   def isPresentIn(project: Project): Boolean = !findModulesIn(project).isEmpty
+
+  def findFirstIn(project: Project): Option[ScalaFacet] = ScalaFacet.findIn(ScalaFacet.findModulesIn(project)).headOption
   
   def createIn(module: Module)(action: ScalaFacet => Unit) {
     val facetManager = FacetManager.getInstance(module)
@@ -70,7 +72,9 @@ class ScalaFacet(module: Module, name: String,
   def pluginPaths_=(paths: Array[String]) {
     getConfiguration.getState.pluginPaths = paths
   } 
-  
+
+  def fsc: Boolean = getConfiguration.getState.fsc
+
   def compilerLibraryId_=(id: LibraryId) {
     val data = getConfiguration.getState
     data.compilerLibraryName = id.name
