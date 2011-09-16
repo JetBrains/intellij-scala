@@ -10,6 +10,9 @@ import scala.util.matching.Regex
 
 class ConfigurationData() {
   @BeanProperty
+  var fsc = false
+
+  @BeanProperty
   var compilerLibraryName = ""
 
   @BeanProperty
@@ -109,7 +112,7 @@ class ConfigurationData() {
   private val Properties = Array(
     Warnings, DeprecationWarnings, UncheckedWarnings, OptimiseBytecode, ExplainTypeErrors, Continuations) 
   
-  private def data = Array(compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions, 
+  private def data = Array(fsc, compilerLibraryName, compilerLibraryLevel, maximumHeapSize, vmOptions,
     debuggingInfoLevel, compilerOptions, basePackage) ++ Properties.map(_.value) ++ pluginPaths
   
   override def equals(obj: Any): Boolean = data.sameElements(obj.asInstanceOf[ConfigurationData].data)

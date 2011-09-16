@@ -15,7 +15,6 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -25,22 +24,25 @@ import com.intellij.util.Chunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.components.CompileServerLauncher;
 import org.jetbrains.plugins.scala.config.ScalaFacet;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
-import org.jetbrains.plugins.scala.util.ScalaUtils;
+import scala.Option;
 
 import java.util.Arrays;
 
 /**
- * @author ven, ilyas
+ * @author ven, ilyas, Pavel Fatin
  */
 public class ScalaCompiler implements TranslatingCompiler {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalaCompiler");
   private Project myProject;
+  private boolean myFsc;
   private static final FileTypeManager FILE_TYPE_MANAGER = FileTypeManager.getInstance();
 
-  public ScalaCompiler(Project project) {
+  public ScalaCompiler(Project project, boolean fsc) {
     myProject = project;
+    myFsc = fsc;
   }
 
   @NotNull
@@ -49,55 +51,47 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
+    if (!ScalaFacet.isPresentIn(myProject)) return false;
 
-    // Do not run compiler for pure Java projects
-    if (!isScalaProject()) return false;
-
-    // Check for compiler existence
-    final FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
-    final PsiFile psi = ApplicationManager.getApplication().runReadAction(new Computable<PsiFile>() {
-      public PsiFile compute() {
-        return PsiManager.getInstance(myProject).findFile(file);
-      }
-    });
+    if (context.getProject() == null) return false;
 
     Module module = context.getModuleByFile(file);
 
-    class BooleanWrapper{public boolean re = false;}
-    final BooleanWrapper b = ApplicationManager.getApplication().runReadAction(new Computable<BooleanWrapper>() {
-      public BooleanWrapper compute() {
-        BooleanWrapper b = new BooleanWrapper();
-        b.re = fileType.equals(ScalaFileType.SCALA_FILE_TYPE) && psi instanceof ScalaFile && !((ScalaFile) psi).isScriptFile(true);
-        return b;
+    if (module == null) return false;
+
+    Option<ScalaFacet> facet = ScalaFacet.findIn(module);
+
+    if (!facet.isDefined()) return false;
+
+    if (myFsc != facet.get().fsc()) return false;
+
+    FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
+
+    ScalacSettings settings = ScalacSettings.getInstance(context.getProject());
+
+    if (StdFileTypes.JAVA.equals(fileType)) return settings.SCALAC_BEFORE;
+
+    // It's too pricy to determine whether the .scala file is a script.
+    // Besides, Maven and Ant will try to compile all files anyway.
+    return ScalaFileType.SCALA_FILE_TYPE.equals(fileType); //&& !isScalaScript(file);
+  }
+
+  private boolean isScalaScript(final VirtualFile file) {
+    return ApplicationManager.getApplication().runReadAction(new Computable<Boolean>() {
+      public Boolean compute() {
+        PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
+        return psi instanceof ScalaFile && ((ScalaFile) psi).isScriptFile(true);
       }
     });
-    boolean notScript = b.re;
-    return notScript ||
-        context.getProject() != null &&
-            fileType.equals(StdFileTypes.JAVA) &&
-            ScalacSettings.getInstance(context.getProject()).SCALAC_BEFORE &&
-            module != null &&
-            ScalaUtils.isSuitableModule(module) &&
-            isScalaModule(module);
-  }
-
-  private boolean isScalaProject() {
-    final Module[] allModules = ModuleManager.getInstance(myProject).getModules();
-    boolean isScalaProject = false;
-    for (Module module : allModules) {
-      if (isScalaModule(module)) {
-        isScalaProject = true;
-        break;
-      }
-    }
-    return isScalaProject;
-  }
-
-  private static boolean isScalaModule(Module module) {
-    return ScalaFacet.isPresentIn(module);
   }
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
+//    System.out.println("Using fsc: " + myFsc);
+    if (myFsc) {
+      CompileServerLauncher server = myProject.getComponent(CompileServerLauncher.class);
+      server.init();
+    }
+
     final BackendCompiler backEndCompiler = getBackEndCompiler();
 
     final BackendCompilerWrapper wrapper = new BackendCompilerWrapper(moduleChunk, myProject, Arrays.asList(files),
@@ -112,7 +106,6 @@ public class ScalaCompiler implements TranslatingCompiler {
       LOG.info(e);
       context.requestRebuildNextTime(e.getMessage());
     }
-
   }
 
   public boolean validateConfiguration(CompileScope scope) {
@@ -120,6 +113,6 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   private BackendCompiler getBackEndCompiler() {
-    return new ScalacBackendCompiler(myProject);
+    return new ScalacBackendCompiler(myProject, myFsc);
   }
 }

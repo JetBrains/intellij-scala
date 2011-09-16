@@ -14,9 +14,13 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 object Libraries {
-  def findBy(id: LibraryId, project: Project): Option[Library] = 
+  def findBy(name: String, level: LibraryLevel, project: Project): Option[CompilerLibraryData] = {
+    findBy(LibraryId(name, level), project).map(new CompilerLibraryData(_))
+  }
+
+  def findBy(id: LibraryId, project: Project): Option[Library] =
     findBy(id.level, project).find(_.getName == id.name)
-  
+
   def findBy(level: LibraryLevel, project: Project): Array[Library] = level match {
     case LibraryLevel.Global => globalLibraries.toArray
     case LibraryLevel.Project => projectLibraries(project).toArray

@@ -20,36 +20,40 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.MockJdkWrapper;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.compiler.rt.FastScalacRunner;
 import org.jetbrains.plugins.scala.compiler.rt.ScalacRunner;
+import org.jetbrains.plugins.scala.components.CompileServerLauncher;
 import org.jetbrains.plugins.scala.config.*;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 import scala.Option;
 import scala.io.Source;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author ilyas
+ * @author ilyas, Pavel Fatin
  */
 public class ScalacBackendCompiler extends ExternalCompiler {
 
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.compiler.ScalacBackendCompiler");
 
   private final Project myProject;
+  private boolean myFsc;
   private final List<File> myTempFiles = new ArrayList<File>();
 
   // Scalac parameters
@@ -60,21 +64,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
   private final static HashSet<FileType> COMPILABLE_FILE_TYPES = new HashSet<FileType>(Arrays.asList(ScalaFileType.SCALA_FILE_TYPE, StdFileTypes.JAVA));
 
-  public ScalacBackendCompiler(Project project) {
+  public ScalacBackendCompiler(Project project, boolean fsc) {
     myProject = project;
-  }
-
-  //@Override
-  public boolean isCompilableFile(VirtualFile file, CompileContext context) {
-    // TODO use the first line when ExternalCompiler.isCompilableFile will be available in all IDEAs
-//    if(!super.isCompilableFile(file, context)) return false;
-    if(!getCompilableFileTypes().contains(file.getFileType())) return false;
-
-    Module module = context.getModuleByFile(file);
-
-    if(module == null) return false;
-
-    return ScalaFacet.isPresentIn(module);
+    myFsc = fsc;
   }
 
   public boolean checkCompiler(CompileScope scope) {
@@ -260,44 +252,58 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
 
-    for(ScalaFacet facet : facets) {
-      commandLine.addAll(Arrays.asList(facet.javaParameters()));
+    if (!myFsc) {
+      for(ScalaFacet facet : facets) {
+        commandLine.addAll(Arrays.asList(facet.javaParameters()));
+        break;
+      }
     }
     
     CompilerUtil.addLocaleOptions(commandLine, false);
 
-    // add JAVA_OPTS from user settings to command line
-    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
-    while (tokenizer.hasMoreTokens()) {
-      String param = tokenizer.nextToken();
-      if (param.startsWith("-D")) {
-        commandLine.add(param);
+    commandLine.add("-cp");
+    final StringBuilder classPathBuilder = new StringBuilder();
+
+    if (!myFsc) {
+      String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
+      classPathBuilder.append(rtJarPath).append(File.pathSeparator);
+    }
+
+    classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
+
+    if (myFsc) {
+      Option<CompilerLibraryData> lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, myProject);
+      classPathBuilder.append(lib.get().classpath());
+      classPathBuilder.append(File.pathSeparator);
+    } else {
+      for(ScalaFacet facet : facets) {
+        classPathBuilder.append(facet.classpath());
+        classPathBuilder.append(File.pathSeparator);
+        break;
       }
     }
 
-    commandLine.add("-cp");
-    String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
-    final StringBuilder classPathBuilder = new StringBuilder();
-    classPathBuilder.append(rtJarPath).append(File.pathSeparator);
-    classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
-    
-    for(ScalaFacet facet : facets) {
-      classPathBuilder.append(facet.classpath());
-      classPathBuilder.append(File.pathSeparator);
-      break;
+    commandLine.add(classPathBuilder.toString());
+    if (myFsc) {
+      commandLine.add("scala.tools.nsc.CompileClient");
+    } else {
+      commandLine.add(ScalacRunner.class.getName());
     }
 
-    commandLine.add(classPathBuilder.toString());
-    if (!settings.USE_FSC) commandLine.add(ScalacRunner.class.getName());
-    else commandLine.add(FastScalacRunner.class.getName());
-
     String[] parameters = facets.length > 0 ? facets[0].compilerParameters() : new String[] {};
-    
+
+    if (myFsc) {
+      commandLine.add("-server");
+      CompileServerLauncher launcher = myProject.getComponent(CompileServerLauncher.class);
+      commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), launcher.port()));
+    }
+
     try {
       File fileWithParams = File.createTempFile("scalac", ".tmp");
       fillFileWithScalacParams(chunk, fileWithParams, outputPath, myProject, parameters);
 
-      commandLine.add(fileWithParams.getPath());
+      String path = fileWithParams.getPath();
+      commandLine.add(myFsc ? "@" + path : path);
 
       if (LOG.isDebugEnabled()) {
         for (String s : commandLine) LOG.debug(s);
@@ -308,6 +314,15 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
   }
 
+  private static String getEncodingOptions() {
+    StringBuilder options = new StringBuilder();
+    final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
+    if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
+      options.append("-encoding ");
+      options.append(ideCharset.name());
+    }
+    return options.toString();
+  }
 
   private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, 
                                                Project myProject, String[] parameters)
@@ -317,7 +332,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 //    PrintStream printer = System.out;
 
     ScalacSettings settings = ScalacSettings.getInstance(myProject);
-    StringTokenizer tokenizer = new StringTokenizer(settings.getOptionsString(), " ");
+    StringTokenizer tokenizer = new StringTokenizer(getEncodingOptions(), " ");
     while (tokenizer.hasMoreTokens()) {
       printer.println(tokenizer.nextToken());
     }

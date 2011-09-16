@@ -2,15 +2,11 @@ package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.encoding.EncodingManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-
-import java.nio.charset.Charset;
+import org.jetbrains.plugins.scala.config.LibraryLevel;
 
 /**
- * User: Alexander Podkhalyuzin
+ * User: Alexander Podkhalyuzin, Pavel Fatin
  * Date: 22.09.2008
  */
 
@@ -23,11 +19,11 @@ import java.nio.charset.Charset;
 )
 public class ScalacSettings implements PersistentStateComponent<ScalacSettings> {
   public boolean SCALAC_BEFORE = true;
-  public boolean USE_FSC = false;
-  public String SERVER_PORT = "";
-  public String FSC_ARGUMENTS = "";
-  public boolean SERVER_RESET = false;
-  public boolean SERVER_SHUTDOWN = false;
+  public String COMPILER_LIBRARY_NAME = "";
+  public LibraryLevel COMPILER_LIBRARY_LEVEL = null;
+  public String MAXIMUM_HEAP_SIZE = "1024";
+  public String FSC_OPTIONS = "-max-idle 0";
+  public String VM_PARAMETERS = "-Xms768m -Xss1m -server";
 
   public ScalacSettings getState() {
     return this;
@@ -39,31 +35,5 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
 
   public static ScalacSettings getInstance(Project project) {
     return ServiceManager.getService(project, ScalacSettings.class);
-  }
-
-  public String getOptionsString() {
-    StringBuilder options = new StringBuilder();
-
-    //fsc options
-    if (USE_FSC) {
-      if (SERVER_RESET) {
-        options.append("-reset ");
-      }
-      if (SERVER_SHUTDOWN) {
-        options.append("-shutdown ");
-      }
-      if (!SERVER_PORT.equals("")) {
-        options.append("-server:").append(SERVER_PORT).append(" ");
-      }
-      if (!FSC_ARGUMENTS.equals("")) {
-        options.append("-max-idle 0 ").append(FSC_ARGUMENTS).append(" ");
-      }
-    }
-    final Charset ideCharset = EncodingManager.getInstance().getDefaultCharset();
-    if (!Comparing.equal(CharsetToolkit.getDefaultSystemCharset(), ideCharset)) {
-      options.append("-encoding ");
-      options.append(ideCharset.name());
-    }
-    return options.toString();
   }
 }
