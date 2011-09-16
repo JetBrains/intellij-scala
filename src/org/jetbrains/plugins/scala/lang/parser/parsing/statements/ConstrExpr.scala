@@ -25,7 +25,7 @@ object ConstrExpr {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE => {
         ConstrBlock parse builder
-        constrExprMarker.drop
+        constrExprMarker.drop()
         return true
       }
       case _ => {
@@ -35,6 +35,6 @@ object ConstrExpr {
       }
     }
     //this line for compiler
-    return true
+    true
   }
 }

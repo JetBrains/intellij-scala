@@ -23,12 +23,11 @@ object SelfInvocation {
     val selfMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS => {
-        builder.advanceLexer //Ate this
+        builder.advanceLexer() //Ate this
       }
       case _ => {
-        //todo[ilyas] provide aspect to suppress this inspection for compiled files
-        //builder error ScalaBundle.message("this.expected")
-        selfMarker.drop
+        //error moved to ScalaAnnotator to differentiate with compiled files
+        selfMarker.drop()
         return true
       }
     }
@@ -37,6 +36,6 @@ object SelfInvocation {
     }
     while (!builder.newlineBeforeCurrentToken && ArgumentExprs.parse(builder)) {}
     selfMarker.done(ScalaElementTypes.SELF_INVOCATION)
-    return true
+    true
   }
 }

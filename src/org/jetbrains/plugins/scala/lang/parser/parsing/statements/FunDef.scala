@@ -4,10 +4,8 @@ package parser
 package parsing
 package statements
 
-import com.intellij.lang.PsiBuilder
 import expressions.{Expr, Block}
 import lexer.ScalaTokenTypes
-import nl.LineTerminator
 import params.ParamClauses
 import types.Type
 import builder.ScalaPsiBuilder
@@ -29,9 +27,9 @@ object FunDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark;
     builder.getTokenType match {
-      case ScalaTokenTypes.kDEF => builder.advanceLexer
+      case ScalaTokenTypes.kDEF => builder.advanceLexer()
       case _ => {
-        faultMarker.drop
+        faultMarker.drop()
         return false
       }
     }
@@ -40,88 +38,88 @@ object FunDef {
         FunSig parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
-            builder.advanceLexer //Ate :
+            builder.advanceLexer() //Ate :
             if (Type.parse(builder)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN => {
-                  builder.advanceLexer //Ate =
+                  builder.advanceLexer() //Ate =
                   if (Expr.parse(builder)) {
-                    faultMarker.drop
-                    return true
+                    faultMarker.drop()
+                    true
                   }
                   else {
                     builder error ScalaBundle.message("wrong.expression")
-                    faultMarker.drop
-                    return true
+                    faultMarker.drop()
+                    true
                   }
                 }
                 case _ => {
-                  faultMarker.rollbackTo
-                  return false
+                  faultMarker.rollbackTo()
+                  false
                 }
               }
             }
             else {
-              faultMarker.rollbackTo
-              return false
+              faultMarker.rollbackTo()
+              false
             }
           }
           case ScalaTokenTypes.tASSIGN => {
-            builder.advanceLexer //Ate =
+            builder.advanceLexer() //Ate =
             if (Expr.parse(builder)) {
-              faultMarker.drop
-              return true
+              faultMarker.drop()
+              true
             }
             else {
               builder error ScalaBundle.message("wrong.expression")
-              faultMarker.drop
-              return true
+              faultMarker.drop()
+              true
             }
           }
           case ScalaTokenTypes.tLBRACE => {
             if (builder.countNewlineBeforeCurrentToken > 1) {
-              faultMarker.rollbackTo
+              faultMarker.rollbackTo()
               return false
             }
             Block.parse(builder,true)
-            faultMarker.drop
-            return true
+            faultMarker.drop()
+            true
           }
           case _ => {
-            faultMarker.rollbackTo
-            return false
+            faultMarker.rollbackTo()
+            false
           }
         }
       }
       case ScalaTokenTypes.kTHIS => {
-        builder.advanceLexer //Ate this
+        builder.advanceLexer() //Ate this
         ParamClauses parse (builder, true)
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN => {
-            builder.advanceLexer //Ate =
+            builder.advanceLexer() //Ate =
             if (!ConstrExpr.parse(builder)) {
               builder error ScalaBundle.message("wrong.constr.expression")
             }
-            faultMarker.drop
-            return true
+            faultMarker.drop()
+            true
           }
           case _ => {
             if (builder.countNewlineBeforeCurrentToken > 1) {
               builder error ScalaBundle.message("constr.block.expected")
-              faultMarker.drop
+              faultMarker.drop()
               return true
             }
             if (!ConstrBlock.parse(builder)) {
               builder error ScalaBundle.message("constr.block.expected")
             }
-            faultMarker.drop
-            return true
+            faultMarker.drop()
+            true
           }
         }
       }
       case _ => {
-        faultMarker.rollbackTo
-        return false
+        faultMarker.rollbackTo()
+        false
       }
     }
   }
