@@ -103,6 +103,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     if (element.isInstanceOf[ScSelfInvocation]) {
       checkSelfInvocation(element.asInstanceOf[ScSelfInvocation], holder)
     }
+    if (element.isInstanceOf[ScConstrBlock]) {
+      annotateAuxiliaryConstructor(element.asInstanceOf[ScConstrBlock], holder)
+    }
 
     annotateScope(element, holder)
 
