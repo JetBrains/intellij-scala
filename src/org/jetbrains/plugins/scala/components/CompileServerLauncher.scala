@@ -8,6 +8,7 @@ import io.Source
 import compiler.ScalacSettings
 import config.Libraries
 import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.projectRoots.JavaSdkType
 
 /**
  * Pavel Fatin
@@ -64,14 +65,12 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
 
   private def toEnvironment(project: Project): Environment = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk).getOrElse(throw new RuntimeException())
-    val home = Option(sdk.getHomePath).getOrElse(throw new RuntimeException())
+    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
 
     val settings = ScalacSettings.getInstance(project)
     val lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, project).getOrElse(throw new RuntimeException())
 
-    val java = new File(new File(home, "bin"), "java").getPath
-
-    Environment(java, lib.files.toList)
+    Environment(sdkType.getVMExecutablePath(sdk), new File(sdkType.getToolsPath(sdk)) :: lib.files.toList)
   }
 
   private def runProcess(environment: Environment, className: String,
