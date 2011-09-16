@@ -26,7 +26,6 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
   def projectOpened() {}
 
   def projectClosed() {
-    println("Closing")
     if (running) stop()
     watcher.stop()
   }
