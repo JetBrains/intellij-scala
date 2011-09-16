@@ -10,6 +10,8 @@ import com.intellij.lang.ASTNode
 import stubs.ScParamClausesStub;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
+import scope.PsiScopeProcessor
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -37,5 +39,23 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
   def addClause(clause: ScParameterClause): ScParameters = {
     getNode.addChild(clause.getNode)
     this
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
+                                   lastParent: PsiElement, place: PsiElement): Boolean = {
+    if (lastParent != null) {
+      val clausesIterator = clauses.iterator
+      while (clausesIterator.hasNext) {
+        val clause = clausesIterator.next()
+        if (clause.getStartOffsetInParent < lastParent.getStartOffsetInParent) {
+          val paramsIterator = clause.parameters.iterator
+          while (paramsIterator.hasNext) {
+            val param = paramsIterator.next()
+            if (!processor.execute(param, state)) return false
+          }
+        }
+      }
+    }
+    true
   }
 }

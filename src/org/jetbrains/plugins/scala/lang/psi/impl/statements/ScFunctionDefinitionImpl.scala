@@ -45,6 +45,8 @@ class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition 
     //process function's type parameters
     if (!super[ScFunctionImpl].processDeclarations(processor, state, lastParent, place)) return false
 
+    //do not process parameters for default parameters, only for function body
+    //processing parameters for default parameters in ScParameters
     val parameterIncludingSynthetic: Seq[ScParameter] = effectiveParameterClauses.flatMap(_.parameters)
     if (getStub == null) {
       body match {
