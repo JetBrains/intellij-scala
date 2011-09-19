@@ -355,6 +355,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
     final boolean isTestChunk = isTestChunk(chunk);
 
+    printer.print("\"");
+
     for (Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
         ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
@@ -379,13 +381,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
           if (jarSeparatorIndex > 0) {
             path = path.substring(0, jarSeparatorIndex);
           }
-          printer.print("\"");
           printer.print(path);
-          printer.print("\"");
           printer.print(File.pathSeparator);
         }
       }
     }
+    printer.print("\"");
     printer.println();
 
     final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
