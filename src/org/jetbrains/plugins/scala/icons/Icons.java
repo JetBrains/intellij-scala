@@ -23,6 +23,7 @@ import javax.swing.*;
  * @author ilyas
  */
 public interface Icons {
+  Icon FSC = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/fsc.png");
 
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.png");
