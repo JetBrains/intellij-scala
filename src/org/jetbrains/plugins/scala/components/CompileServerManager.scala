@@ -12,13 +12,14 @@ import javax.swing.Timer
 import com.intellij.openapi.util.IconLoader
 import com.intellij.util.Consumer
 import com.intellij.notification.{NotificationType, NotificationDisplayType, Notifications, Notification}
+import icons.Icons
 
 /**
  * Pavel Fatin
  */
 
 class CompileServerManager(project: Project) extends ProjectComponent {
-  private val IconRunning = IconLoader.findIcon("/actions/compile.png")
+  private val IconRunning = Icons.FSC
 
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
