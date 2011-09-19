@@ -40,10 +40,17 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     }
   }
 
-  // TODO SCL-3518, SCL-3519
   def paramTypesEquiv(other: Signature): Boolean = {
-    if (paramLength != other.paramLength) return false
-    if (hasRepeatedParam != other.hasRepeatedParam) return false
+    paramTypesEquivExtended(other, new ScUndefinedSubstitutor, true)._1
+  }
+
+
+  // TODO SCL-3518, SCL-3519
+  def paramTypesEquivExtended(other: Signature, uSubst: ScUndefinedSubstitutor,
+                              falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    var undefSubst = uSubst
+    if (paramLength != other.paramLength) return (false, undefSubst)
+    if (hasRepeatedParam != other.hasRepeatedParam) return (false, undefSubst)
     val unified1 = unify(substitutor, typeParams, typeParams)
     val unified2 = unify(other.substitutor, typeParams, other.typeParams)
     val typesIterator = substitutedTypes.iterator
@@ -51,9 +58,11 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
     while (typesIterator.hasNext && otherTypesIterator.hasNext) {
       val t1 = typesIterator.next()
       val t2 = otherTypesIterator.next()
-      if (!unified1.subst(t1).equiv(unified2.subst(t2))) return false
+      val t = Equivalence.equivInner(unified2.subst(t2), unified1.subst(t1), undefSubst, falseUndef)
+      if (!t._1) return (false, undefSubst)
+      undefSubst = t._2
     }
-    true
+    (true, undefSubst)
   }
 
   protected def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {

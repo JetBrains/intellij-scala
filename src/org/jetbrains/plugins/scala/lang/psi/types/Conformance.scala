@@ -520,7 +520,7 @@ object Conformance {
         val des = p.designator.asInstanceOf[ScDesignatorType]
         val args = p.typeArgs
         if (des.element.isInstanceOf[ScTypeAlias]) {
-          val a = des.asInstanceOf[ScTypeAlias]
+          val a = des.element.asInstanceOf[ScTypeAlias]
           if (!a.isExistentialTypeAlias) {
             val lBound = a.lowerBound.getOrElse(return (false, undefinedSubst))
             val genericSubst = ScalaPsiUtil.
@@ -818,33 +818,6 @@ object Conformance {
       val decls = t1.decls
       val typeMembers = t1.typeDecls
       val compoundSubst = t1.subst
-      def workWith(t: ScNamedElement): Boolean = {
-        val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, compoundSubst)
-        processor.processType(r, t)
-        undefinedSubst = processor.getUndefinedSubstitutor
-        processor.getResult
-      }
-      return (comps.forall(comp => {
-        val t = conformsInner(comp, r, HashSet.empty, undefinedSubst)
-        undefinedSubst = t._2
-        t._1
-      }) && decls.forall(decl => {
-        decl match {
-          case fun: ScFunction => workWith(fun)
-          case v: ScValue => v.declaredElements forall (decl => workWith(decl))
-          case v: ScVariable => v.declaredElements forall (decl => workWith(decl))
-        }
-      }) && typeMembers.forall(typeMember => {
-        workWith(typeMember)
-      }), undefinedSubst)
-    }
-
-    if (l.isInstanceOf[ScCompoundType]) {
-      val t1 = l.asInstanceOf[ScCompoundType]
-      val comps = t1.components
-      val compoundSubst = t1.subst
-      val decls = t1.decls
-      val typeMembers = t1.typeDecls
       def workWith(t: ScNamedElement): Boolean = {
         val processor = new CompoundTypeCheckProcessor(t, undefinedSubst, compoundSubst)
         processor.processType(r, t)
