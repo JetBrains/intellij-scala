@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunct
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Alexander Podkhalyuzin
@@ -66,6 +68,7 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
             else upper1, Set.empty, undef)
           if (!t._1) return false
           undef = t._2
+
           //todo: view?
           true
         case _ =>
@@ -126,16 +129,25 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
         }
         val sign1 = new PhysicalSignature(method, subst)
         val sign2 = new PhysicalSignature(decl.asInstanceOf[PsiMethod], substitutor)
-        if (!sign1.paramTypesEquiv(sign2)) return false
-        val bType = subst.subst(method match {
+        var t = sign1.paramTypesEquivExtended(sign2, undef, false)
+        if (!t._1) return false
+        undef = t._2
+        innerUndefinedSubstitutor = undef
+
+        val typeParams = method.getTypeParameters
+        val otherTypeParams = decl.asInstanceOf[PsiMethod].getTypeParameters
+        val unified1 = unify(subst, typeParams, typeParams)
+        val unified2 = unify(substitutor, typeParams, otherTypeParams)
+
+        val bType = unified1.subst(subst.subst(method match {
           case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
-        })
-        val gType = substitutor.subst(decl match {
+        }))
+        val gType = unified2.subst(substitutor.subst(decl match {
           case fun: ScFunction => fun.returnType.getOrNothing
           case method: PsiMethod => ScType.create(method.getReturnType, method.getProject, method.getResolveScope)
-        })
-        val t = Conformance.conformsInner(gType, bType, Set.empty, undef)
+        }))
+        t = Conformance.conformsInner(gType, bType, Set.empty, undef)
         if (t._1) {
           trueResult = true
           undef = t._2
@@ -150,5 +162,16 @@ class CompoundTypeCheckProcessor(decl: ScNamedElement, undefSubst: ScUndefinedSu
       case _ =>
     }
     true
+  }
+
+  private def unify(subst: ScSubstitutor, tps1: Array[PsiTypeParameter], tps2: Array[PsiTypeParameter]) = {
+    var res = subst
+    val iterator1 = tps1.iterator
+    val iterator2 = tps2.iterator
+    while (iterator1.hasNext && iterator2.hasNext) {
+      val (tp1, tp2) = (iterator1.next(), iterator2.next())
+      res = res bindT ((tp2.getName, ScalaPsiUtil.getPsiElementId(tp2)), ScalaPsiManager.typeVariable(tp1))
+    }
+    res
   }
 }
