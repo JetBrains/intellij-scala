@@ -267,9 +267,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (!myFsc) {
       String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
       classPathBuilder.append(rtJarPath).append(File.pathSeparator);
+      classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
     }
-
-    classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
 
     if (myFsc) {
       Option<CompilerLibraryData> lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, myProject);
@@ -380,7 +379,9 @@ public class ScalacBackendCompiler extends ExternalCompiler {
           if (jarSeparatorIndex > 0) {
             path = path.substring(0, jarSeparatorIndex);
           }
+          printer.print("\"");
           printer.print(path);
+          printer.print("\"");
           printer.print(File.pathSeparator);
         }
       }
