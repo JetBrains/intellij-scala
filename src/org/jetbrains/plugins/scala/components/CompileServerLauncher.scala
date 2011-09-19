@@ -69,7 +69,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     val settings = ScalacSettings.getInstance(project)
     val lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, project).getOrElse(throw new RuntimeException())
 
-    Environment(sdkType.getVMExecutablePath(sdk), new File(sdkType.getToolsPath(sdk)) :: lib.files.toList)
+    Environment(sdkType.getVMExecutablePath(sdk), lib.files.toList)
   }
 
   private def runProcess(environment: Environment, className: String,
