@@ -39,6 +39,8 @@ import parser.parsing.top.params.{ClassParamClause, ImplicitClassParamClause}
 import api.toplevel.templates.{ScTemplateParents, ScTemplateBody}
 import api.base.patterns._
 import parser.parsing.params.{TypeParamClause, ImplicitParamClause}
+import java.lang.ClassCastException
+import com.intellij.util.IncorrectOperationException
 
 object ScalaPsiElementFactory {
 
@@ -788,7 +790,12 @@ object ScalaPsiElementFactory {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, "var f: " + text).asInstanceOf[ScalaFile]
-    dummyFile.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
+    try {
+      dummyFile.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
+    }
+    catch {
+      case cce: ClassCastException => throw new IncorrectOperationException("wrong type element to parse: " + text)
+    }
   }
   
   def createColon(manager: PsiManager): PsiElement = {
