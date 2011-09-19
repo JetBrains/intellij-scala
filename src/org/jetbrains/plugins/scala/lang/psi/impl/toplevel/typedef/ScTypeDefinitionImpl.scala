@@ -339,9 +339,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   protected def getIconInner: Icon
 
-
-
-
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
 
 

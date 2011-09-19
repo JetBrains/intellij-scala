@@ -8,9 +8,9 @@ import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFileWithId, CharsetToolkit, VirtualFile}
 import java.io._
-import tools.scalap.scalax.rules.scalasig._
+import _root_.scala.tools.scalap.scalax.rules.scalasig._
 import java.lang.String
-import tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
+import _root_.scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
 import scala.reflect.generic.ByteCodecs
 import CharsetToolkit.UTF8
 import com.intellij.openapi.project.{DumbServiceImpl, Project, ProjectManager}
@@ -174,7 +174,8 @@ object DecompilerUtil {
       }
 
       val sourceFileName = {
-        val Some(SourceFileInfo(index)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).map(SourceFileAttributeParser.parse)
+        val Some(SourceFileInfo(index: Int)) = classFile.attribute(SOURCE_FILE).map(_.byteCode).
+          map(SourceFileAttributeParser.parse)
         val c = classFile.header.constants(index)
         val sBytes: Array[Byte] = c match {
           case s: String => s.getBytes(UTF8)
