@@ -69,7 +69,7 @@ class ObjectCreationImpossibleTest extends AnnotatorTestBase(ObjectCreationImpos
 
   def testNeedsToBeAbstractPlaceDiffer {
     val Message = ObjectCreationImpossible.message(
-      ("a: Unit", "Holder.A"), ("b: Unit", "Holder.B"))
+      ("b: Unit", "Holder.B"), ("a: Unit", "Holder.A"))
 
     assertMatches(messages("trait A { def a }; trait B { def b }; new A with B {}")) {
       case Error("A", Message) :: Nil =>

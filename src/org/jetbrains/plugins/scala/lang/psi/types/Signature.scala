@@ -12,10 +12,12 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.statements.params.ScParameters
 
 class Signature(val name: String, val typesEval: Stream[ScType], val paramLength: Int,
-                val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor) {
+                val typeParams: Array[PsiTypeParameter], val substitutor: ScSubstitutor,
+                val namedElement: Option[PsiNamedElement]) {
 
-  def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor) =
-    this (name, stream, paramLength, Array[PsiTypeParameter](), substitutor)
+  def this(name: String, stream: Stream[ScType], paramLength: Int, substitutor: ScSubstitutor,
+           namedElement: Option[PsiNamedElement]) =
+    this (name, stream, paramLength, Array[PsiTypeParameter](), substitutor, namedElement)
 
   def types: scala.Stream[ScType] = typesEval
 
@@ -109,7 +111,7 @@ object PhysicalSignature {
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
         extends Signature(method.getName, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          method.getTypeParameters, substitutor) {
+          method.getTypeParameters, substitutor, Some(method)) {
 
   override def hasRepeatedParam: Boolean = {
     val lastParam = method.getParameterList match {
@@ -127,26 +129,4 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
   def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
 
   def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
-}
-
-
-class SyntheticSignature(val method: ScSyntheticFunction, override val substitutor: ScSubstitutor)
-        extends Signature(method.name, method.paramClauses.flatten.map(_.paramType).toStream,
-          method.paramClauses.flatten.length,
-          method.typeParameters.toArray,
-          substitutor) {
-  def updateThisType(thisType: ScType): SyntheticSignature = updateSubst(_.addUpdateThisType(thisType))
-
-  def updateSubst(f: ScSubstitutor => ScSubstitutor): SyntheticSignature = new SyntheticSignature(method, f(substitutor))
-
-  def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
-}
-
-case class FullSignature(sig: Signature, retType: Suspension[ScType], element: NavigatablePsiElement, clazz: Option[PsiClass]) {
-  override def hashCode: Int = sig.hashCode
-
-  override def equals(obj: Any): Boolean = obj match {
-    case other: FullSignature => sig equals other.sig
-    case _ => false
-  }
 }

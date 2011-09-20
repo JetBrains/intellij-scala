@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.Error
  * Pavel Fatin
  */
 class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
-  def testFine {
+  def testFine() {
     assertNothing(messages("class C"))
     assertNothing(messages("class C {}"))
     assertNothing(messages("trait T"))
@@ -18,15 +18,15 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
     assertNothing(messages("trait T { def f }"))
   }
 
-  def testSkipNew {
+  def testSkipNew() {
     assertNothing(messages("trait T { def f }; new Object with T"))
   }
 
-  def testSkipObject {
+  def testSkipObject() {
     assertNothing(messages("trait T { def f }; object O extends T"))
   }
 
-  def testUndefinedMember {
+  def testUndefinedMember() {
     val Message = NeedsToBeAbstract.message (
       "Class", "C", ("f: Unit", "Holder.C"))
 
@@ -35,7 +35,7 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
     }
   }
 
-  def testUndefinedInheritedMember {
+  def testUndefinedInheritedMember() {
     val Message = NeedsToBeAbstract.message (
       "Class", "C", ("f: Unit", "Holder.T"))
 
@@ -48,16 +48,16 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase(NeedsToBeAbstract) {
     }
   }
 
-  def testNeedsToBeAbstractPlaceDiffer {
+  def testNeedsToBeAbstractPlaceDiffer() {
     val Message = NeedsToBeAbstract.message (
-      "Class", "C", ("a: Unit", "Holder.A"), ("b: Unit", "Holder.B"))
+      "Class", "C", ("b: Unit", "Holder.B"), ("a: Unit", "Holder.A"))
 
     assertMatches(messages("trait A { def a }; trait B { def b }; class C extends A with B {}")) {
       case Error("C", Message) :: Nil =>
     }
   }
 
-  def testObjectOverrideDef {
+  def testObjectOverrideDef() {
     assertMatches(messages("trait A { def a }; class D extends A { object a };")) {
       case Nil =>
     }

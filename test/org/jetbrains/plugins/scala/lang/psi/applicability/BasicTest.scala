@@ -7,7 +7,7 @@ import lang.psi.types._
  */
 
 class BasicTest extends ApplicabilityTestBase {
-  def testFine {
+  def testFine() {
     assertProblems("", "") {
       case Nil =>
     }
@@ -43,7 +43,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }*/
 
-  def testTooManyArguments {
+  def testTooManyArguments() {
     assertProblems("()", "(A)") {
       case ExcessArgument(Expression("A")) :: Nil =>
     }
@@ -59,7 +59,7 @@ class BasicTest extends ApplicabilityTestBase {
   }
 
   //TODO check misses clauses extraction
-  def testMissedParametersClause {
+  def testMissedParametersClause() {
     assertProblems("(p: A)", "") {
       case MissedParametersClause(_) :: Nil =>
     }
@@ -71,7 +71,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
 
-  def testMissedParameter {
+  def testMissedParameter() {
     assertProblems("(a: A)", "()") {
       case MissedValueParameter(Parameter("a")) :: Nil =>
     }
@@ -83,7 +83,7 @@ class BasicTest extends ApplicabilityTestBase {
     }
   }
   
-  def testTypeMismatch {
+  def testTypeMismatch() {
     assertProblems("(a: A)", "(B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }

@@ -161,11 +161,11 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     // TODO this conflates imported functions and imported implicit views. ScalaResolveResult should really store
     //      these separately.
     importUsed match {
-      case _: ImportWildcardSelectorUsed => return 4
-      case _: ImportSelectorUsed => return 5
+      case _: ImportWildcardSelectorUsed => 4
+      case _: ImportSelectorUsed => 5
       case ImportExprUsed(expr) => {
-        if (expr.singleWildcard) return 4
-        else return 5
+        if (expr.singleWildcard) 4
+        else 5
       }
     }
   }

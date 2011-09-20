@@ -74,7 +74,9 @@ object DecompilerUtil {
   private def openedNotDisposedProjects: Array[Project] = {
     val manager = ProjectManager.getInstance
     if (ApplicationManager.getApplication.isUnitTestMode) {
-      Array(manager.asInstanceOf[ProjectManagerEx].getCurrentTestProject)
+      val testProject = manager.asInstanceOf[ProjectManagerEx].getCurrentTestProject
+      if (testProject != null) Array(testProject)
+      else Array.empty
     } else {
       manager.getOpenProjects.filter(!_.isDisposed)
     }
@@ -120,8 +122,8 @@ object DecompilerUtil {
    */
 
   def isDumbModeOrUnitTesting: Boolean = {
-    openedNotDisposedProjects.find(p => DumbServiceImpl.getInstance(p).isDumb) != None ||
-      ApplicationManager.getApplication.isUnitTestMode
+    ApplicationManager.getApplication.isUnitTestMode ||
+      openedNotDisposedProjects.find(p => DumbServiceImpl.getInstance(p).isDumb) != None
   }
 
   def decompile(bytes: Array[Byte], file: VirtualFile): (String, String) = {

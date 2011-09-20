@@ -19,13 +19,13 @@ import java.awt.event.MouseEvent
 import lang.psi.api.statements.params.ScClassParameter
 import lang.psi.impl.search.ScalaOverridengMemberSearch
 import lang.psi.ScalaPsiUtil
-import lang.psi.types.FullSignature
 import lang.lexer.ScalaTokenTypes
 import presentation.java.ClassPresentationUtil
 import util.PsiTreeUtil
 import lang.psi.api.toplevel.ScNamedElement
 import lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScMember, ScObject}
 import lang.psi.api.statements._
+import lang.psi.types.{Signature}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,10 +48,13 @@ object ScalaMarkerType {
       val elem = elemFor(element)
       elem match {
         case method: ScFunction => {
-          val signatures: Seq[FullSignature] = method.superSignatures
+          val signatures: Seq[Signature] = method.superSignatures
           //removed assertion, because can be change before adding gutter, so just need to return ""
           if (signatures.length == 0) return ""
-          val optionClazz = signatures(0).clazz
+          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+            case member: PsiMember => Option(member.getContainingClass)
+            case _ => None
+          }
           assert(optionClazz != None)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
@@ -59,11 +62,14 @@ object ScalaMarkerType {
           else ScalaBundle.message("overrides.method.from.super", clazz.getQualifiedName)
         }
         case _: ScValue | _: ScVariable => {
-          val signatures = new ArrayBuffer[FullSignature]
+          val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           assert(signatures.length != 0)
-          val optionClazz = signatures(0).clazz
+          val optionClazz = signatures(0).namedElement.map(ScalaPsiUtil.nameContext(_)).flatMap {
+            case member: PsiMember => Option(member.getContainingClass)
+            case _ => None
+          }
           assert(optionClazz != None)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
@@ -86,7 +92,13 @@ object ScalaMarkerType {
         case method: ScFunction => {
           val signatures = method.superSignatures
           val elems = new HashSet[NavigatablePsiElement]
-          signatures.foreach(elems += _.element)
+          signatures.foreach {
+            case sig =>
+              sig.namedElement match {
+                case Some(nav: NavigatablePsiElement) => elems += nav
+                case _ =>
+              }
+          }
           elems.size match {
             case 0 =>
             case 1 => {
@@ -101,11 +113,17 @@ object ScalaMarkerType {
           }
         }
         case _: ScValue | _: ScVariable => {
-          val signatures = new ArrayBuffer[FullSignature]
+          val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           val elems = new HashSet[NavigatablePsiElement]
-          signatures.foreach(elems += _.element)
+          signatures.foreach {
+            case sig =>
+              sig.namedElement match {
+                case Some(n: NavigatablePsiElement) => elems += n
+                case _ =>
+              }
+          }
           elems.size match {
             case 0 =>
             case 1 => {

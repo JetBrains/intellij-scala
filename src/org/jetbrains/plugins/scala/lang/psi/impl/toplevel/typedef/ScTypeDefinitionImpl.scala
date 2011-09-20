@@ -270,37 +270,36 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
   override def getAllMethods: Array[PsiMethod] = {
     val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
-    val methodsIterator = TypeDefinitionMembers.getMethods(this).iterator
+    val methodsIterator = TypeDefinitionMembers.getSignatures(this).iterator
     while (methodsIterator.hasNext) {
-      val method = methodsIterator.next()._1.method
-          buffer += method
-      }
+      methodsIterator.next()._1.namedElement match {
+        case sig: PhysicalSignature => buffer += sig.method
+        case Some(t) =>
+          t match {
+            case t: ScTypedDefinition => {
+              val context = ScalaPsiUtil.nameContext(t)
+              buffer += new FakePsiMethod(t, context match {
+                case o: PsiModifierListOwner => o.hasModifierProperty _
+                case _ => (s: String) => false
+              })
 
-    buffer ++= syntheticMembers
-    val valsIterator = TypeDefinitionMembers.getVals(this).iterator
-    while (valsIterator.hasNext) {
-      val t = valsIterator.next()._1
-      t match {
-        case t: ScTypedDefinition => {
-          val context = ScalaPsiUtil.nameContext(t)
-          buffer += new FakePsiMethod(t, context match {
-            case o: PsiModifierListOwner => o.hasModifierProperty _
-            case _ => (s: String) => false
-          })
-
-          context match {
-            case annotated: ScAnnotationsHolder => {
-              BeanProperty.processBeanPropertyDeclarationsInternal(annotated, context, t) { element =>
-                buffer += element
-                true
+              context match {
+                case annotated: ScAnnotationsHolder => {
+                  BeanProperty.processBeanPropertyDeclarationsInternal(annotated, context, t) { element =>
+                    buffer += element
+                    true
+                  }
+                }
+                case _ =>
               }
             }
             case _ =>
           }
-        }
         case _ =>
       }
     }
+    buffer ++= syntheticMembers
+
     //todo: methods from companion module?
     buffer.toArray
   }
@@ -310,8 +309,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
 
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
-    (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield
-      new PhysicalSignature(n.info.method, n.info.substitutor)).toSeq ++
+    (for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this) if s.name == name) yield s).toSeq ++
             syntheticMembers.filter(_.getName == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
   }
 

@@ -658,18 +658,20 @@ object ScalaPsiUtil {
     genericCallSubstitutor(tp, typeArgs)
   }
 
-  def namedElementSig(x: PsiNamedElement): Signature = new Signature(x.getName, Stream.empty, 0, ScSubstitutor.empty)
+  def namedElementSig(x: PsiNamedElement): Signature =
+    new Signature(x.getName, Stream.empty, 0, ScSubstitutor.empty, Some(x))
 
-  def superValsSignatures(x: PsiNamedElement): Seq[FullSignature] = {
+  def superValsSignatures(x: PsiNamedElement): Seq[Signature] = {
     val empty = Seq.empty 
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
-      case e @ (_: ScValue | _: ScVariable) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
-      case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] => e.containingClass.orNull // todo unify these two cases.
+      case e @ (_: ScValue | _: ScVariable) if e.getParent.isInstanceOf[ScTemplateBody] =>
+        e.asInstanceOf[ScMember].getContainingClass
+      case e @ (_: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] =>
+        e.containingClass.orNull // todo unify these two cases.
       case _ => return empty
     }
-    val s = new FullSignature(namedElementSig(x), new Suspension(() => typed.getType(TypingContext.empty).getOrAny),
-      x.asInstanceOf[NavigatablePsiElement], Some(clazz))
+    val s = namedElementSig(x)
     val sigs = TypeDefinitionMembers.getSignatures(clazz)
     val t = (sigs.get(s): @unchecked) match {
       //partial match
@@ -753,7 +755,7 @@ object ScalaPsiUtil {
       case _ =>
         for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
     }
-    buffer.toString
+    buffer.toString()
   }
 
   def isLineTerminator(element: PsiElement): Boolean = {
@@ -764,13 +766,13 @@ object ScalaPsiUtil {
   }
 
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
           if n.method.getName == "apply" &&
                   (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
           if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
                   (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq ++
     (clazz match {
@@ -781,7 +783,7 @@ object ScalaPsiUtil {
   }
 
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getMethods(clazz)
+    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
           if n.method.getName == "update" &&
                   (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
   }

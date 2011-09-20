@@ -16,7 +16,6 @@ import lang.psi.api.statements._
 import lang.psi.api.toplevel.templates.ScTemplateBody
 import lang.psi.api.toplevel.{ScNamedElement}
 import lang.psi.impl.search.ScalaOverridengMemberSearch
-import lang.psi.types.FullSignature
 import com.intellij.util.NullableFunction
 import lang.psi.{ScalaPsiUtil}
 import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorColorsManager, CodeInsightColors}
@@ -29,6 +28,7 @@ import lang.psi.api.base.patterns.ScBindingPattern
 import lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import collection.Seq
 import params.ScParameter
+import lang.psi.types.{Signature}
 
 
 /**
@@ -91,7 +91,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
       (parent, parent.getParent) match {
         case (method: ScFunction, _: ScTemplateBody) if method.nameId == element =>
-          val signatures: Seq[FullSignature] = (HashSet[FullSignature](method.superSignatures: _*)).toSeq
+          val signatures: Seq[Signature] = (HashSet[Signature](method.superSignatures: _*)).toSeq
           val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.length > 0) {
@@ -99,7 +99,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           }
         case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
           if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
-          val signatures = new ArrayBuffer[FullSignature]
+          val signatures = new ArrayBuffer[Signature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z)
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
@@ -206,7 +206,7 @@ private object GutterUtil {
     }
   }
 
-  def isOverrides(element: PsiElement, supers: Seq[FullSignature]): Boolean = {
+  def isOverrides(element: PsiElement, supers: Seq[Signature]): Boolean = {
     element match {
       case decl: ScFunctionDeclaration => true
       case v: ScValueDeclaration => true
@@ -215,8 +215,8 @@ private object GutterUtil {
         val iter = supers.iterator
         while (iter.hasNext) {
           val s = iter.next()
-          s.element match {
-            case named: PsiNamedElement =>
+          s.namedElement match {
+            case Some(named: PsiNamedElement) =>
               ScalaPsiUtil.nameContext(named) match {
                 case fun: ScFunctionDefinition => return true
                 case fun: ScFunction =>

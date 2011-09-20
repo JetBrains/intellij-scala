@@ -23,7 +23,7 @@ import lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 class ScalaGoToSuperActionHandler extends CodeInsightActionHandler {
   def startInWriteAction = false
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
+  def invoke(project: Project, editor: Editor, file: PsiFile) {
     val offset = editor.getCaretModel.getOffset
     val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset);
 
@@ -34,7 +34,7 @@ class ScalaGoToSuperActionHandler extends CodeInsightActionHandler {
           if (descriptor != null && descriptor.canNavigate) {
             descriptor.navigate(true)
           }
-          return true
+          true
         }
       }).showInBestPositionFor(editor)
     }
@@ -80,8 +80,11 @@ private object ScalaGoToSuperActionHandler {
       if (elements.length == 0) return empty
       val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
         ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
-      } else ScalaPsiUtil.superValsSignatures(elements(0))).map(_.element): _*)
-      return supers.toArray
+      } else ScalaPsiUtil.superValsSignatures(elements(0))).flatMap(_.namedElement match {
+        case Some(n: NavigatablePsiElement) => Some(n)
+        case _ => None
+      }): _*)
+      supers.toArray
     }
 
     element match {
@@ -91,7 +94,10 @@ private object ScalaGoToSuperActionHandler {
         (templateSupers(template), ScalaPsiUtil.superTypeMembers(template))
       }
       case func: ScFunction => {
-        val supers = HashSet[NavigatablePsiElement](func.superSignatures.map(_.element): _*)
+        val supers = HashSet[NavigatablePsiElement](func.superSignatures.flatMap(_.namedElement match {
+          case Some(n: NavigatablePsiElement) => Some(n)
+          case _ => None
+        }): _*)
         (Seq(), supers.toSeq)
       }
       case d: ScDeclaredElementsHolder => {

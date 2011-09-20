@@ -119,7 +119,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
           val signs = TypeDefinitionMembers.getSignatures(this)
           var hasCopy = false
           for (sign <- signs.iterator if !hasCopy) {
-            if (sign._1.sig.name == "copy") hasCopy = true
+            if (sign._1.name == "copy") hasCopy = true
           }
           val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
           if (addCopy) {

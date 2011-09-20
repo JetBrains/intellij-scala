@@ -87,7 +87,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
               }
             }
             case bindingPattern: ScBindingPattern => {
-              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Stream.empty, 0, substitutor)
+              val sign = new Signature(isRenamed.getOrElse(bindingPattern.getName), Stream.empty, 0,
+                substitutor, Some(bindingPattern))
               if (!signatures.contains(sign)) {
                 signatures += sign
                 val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,

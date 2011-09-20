@@ -236,7 +236,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)]
 
-  def superSignatures: Seq[FullSignature]
+  def superSignatures: Seq[Signature]
 
   def hasParamName(name: String, clausePosition: Int = -1): Boolean = getParamByName(name, clausePosition) != None
 

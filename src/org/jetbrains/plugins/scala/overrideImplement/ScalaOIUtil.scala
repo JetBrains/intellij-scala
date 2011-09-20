@@ -15,7 +15,7 @@ import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTem
 import lang.psi.api.toplevel.ScTypedDefinition
 import lang.psi.api.statements._
 import lang.psi.impl.ScalaPsiElementFactory
-import lang.psi.types.{FullSignature, ScType, PhysicalSignature, ScSubstitutor}
+import lang.psi.types.{ScType, PhysicalSignature, ScSubstitutor}
 import lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.ide.util.MemberChooser
@@ -152,7 +152,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(sign: PhysicalSignature, _, _, _) => {
+        case sign: PhysicalSignature => {
           val m = sign.method
           val name = if (m == null) "" else m.getName
           m match {
@@ -213,11 +213,7 @@ object ScalaOIUtil {
     val buf2 = new ArrayBuffer[ScalaObject]
     for (element <- buf) {
       element match {
-        case FullSignature(_, _, _, _)  | _: PhysicalSignature => {
-          val sign: PhysicalSignature = element match {
-            case FullSignature(x: PhysicalSignature, _, _, _) => x
-            case x: PhysicalSignature => x
-          }
+        case sign: PhysicalSignature => {
           sign.method match {
             case _ if isProductAbstractMethod(sign.method, clazz) => buf2 += sign
             case _: ScFunctionDeclaration =>

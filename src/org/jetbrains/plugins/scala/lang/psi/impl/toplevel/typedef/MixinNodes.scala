@@ -22,7 +22,7 @@ abstract class MixinNodes {
   def equiv(t1: T, t2: T) : Boolean
   def computeHashCode(t: T) : Int
   def isAbstract(t: T) : Boolean
-  class Node (val info: T, val substitutor: ScSubstitutor) {
+  class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
     var primarySuper: Option[Node] = None
   }

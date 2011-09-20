@@ -10,16 +10,16 @@ import util.TestUtils
 import junit.framework.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
-  override def getTestDataPath: String = TestUtils.getTestDataPath() + "/resolve/imports/"
+  override def getTestDataPath: String = TestUtils.getTestDataPath + "/resolve/imports/"
 
-  def printResults(imports: ScalaObject) = {
+  def printResults(imports: ScalaObject) {
     println("[" + getTestName(false) + "]")
     println("------------------------------------------------")
     println(imports)
     println()
   }
 
-  def testHidePredefImplicit(): Unit = {
+  def testHidePredefImplicit() {
     val path = "implicit/HidePredefImplicit.scala"
     configureByFile(path) match {
       case r: PsiPolyVariantReference => {
