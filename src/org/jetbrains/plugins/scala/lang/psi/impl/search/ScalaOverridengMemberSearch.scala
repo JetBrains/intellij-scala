@@ -15,8 +15,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{QueryFactory, EmptyQuery, Query}
 import java.util.Arrays
 import toplevel.typedef.TypeDefinitionMembers
-import types.{Bounds, FullSignature, PhysicalSignature, ScSubstitutor}
 import api.toplevel.ScTypedDefinition
+import types._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,13 +69,14 @@ object ScalaOverridengMemberSearch {
         case _: PsiNamedElement =>
           val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).iterator
           while (signsIterator.hasNext) {
-            val (t: FullSignature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
-            if (PsiTreeUtil.getParentOfType(t.element, classOf[PsiClass]) == inheritor) {
+            val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
+            if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,
+              classOf[PsiClass]) == inheritor) {
               val supersIterator = node.supers.iterator
               while (supersIterator.hasNext) {
                 val s = supersIterator.next()
-                if (s.info.element eq member) {
-                  buffer += t.element.asInstanceOf[PsiNamedElement]
+                if (s.info.namedElement.get eq member) {
+                  buffer += t.namedElement.get
                   return deep
                 }
               }

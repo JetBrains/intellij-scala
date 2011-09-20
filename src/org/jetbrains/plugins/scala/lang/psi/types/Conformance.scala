@@ -972,25 +972,6 @@ object Conformance {
     }
   }
 
-  def getSignatureMapInner(clazz: PsiClass): HashMap[Signature, ScType] = {
-    val m = new HashMap[Signature, ScType]
-    val iterator = TypeDefinitionMembers.getSignatures(clazz).iterator
-    while (iterator.hasNext) {
-      val (full, _) = iterator.next()
-      m += ((full.sig, full.retType.v))
-    }
-    m
-  }
-
-  def getSignatureMap(clazz: PsiClass): HashMap[Signature, ScType] = {
-    CachesUtil.get(
-      clazz, CachesUtil.SIGNATURES_MAP_KEY,
-      new CachesUtil.MyProvider(clazz, {clazz: PsiClass => getSignatureMapInner(clazz)})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-      )
-  }
-
-
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
     if (!leftClass.isInheritor(rightClass, true)) return (false, null)
     smartIsInheritor(leftClass, substitutor, rightClass, new collection.mutable.HashSet[PsiClass])

@@ -6,10 +6,6 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.command.undo.UndoManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider
-import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.inline.GenericInlineHandler
 import org.jetbrains.plugins.scala.util.ScalaUtils
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
@@ -36,7 +32,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     }
   }
 
-  protected def doTest: Unit = {
+  protected def doTest {
     import _root_.junit.framework.Assert._
     val filePath = rootPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -47,7 +43,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
     val element = scalaFile.findElementAt(offset).getParent
     assert(element.isInstanceOf[ScReferenceElement], "Reference is not specified.")
-    val resolve = element.asInstanceOf[ScReferenceElement].resolve
+    val resolve = element.asInstanceOf[ScReferenceElement].resolve()
     assert(resolve != null, "Cannot resolve Symbol")
     val fileEditorManager = FileEditorManager.getInstance(myProject)
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
@@ -59,7 +55,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     //start to inline
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
-        def run {
+        def run() {
           new RenameProcessor(resolve.getProject, substituteElement(resolve), "NameAfterRename", false, false).run()
         }
       }, resolve.getProject, "Test")
@@ -70,7 +66,7 @@ abstract class ScalaRenameTestBase extends ScalaPsiTestCase {
     }
     finally {
       ScalaUtils.runWriteAction(new Runnable {
-        def run {
+        def run() {
           val undoManager = UndoManager.getInstance(getProject)
           val fileEditor = TextEditorProvider.getInstance.getTextEditor(editor)
           if (undoManager.isUndoAvailable(fileEditor)) {

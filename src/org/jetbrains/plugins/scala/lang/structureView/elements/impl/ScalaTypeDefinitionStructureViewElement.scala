@@ -4,7 +4,7 @@ package structureView
 package elements
 package impl
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.{FullSignature, PhysicalSignature, ScSubstitutor}
+import _root_.org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 
@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinition) extends ScalaStructureViewElement(element, false) {
 
   def getPresentation(): ItemPresentation = {
-    return new ScalaTypeDefinitionItemPresentation(element);
+    new ScalaTypeDefinitionItemPresentation(element);
   }
 
   def getChildren(): Array[TreeElement] = {
@@ -64,7 +64,7 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
       val signs = clazz.allSignatures
       for (sign <- signs) {
         sign match {
-          case FullSignature(sign: PhysicalSignature, _, _, _) => {
+          case sign: PhysicalSignature => {
             sign.method match {
               case x if x.getName == "$tag" || x.getName == "$init$" =>
               case x if x.getContainingClass.getQualifiedName == "java.lang.Object" =>
@@ -73,13 +73,14 @@ class ScalaTypeDefinitionStructureViewElement(private val element: ScTypeDefinit
               case x: PsiMethod => children += new PsiMethodTreeElement(x, true)
             }
           }
-          case FullSignature(_, _, element, _) => {
-            element match {
-              case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
+          case _ => {
+            sign.namedElement match {
+              case Some(named: ScNamedElement) => ScalaPsiUtil.nameContext(named) match {
                 case x: ScValue if x.getContainingClass != clazz => children += new ScalaValueStructureViewElement(named.nameId, true)
                 case x: ScVariable if x.getContainingClass != clazz => children += new ScalaVariableStructureViewElement(named.nameId, true)
                 case _ =>
               }
+              case _ =>
             }
           }
         }

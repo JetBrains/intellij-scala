@@ -43,11 +43,11 @@ import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import java.awt.{Font, Color}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import components.HighlightingAdvisor
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, Unit, FullSignature}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.extensions._
 import collection.{Seq, Set}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ReadValueUsed, WriteValueUsed, ValueUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
  *    User: Alexander Podkhalyuzin
@@ -466,8 +466,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
     } else {
       if (!method.hasModifierProperty("override") && !method.isInstanceOf[ScFunctionDeclaration]) {
-        def isConcrete(signature: FullSignature): Boolean = if (signature.element.isInstanceOf[PsiNamedElement])
-          ScalaPsiUtil.nameContext(signature.element.asInstanceOf[PsiNamedElement]) match {
+        def isConcrete(signature: Signature): Boolean = if (signature.namedElement != None)
+          ScalaPsiUtil.nameContext(signature.namedElement.get) match {
             case _: ScFunctionDefinition => true
             case method: PsiMethod if !method.hasModifierProperty(PsiModifier.ABSTRACT) && !method.isConstructor => true
             case _: ScPatternDefinition => true

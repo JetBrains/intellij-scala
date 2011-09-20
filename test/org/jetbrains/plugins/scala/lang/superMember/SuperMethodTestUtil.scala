@@ -3,9 +3,10 @@ package lang
 package superMember
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiNamedElement, PsiFile}
 import psi.api.statements.ScFunction
 import psi.api.toplevel.typedef.{ScMember}
+import psi.ScalaPsiUtil
+import com.intellij.psi.{PsiMember, PsiNamedElement, PsiFile}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,12 +23,20 @@ object SuperMethodTestUtil {
         val signs = method.superSignatures
         val res: StringBuilder = new StringBuilder("")
         for (sign <- signs) {
-          val s = sign.clazz match {
-            case Some(clazz) => clazz.getQualifiedName + "."
+          val s = sign.namedElement match {
+            case Some(named) =>
+              ScalaPsiUtil.nameContext(named) match {
+                case member: PsiMember =>
+                  val clazz = member.getContainingClass
+                  if (clazz != null)
+                    clazz.getQualifiedName + "."
+                  else ""
+                case _ => ""
+              }
             case _ => ""
           }
-          res.append(s + (sign.element match {
-                    case x: PsiNamedElement => x.getName
+          res.append(s + (sign.namedElement match {
+                    case Some(x: PsiNamedElement) => x.getName
                     case _ => "Something"
                   }) + "\n")
         }
@@ -36,6 +45,6 @@ object SuperMethodTestUtil {
       case _ => resa = "Not implemented test"
     }
     println(resa)
-    return resa
+    resa
   }
 }

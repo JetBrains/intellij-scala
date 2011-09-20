@@ -5,6 +5,7 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="main-scala-compiler" />
+        <option name="fsc" value="true" />
         <option name="maximumHeapSize" value="1024" />
         <option name="vmOptions" value="-Xms768m -Xss1m -server" />
       </configuration>

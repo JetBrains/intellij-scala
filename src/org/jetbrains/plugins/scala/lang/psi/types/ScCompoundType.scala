@@ -67,8 +67,8 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
               case Some(te) => for (e <- varDecl.declaredElements) {
                 val varType = te.getType(TypingContext.empty(varDecl.declaredElements))
                 varType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
-                signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), varType.getOrAny))
-                signatureMapVal += ((new Signature(e.name + "_", Stream(varType.getOrAny), 1, subst), Unit)) //setter
+                signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), varType.getOrAny))
+                signatureMapVal += ((new Signature(e.name + "_=", Stream(varType.getOrAny), 1, subst, Some(e)), Unit)) //setter
               }
               case None =>
             }
@@ -77,7 +77,7 @@ case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElements
             case Some(te) => for (e <- valDecl.declaredElements) {
               val valType = te.getType(TypingContext.empty(valDecl.declaredElements))
               valType match {case f@Failure(_, _) => problemsVal += f; case _ =>}
-              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst), valType.getOrAny))
+              signatureMapVal += ((new Signature(e.name, Stream.empty, 0, subst, Some(e)), valType.getOrAny))
             }
             case None =>
           }

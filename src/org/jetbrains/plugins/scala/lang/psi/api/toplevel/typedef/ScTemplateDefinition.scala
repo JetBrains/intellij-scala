@@ -102,10 +102,21 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def supers: Seq[PsiClass] = extendsBlock.supers
 
   def allTypeAliases = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
-  def allVals = TypeDefinitionMembers.getVals(this).values.map{ n => (n.info, n.substitutor) }
+
+  def allVals = TypeDefinitionMembers.getSignatures(this).values.filter(n => !n.info.isInstanceOf[PhysicalSignature] &&
+    (n.info.namedElement match {
+      case Some(v) => ScalaPsiUtil.nameContext(v) match {
+        case _: ScVariable => v.getName == n.info.name
+        case _ => true
+      }
+      case None => false
+    })).map { n => (n.info.namedElement.get, n.substitutor) }
+
   def allMethods: Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getMethods(this).values.map{ n => n.info } ++
+    TypeDefinitionMembers.getSignatures(this).values.filter(_.info.isInstanceOf[PhysicalSignature]).
+      map{ n => n.info.asInstanceOf[PhysicalSignature] } ++
       syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
+
   def allSignatures = TypeDefinitionMembers.getSignatures(this).values.map{ n => n.info }
 
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
@@ -219,7 +230,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def functionsByName(name: String): Seq[PsiMethod] = {
-    (for ((_, n) <- TypeDefinitionMembers.getMethods(this) if n.info.method.getName == name) yield n.info.method).
+    (for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this)
+          if p.method.getName == name) yield p.method).
             toSeq ++ syntheticMembers.filter(_.getName == name)
   }
 
@@ -228,9 +240,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       (name: String, checkBases: Boolean): java.util.List[com.intellij.openapi.util.Pair[PsiMethod, PsiSubstitutor]] = {
     import com.intellij.openapi.util.Pair
     val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
-    for {(_, n) <- TypeDefinitionMembers.getMethods(this)
-         substitutor = n.info.substitutor
-         method = n.info.method
+    for {(p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this)
+         substitutor = p.substitutor
+         method = p.method
          if method.getName == name &&
                  method.getContainingClass == this
     } {

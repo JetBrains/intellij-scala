@@ -70,8 +70,9 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superMethods: Seq[PsiMethod] = {
     val clazz = getContainingClass
-    if (clazz != null) TypeDefinitionMembers.getMethods(clazz).
-          get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.map {_.info.method}
+    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).
+          get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
+      filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
     else Seq.empty
   }
 
@@ -80,24 +81,24 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
     val clazz = getContainingClass
     if (clazz != null) {
-      val option = TypeDefinitionMembers.getMethods(clazz).
+      val option = TypeDefinitionMembers.getSignatures(clazz).
           fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
       if (option == None) return None
-      option.get.primarySuper.map(node => (node.info.method, node.info.substitutor))
+      option.get.primarySuper.filter(_.info.isInstanceOf[PhysicalSignature]).
+        map(node => (node.info.asInstanceOf[PhysicalSignature].method, node.info.substitutor))
     }
     else None
   }
 
 
-  def superSignatures: Seq[FullSignature] = {
+  def superSignatures: Seq[Signature] = {
     val clazz = getContainingClass
-    val s = new FullSignature(new PhysicalSignature(this, ScSubstitutor.empty), new Suspension(() =>
-      returnType.getOrAny), this, Some(clazz))
+    val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
     //partial match
       case Some(x) => x.supers.map {_.info}
-      case None => Seq[FullSignature]()
+      case None => Seq[Signature]()
     }
     t
   }
