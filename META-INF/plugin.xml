@@ -278,26 +278,22 @@
 
   <project-components>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-      </implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory
-      </implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory
-      </implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolPassFactory</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.caches.ScalaCachesManager</implementation-class>
     </component>
     <component>
-      <implementation-class>org.jetbrains.plugins.scala.components.CompilerProjectComponent
-      </implementation-class>
+      <implementation-class>org.jetbrains.plugins.scala.components.CompilerProjectComponent</implementation-class>
     </component>
     <component>
       <implementation-class>org.jetbrains.plugins.scala.components.HighlightingAdvisor</implementation-class>
