@@ -3,8 +3,11 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.plugins.scala.components.CompileServerLauncher;
+import org.jetbrains.plugins.scala.components.CompileServerManager;
 import org.jetbrains.plugins.scala.components.CompilerProjectComponent;
 import org.jetbrains.plugins.scala.config.LibraryId;
 import org.jetbrains.plugins.scala.config.LibraryLevel;
@@ -12,6 +15,9 @@ import org.jetbrains.plugins.scala.config.ui.LibraryDescriptor;
 import org.jetbrains.plugins.scala.config.ui.LibraryRenderer;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 /**
  * User: Alexander Podkhalyuzin, Pavel Fatin
@@ -24,6 +30,13 @@ public class ScalacConfigurable implements Configurable {
   private JTextField myMaximumHeapSize;
   private RawCommandLineEditor myFscOptions;
   private JComboBox myCompilerLibrary;
+  private JRadioButton myRunInternalServerRadioButton;
+  private JRadioButton myConnectToExternalServerRadioButton;
+  private JTextField myRemotePort;
+  private JTextField myRemoteHost;
+  private TextFieldWithBrowseButton mySharedDirectory;
+  private JPanel myServerPanel;
+  private JPanel myClientPanel;
   private ScalacSettings mySettings;
   private Project myProject;
 
@@ -31,6 +44,13 @@ public class ScalacConfigurable implements Configurable {
     myProject = project;
     mySettings = settings;
     myCompilerLibrary.setRenderer(new LibraryRenderer());
+
+    myRunInternalServerRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateSections();
+      }
+    });
+
     updateLibrariesList();
   }
 
@@ -41,6 +61,19 @@ public class ScalacConfigurable implements Configurable {
     myCompilerLibrary.setModel(new DefaultComboBoxModel(LibraryDescriptor.compilersFor(myProject)));
 
     setCompilerLibraryById(id);
+  }
+
+  private void updateSections() {
+    boolean b = myRunInternalServerRadioButton.isSelected();
+    setDescendantsEnabledIn(myServerPanel, b);
+    setDescendantsEnabledIn(myClientPanel, !b);
+  }
+
+  private static void setDescendantsEnabledIn(JComponent root, boolean b) {
+    for (Component child : root.getComponents()) {
+      child.setEnabled(b);
+      setDescendantsEnabledIn((JComponent) child, b);
+    }
   }
 
   private String getCompilerLibraryName() {
@@ -109,6 +142,10 @@ public class ScalacConfigurable implements Configurable {
     if (!mySettings.MAXIMUM_HEAP_SIZE.equals(myMaximumHeapSize.getText())) return true;
     if (!mySettings.VM_PARAMETERS.equals(myVmParameters.getText())) return true;
     if (!mySettings.FSC_OPTIONS.equals(myFscOptions.getText())) return true;
+    if (mySettings.INTERNAL_SERVER != myRunInternalServerRadioButton.isSelected()) return true;
+    if (!mySettings.REMOTE_HOST.equals(myRemoteHost.getText())) return true;
+    if (!mySettings.REMOTE_PORT.equals(myRemotePort.getText())) return true;
+    if (!mySettings.SHARED_DIRECTORY.equals(mySharedDirectory.getText())) return true;
 
     return false;
   }
@@ -119,6 +156,15 @@ public class ScalacConfigurable implements Configurable {
     mySettings.FSC_OPTIONS = myFscOptions.getText();
     mySettings.COMPILER_LIBRARY_NAME = getCompilerLibraryName();
     mySettings.COMPILER_LIBRARY_LEVEL = getCompilerLibraryLevel();
+    mySettings.INTERNAL_SERVER = myRunInternalServerRadioButton.isSelected();
+    mySettings.REMOTE_HOST = myRemoteHost.getText();
+    mySettings.REMOTE_PORT = myRemotePort.getText();
+    mySettings.SHARED_DIRECTORY = mySharedDirectory.getText();
+
+    if (!myRunInternalServerRadioButton.isSelected()) {
+      myProject.getComponent(CompileServerLauncher.class).stop();
+    }
+    myProject.getComponent(CompileServerManager.class).configureWidget();
 
     CompilerProjectComponent component = myProject.getComponent(CompilerProjectComponent.class);
 
@@ -138,6 +184,13 @@ public class ScalacConfigurable implements Configurable {
     myMaximumHeapSize.setText(mySettings.MAXIMUM_HEAP_SIZE);
     myVmParameters.setText(mySettings.VM_PARAMETERS);
     myFscOptions.setText(mySettings.FSC_OPTIONS);
+    myRunInternalServerRadioButton.setSelected(mySettings.INTERNAL_SERVER);
+    myConnectToExternalServerRadioButton.setSelected(!mySettings.INTERNAL_SERVER);
+    myRemoteHost.setText(mySettings.REMOTE_HOST);
+    myRemotePort.setText(mySettings.REMOTE_PORT);
+    mySharedDirectory.setText(mySettings.SHARED_DIRECTORY);
+
+    updateSections();
   }
 
   public void disposeUIResources() {

@@ -252,13 +252,17 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     ScalaFacet[] facets = ScalaFacet.findIn(chunk.getModules());
 
-    if (!myFsc) {
+    if (myFsc) {
+      if (!settings.INTERNAL_SERVER && !settings.SHARED_DIRECTORY.isEmpty()) {
+        commandLine.add(String.format("-Djava.io.tmpdir=%s", settings.SHARED_DIRECTORY));
+      }
+    } else {
       for(ScalaFacet facet : facets) {
         commandLine.addAll(Arrays.asList(facet.javaParameters()));
         break;
       }
     }
-    
+
     CompilerUtil.addLocaleOptions(commandLine, false);
 
     commandLine.add("-cp");
@@ -267,7 +271,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     if (!myFsc) {
       String rtJarPath = PathUtil.getJarPathForClass(ScalacRunner.class);
       classPathBuilder.append(rtJarPath).append(File.pathSeparator);
-      classPathBuilder.append(sdkType.getToolsPath(jdk)).append(File.pathSeparator);
     }
 
     if (myFsc) {
@@ -283,6 +286,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     }
 
     commandLine.add(classPathBuilder.toString());
+
     if (myFsc) {
       commandLine.add("scala.tools.nsc.CompileClient");
     } else {
@@ -293,8 +297,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     if (myFsc) {
       commandLine.add("-server");
-      CompileServerLauncher launcher = myProject.getComponent(CompileServerLauncher.class);
-      commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), launcher.port()));
+      if (settings.INTERNAL_SERVER) {
+        CompileServerLauncher launcher = myProject.getComponent(CompileServerLauncher.class);
+        commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), launcher.port()));
+      } else {
+        commandLine.add(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
+      }
     }
 
     try {
@@ -323,7 +331,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return options.toString();
   }
 
-  private static void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath, 
+  private void fillFileWithScalacParams(ModuleChunk chunk, File fileWithParameters, String outputPath,
                                                Project myProject, String[] parameters)
       throws FileNotFoundException {
 
@@ -355,7 +363,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     final Set<VirtualFile> sourceDependencies = new HashSet<VirtualFile>();
     final boolean isTestChunk = isTestChunk(chunk);
 
-    printer.print("\"");
+    if (myFsc) printer.print("\"");
 
     for (Module module : modules) {
       if (ScalaUtils.isSuitableModule(module)) {
@@ -386,7 +394,7 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         }
       }
     }
-    printer.print("\"");
+    if (myFsc) printer.print("\"");
     printer.println();
 
     final HashSet<VirtualFile> filesToCompile = new HashSet<VirtualFile>();
