@@ -50,7 +50,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
     }
     else {
       panel.setText(ProjectBundle.message("library.sources.not.found"))
-      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject)
+      defaultAction = new AttachSourcesUtil.ChooseAndAttachSourcesAction(myProject, panel)
     }
 
 
