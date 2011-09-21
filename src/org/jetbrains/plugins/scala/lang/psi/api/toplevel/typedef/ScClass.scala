@@ -64,6 +64,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
             val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
             val obj: ScObject =
               ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
+            import extensions._
             val objOption: Option[ScObject] = obj.toOption
             objOption.foreach { (obj: ScObject) =>
               obj.setSyntheticObject()

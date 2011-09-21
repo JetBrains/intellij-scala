@@ -9,7 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 
 import com.intellij.ui.NonFocusableCheckBox
 import com.intellij.util.IncorrectOperationException
-import javax.swing.JCheckBox
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScTrait, ScTypeDefinition, ScMember, ScTemplateDefinition}
 import lang.psi.api.toplevel.ScTypedDefinition
@@ -23,6 +22,7 @@ import _root_.scala.collection.mutable.ArrayBuffer
 import com.intellij.openapi.project.Project
 import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
+import javax.swing.{JComponent, JCheckBox}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -85,7 +85,8 @@ object ScalaOIUtil {
       ScalaBundle.message("specify.return.type.explicitly"))
     if (ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY != null)
       dontInferReturnTypeCheckBox.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY.booleanValue)
-    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project, Array(dontInferReturnTypeCheckBox)) {
+    class ScalaMemberChooser extends MemberChooser[ClassMember](classMembers, false, true, project,
+      Array[JComponent](dontInferReturnTypeCheckBox)) {
       def needsInferType = dontInferReturnTypeCheckBox.isSelected
     }
     val chooser = new ScalaMemberChooser

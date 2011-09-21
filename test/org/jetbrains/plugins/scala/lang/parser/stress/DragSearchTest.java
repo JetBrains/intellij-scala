@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParser;
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 
 import java.io.File;
@@ -75,7 +76,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     Assert.assertNotNull(fileText);
 
     Language language = ScalaFileType.SCALA_LANGUAGE;
-    PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(new ScalaLexer(), language, fileText);
+    PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(new ScalaParserDefinition(), new ScalaLexer(), fileText);
     DragBuilderWrapper dragBuilder = new DragBuilderWrapper(myProject, psiBuilder);
     new ScalaParser().parse(ScalaElementTypes.FILE(), dragBuilder);
 

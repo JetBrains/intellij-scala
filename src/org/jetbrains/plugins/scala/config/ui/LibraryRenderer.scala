@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.config
 package ui
 
 import javax.swing.{DefaultListCellRenderer, JList}
-import com.intellij.util.Icons
+import com.intellij.util.PlatformIcons
 
 /**
  * Pavel.Fatin, 05.07.2010
@@ -38,7 +38,7 @@ class LibraryRenderer extends DefaultListCellRenderer {
     val holder = Option(value.asInstanceOf[LibraryDescriptor])
     val html = htmlFor(holder)
     val result = super.getListCellRendererComponent(list, html, index, isSelected, hasFocus)
-    setIcon(Icons.LIBRARY_ICON)
+    setIcon(PlatformIcons.LIBRARY_ICON)
     result
   }
 }

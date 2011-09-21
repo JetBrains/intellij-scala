@@ -158,7 +158,7 @@ class ScPackageImpl(pack: PsiPackage) extends PsiPackageImpl(pack.getManager.asI
     Option(tuple._1)
   }
 
-  override def getParentPackage: PsiPackage = {
+  override def getParentPackage: PsiPackageImpl = {
     val myQualifiedName = getQualifiedName
     if (myQualifiedName.length == 0) return null
     val lastDot: Int = myQualifiedName.lastIndexOf('.')

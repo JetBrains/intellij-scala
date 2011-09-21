@@ -142,7 +142,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   }
   
   object Expression {
-    def unapply(e: ScExpression) = e.toOption.map(_.getText)
+    def unapply(e: ScExpression) = toObjectExt(e).toOption.map(_.getText)
   }
   
   object Parameter {

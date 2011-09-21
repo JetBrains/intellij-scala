@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import javax.swing.Icon
 import com.intellij.util.ui.EmptyIcon
-import com.intellij.util.{Consumer, Icons}
+import com.intellij.util.{PlatformIcons, Consumer}
 import com.intellij.codeInsight.lookup.{LookupElement, Lookup, LookupElementAction, LookupActionProvider}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScalaLookupObject
@@ -24,7 +24,7 @@ class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
     val shouldImport = element.getUserData(ResolveUtils.shouldImportKey)
     if (shouldImport == null) return
 
-    val checkIcon: Icon = Icons.CHECK_ICON
+    val checkIcon: Icon = PlatformIcons.CHECK_ICON
     val icon: Icon =
       if (!shouldImport.booleanValue()) checkIcon
       else new EmptyIcon(checkIcon.getIconWidth, checkIcon.getIconHeight)

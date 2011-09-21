@@ -40,6 +40,10 @@ import psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClau
  */
 
 class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScArgumentExprList, Any, ScExpression] {
+  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+    java.util.Collections.singleton(classOf[PsiMethod])
+  }
+
   def getParameterCloseChars: String = "{},);\n"
 
   def couldShowInLookup: Boolean = true

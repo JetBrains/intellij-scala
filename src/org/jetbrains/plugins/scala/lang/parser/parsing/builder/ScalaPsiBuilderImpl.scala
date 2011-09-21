@@ -8,13 +8,14 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import com.intellij.lang.impl.PsiBuilderAdapter
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
 class ScalaPsiBuilderImpl(builder: PsiBuilder)
-  extends JavaParserUtil.PsiBuilderAdapter(builder) with ScalaPsiBuilder {
+  extends PsiBuilderAdapter(builder) with ScalaPsiBuilder {
   private final val newlinesEnabled: Stack[Boolean] = new Stack[Boolean]
 
   def newlineBeforeCurrentToken: Boolean = {

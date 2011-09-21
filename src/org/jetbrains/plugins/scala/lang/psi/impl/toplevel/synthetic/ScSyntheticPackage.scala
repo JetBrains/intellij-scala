@@ -46,7 +46,7 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   def getModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
   def hasModifierProperty(s: String) = false
   def getAnnotationList = null
-  def getName = name
+  override def getName = name
   def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
   override def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
   override def getContainingFile = SyntheticClasses.get(manager.getProject).file

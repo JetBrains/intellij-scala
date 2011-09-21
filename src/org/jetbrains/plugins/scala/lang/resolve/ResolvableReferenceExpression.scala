@@ -13,6 +13,7 @@ import psi.types.Compatibility.Expression
 import psi.api.base.types.{ScTypeElement, ScParameterizedTypeElement}
 import psi.api.base.{ScPrimaryConstructor, ScConstructor}
 import com.intellij.psi._
+import impl.source.resolve.ResolveCache
 import psi.ScalaPsiUtil
 import collection.mutable.ArrayBuffer
 import psi.fake.FakePsiMethod
@@ -31,7 +32,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
   def multiResolve(incomplete: Boolean) = {
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
+    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
   }
 
   def shapeResolve: Array[ResolveResult] = {

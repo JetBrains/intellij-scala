@@ -14,11 +14,11 @@ import elements.ScTemplateDefinitionElementType
 import java.util.ArrayList
 import psi.impl.toplevel.templates.ScExtendsBlockImpl
 import com.intellij.util.indexing.FileBasedIndex
-import com.intellij.psi.util.{PsiUtilBase, PsiUtil}
 import com.intellij.openapi.diagnostic.Logger
 import api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition, ScMember}
 import collection.mutable.{HashSet, ArrayBuffer}
 import api.expr.ScAnnotation
+import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -57,7 +57,7 @@ object ScalaStubsUtil {
     element match {
       case x: ScExtendsBlockImpl => return true
       case _ => {
-        val faultyContainer = PsiUtilBase.getVirtualFile(element)
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)
@@ -71,7 +71,7 @@ object ScalaStubsUtil {
     element match {
       case x: ScAnnotation => return true
       case _ => {
-        val faultyContainer = PsiUtilBase.getVirtualFile(element)
+        val faultyContainer = PsiUtilCore.getVirtualFile(element)
         LOG.error("Wrong Psi in Psi list: " + faultyContainer)
         if (faultyContainer != null && faultyContainer.isValid) {
           FileBasedIndex.getInstance.requestReindex(faultyContainer)

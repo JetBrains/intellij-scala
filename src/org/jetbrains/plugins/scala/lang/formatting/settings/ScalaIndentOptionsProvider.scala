@@ -5,9 +5,9 @@ package settings
 
 import com.intellij.application.options.{SmartIndentOptionsEditor, IndentOptionsEditor}
 import com.intellij.openapi.fileTypes.FileType
-import com.intellij.psi.codeStyle.CodeStyleSettings.IndentOptions
 import com.intellij.psi.codeStyle.{CodeStyleSettings, FileTypeIndentOptionsProvider}
 import com.intellij.psi.PsiFile
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
 
 /**
  * @author ilyas
@@ -19,7 +19,7 @@ class ScalaIndentOptionsProvider extends FileTypeIndentOptionsProvider {
   def createOptionsEditor: IndentOptionsEditor = new SmartIndentOptionsEditor
 
   def createIndentOptions: IndentOptions = {
-    val indentOptions = new CodeStyleSettings.IndentOptions
+    val indentOptions = new IndentOptions
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 2

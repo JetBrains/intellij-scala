@@ -28,14 +28,14 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     file.isInstanceOf[ScalaFile]
   }
 
-  override def visit(element: PsiElement, holder: HighlightInfoHolder) {
-    myHolder = holder
+  def visit(element: PsiElement) {
     runAnnotator(element)
   }
 
-  override def analyze(action: Runnable, updateWholeFile: Boolean, file: PsiFile): Boolean = {
+  def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
     var success = true
     try {
+      myHolder = holder
       if (updateWholeFile) {
         val project: Project = file.getProject
         val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)

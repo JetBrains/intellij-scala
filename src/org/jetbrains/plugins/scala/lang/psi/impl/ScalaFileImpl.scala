@@ -41,6 +41,7 @@ import caches.CachesUtil
 import util.PsiTreeUtil
 import lang.resolve.ResolveUtils
 import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.openapi.module.ModuleManager
 import api.toplevel.typedef.ScObject
 
@@ -440,9 +441,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       val vFile = getOriginalFile.getVirtualFile
       if (vFile == null) GlobalSearchScope.allScope(getProject)
       else {
-        // Same casts as found in GroovyFileImpl
-        val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager.asInstanceOf[FileManagerImpl]
-        fileManager.getDefaultResolveScope(vFile)
+        val resolveScopeManager = ResolveScopeManager.getInstance(getProject)
+        resolveScopeManager.getDefaultResolveScope(vFile)
       }
     }
     if (SbtFile.isSbtFile(this)) {

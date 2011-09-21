@@ -13,7 +13,7 @@ import java.io.File
 object ScalaFacet {
   val Id = new FacetTypeId[ScalaFacet]("scala")
   val Type = new ScalaFacetType
-  
+
   def isPresentIn(module: Module) =  findIn(module).isDefined
   
   def findIn(module: Module): Option[ScalaFacet] =
@@ -30,7 +30,7 @@ object ScalaFacet {
   def createIn(module: Module)(action: ScalaFacet => Unit) {
     val facetManager = FacetManager.getInstance(module)
     val model = facetManager.createModifiableModel
-    val facet = facetManager.createFacet(ScalaFacet.Type, "Scala", null)
+    val facet = facetManager.createFacet[ScalaFacet, ScalaFacetConfiguration](ScalaFacet.Type, "Scala", null)
     action(facet)
     model.addFacet(facet)
     model.commit()
@@ -39,7 +39,7 @@ object ScalaFacet {
 
 class ScalaFacet(module: Module, name: String, 
                  configuration: ScalaFacetConfiguration, underlyingFacet: Facet[_ <: FacetConfiguration]) 
-        extends Facet[ScalaFacetConfiguration](ScalaFacet.Type, module, name, configuration, underlyingFacet) {
+        extends ScalaFacetAdapter(module, name, configuration, underlyingFacet) {
   
   def compiler = Libraries.findBy(compilerLibraryId, module.getProject)
           .map(new CompilerLibraryData(_))
