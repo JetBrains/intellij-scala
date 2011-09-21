@@ -11,7 +11,6 @@ import parser.ScalaElementTypes
 import com.intellij.util.ReflectionCache
 import java.util.{List, ArrayList}
 import api.statements.{ScFunction, ScVariable, ScValue}
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiModifiableCodeBlock, PsiElement}
 
 /**
@@ -32,7 +31,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       if (ReflectionCache.isInstance(cur, aClass)) result.add(cur.asInstanceOf[T])
       cur = cur.getNextSibling
     }
-    return result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
+    result.toArray[T](java.lang.reflect.Array.newInstance(aClass, result.size).asInstanceOf[Array[T]])
   }
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): T = {
@@ -41,7 +40,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       if (ReflectionCache.isInstance(cur, aClass)) return cur.asInstanceOf[T]
       cur = cur.getNextSibling
     }
-    return null
+    null
   }
 
   def shouldChangeModificationCount(place: PsiElement): Boolean = {
@@ -62,6 +61,6 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       }
       parent = parent.getParent
     }
-    return false
+    false
   }
 }

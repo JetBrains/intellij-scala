@@ -268,7 +268,7 @@ object TypeDefinitionMembers {
 
       template match {
         case obj: ScObject =>
-          for (method <- obj.objectSyntheticMembers if method.getParameterList.getParametersCount == 0) {
+          for (method <- obj.objectSyntheticMembers) {
             val sig = new PhysicalSignature(method, subst)
             addSignature(sig)
           }
@@ -378,10 +378,10 @@ object TypeDefinitionMembers {
 
     import collection.mutable.HashMap
     def namedSignaturesMap[T <: MixinNodes](key: Key[CachedValue[JMap[String, List[T#Node]]]],
-                                            signatures: HashMap[Signature, T#Node]): JMap[String, List[T#Node]] = {
-      def inner: JMap[String, List[T#Node]] = {
+                                            signatures: PsiClass => HashMap[Signature, T#Node]): JMap[String, List[T#Node]] = {
+      def inner(clazz: PsiClass): JMap[String, List[T#Node]] = {
         val map: JMap[String, List[T#Node]] = new THashMap[String, List[T#Node]]()
-        for (v <- signatures) {
+        for (v <- signatures(clazz)) {
           val name = convertMemberName(v._1.name)
           val l: List[T#Node] = map.get(name)
           map.put(name, if (l == null) v._2 :: Nil else l :+ v._2)
@@ -399,7 +399,7 @@ object TypeDefinitionMembers {
         }
         map
       }
-      CachesUtil.get(clazz, key, new MyProvider(clazz, {c: PsiClass => inner})(dep_item))
+      CachesUtil.get(clazz, key, new MyProvider(clazz, {c: PsiClass => inner(c)})(dep_item))
     }
 
     def namedTypesMap: JMap[String, List[TypeNodes.Node]] = {
@@ -419,8 +419,8 @@ object TypeDefinitionMembers {
     if (processor.isInstanceOf[ImplicitProcessor] && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
-      namedSignaturesMap(signaturesMapKey, getSignatures(clazz)), getParameterlessSignatures(clazz),
-      namedSignaturesMap(parameterlessMapKey, getParameterlessSignatures(clazz)), getTypes(clazz), namedTypesMap,
+      namedSignaturesMap(signaturesMapKey, getSignatures), getParameterlessSignatures(clazz),
+      namedSignaturesMap(parameterlessMapKey, getParameterlessSignatures), getTypes(clazz), namedTypesMap,
       clazz.isInstanceOf[ScObject], signaturesForJava, syntheticMethods)) return false
 
     if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
