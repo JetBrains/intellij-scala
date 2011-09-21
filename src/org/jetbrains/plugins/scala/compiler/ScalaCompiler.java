@@ -86,8 +86,9 @@ public class ScalaCompiler implements TranslatingCompiler {
   }
 
   public void compile(CompileContext context, Chunk<Module> moduleChunk, VirtualFile[] files, OutputSink sink) {
-//    System.out.println("Using fsc: " + myFsc);
-    if (myFsc) {
+    ScalacSettings settings = ScalacSettings.getInstance(context.getProject());
+
+    if (myFsc && settings.INTERNAL_SERVER) {
       CompileServerLauncher server = myProject.getComponent(CompileServerLauncher.class);
       server.init();
     }

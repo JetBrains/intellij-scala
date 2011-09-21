@@ -13,6 +13,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.util.Consumer
 import com.intellij.notification.{NotificationType, NotificationDisplayType, Notifications, Notification}
 import icons.Icons
+import compiler.ScalacSettings
 
 /**
  * Pavel Fatin
@@ -44,8 +45,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   def getComponentName = getClass.getSimpleName
 
-  private def configureWidget() {
-    (applicable || running, installed) match {
+  def configureWidget() {
+    (applicable, installed) match {
       case (true, true) => // do nothing
       case (true, false) => {
         bar.addWidget(Widget, "before Position", project)
@@ -63,7 +64,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     bar.updateWidget(Widget.ID)
   }
 
-  private def applicable = ScalaFacet.isPresentIn(project)
+  private def applicable = running ||
+          ScalacSettings.getInstance(project).INTERNAL_SERVER && ScalaFacet.findIn(project).exists(_.fsc)
 
   private def running = launcher.running
 
@@ -114,6 +116,10 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     }
 
     override def facetRemoved(facet: ScalaFacet) {
+      configureWidget()
+    }
+
+    override def facetConfigurationChanged(facet: ScalaFacet) {
       configureWidget()
     }
   }
