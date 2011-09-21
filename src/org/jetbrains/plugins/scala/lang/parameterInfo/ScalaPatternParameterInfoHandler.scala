@@ -37,6 +37,10 @@ import result.TypingContext
  */
 
 class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern] {
+  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+    java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
+  }
+
   def getParameterCloseChars: String = "{},);\n"
 
   def couldShowInLookup: Boolean = true

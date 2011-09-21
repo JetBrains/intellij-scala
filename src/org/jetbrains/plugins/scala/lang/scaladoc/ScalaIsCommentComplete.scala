@@ -6,6 +6,7 @@ import com.intellij.lang.{LanguageParserDefinitions, Language, CodeDocumentation
 import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, TypedHandler, QuoteHandler, CommentCompleteHandler}
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiErrorElement, PsiElement, PsiFile, PsiComment}
+import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler
 
 /**
   * @author Alexander Podkhalyuzin
@@ -27,7 +28,7 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
     val lexer: Lexer = LanguageParserDefinitions.INSTANCE.forLanguage(language).createLexer(containingFile.getProject)
     val commentPrefix: String = if (docComment) commenter.getDocumentationCommentPrefix else commenter.getBlockCommentPrefix
     lexer.start(commentText, if (commentPrefix eq null) 0 else commentPrefix.length, commentText.length)
-    val fileTypeHandler: QuoteHandler = TypedHandler.getQuoteHandler(containingFile)
+    val fileTypeHandler: QuoteHandler = new ScalaQuoteHandler //TypedHandler.getQuoteHandler(containingFile)
     val javaLikeQuoteHandler: JavaLikeQuoteHandler =
       if (fileTypeHandler.isInstanceOf[JavaLikeQuoteHandler])
         fileTypeHandler.asInstanceOf[JavaLikeQuoteHandler]

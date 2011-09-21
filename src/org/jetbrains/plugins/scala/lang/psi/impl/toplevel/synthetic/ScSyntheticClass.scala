@@ -17,7 +17,6 @@ import types._
 import nonvalue.Parameter
 import resolve._
 
-import com.intellij.util.IncorrectOperationException
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 
@@ -32,10 +31,11 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 import api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import api.ScalaFile
 import collection.Seq
+import com.intellij.util.{ReflectionCache, IncorrectOperationException}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
 extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
-  def getName = name
+  override def getName = name
   override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
   override def copy = throw new IncorrectOperationException("nonphysical element")
@@ -44,8 +44,6 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
 
   def nameId: PsiElement = null
   override def getNameIdentifier: PsiIdentifier = null
-  protected def findChildrenByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = Array[ScalaPsiElement]().asInstanceOf[Array[T]]
-  protected def findChildByClass[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = null
 }
 
 class ScSyntheticTypeParameter(manager: PsiManager, override val name: String, val owner: ScFun)
@@ -73,9 +71,9 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
   def getOwner = null
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
-    findChildrenByClass(clazz)
+    findChildrenByClass[T](clazz)
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass(clazz)
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
@@ -159,9 +157,18 @@ extends SyntheticNamedElement(manager, name) with ScFun {
 
   override def toString = "Synthetic method"
 
-  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = findChildrenByClass(clazz)
+  protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = {
+    findChildrenByClass[T](clazz)
+  }
 
-  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass(clazz)
+  protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = {
+    var cur: PsiElement = getFirstChild
+    while (cur != null) {
+      if (ReflectionCache.isInstance(cur, clazz)) return cur.asInstanceOf[T]
+      cur = cur.getNextSibling
+    }
+    null
+  }
 }
 
 class ScSyntheticValue(manager: PsiManager, val name: String, val tp: ScType) extends SyntheticNamedElement(manager, name) {

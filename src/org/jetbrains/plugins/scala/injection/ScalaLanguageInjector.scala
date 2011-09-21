@@ -60,7 +60,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def injectUsingAnnotation(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
-    Configuration.getInstance().getDfaOption match {
+    Configuration.getInstance.getAdvancedConfiguration.getDfaOption match {
       case Configuration.DfaOption.OFF => return false
       case _ =>
     }
@@ -69,7 +69,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     val annotationOwner = annotationOwnerFor(expression) //.orElse(implicitAnnotationOwnerFor(literal))
 
     val annotation = annotationOwner.flatMap(_.getAnnotations.find(
-      _.getQualifiedName == myInjectionConfiguration.getLanguageAnnotationClass))
+      _.getQualifiedName == myInjectionConfiguration.getAdvancedConfiguration.getLanguageAnnotationClass))
 
     val languageId = annotation.flatMap(readAttribute(_, "value"))
     val language = languageId.flatMap(it => InjectedLanguage.findLanguageById(it).toOption)

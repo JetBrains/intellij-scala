@@ -11,7 +11,7 @@ import psi.stubs.ScModifiersStub
 import stubs.{StubElement, NamedStub}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
-import util.PsiUtilBase
+import util.PsiUtilCore
 import com.intellij.util.{IncorrectOperationException, ArrayFactory}
 import com.intellij.util.indexing.FileBasedIndex
 import psi.impl.ScalaPsiElementFactory
@@ -30,7 +30,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
           if (array.length == 0) {
-            val faultyContainer: VirtualFile = PsiUtilBase.getVirtualFile(this)
+            val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
             LOG.error("Wrong Psi in Psi list: " + faultyContainer)
             if (faultyContainer != null && faultyContainer.isValid) {
               FileBasedIndex.getInstance.requestReindex(faultyContainer)

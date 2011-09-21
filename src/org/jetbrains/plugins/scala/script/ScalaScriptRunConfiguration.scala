@@ -129,7 +129,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
         params.getProgramParametersList.add("-classpath")
         params.getProgramParametersList.add(getClassPath(module))
-        params.getProgramParametersList.addAll(getConsoleArgs.trim.split("""\s+"""))
+        params.getProgramParametersList.addAll(getConsoleArgs.trim.split("""\s+"""): _*)
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
         return params

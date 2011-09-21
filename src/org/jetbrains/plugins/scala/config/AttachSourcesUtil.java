@@ -23,6 +23,7 @@ import com.intellij.util.containers.HashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +54,6 @@ public class AttachSourcesUtil {
       return ProjectBundle.message("library.attach.sources.action.busy.text");
     }
 
-    @Override
     public ActionCallback perform(List<LibraryOrderEntry> orderEntriesContainingFile) {
       final List<Library.ModifiableModel> modelsToCommit = new ArrayList<Library.ModifiableModel>();
       for (LibraryOrderEntry orderEntry : orderEntriesContainingFile) {
@@ -89,10 +89,12 @@ public class AttachSourcesUtil {
   }
 
   public static class ChooseAndAttachSourcesAction implements AttachSourcesProvider.AttachSourcesAction {
-    private Project myProject;
+    private final Project myProject;
+    private final JComponent myParentComponent;
 
-    public ChooseAndAttachSourcesAction(Project project) {
+    public ChooseAndAttachSourcesAction(Project project, JComponent parentComponent) {
       myProject = project;
+      myParentComponent = parentComponent;
     }
 
     public String getName() {
@@ -110,7 +112,7 @@ public class AttachSourcesUtil {
       final Library firstLibrary = libraries.get(0).getLibrary();
       VirtualFile[] roots = firstLibrary != null ? firstLibrary.getFiles(OrderRootType.CLASSES) : VirtualFile.EMPTY_ARRAY;
       VirtualFile[] candidates = FileChooser.chooseFiles(myProject, descriptor, roots.length == 0 ? null : roots[0]);
-      final VirtualFile[] files = PathUIUtils.scanAndSelectDetectedJavaSourceRoots(myProject, candidates);
+      final VirtualFile[] files = PathUIUtils.scanAndSelectDetectedJavaSourceRoots(myParentComponent, candidates);
       if (files.length == 0) {
         return new ActionCallback.Rejected();
       }

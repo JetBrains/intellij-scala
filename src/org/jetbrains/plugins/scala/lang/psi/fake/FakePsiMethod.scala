@@ -113,7 +113,7 @@ class FakePsiMethod(
   def getHierarchicalMethodSignature: HierarchicalMethodSignature =
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
 
-  def getName: String = name
+  override def getName: String = name
 
   def getMethodReceiver: PsiMethodReceiver = null
 
@@ -169,7 +169,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, parameter: Param
 
   def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def getName: String = name
+  override def getName: String = name
 
   override def copy: PsiElement = new FakePsiParameter(manager, language, parameter, name)
 

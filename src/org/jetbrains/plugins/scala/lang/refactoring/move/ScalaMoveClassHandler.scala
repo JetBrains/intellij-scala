@@ -5,6 +5,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import java.util.Collection
 import com.intellij.usageView.UsageInfo
+import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFilesOrDirectoriesUtil
 
 /**
  * Pavel.Fatin, 12.05.2010
@@ -31,8 +32,7 @@ class ScalaMoveClassHandler extends MoveClassHandler {
 
   private def moveSingular(aClass: PsiClass, file: ScalaFile,
                            newDirectory: PsiDirectory, newPackage: PsiPackage): PsiClass = {
-
-    aClass.getManager.moveFile(file, newDirectory)
+    MoveFilesOrDirectoriesUtil.doMoveFile(file, newDirectory)
 
     if (newPackage != null) {
       file.setPackageName(newPackage.getQualifiedName)

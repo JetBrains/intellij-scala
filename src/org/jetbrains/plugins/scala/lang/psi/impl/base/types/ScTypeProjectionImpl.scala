@@ -62,7 +62,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   def getKinds(incomplete: Boolean, completion: Boolean) = StdKinds.stableClass
 
   def multiResolve(incomplete: Boolean) =
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, MyResolver, true, incomplete)
+    ResolveCache.getInstance(getProject).resolveWithCaching(this, MyResolver, true, incomplete)
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null

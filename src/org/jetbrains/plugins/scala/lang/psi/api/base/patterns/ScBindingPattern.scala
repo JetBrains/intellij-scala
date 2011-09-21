@@ -6,7 +6,7 @@ package base
 package patterns
 
 import com.intellij.navigation.NavigationItem
-import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.{ResolveScopeManager, PsiManagerEx}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import statements.{ScFunctionDefinition, ScVariable}
@@ -20,7 +20,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   override def getUseScope = {
     val func = PsiTreeUtil.getContextOfType(this, true, classOf[ScFunctionDefinition])
-    if (func != null) new LocalSearchScope(func) else getManager.asInstanceOf[PsiManagerEx].getFileManager.getUseScope(this)
+    if (func != null) new LocalSearchScope(func) else ResolveScopeManager.getElementUseScope(this)
   }
 
   protected def getEnclosingVariable = {

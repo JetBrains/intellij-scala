@@ -7,10 +7,12 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.JavaTestFramework
-import com.intellij.psi.{PsiMethod, PsiClass, JavaPsiFacade}
 import icons.Icons
+import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
 
 class Specs2TestFramework extends JavaTestFramework {
+  def isTestMethod(element: PsiElement): Boolean = false
+
   def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
   def getTearDownMethodFileTemplateDescriptor: FileTemplateDescriptor = null

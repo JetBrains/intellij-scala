@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import com.intellij.psi.util.{CachedValueProvider, CachedValue}
+import com.intellij.psi.util.{CachedValuesManager, CachedValueProvider, CachedValue}
 import lang.psi.types.result.TypeResult
 import com.intellij.psi._
 import lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -81,7 +81,7 @@ object CachesUtil {
                                                         defaultValue: => T): T = {
     var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
-      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
+      val manager = CachedValuesManager.getManager(e.getProject)
       computed = manager.createCachedValue(new CachedValueProvider[T] {
         def compute(): Result[T] = {
           val guard = getRecursionGuard(key.toString)
@@ -104,7 +104,7 @@ object CachesUtil {
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
-      val manager = PsiManager.getInstance(e.getProject).getCachedValuesManager
+      val manager = CachedValuesManager.getManager(e.getProject)
       computed = manager.createCachedValue(provider, false)
       e.putUserData(key, computed)
     }

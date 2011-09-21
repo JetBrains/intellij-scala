@@ -16,6 +16,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.LightIdeaTestCase;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
@@ -68,7 +69,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
-  public CodeStyleSettings.IndentOptions getIndentOptions() {
+  public CommonCodeStyleSettings.IndentOptions getIndentOptions() {
     return getSettings().getIndentOptions(org.jetbrains.plugins.scala.ScalaFileType.SCALA_FILE_TYPE);
   }
 
@@ -175,7 +176,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
           public void run() {
-            ((DocumentEx)doc).stripTrailingSpaces(false);
+            ((DocumentImpl)doc).stripTrailingSpaces();
           }
         });
       }

@@ -50,7 +50,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
                 return true
               }
             }
-            val helper: PsiSearchHelper = PsiManager.getInstance(vals.getProject).getSearchHelper
+            val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(vals.getProject)
             helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
           }
           case _ =>

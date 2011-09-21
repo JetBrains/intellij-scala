@@ -164,7 +164,7 @@ public abstract class ScalaUtils {
 
   public static boolean isSuitableModule(Module module) {
     if (module == null) return false;
-    ModuleType moduleType = module.getModuleType();
+    ModuleType moduleType = ModuleType.get(module);
     return moduleType instanceof JavaModuleType || moduleType.getId().equals(PLUGIN_MODULE_ID);
   }
 

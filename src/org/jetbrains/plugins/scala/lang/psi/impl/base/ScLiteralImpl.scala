@@ -26,6 +26,8 @@ import com.intellij.openapi.extensions.Extensions
 */
 
 class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLiteral with ContributedReferenceHost {
+  def isValidHost: Boolean = getValue.isInstanceOf[String]
+
   override def toString: String = "Literal"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {

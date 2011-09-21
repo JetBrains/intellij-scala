@@ -17,6 +17,7 @@ import com.intellij.psi.impl._
 import com.intellij.psi.PsiElement
 import result.TypingContext
 import com.intellij.openapi.progress.ProgressManager
+import source.resolve.ResolveCache
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
@@ -29,7 +30,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
   def multiResolve(incomplete: Boolean) = {
-    getManager.asInstanceOf[PsiManagerEx].getResolveCache.resolveWithCaching(this, Resolver, true, incomplete)
+    ResolveCache.getInstance(getProject).resolveWithCaching(this, Resolver, true, incomplete)
   }
 
   def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {

@@ -53,6 +53,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {
+    import extensions._
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getUpperBoundTypeElement.toOption
@@ -67,6 +68,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
+    import extensions._
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].getLowerBoundTypeElement.toOption

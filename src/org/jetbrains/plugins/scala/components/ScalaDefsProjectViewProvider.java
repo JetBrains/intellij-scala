@@ -21,6 +21,7 @@ import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassOwner;
@@ -99,7 +100,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
     protected void updateImpl(PresentationData data) {
       super.updateImpl(data);
       data.setPresentableText(getValue().getName());
-      data.setIcons(getValue().getViewProvider().getVirtualFile().getIcon());
+      data.setIcons(getValue().getIcon(Iconable.ICON_FLAG_READ_STATUS));
     }
   }
 }

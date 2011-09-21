@@ -39,6 +39,6 @@ extends SingleRootFileViewProvider(manager, file, physical) {
 
   override def getBaseLanguage = ScalaFileType.SCALA_FILE_TYPE.getLanguage
 
-  override def createCopy(copy: LightVirtualFile): SingleRootFileViewProvider =
+  override def createCopy(copy: VirtualFile): SingleRootFileViewProvider =
     new ScClassFileViewProvider(getManager, copy, false)
 }

@@ -29,6 +29,10 @@ import com.intellij.psi.{PsiMethod, PsiType, PsiTypeParameter, PsiClass}
  */
 
 class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ScTypeElement] {
+  def getArgListStopSearchClasses: Set[_ <: Class[_]] = {
+    java.util.Collections.singleton(classOf[PsiMethod])//todo: ?
+  }
+
   def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
   def getActualParameters(o: ScTypeArgs): Array[ScTypeElement] = o.typeArgs.toArray
