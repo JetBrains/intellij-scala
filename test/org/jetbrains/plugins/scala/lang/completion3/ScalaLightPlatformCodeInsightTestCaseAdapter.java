@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.completion3;
 
 import com.intellij.ide.startup.impl.StartupManagerImpl;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -110,7 +112,12 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   protected void tearDown() throws Exception {
     super.tearDown();
     if (rootPath() != null) {
-      closeAndDeleteProject();
+      new WriteAction<Object>() {
+        @Override
+        protected void run(Result<Object> objectResult) throws Throwable {
+          closeAndDeleteProject();
+        }
+      }.execute().throwException();
     }
   }
 }
