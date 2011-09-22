@@ -69,10 +69,25 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
 
     patchedObject match {
       case ScalaLookupObject(named: PsiNamedElement, isNamed, _) if isNamed => { //some is impossible here
+        val shouldAddEqualsSign = element.getParent match {
+          case ref: ScReferenceExpression =>
+            ref.getParent match {
+              case ass: ScAssignStmt if ass.getLExpression == ref =>
+                ass.getParent match {
+                  case args: ScArgumentExprList => false
+                  case _ => true
+                }
+              case _ => true
+            }
+          case _ => true //should be impossible
+        }
         context.setAddCompletionChar(false)
-        document.insertString(endOffset, " = ")
-        endOffset += 3
-        editor.getCaretModel.moveToOffset(endOffset)
+        if (shouldAddEqualsSign) {
+          document.insertString(endOffset, " = ")
+          endOffset += 3
+          editor.getCaretModel.moveToOffset(endOffset)
+        }
+        return
       }
       case ScalaLookupObject(_: PsiMethod, _, true) => moveCaretIfNeeded()
       case ScalaLookupObject(_: ScFun, _, true) => moveCaretIfNeeded()
