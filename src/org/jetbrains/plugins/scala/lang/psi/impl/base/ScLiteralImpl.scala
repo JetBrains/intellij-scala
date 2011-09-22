@@ -160,7 +160,6 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
   }
 
   @NotNull override def getReferences: Array[PsiReference] = {
-    val exts = Extensions.getExtensions(PsiReferenceContributor.EP_NAME)
     PsiReferenceService.getService.getContributedReferences(this)
   }
 }
