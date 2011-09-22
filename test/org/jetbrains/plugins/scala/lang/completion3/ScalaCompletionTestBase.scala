@@ -19,7 +19,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   protected def complete(time: Int = 1, completionType: CompletionType = CompletionType.BASIC) = {
-    new CodeCompletionHandlerBase(completionType).
+    new CodeCompletionHandlerBase(completionType, false, false, true).
       invokeCompletion(getProjectAdapter, getEditorAdapter, time, false)
     val lookup: LookupImpl = LookupManager.getActiveLookup(getEditorAdapter).asInstanceOf[LookupImpl]
     (if (lookup == null) null else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY),
