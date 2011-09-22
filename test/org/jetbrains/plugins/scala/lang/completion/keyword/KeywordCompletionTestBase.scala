@@ -35,7 +35,7 @@ abstract class KeywordCompletionTestBase extends ScalaPsiTestCase {
     val fileEditorManager = FileEditorManager.getInstance(myProject)
     val editor = fileEditorManager.openTextEditor(new OpenFileDescriptor(myProject, file, offset), false)
     val myType = CompletionType.BASIC
-    new CodeCompletionHandlerBase(myType, true, false, true).invoke(myProject, editor, scalaFile)
+    new CodeCompletionHandlerBase(myType, false, false, true).invoke(myProject, editor, scalaFile)
     var lookup: LookupImpl = LookupManager.getActiveLookup(editor).asInstanceOf[LookupImpl]
     val items: Array[String] =
       if (lookup == null) Array.empty
