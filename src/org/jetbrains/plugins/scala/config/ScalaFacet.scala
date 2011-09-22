@@ -25,7 +25,9 @@ object ScalaFacet {
 
   def isPresentIn(project: Project): Boolean = !findModulesIn(project).isEmpty
 
-  def findFirstIn(project: Project): Option[ScalaFacet] = ScalaFacet.findIn(ScalaFacet.findModulesIn(project)).headOption
+  def findIn(project: Project): Seq[ScalaFacet] = ScalaFacet.findIn(ScalaFacet.findModulesIn(project))
+
+  def findFirstIn(project: Project): Option[ScalaFacet] = findIn(project).headOption
   
   def createIn(module: Module)(action: ScalaFacet => Unit) {
     val facetManager = FacetManager.getInstance(module)
