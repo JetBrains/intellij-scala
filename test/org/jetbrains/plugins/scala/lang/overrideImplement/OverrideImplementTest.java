@@ -17,7 +17,6 @@ import junit.framework.Test;
 import org.jetbrains.plugins.scala.ScalaLoader;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaIndentOptionsProvider;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;

@@ -24,7 +24,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def createLexer(project: Project) = {
-    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).
+      getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
@@ -43,7 +44,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
   def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
 
   def createFile(fileViewProvider: FileViewProvider): PsiFile = {
-    return new ScalaFileImpl(fileViewProvider);
+    new ScalaFileImpl(fileViewProvider);
   }
 
   override def spaceExistanceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {

@@ -3,9 +3,12 @@ package lang
 package formatting
 package settings
 
-import com.intellij.psi.codeStyle.{CodeStyleSettings, CustomCodeStyleSettings, CodeStyleSettingsProvider}
 import com.intellij.openapi.options.Configurable
 import java.lang.String
+import com.intellij.application.options.{CodeStyleAbstractPanel, CodeStyleAbstractConfigurable}
+import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CustomCodeStyleSettings, CodeStyleSettingsProvider}
+import com.intellij.util.PlatformUtils
+import settings.ScalaCodeStyleSettings
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,13 +16,25 @@ import java.lang.String
  */
  
 class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
-  override def createCustomSettings(settings: CodeStyleSettings): CustomCodeStyleSettings = {
-    new ScalaCodeStyleSettings(settings)
-  }
-
   override def getConfigurableDisplayName: String = ScalaBundle.message("title.scala.settings")
 
   def createSettingsPage(settings: CodeStyleSettings, originalSettings: CodeStyleSettings): Configurable = {
-    new ScalaFormatConfigurable(settings, originalSettings)
+    new CodeStyleAbstractConfigurable(settings, originalSettings, "Scala") {
+      protected def createPanel(settings: CodeStyleSettings): CodeStyleAbstractPanel = {
+        new ScalaTabbedCodeStylePanel(getCurrentSettings, settings)
+      }
+
+      def getHelpTopic: String = {
+        null
+      }
+    }
   }
+
+  override def getPriority: DisplayPriority = {
+    DisplayPriority.COMMON_SETTINGS
+  }
+
+  override def getLanguage = ScalaFileType.SCALA_LANGUAGE
+
+  override def createCustomSettings(settings: CodeStyleSettings) = new ScalaCodeStyleSettings(settings)
 }

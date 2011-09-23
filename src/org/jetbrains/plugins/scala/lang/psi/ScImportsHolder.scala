@@ -180,8 +180,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     val simpleName = path.substring(path.lastIndexOf('.') + 1)
     simpleName +=: selectors
     
-    if (!hasRenamedImport &&
-            (selectors.exists(_ == "_") || selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
+    if (!hasRenamedImport && (selectors.exists(_ == "_") ||
+      selectors.length >= ScalaPsiUtil.getSettings(getProject).CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND)) {
       selectors.clear()
       selectors += "_"
       isPlaceHolderImport = true

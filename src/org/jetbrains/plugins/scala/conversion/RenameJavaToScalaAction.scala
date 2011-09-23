@@ -52,17 +52,20 @@ class RenameJavaToScalaAction extends AnAction {
             document.insertString(0, newText)
             PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
             val manager: CodeStyleManager = CodeStyleManager.getInstance(file.getProject)
-            val settings = CodeStyleSettingsManager.getSettings(file.getProject)
+            val settings = CodeStyleSettingsManager.getSettings(file.getProject).getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
             val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
             val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
             val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
             settings.KEEP_BLANK_LINES_IN_CODE = 0
             settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
             settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-            manager.reformatText(file, 0, file.getTextLength)
-            settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-            settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-            settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+            try {
+              manager.reformatText(file, 0, file.getTextLength)
+            } finally {
+              settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
+              settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
+              settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+            }
             file.navigate(true)
           }
         }, jFile.getProject, "Convert Java to Scala")

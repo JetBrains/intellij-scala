@@ -4,9 +4,10 @@ import java.lang.String
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import com.intellij.psi.codeStyle.{CommonCodeStyleSettings, CodeStyleSettingsCustomizable, LanguageCodeStyleSettingsProvider}
 import collection.mutable.ArrayBuffer
 import com.intellij.openapi.application.ApplicationBundle
+import com.intellij.psi.codeStyle.{DisplayPriority, CommonCodeStyleSettings, CodeStyleSettingsCustomizable, LanguageCodeStyleSettingsProvider}
+import com.intellij.application.options.SmartIndentOptionsEditor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -19,6 +20,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       case SettingsType.LANGUAGE_SPECIFIC => GENERAL_CODE_SAMPLE //todo:
       case SettingsType.SPACING_SETTINGS => GENERAL_CODE_SAMPLE //todo:
       case SettingsType.WRAPPING_AND_BRACES_SETTINGS => WRAPPING_AND_BRACES_SAMPLE
+      case _ => GENERAL_CODE_SAMPLE //todo:
     }
   }
 
@@ -156,7 +158,20 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   private val CLASS_DEFINITION = "Class definition"
   private val XML_FORMATTING = "Xml formatting"
 
-  override def getDefaultCommonSettings: CommonCodeStyleSettings = null
+  override def getDefaultCommonSettings: CommonCodeStyleSettings = {
+    val commonCodeStyleSettings: CommonCodeStyleSettings = new CommonCodeStyleSettings(getLanguage)
+    val indentOptions: CommonCodeStyleSettings.IndentOptions = commonCodeStyleSettings.initIndentOptions
+    indentOptions.INDENT_SIZE = 2
+    indentOptions.TAB_SIZE = 2
+    indentOptions.CONTINUATION_INDENT_SIZE = 2
+    commonCodeStyleSettings
+  }
+
+  override def getDisplayPriority = DisplayPriority.COMMON_SETTINGS
+
+  override def usesSharedPreview() = false
+
+  override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 
   private val GENERAL_CODE_SAMPLE =
     "class A {\n" +

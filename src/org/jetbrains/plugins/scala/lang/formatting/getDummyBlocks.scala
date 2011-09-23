@@ -34,8 +34,8 @@ object getDummyBlocks {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
-    val settings = block.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = block.getCommonSettings
+    val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScValue | _: ScVariable if settings.ALIGN_GROUP_FIELD_DECLARATIONS => {
         if (node.getTreeParent.getPsi match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }) {
@@ -166,8 +166,7 @@ object getDummyBlocks {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
-    val settings = block.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     for (val child <- children if isCorrectBlock(child)) {
       def getPrevGroupNode(node: ASTNode): ASTNode = {
         val nodePsi = node.getPsi
@@ -234,8 +233,7 @@ object getDummyBlocks {
     val children = node.getChildren(null)
     val subBlocks = new ArrayList[Block]
     var prevChild: ASTNode = null
-    val settings = block.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     for (val child <- children if isCorrectBlock(child)) {
       def getPrevGroupNode(node: ASTNode): ASTNode = {
         val nodePsi = node.getPsi
@@ -378,8 +376,8 @@ object getDummyBlocks {
   }
 
   private def getIfSubBlocks(node: ASTNode, block: ScalaBlock, alignment: Alignment): ArrayList[Block] = {
-    val settings = block.getSettings
-    val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = block.getCommonSettings
+    val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new ArrayList[Block]
     val firstChildNode = node.getFirstChildNode
     var child = firstChildNode
@@ -485,8 +483,9 @@ object getDummyBlocks {
     node.getText.trim().length() > 0
   }
 
-  private def mustAlignment(node: ASTNode, mySettings: CodeStyleSettings) = {
-    val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+  private def mustAlignment(node: ASTNode, s: CodeStyleSettings) = {
+    val mySettings = s.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+    val scalaSettings = s.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScXmlStartTag => true  //todo:
       case _: ScXmlEmptyTag => true   //todo:

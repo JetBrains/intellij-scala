@@ -98,7 +98,7 @@ class A
   }
 
   def testSCL2066FromDiscussion {
-    val settings = getSettings
+    val settings = getCommonSettings
     settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =
 """

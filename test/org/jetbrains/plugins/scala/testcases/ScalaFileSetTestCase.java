@@ -19,6 +19,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
+import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
@@ -29,7 +30,7 @@ import org.jetbrains.plugins.scala.ScalaLoader;
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   protected Project myProject;
   protected Module module;
-  protected CodeStyleSettings mySettings;
+  protected CommonCodeStyleSettings mySettings;
   private IdeaProjectTestFixture fixture;
   @NonNls
   protected final static String TEMP_FILE = "temp.scala";
@@ -39,15 +40,15 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
     super(path);
   }
 
-  protected CodeStyleSettings getSettings() {
-    return CodeStyleSettingsManager.getSettings(myProject);
+  protected CommonCodeStyleSettings getSettings() {
+    return CodeStyleSettingsManager.getSettings(myProject).getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
   }
 
   protected void setSettings() {
     mySettings = getSettings();
-    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE = 2;
-    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).CONTINUATION_INDENT_SIZE = 2;
-    mySettings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).TAB_SIZE = 2;
+    mySettings.getIndentOptions().INDENT_SIZE = 2;
+    mySettings.getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+    mySettings.getIndentOptions().TAB_SIZE = 2;
   }
 
   protected void setUp() {
