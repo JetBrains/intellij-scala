@@ -112,7 +112,7 @@ object ResolveUtils {
     }
   }
 
-  def isAccessible(memb: PsiMember, place: PsiElement, checkBridge: Boolean = true): Boolean = {
+  def isAccessible(memb: PsiMember, place: PsiElement): Boolean = {
     if (place.getLanguage == StdLanguages.JAVA) {
       return JavaResolveUtil.isAccessible(memb, memb.getContainingClass, memb.getModifierList, place, null, null)
     }
@@ -130,11 +130,9 @@ object ResolveUtils {
       case _ =>
     }
 
-    if (checkBridge) {
-      member match {
-        case f: ScFunction if f.isBridge => return false
-        case _ =>
-      }
+    member match {
+      case f: ScFunction if f.isBridge => return false
+      case _ =>
     }
 
     if (member.hasModifierProperty("public")) return true
