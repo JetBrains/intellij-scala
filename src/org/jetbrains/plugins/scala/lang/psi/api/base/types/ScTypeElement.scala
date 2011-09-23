@@ -18,7 +18,6 @@ import result.{Failure, TypeResult, TypingContext, TypingContextOwner}
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
   def getType(ctx: TypingContext): TypeResult[ScType] = {
-    if (ctx.visited.size != 0) return innerType(ctx)
     CachesUtil.getWithRecurisionPreventing(this, CachesUtil.TYPE_ELEMENT_TYPE_KEY,
       new CachesUtil.MyProvider[ScTypeElement, TypeResult[ScType]](
         this, elem => innerType(ctx)
