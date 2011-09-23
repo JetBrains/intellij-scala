@@ -9,6 +9,7 @@ import compiler.ScalacSettings
 import config.Libraries
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.projectRoots.JavaSdkType
+import java.net.InetAddress
 
 /**
  * Pavel Fatin
@@ -52,10 +53,19 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
 
   def stop() {
     instance.foreach { it =>
-      val process = runProcess(it.environment, "scala.tools.nsc.CompileClient", Nil, List(it.port.toString, "-shutdown"))
-      process.waitFor();
+      sendCommandTo(it, "-shutdown")
       it.process.destroy()
     }
+  }
+
+  def reset() {
+    instance.foreach(sendCommandTo(_, "-reset"))
+  }
+
+  private def sendCommandTo(instance: ServerInstance, command: String) {
+    val server = String.format("%s:%s", InetAddress.getLocalHost.getHostAddress, instance.port.toString)
+    val process = runProcess(instance.environment, "scala.tools.nsc.CompileClient", Nil, List("-server", server, command))
+    process.waitFor();
   }
 
   def running: Boolean = watcher.running
