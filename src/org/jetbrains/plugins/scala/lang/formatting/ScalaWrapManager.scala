@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 
 object ScalaWrapManager {
   def suggestedWrap(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings): Wrap = {
-    val settings = block.getSettings
+    val settings = block.getCommonSettings
     val node = block.getNode
     val psi = node.getPsi
     def wrapBinary(elementMatch: PsiElement => Boolean,
@@ -105,7 +105,7 @@ object ScalaWrapManager {
 
   def arrangeSuggestedWrapForChild(parent: ScalaBlock, child: ASTNode, scalaSettings: ScalaCodeStyleSettings,
                                    suggestedWrap: Wrap): Wrap = {
-    val settings = parent.getSettings
+    val settings = parent.getCommonSettings
     val parentNode = parent.getNode
     val parentPsi = parentNode.getPsi
     val childPsi = child.getPsi

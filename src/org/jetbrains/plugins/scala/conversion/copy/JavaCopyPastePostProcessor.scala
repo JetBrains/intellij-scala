@@ -16,6 +16,7 @@ import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPa
 import collection.mutable.{ListBuffer, ArrayBuffer}
 import com.intellij.codeInsight.editorActions.ReferenceTransferableData.ReferenceData
 import com.intellij.openapi.project.{DumbService, Project}
+import org.jetbrains.plugins.scala.ScalaFileType
 
 /**
  * User: Alexander Podkhalyuzin
@@ -119,7 +120,7 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
   }
 
   private def withSpecialStyleIn(project: Project)(block: => Unit) {
-    val settings = CodeStyleSettingsManager.getSettings(project)
+    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
 
     val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
     val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
@@ -129,11 +130,14 @@ class JavaCopyPastePostProcessor extends CopyPastePostProcessor[TextBlockTransfe
     settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
     settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
 
-    block
-
-    settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+    try {
+      block
+    }
+    finally {
+      settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
+      settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
+      settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+    }
   }
 
   class ConvertedCode(val data: String, val dependencies: Array[Dependency]) extends TextBlockTransferableData {

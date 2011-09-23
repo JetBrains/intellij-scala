@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.lang.formatter;
 
-import com.intellij.codeInsight.TestUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.impl.DocumentImpl;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -19,6 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.LightIdeaTestCase;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -61,16 +59,20 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   public TextRange myTextRange;
   public TextRange myLineRange;
 
-  public CodeStyleSettings getSettings() {
-    return CodeStyleSettingsManager.getSettings(getProject());
+  public CommonCodeStyleSettings getCommonSettings() {
+    return getSettings().getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
   }
 
   public ScalaCodeStyleSettings getScalaSettings() {
     return getSettings().getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
+  public CodeStyleSettings getSettings() {
+    return CodeStyleSettingsManager.getSettings(getProject());
+  }
+
   public CommonCodeStyleSettings.IndentOptions getIndentOptions() {
-    return getSettings().getIndentOptions(org.jetbrains.plugins.scala.ScalaFileType.SCALA_FILE_TYPE);
+    return getCommonSettings().getIndentOptions();
   }
 
   public void doTest() throws Exception {

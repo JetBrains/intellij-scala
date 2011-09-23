@@ -38,6 +38,8 @@ extends Object with ScalaTokenTypes with Block {
 
   def getSettings = mySettings
 
+  def getCommonSettings = mySettings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+
   def getTextRange =
     if (myLastNode == null) myNode.getTextRange
     else new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)

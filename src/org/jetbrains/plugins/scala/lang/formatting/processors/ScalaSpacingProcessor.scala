@@ -66,8 +66,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
-    val settings = left.getSettings
-    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = left.getCommonSettings
+    val scalaSettings: ScalaCodeStyleSettings =
+      left.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val keepLineBreaks = settings.KEEP_LINE_BREAKS
     def getSpacing(x: Int, y: Int, z: Int) = {
       if (keepLineBreaks) Spacing.createSpacing(y, y, z, true, x)

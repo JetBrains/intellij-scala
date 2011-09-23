@@ -35,7 +35,8 @@ class ScContentBasedClassFileProcessor extends ContentBasedClassFileProcessor {
   }
 
   def createHighlighter(project: Project, file: VirtualFile) = {
-    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
+    val treatDocCommentAsBlockComment = CodeStyleSettingsManager.getSettings(project).
+      getCustomSettings(classOf[ScalaCodeStyleSettings]).TREAT_DOC_COMMENT_AS_BLOCK_COMMENT;
     new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment)
   }
 

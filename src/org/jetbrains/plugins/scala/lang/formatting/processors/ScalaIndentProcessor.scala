@@ -26,8 +26,8 @@ import psi.api.toplevel.ScEarlyDefinitions
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
   def getChildIndent(parent: ScalaBlock, child: ASTNode): Indent = {
-    val settings = parent.getSettings
-    val scalaSettings: ScalaCodeStyleSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
+    val settings = parent.getCommonSettings
+    val scalaSettings: ScalaCodeStyleSettings = parent.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val node = parent.getNode
     if (child.getElementType == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS ||
                 child.getElementType == ScalaDocTokenType.DOC_COMMENT_END) {
