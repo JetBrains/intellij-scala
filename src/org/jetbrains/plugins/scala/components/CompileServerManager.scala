@@ -18,7 +18,7 @@ import java.awt.Point
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ide.DataManager
-import com.intellij.openapi.actionSystem.{AnActionEvent, DataContext, AnAction, DefaultActionGroup}
+import com.intellij.openapi.actionSystem.{AnActionEvent, AnAction, DefaultActionGroup}
 
 /**
  * Pavel Fatin
@@ -178,7 +178,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
       wasRunning -> nowRunning match {
         case (false, true) =>
-          val notification = new Notification("scala", title(), "<html><body><img src=''/>Startup</body></html>", NotificationType.INFORMATION)
+          val notification = new Notification("scala", title(), "Startup", NotificationType.INFORMATION)
           Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
           Notifications.Bus.notify(notification, project)
         case (true, false) =>
