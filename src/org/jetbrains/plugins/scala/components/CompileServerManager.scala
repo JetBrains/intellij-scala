@@ -14,6 +14,11 @@ import com.intellij.util.Consumer
 import com.intellij.notification.{NotificationType, NotificationDisplayType, Notifications, Notification}
 import icons.Icons
 import compiler.ScalacSettings
+import java.awt.Point
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.ui.awt.RelativePoint
+import com.intellij.ide.DataManager
+import com.intellij.openapi.actionSystem.{AnActionEvent, DataContext, AnAction, DefaultActionGroup}
 
 /**
  * Pavel Fatin
@@ -93,7 +98,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
       def getClickConsumer = ClickConsumer
 
-      def getTooltipText = if (running) "FSC running on port %d".format(launcher.port) else "FSC stopped"
+      def getTooltipText = title()
 
       object ClickConsumer extends Consumer[MouseEvent] {
         def consume(t: MouseEvent) {
@@ -103,11 +108,50 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     }
   }
 
+  private def title(b: Boolean = running) = if (b) "Scala project FSC (port %d)".format(launcher.port) else "Scala project FSC (stopped)"
+
   private def toggleList(e: MouseEvent) {
-//    val popup = JBPopupFactory.getInstance.createActionGroupPopup("Something")
-//    val dimension = popup.getContent.getPreferredSize
-//    val at= new Point(0, -dimension.height)
-//    popup.show(new RelativePoint(e.getComponent, at))
+    val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
+    val group = new DefaultActionGroup(Start, Reset, Stop)
+    val context = DataManager.getInstance.getDataContext(e.getComponent)
+    val popup = JBPopupFactory.getInstance.createActionGroupPopup(title(), group, context, mnemonics, true)
+    val dimension = popup.getContent.getPreferredSize
+    val at = new Point(0, -dimension.height)
+    popup.show(new RelativePoint(e.getComponent, at))
+  }
+
+  private object Start extends AnAction("&Run", "Start compile server", IconLoader.getIcon("/actions/execute.png")) {
+    override def update(e: AnActionEvent) {
+      e.getPresentation.setEnabled(!launcher.running)
+    }
+
+    def actionPerformed(e: AnActionEvent) {
+      launcher.init()
+    }
+  }
+
+  private object Reset extends AnAction("R&eset", "Reset compile server", IconLoader.getIcon("/vcs/refresh.png")) {
+    override def update(e: AnActionEvent) {
+      e.getPresentation.setEnabled(launcher.running)
+    }
+
+    def actionPerformed(e: AnActionEvent) {
+      launcher.reset()
+
+      val notification = new Notification("scala", title(), "Reset", NotificationType.INFORMATION)
+      Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
+      Notifications.Bus.notify(notification, project)
+    }
+  }
+
+  private object Stop extends AnAction("&Stop", "Shutdown compile server", IconLoader.getIcon("/actions/suspend.png")) {
+    override def update(e: AnActionEvent) {
+      e.getPresentation.setEnabled(launcher.running)
+    }
+
+    def actionPerformed(e: AnActionEvent) {
+      launcher.stop()
+    }
   }
 
   private object FacetListener extends ProjectWideFacetAdapter[ScalaFacet]() {
@@ -134,13 +178,11 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
       wasRunning -> nowRunning match {
         case (false, true) =>
-          val message = "Started on port %d".format(launcher.port)
-          val notification = new Notification("scala", "Fast Scala Compiler", message, NotificationType.INFORMATION)
+          val notification = new Notification("scala", title(), "<html><body><img src=''/>Startup</body></html>", NotificationType.INFORMATION)
           Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
           Notifications.Bus.notify(notification, project)
         case (true, false) =>
-          val message = "Stopped on port %d".format(launcher.port)
-          val notification = new Notification("scala", "Fast Scala Compiler", message, NotificationType.INFORMATION)
+          val notification = new Notification("scala", title(true), "Shutdown", NotificationType.INFORMATION)
           Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
           Notifications.Bus.notify(notification, project)
         case _ =>
