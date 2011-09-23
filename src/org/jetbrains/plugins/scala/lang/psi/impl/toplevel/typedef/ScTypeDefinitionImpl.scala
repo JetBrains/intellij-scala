@@ -272,11 +272,11 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     val buffer: ArrayBuffer[PsiMethod] = new ArrayBuffer[PsiMethod]
     val methodsIterator = TypeDefinitionMembers.getSignatures(this).iterator
     while (methodsIterator.hasNext) {
-      methodsIterator.next()._1.namedElement match {
+      methodsIterator.next()._1 match {
         case sig: PhysicalSignature => buffer += sig.method
-        case Some(t) =>
-          t match {
-            case t: ScTypedDefinition => {
+        case s: Signature =>
+          s.namedElement match {
+            case Some(t: ScTypedDefinition) =>
               val context = ScalaPsiUtil.nameContext(t)
               buffer += new FakePsiMethod(t, context match {
                 case o: PsiModifierListOwner => o.hasModifierProperty _
@@ -292,7 +292,6 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
                 }
                 case _ =>
               }
-            }
             case _ =>
           }
         case _ =>
