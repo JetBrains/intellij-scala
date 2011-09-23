@@ -298,7 +298,19 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     None
   }
 
-  def isBridge: Boolean = hasAnnotation("scala.annotation.bridge").isDefined
+  def isBridge: Boolean = {
+    //todo: fix algorithm for annotation resolve to not resolve objects (if it's possible)
+    //heuristic algorithm to avoid SOE in MixinNodes.build
+    annotations.find(annot => {
+      annot.typeElement match {
+        case s: ScSimpleTypeElement => s.reference match {
+          case Some(ref) => ref.refName == "bridge"
+          case _ => false
+        }
+        case _ => false
+      }
+    }) != None
+  }
 
   def addParameter(param: ScParameter): ScFunction = {
     if (paramClauses.clauses.length > 0)
