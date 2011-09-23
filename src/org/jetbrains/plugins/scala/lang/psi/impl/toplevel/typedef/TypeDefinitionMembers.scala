@@ -36,7 +36,7 @@ object TypeDefinitionMembers {
 
   def isAccessible(place: Option[PsiElement], member: PsiMember): Boolean = {
     if (place == None) return true
-    ResolveUtils.isAccessible(member, place.get)
+    ResolveUtils.isAccessible(member, place.get, false)
   }
 
   def isAbstract(s: PhysicalSignature) = s.method match {
