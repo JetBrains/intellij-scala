@@ -125,14 +125,34 @@ public class ScalacBackendCompiler extends ExternalCompiler {
           ScalaBundle.message("cannot.compile"));
       return false;
     }
-    
-    Option<String> problemOption = compilerOption.get().problem();
-    
-    if (problemOption.isDefined()) {
-      Messages.showErrorDialog(myProject, 
-          ScalaBundle.message("cannot.compile.scala.files.compiler.problem", problemOption.get()), 
-          ScalaBundle.message("cannot.compile"));
-      return false;
+
+    if (facet.fsc()) {
+      ScalacSettings settings = ScalacSettings.getInstance(myProject);
+      Option<CompilerLibraryData> data =
+          Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, myProject);
+      if(data.isDefined()) {
+        Option<String> problemOption = data.get().problem();
+        if (problemOption.isDefined()) {
+          Messages.showErrorDialog(myProject,
+              String.format("Please, adjust compiler library for project FSC: %s", problemOption.get()),
+              ScalaBundle.message("cannot.compile"));
+          return false;
+        }
+      } else {
+        Messages.showErrorDialog(myProject,
+            "Please, set up compiler library for project FSC ",
+            ScalaBundle.message("cannot.compile"));
+        return false;
+      }
+    } else {
+      Option<String> problemOption = compilerOption.get().problem();
+
+      if (problemOption.isDefined()) {
+        Messages.showErrorDialog(myProject,
+            ScalaBundle.message("cannot.compile.scala.files.compiler.problem", problemOption.get()),
+            ScalaBundle.message("cannot.compile"));
+        return false;
+      }
     }
 
     Set<Module> nojdkModules = new HashSet<Module>();
