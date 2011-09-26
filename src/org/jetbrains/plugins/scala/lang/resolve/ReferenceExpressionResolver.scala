@@ -84,7 +84,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
     // val a: (Int) => Int = foo
     // and for case
     // val a: (Int) => Int = _.foo
-    val expectedOption = {
+    val expectedOption = () => {
       val expr: PsiElement = reference.getContext match {
         case parent@(_: ScPrefixExpr | _: ScPostfixExpr | _: ScInfixExpr) => parent
         case _ => reference
@@ -125,7 +125,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
     def nonAssignResolve: Array[ResolveResult] = {
       def processor(smartProcessor: Boolean): MethodResolveProcessor =
         new MethodResolveProcessor(reference, name, info.arguments.toList,
-          getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), () => expectedOption,
+          getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), expectedOption,
           info.isUnderscore, shapesOnly, enableTupling = true) {
           override def candidatesS: Set[ScalaResolveResult] = {
             if (!smartProcessor) super.candidatesS
