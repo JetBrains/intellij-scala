@@ -23,7 +23,7 @@ import psi.api.toplevel.ScTypeParametersOwner
 import psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import com.intellij.openapi.application.ApplicationManager
 import result.{TypingContextOwner, Success, TypingContext}
-import scope.PsiScopeProcessor
+import scope.{NameHint, PsiScopeProcessor}
 import search.GlobalSearchScope
 import psi.api.expr.ScSuperReference
 import java.lang.String
@@ -641,6 +641,27 @@ object ResolveUtils {
           if (!processor.execute(obj, state)) return false
         }
         true
+      case base: BaseProcessor =>
+        val nameHint = base.getHint(NameHint.KEY)
+        val name = if (nameHint == null) "" else nameHint.getName(state)
+        if (name != null && name != "" && base.getClassKind) {
+          try {
+            base.setClassKind(false)
+
+            val manager = ScalaPsiManager.instance(pack.getProject)
+            val qName = pack.getQualifiedName
+            val fqn = if (qName.length() > 0) qName + "." + name else name
+            val classes: Array[PsiClass] = manager.getCachedClasses(place.getResolveScope, fqn)
+            for (clazz <- classes) {
+              if (!processor.execute(clazz, state)) return false
+            }
+            
+            //process subpackages
+            pack.processDeclarations(processor, state, lastParent, place)
+          } finally {
+            base.setClassKind(true)
+          }
+        } else pack.processDeclarations(processor, state, lastParent, place)
       case _ => pack.processDeclarations(processor, state, lastParent, place)
     }
   }
