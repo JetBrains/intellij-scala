@@ -316,11 +316,14 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     String[] parameters = facets.length > 0 ? facets[0].compilerParameters() : new String[] {};
 
     if (myFsc) {
-      commandLine.add("-server");
       if (settings.INTERNAL_SERVER) {
-        CompileServerLauncher launcher = myProject.getComponent(CompileServerLauncher.class);
-        commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), launcher.port()));
+        int port = myProject.getComponent(CompileServerLauncher.class).port();
+        if (port != -1) {
+          commandLine.add("-server");
+          commandLine.add(String.format("%s:%s", InetAddress.getLocalHost().getHostAddress(), port));
+        }
       } else {
+        commandLine.add("-server");
         commandLine.add(String.format("%s:%s", settings.REMOTE_HOST, settings.REMOTE_PORT));
       }
     }
