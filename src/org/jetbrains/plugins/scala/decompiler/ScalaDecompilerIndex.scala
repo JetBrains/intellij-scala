@@ -47,9 +47,9 @@ class ScalaDecompilerIndex extends FileBasedIndexExtension[String, (String, Stri
         val vFile = inputData.getFile
         val content = inputData.getContent
         val path = vFile.getPath
-        val isScalaFile = DecompilerUtil.isScalaFile(vFile, content)
+        val isScalaFile = DecompilerUtil.isScalaFile(vFile, content, true)
         if (isScalaFile) {
-          val decompile = DecompilerUtil.decompile(content, vFile)
+          val decompile = DecompilerUtil.decompile(content, vFile, true)
           Collections.singletonMap(path, (decompile._1, decompile._2))
         } else {
           Collections.singletonMap(path, (ScalaDecompilerIndex.notScala,
