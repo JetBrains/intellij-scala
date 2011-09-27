@@ -16,6 +16,8 @@ import java.net.InetAddress
  */
 
 class CompileServerLauncher(project: Project) extends ProjectComponent {
+  private val PortPattern = "\\d+$".r
+
   private var instance: Option[ServerInstance] = None
 
   private val watcher = new ProcesWatcher()
@@ -40,11 +42,15 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
 
     val xmx = if (settings.MAXIMUM_HEAP_SIZE.isEmpty) Nil else List("-Xmx%sm".format(settings.MAXIMUM_HEAP_SIZE))
     val vmParameters = xmx ::: settings.VM_PARAMETERS.split(" ").toList
-    val options = "-v" :: settings.FSC_OPTIONS.split(" ").toList
-
+    
     val environment = toEnvironment(project)
+    val reportsPort: Boolean = environment.compilerVersion.startsWith("2.9")
+
+    val additionalOptions = settings.FSC_OPTIONS.split(" ").toList
+    val options = if (reportsPort) "-v" :: additionalOptions else additionalOptions
+
     val process = runProcess(environment, "scala.tools.nsc.CompileServer", vmParameters, options)
-    val port = readPort(process)
+    val port = if (reportsPort) Some(readPort(process)) else None
 
     instance = Some(ServerInstance(environment, process, port))
 
@@ -63,14 +69,22 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
   }
 
   private def sendCommandTo(instance: ServerInstance, command: String) {
-    val server = String.format("%s:%s", InetAddress.getLocalHost.getHostAddress, instance.port.toString)
-    val process = runProcess(instance.environment, "scala.tools.nsc.CompileClient", Nil, List("-server", server, command))
+    val options = instance.port.map { port =>
+      val server = String.format("%s:%s", InetAddress.getLocalHost.getHostAddress, port.toString)
+      List("-server", server, command)
+    } getOrElse {
+      List(command)
+    }
+
+    val process = runProcess(instance.environment, "scala.tools.nsc.CompileClient", Nil, options)
     process.waitFor();
   }
 
   def running: Boolean = watcher.running
 
-  def port: Int = instance.map(_.port).getOrElse(-1)
+  def port: Int = instance.flatMap(_.port).getOrElse(-1)
+
+  def compilerVersion: Option[String] = instance.map(_.environment.compilerVersion)
 
   private def toEnvironment(project: Project): Environment = {
     val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk).getOrElse(throw new RuntimeException())
@@ -79,7 +93,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     val settings = ScalacSettings.getInstance(project)
     val lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, project).getOrElse(throw new RuntimeException())
 
-    Environment(sdkType.getVMExecutablePath(sdk), lib.files.toList)
+    Environment(sdkType.getVMExecutablePath(sdk), lib.files.toList, lib.version.get)
   }
 
   private def runProcess(environment: Environment, className: String,
@@ -92,7 +106,8 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
   private def readPort(process: Process): Int = {
     val source = Source.fromInputStream(process.getInputStream)
     try {
-      source.getLines().next().takeRight(5).toInt
+      val line = source.getLines().next()
+      PortPattern.findFirstIn(line).get.toInt
     } finally {
       source.close()
     }
@@ -101,7 +116,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
   def getComponentName = getClass.getSimpleName
 
 
-  private case class Environment(java: String, libraries: Seq[File])
+  private case class Environment(java: String, libraries: Seq[File], compilerVersion: String)
 
-  private case class ServerInstance(environment: Environment, process: Process, port: Int)
+  private case class ServerInstance(environment: Environment, process: Process, port: Option[Int])
 }
