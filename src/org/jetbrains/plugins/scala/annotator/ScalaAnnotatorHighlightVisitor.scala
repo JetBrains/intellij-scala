@@ -10,9 +10,7 @@ import com.intellij.psi._
 import com.intellij.openapi.util.TextRange
 import com.intellij.codeHighlighting.Pass
 import collection.JavaConversions
-import com.intellij.lang.annotation.{AnnotationSession, Annotator}
 import com.intellij.codeInsight.daemon.impl._
-
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
@@ -23,6 +21,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
 
   private var myHolder: HighlightInfoHolder = null
   private var myRefCountHolder: ScalaRefCountHolder = null
+  private var myAnnotationHolder: AnnotationHolderImpl = null
 
   override def suitableForFile(file: PsiFile): Boolean = {
     file.isInstanceOf[ScalaFile]
@@ -36,6 +35,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     var success = true
     try {
       myHolder = holder
+      myAnnotationHolder = new AnnotationHolderImpl(holder.getAnnotationSession)
       if (updateWholeFile) {
         val project: Project = file.getProject
         val daemonCodeAnalyzer: DaemonCodeAnalyzer = DaemonCodeAnalyzer.getInstance(project)
@@ -53,6 +53,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     }
     finally {
       myHolder = null
+      myAnnotationHolder = null
       myRefCountHolder = null
     }
     success
@@ -66,9 +67,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     if (DumbService.getInstance(project).isDumb) {
       return
     }
-    val annotator: Annotator = new ScalaAnnotator
-    val myAnnotationHolder = new AnnotationHolderImpl(new AnnotationSession(element.getContainingFile))
-    annotator.annotate(element, myAnnotationHolder)
+    (new ScalaAnnotator).annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
       import JavaConversions._
       for (annotation <- myAnnotationHolder) {

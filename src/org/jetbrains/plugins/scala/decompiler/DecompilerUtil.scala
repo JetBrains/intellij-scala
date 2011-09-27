@@ -24,16 +24,18 @@ object DecompilerUtil {
 
   val DECOMPILER_VERSION = 158
 
-  def isScalaFile(file: VirtualFile): Boolean = try {
-    isScalaFile(file, file.contentsToByteArray)
-  }
-  catch {
-    case e: IOException => false
+  def isScalaFile(file: VirtualFile): Boolean = {
+    try {
+      isScalaFile(file, file.contentsToByteArray)
+    }
+    catch {
+      case e: IOException => false
+    }
   }
 
   private val IS_SCALA_FILE_KEY = new Key[(java.lang.Boolean, java.lang.Long)]("Is Scala File Key")
 
-  def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
+  def isScalaFile(file: VirtualFile, bytes: => Array[Byte], fromIndexer: Boolean = false): Boolean = {
     def inner: Boolean = {
       if (file.getFileType != StdFileTypes.CLASS) return false
       if (!file.isInstanceOf[VirtualFileWithId]) return false
@@ -54,7 +56,7 @@ object DecompilerUtil {
           case e => false
         }
       }
-      if (isDumbModeOrUnitTesting) {
+      if (fromIndexer || isDumbModeOrUnitTesting) {
         calc
       } else {
         val decompiled = ScalaDecompilerIndex.decompile(file, allProjectsScope)._1
@@ -126,7 +128,7 @@ object DecompilerUtil {
       openedNotDisposedProjects.find(p => DumbServiceImpl.getInstance(p).isDumb) != None
   }
 
-  def decompile(bytes: Array[Byte], file: VirtualFile): (String, String) = {
+  def decompile(bytes: Array[Byte], file: VirtualFile, fromIndexer: Boolean = false): (String, String) = {
     def calc: (String, String) = {
       val isPackageObject = file.getName == "package.class"
       val byteCode = ByteCode(bytes)
@@ -189,7 +191,7 @@ object DecompilerUtil {
 
       (sourceText, sourceFileName)
     }
-    if (isDumbModeOrUnitTesting) {
+    if (fromIndexer || isDumbModeOrUnitTesting) {
       calc
     } else {
       val decompile = ScalaDecompilerIndex.decompile(file, allProjectsScope)
