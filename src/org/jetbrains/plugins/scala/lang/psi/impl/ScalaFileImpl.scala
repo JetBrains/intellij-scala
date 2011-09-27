@@ -38,11 +38,11 @@ import org.jetbrains.plugins.scala.extensions._
 import config.ScalaFacet
 import com.intellij.openapi.util.{TextRange, Key}
 import caches.CachesUtil
-import util.PsiTreeUtil
 import lang.resolve.ResolveUtils
 import lang.resolve.processor.{ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import com.intellij.openapi.module.ModuleManager
 import api.toplevel.typedef.ScObject
+import util.{PsiModificationTracker, PsiTreeUtil}
 
 class ScalaFileImpl(viewProvider: FileViewProvider)
         extends PsiFileBase(viewProvider, ScalaFileType.SCALA_FILE_TYPE.getLanguage)
@@ -336,8 +336,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     while (implObjIter.hasNext) {
       val clazz = implObjIter.next()
       ProgressManager.checkCanceled()
-      def isScalaPredefinedClass = typeDefinitions.length == 1 &&
-        Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).getQualifiedName)
+      
       if (clazz != null && !isScalaPredefinedClass &&
         !clazz.processDeclarations(processor, state, null, place)) return false
     }
@@ -378,6 +377,20 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
     true
   }
+  
+  private def isScalaPredefinedClass = {
+    def inner(file: ScalaFile): java.lang.Boolean = {
+      java.lang.Boolean.valueOf(file.typeDefinitions.length == 1 &&
+        Set("scala", "scala.Predef").contains(file.typeDefinitions.apply(0).getQualifiedName))
+    }
+    CachesUtil.get[ScalaFile, java.lang.Boolean](this, CachesUtil.SCALA_PREDEFINED_KEY,
+      new CachesUtil.MyProvider[ScalaFile, java.lang.Boolean](this, e => inner(e))
+      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)).booleanValue()
+  } 
+  
+  
+  def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&
+    Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).getQualifiedName)
 
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)

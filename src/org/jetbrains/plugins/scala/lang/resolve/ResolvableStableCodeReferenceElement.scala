@@ -20,6 +20,7 @@ import com.intellij.openapi.progress.ProgressManager
 import util.{PsiModificationTracker, PsiTreeUtil}
 import caches.CachesUtil
 import psi.api.{ScPackage, ScalaFile}
+import psi.impl.ScalaPsiManager
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -73,7 +74,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         else {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
-          val classes = facade.findClasses(refText, ref.getResolveScope)
+          val manager = ScalaPsiManager.instance(getProject)
+          val classes = manager.getCachedClasses(ref.getResolveScope, refText)
           val pack = facade.findPackage(refText)
           if (pack != null) processor.execute(pack, ResolveState.initial)
           for (clazz <- classes) processor.execute(clazz, ResolveState.initial)

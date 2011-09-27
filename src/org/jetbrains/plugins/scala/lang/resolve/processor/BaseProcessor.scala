@@ -70,6 +70,18 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
 
   def candidatesS: Set[ScalaResolveResult] = candidatesSet
 
+
+  //todo: fix this ugly performance improvement
+  private var classKind = true
+  def setClassKind(b: Boolean) {
+    classKind = b
+  }
+  def getClassKind = {
+    classKind && ((kinds contains ResolveTargets.CLASS) ||
+      (kinds contains ResolveTargets.OBJECT) ||
+      (kinds contains ResolveTargets.METHOD))
+  }
+
   //java compatibility
   object MyElementClassHint extends ElementClassHint {
     import ElementClassHint.DeclarationKind
@@ -77,7 +89,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       kind match {
         case null => true
         case DeclarationKind.PACKAGE => kinds contains ResolveTargets.PACKAGE
-        case DeclarationKind.CLASS => (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
+        case DeclarationKind.CLASS if classKind => (kinds contains ResolveTargets.CLASS) || (kinds contains ResolveTargets.OBJECT) ||
                 (kinds contains ResolveTargets.METHOD) //case classes get 'apply' generated
         case DeclarationKind.VARIABLE => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
         case DeclarationKind.FIELD => (kinds contains ResolveTargets.VAR) || (kinds contains ResolveTargets.VAL)
