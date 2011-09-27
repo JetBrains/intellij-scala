@@ -98,7 +98,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
       def getClickConsumer = ClickConsumer
 
-      def getTooltipText = title()
+      def getTooltipText = title
 
       object ClickConsumer extends Consumer[MouseEvent] {
         def consume(t: MouseEvent) {
@@ -108,13 +108,13 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private def title(b: Boolean = running) = if (b) "Scala project FSC (port %d)".format(launcher.port) else "Scala project FSC (stopped)"
+  private def title = "Scala project FSC%s".format(launcher.compilerVersion.map(_.formatted(" (%s)")).mkString)
 
   private def toggleList(e: MouseEvent) {
     val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
     val group = new DefaultActionGroup(Start, Reset, Stop)
     val context = DataManager.getInstance.getDataContext(e.getComponent)
-    val popup = JBPopupFactory.getInstance.createActionGroupPopup(title(), group, context, mnemonics, true)
+    val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
     val dimension = popup.getContent.getPreferredSize
     val at = new Point(0, -dimension.height)
     popup.show(new RelativePoint(e.getComponent, at))
@@ -138,7 +138,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
     def actionPerformed(e: AnActionEvent) {
       launcher.reset()
 
-      val notification = new Notification("scala", title(), "Reset", NotificationType.INFORMATION)
+      val notification = new Notification("scala", title, "Reset", NotificationType.INFORMATION)
       Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
       Notifications.Bus.notify(notification, project)
     }
@@ -178,11 +178,11 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
       wasRunning -> nowRunning match {
         case (false, true) =>
-          val notification = new Notification("scala", title(), "Startup", NotificationType.INFORMATION)
+          val notification = new Notification("scala", title, "Startup", NotificationType.INFORMATION)
           Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
           Notifications.Bus.notify(notification, project)
         case (true, false) =>
-          val notification = new Notification("scala", title(true), "Shutdown", NotificationType.INFORMATION)
+          val notification = new Notification("scala", title, "Shutdown", NotificationType.INFORMATION)
           Notifications.Bus.register("scala", NotificationDisplayType.BALLOON)
           Notifications.Bus.notify(notification, project)
         case _ =>
