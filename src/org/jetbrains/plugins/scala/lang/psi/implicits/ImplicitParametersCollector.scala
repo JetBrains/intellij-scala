@@ -80,7 +80,7 @@ class ImplicitParametersCollector(place: PsiElement, tp: ScType, concreteType: S
           val subst = c.substitutor
           c.element match {
             case patt: ScBindingPattern
-              if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false)=> {
+              if !PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(patt), place, false) => {
               patt.getType(TypingContext.empty) match {
                 case Success(pattType: ScType, _) =>
                   if (!subst.subst(pattType).conforms(tp)) None
