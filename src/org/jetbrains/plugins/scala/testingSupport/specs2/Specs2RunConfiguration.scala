@@ -27,6 +27,7 @@ import lang.psi.impl.ScPackageImpl
 import config.ScalaFacet
 import org.jdom.Element
 import scala.collection.JavaConversions._
+import lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -120,7 +121,7 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
       throw new ExecutionException("Specs2 not specified.")
     val classes = new ArrayBuffer[PsiClass]
     if (!classOrObjects.isEmpty) {
-      classes ++= classOrObjects.filter(_.isInheritor(suiteClass, true))
+      classes ++= classOrObjects.filter(ScalaPsiUtil.cachedDeepIsInheritor(_, suiteClass))
     } else {
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
@@ -131,7 +132,7 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (cl.isInheritor(suiteClass, true)) classes += cl
+        if (ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
 

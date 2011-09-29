@@ -56,7 +56,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.scalatest.Suite", GlobalSearchScope.allScope(element.getProject))
     if (suiteClazz == null) return null
-    if (!parent.isInheritor(suiteClazz, true)) return null
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
     val testClassPath = parent.getQualifiedName
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
@@ -93,7 +93,7 @@ class ScalaTestConfigurationType extends LocatableConfigurationType {
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.scalatest.Suite", GlobalSearchScope.allScope(element.getProject))
     if (suiteClazz == null) return false
-    if (!parent.isInheritor(suiteClazz, true)) return false
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
     configuration match {
       case configuration: ScalaTestRunConfiguration => return parent.getQualifiedName == configuration.getTestClassPath
       case _ => return false

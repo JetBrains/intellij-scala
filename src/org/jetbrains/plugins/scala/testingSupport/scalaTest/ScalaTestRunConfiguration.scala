@@ -44,6 +44,7 @@ import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
 import config.ScalaFacet
 import collection.JavaConversions._
+import lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -140,7 +141,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       throw new ExecutionException("ScalaTest not specified.")
     val classes = new ArrayBuffer[PsiClass]
     if (clazz != null) {
-      if (clazz.isInheritor(suiteClass, true)) classes += clazz
+      if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
     } else {
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
@@ -151,7 +152,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (cl.isInheritor(suiteClass, true)) classes += cl
+        if (ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
 
