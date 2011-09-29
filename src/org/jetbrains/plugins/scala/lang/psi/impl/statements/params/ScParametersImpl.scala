@@ -45,9 +45,11 @@ class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScPa
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     if (lastParent != null) {
       val clausesIterator = clauses.iterator
-      while (clausesIterator.hasNext) {
+      var break = false
+      while (clausesIterator.hasNext && !break) {
         val clause = clausesIterator.next()
-        if (clause.getStartOffsetInParent < lastParent.getStartOffsetInParent) {
+        if (clause == lastParent) break = true
+        else {
           val paramsIterator = clause.parameters.iterator
           while (paramsIterator.hasNext) {
             val param = paramsIterator.next()
