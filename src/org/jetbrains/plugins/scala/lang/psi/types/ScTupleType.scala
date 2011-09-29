@@ -75,4 +75,8 @@ case class ScTupleType(components: Seq[ScType])(project: Project, scope: GlobalS
   }
 
   private def tupleTraitName = "scala.Tuple" + components.length
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitTupleType(this)
+  }
 }

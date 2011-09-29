@@ -127,6 +127,8 @@ trait ScType {
   }
 
   def getValType: Option[StdType] = None
+
+  def visitType(visitor: ScalaTypeVisitor)
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
