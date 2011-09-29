@@ -7,7 +7,6 @@ import api.statements.params.ScTypeParam
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.util.containers.WeakValueHashMap
 import toplevel.synthetic.{SyntheticPackageCreator, ScSyntheticPackage}
 import types._
 import com.intellij.openapi.util.Key
@@ -17,10 +16,11 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.reference.SoftReference
 import caches.ScalaCachesManager
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import collection.Seq
 import java.util.Map
 import com.intellij.psi._
+import com.intellij.util.containers.WeakValueHashMap
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val implicitObjectMap: ConcurrentMap[String, SoftReference[java.util.Map[GlobalSearchScope, Seq[ScObject]]]] =
@@ -31,6 +31,25 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   private val classesMap: ConcurrentMap[String, SoftReference[Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
+
+  private val inheritorsMap: ConcurrentMap[PsiClass, SoftReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
+    new ConcurrentHashMap()
+  
+  def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
+    val ref = inheritorsMap.get(clazz)
+    var map: ConcurrentMap[PsiClass, java.lang.Boolean] = null
+    if (ref == null || ref.get() == null) {
+      map = new ConcurrentHashMap()
+      inheritorsMap.put(clazz, new SoftReference(map))
+    } else map = ref.get()
+
+    val b = map.get(base)
+    if (b != null) return b.booleanValue()
+
+    val result = clazz.isInheritor(base, true)
+    map.put(base, result)
+    result
+  }
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     def calc(): Seq[ScObject] = {
@@ -103,6 +122,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def run() {
         implicitObjectMap.clear()
         classMap.clear()
+        inheritorsMap.clear()
       }
     })
 

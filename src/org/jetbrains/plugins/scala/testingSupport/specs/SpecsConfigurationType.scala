@@ -60,7 +60,7 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
     if (suiteClazz == null) return null
-    if (!parent.isInheritor(suiteClazz, true)) return null
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return null
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.getName, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[SpecsRunConfiguration]
     val testClassPath = parent.getQualifiedName
@@ -113,7 +113,7 @@ class SpecsConfigurationType extends LocatableConfigurationType {
     val facade = JavaPsiFacade.getInstance(element.getProject)
     val suiteClazz = facade.findClass("org.specs.Specification", element.getResolveScope)
     if (suiteClazz == null) return false
-    if (!parent.isInheritor(suiteClazz, true)) return false
+    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
     configuration match {
       case configuration: SpecsRunConfiguration => return parent.getQualifiedName == configuration.getTestClassPath
       case _ => return false

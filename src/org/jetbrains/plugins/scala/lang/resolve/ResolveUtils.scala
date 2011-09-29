@@ -292,7 +292,7 @@ object ResolveUtils {
                   if (isInheritorOrSelfOrSame(placeTd, td)) return true
                   val companion: ScTemplateDefinition = ScalaPsiUtil.
                           getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-                  if (withCompanion && companion != null && companion.isInheritor (td, true)) return true
+                  if (withCompanion && companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
                   placeTd = getPlaceTd(placeTd)
                 }
                 false
@@ -344,7 +344,7 @@ object ResolveUtils {
           while (placeTd != null) {
             if (isInheritorOrSelfOrSame(placeTd, clazz)) return true
             val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-            if (companion != null && companion.isInheritor (clazz, true)) return true
+            if (companion != null && ScalaPsiUtil.cachedDeepIsInheritor(companion, clazz)) return true
             placeTd = getPlaceTd(placeTd)
           }
           false
@@ -595,7 +595,7 @@ object ResolveUtils {
   }
 
   private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
-    if (placeTd.isInheritor(td, true)) return true
+    if (ScalaPsiUtil.cachedDeepIsInheritor(placeTd, td)) return true
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) => {
@@ -603,7 +603,7 @@ object ResolveUtils {
             ScType.extractClass(tp) match {
               case Some(clazz) => {
                 if (clazz == td) return true
-                if (clazz.isInheritor(td, true)) return true
+                if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true
               }
               case _ =>
             }

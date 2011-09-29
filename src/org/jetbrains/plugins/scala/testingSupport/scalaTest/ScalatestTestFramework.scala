@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.JavaTestFramework
 import icons.Icons
 import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
+import lang.psi.ScalaPsiUtil
 
 class ScalatestTestFramework extends JavaTestFramework {
   def isTestMethod(element: PsiElement): Boolean = false
@@ -39,7 +40,7 @@ class ScalatestTestFramework extends JavaTestFramework {
     val facade = JavaPsiFacade.getInstance(clazz.getProject)
     val suiteClazz: PsiClass = facade.findClass(getMarkerClassFQName, clazz.getResolveScope)
     if (suiteClazz == null) return false
-    parent.isInheritor(suiteClazz, true)
+    ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)
   }
 
   def getMarkerClassFQName: String = "org.scalatest.Suite"

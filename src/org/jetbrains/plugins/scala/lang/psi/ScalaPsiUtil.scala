@@ -14,6 +14,7 @@ import api.toplevel.templates.ScTemplateBody
 import api.toplevel.typedef._
 import impl.expr.ScBlockExprImpl
 import impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
+import impl.{ScalaPsiManager, ScalaPsiElementFactory}
 import implicits.ScImplicitlyConvertible
 import com.intellij.openapi.progress.ProgressManager
 import api.expr._
@@ -25,7 +26,6 @@ import api.statements._
 import com.intellij.psi._
 import codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.search.GlobalSearchScope
-import lang.psi.impl.ScalaPsiElementFactory
 import nonvalue.{Parameter, TypeParameter, ScTypePolymorphicType}
 import patterns.{ScBindingPattern, ScReferencePattern, ScCaseClause}
 import stubs.ScModifiersStub
@@ -54,6 +54,11 @@ import config.ScalaFacet
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
+    val manager = ScalaPsiManager.instance(clazz.getProject)
+    manager.cachedDeepIsInheritor(clazz, base)
+  }
+
   def hasScalaFacet(element: PsiElement): Boolean = {
     val module: Module = ModuleUtil.findModuleForPsiElement(element)
     if (module == null) false
