@@ -11,7 +11,7 @@ import util.TestUtils
  * Date: 03.08.2009
  */
 
-class ProblematicHighlightingPerformanceTest extends ScalaFixtureTestCase {
+class HighlightingPerformanceTest extends ScalaFixtureTestCase {
   def testPerformance() {
     val text = """
 object addressbook {
