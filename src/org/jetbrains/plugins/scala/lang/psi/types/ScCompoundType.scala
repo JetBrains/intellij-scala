@@ -13,6 +13,10 @@ import com.intellij.psi.PsiElement
  */
 case class ScCompoundType(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
                           typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor) extends ValueType {
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitCompoundType(this)
+  }
+
   private[types] def this(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
            typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor, signatureMap: HashMap[Signature, ScType],
             typesMap: HashMap[String, (ScType, ScType)], problems: List[Failure]) {

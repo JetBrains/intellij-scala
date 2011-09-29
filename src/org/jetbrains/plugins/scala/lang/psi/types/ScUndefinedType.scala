@@ -12,6 +12,11 @@ import nonvalue.NonValueType
  */
 case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   var level = 0
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitUndefinedType(this)
+  }
+
   def this(tpt: ScTypeParameterType, level: Int) {
     this(tpt)
     this.level = level
@@ -79,5 +84,9 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
           case cce: ClassCastException => throw new RecursiveUpdateException
         }
     }
+  }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitAbstractType(this)
   }
 }
