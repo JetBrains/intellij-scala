@@ -43,7 +43,7 @@ class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause]
   def getTextByStub: String = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamClauseStub].getTypeParamClauseText
+      return stub.asInstanceOf[ScTypeParamClauseStub].getTypeParamClauseText
     }
     getText
   }
