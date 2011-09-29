@@ -3,14 +3,7 @@ package performance.highlighting
 
 
 import base.ScalaFixtureTestCase
-import com.intellij.openapi.application.ApplicationManager
-import java.io.File
-import com.intellij.openapi.vfs.{VfsUtil, LocalFileSystem}
-import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import com.intellij.openapi.projectRoots.JavaSdk
-import lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import com.intellij.psi.PsiFileFactory
-import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, LightCodeInsightFixtureTestCase}
 import util.TestUtils
 
 /**
@@ -19,7 +12,7 @@ import util.TestUtils
  */
 
 class ProblematicHighlightingPerformanceTest extends ScalaFixtureTestCase {
-  def testPerformance {
+  def testPerformance() {
     val text = """
 object addressbook {
 
@@ -86,11 +79,11 @@ object addressbook {
 }
 """
     val file = PsiFileFactory.getInstance(myFixture.getProject).
-            createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension(),
+            createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_LANGUAGE, text, true, false)
     TestUtils.assertTiming("Failed highlighting performance test", 6000,
       new Runnable {
-        def run: Unit = {
+        def run() {
           try {
             myFixture.testHighlighting(false, false, false, file.getVirtualFile)
           }
