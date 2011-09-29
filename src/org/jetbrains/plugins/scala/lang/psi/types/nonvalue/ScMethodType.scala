@@ -41,6 +41,10 @@ case class TypeParameter(name: String, lowerType: ScType, upperType: ScType, ptp
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
 
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitMethodType(this)
+  }
+
   def inferValueType: ValueType = {
     new ScFunctionType(returnType.inferValueType, params.map(_.paramType.inferValueType))(project, scope)
   }
@@ -221,4 +225,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       case _ => (false, undefinedSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) = null
 }
