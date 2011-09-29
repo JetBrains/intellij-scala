@@ -23,7 +23,7 @@ public class ScalacSettings implements PersistentStateComponent<ScalacSettings> 
   public LibraryLevel COMPILER_LIBRARY_LEVEL = null;
   public boolean INTERNAL_SERVER = true;
   public String MAXIMUM_HEAP_SIZE = "1024";
-  public String FSC_OPTIONS = "-max-idle 0";
+  public String FSC_OPTIONS = "";
   public String VM_PARAMETERS = "-Xms768m -Xss1m -server";
   public String REMOTE_HOST = "";
   public String REMOTE_PORT = "";
