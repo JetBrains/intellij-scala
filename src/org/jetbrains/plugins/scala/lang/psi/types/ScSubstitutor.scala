@@ -102,7 +102,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
               ScType.extractDesignated(typez) match {
                 case Some((cl: PsiClass, subst)) => {
                   if (cl == clazz) tp
-                  else if (cl.isInheritor(clazz, true)) tp
+                  else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                   else null
                 }
                 case Some((named: ScTypedDefinition, subst)) =>
@@ -116,7 +116,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                         ScType.extractClass(tps) match {
                           case Some(cl) => {
                             if (cl == clazz) return tp
-                            else if (cl.isInheritor(clazz, true)) return tp
+                            else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp
                           }
                           case _ =>
                         }

@@ -204,7 +204,7 @@ object Bounds {
         if (InheritanceUtil.isInheritorOrSelf(clazz.getClazz, aClass.getClazz, true)) {
           //todo: join them
           break = true
-        } else if (aClass.getClazz.isInheritor(clazz.getClazz, true)) {
+        } else if (ScalaPsiUtil.cachedDeepIsInheritor(aClass.getClazz, clazz.getClazz)) {
           res(i) = (aClass, x, y)
           break = true
         }

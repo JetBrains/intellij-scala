@@ -30,6 +30,7 @@ import reflect.BeanProperty
 import lang.psi.impl.ScPackageImpl
 import config.ScalaFacet
 import collection.JavaConversions._
+import lang.psi.ScalaPsiUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -131,7 +132,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
       throw new ExecutionException("Specs not specified.")
     val classes = new ArrayBuffer[PsiClass]
     if (!classOrObjects.isEmpty) {
-      classes ++= classOrObjects.filter(_.isInheritor(suiteClass, true))
+      classes ++= classOrObjects.filter(ScalaPsiUtil.cachedDeepIsInheritor(_, suiteClass))
     } else {
       def getClasses(pack: PsiPackage): Seq[PsiClass] = {
         val buffer = new ArrayBuffer[PsiClass]
@@ -142,7 +143,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
         buffer.toSeq
       }
       for (cl <- getClasses(pack)) {
-        if (cl.isInheritor(suiteClass, true)) classes += cl
+        if (ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass)) classes += cl
       }
     }
 

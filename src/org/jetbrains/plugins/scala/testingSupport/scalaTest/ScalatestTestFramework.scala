@@ -7,8 +7,9 @@ import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import lang.psi.api.toplevel.typedef.ScTypeDefinition
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.JavaTestFramework
-import com.intellij.psi.{PsiMethod, PsiClass, JavaPsiFacade}
 import icons.Icons
+import com.intellij.psi.{PsiElement, PsiMethod, PsiClass, JavaPsiFacade}
+import lang.psi.ScalaPsiUtil
 
 class ScalatestTestFramework extends JavaTestFramework {
   def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
@@ -37,7 +38,7 @@ class ScalatestTestFramework extends JavaTestFramework {
     val facade = JavaPsiFacade.getInstance(clazz.getProject)
     val suiteClazz: PsiClass = facade.findClass(getMarkerClassFQName, clazz.getResolveScope)
     if (suiteClazz == null) return false
-    parent.isInheritor(suiteClazz, true)
+    ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)
   }
 
   def getMarkerClassFQName: String = "org.scalatest.Suite"
