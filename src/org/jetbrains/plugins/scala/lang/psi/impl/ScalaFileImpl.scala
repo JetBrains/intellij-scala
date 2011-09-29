@@ -52,7 +52,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
 
   override def getFileType = ScalaFileType.SCALA_FILE_TYPE
 
-  override def toString = "ScalaFile"
+  override def toString = "ScalaFile:" + getName
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
