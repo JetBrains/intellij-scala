@@ -357,6 +357,10 @@ case class ScExistentialType(quantified : ScType,
       }
     } else this
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitExistentialType(this)
+  }
 }
 
 case class ScExistentialArgument(name : String, args : List[ScTypeParameterType],
@@ -395,10 +399,18 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
       case _ => (false, undefinedSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitExistentialArgument(this)
+  }
 }
 
 case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
   extends ValueType {
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitSkolemizedType(this)
+  }
+
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType)): ScType = {

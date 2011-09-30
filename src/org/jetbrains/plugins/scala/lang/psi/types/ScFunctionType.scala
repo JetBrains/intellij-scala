@@ -82,4 +82,8 @@ case class ScFunctionType(returnType: ScType, params: Seq[ScType])(project: Proj
       case _ => (false, undefinedSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitFunctionType(this)
+  }
 }

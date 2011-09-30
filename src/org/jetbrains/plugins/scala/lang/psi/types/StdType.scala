@@ -11,6 +11,10 @@ import impl.ScalaPsiManager
 
 
 abstract case class StdType(name: String, tSuper: Option[StdType]) extends ValueType {
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitStdType(this)
+  }
+
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).

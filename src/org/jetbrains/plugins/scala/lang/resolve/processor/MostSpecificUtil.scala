@@ -117,17 +117,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     (c1, c2) match {
       case (Some(c1), Some(c2)) => {
         if (c1 == c2) return false
-        if (c1.isInheritor(c2, true)) return true
+        if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
         ScalaPsiUtil.getCompanionModule(c1) match {
-          case Some(c1) => if (c1.isInheritor(c2, true)) return true
+          case Some(c1) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
           case _ =>
         }
         ScalaPsiUtil.getCompanionModule(c2) match {
-          case Some(c2) => if (c1.isInheritor(c2, true)) return true
+          case Some(c2) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
           case _ =>
         }
         (ScalaPsiUtil.getCompanionModule(c1), ScalaPsiUtil.getCompanionModule(c2)) match {
-          case (Some(c1), Some(c2)) => if (c1.isInheritor(c2, true)) return true
+          case (Some(c1), Some(c2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(c1, c2)) return true
           case _ =>
         }
         false
@@ -144,7 +144,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
   private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T]): Boolean = {
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
-      case (Some(t1), Some(t2)) => if (t1.isInheritor(t2, true)) return true
+      case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
       case _ =>
     }
     val weightR1R2 = relativeWeight(r1, r2)

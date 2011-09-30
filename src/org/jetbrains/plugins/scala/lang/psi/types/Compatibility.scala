@@ -9,6 +9,7 @@ import psi.impl.toplevel.synthetic.ScSyntheticFunction
 import api.expr._
 import api.base.types.ScSequenceArg
 import com.intellij.psi._
+import impl.compiled.ClsParameterImpl
 import result.{TypeResult, Success, TypingContext}
 import api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -256,7 +257,7 @@ object Compatibility {
   }
   def toParameter(p: PsiParameter) = {
     val t = ScType.create(p.getType, p.getProject, paramTopLevel = true)
-    new Parameter(p.getName, t, false, p.isVarArgs, false)
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.getName, t, false, p.isVarArgs, false)
   }
 
   // TODO refactor a lot of duplication out of this method 
