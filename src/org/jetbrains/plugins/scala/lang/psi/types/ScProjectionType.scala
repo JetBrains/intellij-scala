@@ -157,6 +157,10 @@ case class ScProjectionType(projected: ScType, element: PsiNamedElement, subst: 
       case _ => (false, uSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitProjectionType(this)
+  }
 }
 
 /**
@@ -201,6 +205,10 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
         }
       case _ => (false, uSubst)
     }
+  }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitThisType(this)
   }
 }
 
@@ -261,5 +269,9 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
         (false, uSubst)
       case _ => (false, uSubst)
     }
+  }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitDesignatorType(this)
   }
 }

@@ -75,6 +75,10 @@ case class JavaArrayType(arg: ScType) extends ValueType {
       case _ => (false, uSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitJavaArrayType(this)
+  }
 }
 
 case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) extends ValueType {
@@ -243,6 +247,10 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
       case _ => None
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitParameterizedType(this)
+  }
 }
 
 object ScParameterizedType {
@@ -300,6 +308,10 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
       case _ => (false, undefinedSubst)
     }
   }
+
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitTypeParameterType(this)
+  }
 }
 
 
@@ -313,4 +325,8 @@ private[types] object CyclicHelper {
   }
 }
 
-case class ScTypeVariable(name: String) extends ValueType
+case class ScTypeVariable(name: String) extends ValueType{
+  def visitType(visitor: ScalaTypeVisitor) {
+    visitor.visitTypeVariable(this)
+  }
+}
