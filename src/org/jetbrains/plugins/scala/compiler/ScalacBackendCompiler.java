@@ -178,6 +178,12 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       }
       return false;
     }
+
+    if (ProjectRootManager.getInstance(myProject).getProjectSdk() ==  null) {
+      Messages.showErrorDialog(myProject, "Please, set up project SDK (required for project FSC instantiation)", ScalaBundle.message("cannot.compile"));
+      return false;
+    }
+
     return true;
   }
 
