@@ -11,8 +11,8 @@ import com.intellij.psi.stubs.{StubElement, IndexSink, StubOutputStream, StubInp
 import com.intellij.lang.ASTNode
 import index.{ScFullClassNameIndex, ScalaIndexKeys, ScShortClassNameIndex}
 import api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScTypeDefinition}
-import com.intellij.psi.impl.java.stubs.index.{JavaFullClassNameIndex, JavaShortClassNameIndex}
 import api.expr.ScAnnotation
+import com.intellij.psi.impl.java.stubs.index.{JavaStubIndexKeys, JavaFullClassNameIndex, JavaShortClassNameIndex}
 
 /**
  * @author ilyas
@@ -80,12 +80,12 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val name = stub.getName
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
-      sink.occurrence(JavaShortClassNameIndex.KEY, name)
+      sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, name)
     }
     val fqn = stub.qualName
     if (fqn != null) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
-      sink.occurrence[PsiClass, java.lang.Integer](JavaFullClassNameIndex.KEY, fqn.hashCode)
+      sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
       val pack =
         if (i == -1) ""

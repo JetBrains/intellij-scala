@@ -7,6 +7,7 @@ import com.intellij.codeInsight.editorActions.{JavaLikeQuoteHandler, TypedHandle
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiErrorElement, PsiElement, PsiFile, PsiComment}
 import org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler
+import com.intellij.openapi.editor.Editor
 
 /**
   * @author Alexander Podkhalyuzin
@@ -18,7 +19,7 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
   }
 
   //same code in com.intellij.codeInsight.editorActions.EnterHandler
-  def isCommentComplete(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean = {
+  def isCommentComplete(comment: PsiComment, commenter: CodeDocumentationAwareCommenter, editor: Editor): Boolean = {
     val commentText: String = comment.getText
     val docComment: Boolean = isDocComment(comment, commenter)
     val expectedCommentEnd: String = if (docComment) commenter.getDocumentationCommentSuffix else commenter.getBlockCommentSuffix
@@ -28,7 +29,7 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
     val lexer: Lexer = LanguageParserDefinitions.INSTANCE.forLanguage(language).createLexer(containingFile.getProject)
     val commentPrefix: String = if (docComment) commenter.getDocumentationCommentPrefix else commenter.getBlockCommentPrefix
     lexer.start(commentText, if (commentPrefix eq null) 0 else commentPrefix.length, commentText.length)
-    val fileTypeHandler: QuoteHandler = new ScalaQuoteHandler //TypedHandler.getQuoteHandler(containingFile)
+    val fileTypeHandler: QuoteHandler = TypedHandler.getQuoteHandler(containingFile, editor)
     val javaLikeQuoteHandler: JavaLikeQuoteHandler =
       if (fileTypeHandler.isInstanceOf[JavaLikeQuoteHandler])
         fileTypeHandler.asInstanceOf[JavaLikeQuoteHandler]

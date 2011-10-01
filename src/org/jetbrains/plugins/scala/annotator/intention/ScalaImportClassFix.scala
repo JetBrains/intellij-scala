@@ -37,6 +37,7 @@ import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep, PopupChooserBui
 import lang.psi.api.expr.{ScInfixExpr, ScPrefixExpr, ScPostfixExpr, ScMethodCall}
 import collection.mutable.ArrayBuffer
 import lang.psi.{ScalaPsiUtil, ScImportsHolder}
+import search.PsiShortNamesCache
 
 /**
  * User: Alexander Podkhalyuzin
@@ -254,7 +255,7 @@ object ScalaImportClassFix {
   def getClasses(ref: ScReferenceElement, myProject: Project): Array[PsiClass] = {
     if (!ref.isValid) return Array.empty
     val kinds = ref.getKinds(false)
-    val cache = JavaPsiFacade.getInstance(myProject).getShortNamesCache
+    val cache = PsiShortNamesCache.getInstance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
     val buffer = new ArrayBuffer[PsiClass]
     for (clazz <- classes) {
