@@ -6,9 +6,7 @@ package settings
 import com.intellij.openapi.options.Configurable
 import java.lang.String
 import com.intellij.application.options.{CodeStyleAbstractPanel, CodeStyleAbstractConfigurable}
-import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CustomCodeStyleSettings, CodeStyleSettingsProvider}
-import com.intellij.util.PlatformUtils
-import settings.ScalaCodeStyleSettings
+import com.intellij.psi.codeStyle.{DisplayPriority, CodeStyleSettings, CodeStyleSettingsProvider}
 
 /**
  * User: Alexander Podkhalyuzin

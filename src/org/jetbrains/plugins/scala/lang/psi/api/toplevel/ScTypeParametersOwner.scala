@@ -4,17 +4,32 @@ package psi
 package api
 package toplevel
 
-import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import com.intellij.psi._
-import com.intellij.psi.scope.PsiScopeProcessor
 import parser.ScalaElementTypes
 import com.intellij.openapi.progress.ProgressManager
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
-  def typeParameters: Seq[ScTypeParam] = typeParametersClause match {
-    case Some(clause) => clause.typeParameters
-    case _ => Seq.empty
+  @volatile
+  private var res: Seq[ScTypeParam] = null
+  @volatile
+  private var modCount: Long = 0L
+  
+  def typeParameters: Seq[ScTypeParam] = {
+    def inner(): Seq[ScTypeParam] = {
+      typeParametersClause match {
+        case Some(clause) => clause.typeParameters
+        case _ => Seq.empty
+      }
+    }
+    
+    val curModCount = getManager.getModificationTracker.getModificationCount
+    if (res != null && curModCount == modCount) return res
+    
+    res = inner()
+    modCount = curModCount
+
+    res
   }
 
   def typeParametersClause: Option[ScTypeParamClause] = {

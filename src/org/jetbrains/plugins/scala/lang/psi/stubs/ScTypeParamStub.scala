@@ -26,4 +26,5 @@ trait ScTypeParamStub extends NamedStub[ScTypeParam]{
   def isCovariant: Boolean
   def isContravariant: Boolean
   def getPositionInFile: Int
+  def getContainingFileName: String
 }

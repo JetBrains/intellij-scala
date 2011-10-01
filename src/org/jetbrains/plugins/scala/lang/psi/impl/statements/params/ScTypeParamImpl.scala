@@ -40,6 +40,16 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     }
     getTextRange.getStartOffset
   }
+  
+  def getContainingFileName: String = {
+    val stub = getStub
+    if (stub != null) {
+      return stub.asInstanceOf[ScTypeParamStub].getContainingFileName
+    }
+    val containingFile = getContainingFile
+    if (containingFile == null) return "NoFile"
+    containingFile.getName
+  }
 
   def getIndex: Int = 0
   def getOwner: PsiTypeParameterListOwner = getContext.getContext match {
