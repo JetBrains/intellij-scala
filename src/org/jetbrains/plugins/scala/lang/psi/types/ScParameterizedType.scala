@@ -21,10 +21,10 @@ import caches.CachesUtil
 
 
 import com.intellij.psi._
-import collection.immutable.{::, Map, HashMap}
 import result.{Success, TypingContext}
 import api.toplevel.typedef.{ScTypeDefinition, ScClass}
 import collection.mutable.ArrayBuffer
+import collection.immutable.{ListMap, ::, Map, HashMap}
 
 case class JavaArrayType(arg: ScType) extends ValueType {
 
@@ -102,12 +102,15 @@ case class ScParameterizedType(designator : ScType, typeArgs : Seq[ScType]) exte
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
       var res = initial
       val argsIterator = typeArgs.iterator
+      val builder = ListMap.newBuilder[(String, String), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next())
         val p2 = argsIterator.next()
-        res = res bindT ((p1.name, p1.getId), p2)
+        builder += (((p1.name, p1.getId), p2))
+        //res = res bindT ((p1.name, p1.getId), p2)
       }
-      res
+      val subst = new ScSubstitutor(builder.result(), Map.empty, None)
+      initial followed subst
     }
     designator match {
       case ScTypeParameterType(_, args, _, _, _) => {

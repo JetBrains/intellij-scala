@@ -54,9 +54,10 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
       case st: ScalaStubBasedElementImpl[_] =>  {
         val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
-          val mods: Array[ScModifierList] =
-            stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
-          if (mods.length > 0) return mods(0).hasModifierProperty(name: String)
+          val mod = stub.findChildStubByType(ScalaElementTypes.MODIFIERS)
+          if (mod != null) {
+            return mod.getPsi.hasModifierProperty(name: String)
+          }
           return false
         }
       }

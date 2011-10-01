@@ -145,7 +145,10 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   )
 
   def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = {
-    extractClassType(t, project).map(_._1)
+    t match {
+      case p@ScParameterizedType(t1, _) => extractClass(t1, project) //performance improvement
+      case _ => extractClassType(t, project).map(_._1)
+    }
   }
 
   def extractClassType(t: ScType, project: Option[Project] = None): Option[Pair[PsiClass, ScSubstitutor]] = t match {

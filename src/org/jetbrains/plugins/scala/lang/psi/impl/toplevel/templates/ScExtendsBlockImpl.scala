@@ -39,8 +39,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
   def templateBody: Option[ScTemplateBody] = {
     val stub = getStub
     if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.TEMPLATE_BODY, JavaArrayFactoryUtil.ScTemplateBodyFactory)
-      array.headOption
+      val templ = stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)
+      if (templ == null) None else Some(templ.getPsi)
     } else {
       getLastChild match {
         case tb: ScTemplateBody => Some(tb)

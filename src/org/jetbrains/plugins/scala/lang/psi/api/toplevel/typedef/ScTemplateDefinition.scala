@@ -38,13 +38,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       case st: ScalaStubBasedElementImpl[_] => {
         val stub = st.getStub
         if (stub != null) {
-          val array = stub.getChildrenByType(ScalaElementTypes.EXTENDS_BLOCK,
-            JavaArrayFactoryUtil.ScExtendsBlockFactory)
-          if (array.length == 0) {
-            return null
-          } else {
-            return array.apply(0)
-          }
+          return stub.findChildStubByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi
         }
       }
       case _ =>
@@ -260,9 +254,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       if (!visited.contains(drv)) {
         visited.add(drv)
 
-        // This doesn't appear in the superTypes at the moment, so special case required.
-        if (baseClass.getQualifiedName == "java.lang.Object") return true
-
         drv match {
           case drg: ScTemplateDefinition =>
             val supers = drg.superTypes
@@ -299,6 +290,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       false
     }
     if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
+
+    // This doesn't appear in the superTypes at the moment, so special case required.
+    if (baseQualifiedName == "java.lang.Object" || baseQualifiedName == "scala.ScalaObject") return true
+
     isInheritorInner(baseClass, this, deep)
   }
 }
