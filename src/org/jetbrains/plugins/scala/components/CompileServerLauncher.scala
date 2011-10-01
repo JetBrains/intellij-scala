@@ -87,11 +87,14 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
   def compilerVersion: Option[String] = instance.map(_.environment.compilerVersion)
 
   private def toEnvironment(project: Project): Environment = {
-    val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk).getOrElse(throw new RuntimeException())
+    val sdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+            .getOrElse(throw new RuntimeException("No project SDK specified"))
+
     val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
 
     val settings = ScalacSettings.getInstance(project)
-    val lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, project).getOrElse(throw new RuntimeException())
+    val lib = Libraries.findBy(settings.COMPILER_LIBRARY_NAME, settings.COMPILER_LIBRARY_LEVEL, project)
+            .getOrElse(throw new RuntimeException("No FSC instantiation library specified"))
 
     Environment(sdkType.getVMExecutablePath(sdk), lib.files.toList, lib.version.get)
   }
