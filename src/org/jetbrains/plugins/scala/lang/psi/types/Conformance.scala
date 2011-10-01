@@ -1669,6 +1669,7 @@ object Conformance {
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
+    if (ScEquivalenceUtil.areClassesEquivalent(leftClass, rightClass)) return (false, null)
     if (!ScalaPsiUtil.cachedDeepIsInheritor(leftClass, rightClass)) return (false, null)
     smartIsInheritor(leftClass, substitutor, rightClass, new collection.mutable.HashSet[PsiClass])
   }

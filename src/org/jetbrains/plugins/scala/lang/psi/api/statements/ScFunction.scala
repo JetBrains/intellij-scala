@@ -121,8 +121,20 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def hasMalformedSignature = paramClauses.clauses.exists {
-    _.parameters.dropRight(1).exists(_.isRepeatedParameter)
+  /**
+   * Signature has repeated param, which is not the last one
+   */
+  def hasMalformedSignature: Boolean = {
+    val clausesIterator = paramClauses.clauses.iterator
+    while (clausesIterator.hasNext) {
+      val clause = clausesIterator.next()
+      val paramsIterator = clause.parameters.iterator
+      while (paramsIterator.hasNext) {
+        val param = paramsIterator.next()
+        if (paramsIterator.hasNext && param.isRepeatedParameter) return true
+      }
+    }
+    false
   }
 
   def definedReturnType: TypeResult[ScType] = {

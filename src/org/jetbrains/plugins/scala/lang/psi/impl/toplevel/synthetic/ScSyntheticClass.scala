@@ -62,6 +62,8 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   def getOffsetInFile: Int = 0
 
+  def getContainingFileName: String = "NoFile"
+
   override def toString = "Synthetic type parameter"
 
   def isCovariant = false

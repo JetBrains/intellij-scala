@@ -19,7 +19,7 @@ import com.intellij.util.io._
 
 class ScTypeParamElementType[Func <: ScTypeParam]
         extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
-  def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
+  def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getUpperText)
     dataStream.writeName(stub.getLowerText)
@@ -28,9 +28,10 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     dataStream.writeInt(stub.getPositionInFile)
     serialiseArray(dataStream, stub.getViewText)
     serialiseArray(dataStream, stub.getContextBoundText)
+    dataStream.writeName(stub.getContainingFileName)
   }
 
-  def indexStub(stub: ScTypeParamStub, sink: IndexSink): Unit = {}
+  def indexStub(stub: ScTypeParamStub, sink: IndexSink) {}
 
   def createPsi(stub: ScTypeParamStub): ScTypeParam = {
     new ScTypeParamImpl(stub)
@@ -48,7 +49,8 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     val viewText = psi.viewTypeElement.toArray.map(_.getText)
     val contextText = psi.contextBoundTypeElement.toArray.map(_.getText)
     new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getName,
-      upperText, lowerText, viewText, contextText, psi.isCovariant, psi.isContravariant, psi.getTextRange.getStartOffset)
+      upperText, lowerText, viewText, contextText, psi.isCovariant, psi.isContravariant,
+      psi.getTextRange.getStartOffset, psi.getContainingFileName)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamStub = {
@@ -60,8 +62,9 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     val position = dataStream.readInt
     val viewText = deserialiseArray(dataStream)
     val contextBoundText = deserialiseArray(dataStream)
+    val fileName = dataStream.readName()
     new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name,
-      upperText, lowerText, viewText, contextBoundText, covariant, contravariant, position)
+      upperText, lowerText, viewText, contextBoundText, covariant, contravariant, position, fileName)
   }
 
   def deserialiseArray(dataStream: StubInputStream): Array[StringRef] = {
@@ -71,7 +74,7 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     refs
   }
 
-  def serialiseArray(dataStream: StubOutputStream, ref: Array[String]): Unit = {
+  def serialiseArray(dataStream: StubOutputStream, ref: Array[String]) {
     dataStream.writeInt(ref.size)
     for (r <- ref) dataStream.writeName(r)
   }

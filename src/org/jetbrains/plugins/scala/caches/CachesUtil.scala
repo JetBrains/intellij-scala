@@ -10,12 +10,12 @@ import lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import lang.psi.api.base.types.ScTypeElement
 import com.intellij.openapi.util.{Computable, RecursionManager, RecursionGuard, Key}
 import util.CachedValueProvider.Result
-import lang.psi.api.statements.params.{ScTypeParamClause, ScParameterClause}
 import lang.psi.api.expr.ScExpression
 import lang.psi.api.toplevel.imports.usages.ImportUsed
 import collection.mutable.{ArrayBuffer, Map, HashMap}
 import lang.resolve.ScalaResolveResult
 import lang.psi.types.{ScUndefinedSubstitutor, ScSubstitutor, Signature, ScType}
+import lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause, ScParameterClause}
 
 /**
  * User: Alexander Podkhalyuzin

@@ -90,7 +90,7 @@ object Bounds {
         else {
           val buf = new ArrayBuffer[ScType]
           val supers: Array[(Options, Int, Int)] =
-            getLeastUpperClasses(aOptions.toArray, bOptions.toArray)
+            getLeastUpperClasses(aOptions, bOptions)
           for (sup <- supers) {
             val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
             if (tp != Any) buf += tp
@@ -194,7 +194,7 @@ object Bounds {
     run
   }
 
-  private def getLeastUpperClasses(aClasses: Array[Options], bClasses: Array[Options]): Array[(Options, Int, Int)] = {
+  private def getLeastUpperClasses(aClasses: Seq[Options], bClasses: Seq[Options]): Array[(Options, Int, Int)] = {
     val res = new ArrayBuffer[(Options, Int, Int)]
     def addClass(aClass: Options, x: Int, y: Int) {
       var i = 0
@@ -214,17 +214,17 @@ object Bounds {
         res += Tuple(aClass, x, y)
       }
     }
-    def checkClasses(aClasses: Array[Options], baseIndex: Int = -1) {
+    def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1) {
       if (aClasses.length == 0) return
       val aIter = aClasses.iterator
       var i = 0
       while (aIter.hasNext) {
-        val aClass = aIter.next
+        val aClass = aIter.next()
         val bIter = bClasses.iterator
         var break = false
         var j = 0
         while (!break && bIter.hasNext) {
-          val bClass = bIter.next
+          val bClass = bIter.next()
           if (InheritanceUtil.isInheritorOrSelf(bClass.getClazz, aClass.getClazz, true)) {
             addClass(aClass, if (baseIndex == -1) i else baseIndex, j)
             break = true
@@ -237,7 +237,7 @@ object Bounds {
               case None => ScSubstitutor.empty
             }
             checkClasses(aClass.getClazz match {
-              case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).toArray
+              case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp)))
               case p: PsiClass => p.getSupers.map(cl => new Options(ScType.designator(cl)))
             }, if (baseIndex == -1) i else baseIndex)
           }
