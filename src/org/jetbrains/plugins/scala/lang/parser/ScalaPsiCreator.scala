@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
-import com.intellij.psi.util.{PsiUtilBase, PsiUtil}
+import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
 
 object ScalaPsiCreator {
   def createElement(node: ASTNode): PsiElement =
@@ -187,7 +187,7 @@ object ScalaPsiCreator {
     case ScalaElementTypes.GUARD => new ScGuardImpl(node)
     case ScalaElementTypes.EXPRS => new ScExprsImpl(node)
     case ScalaElementTypes.ARG_EXPRS => new ScArgumentExprListImpl(node)
-    case ScalaElementTypes.BLOCK_EXPR => PsiUtilBase.NULL_PSI_ELEMENT
+    case ScalaElementTypes.BLOCK_EXPR => PsiUtilCore.NULL_PSI_ELEMENT
     case ScalaElementTypes.CONSTR_BLOCK => new ScConstrBlockImpl(node)
     case ScalaElementTypes.BLOCK => new ScBlockImpl(node)
     case ScalaElementTypes.TUPLE => new ScTupleImpl(node)

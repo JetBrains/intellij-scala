@@ -465,6 +465,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
       }
     } else default
   }
+
+  def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 }
 
 object ImplicitlyImported {

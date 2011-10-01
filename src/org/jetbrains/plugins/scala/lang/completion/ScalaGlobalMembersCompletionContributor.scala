@@ -124,7 +124,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     }
 
     val namesCache: PsiShortNamesCache =
-      JavaPsiFacade.getInstance(ref.getProject).getShortNamesCache
+      PsiShortNamesCache.getInstance(ref.getProject)
 
     val methodNamesIterator = namesCache.getAllMethodNames.iterator
 
