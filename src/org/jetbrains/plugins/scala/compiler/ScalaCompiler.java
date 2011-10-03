@@ -53,27 +53,27 @@ public class ScalaCompiler implements TranslatingCompiler {
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
     if (!ScalaFacet.isPresentIn(myProject)) return false;
 
-    if (context.getProject() == null) return false;
+    boolean compilableByExtension = isCompilableByExtension(file);
 
     Module module = context.getModuleByFile(file);
-
-    if (module == null) return false;
+    if (module == null) return compilableByExtension;
 
     Option<ScalaFacet> facet = ScalaFacet.findIn(module);
-
     if (!facet.isDefined()) return false;
 
     if (myFsc != facet.get().fsc()) return false;
 
+    return compilableByExtension;
+  }
+
+  private boolean isCompilableByExtension(VirtualFile file) {
     FileType fileType = FILE_TYPE_MANAGER.getFileTypeByFile(file);
 
-    ScalacSettings settings = ScalacSettings.getInstance(context.getProject());
+    ScalacSettings settings = ScalacSettings.getInstance(myProject);
 
     if (StdFileTypes.JAVA.equals(fileType)) return settings.SCALAC_BEFORE;
 
-    // It's too pricy to determine whether the .scala file is a script.
-    // Besides, Maven and Ant will try to compile all files anyway.
-    return ScalaFileType.SCALA_FILE_TYPE.equals(fileType); //&& !isScalaScript(file);
+    return ScalaFileType.SCALA_FILE_TYPE.equals(fileType);
   }
 
   private boolean isScalaScript(final VirtualFile file) {
