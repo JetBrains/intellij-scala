@@ -14,7 +14,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
 /**
  * @author Alexander Podkhalyuzin
  */
-public class ScalaTest15Scala28Reporter implements Reporter {
+public class ScalaTestReporter implements Reporter {
   // IDEA 107.199 gives this error when parsing a Message service message.
   //  Caused by: java.lang.RuntimeException: java.lang.NoClassDefFoundError: jetbrains/buildServer/messages/Status
   //        at jetbrains.buildServer.messages.serviceMessages.ServiceMessage.doParse(ServiceMessage.java:380)
