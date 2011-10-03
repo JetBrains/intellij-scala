@@ -37,10 +37,10 @@ public class ScalaTestReporter implements Reporter {
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
             "' captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
-      Option<Long> durationOption = ((TestSucceeded) event).duration();
+      Option<Object> durationOption = ((TestSucceeded) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = durationOption.get().longValue();
+        duration = ((java.lang.Long) durationOption.get()).longValue();
       }
       String testName = ((TestSucceeded) event).testName();
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
@@ -53,10 +53,10 @@ public class ScalaTestReporter implements Reporter {
         if (throwableOption.get() instanceof AssertionError) error = false;
         detail = getStackTraceString(throwableOption.get());
       }
-      Option<Long> durationOption = ((TestFailed) event).duration();
+      Option<Object> durationOption = ((TestFailed) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = durationOption.get().longValue();
+        duration = ((java.lang.Long) durationOption.get()).longValue();
       }
       String testName = ((TestFailed) event).testName();
       String message = ((TestFailed) event).message();
