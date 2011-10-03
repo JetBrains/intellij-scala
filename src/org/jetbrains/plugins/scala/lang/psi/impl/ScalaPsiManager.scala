@@ -122,6 +122,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def run() {
         implicitObjectMap.clear()
         classMap.clear()
+        classesMap.clear()
         inheritorsMap.clear()
       }
     })
@@ -134,6 +135,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def rootsChanged(event: ModuleRootEvent) {
         implicitObjectMap.clear()
         classMap.clear()
+        classesMap.clear()
         inheritorsMap.clear()
       }
     })
