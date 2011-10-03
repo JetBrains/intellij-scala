@@ -108,7 +108,6 @@ public class ScalaTestRunConfigurationForm {
     else {
       setClassEnabled();
     }
-    setScalaTestVersion(configuration.getScalaTestVersion());
     setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
   }
@@ -151,15 +150,6 @@ public class ScalaTestRunConfigurationForm {
 
   public void setTestPackagePath(String s) {
     testPackageTextField.setText(s);
-  }
-
-  @Deprecated
-  public boolean getScalaTestVersion() {
-    return true;
-  }
-
-  @Deprecated
-  public void setScalaTestVersion(boolean b) {
   }
 
   public void setWorkingDirectory(String s) {

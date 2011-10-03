@@ -9,6 +9,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="specs2" level="project" />
     <orderEntry type="library" name="specs-1.6.7-scala-2.8.1" level="project" />
+    <orderEntry type="library" name="scalatest-1.6.1" level="project" />
     <orderEntry type="library" name="main-scala-compiler" level="project" />
   </component>
 </module>

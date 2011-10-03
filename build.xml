@@ -33,7 +33,6 @@
   <property name="jdk.lib" value="${java.home}/lib"/>
   <property name="tools.jar" value="${java.home}/lib/tools.jar"/>
   <property name="scala.aux.lib" value="${base.dir}/SDK/lib"/>
-  <property name="scala.aux.scala.lib" value="${base.dir}/SDK/scala-aux-lib"/>
 
   <property name="test.dist" value="${basedir}/test_dist"/>
 
@@ -43,7 +42,6 @@
   <property name="plugin.build.number" value="${build.number}"/>
   <property name="plugin.version" value="${plugin.build.number}"/>
 
-  <property name="scala.2.7.lib" value="${base.dir}/SDK/scala-27-lib"/>
   <property name="scalap.dir" value="${base.dir}/SDK/scalap"/>
   <property name="scalap.jar" value="${scalap.dir}/scalap.jar"/>
   <property name="scala.jar" value="scala-plugin.jar"/>
@@ -91,36 +89,6 @@
     <pathelement location="${scalap.jar}"/>
   </path>
 
-  <path id="scala.runners.path">
-    <fileset dir="${scala.aux.scala.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${jdk.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${idea.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${idea.home}/plugins/">
-      <include name="**/*.jar"/>
-    </fileset>
-  </path>
-
-  <path  id="scala.2.7.runners.path">
-    <fileset dir="${scala.2.7.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${jdk.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${idea.lib}">
-      <include name="**/*.jar"/>
-    </fileset>
-    <fileset dir="${idea.home}/plugins/">
-      <include name="**/*.jar"/>
-    </fileset>
-  </path>
-
   <target name="clear.all" description="Clears results">
     <mkdir dir="${compiled.dest}"/>
     <delete includeemptydirs="true">
@@ -161,62 +129,6 @@
       <classpath refid="base.path"/>
       <include name="Runners/src/**/*.java"/>
     </javac>
-
-    <!--Scalac 2.8 taskdef-->
-    <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath>
-        <pathelement location="${scala.aux.scala.lib}/scala-compiler.jar"/>
-        <pathelement location="${scala.aux.scala.lib}/scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            force="changed"
-            fork="true"
-            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
-      <classpath>
-        <path refid="scala.runners.path"/>
-      </classpath>
-      <include name="ScalaRunners/src/**/*.java"/>
-      <include name="ScalaRunners/src/**/*.scala"/>
-    </scalac>
-
-    <javac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            debug="true">
-      <classpath>
-        <path refid="scala.runners.path"/>
-      </classpath>
-      <include name="ScalaRunners/src/**/*.java"/>
-    </javac>
-
-    <!--Scalac 2.7 taskdef-->
-    <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath>
-        <pathelement location="${scala.2.7.lib}/scala-compiler.jar"/>
-        <pathelement location="${scala.2.7.lib}/scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            force="changed">
-      <classpath>
-        <path refid="scala.2.7.runners.path"/>
-      </classpath>
-      <include name="Scala2.7Runners/src/**/*.java"/>
-      <include name="Scala2.7Runners/src/**/*.scala"/>
-    </scalac>
-
-    <javac2 srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            debug="true">
-      <classpath>
-        <path refid="scala.2.7.runners.path"/>
-      </classpath>
-      <include name="Scala2.7Runners/src/**/*.java"/>
-    </javac2>
 
     <!--Scalac 2.8 taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">

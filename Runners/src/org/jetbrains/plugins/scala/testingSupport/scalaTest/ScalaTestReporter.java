@@ -14,7 +14,7 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.*;
 /**
  * @author Alexander Podkhalyuzin
  */
-public class ScalaTest15Scala28Reporter implements Reporter {
+public class ScalaTestReporter implements Reporter {
   // IDEA 107.199 gives this error when parsing a Message service message.
   //  Caused by: java.lang.RuntimeException: java.lang.NoClassDefFoundError: jetbrains/buildServer/messages/Status
   //        at jetbrains.buildServer.messages.serviceMessages.ServiceMessage.doParse(ServiceMessage.java:380)
@@ -37,10 +37,10 @@ public class ScalaTest15Scala28Reporter implements Reporter {
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
             "' captureStandardOutput='true']");
     } else if (event instanceof TestSucceeded) {
-      Option<Long> durationOption = ((TestSucceeded) event).duration();
+      Option<Object> durationOption = ((TestSucceeded) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = durationOption.get().longValue();
+        duration = ((Long) durationOption.get()).longValue();
       }
       String testName = ((TestSucceeded) event).testName();
       System.out.println("\n##teamcity[testFinished name='" + escapeString(testName) +
@@ -53,10 +53,10 @@ public class ScalaTest15Scala28Reporter implements Reporter {
         if (throwableOption.get() instanceof AssertionError) error = false;
         detail = getStackTraceString(throwableOption.get());
       }
-      Option<Long> durationOption = ((TestFailed) event).duration();
+      Option<Object> durationOption = ((TestFailed) event).duration();
       long duration = 0;
       if (durationOption instanceof Some) {
-        duration = durationOption.get().longValue();
+        duration = ((Long) durationOption.get()).longValue();
       }
       String testName = ((TestFailed) event).testName();
       String message = ((TestFailed) event).message();

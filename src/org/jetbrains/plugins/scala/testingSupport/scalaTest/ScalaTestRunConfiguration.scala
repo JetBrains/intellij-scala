@@ -56,12 +56,8 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  def mainClass(scalaTestVersion: String = "10", scalaVersion: String = "28") = {
-    "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTest" + scalaTestVersion + "Scala" + scalaVersion + "Runner"
-  }
-  def reporterClass(scalaTestVersion: String = "10", scalaVersion: String = "28") = {
-    "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTest" + scalaTestVersion + "Scala" + scalaVersion + "Reporter"
-  }
+  val mainClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
+  val reporterClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter"
   val SUITE_PATH = "org.scalatest.Suite"
 
   private var testClassPath = ""
@@ -73,19 +69,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (base != null) base.getPath
     else ""
   }
-  private var scalaTestVersion = false
-
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
-  def getScalaTestVersion: Boolean = scalaTestVersion
   def getWorkingDirectory: String = workingDirectory
   def setTestClassPath(s: String) {testClassPath = s}
   def setTestPackagePath(s: String): Unit = testPackagePath = s
   def setTestArgs(s: String): Unit = testArgs = s
   def setJavaOptions(s: String): Unit = javaOptions = s
-  def setScalaTestVersion(b: Boolean): Unit = scalaTestVersion = b
   def setWorkingDirectory(s: String): Unit = workingDirectory = s
 
   private var generatedName: String = ""
@@ -105,7 +97,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     }
     setJavaOptions(configuration.getJavaOptions)
     setTestArgs(configuration.getTestArgs)
-    setScalaTestVersion(configuration.getScalaTestVersion)
     setModule(configuration.getModule)
     setWorkingDirectory(configuration.getWorkingDirectory)
   }
@@ -165,23 +156,11 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
 
-    //versions detection for scala compiler and for ScalaTest
-    val version: String = facet.version
-    var scalaVersion: String = "27"
-    try {
-      val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      if (vers > 2.79) scalaVersion = "28"
-    } catch {
-      case e: Exception => //nothing to do
-    }
-    val scalaTestVersion: String = if (scalaVersion == "27") "10" else "15"
-
     val rootManager = ModuleRootManager.getInstance(module)
     val sdk = rootManager.getSdk
     if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
       throw CantRunException.noJdkForModule(module);
     }
-    val sdkType = sdk.getSdkType
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
@@ -205,15 +184,15 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         params.getClassPath.add(getClassPath(module))
 
 
-        params.setMainClass(mainClass(scalaTestVersion, scalaVersion))
+        params.setMainClass(mainClass)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
 
         params.getProgramParametersList.add("-r")
-        params.getProgramParametersList.add(reporterClass(scalaTestVersion, scalaVersion))
+        params.getProgramParametersList.add(reporterClass)
         params.getProgramParametersList.addParametersString(testArgs)
-        return params
+        params
       }
 
 
@@ -230,7 +209,7 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
         new DefaultExecutionResult(testRunnerConsole, processHandler, createActions(testRunnerConsole, processHandler): _*)
       }
     }
-    return state;
+    state;
   }
 
   def getModule: Module = {
@@ -251,7 +230,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     JDOMExternalizer.write(element, "package", getTestPackagePath)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
     JDOMExternalizer.write(element, "params", getTestArgs)
-    JDOMExternalizer.write(element, "version", scalaTestVersion)
     JDOMExternalizer.write(element, "workingDirectory", workingDirectory)
   }
 
@@ -262,7 +240,6 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     testPackagePath = JDOMExternalizer.readString(element, "package")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
-    scalaTestVersion = JDOMExternalizer.readBoolean(element, "version")
     val pp = JDOMExternalizer.readString(element, "workingDirectory")
     if (pp != null) workingDirectory = pp
   }

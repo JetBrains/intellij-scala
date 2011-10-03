@@ -4,7 +4,10 @@ import org.scalatest.tools.Runner;
 
 import java.util.ArrayList;
 
-public class ScalaTest10Scala28Runner {
+/**
+ * @author Alexander Podkhalyuzin
+ */
+public class ScalaTestRunner {
   public static void main(String[] args) {
     ArrayList<String> argsArray = new ArrayList<String>();
     ArrayList<String> classes = new ArrayList<String>();
