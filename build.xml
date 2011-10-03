@@ -148,35 +148,6 @@
     <!--Scalac 2.8 taskdef-->
     <taskdef resource="scala/tools/ant/antlib.xml">
       <classpath>
-        <pathelement location="${scala.aux.scala.lib}/scala-compiler.jar"/>
-        <pathelement location="${scala.aux.scala.lib}/scala-library.jar"/>
-      </classpath>
-    </taskdef>
-
-    <scalac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            force="changed"
-            fork="true"
-            jvmargs="-Xmx1024M -Xms768M -Xss1024k -server">
-      <classpath>
-        <path refid="scala.runners.path"/>
-      </classpath>
-      <include name="ScalaRunners/src/**/*.java"/>
-      <include name="ScalaRunners/src/**/*.scala"/>
-    </scalac>
-
-    <javac srcdir="${base.dir}"
-            destdir="${runners.dest}"
-            debug="true">
-      <classpath>
-        <path refid="scala.runners.path"/>
-      </classpath>
-      <include name="ScalaRunners/src/**/*.java"/>
-    </javac>
-
-    <!--Scalac 2.8 taskdef-->
-    <taskdef resource="scala/tools/ant/antlib.xml">
-      <classpath>
         <pathelement location="${scala.lib}/scala-compiler.jar"/>
         <pathelement location="${scala.lib}/scala-library.jar"/>
       </classpath>
