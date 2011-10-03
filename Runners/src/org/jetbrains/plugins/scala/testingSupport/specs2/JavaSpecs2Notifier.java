@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.specs2.execute.Details;
 import org.specs2.reporter.Notifier;
@@ -52,7 +51,7 @@ public class JavaSpecs2Notifier implements Notifier {
   }
 
   // New API after 23/4/2011
-  public void exampleFailure(String name, String message, String location, Throwable f, @Nullable Details details, long duration) {
+  public void exampleFailure(String name, String message, String location, Throwable f, Details details, long duration) {
     String actualExpectedAttrs = TestRunnerUtil.actualExpectedAttrsSpecs2(message, details);
     exampleFailureOrError(name, message, f, false, actualExpectedAttrs);
   }
