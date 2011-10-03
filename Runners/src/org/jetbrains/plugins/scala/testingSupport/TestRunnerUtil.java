@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport;
 
-import org.jetbrains.annotations.Nullable;
 import org.specs2.execute.Details;
 import org.specs2.execute.FailureDetails;
 import org.specs2.execute.FailureException;
@@ -35,7 +34,7 @@ public class TestRunnerUtil {
     return " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
   }
 
-  public static String actualExpectedAttrsSpecs2(String message, @Nullable Details details) {
+  public static String actualExpectedAttrsSpecs2(String message, Details details) {
     String actualExpectedAttrs = "";
     if (details != null && details instanceof FailureDetails) {
       FailureDetails failureDetails = (FailureDetails) details;
