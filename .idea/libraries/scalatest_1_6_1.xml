@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="specs-1.6.1-scala-2.7">
+  <library name="scalatest-1.6.1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/scala-27-lib/specs-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SDK/lib/scalatest_2.9.1-1.6.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
