@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="scalatest-1.2-scala-2.8.0.RC2-SNAPSHOT">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/scala-aux-lib/scalatest-1.2-for-scala-2.8.0.RC2-SNAPSHOT.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
