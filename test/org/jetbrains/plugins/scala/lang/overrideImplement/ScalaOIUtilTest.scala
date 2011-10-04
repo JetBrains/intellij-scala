@@ -30,6 +30,12 @@ class ScalaOIUtilTest extends SimpleTestCase {
   // implemented as mixin
   // abstract override
 
+  def testSOE() {
+    assertUnimplemented("trait A; trait B extends D; " +
+      "trait C extends A with B; trait D extends B with C;" +
+      "object X extends D {}")
+  }
+
   def testEmpty() {
     assertUnimplemented("trait T { }; new T {}")
     assertUnimplemented("abstract case class C; new C {}")
