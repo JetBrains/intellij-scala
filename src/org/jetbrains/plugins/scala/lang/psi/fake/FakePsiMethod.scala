@@ -39,7 +39,7 @@ class FakePsiMethod(
     val scope: GlobalSearchScope = navElement.getResolveScope
     val manager = navElement.getManager
     val language = navElement.getLanguage
-  } with LightElement(manager, language) with PsiMethod{
+  } with LightElement(manager, language) with PsiMethod {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
     this(value, value.getName, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
   }
@@ -88,7 +88,7 @@ class FakePsiMethod(
 
   def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def setName(name: String): PsiElement = throw new IncorrectOperationException
+  def setName(name: String): PsiElement = new FakePsiMethod(navElement, name, params, retType, hasModifier)
 
   def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
