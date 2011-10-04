@@ -27,36 +27,8 @@ object BeanProperty {
 
   def processBeanPropertyDeclarationsInternal(annotated: ScAnnotationsHolder, context: PsiElement, t: ScTypedDefinition)
                                              (callback: (PsiMethod => Boolean)): Boolean = {
-    implicit def arr2arr(a: Array[ScType]): Array[Parameter] = a.map(new Parameter("", _, false, false, false))
-    def has(annotationName: String): Boolean = annotated.hasAnnotation(annotationName).isDefined
-    val isBeanProperty = has("scala.reflect.BeanProperty")
-    val isBooleanBeanProperty = has("scala.reflect.BooleanBeanProperty")
-
-    if (!(isBeanProperty || isBooleanBeanProperty)) return true
-
-    val getterName: String = {
-      val prefix = if (isBeanProperty) "get" else "is"
-      prefix + StringUtil.capitalize(t.getName)
-    }
-    val setterName = "set" + StringUtil.capitalize(t.getName)
-    def tType = t.getType(TypingContext.empty).getOrAny
-
-    context match {
-      case value: ScValue => {
-        if (!callback(new FakePsiMethod(t, getterName, Array.empty, tType, value.hasModifierProperty _))) return false
-      }
-      case variable: ScVariable => {
-        if (!callback(new FakePsiMethod(t, getterName, Array.empty, tType, variable.hasModifierProperty _))) return false
-        if (!callback(new FakePsiMethod(t, setterName, Array[ScType](tType), Unit, variable.hasModifierProperty _))) return false
-      }
-      case param: ScClassParameter if param.isVal => {
-        if (!callback(new FakePsiMethod(t, getterName, Array.empty, tType, param.hasModifierProperty _))) return false
-      }
-      case param: ScClassParameter if param.isVar => {
-        if (!callback(new FakePsiMethod(t, getterName, Array.empty, tType, param.hasModifierProperty _))) return false
-        if (!callback(new FakePsiMethod(t, setterName, Array[ScType](tType), Unit, param.hasModifierProperty _))) return false
-      }
-      case _ =>
+    for (method <- t.getBeanMethods) {
+      if (!callback(method)) return false
     }
     true
   }
