@@ -174,9 +174,9 @@ case class ScExistentialType(quantified : ScType,
           checkRecursive(designator, rejected)
           typeArgs.foreach(checkRecursive(_, rejected))
         case ScTypeParameterType(name, args, lower, upper, param) =>
-          checkRecursive(lower.v, rejected)
-          checkRecursive(upper.v, rejected)
-          args.foreach(checkRecursive(_, rejected))
+//          checkRecursive(lower.v, rejected)
+//          checkRecursive(upper.v, rejected)
+//          args.foreach(checkRecursive(_, rejected))
         case ScSkolemizedType(name, args, lower, upper) =>
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
@@ -304,10 +304,11 @@ case class ScExistentialType(quantified : ScType,
           } else tp
         case ScTypeParameterType(name, args, lower, upper, param) =>
           //should return TypeParameterType (for undefined type)
-          ScTypeParameterType(name, args.map(arg =>
+          tp
+          /*ScTypeParameterType(name, args.map(arg =>
             updateRecursive(arg, rejected, -variance).asInstanceOf[ScTypeParameterType]),
             new Suspension[ScType](updateRecursive(lower.v, rejected, -variance)),
-            new Suspension[ScType](updateRecursive(upper.v, rejected, variance)), param)
+            new Suspension[ScType](updateRecursive(upper.v, rejected, variance)), param)*/
         case ScExistentialArgument(name, args, lowerBound, upperBound) =>
           if (!rejected.contains(name)) {
             variance match {
