@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project
 import settings.ScalaApplicationSettings
 import lang.psi.types.result.{Failure, Success, TypingContext}
 import javax.swing.{JComponent, JCheckBox}
+import collection.immutable.HashSet
 
 /**
  * User: Alexander Podkhalyuzin
@@ -185,25 +186,30 @@ object ScalaOIUtil {
     }
     buf2.toSeq
   }
-  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass) : Boolean = clazz match {
-    case td: ScTypeDefinition if td.isCase => {
-      if (m.getName == "apply") return true
-      if (m.getName == "canEqual") return true
-      val clazz = m.getContainingClass
-      clazz != null && clazz.getQualifiedName == "scala.Product" &&
-              (m.getName match {
-                case "productArity" | "productElement" => true
-                case _ => false
-              })
-    }
-    case x : ScTemplateDefinition => (x.superTypes.map(t => ScType.extractClass(t)).find{
-      case Some(c) if c != x /*variant for infinite loop*/ => isProductAbstractMethod(m, c)
+
+  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
+                              visited: HashSet[PsiClass] = new HashSet) : Boolean = {
+    if (visited.contains(clazz)) return false
+    clazz match {
+      case td: ScTypeDefinition if td.isCase => {
+        if (m.getName == "apply") return true
+        if (m.getName == "canEqual") return true
+        val clazz = m.getContainingClass
+        clazz != null && clazz.getQualifiedName == "scala.Product" &&
+          (m.getName match {
+            case "productArity" | "productElement" => true
+            case _ => false
+          })
+      }
+      case x: ScTemplateDefinition => (x.superTypes.map(t => ScType.extractClass(t)).find {
+        case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
+        case _ => false
+      }) match {
+        case Some(_) => true
+        case _ => false
+      }
       case _ => false
-    }) match {
-      case Some(_) => true
-      case _ => false
     }
-    case _ => false
   }
 
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ScalaObject] = {
