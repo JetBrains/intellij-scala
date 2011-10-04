@@ -8,20 +8,17 @@ import com.intellij.ide.IdeBundle
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{Messages, DialogWrapper}
-import com.intellij.psi.{PsiMember, PsiMethod, PsiElement, PsiNamedElement}
-import com.intellij.refactoring.rename.{MemberHidesStaticImportUsageInfo, RenamePsiElementProcessor, RenameJavaMethodProcessor}
+import com.intellij.psi.PsiElement
+import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import java.awt.{GridLayout, BorderLayout}
 
-import java.util.{List, Map}
-import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.refactoring.util.RefactoringUtil
-import com.intellij.usageView.UsageInfo
+import java.util.Map
 import javax.swing._
 import psi.api.statements.ScFunction
-import psi.api.toplevel.ScNamedElement
 import psi.impl.search.ScalaOverridengMemberSearch
 import psi.api.base.ScPrimaryConstructor
 import collection.mutable.ArrayBuffer
+import psi.fake.FakePsiMethod
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,10 +27,11 @@ import collection.mutable.ArrayBuffer
 
 class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
-    element.isInstanceOf[ScFunction] || element.isInstanceOf[ScPrimaryConstructor]
+    (element.isInstanceOf[ScFunction] || element.isInstanceOf[ScPrimaryConstructor]) &&
+      !element.isInstanceOf[FakePsiMethod]
   }
 
-  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]): Unit = {
+  override def prepareRenaming(element: PsiElement, newName: String, allRenames: Map[PsiElement, String]) {
     val function = element match {case x: ScFunction => x case _ => return}
     val buff = new ArrayBuffer[ScFunction]
     function.getGetterOrSetterFunction match {
@@ -112,7 +110,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor {
       labelsPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 10))
       labelsPanel.add(new JLabel(text))
       panel.add(labelsPanel, BorderLayout.CENTER)
-      return panel
+      panel
     }
   }
 
