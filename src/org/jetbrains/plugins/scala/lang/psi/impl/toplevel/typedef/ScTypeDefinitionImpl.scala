@@ -368,4 +368,8 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
       members.find(p => p.isInstanceOf[PsiClass] && p.asInstanceOf[PsiClass].getName == name).getOrElse(null)
     }).asInstanceOf[PsiClass]
   }
+
+  override def getOriginalElement: PsiElement = {
+    ScalaPsiImplementationHelper.getOriginalClass(this)
+  }
 }
