@@ -59,8 +59,6 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
 
   override def isCase = hasModifierProperty("case")
 
-  override def getContainingClass: ScTemplateDefinition = null
-
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,
                                    lastParent: PsiElement,
