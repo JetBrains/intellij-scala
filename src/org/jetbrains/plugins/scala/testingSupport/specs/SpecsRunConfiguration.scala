@@ -43,8 +43,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
-  val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.SpecsRunner"
-  val MAIN_CLASS_28 = "org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner"
+  val MAIN_CLASS = "org.jetbrains.plugins.scala.testingSupport.specs.JavaSpecsRunner"
   def SUITE_PATH: String = "org.specs.Specification"
 
   private var testClassPath = ""
@@ -155,54 +154,27 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     val facet = ScalaFacet.findIn(module).getOrElse {
       throw new ExecutionException("No Scala facet configured for module " + module.getName)
     }
-    
-    //versions detection for scala compiler and for ScalaTest
-    val version: String = facet.version
-    var scalaVersion: String = "27"
-    try {
-      val vers = java.lang.Double.parseDouble(version.substring(0,3))
-      if (vers > 2.79) scalaVersion = "28"
-    } catch {
-      case e: Exception => //nothing to do
-    }
-
-    val rootManager = ModuleRootManager.getInstance(module)
-    val sdk = rootManager.getSdk
-    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module)
-    }
-    val sdkType = sdk.getSdkType
 
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters()
 
-        params.setJdk(sdk)
-
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        val list = new java.util.ArrayList[String]
         params.setWorkingDirectory(workingDirectory)
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
+        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
-        params.getClassPath.addAllFiles(facet.files)
-
-        params.getClassPath.add(getClassPath(module))
-
-
-        params.setMainClass(
-          if (scalaVersion == "27") MAIN_CLASS
-          else MAIN_CLASS_28
-        )
+        params.setMainClass(MAIN_CLASS)
 
         params.getProgramParametersList.add("-s")
         for (cl <- classes) params.getProgramParametersList.add(cl.getQualifiedName)
         params.getProgramParametersList.add("-sus:" + getSystemFilter)
         params.getProgramParametersList.add("-ex:" + getExampleFilter)
-        return params
+        params
       }
 
 
@@ -220,7 +192,7 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
           createActions(testRunnerConsole, processHandler): _*)
       }
     }
-    return state;
+    state
   }
 
   def getModule: Module = {
@@ -260,24 +232,5 @@ class SpecsRunConfiguration(val project: Project, val configurationFactory: Conf
     pp = JDOMExternalizer.readString(element, "sysFilter")
     if (pp != null) sysFilter = pp
     pp = JDOMExternalizer.readString(element, "exampleFilter")
-  }
-
-  private def getClassPath(module: Module): String = {
-    val moduleRootManager = ModuleRootManager.getInstance(module)
-    val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new HashSet[VirtualFile];
-    for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
-    }
-    val res = new StringBuilder("")
-    for (file <- cpVFiles) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      res.append(path).append(File.pathSeparator)
-    }
-    return res.toString()
   }
 }

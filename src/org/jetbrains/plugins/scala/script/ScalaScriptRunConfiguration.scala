@@ -97,23 +97,10 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
-    val rootManager = ModuleRootManager.getInstance(module);
-    val sdk = rootManager.getSdk();
-    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module);
-    }
-    val sdkType = sdk.getSdkType
-
     val script = VcsUtil.getVirtualFile(scriptPath)
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
-
-        params.setJdk(sdk)
 
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
@@ -123,23 +110,21 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
         params.getVMParametersList.add(CLASSPATH)
         params.getVMParametersList.add(EMACS)
 
-        params.getClassPath.addAllFiles(facet.files)
-
         params.setMainClass(MAIN_CLASS)
         params.getProgramParametersList.add("-nocompdaemon") //todo: seems to be a bug in scala compiler. Ticket #1498
         params.getProgramParametersList.add("-classpath")
-        params.getProgramParametersList.add(getClassPath(module))
+        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
         params.getProgramParametersList.addAll(getConsoleArgs.trim.split("""\s+"""))
         params.getProgramParametersList.add(scriptPath)
         params.getProgramParametersList.addParametersString(scriptArgs)
-        return params
+        params
       }
     }
 
     val consoleBuilder = TextConsoleBuilderFactory.getInstance.createBuilder(getProject)
     consoleBuilder.addFilter(getFilter(script))
     state.setConsoleBuilder(consoleBuilder);
-    return state;
+    state;
   }
 
   def getModule: Module = {
@@ -181,25 +166,6 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     consoleArgs = JDOMExternalizer.readString(element, "consoleargs")
     val pp = JDOMExternalizer.readString(element, "workingDirectory")
     if (pp != null) workingDirectory = pp
-  }
-
-  private def getClassPath(module: Module): String = {
-    val moduleRootManager = ModuleRootManager.getInstance(module)
-    val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new HashSet[VirtualFile];
-    for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
-    }
-    val res = new StringBuilder("")
-    for (file <- cpVFiles) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      res.append(path).append(File.pathSeparator)
-    }
-    return res.toString
   }
 
   private def getFilter(file: VirtualFile): Filter = {

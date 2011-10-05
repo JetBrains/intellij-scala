@@ -3,42 +3,27 @@ package testingSupport
 package scalaTest
 
 
-import _root_.java.io.File
-import _root_.scala.collection.mutable.ArrayBuffer
+import java.io.File
+import collection.mutable.ArrayBuffer
 import com.intellij.execution._
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.{ProgramRunner, ExecutionEnvironment}
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
-import com.intellij.execution.testframework.sm.runner.ui.SMTestRunnerResultsForm
-import com.intellij.execution.testframework.TestConsoleProperties
-import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{JDOMExternalizer, JDOMExternalizable}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiManager, PsiClass}
+import com.intellij.psi.{PsiPackage, JavaPsiFacade, PsiClass}
 import com.intellij.util.PathUtil
-import compiler.rt.ScalacRunner
 import org.jdom.Element
-import _root_.scala.collection.mutable.HashSet
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager, Module}
+import collection.mutable.HashSet
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.execution.configurations._
-import _root_.java.util.Arrays
-import com.intellij.facet.FacetManager
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 
 import com.intellij.openapi.projectRoots.JavaSdkType
-import lang.psi.api.ScalaFile
-import com.intellij.execution.filters.TextConsoleBuilderFactory
-
-
-import com.intellij.vcsUtil.VcsUtil
 import com.intellij.openapi.roots.{OrderRootType, ModuleRootManager}
-import lang.psi.api.toplevel.typedef.ScTypeDefinition
-import script.ScalaScriptRunConfiguration
-import com.intellij.openapi.roots.libraries.{LibrariesHelper, Library, LibraryUtil}
 import java.lang.String
 import lang.psi.impl.ScPackageImpl
 import specs.JavaSpecsRunner
@@ -69,16 +54,25 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     if (base != null) base.getPath
     else ""
   }
+
   def getTestClassPath = testClassPath
   def getTestPackagePath = testPackagePath
   def getTestArgs = testArgs
   def getJavaOptions = javaOptions
   def getWorkingDirectory: String = workingDirectory
   def setTestClassPath(s: String) {testClassPath = s}
-  def setTestPackagePath(s: String): Unit = testPackagePath = s
-  def setTestArgs(s: String): Unit = testArgs = s
-  def setJavaOptions(s: String): Unit = javaOptions = s
-  def setWorkingDirectory(s: String): Unit = workingDirectory = s
+  def setTestPackagePath(s: String) {
+    testPackagePath = s
+  }
+  def setTestArgs(s: String) {
+    testArgs = s
+  }
+  def setJavaOptions(s: String) {
+    javaOptions = s
+  }
+  def setWorkingDirectory(s: String) {
+    workingDirectory = s
+  }
 
   private var generatedName: String = ""
   override def getGeneratedName = generatedName
@@ -152,37 +146,19 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
-    val rootManager = ModuleRootManager.getInstance(module)
-    val sdk = rootManager.getSdk
-    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module);
-    }
-
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters();
 
-        params.setJdk(sdk)
-
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         params.setWorkingDirectory(getWorkingDirectory)
-        //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        val list = new java.util.ArrayList[String]
+//        params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug " +
+//          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
-        val jarPathForClass = PathUtil.getJarPathForClass(classOf[ScalaTestRunConfiguration])
-        val virtFile = VcsUtil.getVirtualFile(jarPathForClass)
         val rtJarPath = PathUtil.getJarPathForClass(classOf[JavaSpecsRunner])
         params.getClassPath.add(rtJarPath)
-
-        params.getClassPath.addAllFiles(facet.files)
-
-        params.getClassPath.add(getClassPath(module))
-
+        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
         params.setMainClass(mainClass)
 
@@ -242,24 +218,5 @@ class ScalaTestRunConfiguration(val project: Project, val configurationFactory: 
     testArgs = JDOMExternalizer.readString(element, "params")
     val pp = JDOMExternalizer.readString(element, "workingDirectory")
     if (pp != null) workingDirectory = pp
-  }
-
-  private def getClassPath(module: Module): String = {
-    val moduleRootManager = ModuleRootManager.getInstance(module)
-    val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new HashSet[VirtualFile];
-    for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
-    }
-    val res = new StringBuilder("")
-    for (file <- cpVFiles) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      res.append(path).append(File.pathSeparator)
-    }
-    return res.toString
   }
 }

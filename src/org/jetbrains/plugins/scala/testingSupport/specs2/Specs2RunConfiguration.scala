@@ -141,36 +141,18 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
 
-    val facet = ScalaFacet.findIn(module).getOrElse {
-      throw new ExecutionException("No Scala facet configured for module " + module.getName)
-    }
-
-    val rootManager = ModuleRootManager.getInstance(module)
-    val sdk = rootManager.getSdk
-    if (sdk == null || !(sdk.getSdkType.isInstanceOf[JavaSdkType])) {
-      throw CantRunException.noJdkForModule(module)
-    }
-    val sdkType = sdk.getSdkType
-
     val state = new JavaCommandLineState(env) {
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters()
 
-        params.setJdk(sdk)
-
         params.setCharset(null)
         params.getVMParametersList.addParametersString(getJavaOptions)
         //params.getVMParametersList.addParametersString("-Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5009")
-        val list = new java.util.ArrayList[String]
         params.setWorkingDirectory(workingDirectory)
 
         val rtJarPath = PathUtil.getJarPathForClass(classOf[ScalacRunner])
         params.getClassPath.add(rtJarPath)
-
-        params.getClassPath.addAllFiles(facet.files.toArray)
-
-        params.getClassPath.add(getClassPath(module))
-
+        params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
         params.setMainClass(MAIN_CLASS_SPECS_2)
 
@@ -231,24 +213,5 @@ class Specs2RunConfiguration(val project: Project, val configurationFactory: Con
     testArgs = JDOMExternalizer.readString(element, "params")
     testPackagePath = JDOMExternalizer.readString(element, "packagepath")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
-  }
-
-  private def getClassPath(module: Module): String = {
-    val moduleRootManager = ModuleRootManager.getInstance(module)
-    val entries = moduleRootManager.getOrderEntries
-    val cpVFiles = new HashSet[VirtualFile];
-    for (orderEntry <- entries) {
-      cpVFiles ++= orderEntry.getFiles(OrderRootType.COMPILATION_CLASSES)
-    }
-    val res = new StringBuilder("")
-    for (file <- cpVFiles) {
-      var path = file.getPath
-      val jarSeparatorIndex = path.indexOf(JarFileSystem.JAR_SEPARATOR)
-      if (jarSeparatorIndex > 0) {
-        path = path.substring(0, jarSeparatorIndex)
-      }
-      res.append(path).append(File.pathSeparator)
-    }
-    return res.toString()
   }
 }
