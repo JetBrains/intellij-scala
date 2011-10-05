@@ -124,7 +124,9 @@ object ResolveUtils {
       case file: ScalaFile if file.isCompiled => {
         place.getContainingFile match {
           case file: ScalaFile if file.isCompiled =>
-          case _ => member = memb.getOriginalElement.asInstanceOf[PsiMember]
+          case _ if !member.isInstanceOf[ScMember] =>
+            member = memb.getOriginalElement.asInstanceOf[PsiMember]
+          case _ => //todo: is it neccessary? added to avoid performance and other problems
         }
       }
       case _ =>
