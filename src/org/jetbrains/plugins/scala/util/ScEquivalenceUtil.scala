@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.util
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import com.intellij.psi.{PsiElement, PsiClass}
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
     if (clazz1.getName != clazz2.getName) return false
@@ -18,9 +18,15 @@ object ScEquivalenceUtil {
       else return false
     } else if (containingClass2 != null) return false
     if (clazz1.getQualifiedName != clazz2.getQualifiedName) return false
+    val isSomeClassLocalOrAnonymous = clazz1.getQualifiedName == null || clazz2.getQualifiedName == null ||
+      PsiTreeUtil.getContextOfType(clazz1, true, classOf[PsiClass]) != null ||
+      PsiTreeUtil.getContextOfType(clazz2, true, classOf[PsiClass]) != null
+    
+    if (isSomeClassLocalOrAnonymous) return false
+     
     clazz1 match {
-      case _: ScObject => return clazz2.isInstanceOf[ScObject]
-      case _ => return !clazz2.isInstanceOf[ScObject]
+      case _: ScObject => clazz2.isInstanceOf[ScObject]
+      case _ => !clazz2.isInstanceOf[ScObject]
     }
   }
 
