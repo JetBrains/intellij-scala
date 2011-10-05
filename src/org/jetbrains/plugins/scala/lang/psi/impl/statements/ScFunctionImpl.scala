@@ -7,7 +7,6 @@ package statements
 
 import api.expr.{ScAnnotations, ScBlock}
 import api.toplevel.templates.ScTemplateBody
-import api.toplevel.typedef.ScMember
 import api.toplevel.{ScTypeParametersOwner}
 import caches.CachesUtil
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
@@ -28,6 +27,8 @@ import result.{TypeResult, Success, TypingContext}
 import com.intellij.openapi.project.DumbServiceImpl
 import toplevel.synthetic.{SyntheticClasses, JavaIdentifier}
 import fake.{FakePsiTypeParameterList}
+import collection.mutable.ArrayBuffer
+import api.toplevel.typedef.{ScTypeDefinition, ScMember}
 
 /**
  * @author ilyas
@@ -221,5 +222,25 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   override def setName(name: String): PsiElement = {
     if (isConstructor) this
     else super.setName(name)
+  }
+
+  override def getOriginalElement: PsiElement = {
+    if (getContainingClass == null) return this
+    val originalClass: PsiClass = getContainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    val c = originalClass.asInstanceOf[ScTypeDefinition]
+    val membersIterator = c.members.iterator
+    val buf: ArrayBuffer[ScMember] = new ArrayBuffer[ScMember]
+    while (membersIterator.hasNext) {
+      val member = membersIterator.next()
+      if (isSimilarMemberForNavigation(member, false)) buf += member
+    }
+    if (buf.length == 0) this
+    else if (buf.length == 1) buf(0)
+    else {
+      val filter = buf.filter(isSimilarMemberForNavigation(_, true))
+      if (filter.length == 0) buf(0)
+      else filter(0)
+    }
   }
 }
