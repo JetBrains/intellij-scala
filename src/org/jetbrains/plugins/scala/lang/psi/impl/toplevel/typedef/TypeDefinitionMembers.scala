@@ -53,6 +53,8 @@ object TypeDefinitionMembers {
 
     def computeHashCode(s: Signature) = s.hashCode
 
+    def elemName(t: Signature) = t.name
+
     def isAbstract(s: Signature) = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature if s.namedElement != None => s.namedElement.get match {
@@ -63,26 +65,31 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
+    def isImplicit(t: Signature) = {
+      t.namedElement match {
+        case Some(s: ScModifierListOwner) => s.hasModifierProperty("implicit")
+        case _ => false
+      }
+    }
+
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if isAccessible(place, method) &&
         !method.isConstructor && !method.hasModifierProperty("static") &&
         method.getParameterList.getParametersCount == 0) {
         val phys = new PhysicalSignature(method, subst)
-        map += ((phys, new Node(phys, subst)))
+        map addToMap (phys, new Node(phys, subst))
       }
 
       for (field <- clazz.getFields if (isAccessible(place, field) &&
         !field.hasModifierProperty("static"))) {
         val sig = new Signature(field.getName, Stream.empty, 0, subst, Some(field))
-        map += ((sig, new Node(sig, subst)))
+        map addToMap (sig, new Node(sig, subst))
       }
     }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
-
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       def addSignature(s: Signature) {
-        map += ((s, new Node(s, subst)))
+        map addToMap (s, new Node(s, subst))
       }
 
       for (member <- template.members) {
@@ -130,7 +137,7 @@ object TypeDefinitionMembers {
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       val subst = cp.subst
       def addSignature(s: Signature) {
-        map += ((s, new Node(s, subst)))
+        map addToMap (s, new Node(s, subst))
       }
       for (decl <- cp.decls) {
         decl match {
@@ -160,26 +167,28 @@ object TypeDefinitionMembers {
 
     def computeHashCode(t: PsiNamedElement) = t.getName.hashCode
 
+    def elemName(t: PsiNamedElement) = t.getName
+
     def isAbstract(t: PsiNamedElement) = t match {
       case _: ScTypeAliasDeclaration => true
       case _ => false
     }
 
+    def isImplicit(t: PsiNamedElement) = false
+
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (inner <- clazz.getInnerClasses if isAccessible(place, inner) &&
         !inner.hasModifierProperty("static")) {
-        map += ((inner, new Node(inner, subst)))
+        map addToMap (inner, new Node(inner, subst))
       }
     }
-
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (member <- template.members) {
         member match {
-          case alias: ScTypeAlias if isAccessible(place, alias) => map += ((alias, new Node(alias, subst)))
+          case alias: ScTypeAlias if isAccessible(place, alias) => map addToMap (alias, new Node(alias, subst))
           case _: ScObject =>
-          case td: ScTypeDefinition if isAccessible(place, td) => map += ((td, new Node(td, subst)))
+          case td: ScTypeDefinition if isAccessible(place, td) => map addToMap (td, new Node(td, subst))
           case _ =>
         }
       }
@@ -187,7 +196,7 @@ object TypeDefinitionMembers {
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       for (alias <- cp.typeDecls if isAccessible(place, alias)) {
-        map += ((alias, new Node(alias, cp.subst)))
+        map addToMap (alias, new Node(alias, cp.subst))
       }
     }
   }
@@ -199,6 +208,8 @@ object TypeDefinitionMembers {
 
     def computeHashCode(s: Signature) = s.hashCode
 
+    def elemName(t: Signature) = t.name
+
     def isAbstract(s: Signature) = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature if s.namedElement != None => s.namedElement.get match {
@@ -209,25 +220,30 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
+    def isImplicit(t: Signature) = {
+      t.namedElement match {
+        case Some(s: ScModifierListOwner) => s.hasModifierProperty("implicit")
+        case _ => false
+      }
+    }
+
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if isAccessible(place, method) &&
         !method.isConstructor && !method.hasModifierProperty("static")) {
         val phys = new PhysicalSignature(method, subst)
-        map += ((phys, new Node(phys, subst)))
+        map addToMap (phys, new Node(phys, subst))
       }
 
       for (field <- clazz.getFields if (isAccessible(place, field) &&
         !field.hasModifierProperty("static"))) {
         val sig = new Signature(field.getName, Stream.empty, 0, subst, Some(field))
-        map += ((sig, new Node(sig, subst)))
+        map addToMap (sig, new Node(sig, subst))
       }
     }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
-
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       def addSignature(s: Signature) {
-        map += ((s, new Node(s, subst)))
+        map addToMap (s, new Node(s, subst))
       }
 
       for (member <- template.members) {
@@ -280,7 +296,7 @@ object TypeDefinitionMembers {
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement]) {
       val subst = cp.subst
       def addSignature(s: Signature) {
-        map += ((s, new Node(s, subst)))
+        map addToMap (s, new Node(s, subst))
       }
       for (decl <- cp.decls) {
         decl match {
@@ -306,43 +322,24 @@ object TypeDefinitionMembers {
 
   import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
   import java.util.{Map => JMap}
-  val typesKey: Key[CachedValue[(TMap, TMap)]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[(SMap, SMap)]] = Key.create("signatures key")
-  val parameterlessKey: Key[CachedValue[(PMap, PMap)]] = Key.create("parameterless key")
-
-  val typesMapKey: Key[CachedValue[JMap[String, List[TypeNodes.Node]]]] = Key.create("methods.map.key")
-  val signaturesMapKey: Key[CachedValue[JMap[String, List[SignatureNodes.Node]]]] = Key.create("signatures.map.key")
-  val parameterlessMapKey: Key[CachedValue[JMap[String, List[ParameterlessNodes.Node]]]] =
-    Key.create("parameterless.map.key")
-
-  private val implicitKey = "implicit$$$"
+  val typesKey: Key[CachedValue[TMap]] = Key.create("types key")
+  val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
+  val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
 
   import CachesUtil.get
   import CachesUtil.MyProvider
   import PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT => dep_item}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    get(clazz, parameterlessKey, new MyProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(dep_item))._2
+    get(clazz, parameterlessKey, new MyProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(dep_item))
   }
 
-  def getTypes(clazz: PsiClass) = {
-    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(dep_item))._2
+  def getTypes(clazz: PsiClass): TMap = {
+    get(clazz, typesKey, new MyProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(dep_item))
   }
 
   def getSignatures(c: PsiClass): SMap = {
-    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))._2
-  }
-
-  def getSuperParameterlessSignatures(clazz: PsiClass): PMap = {
-    get(clazz, parameterlessKey, new MyProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(dep_item))._1
-  }
-
-  def getSuperTypes(c: PsiClass) = {
-    get(c, typesKey, new MyProvider(c, {c: PsiClass => TypeNodes.build(c)})(dep_item))._1
-  }
-
-  def getSuperSignatures(c: PsiClass): SMap = {
-    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))._1
+    get(c, signaturesKey, new MyProvider(c, {c: PsiClass => SignatureNodes.build(c)})(dep_item))
   }
 
   //todo: this method requires refactoring
@@ -377,51 +374,10 @@ object TypeDefinitionMembers {
       }
     }
 
-    import collection.mutable.HashMap
-    def namedSignaturesMap[T <: MixinNodes](key: Key[CachedValue[JMap[String, List[T#Node]]]],
-                                            signatures: PsiClass => HashMap[Signature, T#Node]): JMap[String, List[T#Node]] = {
-      def inner(clazz: PsiClass): JMap[String, List[T#Node]] = {
-        val map: JMap[String, List[T#Node]] = new THashMap[String, List[T#Node]]()
-        for (v <- signatures(clazz)) {
-          val name = convertMemberName(v._1.name)
-          val l: List[T#Node] = map.get(name)
-          map.put(name, if (l == null) v._2 :: Nil else l :+ v._2)
-          val member = v._1.namedElement match {
-            case Some(f: PsiMethod) => f
-            case Some(n) => ScalaPsiUtil.nameContext(n)
-            case _ => null
-          }
-          member match {
-            case m: ScModifierListOwner if m.hasModifierProperty("implicit") =>
-              val l: List[T#Node] = map.get(implicitKey)
-              map.put(implicitKey, if (l == null) v._2 :: Nil else l :+ v._2)
-            case _ =>
-          }
-        }
-        map
-      }
-      CachesUtil.get(clazz, key, new MyProvider(clazz, {c: PsiClass => inner(c)})(dep_item))
-    }
-
-    def namedTypesMap: JMap[String, List[TypeNodes.Node]] = {
-      def inner: JMap[String, List[TypeNodes.Node]] = {
-        val map: JMap[String, List[TypeNodes.Node]] = new THashMap[String, List[TypeNodes.Node]]()
-        val types = getTypes(clazz)
-        for (tp <- types) {
-          val name = convertMemberName(tp._1.getName)
-          val l: List[TypeNodes.Node] = map.get(name)
-          map.put(name, if (l == null) tp._2 :: Nil else l :+ tp._2)
-        }
-        map
-      }
-      CachesUtil.get(clazz, typesMapKey, new MyProvider(clazz, {c: PsiClass => inner})(dep_item))
-    }
-
     if (processor.isInstanceOf[ImplicitProcessor] && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(clazz),
-      namedSignaturesMap(signaturesMapKey, getSignatures), getParameterlessSignatures(clazz),
-      namedSignaturesMap(parameterlessMapKey, getParameterlessSignatures), getTypes(clazz), namedTypesMap,
+      getParameterlessSignatures(clazz), getTypes(clazz), false,
       clazz.isInstanceOf[ScObject], signaturesForJava, syntheticMethods)) return false
 
     if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
@@ -449,8 +405,8 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place, getSuperSignatures(td), null,
-      getSuperParameterlessSignatures(td), null, getSuperTypes(td), null, td.isInstanceOf[ScObject])) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, getSignatures(td),
+      getParameterlessSignatures(td), getTypes(td), true, td.isInstanceOf[ScObject])) return false
 
     if (!(AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
@@ -464,8 +420,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
-    if (!privateProcessDeclarations(processor, state, lastParent, place, SignatureNodes.build(comp)._2, null,
-      ParameterlessNodes.build(comp)._2, null, TypeNodes.build(comp)._2, null, false)) return false
+    if (!privateProcessDeclarations(processor, state, lastParent, place, SignatureNodes.build(comp),
+      ParameterlessNodes.build(comp), TypeNodes.build(comp), false, false)) return false
 
     val project =
       if (lastParent != null) lastParent.getProject
@@ -488,11 +444,9 @@ object TypeDefinitionMembers {
                                          lastParent: PsiElement,
                                          place: PsiElement,
                                          signatures: => SignatureNodes.Map,
-                                         namedSignaturesMap: => JMap[String, List[SignatureNodes.Node]],
                                          parameterlessSignatures: => ParameterlessNodes.Map,
-                                         parameterlessSignaturesMap: => JMap[String, List[ParameterlessNodes.Node]],
                                          types: => TypeNodes.Map,
-                                         namedTypesMap: => JMap[String, List[TypeNodes.Node]],
+                                         isSupers: Boolean,
                                          isObject: Boolean,
                                          signaturesForJava: => SignatureNodes.Map = new SignatureNodes.Map,
                                          syntheticMethods: => Seq[(Signature, SignatureNodes.Node)] = Seq.empty
@@ -524,8 +478,7 @@ object TypeDefinitionMembers {
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
     import collection.mutable.HashMap
-    def process[T <: MixinNodes](namedSignaturesMap: JMap[String, List[T#Node]],
-                                 signatures: HashMap[Signature, T#Node]): Boolean = {
+    def process[T <: MixinNodes](signatures: T#Map): Boolean = {
       if (processValsForScala || processValsForJava || processMethods) {
         def runForValInfo(n: T#Node): Boolean = {
           val elem = n.info.asInstanceOf[Signature].namedElement match {
@@ -595,13 +548,13 @@ object TypeDefinitionMembers {
 
 
 
-        if ((decodedName != "" || processor.isInstanceOf[ImplicitProcessor]) && namedSignaturesMap != null) {
+        if (decodedName != "") {
           def checkList(s: String): Boolean = {
-            val l = namedSignaturesMap.get(s)
+            val l = if (!isSupers) signatures.forName(s)._1 else signatures.forName(s)._2
             if (l != null) {
               val iterator = l.iterator
               while (iterator.hasNext) {
-                val n = iterator.next()
+                val (_, n) = iterator.next()
                 n.info match {
                   case phys: PhysicalSignature if processMethods =>
                     val method = phys.method
@@ -616,30 +569,26 @@ object TypeDefinitionMembers {
             }
             true
           }
-          processor match {
-            case _: ImplicitProcessor =>
-              if (!checkList(implicitKey)) return false
-            case _ =>
-              if (!checkList(decodedName)) return false
+          if (!checkList(decodedName)) return false
 
-              if (processValsForScala || processValsForJava) {
-                def checkPrefix(s: String): Boolean = {
-                  if (decodedName.startsWith(s)) {
-                    val n = decodedName.substring(s.length())
-                    if (n.length() > 0 && n(0).isUpper) {
-                      val lowerName = n(0).toLower + n.substring(1)
-                      checkList(lowerName)
-                      if (lowerName != n)
-                        checkList(n)
-                    }
-                  }
-                  true
+          if (processValsForScala || processValsForJava) {
+            def checkPrefix(s: String): Boolean = {
+              if (decodedName.startsWith(s)) {
+                val n = decodedName.substring(s.length())
+                if (n.length() > 0 && n(0).isUpper) {
+                  val lowerName = n(0).toLower + n.substring(1)
+                  checkList(lowerName)
+                  if (lowerName != n)
+                    checkList(n)
                 }
-                if (!checkPrefix("is") || !checkPrefix("get") || !checkPrefix("set")) return false
               }
+              true
+            }
+            if (!checkPrefix("is") || !checkPrefix("get") || !checkPrefix("set")) return false
           }
-        } else {
-          val iterator = signatures.iterator
+        } else if (processor.isInstanceOf[ImplicitProcessor]) {
+          val implicits = signatures.forImplicits()
+          val iterator = implicits.iterator
           while (iterator.hasNext) {
             val (sig, n) = iterator.next()
             ProgressManager.checkCanceled()
@@ -654,6 +603,28 @@ object TypeDefinitionMembers {
               case _ if processValsForScala || processValsForJava =>
                 if (!runForValInfo(n)) return false
               case _ => //do nothing
+            }
+          }
+        } else {
+          val map = if (!isSupers) signatures.forAll()._1 else signatures.forAll()._2
+          val valuesIterator = map.valuesIterator
+          while (valuesIterator.hasNext) {
+            val iterator = valuesIterator.next().iterator
+            while (iterator.hasNext) {
+              val (sig, n) = iterator.next()
+              ProgressManager.checkCanceled()
+              sig match {
+                case phys: PhysicalSignature if processMethods =>
+                  val method = phys.method
+                  if (checkName(method.getName)) {
+                    val substitutor = n.substitutor followed subst
+                    if (!processor.execute(method, state.put(ScSubstitutor.key, substitutor))) return false
+                  }
+                case phys: PhysicalSignature => //do nothing
+                case _ if processValsForScala || processValsForJava =>
+                  if (!runForValInfo(n)) return false
+                case _ => //do nothing
+              }
             }
           }
         }
@@ -675,9 +646,14 @@ object TypeDefinitionMembers {
         }
 
         if (processMethods) {
-          runIterator(signaturesForJava.iterator) match {
-            case Some(x) => return x
-            case None =>
+          val maps = signaturesForJava.forAll()._1
+          val valuesIterator = maps.valuesIterator
+          while (valuesIterator.hasNext) {
+            val iterator = valuesIterator.next().iterator
+            runIterator(iterator) match {
+              case Some(x) => return x
+              case None =>
+            }
           }
           runIterator(syntheticMethods.iterator) match {
             case Some(x) => return x
@@ -689,52 +665,56 @@ object TypeDefinitionMembers {
     }
 
     if (processOnlyStable) {
-      if (!process(parameterlessSignaturesMap, parameterlessSignatures)) return false
+      if (!process(parameterlessSignatures)) return false
     } else {
-      if (!process(namedSignaturesMap, signatures)) return false
+      if (!process(signatures)) return false
     }
 
     if (shouldProcessTypes(processor)) {
-      if (decodedName != "" && namedTypesMap != null) {
-        val l = namedTypesMap.get(decodedName)
-        if (l != null) {
-          val iterator = l.iterator
-          while (iterator.hasNext) {
-            val n = iterator.next()
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          }
-        }
-      } else {
-        val iterator = types.iterator
+      if (decodedName != "") {
+        val l: TypeNodes.NodesMap = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
+        val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
-          if (checkName(n.info.getName)) {
-            ProgressManager.checkCanceled()
-            if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
+      } else {
+        val map = if (!isSupers) types.forAll()._1 else types.forAll()._2
+        val valuesIterator = map.valuesIterator
+        while (valuesIterator.hasNext) {
+          val iterator = valuesIterator.next().iterator
+          while (iterator.hasNext) {
+            val (_, n) = iterator.next()
+            if (checkName(n.info.getName)) {
+              ProgressManager.checkCanceled()
+              if (!processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+            }
           }
         }
       }
     }
     //inner classes
     if (shouldProcessJavaInnerClasses(processor)) {
-      if (decodedName != "" && namedTypesMap != null) {
-        val l = namedTypesMap.get(decodedName)
-        if (l != null) {
-          val iterator = l.iterator
-          while (iterator.hasNext) {
-            val n = iterator.next()
-            if (n.info.isInstanceOf[ScTypeDefinition] &&
-              !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
-          }
-        }
-      } else {
-        val iterator = types.iterator
+      if (decodedName != "") {
+        val l: TypeNodes.NodesMap = if (!isSupers) types.forName(decodedName)._1 else types.forName(decodedName)._2
+        val iterator = l.iterator
         while (iterator.hasNext) {
           val (_, n) = iterator.next()
-          if (checkName(n.info.getName)) {
-            ProgressManager.checkCanceled()
-            if (n.info.isInstanceOf[ScTypeDefinition] &&
-              !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+          if (n.info.isInstanceOf[ScTypeDefinition] &&
+            !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+        }
+      } else {
+        val map = if (!isSupers) types.forAll()._1 else types.forAll()._2
+        val valuesIterator = map.valuesIterator
+        while (valuesIterator.hasNext) {
+          val iterator = valuesIterator.next().iterator
+          while (iterator.hasNext) {
+            val (_, n) = iterator.next()
+            if (checkName(n.info.getName)) {
+              ProgressManager.checkCanceled()
+              if (n.info.isInstanceOf[ScTypeDefinition] &&
+                !processor.execute(n.info, state.put(ScSubstitutor.key, n.substitutor followed subst))) return false
+            }
           }
         }
       }

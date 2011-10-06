@@ -116,11 +116,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     if (isCase && parameters.length > 0) {
       constructor match {
         case Some(x: ScPrimaryConstructor) =>
-          val signs = TypeDefinitionMembers.getSignatures(this)
-          var hasCopy = false
-          for (sign <- signs.iterator if !hasCopy) {
-            if (sign._1.name == "copy") hasCopy = true
-          }
+          val hasCopy = !TypeDefinitionMembers.getSignatures(this).forName("copy")._1.isEmpty
           val addCopy = !hasCopy && !x.parameterList.clauses.exists(_.hasRepeatedParam)
           if (addCopy) {
             try {

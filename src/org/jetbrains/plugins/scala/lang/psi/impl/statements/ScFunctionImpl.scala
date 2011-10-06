@@ -71,7 +71,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   def superMethods: Seq[PsiMethod] = {
     val clazz = getContainingClass
-    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).
+    if (clazz != null) TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
           get(new PhysicalSignature(this, ScSubstitutor.empty)).getOrElse(return Seq.empty).supers.
       filter(_.info.isInstanceOf[PhysicalSignature]).map {_.info.asInstanceOf[PhysicalSignature].method}
     else Seq.empty
@@ -82,7 +82,7 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   def superMethodAndSubstitutor: Option[(PsiMethod, ScSubstitutor)] = {
     val clazz = getContainingClass
     if (clazz != null) {
-      val option = TypeDefinitionMembers.getSignatures(clazz).
+      val option = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.
           fastPhysicalSignatureGet(new PhysicalSignature(this, ScSubstitutor.empty))
       if (option == None) return None
       option.get.primarySuper.filter(_.info.isInstanceOf[PhysicalSignature]).
@@ -93,11 +93,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
 
   def superSignatures: Seq[Signature] = {
+    //todo: fastPhysicalSignatureGet?
     val clazz = getContainingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
-    val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
-    //partial match
+    val t = TypeDefinitionMembers.getSignatures(clazz).forName(name)._1.get(s) match {
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
     }
