@@ -52,8 +52,10 @@ abstract class MixinNodes {
     private val calculatedSupers: HashMap[String, NodesMap] = new HashMap
 
     def forName(s: String): (NodesMap, NodesMap) = {
-      if (calculatedNames.contains(s)) {
-        return (calculated(s), calculatedSupers(s))
+      synchronized {
+        if (calculatedNames.contains(s)) {
+          return (calculated(s), calculatedSupers(s))
+        }
       }
       val thisMap: NodesMap = toNodesMap(getOrElse(s, new ArrayBuffer))
       val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(s, new ArrayBuffer)))
@@ -90,7 +92,9 @@ abstract class MixinNodes {
     
     def forAll(): (HashMap[String, NodesMap], HashMap[String, NodesMap]) = {
       for (name <- allNames()) forName(name)
-      (calculated, calculatedSupers)
+      synchronized {
+        (calculated, calculatedSupers)
+      }
     }
     
     private def toNodesMap(buf: ArrayBuffer[(T, Node)]): NodesMap = {
