@@ -705,7 +705,7 @@ object ScalaPsiUtil {
       case _ => return empty
     }
     val s = namedElementSig(x)
-    val sigs = TypeDefinitionMembers.getSignatures(clazz)
+    val sigs = TypeDefinitionMembers.getSignatures(clazz).forName(x.getName)._1
     val t = (sigs.get(s): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
@@ -720,7 +720,7 @@ object ScalaPsiUtil {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].getContainingClass
       case _ => return empty
     }
-    val sigs = TypeDefinitionMembers.getTypes(clazz)
+    val sigs = TypeDefinitionMembers.getTypes(clazz).forName(element.getName)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) => x.supers.map {_.info}
@@ -798,16 +798,17 @@ object ScalaPsiUtil {
     }
   }
 
+  def getMethodsForName(clazz: PsiClass, name: String): Seq[PhysicalSignature] = {
+    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz).forName(name)._1
+          if clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static")) yield n).toSeq
+  }
+
   def getApplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
-          if n.method.getName == "apply" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+    getMethodsForName(clazz, "apply")
   }
 
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
-          if (n.method.getName == "unapply" || n.method.getName == "unapplySeq") &&
-                  (clazz.isInstanceOf[ScObject] || n.method.hasModifierProperty("static"))) yield n).toSeq ++
+    getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
       case c: ScObject => c.objectSyntheticMembers.filter(s => s.getName == "unapply" || s.getName == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
@@ -816,9 +817,7 @@ object ScalaPsiUtil {
   }
 
   def getUpdateMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
-    (for ((n: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(clazz)
-          if n.method.getName == "update" &&
-                  (clazz.isInstanceOf[ScObject] || !n.method.hasModifierProperty("static"))) yield n).toSeq
+    getMethodsForName(clazz, "update")
   }
 
   /**
