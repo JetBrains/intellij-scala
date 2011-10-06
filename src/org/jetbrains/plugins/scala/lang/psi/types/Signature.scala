@@ -21,7 +21,7 @@ class Signature(val name: String, val typesEval: Stream[ScType], val paramLength
 
   def types: scala.Stream[ScType] = typesEval
 
-  def substitutedTypes: Stream[ScType] = types.map(substitutor.subst(_))
+  def substitutedTypes: Stream[ScType] = ScalaPsiUtil.getTypesStream(types, substitutor.subst _)
 
   def equiv(other: Signature): Boolean = {
     name == other.name &&
