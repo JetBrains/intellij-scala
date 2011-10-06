@@ -43,7 +43,7 @@ public class ScalacConfigurable implements Configurable {
   public ScalacConfigurable(ScalacSettings settings, Project project) {
     myProject = project;
     mySettings = settings;
-    myCompilerLibrary.setRenderer(new LibraryRenderer());
+    myCompilerLibrary.setRenderer(new LibraryRenderer(myCompilerLibrary));
 
     myRunInternalServerRadioButton.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {

@@ -80,7 +80,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myValidatorsManager = validatorsManager;
 
     myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
-    myCompilerLibrary.setRenderer(new LibraryRenderer());
+    myCompilerLibrary.setRenderer(new LibraryRenderer(myCompilerLibrary));
 
     myEnableWarnings.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {

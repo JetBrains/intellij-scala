@@ -119,13 +119,6 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     Option<CompilerLibraryData> compilerOption = facet.compiler();
     
-    if (compilerOption.isEmpty()) {
-      Messages.showErrorDialog(myProject, 
-          ScalaBundle.message("cannot.compile.scala.files.no.compiler"), 
-          ScalaBundle.message("cannot.compile"));
-      return false;
-    }
-
     if (facet.fsc()) {
       ScalacSettings settings = ScalacSettings.getInstance(myProject);
       Option<CompilerLibraryData> data =
@@ -145,6 +138,13 @@ public class ScalacBackendCompiler extends ExternalCompiler {
         return false;
       }
     } else {
+      if (compilerOption.isEmpty()) {
+        Messages.showErrorDialog(myProject,
+            ScalaBundle.message("cannot.compile.scala.files.no.compiler"),
+            ScalaBundle.message("cannot.compile"));
+        return false;
+      }
+
       Option<String> problemOption = compilerOption.get().problem();
 
       if (problemOption.isDefined()) {
