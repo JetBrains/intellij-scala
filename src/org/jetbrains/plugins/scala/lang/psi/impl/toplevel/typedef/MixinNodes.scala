@@ -8,7 +8,7 @@ package impl
 package toplevel
 package typedef
 
-import collection.mutable.{LinkedHashSet, HashMap, HashSet, Set, ListBuffer}
+import collection.mutable.{LinkedHashSet, HashMap, HashSet, Set, ListBuffer, ArrayBuffer}
 import psi.types._
 import synthetic.ScSyntheticClass
 import caches.CachesUtil
@@ -26,7 +26,7 @@ abstract class MixinNodes {
     var supers: Seq[Node] = Seq.empty
     var primarySuper: Option[Node] = None
   }
-  
+
   class Map extends HashMap[T, Node] {
     override def elemHashCode(t: T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
@@ -76,7 +76,7 @@ abstract class MixinNodes {
 
   object MultiMap {def empty = new MultiMap}
 
-  def mergeSupers (maps : List[Map]) : MultiMap = {
+  def mergeSupers(maps: List[Map]) : MultiMap = {
     val res = MultiMap.empty
     val mapsIterator = maps.iterator
     while (mapsIterator.hasNext) {
@@ -90,7 +90,7 @@ abstract class MixinNodes {
   }
 
   //Return primary selected from supersMerged
-  def mergeWithSupers(thisMap : Map, supersMerged : MultiMap) = {
+  def mergeWithSupers(thisMap: Map, supersMerged: MultiMap): Map = {
     val primarySupers = new Map
     for ((key, nodes) <- supersMerged) {
       val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
@@ -115,7 +115,7 @@ abstract class MixinNodes {
 
   def build(clazz: PsiClass): (Map, Map) = build(ScType.designator(clazz))
 
-  def build(tp : ScType): (Map, Map) = {
+  def build(tp: ScType): (Map, Map) = {
     var isPredef = false
     var place: Option[PsiElement] = None
     val map = new Map
@@ -172,7 +172,6 @@ abstract class MixinNodes {
                 Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
             }
             case syn: ScSyntheticClass => {
-              processSyntheticScala(syn, ScSubstitutor.empty, map, place)
               (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
             }
@@ -198,15 +197,9 @@ abstract class MixinNodes {
             val newSubst = combine(s, subst, superClass).followed(thisTypeSubst)
             val newMap = new Map
             superClass match {
-              case template : ScTemplateDefinition => {
-                processScala(template, newSubst, newMap, place)
-              }
-              case syn: ScSyntheticClass => { //todo: is it really unnessesary?
-                processSyntheticScala(syn, newSubst, newMap, place)
-              }
-              case _ => {
-                processJava(superClass, newSubst, newMap, place)
-              }
+              case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place)
+              case syn: ScSyntheticClass =>
+              case _ => processJava(superClass, newSubst, newMap, place)
             }
             superTypesBuff += newMap
           }
@@ -242,8 +235,6 @@ abstract class MixinNodes {
 
   def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
-  @deprecated
-  def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
   def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
 }
 

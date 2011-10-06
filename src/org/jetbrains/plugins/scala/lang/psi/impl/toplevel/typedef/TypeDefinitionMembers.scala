@@ -78,8 +78,6 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
-
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       def addSignature(s: Signature) {
         map += ((s, new Node(s, subst)))
@@ -172,8 +170,6 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
-
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (member <- template.members) {
         member match {
@@ -222,8 +218,6 @@ object TypeDefinitionMembers {
         map += ((sig, new Node(sig, subst)))
       }
     }
-
-    def processSyntheticScala(clazz: ScSyntheticClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {}
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       def addSignature(s: Signature) {
