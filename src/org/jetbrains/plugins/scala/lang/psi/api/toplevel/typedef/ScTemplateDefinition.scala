@@ -95,23 +95,27 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases = TypeDefinitionMembers.getTypes(this).values.map{ n => (n.info, n.substitutor) }
+  def allTypeAliases = TypeDefinitionMembers.getTypes(this).forAll()._1.values.flatMap(n => n.map {
+    case (_, n) => (n.info, n.substitutor)
+  })
 
-  def allVals = TypeDefinitionMembers.getSignatures(this).values.filter(n => !n.info.isInstanceOf[PhysicalSignature] &&
-    (n.info.namedElement match {
-      case Some(v) => ScalaPsiUtil.nameContext(v) match {
-        case _: ScVariable => v.getName == n.info.name
-        case _ => true
-      }
-      case None => false
-    })).map { n => (n.info.namedElement.get, n.substitutor) }
+  def allVals = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(n => n.filter{
+    case (_, n) => !n.info.isInstanceOf[PhysicalSignature] &&
+      (n.info.namedElement match {
+        case Some(v) => ScalaPsiUtil.nameContext(v) match {
+          case _: ScVariable => v.getName == n.info.name
+          case _ => true
+        }
+        case None => false
+      })}).map { case (_, n) => (n.info.namedElement.get, n.substitutor) }
 
   def allMethods: Iterable[PhysicalSignature] =
-    TypeDefinitionMembers.getSignatures(this).values.filter(_.info.isInstanceOf[PhysicalSignature]).
-      map{ n => n.info.asInstanceOf[PhysicalSignature] } ++
+    TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.filter {
+      case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
+      map { case (_, n) => n.info.asInstanceOf[PhysicalSignature] } ++
       syntheticMembers.map(new PhysicalSignature(_, ScSubstitutor.empty))
 
-  def allSignatures = TypeDefinitionMembers.getSignatures(this).values.map{ n => n.info }
+  def allSignatures = TypeDefinitionMembers.getSignatures(this).forAll()._1.values.flatMap(_.map { case (_, n) => n.info })
 
   def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
 
@@ -224,8 +228,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def functionsByName(name: String): Seq[PsiMethod] = {
-    (for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this)
-          if p.method.getName == name) yield p.method).
+    (for ((p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield p.method).
             toSeq ++ syntheticMembers.filter(_.getName == name)
   }
 
@@ -234,11 +237,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       (name: String, checkBases: Boolean): java.util.List[com.intellij.openapi.util.Pair[PsiMethod, PsiSubstitutor]] = {
     import com.intellij.openapi.util.Pair
     val res = new ArrayList[Pair[PsiMethod, PsiSubstitutor]]()
-    for {(p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this)
+    for {(p: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1
          substitutor = p.substitutor
          method = p.method
-         if method.getName == name &&
-                 method.getContainingClass == this
+         if method.getContainingClass == this
     } {
       res.add(new Pair[PsiMethod, PsiSubstitutor](method, ScalaPsiUtil.getPsiSubstitutor(substitutor, getProject, getResolveScope)))
     }
