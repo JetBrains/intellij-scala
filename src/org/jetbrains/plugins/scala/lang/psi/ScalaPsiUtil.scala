@@ -348,9 +348,21 @@ object ScalaPsiUtil {
     res.toSeq
   }
 
+  def getSingletonStream[A](elem: => A): Stream[A] = {
+    new Stream[A] {
+      override def head: A = elem
+
+      override def tail: Stream[A] = Stream.empty
+
+      protected def tailDefined: Boolean = false
+
+      override def isEmpty: Boolean = false
+    }
+  }
+
   def getTypesStream(elems: Seq[PsiParameter]): Stream[ScType] = {
-    // TODO Why use such a strange way to construct a stream? Is this here for performance reasons?
-    //      Consider elems.toStream.map { case x: ScType => ...; case y => }
+    // Do not consider elems.toStream.map { case x: ScType => ...; case y => }
+    // Reason is performance: first element will not be lazy in any case.
     if (elems.isEmpty) return Stream.empty
     new Stream[ScType] {
       override def head: ScType = elems.head match {
