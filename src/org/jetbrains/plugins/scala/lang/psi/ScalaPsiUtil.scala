@@ -359,20 +359,31 @@ object ScalaPsiUtil {
       override def isEmpty: Boolean = false
     }
   }
-
   def getTypesStream(elems: Seq[PsiParameter]): Stream[ScType] = {
-    // Do not consider elems.toStream.map { case x: ScType => ...; case y => }
-    // Reason is performance: first element will not be lazy in any case.
-    if (elems.isEmpty) return Stream.empty
-    new Stream[ScType] {
-      override def head: ScType = elems.head match {
-        case scp : ScParameter => scp.getType(TypingContext.empty).getOrNothing
+    getTypesStream(elems, (param: PsiParameter) => {
+      param match {
+        case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
         case p =>
           val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
             case Some(cls) if cls.getQualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
           ScType.create(p.getType, p.getProject, paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
+      }
+    })
+  }
+
+  def getTypesStream[T](elems: Seq[T], fun: T => ScType): Stream[ScType] = {
+    // Do not consider elems.toStream.map { case x: ScType => ...; case y => }
+    // Reason is performance: first element will not be lazy in any case.
+    if (elems.isEmpty) return Stream.empty
+    new Stream[ScType] {
+      private var h: ScType = null
+
+      override def head: ScType = {
+        if (h == null)
+          h = fun(elems.head)
+        h
       }
 
       override def isEmpty: Boolean = false
@@ -381,7 +392,7 @@ object ScalaPsiUtil {
       def tailDefined = tlVal ne null
 
       override def tail: Stream[ScType] = {
-        if (!tailDefined) tlVal = getTypesStream(elems.tail)
+        if (!tailDefined) tlVal = getTypesStream(elems.tail, fun)
         tlVal
       }
     }

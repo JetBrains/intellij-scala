@@ -93,11 +93,11 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
 
   def superSignatures: Seq[Signature] = {
+    //todo: fastPhysicalSignatureGet?
     val clazz = getContainingClass
     val s = new PhysicalSignature(this, ScSubstitutor.empty)
     if (clazz == null) return Seq(s)
     val t = TypeDefinitionMembers.getSignatures(clazz).get(s) match {
-    //partial match
       case Some(x) => x.supers.map {_.info}
       case None => Seq[Signature]()
     }
