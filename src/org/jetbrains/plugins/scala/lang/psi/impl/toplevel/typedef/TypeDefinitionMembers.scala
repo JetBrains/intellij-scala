@@ -1,6 +1,3 @@
-/**
- * @author ven
- */
 package org.jetbrains.plugins.scala
 package lang
 package psi
@@ -31,6 +28,10 @@ import gnu.trove.THashMap
 import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 
+/**
+ * @author ven
+ * @author alefas
+ */
 object TypeDefinitionMembers {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers")
 
@@ -235,7 +236,7 @@ object TypeDefinitionMembers {
             for (dcl <- _var.declaredElements) {
               lazy val t = dcl.getType(TypingContext.empty).getOrAny
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-              addSignature(new Signature(dcl.name + "_=", Stream.apply(t), 1, subst, Some(dcl)))
+              addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, Some(dcl)))
             }
           case _val: ScValue if isAccessible(place, _val) =>
             for (dcl <- _val.declaredElements) {
@@ -250,7 +251,7 @@ object TypeDefinitionMembers {
               } else if (isAccessible(place, param)) {
                 lazy val t = param.getType(TypingContext.empty).getOrAny
                 addSignature(new Signature(param.name, Stream.empty, 0, subst, Some(param)))
-                if (!param.isStable) addSignature(new Signature(param.name + "_=", Stream.apply(t), 1, subst,
+                if (!param.isStable) addSignature(new Signature(param.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst,
                   Some(param)))
               }
             }
@@ -291,7 +292,7 @@ object TypeDefinitionMembers {
             for (dcl <- _var.declaredElements) {
               lazy val t = dcl.getType(TypingContext.empty).getOrAny
               addSignature(new Signature(dcl.name, Stream.empty, 0, subst, Some(dcl)))
-              addSignature(new Signature(dcl.name + "_=", Stream.apply(t), 1, subst, Some(dcl)))
+              addSignature(new Signature(dcl.name + "_=", ScalaPsiUtil.getSingletonStream(t), 1, subst, Some(dcl)))
             }
           case _val: ScValue if isAccessible(place, _val) =>
             for (dcl <- _val.declaredElements) {

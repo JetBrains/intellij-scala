@@ -89,7 +89,7 @@ object CachesUtil {
           if (guard.currentStack().contains(e)) {
             return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
           }
-          guard.doPreventingRecursion(e, new Computable[Result[T]] {
+          guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[Result[T]] {
             def compute(): Result[T] = provider.compute()
           }) match {
             case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
