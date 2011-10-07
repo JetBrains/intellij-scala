@@ -67,7 +67,7 @@ object ScalaOverridengMemberSearch {
           val continue = inheritorsOfType(td.getName)
           if (!continue) return false
         case _: PsiNamedElement =>
-          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).iterator
+          val signsIterator = TypeDefinitionMembers.getSignatures(inheritor).forName(member.getName)._1.iterator
           while (signsIterator.hasNext) {
             val (t: Signature, node: TypeDefinitionMembers.SignatureNodes.Node) = signsIterator.next()
             if (t.namedElement != None && PsiTreeUtil.getParentOfType(t.namedElement.get,

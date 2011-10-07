@@ -19,15 +19,136 @@ import com.intellij.psi.util.PsiModificationTracker
 
 abstract class MixinNodes {
   type T
-  def equiv(t1: T, t2: T) : Boolean
-  def computeHashCode(t: T) : Int
-  def isAbstract(t: T) : Boolean
+  def equiv(t1: T, t2: T): Boolean
+  def computeHashCode(t: T): Int
+  def elemName(t: T): String
+  def isAbstract(t: T): Boolean
+  def isImplicit(t: T): Boolean
+  
   class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
     var primarySuper: Option[Node] = None
   }
 
-  class Map extends HashMap[T, Node] {
+  class Map extends HashMap[String, ArrayBuffer[(T, Node)]] {
+    private[Map] val implicitNames: HashSet[String] = new HashSet[String]
+    def addToMap(key: T, node: Node) {
+      val name = ScalaPsiUtil.convertMemberName(elemName(key))
+      getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
+      if (isImplicit(key)) implicitNames.add(name)
+    }
+
+    @volatile
+    private var supersList: List[Map] = List.empty
+    def setSupersMap(list: List[Map]) {
+      for (m <- list) {
+        implicitNames ++= m.implicitNames
+      }
+      supersList = list
+    }
+
+    private val calculatedNames: HashSet[String] = new HashSet
+    private val calculated: HashMap[String, NodesMap] = new HashMap
+    private val calculatedSupers: HashMap[String, NodesMap] = new HashMap
+
+    def forName(name: String): (NodesMap, NodesMap) = {
+      val convertedName = ScalaPsiUtil.convertMemberName(name)
+      synchronized {
+        if (calculatedNames.contains(convertedName)) {
+          return (calculated(convertedName), calculatedSupers(convertedName))
+        }
+      }
+      val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
+      val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
+      val supers = mergeWithSupers(thisMap, mergeSupers(maps))
+      synchronized {
+        calculatedNames.add(convertedName)
+        calculated.+=((convertedName, thisMap))
+        calculatedSupers.+=((convertedName, supers))
+      }
+      (thisMap, supers)
+    }
+
+    @volatile
+    private var forImplicitsCache: List[(T, Node)] = null
+    def forImplicits(): List[(T, Node)] = {
+      if (forImplicitsCache != null) return forImplicitsCache
+      val res = new ArrayBuffer[(T, Node)]()
+      for (name <- implicitNames) {
+        val map = forName(name)._1
+        for (elem <- map) {
+          if (isImplicit(elem._1)) res += elem
+        }
+      }
+      forImplicitsCache = res.toList
+      forImplicitsCache
+    }
+    
+    def allNames(): Set[String] = {
+      val names = new HashSet[String]
+      names ++= keySet
+      for (sup <- supersList) {names ++= sup.keySet}
+      names
+    }
+    
+    def forAll(): (HashMap[String, NodesMap], HashMap[String, NodesMap]) = {
+      for (name <- allNames()) forName(name)
+      synchronized {
+        (calculated, calculatedSupers)
+      }
+    }
+    
+    private def toNodesMap(buf: ArrayBuffer[(T, Node)]): NodesMap = {
+      val res = new NodesMap
+      res ++= buf
+      res
+    }
+
+    private class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {
+      override def elemHashCode(t : T) = computeHashCode(t)
+      override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
+      override def makeSet = new LinkedHashSet[Node]
+    }
+
+    private object MultiMap {def empty = new MultiMap}
+
+    private def mergeSupers(maps: List[NodesMap]) : MultiMap = {
+      val res = MultiMap.empty
+      val mapsIterator = maps.iterator
+      while (mapsIterator.hasNext) {
+        val currentIterator = mapsIterator.next().iterator
+        while (currentIterator.hasNext) {
+          val (k, node) = currentIterator.next()
+          res.addBinding(k, node)
+        }
+      }
+      res
+    }
+
+    //Return primary selected from supersMerged
+    private def mergeWithSupers(thisMap: NodesMap, supersMerged: MultiMap): NodesMap = {
+      val primarySupers = new NodesMap
+      for ((key, nodes) <- supersMerged) {
+        val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
+          case None => nodes.toList(0)
+          case Some(concrete) => concrete
+        }
+        primarySupers += ((key, primarySuper))
+        thisMap.get(key) match {
+          case Some(node) =>
+            node.primarySuper = Some(primarySuper)
+            node.supers = nodes.toSeq
+          case None =>
+            nodes -= primarySuper
+            primarySuper.supers = nodes.toSeq
+            thisMap += ((key, primarySuper))
+        }
+      }
+      primarySupers
+    }
+  }
+
+  class NodesMap extends HashMap[T, Node] {
     override def elemHashCode(t: T) = computeHashCode(t)
     override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
 
@@ -67,55 +188,11 @@ abstract class MixinNodes {
     }
   }
 
-  class MultiMap extends HashMap[T, Set[Node]] with collection.mutable.MultiMap[T, Node] {
-    override def elemHashCode(t : T) = computeHashCode(t)
-    override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
+  
 
-    override def makeSet = new LinkedHashSet[Node]   
-  }
+  def build(clazz: PsiClass): Map = build(ScType.designator(clazz))
 
-  object MultiMap {def empty = new MultiMap}
-
-  def mergeSupers(maps: List[Map]) : MultiMap = {
-    val res = MultiMap.empty
-    val mapsIterator = maps.iterator
-    while (mapsIterator.hasNext) {
-      val currentIterator = mapsIterator.next().iterator
-      while (currentIterator.hasNext) {
-        val (k, node) = currentIterator.next()
-        res.addBinding(k, node)
-      }
-    }
-    res
-  }
-
-  //Return primary selected from supersMerged
-  def mergeWithSupers(thisMap: Map, supersMerged: MultiMap): Map = {
-    val primarySupers = new Map
-    for ((key, nodes) <- supersMerged) {
-      val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
-        case None => nodes.toList(0)
-        case Some(concrete) => concrete
-      }
-      primarySupers += ((key, primarySuper))
-      thisMap.get(key) match {
-        case Some(node) => {
-          node.primarySuper = Some(primarySuper)
-          node.supers = nodes.toSeq
-        }
-        case None => {
-          nodes -= primarySuper
-          primarySuper.supers = nodes.toSeq
-          thisMap += ((key, primarySuper))
-        }
-      }
-    }
-    primarySupers
-  }
-
-  def build(clazz: PsiClass): (Map, Map) = build(ScType.designator(clazz))
-
-  def build(tp: ScType): (Map, Map) = {
+  def build(tp: ScType): Map = {
     var isPredef = false
     var place: Option[PsiElement] = None
     val map = new Map
@@ -206,9 +283,8 @@ abstract class MixinNodes {
         case _ =>
       }
     }
-    val superMap = mergeWithSupers(map, mergeSupers(superTypesBuff.toList))
-
-    (superMap, map)
+    map.setSupersMap(superTypesBuff.toList)
+    map
   }
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
