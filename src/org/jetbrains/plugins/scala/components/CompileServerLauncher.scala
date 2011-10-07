@@ -77,7 +77,7 @@ class CompileServerLauncher(project: Project) extends ProjectComponent {
     }
 
     val process = runProcess(instance.environment, "scala.tools.nsc.CompileClient", Nil, options)
-    process.waitFor();
+//    process.waitFor(); // avoid SCL-3646 (Latest version of Plugin Hangs IDEA on project close or exit)
   }
 
   def running: Boolean = watcher.running
