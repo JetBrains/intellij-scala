@@ -150,6 +150,11 @@ public class OverrideImplementTest extends PsiTestCase {
     runTest(name);
   }
 
+  public void testSCL1999() throws Exception {
+    String name = "bug/SCL1999.scala";
+    runTest(name);
+  }
+
   public void testSCL2540() throws Exception {
     String name = "bug/SCL2540.scala";
     runTest(name);
