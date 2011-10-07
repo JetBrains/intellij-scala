@@ -772,15 +772,14 @@ object ScalaPsiUtil {
     }
   }
 
-  def getMethodPresentableText(method: PsiMethod): String = {
-    val buffer = new StringBuffer("")
+  def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
     method match {
       case method: ScFunction => {
-        ScalaElementPresentation.getMethodPresentableText(method, false)
+        ScalaElementPresentation.getMethodPresentableText(method, false, subst)
       }
       case _ => {
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-        PsiFormatUtil.formatMethod(method, PsiSubstitutor.EMPTY,
+        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst, method.getProject, method.getResolveScope),
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
       }
     }
