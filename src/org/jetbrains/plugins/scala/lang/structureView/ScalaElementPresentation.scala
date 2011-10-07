@@ -2,15 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package structureView
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.types.Any
 import com.intellij.openapi.project.IndexNotReadyException
+import psi.types.{ScSubstitutor, ScType}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,18 +25,18 @@ object ScalaElementPresentation {
   def getPackagingPresentableText(packaging: ScPackaging): String = packaging.getPackageName
 
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
-    if (typeDefinition.nameId != null) typeDefinition.nameId.getText() else "unnamed"
+    if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"
 
   def getPrimaryConstructorPresentableText(constructor: ScPrimaryConstructor): String = {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append("this")
     if (constructor.parameters != null)
       presentableText.append(StructureViewUtil.getParametersAsString(constructor.parameterList))
-    presentableText.toString()
+    presentableText.toString
   }
 
-  def getMethodPresentableText(function: ScFunction): String = getMethodPresentableText(function, true)
-  def getMethodPresentableText(function: ScFunction, short: Boolean): String = {
+  def getMethodPresentableText(function: ScFunction, short: Boolean = true,
+                               subst: ScSubstitutor = ScSubstitutor.empty): String = {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append(if (!function.isConstructor) function.getName else "this")
 
@@ -47,22 +46,22 @@ object ScalaElementPresentation {
     }
 
     if (function.paramClauses != null)
-      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short))
+      presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, short, subst))
 
     presentableText.append(": ")
     try {
-      presentableText.append(ScType.presentableText(function.returnType.getOrAny))
+      val typez = subst.subst(function.returnType.getOrAny)
+      presentableText.append(ScType.presentableText(typez))
     }
     catch {
       case e: IndexNotReadyException => presentableText.append("NoTypeInfo")
     }
 
-
-    presentableText.toString()
+    presentableText.toString
   }
 
   def getTypeAliasPresentableText(typeAlias: ScTypeAlias): String =
-    if (typeAlias.nameId != null) typeAlias.nameId.getText() else "type unnamed"
+    if (typeAlias.nameId != null) typeAlias.nameId.getText else "type unnamed"
 
   def getPresentableText(elem: PsiElement): String = elem.getText
 }
