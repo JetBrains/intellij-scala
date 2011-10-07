@@ -33,7 +33,7 @@ abstract class MixinNodes {
   class Map extends HashMap[String, ArrayBuffer[(T, Node)]] {
     private[Map] val implicitNames: HashSet[String] = new HashSet[String]
     def addToMap(key: T, node: Node) {
-      val name = elemName(key)
+      val name = ScalaPsiUtil.convertMemberName(elemName(key))
       getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
       if (isImplicit(key)) implicitNames.add(name)
     }
@@ -51,19 +51,20 @@ abstract class MixinNodes {
     private val calculated: HashMap[String, NodesMap] = new HashMap
     private val calculatedSupers: HashMap[String, NodesMap] = new HashMap
 
-    def forName(s: String): (NodesMap, NodesMap) = {
+    def forName(name: String): (NodesMap, NodesMap) = {
+      val convertedName = ScalaPsiUtil.convertMemberName(name)
       synchronized {
-        if (calculatedNames.contains(s)) {
-          return (calculated(s), calculatedSupers(s))
+        if (calculatedNames.contains(convertedName)) {
+          return (calculated(convertedName), calculatedSupers(convertedName))
         }
       }
-      val thisMap: NodesMap = toNodesMap(getOrElse(s, new ArrayBuffer))
-      val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(s, new ArrayBuffer)))
+      val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
+      val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
       val supers = mergeWithSupers(thisMap, mergeSupers(maps))
       synchronized {
-        calculatedNames.add(s)
-        calculated.+=((s, thisMap))
-        calculatedSupers.+=((s, supers))
+        calculatedNames.add(convertedName)
+        calculated.+=((convertedName, thisMap))
+        calculatedSupers.+=((convertedName, supers))
       }
       (thisMap, supers)
     }
