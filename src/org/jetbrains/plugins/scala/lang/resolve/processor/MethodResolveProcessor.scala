@@ -181,6 +181,7 @@ object MethodResolveProcessor {
     element match {
       //objects
       case obj: PsiClass => ConformanceExtResult(Seq.empty)
+      case a: ScTypeAlias => ConformanceExtResult(Seq.empty)
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))
       case c: ScPrimaryConstructor if c.hasMalformedSignature => ConformanceExtResult(Seq(new MalformedDefinition))

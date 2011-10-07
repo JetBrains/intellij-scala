@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
@@ -171,6 +172,15 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
   public void testGood() throws Exception {
     PsiReference ref = configureByFile("nonlocal/Good.scala");
     assertNotNull(ref.resolve());
+  }
+  
+  public void testSCL3666() throws Exception {
+    PsiReference ref = configureByFile("nonlocal/SCL3666.scala");
+    if (ref instanceof ScReferenceElement) {
+      ScReferenceElement refElement = (ScReferenceElement) ref;
+      assertNotNull(ref.resolve());
+      assertTrue(refElement.bind().get().problems().isEmpty());
+    }
   }
 
   public void testTwoImports() throws Exception {
