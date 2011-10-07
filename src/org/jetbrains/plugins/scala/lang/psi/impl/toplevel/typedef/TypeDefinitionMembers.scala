@@ -27,6 +27,7 @@ import caches.CachesUtil
 import gnu.trove.THashMap
 import lang.resolve.processor.{ImplicitProcessor, BaseProcessor}
 import api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import psi.ScalaPsiUtil.convertMemberName
 
 /**
  * @author ven
@@ -321,7 +322,6 @@ object TypeDefinitionMembers {
   }
 
   import ParameterlessNodes.{Map => PMap}, TypeNodes.{Map => TMap}, SignatureNodes.{Map => SMap}
-  import java.util.{Map => JMap}
   val typesKey: Key[CachedValue[TMap]] = Key.create("types key")
   val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
   val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
@@ -434,11 +434,6 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def convertMemberName(s: String): String = {
-    val s1 = if (s(0) == '`') s.drop(1).dropRight(1) else s
-    NameTransformer.decode(s1)
-  }
-
   private def privateProcessDeclarations(processor: PsiScopeProcessor,
                                          state: ResolveState,
                                          lastParent: PsiElement,
@@ -455,7 +450,7 @@ object TypeDefinitionMembers {
     val subst = if (substK == null) ScSubstitutor.empty else substK
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
-    val decodedName = if (name != null) NameTransformer.decode(name) else ""
+    val decodedName = if (name != null) convertMemberName(name) else ""
     val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
     val isNotScalaProcessor = !isScalaProcessor
     def checkName(s: String): Boolean = {
