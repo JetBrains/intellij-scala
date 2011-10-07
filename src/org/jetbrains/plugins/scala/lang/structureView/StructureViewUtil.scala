@@ -4,40 +4,41 @@ package structureView
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import psi.types.result.TypingContext
-import psi.types.{Nothing, ScType}
+import psi.types.{ScSubstitutor, ScType}
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 07.06.2008
 */
 
 object StructureViewUtil {
-  def getParametersAsString(x: ScParameters): String = getParametersAsString(x, true)
-  def getParametersAsString(x: ScParameters, short: Boolean): String = {
+  def getParametersAsString(x: ScParameters, short: Boolean = true,
+                            subst: ScSubstitutor = ScSubstitutor.empty): String = {
     val res: StringBuffer = new StringBuffer("")
     for (child <- x.clauses) {
       res.append("(")
-      res.append(getParametersAsString(child, short))
+      res.append(getParametersAsString(child, short, subst))
       res.append(")")
     }
-    return res.toString()
+    res.toString
   }
-  def getParametersAsString(x: ScParameterClause, short: Boolean): String = {
+  def getParametersAsString(x: ScParameterClause, short: Boolean, subst: ScSubstitutor): String = {
     val res = new StringBuffer("");
     for (param <- x.parameters) {
       if (short) {
         param.paramType match {
-          case Some(pt) => res.append(pt.getText()).append(", ")
+          case Some(pt) => res.append(pt.getText).append(", ")
           case None => res.append("AnyRef").append(", ")
         }
       } else {
         res.append(param.name + ": ")
-        res.append(ScType.presentableText(param.getType(TypingContext.empty).getOrNothing) + (if (param.isRepeatedParameter) "*" else ""))
+        val typez = subst.subst(param.getType(TypingContext.empty).getOrNothing)
+        res.append(ScType.presentableText(typez) + (if (param.isRepeatedParameter) "*" else ""))
         res.append(", ")
       }
     }
     if (res.length >= 2)
       res.delete(res.length - 2, res.length)
-    return res.toString
+    res.toString
   }
 }

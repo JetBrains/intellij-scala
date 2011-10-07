@@ -6,7 +6,6 @@ import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.psi._
-import lang.psi.api.base.{ScConstructor, ScAccessModifier, ScPrimaryConstructor}
 import lang.psi.api.expr.ScAnnotation
 import lang.psi.api.ScalaFile
 import lang.psi.api.statements._
@@ -25,6 +24,8 @@ import com.intellij.openapi.project.IndexNotReadyException
 import lang.psi.{PresentationUtil, ScalaPsiUtil}
 import lang.resolve.ResolveUtils.ScalaLookupObject
 import lang.psi.api.base.patterns.ScBindingPattern
+import lang.psi.api.base.{ScReferenceElement, ScConstructor, ScAccessModifier, ScPrimaryConstructor}
+import lang.resolve.ScalaResolveResult
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,14 +49,22 @@ class ScalaDocumentationProvider extends DocumentationProvider {
   }
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
+    val substitutor = originalElement match {
+      case ref: ScReferenceElement =>
+        ref.bind() match {
+          case Some(ScalaResolveResult(_, subst)) => subst
+          case _ => ScSubstitutor.empty
+        }
+      case _ => ScSubstitutor.empty
+    }
     element match {
-      case clazz: ScTypeDefinition => generateClassInfo(clazz)
-      case function: ScFunction => generateFunctionInfo(function)
+      case clazz: ScTypeDefinition => generateClassInfo(clazz, substitutor)
+      case function: ScFunction => generateFunctionInfo(function, substitutor)
       case value: ScNamedElement if ScalaPsiUtil.nameContext(value).isInstanceOf[ScValue]
-              || ScalaPsiUtil.nameContext(value).isInstanceOf[ScVariable] => generateValueInfo(value)
-      case alias: ScTypeAlias => generateTypeAliasInfo(alias)
-      case parameter: ScParameter => generateParameterInfo(parameter)
-      case b: ScBindingPattern => generateBindingPatternInfo(b)
+              || ScalaPsiUtil.nameContext(value).isInstanceOf[ScVariable] => generateValueInfo(value, substitutor)
+      case alias: ScTypeAlias => generateTypeAliasInfo(alias, substitutor)
+      case parameter: ScParameter => generateParameterInfo(parameter, substitutor)
+      case b: ScBindingPattern => generateBindingPatternInfo(b, substitutor)
       case _ => null
     }
   }
@@ -433,11 +442,11 @@ object ScalaDocumentationProvider {
     })
   }
 
-  def generateClassInfo(clazz: ScTypeDefinition): String = {
+  def generateClassInfo(clazz: ScTypeDefinition, subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     val module = ModuleUtil.findModuleForPsiElement(clazz)
     if (module != null) {
-      buffer.append('[').append(module.getName()).append("] ")
+      buffer.append('[').append(module.getName).append("] ")
     }
     val locationString = clazz.getPresentation.getLocationString
     val length = locationString.length
@@ -454,7 +463,8 @@ object ScalaDocumentationProvider {
     clazz match {
       case clazz: ScClass => {
         clazz.constructor match {
-          case Some(x: ScPrimaryConstructor) => buffer.append(StructureViewUtil.getParametersAsString(x.parameterList, false))
+          case Some(x: ScPrimaryConstructor) =>
+            buffer.append(StructureViewUtil.getParametersAsString(x.parameterList, false, subst))
           case None =>
         }
       }
@@ -466,13 +476,13 @@ object ScalaDocumentationProvider {
       for (i <- 0 to types.length - 1) {
         buffer.append(if (i == 1)  "\n  " else " ")
         if (i != 0) buffer.append("with ")
-        buffer.append(ScType.presentableText(types(i)))
+        buffer.append(ScType.presentableText(subst.subst(types(i))))
       }
     }
-    buffer.toString
+    buffer.toString()
   }
 
-  def generateFunctionInfo(function: ScFunction): String = {
+  def generateFunctionInfo(function: ScFunction, subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(function))
     val list = function.getModifierList
@@ -480,11 +490,11 @@ object ScalaDocumentationProvider {
       buffer.append(ScalaPsiUtil.getModifiersPresentableText(list))
     }
     buffer.append("def ")
-    buffer.append(ScalaPsiUtil.getMethodPresentableText(function))
-    buffer.toString
+    buffer.append(ScalaPsiUtil.getMethodPresentableText(function, subst))
+    buffer.toString()
   }
 
-  def generateValueInfo(field: ScNamedElement): String = {
+  def generateValueInfo(field: ScNamedElement, subst: ScSubstitutor): String = {
     val member = ScalaPsiUtil.nameContext(field) match {
       case x: ScMember => x
       case _ => return null
@@ -498,7 +508,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.getType(TypingContext.empty).getOrAny
+            val typez = subst.subst(typed.getType(TypingContext.empty).getOrAny)
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -516,7 +526,7 @@ object ScalaDocumentationProvider {
         buffer.append(field.name)
         field match {
           case typed: ScTypedDefinition => {
-            val typez = typed.getType(TypingContext.empty).getOrAny
+            val typez = subst.subst(typed.getType(TypingContext.empty).getOrAny)
             if (typez != null) buffer.append(": " + ScType.presentableText(typez))
           }
           case _ =>
@@ -530,20 +540,20 @@ object ScalaDocumentationProvider {
         }
       }
     }
-    buffer.toString
+    buffer.toString()
   }
 
-  def generateBindingPatternInfo(binding: ScBindingPattern): String = {
+  def generateBindingPatternInfo(binding: ScBindingPattern, subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append("Pattern: ")
     buffer.append(binding.name)
-    val typez = binding.getType(TypingContext.empty).getOrAny
+    val typez = subst.subst(subst.subst(binding.getType(TypingContext.empty).getOrAny))
     if (typez != null) buffer.append(": " + ScType.presentableText(typez))
 
-    buffer.toString
+    buffer.toString()
   }
 
-  def generateTypeAliasInfo(alias: ScTypeAlias): String = {
+  def generateTypeAliasInfo(alias: ScTypeAlias, subst: ScSubstitutor): String = {
     val buffer = new StringBuilder
     buffer.append(getMemberHeader(alias))
     buffer.append("type ")
@@ -552,26 +562,27 @@ object ScalaDocumentationProvider {
     alias match {
       case d: ScTypeAliasDefinition => {
         buffer.append(" = ")
-        val ttype = d.aliasedType(TypingContext.empty) match {
+        val ttype = subst.subst(d.aliasedType(TypingContext.empty) match {
           case Success(t, _) => t
           case Failure(_, _) => Any
-        }
+        })
         buffer.append(ScType.presentableText(ttype))
       }
       case _ =>
     }
-    buffer.toString
+    buffer.toString()
   }
 
-  def generateParameterInfo(parameter: ScParameter): String = {
+  def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
     (parameter match {
       case clParameter: ScClassParameter => {
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
         clazz.getName + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
-                ": " + ScType.presentableText(clParameter.getType(TypingContext.empty).getOrAny)
+                ": " + ScType.presentableText(subst.subst(clParameter.getType(TypingContext.empty).getOrAny))
       }
-      case _ => parameter.name + ": " + ScType.presentableText(parameter.getType(TypingContext.empty).getOrAny)
-    }) + (if (parameter.isRepeatedParameter) "*" else "")
+      case _ => parameter.name + ": " +
+        ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}) +
+        (if (parameter.isRepeatedParameter) "*" else "")
   }
 }
