@@ -49,11 +49,18 @@ import org.jetbrains.plugins.scala.extensions._
 import java.lang.Exception
 import com.intellij.openapi.module.{ModuleUtil, Module}
 import config.ScalaFacet
+import reflect.NameTransformer
 
 /**
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def convertMemberName(s: String): String = {
+    if (s == null || s.isEmpty) return s
+    val s1 = if (s(0) == '`' && s.length() > 1) s.drop(1).dropRight(1) else s
+    NameTransformer.decode(s1)
+  }
+
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)
