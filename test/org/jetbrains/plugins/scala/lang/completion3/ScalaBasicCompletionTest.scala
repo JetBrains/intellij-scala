@@ -50,4 +50,31 @@ class ScalaBasicCompletionTest extends ScalaCompletionTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "brrrrr").get)
     checkResultByText(resultText)
   }
+
+  def testObjectCompletion() {
+    val fileText =
+      """
+      |object States {
+      |  class Nested
+      |}
+      |object C {
+      |  val x: St<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+      |object States {
+      |  class Nested
+      |}
+      |object C {
+      |  val x: States<caret>
+      |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "States").get)
+    checkResultByText(resultText)
+  }
 }
