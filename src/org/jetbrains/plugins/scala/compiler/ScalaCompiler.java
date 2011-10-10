@@ -53,17 +53,17 @@ public class ScalaCompiler implements TranslatingCompiler {
   public boolean isCompilableFile(final VirtualFile file, CompileContext context) {
     if (!ScalaFacet.isPresentIn(myProject)) return false;
 
-    boolean compilableByExtension = isCompilableByExtension(file);
+    boolean compilableByFileType = isCompilableByExtension(file);
 
     Module module = context.getModuleByFile(file);
-    if (module == null) return compilableByExtension;
+    if (module == null) return compilableByFileType;
 
     Option<ScalaFacet> facet = ScalaFacet.findIn(module);
     if (!facet.isDefined()) return false;
 
     if (myFsc != facet.get().fsc()) return false;
 
-    return compilableByExtension;
+    return compilableByFileType && !isScalaScript(file);
   }
 
   private boolean isCompilableByExtension(VirtualFile file) {
