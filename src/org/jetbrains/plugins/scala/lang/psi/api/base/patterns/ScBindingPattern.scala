@@ -6,12 +6,13 @@ package base
 package patterns
 
 import com.intellij.navigation.NavigationItem
-import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.{ResolveScopeManager, PsiManagerEx}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import statements.{ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
+import toplevel.typedef.{ScMember, ScTypeDefinition}
+import statements._
 
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
@@ -37,5 +38,36 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   override def isStable = getEnclosingVariable match {
     case None => true
     case _ => false
+  }
+  
+  def getContainingClass: PsiClass = {
+    ScalaPsiUtil.nameContext(this) match {
+      case memb: ScMember => memb.getContainingClass
+      case _ => null
+    }
+  }
+
+  def getOriginalElement: PsiElement = {
+    val containingClass = getContainingClass
+    if (containingClass == null) return this
+    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (containingClass eq originalClass) return this
+    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    val c = originalClass.asInstanceOf[ScTypeDefinition]
+    val membersIterator = c.members.iterator
+    while (membersIterator.hasNext) {
+      val member = membersIterator.next()
+      member match {
+        case _: ScValue | _: ScVariable =>
+          val d = member.asInstanceOf[ScDeclaredElementsHolder]
+          val elemsIterator = d.declaredElements.iterator
+          while (elemsIterator.hasNext) {
+            val nextElem = elemsIterator.next()
+            if (nextElem.getName == getName) return nextElem
+          }
+        case _ =>
+      }
+    }
+    this
   }
 }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, Any}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.PsiElement
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -30,7 +31,7 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def navigate(requestFocus: Boolean): Unit = {
+  override def navigate(requestFocus: Boolean) {
     val descriptor = EditSourceUtil.getDescriptor(nameId);
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
@@ -89,4 +90,6 @@ class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] 
       override def getIcon(open: Boolean) = ScTypeAliasDeclarationImpl.this.getIcon(0)
     }
   }
+
+  override def getOriginalElement: PsiElement = super[ScTypeAliasDeclaration].getOriginalElement
 }

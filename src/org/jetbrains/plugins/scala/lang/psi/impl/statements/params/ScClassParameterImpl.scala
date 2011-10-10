@@ -8,9 +8,12 @@ package params
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import com.intellij.lang.ASTNode
 import stubs.elements.wrappers.DummyASTNode
-import stubs.{ScParameterStub}
+import stubs.ScParameterStub
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import com.intellij.psi.{PsiClass, PsiElement}
+import api.toplevel.typedef.ScClass
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -46,6 +49,21 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
     if (stub != null) {
       return stub.asInstanceOf[ScParameterStub].isStable
     }
-    return !isVar
+    !isVar
+  }
+
+  override def getOriginalElement: PsiElement = {
+    val containingClass = getContainingClass
+    if (containingClass == null) return this
+    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (containingClass eq originalClass) return this
+    if (!originalClass.isInstanceOf[ScClass]) return this
+    val c = originalClass.asInstanceOf[ScClass]
+    val iterator = c.parameters.iterator
+    while (iterator.hasNext) {
+      val param = iterator.next()
+      if (param.name == name) return param
+    }
+    this
   }
 }
