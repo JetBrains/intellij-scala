@@ -94,4 +94,6 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
         replace(anonymousRefPattern)
     }
   }
+
+  override def getOriginalElement: PsiElement = super[ScReferencePattern].getOriginalElement
 }

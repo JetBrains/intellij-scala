@@ -196,7 +196,8 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
 
   override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean) = m match {
     case f: ScFunction => f.name == name && {
-      if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
+      if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).
+        paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
       else true
     }
     case _ => false
@@ -225,8 +226,10 @@ abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with
   }
 
   override def getOriginalElement: PsiElement = {
-    if (getContainingClass == null) return this
-    val originalClass: PsiClass = getContainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    val containingClass = getContainingClass
+    if (containingClass == null) return this
+    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (containingClass eq originalClass) return this
     if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val membersIterator = c.members.iterator

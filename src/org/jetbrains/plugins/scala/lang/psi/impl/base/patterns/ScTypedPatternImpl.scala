@@ -13,8 +13,7 @@ import com.intellij.psi._
 import psi.types.result.{Success, TypingContext}
 import scope.PsiScopeProcessor
 import api.ScalaElementVisitor
-import lang.resolve.processor.BaseProcessor
-import psi.types.{ScSubstitutor, ScType}
+import psi.types.ScType
 
 /**
 * @author Alexander Podkhalyuzin
@@ -22,7 +21,7 @@ import psi.types.{ScSubstitutor, ScType}
 */
 
 class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypedPattern {
-  override def accept(visitor: PsiElementVisitor): Unit = {
+  override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
@@ -53,4 +52,6 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                                    place: PsiElement) = {
     ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
   }
+
+  override def getOriginalElement: PsiElement = super[ScTypedPattern].getOriginalElement
 }

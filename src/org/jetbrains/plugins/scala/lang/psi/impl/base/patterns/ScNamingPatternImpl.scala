@@ -50,4 +50,6 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
       ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
     } else true
   }
+
+  override def getOriginalElement: PsiElement = super[ScNamingPattern].getOriginalElement
 }
