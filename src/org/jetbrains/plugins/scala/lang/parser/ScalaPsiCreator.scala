@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import com.intellij.psi.util.{PsiUtilCore, PsiUtilBase, PsiUtil}
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 
 object ScalaPsiCreator {
   def createElement(node: ASTNode): PsiElement =
@@ -240,5 +241,6 @@ object ScalaPsiCreator {
     case ScalaElementTypes.XML_PATTERN => new ScXmlPatternImpl(node)
     case ScalaElementTypes.XML_COMMENT => new ScXmlCommentImpl(node)
     case ScalaElementTypes.XML_ELEMENT => new ScXmlElementImpl(node)
+    case _ => new ASTWrapperPsiElement(node)
   }
 }
