@@ -165,7 +165,18 @@ trait ScPattern extends ScalaPsiElement {
                 case _ => false
               }) => {
                 if (args.length != 1) return None
-                (Seq(args(0)) ++ BaseTypes.get(args(0))).find({
+                val tupleArgs = args(0) match {
+                  case ScTupleType(comps) => comps
+                  case p: ScParameterizedType =>
+                    p.getTupleType match {
+                      case Some(ScTupleType(comps)) => comps
+                      case _ => Seq(p)
+                    }
+                  case tp => Seq(tp)
+                }
+                if (tupleArgs.length <= i) return None
+                val lastArg = tupleArgs(i)
+                (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
                   case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
                     case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
                     case _ => false
