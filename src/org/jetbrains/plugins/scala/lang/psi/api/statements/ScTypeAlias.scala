@@ -8,11 +8,11 @@ import icons.Icons
 import javax.swing.Icon
 import psi.ScalaPsiElement
 import toplevel.ScPolymorphicElement
-import toplevel.typedef.{ScDocCommentOwner, ScMember}
 import types.ScType
 import base.types.ScExistentialClause
-import com.intellij.psi.{PsiElement, PsiDocCommentOwner}
 import lexer.ScalaTokenTypes
+import com.intellij.psi.{PsiClass, PsiElement, PsiDocCommentOwner}
+import toplevel.typedef.{ScTypeDefinition, ScDocCommentOwner, ScMember}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,4 +39,19 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
     hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
 
   def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
+
+  def getOriginalElement: PsiElement = {
+    val containingClass = getContainingClass
+    if (containingClass == null) return this
+    val originalClass: PsiClass = containingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (containingClass eq  originalClass) return this
+    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    val c = originalClass.asInstanceOf[ScTypeDefinition]
+    val aliasesIterator = c.aliases.iterator
+    while (aliasesIterator.hasNext) {
+      val alias = aliasesIterator.next()
+      if (alias.name == name) return alias
+    }
+    this
+  }
 }

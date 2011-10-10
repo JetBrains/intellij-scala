@@ -53,32 +53,19 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
-    //todo why this buggy code was written?
-    //todo if there are a reason, fix it in other way
-    /*def eqviv(elem1: PsiElement, elem2: PsiElement): Boolean = {...}*/
-
-    val res = resolve()
-    if (res == null) {
-      //case for imports with reference to Class and Object
-      element match {
-        case td: ScTypeDefinition => {
-          ScalaPsiUtil.getCompanionModule(td) match {
-            case Some(comp) => {
-              val res = multiResolve(false)
-              if (res.length == 2) {
-                return res.find(_.getElement == td) != None && res.find(_.getElement == comp) != None
-              } else return false
-            }
-            case _ => return false
-          }
-        }
-        case _ => return false
-      }
+    val iterator = multiResolve(false).iterator
+    while (iterator.hasNext) {
+      val resolved = iterator.next()
+      if (isReferenceTo(element, resolved.getElement)) return true
     }
-    if (ScEquivalenceUtil.smartEquivalence(res, element)) return true
+    false
+  }
+
+  def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
+    if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     element match {
       case td: ScTypeDefinition if td.getName == refName => {
-        res match {
+        resolved match {
           case method: PsiMethod if method.isConstructor => {
             if (td == method.getContainingClass) return true
           }
@@ -126,7 +113,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
       }
       case _ =>
     }
-    isIndirectReferenceTo(res, element)
+    isIndirectReferenceTo(resolved, element)
   }
 
   /**
@@ -141,10 +128,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     (resolved, element) match {
       case (_, obj: ScObject) =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
-        false
       case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) if isDefinedInObject(typeAlias) =>
         if (cls.getTypeParameters.length != typeAlias.typeParameters.length) {
-          false
+          return false
         } else if (cls.hasTypeParameters) {
           val typeParamsAreAppliedInOrderToCorrectClass = typeAlias.aliasedType.getOrAny match {
             case pte: ScParameterizedType =>
@@ -173,8 +159,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           val clsType = ScType.designator(cls)
           typeAlias.typeParameters.isEmpty && Equivalence.equiv(typeAlias.aliasedType.getOrElse(return false), clsType)
         }
-      case _ => false
+      case _ =>
     }
+    val originalElement = element.getOriginalElement
+    if (originalElement != element) isReferenceTo(originalElement, resolved)
+    else false
   }
 
   def qualifier: Option[ScalaPsiElement]
