@@ -77,7 +77,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
   }
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    ref.bind match {
+    ref.bind() match {
       case Some(r) =>
         r.element match {
           //todo: remove all classes?
