@@ -69,7 +69,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   
   private static final FileChooserDescriptor CHOOSER_DESCRIPTOR = 
       new FileChooserDescriptor(false, false, true, true, false, true);
-  
+  private final LibraryRenderer myLibraryRenderer;
+
   static {
     CHOOSER_DESCRIPTOR.setDescription("Select Scala compiler plugin JAR");
   }
@@ -80,7 +81,8 @@ public class FacetConfigurationEditor extends FacetEditorTab {
     myValidatorsManager = validatorsManager;
 
     myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
-    myCompilerLibrary.setRenderer(new LibraryRenderer());
+    myLibraryRenderer = new LibraryRenderer(myCompilerLibrary);
+    myCompilerLibrary.setRenderer(myLibraryRenderer);
 
     myEnableWarnings.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
@@ -268,10 +270,22 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   private void updateLibrariesList() {
     LibraryId id = getCompilerLibraryId();
 
-    myCompilerLibrary.setModel(new DefaultComboBoxModel(
-        LibraryDescriptor.compilersFor(myEditorContext.getProject())));
+    LibraryDescriptor[] items = (LibraryDescriptor[]) LibraryDescriptor.compilersFor(myEditorContext.getProject());
+    DefaultComboBoxModel model = new DefaultComboBoxModel(items);
+    model.insertElementAt(null, 0);
+    myCompilerLibrary.setModel(model);
+    myLibraryRenderer.setPrefixLength(lastIndexOfProperItemIn(items) + 1);
 
     setCompilerLibraryById(id);
+  }
+
+  private static int lastIndexOfProperItemIn(LibraryDescriptor[] descriptors) {
+    int result = -1;
+    for (LibraryDescriptor descriptor : descriptors) {
+      if (descriptor.data().get().problem().isDefined()) break;
+      result++;
+    }
+    return result;
   }
 
   private String getCompilerLibraryName() {
@@ -291,7 +305,7 @@ public class FacetConfigurationEditor extends FacetEditorTab {
   
   public void setCompilerLibraryById(LibraryId id) {
     if(id.isEmpty()) {
-      myCompilerLibrary.addItem(null);
+//      myCompilerLibrary.addItem(null);
       myCompilerLibrary.setSelectedItem(null);
     } else {
       LibraryDescriptor descriptor = findLibraryDescriptorFor(id);

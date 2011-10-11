@@ -39,11 +39,13 @@ public class ScalacConfigurable implements Configurable {
   private JPanel myClientPanel;
   private ScalacSettings mySettings;
   private Project myProject;
+  private final LibraryRenderer myLibraryRenderer;
 
   public ScalacConfigurable(ScalacSettings settings, Project project) {
     myProject = project;
     mySettings = settings;
-    myCompilerLibrary.setRenderer(new LibraryRenderer());
+    myLibraryRenderer = new LibraryRenderer(myCompilerLibrary);
+    myCompilerLibrary.setRenderer(myLibraryRenderer);
 
     myRunInternalServerRadioButton.addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
@@ -58,9 +60,22 @@ public class ScalacConfigurable implements Configurable {
   private void updateLibrariesList() {
     LibraryId id = getCompilerLibraryId();
 
-    myCompilerLibrary.setModel(new DefaultComboBoxModel(LibraryDescriptor.compilersFor(myProject)));
+    LibraryDescriptor[] items = (LibraryDescriptor[]) LibraryDescriptor.compilersFor(myProject);
+    DefaultComboBoxModel model = new DefaultComboBoxModel(items);
+    model.insertElementAt(null, 0);
+    myCompilerLibrary.setModel(model);
+    myLibraryRenderer.setPrefixLength(lastIndexOfProperItemIn(items) + 1);
 
     setCompilerLibraryById(id);
+  }
+
+  private static int lastIndexOfProperItemIn(LibraryDescriptor[] descriptors) {
+    int result = -1;
+    for (LibraryDescriptor descriptor : descriptors) {
+      if (descriptor.data().get().problem().isDefined()) break;
+      result++;
+    }
+    return result;
   }
 
   private void updateSections() {
@@ -93,7 +108,7 @@ public class ScalacConfigurable implements Configurable {
 
   public void setCompilerLibraryById(LibraryId id) {
     if(id.isEmpty()) {
-      myCompilerLibrary.addItem(null);
+//      myCompilerLibrary.addItem(null);
       myCompilerLibrary.setSelectedItem(null);
     } else {
       LibraryDescriptor descriptor = findLibraryDescriptorFor(id);
