@@ -6,7 +6,7 @@ package base
 package patterns
 
 import com.intellij.navigation.NavigationItem
-import com.intellij.psi.impl.{ResolveScopeManager, PsiManagerEx}
+import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
