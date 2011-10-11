@@ -174,8 +174,8 @@ trait ScPattern extends ScalaPsiElement {
                     }
                   case tp => Seq(tp)
                 }
-                if (tupleArgs.length <= i) return None
-                val lastArg = tupleArgs(i)
+                if (tupleArgs.length == 0) return None
+                val lastArg = tupleArgs(tupleArgs.length - 1)
                 (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
                   case ScParameterizedType(des, args) if args.length == 1 && (ScType.extractClass(des) match {
                     case Some(clazz) if clazz.getQualifiedName == "scala.collection.Seq" => true
