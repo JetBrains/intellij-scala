@@ -12,10 +12,12 @@ object LibraryDescriptor {
     def list(level: LibraryLevel) = Libraries.findBy(level, project).map { library =>
       LibraryDescriptor(LibraryId(library.getName, level), Some(new CompilerLibraryData(library)))
     }
-    (list(LibraryLevel.Global) ++ list(LibraryLevel.Project)).sortBy(_.id.name.toLowerCase)
+    val all = list(LibraryLevel.Global) ++ list(LibraryLevel.Project)
+    val (suitable, remaining) = all.partition(_.data.get.problem.isEmpty)
+    suitable.sortBy(_.data.get.version.get).reverse ++ remaining.sortBy(_.id.name.toLowerCase)
   }
   
   def createFor(id: LibraryId) = LibraryDescriptor(id, None)
 }
 
-case class LibraryDescriptor(val id: LibraryId, val data: Option[LibraryData])
+case class LibraryDescriptor(id: LibraryId, data: Option[LibraryData])
