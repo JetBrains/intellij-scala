@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala.config
 package ui
 
 import com.intellij.util.PlatformIcons
-import javax.swing.{JComboBox, DefaultListCellRenderer, JList}
 import com.intellij.openapi.util.IconLoader
+import java.awt.BorderLayout
+import javax.swing._
+import reflect.BeanProperty
 
 /**
  * Pavel.Fatin, 05.07.2010
@@ -37,6 +39,9 @@ class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
     case None => Empty
   }
 
+  @BeanProperty
+  var prefixLength = -1;
+
   override def getListCellRendererComponent(list: JList, value: Any, index: Int, 
                                             isSelected: Boolean, cellHasFocus: Boolean) = {
     val holder = Option(value.asInstanceOf[LibraryDescriptor])
@@ -45,6 +50,13 @@ class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
     lazy val plain = html.replaceAll("<.*?>", "").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&nbsp;", " ")
     val result = super.getListCellRendererComponent(list, if (enabled) html else plain, index, isSelected, hasFocus)
     setIcon(if (enabled) ENABLED_ICON else DISABLED_ICON)
-    result
+    if (prefixLength >= 0 && prefixLength == index) {
+      val panel = new JPanel(new BorderLayout())
+      panel.add(result, BorderLayout.CENTER)
+      panel.add(new JSeparator(), BorderLayout.SOUTH)
+      panel
+    } else {
+      result
+    }
   }
 }
