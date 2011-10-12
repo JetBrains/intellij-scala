@@ -11,11 +11,14 @@ import reflect.BeanProperty
  * Pavel.Fatin, 05.07.2010
  */
 
-class LibraryRenderer extends DefaultListCellRenderer {
+class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
   val Empty = """<html><body><span style="color: #ff0000;">&lt;none&gt;</span>&nbsp;</body></html>"""
   val NotFound = """<html><body><span style="color: #ff0000;">%s [not found]</span>&nbsp;</body></html>"""
   val Unknown = """<html><body>%s&nbsp;</html>"""
   val Normal = """<html><body>%s <span style="color: #808080;">(version %s)</span>&nbsp;</body></html>"""
+
+  val ENABLED_ICON = PlatformIcons.LIBRARY_ICON
+  val DISABLED_ICON = IconLoader.getDisabledIcon(ENABLED_ICON)
 
   def nameOf(level: LibraryLevel) = level match {
     case LibraryLevel.Global => "global"
