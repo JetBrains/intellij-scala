@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.config
 package ui
 
-import com.intellij.util.PlatformIcons
+import com.intellij.util.Icons
 import com.intellij.openapi.util.IconLoader
 import java.awt.BorderLayout
 import javax.swing._
@@ -17,7 +17,7 @@ class LibraryRenderer(comboBox: JComboBox) extends DefaultListCellRenderer {
   val Unknown = """<html><body>%s&nbsp;</html>"""
   val Normal = """<html><body>%s <span style="color: #808080;">(version %s)</span>&nbsp;</body></html>"""
 
-  val ENABLED_ICON = PlatformIcons.LIBRARY_ICON
+  val ENABLED_ICON = Icons.LIBRARY_ICON
   val DISABLED_ICON = IconLoader.getDisabledIcon(ENABLED_ICON)
 
   def nameOf(level: LibraryLevel) = level match {
