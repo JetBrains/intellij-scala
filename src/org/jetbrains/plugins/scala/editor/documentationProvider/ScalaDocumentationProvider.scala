@@ -222,6 +222,7 @@ object ScalaDocumentationProvider {
   def parseParameter(param: ScParameter, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder("")
     buffer.append(parseAnnotations(param, typeToString))
+    if (!buffer.isEmpty) buffer.append(' ')
     param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
     buffer.append(param match {
       case c: ScClassParameter if c.isVal => "val "
