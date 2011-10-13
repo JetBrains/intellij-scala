@@ -343,7 +343,8 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
       if (LOG.isDebugEnabled()) {
         for (String s : commandLine) LOG.debug(s);
-        LOG.debug(Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n"));
+        String s = Source.fromFile(fileWithParams, "UTF8").getLines().mkString("\n");
+        LOG.debug(s);
       }
     } catch (IOException e) {
       LOG.error(e);
@@ -381,8 +382,11 @@ public class ScalacBackendCompiler extends ExternalCompiler {
       printer.println(parameter);
     
     printer.println(DESTINATION_COMPILER_PROPERTY);
-    
-    printer.println(outputPath.replace('/', File.separatorChar));
+
+    if (myFsc) printer.print("\"");
+    printer.print(outputPath.replace('/', File.separatorChar));
+    if (myFsc) printer.print("\"");
+    printer.println();
 
     //write classpath
     printer.println("-cp");
@@ -431,7 +435,10 @@ public class ScalacBackendCompiler extends ExternalCompiler {
 
     //Print files to compile, both Java and Scala
     for (VirtualFile file : filesToCompile) {
-      printer.println(file.getPath());
+      if (myFsc) printer.print("\"");
+      printer.print(file.getPath());
+      if (myFsc) printer.print("\"");
+      printer.println();
     }
     if (settings.SCALAC_BEFORE) {
       // No need to pass .java files to scalac unless we are running it before javac.
@@ -465,14 +472,17 @@ public class ScalacBackendCompiler extends ExternalCompiler {
     return isTestChunk;
   }
 
-  private static void addJavaSourceFiles(PrintStream stream, VirtualFile src, HashSet<VirtualFile> filesToCompile) {
+  private void addJavaSourceFiles(PrintStream stream, VirtualFile src, HashSet<VirtualFile> filesToCompile) {
     if (src.getPath().contains("!/")) return;
     if (src.isDirectory()) {
       for (VirtualFile file : src.getChildren()) {
         addJavaSourceFiles(stream, file, filesToCompile);
       }
     } else if (src.getFileType() == StdFileTypes.JAVA && !filesToCompile.contains(src)) {
-      stream.println(src.getPath());
+      if (myFsc) stream.print("\"");
+      stream.print(src.getPath());
+      if (myFsc) stream.print("\"");
+      stream.println();
     }
   }
 
