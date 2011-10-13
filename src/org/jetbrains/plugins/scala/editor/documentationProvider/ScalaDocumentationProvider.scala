@@ -221,7 +221,7 @@ object ScalaDocumentationProvider {
 
   def parseParameter(param: ScParameter, typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder("")
-    buffer.append(parseAnnotations(param, typeToString))
+    buffer.append(parseAnnotations(param, typeToString, ' '))
     param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
     buffer.append(param match {
       case c: ScClassParameter if c.isVal => "val "
@@ -304,7 +304,8 @@ object ScalaDocumentationProvider {
     buffer.toString
   }
 
-  private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String): String = {
+  private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String,
+                               sep: Char = '\n'): String = {
     val buffer: StringBuilder = new StringBuilder("")
     def parseAnnotation(elem: ScAnnotation): String = {
       var s = "@"
@@ -320,7 +321,7 @@ object ScalaDocumentationProvider {
       s
     }
     for (ann <- elem.annotations) {
-      buffer.append(parseAnnotation(ann) + "\n")
+      buffer.append(parseAnnotation(ann) + sep)
     }
     buffer.toString
   }
