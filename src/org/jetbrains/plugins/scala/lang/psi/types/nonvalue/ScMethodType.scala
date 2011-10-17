@@ -100,7 +100,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
 
-  def polymorphicTypeSubstitutor: ScSubstitutor =
+
+  def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(false)
+
+  def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ (typeParameters.map(tp => {
       var contraVariant = 0
       var coOrInVariant = 0
@@ -121,9 +124,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           (false, typez)
       }
       if (coOrInVariant == 0 && contraVariant != 0)
-        ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType)
+        ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.upperType.inferValueType)
       else
-        ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType)
+        ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), tp.lowerType.inferValueType)
     })), Map.empty, None)
 
   def polymorphicTypeSubstitutorMissedEmptyParams: ScSubstitutor =
@@ -166,7 +169,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             ScExistentialArgument(tp.name, List.empty, tp.lowerType, tp.upperType)))), Map.empty, None)
 
   def inferValueType: ValueType = {
-    polymorphicTypeSubstitutor.subst(internalType.inferValueType).asInstanceOf[ValueType]
+    polymorphicTypeSubstitutor(true).subst(internalType.inferValueType).asInstanceOf[ValueType]
   }
 
   override def removeAbstracts = ScTypePolymorphicType(internalType.removeAbstracts, typeParameters.map(tp => {
