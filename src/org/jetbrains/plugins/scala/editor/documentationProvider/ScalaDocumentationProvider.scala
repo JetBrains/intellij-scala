@@ -280,8 +280,7 @@ object ScalaDocumentationProvider {
   private def parseModifiers(elem: ScModifierListOwner): String = {
     val buffer: StringBuilder = new StringBuilder("")
     def accessQualifier(x: ScAccessModifier): String = (x.getReference match {
-      case null => ""
-      case ref => ref.resolve match {
+      case null => ""             case ref => ref.resolve match {
         case clazz: PsiClass => "[<a href=\"psi_element://" +
                 escapeHtml(clazz.getQualifiedName) + "\"><code>" +
                 (x.idText match {case Some(text) => text case None => ""}) + "</code></a>]"

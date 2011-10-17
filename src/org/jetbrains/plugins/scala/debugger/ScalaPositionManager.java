@@ -108,7 +108,11 @@ public class ScalaPositionManager implements PositionManager {
     if (!(file instanceof ScalaFile)) return null;
     PsiElement element = file.findElementAt(position.getOffset());
     if (element == null) return null;
-    return PsiTreeUtil.getParentOfType(element, ScTypeDefinition.class);
+    ScTypeDefinition td = PsiTreeUtil.getParentOfType(element, ScTypeDefinition.class);
+    while (td != null && ScalaPsiUtil.isLocalClass(td)) {
+      td = PsiTreeUtil.getParentOfType(td, ScTypeDefinition.class, true);
+    }
+    return td;
   }
 
   private static String getSpecificName(String name, Class<? extends PsiClass> clazzClass) {
@@ -125,13 +129,14 @@ public class ScalaPositionManager implements PositionManager {
       }
     });
     String qName = null;
-    if (sourceImage instanceof ScTypeDefinition) {
+    if (sourceImage instanceof ScTypeDefinition && !ScalaPsiUtil.isLocalClass((PsiClass) sourceImage)) {
       qName = getSpecificName(((ScTypeDefinition) sourceImage).getQualifiedNameForDebugger(), ((ScTypeDefinition) sourceImage).getClass());
     } else if (sourceImage instanceof ScFunctionExpr ||
         sourceImage instanceof ScForStatement ||
         sourceImage instanceof ScExtendsBlock ||
         sourceImage instanceof ScCaseClauses && sourceImage.getParent() instanceof ScBlockExpr ||
-        sourceImage instanceof ScExpression /*by name argument*/) {
+        sourceImage instanceof ScExpression /*by name argument*/ ||
+        sourceImage instanceof ScTypeDefinition) {
       ScTypeDefinition typeDefinition = findEnclosingTypeDefinition(position);
       if (typeDefinition != null) {
         final String fqn = typeDefinition.getQualifiedNameForDebugger();

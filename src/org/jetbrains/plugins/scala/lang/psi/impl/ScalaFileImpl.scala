@@ -19,6 +19,7 @@ import com.intellij.openapi.roots._
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManagerImpl
+import com.intellij.psi.impl.migration.PsiMigrationManager
 import org.jetbrains.annotations.Nullable
 import api.toplevel.ScToplevelElement
 import com.intellij.openapi.progress.ProgressManager
@@ -283,6 +284,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
     if (!super[ScImportsHolder].processDeclarations(processor,
       state, lastParent, place)) return false
 
+    if (context != null) {
+      return true
+    }
+
     val scope = place.getResolveScope
 
     place match {
@@ -313,7 +318,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
               val pack = iterator.next()
               if (!processor.execute(pack, state)) return false
             }
-            val migration = facade.getCurrentMigration
+            val migration = PsiMigrationManager.getInstance(getProject).getCurrentMigration
             if (migration != null) {
               val list = migration.getMigrationPackages("")
               val packages = list.toArray(new Array[PsiPackage](list.size)).map(ScPackageImpl(_))
@@ -467,6 +472,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider)
   }
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
+
+  override def getContext: PsiElement = {
+    context match {
+      case null => super.getContext
+      case _ => context
+    }
+  }
 }
 
 object ImplicitlyImported {

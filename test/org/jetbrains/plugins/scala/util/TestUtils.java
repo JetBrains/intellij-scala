@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.util;
 
-import org.jetbrains.plugins.scala.Console;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -28,6 +27,7 @@ import com.intellij.util.LocalTimeCounter;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.Console;
 
 import java.io.File;
 import java.io.IOException;
