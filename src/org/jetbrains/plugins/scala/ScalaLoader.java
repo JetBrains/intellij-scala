@@ -68,8 +68,6 @@ public class ScalaLoader implements ApplicationComponent {
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
 
-        TextEditorHighlightingPassRegistrar registrar = TextEditorHighlightingPassRegistrar.getInstance(project);
-
         CompilerManager compilerManager = CompilerManager.getInstance(project);
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 

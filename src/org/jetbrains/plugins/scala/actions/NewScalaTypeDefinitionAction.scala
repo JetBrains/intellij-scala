@@ -102,34 +102,6 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private val SCALA_EXTENSIOIN = ".scala";
 
-  override def createFile(name: String, templateName: String, dir: PsiDirectory): ScTypeDefinition = {
-    doCheckCreate(dir, name, templateName)
-    val file: PsiFile = createClassFromTemplate(dir, templateName, templateName);
-    if (file.isInstanceOf[ScalaFile]) {
-      val scalaFile = file.asInstanceOf[ScalaFile]
-      val classes = scalaFile.getClasses
-      if (classes.length == 1 && classes(0).isInstanceOf[ScTypeDefinition]) {
-        val definition = classes(0).asInstanceOf[ScTypeDefinition]
-        return definition
-      }
-    }
-    null
-  }
-
-  private def doCheckCreate(dir: PsiDirectory, className: String, templateName: String) {
-    if (!ScalaNamesUtil.isIdentifier(className)) {
-      throw new IncorrectOperationException(PsiBundle.message("0.is.not.an.identifier", className))
-    }
-    val fileName: String = className + "." + ScalaFileType.DEFAULT_EXTENSION
-    dir.checkCreateFile(fileName)
-    val helper: PsiNameHelper = JavaPsiFacade.getInstance(dir.getProject).getNameHelper
-    val aPackage: PsiPackage = JavaDirectoryService.getInstance.getPackage(dir)
-    val qualifiedName: String = if (aPackage == null) null else aPackage.getQualifiedName
-    if (!StringUtil.isEmpty(qualifiedName) && !helper.isQualifiedName(qualifiedName)) {
-      throw new IncorrectOperationException("Cannot create class in invalid package: '" + qualifiedName + "'")
-    }
-  }
-
   def checkPackageExists(directory: PsiDirectory) = {
     JavaDirectoryService.getInstance.getPackage(directory) != null
   }
