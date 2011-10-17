@@ -99,6 +99,10 @@ object ScSyntheticPackage {
       if (pkgs.isEmpty) null else {
         val pname = if (i < 0) "" else fqn.substring(0, i)
         new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
+          def containsClassNamed(name: String): Boolean = {
+            getClasses.find(_.getName == name) != None
+          }
+
           def getQualifiedName = fqn
 
           def getClasses = {

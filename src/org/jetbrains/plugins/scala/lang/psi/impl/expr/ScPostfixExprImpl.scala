@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import collection.Seq;
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElementVisitor, PsiElement}
+import api.ScalaElementVisitor
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -23,4 +24,15 @@ class ScPostfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def getInvokedExpr: ScExpression = operation
 
   def argsElement: PsiElement = operation
+
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitPostfixExpression(this)
+  }
+
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case visitor: ScalaElementVisitor => visitor.visitPostfixExpression(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

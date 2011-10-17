@@ -65,8 +65,6 @@ public class ScalaLoader implements ApplicationComponent {
   }
 
   public static void loadScala() {
-    ChangeUtil.registerCopyHandler(new ScalaChangeUtilSupport());
-
     ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerAdapter() {
       public void projectOpened(Project project) {
 
@@ -76,11 +74,6 @@ public class ScalaLoader implements ApplicationComponent {
         compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
-        DebuggerManager.getInstance(project).registerPositionManagerFactory(new Function<DebugProcess, PositionManager>() {
-          public PositionManager fun(DebugProcess debugProcess) {
-            return new ScalaPositionManager(debugProcess);
-          }
-        });
 
       }
     });

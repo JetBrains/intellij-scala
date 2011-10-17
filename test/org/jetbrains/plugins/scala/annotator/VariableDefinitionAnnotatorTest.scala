@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.intellij.lang.annotations.Language
 import lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.extensions._
+import lang.psi.api.ScalaFile
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -59,7 +60,8 @@ class VariableDefinitionAnnotatorTest extends SimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val definition = (Header + code).parse.depthFirst.findByType(classOf[ScVariableDefinition]).get
+    val parse: ScalaFile = (Header + code).parse
+    val definition = parse.depthFirst.findByType(classOf[ScVariableDefinition]).get
     
     val annotator = new VariableDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock

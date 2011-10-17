@@ -51,4 +51,6 @@ class ScalaCodeFragment(project: Project, text: String) extends ScalaFileImpl(ne
   def setIntentionActionsFilter(filter: IntentionActionsFilter) {this.filter = filter}
 
   def getIntentionActionsFilter: IntentionActionsFilter = filter
+
+  override def isScriptFile: Boolean = false
 }

@@ -18,7 +18,7 @@ import lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
  * Macro for suggesting name.
  */
 class SuggestScalaVariableNameMacro extends Macro {
-  def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     val a = SuggestNamesUtil.getNames(params, context)
     if (a.length < 2) return null
     a.map((s: String) => new LookupItem(s, s))
@@ -34,9 +34,11 @@ class SuggestScalaVariableNameMacro extends Macro {
 
   def getName: String = "suggestScalaVariableName"
 
-  def getDefaultValue: String = "value"
+  override def getDefaultValue: String = "value"
 
-  def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = null
+  override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = null
+
+  def getPresentableName: String = "Suggest Scala variable macro"
 }
 
 object SuggestNamesUtil {

@@ -29,7 +29,9 @@ import com.intellij.psi.{PsiClass, PsiDocumentManager}
  * of given class type (or class types).
  */
 class ScalaVariableOfTypeMacro extends Macro {
-  def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+  def getPresentableName: String = "Scala variable of type macro"
+
+  override def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     calculateLookupItems(exprs.map(_.calculateResult(context).toString()), context, false)
   }
   def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
@@ -146,12 +148,12 @@ class ScalaVariableOfTypeMacro extends Macro {
     }
   }
 
-  def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
+  override def calculateQuickResult(p1: Array[Expression], p2: ExpressionContext): Result = null
 
   def getDescription: String = CodeInsightBundle.message("macro.variable.of.type")
 
   def getName: String = "scalaVariableOfType"
 
-  def getDefaultValue: String = "x"
+  override def getDefaultValue: String = "x"
 
 }
